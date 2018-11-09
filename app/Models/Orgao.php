@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Orgao extends Model
 {
     use CrudTrait;
-
+    use SoftDeletes;
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -19,7 +20,7 @@ class Orgao extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = ['codigo', 'orgaosup_id', 'nome', 'codigosiasg', 'situacao'];
+    protected $fillable = ['codigo', 'orgaosuperior_id', 'nome', 'codigosiasg', 'situacao'];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -34,7 +35,17 @@ class Orgao extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function orgaosuperior(){
 
+        return $this->belongsTo(Orgaosuperior::class, 'orgaosuperior_id');
+
+    }
+
+    public function unidade(){
+
+        return $this->hasMany(Unidade::class, 'orgao_id');
+
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

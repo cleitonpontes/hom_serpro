@@ -34,7 +34,11 @@ class Unidade extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function orgao(){
 
+        return $this->belongsTo(Orgao::class, 'orgao_id');
+
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES
