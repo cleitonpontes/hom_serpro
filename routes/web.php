@@ -12,5 +12,5 @@
 */
 
 Route::get('/', function () {
-    return redirect('/inicio');
+    return redirect('/sc');
 });

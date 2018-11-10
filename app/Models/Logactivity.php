@@ -4,15 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-use Spatie\Activitylog\Traits\LogsActivity;
 
-class Unidade extends Model
+class Logactivity extends Model
 {
-
-    use LogsActivity;
-    protected static $logFillable = true;
-    protected static $logName = 'unidade';
-
     use CrudTrait;
 
     /*
@@ -21,11 +15,11 @@ class Unidade extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'unidades';
+    protected $table = 'activity_log';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = ['orgao_id', 'codigo', 'codigosiasg', 'nome', 'nomeresumido', 'telefone', 'tipo', 'situacao'];
+    protected $fillable = [];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -40,11 +34,7 @@ class Unidade extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function orgao(){
 
-        return $this->belongsTo(Orgao::class, 'orgao_id');
-
-    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

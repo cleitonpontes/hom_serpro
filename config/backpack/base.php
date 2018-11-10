@@ -12,7 +12,7 @@ return [
     */
 
     // Project name. Shown in the breadcrumbs and a few other places.
-    'project_name' => 'Backpack',
+    'project_name' => 'Sistema Conta',
 
     // Menu logos
     'logo_lg'   => '<img src="/img/conta_lg.png" alt="{!! env(\'APP_NAME\') !!}" height="40" width="40">&nbsp;<img src="/img/conta_nome.png" alt="{!! env(\'APP_NAME\') !!}" height="40">',
@@ -66,7 +66,7 @@ return [
 
     // The prefix used in all base routes (the 'admin' in admin/dashboard)
     // You can make sure all your URLs use this prefix by using the backpack_url() helper instead of url()
-    'route_prefix' => 'inicio',
+    'route_prefix' => 'sc',
 
     // Set this to false if you would like to use your own AuthController and PasswordController
     // (you then need to setup your auth routes manually in your routes.php file)

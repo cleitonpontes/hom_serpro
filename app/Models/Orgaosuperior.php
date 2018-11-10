@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Orgaosuperior extends Model
 {
+    use LogsActivity;
+    protected static $logFillable = true;
+    protected static $logName = 'orgaosuperior';
     use CrudTrait;
 
     /*
