@@ -33,7 +33,23 @@ class LogactivityCrudController extends CrudController
         */
 
         // TODO: remove setFromDb() and manually define Fields and Columns
-        $this->crud->setFromDb();
+//        $this->crud->setFromDb();
+        $this->crud->setColumns([
+            'id',
+            'log_name',
+            'description',
+            'subject_id',
+            'subject_type',
+            'causer_id',
+            'causer_type',
+            'properties',
+            'created_at',
+            'updated_at'
+        ]);
+
+        $this->crud->removeAllButtons();
+
+//        $this->crud->removeColumn('action');
 
         // add asterisk for fields that are required in LogactivityRequest
 //        $this->crud->setRequiredFields(StoreRequest::class, 'create');
