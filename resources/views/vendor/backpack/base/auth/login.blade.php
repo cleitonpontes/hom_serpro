@@ -15,7 +15,7 @@
                             <label class="col-md-4 control-label">{{ config('backpack.base.authentication_column_name') }}</label>
 
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="{{ $username }}" value="{{ old($username) }}">
+                                <input type="text" class="form-control" id="cpf" name="{{ $username }}" value="{{ old($username) }}">
 
                                 @if ($errors->has($username))
                                     <span class="help-block">
@@ -64,5 +64,10 @@
                 </div>
             </div>
         </div>
+        @push('after_scripts')
+            <script type="text/javascript">
+                $('#cpf').mask('999.999.999-99');
+            </script>
+        @endpush
     </div>
 @endsection

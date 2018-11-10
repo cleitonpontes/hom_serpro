@@ -4,6 +4,7 @@ namespace App;
 
 use Backpack\CRUD\CrudTrait; // <------------------------------- this one
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;// <---------------------- and this one
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -19,7 +20,7 @@ class User extends Authenticatable
     use CrudTrait; // <----- this
     use HasRoles; // <------ and this
     use Notifiable;
-
+    protected $guard_name = 'web';
     /**
      * The attributes that are mass assignable.
      *
@@ -37,4 +38,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+//    public function roles()
+//    {
+//        return $this->belongsToMany(Role::class);
+//    }
 }
