@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Orgaosuperior extends Model
@@ -12,6 +13,7 @@ class Orgaosuperior extends Model
     protected static $logFillable = true;
     protected static $logName = 'orgaosuperior';
     use CrudTrait;
+    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------

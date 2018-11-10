@@ -33,7 +33,60 @@ class UnidadeCrudController extends CrudController
         */
 
         // TODO: remove setFromDb() and manually define Fields and Columns
-        $this->crud->setFromDb();
+//        $this->crud->setFromDb();
+        $this->crud->setColumns(['codigo', 'codigosiasg', 'nome', 'orgaosuperior_id','situacao']);
+        $this->crud->addField([
+            'name' => 'codigo',
+            'type' => 'number',
+            'label' => "Código SIAFI"
+        ]);
+        $this->crud->addField([
+            'name' => 'codigosiasg',
+            'type' => 'number',
+            'label' => "Código SIASG"
+        ]);
+        $this->crud->addField([
+            'name' => 'nome',
+            'type' => 'text',
+            'label' => "Nome"
+        ]);
+        $this->crud->addField([
+            'name' => 'nomeresumido',
+            'type' => 'text',
+            'label' => "Nome Resumido"
+        ]);
+        $this->crud->addField([
+            'name' => 'telefone',
+            'type' => 'text',
+            'label' => "Telefone"
+        ]);
+
+        $this->crud->addField([
+            'name' => 'tipo',
+            'label' => "Tipo",
+            'type' => 'select_from_array',
+            'options' => ['UC' => 'Unidade Controle', 'UGE' => 'Unidade Gestora Executora'],
+            'allows_null' => true,
+//            'default' => 'UGE',
+        ]);
+
+        $this->crud->addField([  // Select
+            'label' => "Órgão",
+            'type' => 'select2',
+            'name' => 'orgao_id', // the db column for the foreign key
+            'entity' => 'orgao', // the method that defines the relationship in your Model
+            'attribute' => 'nome', // foreign key attribute that is shown to user
+            'model' => "App\Models\Orgao" // foreign key model
+        ]);
+
+        $this->crud->addField([
+            'name' => 'situacao',
+            'label' => "Situação",
+            'type' => 'select_from_array',
+            'options' => ['A' => 'Ativo', 'I' => 'Inativo'],
+            'allows_null' => false,
+            'default' => 'A',
+        ]);
 
         // add asterisk for fields that are required in UnidadeRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');

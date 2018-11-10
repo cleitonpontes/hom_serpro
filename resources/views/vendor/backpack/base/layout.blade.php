@@ -134,7 +134,7 @@
     <script src="{{ asset('vendor/adminlte') }}/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
     {{-- <script src="{{ asset('vendor/adminlte') }}/bower_components/fastclick/lib/fastclick.js"></script> --}}
     <script src="{{ asset('vendor/adminlte') }}/dist/js/adminlte.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.js" type="text/javascript"></script>
+    <script src="{{asset('/js/jquery.maskedinput.js')}}" type="text/javascript"></script>
     <!-- page script -->
     <script type="text/javascript">
         /* Store sidebar state */
