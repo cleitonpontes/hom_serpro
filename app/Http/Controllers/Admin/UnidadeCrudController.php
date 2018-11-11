@@ -38,27 +38,32 @@ class UnidadeCrudController extends CrudController
         $this->crud->addField([
             'name' => 'codigo',
             'type' => 'number',
-            'label' => "Código SIAFI"
+            'label' => "Código SIAFI",
+            'tab' => "Dados Gerais"
         ]);
         $this->crud->addField([
             'name' => 'codigosiasg',
             'type' => 'number',
-            'label' => "Código SIASG"
+            'label' => "Código SIASG",
+            'tab' => "Dados Gerais"
         ]);
         $this->crud->addField([
             'name' => 'nome',
             'type' => 'text',
-            'label' => "Nome"
+            'label' => "Nome",
+            'tab' => "Dados Gerais"
         ]);
         $this->crud->addField([
             'name' => 'nomeresumido',
             'type' => 'text',
-            'label' => "Nome Resumido"
+            'label' => "Nome Resumido",
+            'tab' => "Dados Gerais"
         ]);
         $this->crud->addField([
             'name' => 'telefone',
             'type' => 'text',
-            'label' => "Telefone"
+            'label' => "Telefone",
+            'tab' => "Dados Gerais"
         ]);
 
         $this->crud->addField([
@@ -67,7 +72,7 @@ class UnidadeCrudController extends CrudController
             'type' => 'select_from_array',
             'options' => ['UC' => 'Unidade Controle', 'UGE' => 'Unidade Gestora Executora'],
             'allows_null' => true,
-//            'default' => 'UGE',
+            'tab' => "Outros Dados"
         ]);
 
         $this->crud->addField([  // Select
@@ -76,7 +81,8 @@ class UnidadeCrudController extends CrudController
             'name' => 'orgao_id', // the db column for the foreign key
             'entity' => 'orgao', // the method that defines the relationship in your Model
             'attribute' => 'nome', // foreign key attribute that is shown to user
-            'model' => "App\Models\Orgao" // foreign key model
+            'model' => "App\Models\Orgao", // foreign key model
+            'tab' => "Outros Dados"
         ]);
 
         $this->crud->addField([
@@ -86,11 +92,13 @@ class UnidadeCrudController extends CrudController
             'options' => ['A' => 'Ativo', 'I' => 'Inativo'],
             'allows_null' => false,
             'default' => 'A',
+            'tab' => "Outros Dados"
         ]);
 
         // add asterisk for fields that are required in UnidadeRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+        $this->crud->enableExportButtons();
     }
 
     public function store(StoreRequest $request)
