@@ -26,7 +26,10 @@ class UsuarioRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'cpf' => 'required|cpf|unique:users,cpf',
+            'name' => 'required|max:255',
+            'ugprimaria' => 'max:6',
+            'email' => 'required|email|max:255|unique:users,email'
         ];
     }
 
@@ -50,7 +53,12 @@ class UsuarioRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'name.required' => 'O Nome é um campo obrigatório!',
+            'username.required' => 'O CPF é um campo obrigatório!',
+            'username.unique' => 'Este CPF já está cadastrado!',
+            'email.required' => 'O E-mail é um campo obrigatório!',
+            'email.unique' => 'Este E-mail já está cadastrado!',
+            'username.cpf' => 'O CPF informado não é válido!'
         ];
     }
 }

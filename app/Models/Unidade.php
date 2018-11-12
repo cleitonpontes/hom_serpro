@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -46,6 +47,12 @@ class Unidade extends Model
         return $this->belongsTo(Orgao::class, 'orgao_id');
 
     }
+
+    public function users(){
+
+        return $this->belongsToMany(User::class, 'unidade_user', 'unidade_id', 'user_id');
+
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -57,7 +64,10 @@ class Unidade extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
-
+    public function getCodigoAndNomeAttribute()
+    {
+        return $this->codigo.' - '.$this->nome;
+    }
     /*
     |--------------------------------------------------------------------------
     | MUTATORS

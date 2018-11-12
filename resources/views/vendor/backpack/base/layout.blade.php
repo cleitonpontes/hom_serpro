@@ -136,6 +136,8 @@
     <script src="{{ asset('vendor/adminlte') }}/dist/js/adminlte.min.js"></script>
     <script src="{{asset('/js/jquery.maskedinput.js')}}" type="text/javascript"></script>
     <!-- page script -->
+
+
     <script type="text/javascript">
         /* Store sidebar state */
         $('.sidebar-toggle').click(function(event) {

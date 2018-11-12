@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\Unidade;
 use Backpack\CRUD\CrudTrait; // <------------------------------- this one
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Models\Role;
@@ -20,6 +21,7 @@ class User extends Authenticatable
     use CrudTrait; // <----- this
     use HasRoles; // <------ and this
     use Notifiable;
+    protected $table = 'users';
     protected $guard_name = 'web';
     /**
      * The attributes that are mass assignable.
@@ -39,8 +41,14 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-//    public function roles()
-//    {
-//        return $this->belongsToMany(Role::class);
-//    }
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function unidades(){
+
+        return $this->belongsToMany(Unidade::class, 'unidade_user', 'user_id', 'unidade_id');
+
+    }
 }
