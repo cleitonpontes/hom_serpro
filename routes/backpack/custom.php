@@ -15,4 +15,5 @@ Route::group([
     CRUD::resource('orgao', 'OrgaoCrudController');
     CRUD::resource('unidade', 'UnidadeCrudController');
     CRUD::resource('logactivity', 'LogactivityCrudController');
+    CRUD::resource('usuario', 'UsuarioCrudController');
 }); // this should be the absolute last line of this file
