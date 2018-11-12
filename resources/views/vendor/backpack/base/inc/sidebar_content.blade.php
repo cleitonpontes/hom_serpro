@@ -17,7 +17,7 @@
         <li class="treeview">
             <a href="#"><i class='fa fa-lock'></i> <span>Acesso</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-                <li><a href="{{ backpack_url('user') }}"><i class="fa fa-user"></i> <span>Usuários</span></a></li>
+                <li><a href="{{ backpack_url('usuario') }}"><i class="fa fa-user"></i> <span>Usuários</span></a></li>
                 <li><a href="{{ backpack_url('role') }}"><i class="fa fa-group"></i> <span>Grupos</span></a></li>
                 <li><a href="{{ backpack_url('permission') }}"><i class="fa fa-key"></i> <span>Permissões</span></a></li>
             </ul>
