@@ -25,11 +25,13 @@ class UsuarioRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+
         return [
-            'cpf' => 'required|cpf|unique:users,cpf',
+            'cpf' => "required|cpf|unique:users,cpf,{$id}",
             'name' => 'required|max:255',
             'ugprimaria' => 'max:6',
-            'email' => 'required|email|max:255|unique:users,email'
+            'email' => "required|email|max:255|unique:users,email,{$id}"
         ];
     }
 
@@ -54,8 +56,8 @@ class UsuarioRequest extends FormRequest
     {
         return [
             'name.required' => 'O Nome é um campo obrigatório!',
-            'username.required' => 'O CPF é um campo obrigatório!',
-            'username.unique' => 'Este CPF já está cadastrado!',
+            'cpf.required' => 'O CPF é um campo obrigatório!',
+            'cpf.unique' => 'Este CPF já está cadastrado!',
             'email.required' => 'O E-mail é um campo obrigatório!',
             'email.unique' => 'Este E-mail já está cadastrado!',
             'username.cpf' => 'O CPF informado não é válido!'
