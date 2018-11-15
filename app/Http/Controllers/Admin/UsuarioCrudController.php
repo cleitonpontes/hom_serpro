@@ -92,7 +92,7 @@ class UsuarioCrudController extends CrudController
             'attribute' => 'nome', // foreign key attribute that is shown to user
             'model' => "App\Models\Unidade", // foreign key model
             'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
-            'select_all' => true, // show Select All and Clear buttons?
+            'select_all' => false, // show Select All and Clear buttons?
             'tab' => "Outras Informações"
         ]);
 
