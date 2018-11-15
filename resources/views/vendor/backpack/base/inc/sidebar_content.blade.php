@@ -10,10 +10,10 @@
             <a href="#"><i class='fa fa-bank'></i> <span>Estrutura</span> <i
                         class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-                {{--@can('administracao_orgaosuperior_acesso')--}}
+                @can('administracao_orgaosuperior_acesso')
                     <li><a href="{{ backpack_url('orgaosuperior') }}"><i class="fa fa-building"></i> <span>Órgão Superior</span></a>
                     </li>
-                {{--@endcan--}}
+                @endcan
                 <li><a href="{{ backpack_url('orgao') }}"><i class="fa fa-building"></i> <span>Órgão</span></a></li>
                 <li><a href="{{ backpack_url('unidade') }}"><i class="fa fa-building"></i> <span>Unidade</span></a></li>
             </ul>
