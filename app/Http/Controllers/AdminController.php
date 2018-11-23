@@ -22,7 +22,7 @@ class AdminController extends Controller
     public function index()
     {
         $this->data['title'] = "Início";//trans('backpack::base.dashboard'); // set the page title
-
+        
         return view('backpack::dashboard', $this->data);
     }
 

@@ -67,13 +67,9 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-<<<<<<< HEAD
 //            'model' => App\User::class,
             'model' => App\Models\BackpackUser::class,
-=======
-            'model' => App\User::class,
-//            'model' => Backpack\Base\app\Models\BackpackUser::class,
->>>>>>> 66b96f3f56b1215713dddebf73395750a4cceaa7
+
         ],
 
         // 'users' => [
