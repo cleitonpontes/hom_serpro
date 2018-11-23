@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f5ad53482e4f0fbb00a7f9e73953c0a6",
+    "content-hash": "d423c33f040d8e1d059946cb26a202f8",
     "packages": [
         {
             "name": "almasaeed2010/adminlte",
@@ -101,24 +101,25 @@
         },
         {
             "name": "backpack/base",
-            "version": "0.9.12",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Backpack/Base.git",
-                "reference": "60b849fae038d045c622cdfff2e407be917df31e"
+                "reference": "ac520996e592fbed8f8ad1b61f7681ed8677cf6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Backpack/Base/zipball/60b849fae038d045c622cdfff2e407be917df31e",
-                "reference": "60b849fae038d045c622cdfff2e407be917df31e",
+                "url": "https://api.github.com/repos/Laravel-Backpack/Base/zipball/ac520996e592fbed8f8ad1b61f7681ed8677cf6b",
+                "reference": "ac520996e592fbed8f8ad1b61f7681ed8677cf6b",
                 "shasum": ""
             },
             "require": {
                 "almasaeed2010/adminlte": "2.4.*",
                 "creativeorange/gravatar": "~1.0",
                 "jenssegers/date": "^3.2",
-                "laravel/framework": "5.5.*|5.6.*|5.7.*",
-                "prologue/alerts": "^0.4.1"
+                "laravel/framework": "5.6.*|5.7.*",
+                "prologue/alerts": "^0.4.1",
+                "tightenco/parental": "0.5"
             },
             "require-dev": {
                 "backpack/generators": "^1.1",
@@ -161,24 +162,24 @@
                 "backpack",
                 "base"
             ],
-            "time": "2018-10-26T07:07:56+00:00"
+            "time": "2018-11-22T20:37:26+00:00"
         },
         {
             "name": "backpack/crud",
-            "version": "3.4.41",
+            "version": "3.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Backpack/CRUD.git",
-                "reference": "7d4f4c5d5f8627fb911386069e02620ae7d05a52"
+                "reference": "d84ca2367c00257d3c0489288d7b306d4587b355"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Backpack/CRUD/zipball/7d4f4c5d5f8627fb911386069e02620ae7d05a52",
-                "reference": "7d4f4c5d5f8627fb911386069e02620ae7d05a52",
+                "url": "https://api.github.com/repos/Laravel-Backpack/CRUD/zipball/d84ca2367c00257d3c0489288d7b306d4587b355",
+                "reference": "d84ca2367c00257d3c0489288d7b306d4587b355",
                 "shasum": ""
             },
             "require": {
-                "backpack/base": "^0.9.0",
+                "backpack/base": "^1.0.0",
                 "doctrine/dbal": "^2.5",
                 "guzzlehttp/guzzle": "^6.3",
                 "intervention/image": "^2.3",
@@ -236,24 +237,24 @@
                 "read",
                 "update"
             ],
-            "time": "2018-11-14T15:23:18+00:00"
+            "time": "2018-11-23T13:23:06+00:00"
         },
         {
             "name": "backpack/logmanager",
-            "version": "2.3.23",
+            "version": "2.3.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Backpack/LogManager.git",
-                "reference": "fa1870b0a9cd39a582ca5d59be833f0603bbd894"
+                "reference": "6153adced93646df748d6571aad5cb039469389f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Backpack/LogManager/zipball/fa1870b0a9cd39a582ca5d59be833f0603bbd894",
-                "reference": "fa1870b0a9cd39a582ca5d59be833f0603bbd894",
+                "url": "https://api.github.com/repos/Laravel-Backpack/LogManager/zipball/6153adced93646df748d6571aad5cb039469389f",
+                "reference": "6153adced93646df748d6571aad5cb039469389f",
                 "shasum": ""
             },
             "require": {
-                "backpack/base": "0.9.*",
+                "backpack/base": "0.9.*|1.0.*",
                 "illuminate/support": "~5.1",
                 "php": ">=5.4.0"
             },
@@ -298,7 +299,7 @@
                 "log manager",
                 "logs"
             ],
-            "time": "2018-10-15T04:33:24+00:00"
+            "time": "2018-11-22T21:27:45+00:00"
         },
         {
             "name": "backpack/permissionmanager",
@@ -1621,33 +1622,34 @@
         },
         {
             "name": "jakub-onderka/php-console-highlighter",
-            "version": "v0.3.2",
+            "version": "v0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JakubOnderka/PHP-Console-Highlighter.git",
-                "reference": "7daa75df45242c8d5b75a22c00a201e7954e4fb5"
+                "reference": "9f7a229a69d52506914b4bc61bfdb199d90c5547"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JakubOnderka/PHP-Console-Highlighter/zipball/7daa75df45242c8d5b75a22c00a201e7954e4fb5",
-                "reference": "7daa75df45242c8d5b75a22c00a201e7954e4fb5",
+                "url": "https://api.github.com/repos/JakubOnderka/PHP-Console-Highlighter/zipball/9f7a229a69d52506914b4bc61bfdb199d90c5547",
+                "reference": "9f7a229a69d52506914b4bc61bfdb199d90c5547",
                 "shasum": ""
             },
             "require": {
-                "jakub-onderka/php-console-color": "~0.1",
-                "php": ">=5.3.0"
+                "ext-tokenizer": "*",
+                "jakub-onderka/php-console-color": "~0.2",
+                "php": ">=5.4.0"
             },
             "require-dev": {
                 "jakub-onderka/php-code-style": "~1.0",
-                "jakub-onderka/php-parallel-lint": "~0.5",
+                "jakub-onderka/php-parallel-lint": "~1.0",
                 "jakub-onderka/php-var-dump-check": "~0.1",
                 "phpunit/phpunit": "~4.0",
                 "squizlabs/php_codesniffer": "~1.5"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "JakubOnderka\\PhpConsoleHighlighter": "src/"
+                "psr-4": {
+                    "JakubOnderka\\PhpConsoleHighlighter\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1661,7 +1663,8 @@
                     "homepage": "http://www.acci.cz/"
                 }
             ],
-            "time": "2015-04-20T18:58:01+00:00"
+            "description": "Highlight PHP code in terminal",
+            "time": "2018-09-29T18:48:56+00:00"
         },
         {
             "name": "jenssegers/date",
@@ -1730,16 +1733,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v5.7.13",
+            "version": "v5.7.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "3ff3110ac14f2b4876acaff289bb55a1af74f02e"
+                "reference": "ad6c1fe1e455c0f73a431928282704879ccbd856"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/3ff3110ac14f2b4876acaff289bb55a1af74f02e",
-                "reference": "3ff3110ac14f2b4876acaff289bb55a1af74f02e",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/ad6c1fe1e455c0f73a431928282704879ccbd856",
+                "reference": "ad6c1fe1e455c0f73a431928282704879ccbd856",
                 "shasum": ""
             },
             "require": {
@@ -1870,7 +1873,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2018-11-07T12:41:02+00:00"
+            "time": "2018-11-21T13:46:08+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -2146,16 +2149,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.35.0",
+            "version": "1.36.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "3c0342ed6cb7c770d0c33595c51c286716552f65"
+                "reference": "63da8cdf89d7a5efe43aabc794365f6e7b7b8983"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/3c0342ed6cb7c770d0c33595c51c286716552f65",
-                "reference": "3c0342ed6cb7c770d0c33595c51c286716552f65",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/63da8cdf89d7a5efe43aabc794365f6e7b7b8983",
+                "reference": "63da8cdf89d7a5efe43aabc794365f6e7b7b8983",
                 "shasum": ""
             },
             "require": {
@@ -2200,7 +2203,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2018-11-14T12:39:51+00:00"
+            "time": "2018-11-22T18:23:02+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -2625,16 +2628,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.0.2",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
+                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
-                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
                 "shasum": ""
             },
             "require": {
@@ -2668,7 +2671,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2016-10-10T12:19:37+00:00"
+            "time": "2018-11-20T15:27:04+00:00"
         },
         {
             "name": "psr/simple-cache",
@@ -2946,16 +2949,16 @@
         },
         {
             "name": "spatie/laravel-permission",
-            "version": "2.25.0",
+            "version": "2.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-permission.git",
-                "reference": "6b41d1d1726d432342546f9d3c79144b082812dc"
+                "reference": "8443660fc02a13e9c6b73baa369dc1999afe9025"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/6b41d1d1726d432342546f9d3c79144b082812dc",
-                "reference": "6b41d1d1726d432342546f9d3c79144b082812dc",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/8443660fc02a13e9c6b73baa369dc1999afe9025",
+                "reference": "8443660fc02a13e9c6b73baa369dc1999afe9025",
                 "shasum": ""
             },
             "require": {
@@ -2967,7 +2970,8 @@
             },
             "require-dev": {
                 "orchestra/testbench": "~3.4.2|~3.5.0|~3.6.0|~3.7.0",
-                "phpunit/phpunit": "^5.7|6.2|^7.0"
+                "phpunit/phpunit": "^5.7|6.2|^7.0",
+                "predis/predis": "^1.1"
             },
             "type": "library",
             "extra": {
@@ -3006,7 +3010,7 @@
                 "security",
                 "spatie"
             ],
-            "time": "2018-11-07T22:48:36+00:00"
+            "time": "2018-11-21T16:41:38+00:00"
         },
         {
             "name": "spatie/string",
@@ -4051,6 +4055,46 @@
             "time": "2018-10-02T16:36:10+00:00"
         },
         {
+            "name": "tightenco/parental",
+            "version": "v0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tightenco/parental.git",
+                "reference": "7e0f8abecccbbc160b7af099cc1b1ded75d6c2f6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tightenco/parental/zipball/7e0f8abecccbbc160b7af099cc1b1ded75d6c2f6",
+                "reference": "7e0f8abecccbbc160b7af099cc1b1ded75d6c2f6",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "~5.6.0|~5.7.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "3.7.*",
+                "phpunit/phpunit": "^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tightenco\\Parental\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Caleb Porzio",
+                    "email": "calebporzio@gmail.com"
+                }
+            ],
+            "description": "A simple eloquent trait that allows relationships to be accessed through child models.",
+            "time": "2018-09-06T13:02:30+00:00"
+        },
+        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "2.2.1",
             "source": {
@@ -4199,20 +4243,20 @@
     "packages-dev": [
         {
             "name": "backpack/generators",
-            "version": "1.2.4",
+            "version": "1.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Backpack/Generators.git",
-                "reference": "a2a743fea10320be0d810df5e0e79834eca055e4"
+                "reference": "cb6d3ebbc469a7d2ced7e37964de459db8ba021f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Backpack/Generators/zipball/a2a743fea10320be0d810df5e0e79834eca055e4",
-                "reference": "a2a743fea10320be0d810df5e0e79834eca055e4",
+                "url": "https://api.github.com/repos/Laravel-Backpack/Generators/zipball/cb6d3ebbc469a7d2ced7e37964de459db8ba021f",
+                "reference": "cb6d3ebbc469a7d2ced7e37964de459db8ba021f",
                 "shasum": ""
             },
             "require": {
-                "backpack/base": "^0.9.0"
+                "backpack/base": "0.9.*|1.0.*"
             },
             "require-dev": {
                 "phpunit/phpunit": "4.*",
@@ -4255,7 +4299,7 @@
                 "request",
                 "view"
             ],
-            "time": "2018-08-27T05:25:21+00:00"
+            "time": "2018-11-22T21:14:13+00:00"
         },
         {
             "name": "beyondcode/laravel-dump-server",
@@ -4697,26 +4741,27 @@
         },
         {
             "name": "nunomaduro/collision",
-            "version": "v2.1.0",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nunomaduro/collision.git",
-                "reference": "1149ad9f36f61b121ae61f5f6de820fc77b51e6b"
+                "reference": "b5feb0c0d92978ec7169232ce5d70d6da6b29f63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nunomaduro/collision/zipball/1149ad9f36f61b121ae61f5f6de820fc77b51e6b",
-                "reference": "1149ad9f36f61b121ae61f5f6de820fc77b51e6b",
+                "url": "https://api.github.com/repos/nunomaduro/collision/zipball/b5feb0c0d92978ec7169232ce5d70d6da6b29f63",
+                "reference": "b5feb0c0d92978ec7169232ce5d70d6da6b29f63",
                 "shasum": ""
             },
             "require": {
                 "filp/whoops": "^2.1.4",
-                "jakub-onderka/php-console-highlighter": "0.3.*",
+                "jakub-onderka/php-console-highlighter": "0.3.*|0.4.*",
                 "php": "^7.1",
                 "symfony/console": "~2.8|~3.3|~4.0"
             },
             "require-dev": {
                 "laravel/framework": "5.7.*",
+                "nunomaduro/larastan": "^0.3.0",
                 "phpstan/phpstan": "^0.10",
                 "phpunit/phpunit": "~7.3"
             },
@@ -4756,7 +4801,7 @@
                 "php",
                 "symfony"
             ],
-            "time": "2018-10-03T20:01:54+00:00"
+            "time": "2018-11-21T21:40:54+00:00"
         },
         {
             "name": "phar-io/manifest",

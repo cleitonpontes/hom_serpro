@@ -27,48 +27,74 @@
                     <li><a href="{{ route('backpack.auth.register') }}">{{ trans('backpack::base.register') }}</a></li>
             @endif
         @else
-            @php
-                $user = \Illuminate\Support\Facades\Auth::user();
-                $totalmsg = $user->unreadNotifications()->count();
-            @endphp
-            <!-- Notifications Menu -->
+            <!-- Notifications: style can be found in dropdown.less -->
                 <li class="dropdown notifications-menu">
-                    <!-- Menu toggle button -->
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Mensagens">
-                        <i class="fa fa-envelope-o"></i>
-                        <span class="label label-warning">{{$totalmsg}}</span>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-bell-o"></i>
+                        <span class="label label-warning">{{\App\Helpers\AdminHelper::unreadNotificationsCount()}}</span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class="header">{{ str_replace('$', $totalmsg, 'Você possui $ mensagens') }}</li>
-                        <li>
-                            <!-- Inner Menu: contains the notifications -->
-                            @if($totalmsg > 0)
+                        <li class="header">Você possui {{\App\Helpers\AdminHelper::unreadNotificationsCount()}} notificações</li>
+                        @if(\App\Helpers\AdminHelper::unreadNotificationsCount() > 0)
+                            <li>
+                                <!-- inner menu: contains the actual data -->
                                 <ul class="menu">
-                                    @foreach($user->unreadNotifications as $notification)
-                                        @php
-                                            $texto = new \Html2Text\Html2Text($notification->data['texto']);
-                                        @endphp
-                                        <li><!-- start notification -->
-                                            <a href="/inicio/mensagem/{{$notification->id}}">
-                                                <i class="fa fa-envelope-o text-aqua"></i> {{$notification->data['assunto']}}
-                                                <br> {!! substr(ucfirst(strtolower(mb_convert_encoding($texto->getText(),'HTML-ENTITIES','UTF-8'))),0,40).' ...' !!}
+                                    @foreach (\App\Helpers\AdminHelper::unreadNotifications() as $notification)
+                                        <li>
+                                            <a href="{{$notification->markAsRead()}}">
+                                                <i class="fa {{$notification['data']['icon']}} text-aqua"></i> {{$notification['data']['message']}}
                                             </a>
-                                        </li><!-- end notification -->
+                                        </li>
                                     @endforeach
                                 </ul>
-                            @endif
-                        </li>
-                        @if($totalmsg > 0)
-                            <li class="footer"><a
-                                        href="/inicio/mensagens/lertodas/{{$user->id}}">{{ trans('adminlte_lang::message.readall') }}</a>
                             </li>
-                        @else
-                            <li class="footer">
-                                <div align="center"> Nada pendente</div>
-                            </li>
+                            <li class="footer"><a href="#">Ver todas</a></li>
                         @endif
                     </ul>
                 </li>
+            {{--@php--}}
+                {{--$user = \backpack_auth();--}}
+                {{----}}
+                {{--$totalmsg = $user->unreadNotifications()->count();;--}}
+            {{--@endphp--}}
+            {{--<!-- Notifications Menu -->--}}
+                {{--<li class="dropdown notifications-menu">--}}
+                    {{--<!-- Menu toggle button -->--}}
+                    {{--<a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Mensagens">--}}
+                        {{--<i class="fa fa-envelope-o"></i>--}}
+                        {{--<span class="label label-warning">{{$totalmsg}}</span>--}}
+                    {{--</a>--}}
+                    {{--<ul class="dropdown-menu">--}}
+                        {{--<li class="header">{{ str_replace('$', $totalmsg, 'Você possui $ mensagens') }}</li>--}}
+                        {{--<li>--}}
+                            {{--<!-- Inner Menu: contains the notifications -->--}}
+                            {{--@if($totalmsg > 0)--}}
+                                {{--<ul class="menu">--}}
+                                    {{--@foreach($user->unreadNotifications as $notification)--}}
+                                        {{--@php--}}
+                                            {{--$texto = new \Html2Text\Html2Text($notification->data['texto']);--}}
+                                        {{--@endphp--}}
+                                        {{--<li><!-- start notification -->--}}
+                                            {{--<a href="/inicio/mensagem/{{$notification->id}}">--}}
+                                                {{--<i class="fa fa-envelope-o text-aqua"></i> {{$notification->data['assunto']}}--}}
+                                                {{--<br> {!! substr(ucfirst(strtolower(mb_convert_encoding($texto->getText(),'HTML-ENTITIES','UTF-8'))),0,40).' ...' !!}--}}
+                                            {{--</a>--}}
+                                        {{--</li><!-- end notification -->--}}
+                                    {{--@endforeach--}}
+                                {{--</ul>--}}
+                            {{--@endif--}}
+                        {{--</li>--}}
+                        {{--@if($totalmsg > 0)--}}
+                            {{--<li class="footer"><a--}}
+                                        {{--href="/inicio/mensagens/lertodas/{{$user->id}}">{{ trans('adminlte_lang::message.readall') }}</a>--}}
+                            {{--</li>--}}
+                        {{--@else--}}
+                            {{--<li class="footer">--}}
+                                {{--<div align="center"> Nada pendente</div>--}}
+                            {{--</li>--}}
+                        {{--@endif--}}
+                    {{--</ul>--}}
+                {{--</li>--}}
                 <li class="dropdown">
                     {{--<a href="#" data-toggle="control-sidebar" title="Configurações"><i class="fa fa-gears"></i></a>--}}
                     {{--<li class="dropdown">--}}
