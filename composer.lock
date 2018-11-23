@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "d423c33f040d8e1d059946cb26a202f8",
@@ -2149,6 +2149,7 @@
         },
         {
             "name": "nesbot/carbon",
+<<<<<<< HEAD
             "version": "1.36.1",
             "source": {
                 "type": "git",
@@ -2159,6 +2160,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/63da8cdf89d7a5efe43aabc794365f6e7b7b8983",
                 "reference": "63da8cdf89d7a5efe43aabc794365f6e7b7b8983",
+=======
+            "version": "1.35.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/briannesbitt/Carbon.git",
+                "reference": "5c05a2be472b22f63291d192410df9f0e0de3b19"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/5c05a2be472b22f63291d192410df9f0e0de3b19",
+                "reference": "5c05a2be472b22f63291d192410df9f0e0de3b19",
+>>>>>>> 66b96f3f56b1215713dddebf73395750a4cceaa7
                 "shasum": ""
             },
             "require": {
@@ -2203,7 +2216,11 @@
                 "datetime",
                 "time"
             ],
+<<<<<<< HEAD
             "time": "2018-11-22T18:23:02+00:00"
+=======
+            "time": "2018-11-14T21:55:58+00:00"
+>>>>>>> 66b96f3f56b1215713dddebf73395750a4cceaa7
         },
         {
             "name": "nikic/php-parser",

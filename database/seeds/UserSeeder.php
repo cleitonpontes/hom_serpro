@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
     public function run()
     {
 
-        $user = \Backpack\Base\app\Models\BackpackUser::create([
+        $user = \App\User::create([
             'name' => 'Super Administrador',
             'cpf' => '111.111.111-11',
             'email' => 'sadmin@teste.com',
