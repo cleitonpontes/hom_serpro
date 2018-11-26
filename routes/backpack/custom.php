@@ -26,6 +26,8 @@ Route::group([
         Route::get('/', 'AdminController@redirect')->name('backpack');
         Route::get('/dashboard', 'AdminController@redirect')->name('backpack');
     }
+
+    CRUD::resource('activitylog', 'ActivitylogCrudController');
 });
 
 Route::prefix('admin')->group(function (){
@@ -36,7 +38,7 @@ Route::prefix('admin')->group(function (){
     ], function () { // custom admin routes
 
         CRUD::resource('usuario', 'UsuarioCrudController');
-        CRUD::resource('activitylog', 'ActivitylogCrudController');
+
 
     });
 

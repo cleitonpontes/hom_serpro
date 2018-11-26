@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -24,7 +24,7 @@ class ActivitylogCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Activitylog');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/activitylog');
-        $this->crud->setEntityNameStrings('activitylog', 'activitylogs');
+        $this->crud->setEntityNameStrings('activity_log', 'activity_logs');
 
         /*
         |--------------------------------------------------------------------------
@@ -47,6 +47,7 @@ class ActivitylogCrudController extends CrudController
         ]);
 
         $this->crud->removeAllButtons();
+        $this->crud->enableExportButtons();
     }
 
     public function store(StoreRequest $request)
