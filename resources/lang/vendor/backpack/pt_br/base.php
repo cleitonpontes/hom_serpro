@@ -26,8 +26,8 @@ return [
     'toggle_navigation'      => 'Alternar navegação',
     'administration'         => 'ADMINISTRAÇÃO',
     'user'                   => 'USUÁRIO',
-    'logout'                 => 'Logout',
-    'login'                  => 'Login',
+    'logout'                 => 'Sair da Aplicação',
+    'login'                  => 'Entrar',
     'register'               => 'Registrar',
     'name'                   => 'Nome',
     'email_address'          => 'E-Mail',
@@ -58,4 +58,7 @@ return [
     'account_updated'        => 'Conta atualizada com sucesso.',
     'unknown_error'          => 'Um erro desconhecido aconteceu. Por favor, tente novamente.',
     'error_saving'           => 'Erro ao salvar. Por favor, tente novamente.',
+    'step'           => 'Passo',
+    'confirm_email'           => 'Confirmar E-mail',
+    'choose_new_password'           => 'Entrar com nova Senha',
 ];

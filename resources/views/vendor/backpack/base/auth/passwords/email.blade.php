@@ -4,7 +4,12 @@
 @section('content')
     <div class="row m-t-40">
         <div class="col-md-4 col-md-offset-4">
-            <h3 class="text-center m-b-20">{{ trans('backpack::base.reset_password') }}</h3>
+            {{--<h3 class="text-center m-b-20">{{ trans('backpack::base.reset_password') }}</h3>--}}
+            <div class="login-logo">
+                <a href="{{ url('/inicio') }}">
+                    <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>"
+                         alt="{!! env('APP_NAME') !!}"><br><h5>{!! env('APP_NAME') !!} - {{ trans('backpack::base.reset_password') }}</h5></a>
+            </div>
             <div class="nav-steps-wrapper">
                 <ul class="nav nav-tabs nav-steps">
                   <li class="active"><a href="#tab_1" data-toggle="tab"><strong>{{ trans('backpack::base.step') }} 1.</strong> {{ trans('backpack::base.confirm_email') }}</a></li>
