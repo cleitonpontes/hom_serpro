@@ -4,13 +4,22 @@ namespace App\Models;
 
 use App\User;
 use Backpack\Base\app\Notifications\ResetPasswordNotification as ResetPasswordNotification;
+use Backpack\CRUD\CrudTrait;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Tightenco\Parental\HasParentModel;
 
 class BackpackUser extends User
 {
     use HasParentModel;
     use Notifiable;
+    use CrudTrait;
+    use LogsActivity;
+    protected static $logFillable = true;
+    protected static $logName = 'usuario';
+
+
+    protected $fillable = ['cpf', 'name', 'email', 'ugprimaria'];
 
     protected $table = 'users';
 

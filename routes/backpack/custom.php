@@ -15,7 +15,7 @@
 
 
 Route::group([
-    'prefix' => config('backpack.base.route_prefix', 'sc'),
+    'prefix' => config('backpack.base.route_prefix', ''),
     'middleware' => ['web', config('backpack.base.middleware_key', 'admin')],
     'namespace' => 'App\Http\Controllers',
 ], function () { // custom admin routes
@@ -26,4 +26,18 @@ Route::group([
         Route::get('/', 'AdminController@redirect')->name('backpack');
         Route::get('/dashboard', 'AdminController@redirect')->name('backpack');
     }
+});
+
+Route::prefix('admin')->group(function (){
+    Route::group([
+        'prefix' => config('backpack.base.route_prefix', 'admin'),
+        'middleware' => ['web', config('backpack.base.middleware_key', 'admin')],
+        'namespace' => 'App\Http\Controllers\Admin',
+    ], function () { // custom admin routes
+
+        CRUD::resource('usuario', 'UsuarioCrudController');
+        CRUD::resource('activitylog', 'ActivitylogCrudController');
+
+    });
+
 });
