@@ -30,7 +30,7 @@
                                 <div class="inner">
                                     <h3>7</h3>
 
-                                    <p>Novos Contratos a serem baixados</p>
+                                    <p>Novos Contratos</p>
                                 </div>
                                 <div class="icon">
                                     <i class="ion ion-ios-cloud-download"></i>
@@ -77,7 +77,7 @@
                                 <div class="inner">
                                     <h3>03</h3>
 
-                                    <p>Contratos vencidos e ativos</p>
+                                    <p>Contratos vencidos</p>
                                 </div>
                                 <div class="icon">
                                     <i class="ion ion-ios-close"></i>
