@@ -7,6 +7,7 @@ use Backpack\Base\app\Notifications\ResetPasswordNotification as ResetPasswordNo
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Traits\HasRoles;
 use Tightenco\Parental\HasParentModel;
 
 class BackpackUser extends User
@@ -14,7 +15,10 @@ class BackpackUser extends User
     use HasParentModel;
     use Notifiable;
     use CrudTrait;
+    use HasRoles;
     use LogsActivity;
+
+
     protected static $logFillable = true;
     protected static $logName = 'usuario';
 
