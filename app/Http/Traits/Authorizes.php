@@ -5,7 +5,7 @@
  * Date: 28/11/2018
  * Time: 15:58
  */
-namespace App\Auth;
+namespace App\Http\Traits;
 
 use Illuminate\Support\Facades\Redirect;
 
