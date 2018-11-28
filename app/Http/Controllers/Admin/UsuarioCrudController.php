@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Auth\Authorizes;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -15,8 +16,12 @@ use App\Http\Requests\UsuarioRequest as UpdateRequest;
  */
 class UsuarioCrudController extends CrudController
 {
+    use Authorizes;
+
     public function setup()
     {
+
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -45,6 +50,7 @@ class UsuarioCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        $this->authorizePermissions(['administracao_editar_usuario']);
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -54,6 +60,7 @@ class UsuarioCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $this->authorizePermissions(['administracao_editar_usuario']);
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
