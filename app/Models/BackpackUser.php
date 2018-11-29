@@ -48,4 +48,10 @@ class BackpackUser extends User
     {
         return $this->email;
     }
+
+    public function unidades(){
+
+        return $this->belongsToMany(Unidade::class, 'unidadesusers', 'user_id', 'unidade_id');
+
+    }
 }

@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BackpackUser;
+use App\Models\CalendarEvent;
+use App\Models\Unidade;
+use Illuminate\Support\Facades\Auth;
+use MaddHatter\LaravelFullcalendar\Calendar;
+
 class AdminController extends Controller
 {
     protected $data = []; // the information we send to the view
@@ -23,7 +29,37 @@ class AdminController extends Controller
     {
         $this->data['title'] = "Início";//trans('backpack::base.dashboard'); // set the page title
 
-        return view('backpack::dashboard', $this->data);
+        $ug = backpack_user()->ugprimaria;
+        session(['user_ug' => $ug]);
+
+
+        $unidade = Unidade::where('codigo','=',session('user_ug'))->first();
+        $titleFormat = "{month: 'MMMM yyyy'}";
+        $events = [];
+        $data = CalendarEvent::all();
+        $data->where('unidade_id',$unidade->id);
+        if($data->count()) {
+            foreach ($data as $key => $value) {
+                $events[] = \Calendar::event(
+                    $value->title,
+                    true,
+                    new \DateTime($value->start_date),
+                    new \DateTime($value->end_date.' +1 day'),
+                    null,
+                    // Add color and link on event
+                    [
+                        'color' => '#619aef',
+                    ]
+                );
+            }
+        }
+
+        $calendar = \Calendar::addEvents($events)->setOptions([
+            'first_day' => 1,
+            'aspectRatio' => 2.5,
+            ])->setCallbacks([]);
+
+        return view('backpack::dashboard', compact('calendar'));
     }
 
     /**
