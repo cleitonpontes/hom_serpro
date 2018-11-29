@@ -33,18 +33,17 @@ class AdminController extends Controller
         session(['user_ug' => $ug]);
 
 
-        $unidade = Unidade::where('codigo','=',session('user_ug'))->first();
-        $titleFormat = "{month: 'MMMM yyyy'}";
+        $unidade = Unidade::where('codigo', '=', session('user_ug'))->first();
         $events = [];
         $data = CalendarEvent::all();
-        $data->where('unidade_id',$unidade->id);
-        if($data->count()) {
+        $data->where('unidade_id', $unidade->id);
+        if ($data->count()) {
             foreach ($data as $key => $value) {
                 $events[] = \Calendar::event(
                     $value->title,
                     true,
                     new \DateTime($value->start_date),
-                    new \DateTime($value->end_date.' +1 day'),
+                    new \DateTime($value->end_date . ' +1 day'),
                     null,
                     // Add color and link on event
                     [
@@ -57,7 +56,7 @@ class AdminController extends Controller
         $calendar = \Calendar::addEvents($events)->setOptions([
             'first_day' => 1,
             'aspectRatio' => 2.5,
-            ])->setCallbacks([]);
+        ])->setCallbacks([]);
 
         return view('backpack::dashboard', compact('calendar'));
     }
