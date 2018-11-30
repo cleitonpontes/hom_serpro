@@ -90,29 +90,50 @@
                 </div>
 
             </div>
-            <div class="box box-solid">
-                <div class="box-header ui-sortable-handle" style="cursor: move;">
-                    <i class="fa fa-calendar"></i>
+            <div class="row">
+                <section class="col-lg-7 connectedSortable ui-sortable">
+                    <div class="box box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Tipo de  Contratos</h3>
 
-                    <h3 class="box-title">Calendário</h3>
-                    <!-- tools box -->
-                    <div class="pull-right box-tools">
-                        <!-- button with a dropdown -->
-                        <button type="button" class="btn btn-sm" data-widget="remove"><i
-                                    class="fa fa-times"></i>
-                        </button>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            {!! $chartjs->render() !!}
+                        </div>
+                        <!-- /.box-body -->
                     </div>
-                    <!-- /. tools -->
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body no-padding">
-                    <!--The calendar -->
-                    {!! $calendar->calendar() !!}
-                    @push('after_scripts')
-                        {!! $calendar->script() !!}
-                    @endpush
-                </div>
-                <!-- /.box-body -->
+                </section>
+                <section class="col-lg-5 connectedSortable ui-sortable">
+                    <div class="box box-solid">
+                        <div class="box-header ui-sortable-handle" style="cursor: move;">
+                            <i class="fa fa-calendar"></i>
+
+                            <h3 class="box-title">Calendário</h3>
+                            <!-- tools box -->
+                            <div class="pull-right box-tools">
+                                <!-- button with a dropdown -->
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                            <!-- /. tools -->
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body no-padding">
+                            <!--The calendar -->
+                            {!! $calendar->calendar() !!}
+                            @push('after_scripts')
+                                {!! $calendar->script() !!}
+                            @endpush
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                </section>
             </div>
         </div>
     </div>

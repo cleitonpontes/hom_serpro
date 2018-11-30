@@ -10,6 +10,7 @@
         "backpack/logmanager": "^2.3",
         "backpack/permissionmanager": "^3.12",
         "fideloper/proxy": "^4.0",
+        "fx3costa/laravelchartjs": "^2.5",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
         "maddhatter/laravel-fullcalendar": "^1.3",

@@ -49,6 +49,14 @@ class BackpackUser extends User
         return $this->email;
     }
 
+    public function unidadeprimaria($id){
+
+        $ug = Unidade::find($id);
+
+        return $ug;
+
+    }
+
     public function unidades(){
 
         return $this->belongsToMany(Unidade::class, 'unidadesusers', 'user_id', 'unidade_id');

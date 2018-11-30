@@ -21,8 +21,7 @@ trait Authorizes{
             }
         }
         if(!$result){
-            \Prologue\Alerts\Facades\Alert::error('Sem permissão!')->flash();
-            return Redirect::back();
+            abort('403');
         }
     }
 }

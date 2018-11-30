@@ -29,14 +29,23 @@ class AdminController extends Controller
     {
         $this->data['title'] = "Início";//trans('backpack::base.dashboard'); // set the page title
 
-        $ug = backpack_user()->ugprimaria;
-        session(['user_ug' => $ug]);
+        if (!session()->get('user_ug')) {
+            $ug = backpack_user()->ugprimaria;
+            if ($ug) {
+                $unidade = backpack_user()->unidadeprimaria($ug);
+                session(['user_ug' => $unidade->codigo]);
+            }else{
+                session(['user_ug' => null]);
+            }
+        }
 
-
-        $unidade = Unidade::where('codigo', '=', session('user_ug'))->first();
         $events = [];
         $data = CalendarEvent::all();
-        $data->where('unidade_id', $unidade->id);
+        if(session()->get('user_ug')){
+            $ug2 = Unidade::where('codigo',session()->get('user_ug'))->first();
+            $data->where('unidade_id', $ug2->id);
+        }
+
         if ($data->count()) {
             foreach ($data as $key => $value) {
                 $events[] = \Calendar::event(
@@ -55,10 +64,25 @@ class AdminController extends Controller
 
         $calendar = \Calendar::addEvents($events)->setOptions([
             'first_day' => 1,
-            'aspectRatio' => 2.5,
+//            'aspectRatio' => 2.5,
         ])->setCallbacks([]);
 
-        return view('backpack::dashboard', compact('calendar'));
+        $chartjs = app()->chartjs
+            ->name('pieChartTest')
+            ->type('doughnut')
+            ->size(['width' => 400, 'height' => 200])
+            ->labels(['Label x', 'Label y'])
+            ->datasets([
+                [
+                    'backgroundColor' => ['#FF6384', '#36A2EB'],
+                    'hoverBackgroundColor' => ['#FF6384', '#36A2EB'],
+                    'data' => [69, 59]
+                ]
+            ])
+            ->options([]);
+
+
+        return view('backpack::dashboard', ['calendar'=> $calendar, 'data' => $this->data, 'chartjs' => $chartjs]);
     }
 
     /**

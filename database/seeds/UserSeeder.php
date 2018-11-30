@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
             'name' => 'Super Administrador',
             'cpf' => '111.111.111-11',
             'email' => 'sadmin@teste.com',
-            'ugprimaria' => '110062',
+            'ugprimaria' => '1',
             'password' => bcrypt('123456'),
         ]);
     }
