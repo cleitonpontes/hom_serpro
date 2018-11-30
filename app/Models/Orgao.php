@@ -32,4 +32,9 @@ class Orgao extends Model
 
     }
 
+    public function getCodigoNome()
+    {
+        return $this->codigo.' - '.$this->nome;
+    }
+
 }
