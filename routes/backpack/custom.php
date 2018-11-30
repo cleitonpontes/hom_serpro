@@ -38,6 +38,9 @@ Route::prefix('admin')->group(function (){
     ], function () { // custom admin routes
 
         CRUD::resource('usuario', 'UsuarioCrudController');
+        CRUD::resource('orgaosuperior', 'OrgaoSuperiorCrudController');
+        CRUD::resource('orgao', 'OrgaoCrudController');
+        CRUD::resource('unidade', 'UnidadeCrudController');
 
 
     });

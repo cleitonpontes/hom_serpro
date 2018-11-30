@@ -14,8 +14,9 @@
                         <li><a href="{{ backpack_url('orgaosuperior') }}"><i class="fa fa-building"></i> <span>Órgão Superior</span></a>
                         </li>
                     @endcan
-                    <li><a href="{{ backpack_url('orgao') }}"><i class="fa fa-building"></i> <span>Órgão</span></a></li>
-                    <li><a href="{{ backpack_url('unidade') }}"><i class="fa fa-building"></i> <span>Unidade</span></a>
+                    <li><a href="{{ backpack_url('/admin/orgaosuperior') }}"><i class="fa fa-building"></i> <span>Órgão Superior</span></a></li>
+                    <li><a href="{{ backpack_url('/admin/orgao') }}"><i class="fa fa-building"></i> <span>Órgão</span></a></li>
+                    <li><a href="{{ backpack_url('/admin/unidade') }}"><i class="fa fa-building"></i> <span>Unidade</span></a>
                     </li>
                 </ul>
             </li>

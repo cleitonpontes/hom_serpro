@@ -6,6 +6,7 @@
 <script src="{{ asset('vendor/adminlte') }}/bower_components/chart.js/Chart.js"></script>
 <script src="{{ asset('vendor/adminlte') }}/bower_components/chart.js/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
+
 {{-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{ asset('vendor/adminlte') }}/bower_components/jquery/dist/jquery.min.js"><\/script>')</script> --}}
 

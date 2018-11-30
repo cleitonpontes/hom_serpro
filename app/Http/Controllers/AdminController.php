@@ -34,15 +34,15 @@ class AdminController extends Controller
             if ($ug) {
                 $unidade = backpack_user()->unidadeprimaria($ug);
                 session(['user_ug' => $unidade->codigo]);
-            }else{
+            } else {
                 session(['user_ug' => null]);
             }
         }
 
         $events = [];
         $data = CalendarEvent::all();
-        if(session()->get('user_ug')){
-            $ug2 = Unidade::where('codigo',session()->get('user_ug'))->first();
+        if (session()->get('user_ug')) {
+            $ug2 = Unidade::where('codigo', session()->get('user_ug'))->first();
             $data->where('unidade_id', $ug2->id);
         }
 
@@ -67,22 +67,30 @@ class AdminController extends Controller
 //            'aspectRatio' => 2.5,
         ])->setCallbacks([]);
 
+
+
         $chartjs = app()->chartjs
             ->name('pieChartTest')
             ->type('doughnut')
             ->size(['width' => 400, 'height' => 200])
-            ->labels(['Label x', 'Label y'])
+            ->labels(['Comuns', 'Locação de Imóveis', 'Outros'])
             ->datasets([
                 [
-                    'backgroundColor' => ['#FF6384', '#36A2EB'],
-                    'hoverBackgroundColor' => ['#FF6384', '#36A2EB'],
-                    'data' => [69, 59]
+                    'backgroundColor' => ['#31ABFF', '#FF4242', '#00B85F'],
+//                    'backgroundColor' => $default_colors,
+                    'data' => [33, 60, 7],
                 ]
             ])
-            ->options([]);
+            ->options([
+                'plugins' => [
+                    'colorschemes' => [
+                        'scheme' => 'brewer.PiYG6',
+                    ]
+                ]
+            ]);
 
 
-        return view('backpack::dashboard', ['calendar'=> $calendar, 'data' => $this->data, 'chartjs' => $chartjs]);
+        return view('backpack::dashboard', ['calendar' => $calendar, 'data' => $this->data, 'chartjs' => $chartjs]);
     }
 
     /**
