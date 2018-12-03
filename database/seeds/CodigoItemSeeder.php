@@ -115,5 +115,16 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '11','descres' => '48','descricao' => 'Locação Equipamentos' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '11','descres' => '999','descricao' => 'Internacional' ]);
 
+        DB::table('codigos')->insert(['descricao' => 'Tipo de Contrato SIASG','visivel' => false,]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '50','descricao' => 'Contrato' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '51','descricao' => 'Credenciamento' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '52','descricao' => 'Comodato' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '53','descricao' => 'Arrendamento' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '54','descricao' => 'Concessão' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '55','descricao' => 'Termo Aditivo' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '56','descricao' => 'Termo de Adesão' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '57','descricao' => 'Convênio' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '60','descricao' => 'Termo de Apostilamento' ]);
+
     }
 }
