@@ -41,6 +41,14 @@ Route::prefix('admin')->group(function (){
         CRUD::resource('orgaosuperior', 'OrgaoSuperiorCrudController');
         CRUD::resource('orgao', 'OrgaoCrudController');
         CRUD::resource('unidade', 'UnidadeCrudController');
+        CRUD::resource('codigo', 'CodigoCrudController');
+
+        Route::group(['prefix' => 'codigo/{codigo_id}'], function()
+        {
+            CRUD::resource('codigoitem', 'CodigoitemCrudController');
+        });
+
+
 
 
     });
