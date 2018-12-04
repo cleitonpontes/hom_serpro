@@ -44,8 +44,22 @@ class Codigo extends Model
 
     public function codigoItens($crud = false)
     {
-        return '<a class="btn btn-xs btn-default" href="/admin/codigo/'.$this->id.'/codigoitem" 
-        data-toggle="tooltip" title="Código Itens"><i class="fa fa-navicon"></i> Itens</a>';
+
+        $button = '<div class="btn-group">
+                        <button type="button" title="Mais" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle-split"
+                            data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false"><i class="fa fa-gears"></i> 
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                            <ul class="dropdown-menu" >
+                                <li><a href="/admin/codigo/'.$this->id.'/codigoitem">Itens</a></li>
+                            </ul>
+                    </div>';
+
+//        return '<a class="btn btn-xs btn-default" href="/admin/codigo/'.$this->id.'/codigoitem"
+//        data-toggle="tooltip" title="Código Itens"><i class="fa fa-navicon"></i> Itens</a>';
+
+        return $button;
 
     }
     /*

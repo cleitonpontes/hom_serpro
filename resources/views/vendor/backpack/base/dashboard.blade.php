@@ -58,21 +58,6 @@
                         <!-- ./col -->
                         <div class="col-lg-3 col-xs-6">
                             <!-- small box -->
-                            <div class="small-box bg-yellow">
-                                <div class="inner">
-                                    <h3>5</h3>
-
-                                    <p>Mensagens pendentes</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="ion ion-ios-email"></i>
-                                </div>
-                                <a href="#" class="small-box-footer">Ler agora <i class="fa fa-arrow-circle-right"></i></a>
-                            </div>
-                        </div>
-                        <!-- ./col -->
-                        <div class="col-lg-3 col-xs-6">
-                            <!-- small box -->
                             <div class="small-box bg-red">
                                 <div class="inner">
                                     <h3>03</h3>
@@ -83,6 +68,22 @@
                                     <i class="ion ion-ios-close"></i>
                                 </div>
                                 <a href="#" class="small-box-footer">Solucionar <i class="fa fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+
+                        <div class="col-lg-3 col-xs-6">
+                            <!-- small box -->
+                            <div class="small-box bg-yellow">
+                                <div class="inner">
+                                    <h3>5</h3>
+
+                                    <p>Mensagens pendentes</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-ios-email"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ler agora <i class="fa fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                         <!-- ./col -->

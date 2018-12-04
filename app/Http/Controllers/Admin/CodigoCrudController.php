@@ -71,7 +71,7 @@ class CodigoCrudController extends CrudController
         // add asterisk for fields that are required in CodigoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
-        $this->crud->addButtonFromModelFunction('line', 'codigoItens', 'codigoItens', 'beginning');
+        $this->crud->addButtonFromModelFunction('line', 'codigoItens', 'codigoItens', 'end');
     }
 
     public function store(StoreRequest $request)
