@@ -39,9 +39,7 @@ class Codigoitem extends Model
     */
     public function codigo()
     {
-
         return $this->belongsTo(Codigo::class, 'codigo_id');
-
     }
     /*
     |--------------------------------------------------------------------------

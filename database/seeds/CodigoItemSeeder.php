@@ -92,7 +92,8 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigos')->insert(['descricao' => 'Tipo Fornecedor','visivel' => false,]);
         DB::table('codigoitens')->insert(['codigo_id' => '9','descres' => 'FISICA','descricao' => 'Pessoa Física' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '9','descres' => 'JURIDICA','descricao' => 'Pessoa Jurídica' ]);
-        DB::table('codigoitens')->insert(['codigo_id' => '9','descres' => 'IDGENERICO','descricao' => 'ID Genérico / UG Siafi' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '9','descres' => 'UG','descricao' => 'UG Siafi' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '9','descres' => 'IDGENERICO','descricao' => 'ID Genérico' ]);
 
         DB::table('codigos')->insert(['descricao' => 'Função Contrato','visivel' => true,]);
         DB::table('codigoitens')->insert(['codigo_id' => '10','descres' => 'GESTOR','descricao' => 'Gestor' ]);

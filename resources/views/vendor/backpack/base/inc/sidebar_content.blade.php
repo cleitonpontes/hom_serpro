@@ -1,6 +1,21 @@
 <!-- This file is used to store sidebar items, starting with Backpack\Base 0.9.0 -->
 <li><a href="{{ backpack_url('inicio') }}"><i class="fa fa-home"></i> <span>Início</span></a></li>
 
+<li class="treeview">
+    <a href="#"><i class="fa fa-file-text-o"></i> <span>Gestão de Contratos</span> <i
+                class="fa fa-angle-left pull-right"></i></a>
+    <ul class="treeview-menu">
+        <li class="treeview">
+            <a href="#"><i class='fa fa-edit'></i> <span>Cadastro</span> <i
+                        class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+                <li><a href="{{ backpack_url('/gescon/contrato') }}"><i class="fa fa-file-text-o"></i> <span>Contratos</span></a></li>
+                <li><a href="{{ backpack_url('/gescon/fornecedor') }}"><i class="fa fa-users"></i> <span>Fornecedores</span></a></li>
+            </ul>
+        </li>
+    </ul>
+</li>
+
 {{--@can('administracao_inicio_acesso')--}}
     <li class="treeview">
         <a href="#"><i class="fa fa-gears"></i> <span>Administração</span> <i

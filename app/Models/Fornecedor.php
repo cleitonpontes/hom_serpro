@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 
-class Contrato extends Model
+class Fornecedor extends Model
 {
     use CrudTrait;
 
@@ -15,32 +15,14 @@ class Contrato extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contratos';
+    protected $table = 'fornecedores';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'numero',
-        'fornecedor_id',
-        'unidade_id',
-        'categoria_id',
-        'processo',
-        'objeto',
-        'info_complementar',
-        'fundamento_legal',
-        'modalidade',
-        'licitacao_numero',
-        'data_assinatura',
-        'data_publicacao',
-        'vigencia_inicio',
-        'vigencia_fim',
-        'valor_inicial',
-        'valor_global',
-        'num_parcelas',
-        'valor_parcela',
-        'valor_acumulado',
-        'situacao_siasg',
-        'situacao',
+        'tipo_fonecedor',
+        'cpf_cnpj_idgener',
+        'nome',
     ];
 
 
@@ -52,7 +34,23 @@ class Contrato extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-
+    public function getTipo()
+    {
+        switch ($this->tipo_fonecedor) {
+            case 'FISICA':
+                return 'Pessoa Física';
+                break;
+            case 'JURIDICA':
+                return 'Pessoa Jurídica';
+                break;
+            case 'UG':
+                return 'UG Siafi';
+                break;
+            case 'IDGENERICO':
+                return 'ID Genérico';
+                break;
+        }
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

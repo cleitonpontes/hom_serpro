@@ -47,10 +47,18 @@ Route::prefix('admin')->group(function (){
         {
             CRUD::resource('codigoitem', 'CodigoitemCrudController');
         });
+    });
+});
 
+Route::prefix('gescon')->group(function (){
+    Route::group([
+        'prefix' => config('backpack.base.route_prefix', ''),
+        'middleware' => ['web', config('backpack.base.middleware_key', 'admin')],
+        'namespace' => 'App\Http\Controllers\Gescon',
+    ], function () { // custom admin routes
 
-
+        CRUD::resource('contrato', 'ContratoCrudController');
+        CRUD::resource('fornecedor', 'FornecedorCrudController');
 
     });
-
 });

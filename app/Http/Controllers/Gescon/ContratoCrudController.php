@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Contrato;
+namespace App\Http\Controllers\Gescon;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -23,7 +23,7 @@ class ContratoCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Contrato');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/contrato');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato');
         $this->crud->setEntityNameStrings('Contrato', 'Contratos');
 
         /*
