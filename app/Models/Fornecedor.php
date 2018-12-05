@@ -20,7 +20,7 @@ class Fornecedor extends Model
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'tipo_fonecedor',
+        'tipo_fornecedor',
         'cpf_cnpj_idgener',
         'nome',
     ];
@@ -36,7 +36,7 @@ class Fornecedor extends Model
     */
     public function getTipo()
     {
-        switch ($this->tipo_fonecedor) {
+        switch ($this->tipo_fornecedor) {
             case 'FISICA':
                 return 'Pessoa Física';
                 break;

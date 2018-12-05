@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "18708e4dc59cc21be78bc8f684452db1",
+    "content-hash": "771999001b634b9f86664f5c0fae97ba",
     "packages": [
         {
             "name": "almasaeed2010/adminlte",
@@ -1192,6 +1192,45 @@
                 "reports"
             ],
             "time": "2018-09-11T21:37:47+00:00"
+        },
+        {
+            "name": "geekcom/validator-docs",
+            "version": "v1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/geekcom/validator-docs.git",
+                "reference": "43a83ee2e1a31a4e1ac3ef8741de5ac63bdb6081"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/geekcom/validator-docs/zipball/43a83ee2e1a31a4e1ac3ef8741de5ac63bdb6081",
+                "reference": "43a83ee2e1a31a4e1ac3ef8741de5ac63bdb6081",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "5.*"
+            },
+            "require-dev": {
+                "laravel/laravel": "5.0.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "geekcom\\ValidatorDocs\\": "src/validator-docs"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Rodrigues Lima",
+                    "email": "danielrodrigues-ti@hotmail.com"
+                }
+            ],
+            "description": "Biblioteca para validação de Título de Eleitor, CPF, CNPJ e CNH",
+            "time": "2018-04-20T14:49:42+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

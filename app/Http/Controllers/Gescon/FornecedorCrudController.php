@@ -60,11 +60,11 @@ class FornecedorCrudController extends CrudController
         })->pluck('descricao', 'descres')->toArray();;
 
         $this->crud->addField([ // select_from_array
-            'name'            => 'tipo_fonecedor',
+            'name'            => 'tipo_fornecedor',
             'label'           => 'Tipo Fornecedor',
             'type'            => 'select_from_array',
             'attributes' => [
-                'id' => 'tipo_fonecedor',
+                'id' => 'tipo_fornecedor',
             ],
             'options'         => $tipo_fornecedor,
             'allows_null'     => true,
@@ -91,7 +91,7 @@ class FornecedorCrudController extends CrudController
 //            'allows_null'     => false,
 //            'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
 //        ]);
-
+        $this->crud->enableAjaxTable();
         // add asterisk for fields that are required in FornecedorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');

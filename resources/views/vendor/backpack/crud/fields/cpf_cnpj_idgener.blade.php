@@ -24,7 +24,7 @@
 @push('crud_fields_scripts')
     <script type="text/javascript">
         $(window).on('load', function() {
-            var value = $('#tipo_fonecedor').val();
+            var value = $('#tipo_fornecedor').val();
 
             if (value == 'JURIDICA') {
                 mascaraCNPJ('#{{ $field['name'] }}');
@@ -43,7 +43,7 @@
             }
         });
 
-        $(document).on('change','#tipo_fonecedor',function(){
+        $(document).on('change','#tipo_fornecedor',function(){
 
             var value = $(this).val();
 

@@ -163,7 +163,7 @@ return [
         /*
          * Package Service Providers...
          */
-
+        geekcom\ValidatorDocs\ValidatorProvider::class,
         /*
          * Application Service Providers...
          */
