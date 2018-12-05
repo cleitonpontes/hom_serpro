@@ -34,7 +34,7 @@ return [
     'password'               => 'Senha',
     'old_password'           => 'Senha antiga',
     'new_password'           => 'Nova senha',
-    'confirm_password'       => 'Confirmar senha',
+    'confirm_new_password'   => 'Confirmar senha',
     'remember_me'            => 'Manter-me logado',
     'forgot_your_password'   => 'Esqueci minha senha',
     'reset_password'         => 'Resetar senha',
@@ -58,7 +58,17 @@ return [
     'account_updated'        => 'Conta atualizada com sucesso.',
     'unknown_error'          => 'Um erro desconhecido aconteceu. Por favor, tente novamente.',
     'error_saving'           => 'Erro ao salvar. Por favor, tente novamente.',
-    'step'           => 'Passo',
-    'confirm_email'           => 'Confirmar E-mail',
-    'choose_new_password'           => 'Entrar com nova Senha',
+    'step'                   => 'Passo',
+    'confirm_email'          => 'Confirmar E-mail',
+    'choose_new_password'    => 'Entrar com nova Senha',
+
+    'password_reset' => [
+        'greeting' => 'Olá!',
+        'subject'  => 'Notificação para Resetar Senha',
+        'line_1'   => 'Você está recebendo este e-mail porque houve uma solicitação de redefinição de senha para sua conta.',
+        'line_2'   => 'Clique no botão abaixo para redefinir sua senha:',
+        'button'   => 'Redefinir Senha',
+        'notice'   => 'Se você não solicitou uma redefinição de senha, favor desconsiderar este e-mail.',
+    ],
+
 ];

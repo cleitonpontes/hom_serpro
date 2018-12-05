@@ -23,7 +23,7 @@ return [
     'password'               => 'Senha',
     'old_password'           => 'Senha antiga',
     'new_password'           => 'Nova senha',
-    'confirm_password'       => 'Confirmar senha',
+    'confirm_new_password'   => 'Confirmar senha',
     'remember_me'            => 'Manter-me logado',
     'forgot_your_password'   => 'Esqueci minha senha',
     'reset_password'         => 'Resetar senha',
