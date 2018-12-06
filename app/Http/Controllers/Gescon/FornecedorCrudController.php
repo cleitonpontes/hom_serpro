@@ -40,6 +40,9 @@ class FornecedorCrudController extends CrudController
                 'label'         => 'Tipo Fornecedor', // Table column heading
                 'type'          => 'model_function',
                 'function_name' => 'getTipo', // the method in your Model
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('', 'like', '%'.$searchTerm.'%');
+//                },
             ],
         ]);
 
@@ -57,7 +60,7 @@ class FornecedorCrudController extends CrudController
 
         $tipo_fornecedor = Codigoitem::whereHas('codigo', function ($q){
             $q->where('descricao', '=', 'Tipo Fornecedor');
-        })->pluck('descricao', 'descres')->toArray();;
+        })->pluck('descricao', 'descres')->toArray();
 
         $this->crud->addField([ // select_from_array
             'name'            => 'tipo_fornecedor',

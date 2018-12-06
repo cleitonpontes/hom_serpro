@@ -22,7 +22,7 @@
         >
 
             @if ($entity_model::isColumnNullable($field['name']))
-                <option value="">-</option>
+                <option value="">Selecione...</option>
             @endif
 
             @if (isset($field['model']) && isset($field['group_by']))

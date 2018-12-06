@@ -1,6 +1,6 @@
 <?php
 
-namespace Backpack\Base\app\Http\Controllers\Auth;
+namespace App\Http\Controllers\Auth;
 
 use Alert;
 use Auth;

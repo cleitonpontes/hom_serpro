@@ -29,21 +29,22 @@ class AdminController extends Controller
     {
         $this->data['title'] = "Início";//trans('backpack::base.dashboard'); // set the page title
 
-        if (!session()->get('user_ug')) {
+        if (!session()->get('user_ug') AND !session()->get('user_ug_id')) {
             $ug = backpack_user()->ugprimaria;
             if ($ug) {
                 $unidade = backpack_user()->unidadeprimaria($ug);
                 session(['user_ug' => $unidade->codigo]);
+                session(['user_ug_id' => $ug]);
             } else {
                 session(['user_ug' => null]);
+                session(['user_ug_id' => null]);
             }
         }
 
         $events = [];
         $data = CalendarEvent::all();
-        if (session()->get('user_ug')) {
-            $ug2 = Unidade::where('codigo', session()->get('user_ug'))->first();
-            $data->where('unidade_id', $ug2->id);
+        if (session()->get('user_ug_id')) {
+            $data->where('unidade_id', session()->get('user_ug_id'));
         }
 
         if ($data->count()) {

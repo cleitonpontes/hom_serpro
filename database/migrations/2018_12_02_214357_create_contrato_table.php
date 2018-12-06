@@ -15,7 +15,7 @@ class CreateContratoTable extends Migration
     {
         Schema::create('contratos', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('numero');
+            $table->string('numero');
             $table->integer('fornecedor_id');
             $table->integer('unidade_id');
             $table->integer('categoria_id')->nullable();
@@ -24,16 +24,16 @@ class CreateContratoTable extends Migration
             $table->text('info_complementar')->nullable();
             $table->string('fundamento_legal');
             $table->string('modalidade');
-            $table->string('licitacao_numero');
+            $table->string('licitacao_numero')->nullable();
             $table->date('data_assinatura');
             $table->date('data_publicacao');
             $table->date('vigencia_inicio');
             $table->date('vigencia_fim');
-            $table->decimal('valor_inicial');
-            $table->decimal('valor_global');
+            $table->decimal('valor_inicial', 15,2);
+            $table->decimal('valor_global',15,2);
             $table->integer('num_parcelas')->nullable();
-            $table->decimal('valor_parcela')->nullable();
-            $table->decimal('valor_acumulado');
+            $table->decimal('valor_parcela',15,2)->nullable();
+            $table->decimal('valor_acumulado',15,2)->nullable();
             $table->string('situacao_siasg');
             $table->boolean('situacao');
             $table->softDeletes();

@@ -1,10 +1,11 @@
 <?php
 
-namespace Backpack\Base\app\Http\Controllers\Auth;
+namespace App\Http\Controllers\Auth;
 
 use Backpack\Base\app\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -73,7 +74,7 @@ class LoginController extends Controller
     {
         // Do the default logout procedure
         $this->guard()->logout();
-
+        Session::flush();
         // And redirect to custom location
         return redirect($this->redirectAfterLogout);
     }

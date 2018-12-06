@@ -17,7 +17,7 @@
         multiple>
 
         @if (isset($field['allows_null']) && $field['allows_null']==true)
-            <option value="">-</option>
+            <option value="">Selecione...</option>
         @endif
 
         @if (isset($field['model']))

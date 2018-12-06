@@ -54,7 +54,7 @@
 	}
 
 	.dt-buttons {
-		/*display: none;*/
+		display: none;
 	}
 
 	.modal .details-control {
@@ -63,7 +63,6 @@
 
 	#crudTable td {
 		outline: none;
-	    /*overflow: hidden;*/
 	}
 
 	#crudTable.has-hidden-columns .details-control {
