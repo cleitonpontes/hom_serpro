@@ -88,6 +88,47 @@ class OrgaoUnidadeSeeder extends Seeder
             'tipo' => 'E',
             'situacao' => true
         ]);
+        DB::table('unidades')->insert([
+            'orgao_id' => '1',
+            'codigo' => '110060',
+            'codigosiasg' => '110060',
+            'nome' => 'Coord. de Orçamento e Finanças - CORFI',
+            'nomeresumido' => 'CORFI',
+            'telefone' => '(XX) 3333-3333',
+            'tipo' => 'E',
+            'situacao' => true
+        ]);
+        DB::table('unidades')->insert([
+            'orgao_id' => '1',
+            'codigo' => '110062',
+            'codigosiasg' => '110062',
+            'nome' => 'Diretoria de Gestão de Pessoas',
+            'nomeresumido' => 'DGEP',
+            'telefone' => '(XX) 3333-3333',
+            'tipo' => 'E',
+            'situacao' => true
+        ]);
+        DB::table('unidades')->insert([
+            'orgao_id' => '1',
+            'codigo' => '110581',
+            'codigosiasg' => '110581',
+            'nome' => 'Diárias e Passagens',
+            'nomeresumido' => 'DIDIP',
+            'telefone' => '(XX) 3333-3333',
+            'tipo' => 'E',
+            'situacao' => true
+        ]);
+
+        DB::table('unidades')->insert([
+            'orgao_id' => '1',
+            'codigo' => '110156',
+            'codigosiasg' => '110156',
+            'nome' => 'Escola da Advocacia-Geral da União',
+            'nomeresumido' => 'EAGU',
+            'telefone' => '(XX) 3333-3333',
+            'tipo' => 'E',
+            'situacao' => true
+        ]);
 
 
     }

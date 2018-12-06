@@ -22,11 +22,11 @@ class CreateContratoTable extends Migration
             $table->string('processo')->nullable();
             $table->text('objeto');
             $table->text('info_complementar')->nullable();
-            $table->string('fundamento_legal');
-            $table->string('modalidade');
+            $table->string('fundamento_legal')->nullable();
+            $table->string('modalidade')->nullable();
             $table->string('licitacao_numero')->nullable();
             $table->date('data_assinatura');
-            $table->date('data_publicacao');
+            $table->date('data_publicacao')->nullable();
             $table->date('vigencia_inicio');
             $table->date('vigencia_fim');
             $table->decimal('valor_inicial', 15,2);
@@ -34,7 +34,7 @@ class CreateContratoTable extends Migration
             $table->integer('num_parcelas')->nullable();
             $table->decimal('valor_parcela',15,2)->nullable();
             $table->decimal('valor_acumulado',15,2)->nullable();
-            $table->string('situacao_siasg');
+            $table->string('situacao_siasg')->nullable();
             $table->boolean('situacao');
             $table->softDeletes();
             $table->timestamps();

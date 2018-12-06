@@ -498,6 +498,7 @@ class FornecedorSeeder extends Seeder
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '115406', 'nome' => 'EMPRESA BRASIL DE COMUNICAÇÃO']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '803010', 'nome' => 'SERPRO REGIONAL BRASILIA']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '806030', 'nome' => 'SERPRO REGIONAL BRASILIA SEDE']);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '08.823.749/0001-40', 'nome' => 'R. PINHEIRO GRIMM TRANSPORTES EPP']);
 
     }
 }
