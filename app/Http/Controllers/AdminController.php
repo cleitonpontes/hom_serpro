@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\BackpackUser;
 use App\Models\CalendarEvent;
+use App\Models\Codigoitem;
+use App\Models\Contrato;
 use App\Models\Unidade;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use MaddHatter\LaravelFullcalendar\Calendar;
 
 class AdminController extends Controller
@@ -93,16 +96,29 @@ class AdminController extends Controller
 
         shuffle($colors);
 
+        $categoria_contrato = Codigoitem::whereHas('codigo', function ($q){
+            $q->where('descricao', '=', 'Categoria Contrato');
+        })->orderBy('codigo_id', 'asc')->pluck('descricao')->toArray();
+
+        $contrato = DB::table('contratos')
+            ->select(DB::raw('count(*) as categoria_id'))
+            ->where('situacao', '=', true)
+            ->orderBy('categoria_id', 'asc')
+            ->groupBy('categoria_id')
+            ->pluck('categoria_id')->toArray();
+
+//        dd($categoria_contrato);
+
         $chartjs = app()->chartjs
             ->name('pieChartTest')
             ->type('doughnut')
             ->size(['width' => 400, 'height' => 200])
-            ->labels(['Comuns', 'Locação de Imóveis', 'Outros'])
+            ->labels($categoria_contrato)
             ->datasets([
                 [
                     'backgroundColor' => $colors,
                     'borderColor' => $colors,
-                    'data' => [33, 60, 7],
+                    'data' => $contrato,
                 ]
             ])
             ->options([

@@ -6,8 +6,8 @@
             {{--<h3 class="text-center m-b-20">{{ trans('backpack::base.login') }}</h3>--}}
             <div class="login-logo">
                 <a href="{{ url('/inicio') }}">
-                    <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>"
-                         alt="{!! env('APP_NAME') !!}"><br><h5>{!! env('APP_NAME') !!} - {{ trans('backpack::base.login') }}</h5></a>
+                    <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>" width="180px"
+                         alt="{!! env('APP_NAME') !!}"><br><h5>{{ trans('backpack::base.login') }}</h5></a>
             </div>
             <div class="box">
                 <div class="box-body">

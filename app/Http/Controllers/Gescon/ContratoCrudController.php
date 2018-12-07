@@ -34,7 +34,10 @@ class ContratoCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
+        $this->crud->enableAjaxTable();
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
+        $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
+        $this->crud->denyAccess('delete');
 
 //        dd(session()->get('user_ug_id'));
         /*
@@ -55,11 +58,13 @@ class ContratoCrudController extends CrudController
                 'type'          => 'model_function',
                 'function_name' => 'getUnidade', // the method in your Model
                 'orderable' => true,
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
 //                },
-
             ],
         ]);
         $this->crud->addColumns([
