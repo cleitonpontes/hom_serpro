@@ -37,7 +37,7 @@ return [
     'confirm_new_password'   => 'Confirmar senha',
     'remember_me'            => 'Manter-me logado',
     'forgot_your_password'   => 'Esqueci minha senha',
-    'reset_password'         => 'Resetar senha',
+    'reset_password'         => 'Redefinir senha',
     'send_reset_link'        => 'Enviar link de recuperação de senha',
     'click_here_to_reset'    => 'Clique aqui para resetar sua senha',
     'change_password'        => 'Mudar senha',

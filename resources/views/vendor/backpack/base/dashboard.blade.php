@@ -95,7 +95,7 @@
                 <section class="col-lg-7 connectedSortable ui-sortable">
                     <div class="box box-solid">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Tipo de  Contratos</h3>
+                            <h3 class="box-title">Contratos por Categoria</h3>
 
                             <div class="box-tools pull-right">
                                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>

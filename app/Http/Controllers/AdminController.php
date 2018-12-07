@@ -94,20 +94,18 @@ class AdminController extends Controller
             '#9edae5'
         ];
 
-        shuffle($colors);
+//        shuffle($colors);
 
         $categoria_contrato = Codigoitem::whereHas('codigo', function ($q){
             $q->where('descricao', '=', 'Categoria Contrato');
         })->orderBy('codigo_id', 'asc')->pluck('descricao')->toArray();
 
         $contrato = DB::table('contratos')
-            ->select(DB::raw('count(*) as categoria_id'))
+            ->select(DB::raw('categoria_id, count(categoria_id)'))
             ->where('situacao', '=', true)
             ->orderBy('categoria_id', 'asc')
             ->groupBy('categoria_id')
-            ->pluck('categoria_id')->toArray();
-
-//        dd($categoria_contrato);
+            ->pluck('count')->toArray();
 
         $chartjs = app()->chartjs
             ->name('pieChartTest')
