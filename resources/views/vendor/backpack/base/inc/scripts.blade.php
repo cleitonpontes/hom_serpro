@@ -37,3 +37,9 @@
         location.hash = e.target.hash.replace("#tab_", "#");
     });
 </script>
+<script type="text/javascript">
+    function maiuscula(z){
+        v = z.value.toUpperCase();
+        z.value = v;
+    }
+</script>

@@ -84,6 +84,9 @@ class FornecedorCrudController extends CrudController
             'name'  => 'nome',
             'label' => 'Nome',
             'type'  => 'text',
+            'attributes' => [
+                'onkeyup' => "maiuscula(this)"
+            ]
         ]);
 
 //        $this->crud->addField([ // select_from_array
