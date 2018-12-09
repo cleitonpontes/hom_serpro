@@ -64,7 +64,7 @@ return [
 
     'password_reset' => [
         'greeting' => 'Olá!',
-        'subject'  => 'Notificação para Resetar Senha',
+        'subject'  => 'Notificação para Redefinir Senha',
         'line_1'   => 'Você está recebendo este e-mail porque houve uma solicitação de redefinição de senha para sua conta.',
         'line_2'   => 'Clique no botão abaixo para redefinir sua senha:',
         'button'   => 'Redefinir Senha',
