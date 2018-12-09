@@ -5,7 +5,7 @@
         <div class="col-md-4 col-md-offset-4">
             <div class="login-logo">
                 <a href="{{ url('/inicio') }}">
-                    <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>"
+                    <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>" width="150px"
                          alt="{!! env('APP_NAME') !!}"><br><h5>{!! env('APP_NAME') !!} - {{ trans('backpack::base.register') }}</h5></a>
             </div>
             <div class="box">
