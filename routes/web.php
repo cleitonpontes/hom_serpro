@@ -50,17 +50,28 @@ Route::group(
 
         // if not otherwise configured, setup the dashboard routes
         if (config('backpack.base.setup_dashboard_routes')) {
-            Route::get('dashboard', 'AdminController@dashboard')->name('backpack.dashboard');
+            Route::get('dashboard', function () {
+                return redirect('/inicio');
+            });
+//            Route::get('dashboard', 'AdminController@dashboard')->name('backpack.dashboard');
             Route::get('/', 'AdminController@redirect')->name('backpack');
         }
 
         // if not otherwise configured, setup the "my account" routes
         if (config('backpack.base.setup_my_account_routes')) {
-            Route::get('edit-account-info',
-                'Auth\MyAccountController@getAccountInfoForm')->name('backpack.account.info');
-            Route::post('edit-account-info', 'Auth\MyAccountController@postAccountInfoForm');
-            Route::get('change-password',
-                'Auth\MyAccountController@getChangePasswordForm')->name('backpack.account.password');
-            Route::post('change-password', 'Auth\MyAccountController@postChangePasswordForm');
+
+            //meus dados
+            Route::get('/meus-dados', 'AdminController@meusdados')->name('inicio.meusdados');
+            Route::put('/meus-dados/atualiza', 'AdminController@meusdadosatualiza')->name('inicio.meusdados.atualiza');
+
+            Route::get('edit-account-info', function () {
+                return redirect('/meus-dados');
+            });
+//            Route::get('edit-account-info',
+//                'Auth\MyAccountController@getAccountInfoForm')->name('backpack.account.info');
+//            Route::post('edit-account-info', 'Auth\MyAccountController@postAccountInfoForm');
+            Route::get('alterar-senha',
+                'Auth\MyAccountController@getChangePasswordForm')->name('alterar.senha');
+            Route::post('alterar-senha', 'Auth\MyAccountController@postChangePasswordForm');
         }
     });

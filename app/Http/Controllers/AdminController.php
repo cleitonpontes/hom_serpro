@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Forms\MeusdadosForm;
 use App\Models\BackpackUser;
 use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
@@ -140,5 +141,53 @@ class AdminController extends Controller
     {
         // The '/admin' route is not to be used as a page, because it breaks the menu's active state.
         return redirect(backpack_url('inicio'));
+    }
+
+    public function meusdados()
+    {
+        $user = BackpackUser::find(backpack_user()->id);
+
+        $ug = Unidade::find($user->ugprimaria)->pluck('codigo', 'id')->toArray();;
+
+        $form = \FormBuilder::create(MeusdadosForm::class, [
+            'url' => route('inicio.meusdados.atualiza'),
+            'method' => 'PUT',
+            'model' => $user,
+            'data' => [
+                'senhasiafi' => $user->senhasiafi,
+                'ugprimaria' => $ug,
+            ]
+        ]);
+
+        return view('backpack::base.auth.account.meusdados', compact('form'));
+
+    }
+
+    public function meusdadosatualiza()
+    {
+        $user = BackpackUser::find(backpack_user()->id);
+
+        $form = \FormBuilder::create(MeusdadosForm::class, [
+            'data' => ['users' => $user->id]
+        ]);
+
+        if (!$form->isValid()) {
+            return redirect()
+                ->back()
+                ->withErrors($form->getErrors())
+                ->withInput();
+        }
+
+        $data = $form->getFieldValues();
+        $data['cpf'] = $user->cpf;
+        $data['ugprimaria'] = $user->ugprimaria;
+        $data['senhasiafi'] = base64_encode($data['senhasiafi']);
+        $user->update($data);
+
+        \Alert::success('Seus Dados foram atualizados!')->flash();
+//        \toast()->success('Seus Dados foram atualizados!', 'Sucesso');
+
+        return redirect()->route('inicio.meusdados');
+
     }
 }

@@ -23,7 +23,7 @@ class BackpackUser extends User
     protected static $logName = 'usuario';
 
 
-    protected $fillable = ['cpf', 'name', 'email', 'ugprimaria'];
+    protected $fillable = ['cpf', 'name', 'email', 'ugprimaria', 'senhasiafi'];
 
     protected $table = 'users';
 

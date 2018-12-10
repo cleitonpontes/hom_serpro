@@ -36,7 +36,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Configurações"><i
                                 class="fa fa-gears"></i> <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="{{ route('backpack.account.info') }}"><span><i class="fa fa-user-circle-o"></i> {{ trans('backpack::base.my_account') }}</span></a></li>
+                        <li><a href="{{ route('inicio.meusdados') }}"><span><i class="fa fa-user-circle-o"></i> {{ trans('backpack::base.my_account') }}</span></a></li>
                         <li><a href="{{ url('/inicio/mudaug') }}"><span><i class="fa fa-exchange"></i> Mudar UG</a></li>
                         {{--<li class="divider"></li>--}}
                         {{--<li><a href="{{ url('/logout') }}" id="logout" title="Sair da Aplicação"--}}
