@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->integer('ugprimaria')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('senhasiafi')->nullable();
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
         $user = \App\User::create([
             'name' => 'Super Administrador',
             'cpf' => '111.111.111-11',
-            'email' => 'sadmin@teste.com',
+            'email' => 'helesjunior@gmail.com',
             'ugprimaria' => '1',
             'password' => bcrypt('123456'),
         ]);

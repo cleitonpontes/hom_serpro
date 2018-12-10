@@ -65,7 +65,14 @@
                             </ul>
                         </div>
                     @endif
-
+                    <div class="form-group">
+                        @php
+                            $label = 'CPF';
+                            $field = 'cpf';
+                        @endphp
+                        <label>{{ $label }}</label>
+                        <input class="form-control" disabled="disabled" type="text" name="{{ $field }}" value="{{ old($field) ? old($field) : $user->$field }}">
+                    </div>
                     <div class="form-group">
                         @php
                             $label = trans('backpack::base.name');
@@ -74,15 +81,42 @@
                         <label class="required">{{ $label }}</label>
                         <input required class="form-control" type="text" name="{{ $field }}" value="{{ old($field) ? old($field) : $user->$field }}">
                     </div>
-
                     <div class="form-group">
                         @php
-                            $label = config('backpack.base.authentication_column_name');
-                            $field = backpack_authentication_column();
+                            $label = 'E-mail';
+                            $field = 'email';
                         @endphp
                         <label class="required">{{ $label }}</label>
-                        <input required class="form-control" type="{{ backpack_authentication_column()=='email'?'email':'text' }}" name="{{ $field }}" value="{{ old($field) ? old($field) : $user->$field }}">
+                        <input required class="form-control" type="text" name="{{ $field }}" value="{{ old($field) ? old($field) : $user->$field }}">
                     </div>
+                    <div class="form-group">
+                        @php
+                            $label = 'UG Primária';
+                            $field = 'ugprimaria';
+                            $ug = \Illuminate\Support\Facades\DB::table('unidades')->find($user->$field);
+                        @endphp
+                        <label>{{ $label }}</label>
+                        <select name="{{ $field }}" class="form-control" disabled="disabled">
+                            <option value="{{$ug->codigo ? $ug->codigo : ''}}">{{$ug->codigo ? $ug->codigo : ''}}</option>
+                        </select>
+                        {{--<input required class="form-control" disabled="disabled" type="text" name="{{ $field }}" value="{{ old($field) ? old($field) : $ug->codigo }}">--}}
+                    </div>
+                    <div class="form-group">
+                        @php
+                            $label = 'Senha Siafi';
+                            $field = 'senhasiafi';
+                        @endphp
+                        <label>{{ $label }}</label>
+                        <input class="form-control" type="password" name="{{ $field }}" value="{{ old($field) ? old($field) : $user->$field }}">
+                    </div>
+                    {{--<div class="form-group">--}}
+                        {{--@php--}}
+                            {{--$label = config('backpack.base.authentication_column_name');--}}
+                            {{--$field = backpack_authentication_column();--}}
+                        {{--@endphp--}}
+                        {{--<label class="required">{{ $label }}</label>--}}
+                        {{--<input required class="form-control" type="{{ backpack_authentication_column()=='email'?'email':'text' }}" name="{{ $field }}" value="{{ old($field) ? old($field) : $user->$field }}">--}}
+                    {{--</div>--}}
 
                     <div class="form-group m-b-0">
                         <button type="submit" class="btn btn-success"><span class="ladda-label"><i class="fa fa-save"></i> {{ trans('backpack::base.save') }}</span></button>
