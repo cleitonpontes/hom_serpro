@@ -25,8 +25,12 @@ class UsuarioRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+
         return [
-            // 'name' => 'required|min:5|max:255'
+            'cpf' => "required|cpf|unique:users,cpf,{$id}",
+            'name' => 'required|max:255',
+            'email' => "required|email|max:255|unique:users,email,{$id}",
         ];
     }
 
@@ -50,7 +54,15 @@ class UsuarioRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'cpf.required' => 'O campo "CPF" é obrigatório!',
+            'cpf.cpf' => 'CPF inválido!',
+            'cpf.unique' => 'Este CPF já está cadastrado!',
+            'name.required' => 'O campo "Nome" é obrigatório!',
+            'name.max' => 'O campo "Nome" deve ser no máximo 255 caracteres!',
+            'email.unique' => 'Este E-mail já está cadastrado!',
+            'email.email' => 'E-mail inválido!',
+            'email.required' => 'O campo "E-mail" é obrigatório!',
+            'email.max' => 'O campo "E-mail" deve ser no máximo 255 caracteres!',
         ];
     }
 }

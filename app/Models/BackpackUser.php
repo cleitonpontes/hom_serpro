@@ -23,7 +23,15 @@ class BackpackUser extends User
     protected static $logName = 'usuario';
 
 
-    protected $fillable = ['cpf', 'name', 'email', 'ugprimaria', 'senhasiafi'];
+    protected $fillable = [
+        'cpf',
+        'name',
+        'email',
+        'ugprimaria',
+        'password',
+        'senhasiafi'
+    ];
+
 
     protected $table = 'users';
 
@@ -49,7 +57,8 @@ class BackpackUser extends User
         return $this->email;
     }
 
-    public function unidadeprimaria($id){
+    public function unidadeprimaria($id)
+    {
 
         $ug = Unidade::find($id);
 
@@ -57,8 +66,20 @@ class BackpackUser extends User
 
     }
 
-    public function unidades(){
+    public function getUGPrimaria()
+    {
+        if($this->ugprimaria){
+            $unidade = Unidade::find($this->ugprimaria);
+            return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+        }else{
+            return '-';
+        }
 
+
+    }
+
+    public function unidades()
+    {
         return $this->belongsToMany(Unidade::class, 'unidadesusers', 'user_id', 'unidade_id');
 
     }
