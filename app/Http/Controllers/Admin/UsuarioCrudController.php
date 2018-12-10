@@ -20,8 +20,6 @@ class UsuarioCrudController extends CrudController
 
     public function setup()
     {
-
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
