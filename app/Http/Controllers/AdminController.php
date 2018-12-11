@@ -147,7 +147,12 @@ class AdminController extends Controller
     {
         $user = BackpackUser::find(backpack_user()->id);
 
-        $ug = Unidade::find($user->ugprimaria)->pluck('codigo', 'id')->toArray();;
+        $ug = [];
+
+        if($user->ugprimaria){
+            $ug = Unidade::find($user->ugprimaria)->pluck('codigo', 'id')->toArray();
+        }
+
 
         $form = \FormBuilder::create(MeusdadosForm::class, [
             'url' => route('inicio.meusdados.atualiza'),

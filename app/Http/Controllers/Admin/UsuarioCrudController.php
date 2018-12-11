@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Traits\Authorizes;
+use App\Models\BackpackUser;
 use App\Models\Unidade;
+use App\Notifications\PasswordUserNotification;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -145,32 +147,32 @@ class UsuarioCrudController extends CrudController
                 'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [       // Select2Multiple = n-n relationship (with pivot table)
-                'label'         => 'UG´s Secundárias',
-                'type'          => 'select2_multiple',
-                'name'          => 'unidades', // the method that defines the relationship in your Model
-                'entity'        => 'unidades', // the method that defines the relationship in your Model
-                'attribute'     => 'codigo', // foreign key attribute that is shown to user
-                'model'         => "App\Models\Unidade", // foreign key model
-                'allows_null'   => true,
-                'pivot'         => true, // on create&update, do you need to add/delete pivot table entries?
+                'label' => 'UG´s Secundárias',
+                'type' => 'select2_multiple',
+                'name' => 'unidades', // the method that defines the relationship in your Model
+                'entity' => 'unidades', // the method that defines the relationship in your Model
+                'attribute' => 'codigo', // foreign key attribute that is shown to user
+                'model' => "App\Models\Unidade", // foreign key model
+                'allows_null' => true,
+                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
                 'select_all' => true,
-                'tab'           => 'Outros',
-                'options'   => (function ($query) {
+                'tab' => 'Outros',
+                'options' => (function ($query) {
                     return $query->orderBy('codigo', 'ASC')->where('tipo', '=', 'E')->get();
                 }),
             ],
             [       // Select2Multiple = n-n relationship (with pivot table)
-                'label'         => 'Grupos de Usuário',
-                'type'          => 'select2_multiple',
-                'name'          => 'roles', // the method that defines the relationship in your Model
-                'entity'        => 'roles', // the method that defines the relationship in your Model
-                'attribute'     => 'name', // foreign key attribute that is shown to user
-                'model'         => config('permission.models.role'), // foreign key model
-                'allows_null'   => true,
-                'pivot'         => true, // on create&update, do you need to add/delete pivot table entries?
+                'label' => 'Grupos de Usuário',
+                'type' => 'select2_multiple',
+                'name' => 'roles', // the method that defines the relationship in your Model
+                'entity' => 'roles', // the method that defines the relationship in your Model
+                'attribute' => 'name', // foreign key attribute that is shown to user
+                'model' => config('permission.models.role'), // foreign key model
+                'allows_null' => true,
+                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
                 'select_all' => true,
-                'tab'           => 'Outros',
-                'options'   => (function ($query) {
+                'tab' => 'Outros',
+                'options' => (function ($query) {
                     return $query->orderBy('name', 'ASC')->get();
                 }),
             ],
@@ -228,10 +230,21 @@ class UsuarioCrudController extends CrudController
 
         $request->request->set('password', bcrypt($senha));
 
+        $dados = [
+            'email' => $request->input('email'),
+            'cpf' => $request->input('cpf'),
+            'nome' => $request->input('name'),
+            'senha' => $senha,
+        ];
 
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
 
+        $usuario = BackpackUser::where('cpf', '=', $dados['cpf'])->first();
+
+        if ($usuario) {
+            $usuario->notify(new PasswordUserNotification($dados));
+        }
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
