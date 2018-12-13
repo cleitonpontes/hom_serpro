@@ -45,17 +45,16 @@ class ContratoCrudController extends CrudController
         | CrudPanel Configuration Collumns Table
         |--------------------------------------------------------------------------
         */
-        $this->crud->addColumn([
-            'name'  => 'numero',
-            'label' => 'Número Contrato',
-            'type'  => 'text',
-        ]);
-
         $this->crud->addColumns([
             [
-                'name'          => 'getUnidade',
-                'label'         => 'Unidade Gestora', // Table column heading
-                'type'          => 'model_function',
+                'name' => 'numero',
+                'label' => 'Número Contrato',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'getUnidade',
+                'label' => 'Unidade Gestora', // Table column heading
+                'type' => 'model_function',
                 'function_name' => 'getUnidade', // the method in your Model
                 'orderable' => true,
 //                'searchLogic' => function ($query, $column, $searchTerm) {
@@ -66,12 +65,10 @@ class ContratoCrudController extends CrudController
 //                    });
 //                },
             ],
-        ]);
-        $this->crud->addColumns([
             [
-                'name'          => 'getCategoria',
-                'label'         => 'Categoria', // Table column heading
-                'type'          => 'model_function',
+                'name' => 'getCategoria',
+                'label' => 'Categoria', // Table column heading
+                'type' => 'model_function',
                 'function_name' => 'getCategoria', // the method in your Model
                 'orderable' => true,
 //                'searchLogic'   => function ($query, $column, $searchTerm) {
@@ -80,14 +77,10 @@ class ContratoCrudController extends CrudController
 //                },
 
             ],
-        ]);
-
-
-        $this->crud->addColumns([
             [
-                'name'          => 'getFornecedor',
-                'label'         => 'Fornecedor', // Table column heading
-                'type'          => 'model_function',
+                'name' => 'getFornecedor',
+                'label' => 'Fornecedor', // Table column heading
+                'type' => 'model_function',
                 'function_name' => 'getFornecedor', // the method in your Model
                 'orderable' => true,
 //                'searchLogic'   => function ($query, $column, $searchTerm) {
@@ -96,37 +89,30 @@ class ContratoCrudController extends CrudController
 //                },
 
             ],
-        ]);
-
-        $this->crud->addColumn([
-            'name'  => 'processo',
-            'label' => 'Processo',
-            'type'  => 'text',
-        ]);
-
-        $this->crud->addColumn([
-            'name'  => 'objeto',
-            'label' => 'Objeto',
-            'type'  => 'text',
-        ]);
-
-        $this->crud->addColumn([
-            'name'  => 'vigencia_inicio',
-            'label' => 'Vig. Início',
-            'type'  => 'date',
-        ]);
-
-        $this->crud->addColumn([
-            'name'  => 'vigencia_fim',
-            'label' => 'Vig. Fim',
-            'type'  => 'date',
-        ]);
-
-        $this->crud->addColumns([
             [
-                'name'          => 'formatVlrGlobal',
-                'label'         => 'Valor Global', // Table column heading
-                'type'          => 'model_function',
+                'name' => 'processo',
+                'label' => 'Processo',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'objeto',
+                'label' => 'Objeto',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'vigencia_inicio',
+                'label' => 'Vig. Início',
+                'type' => 'date',
+            ],
+            [
+                'name' => 'vigencia_fim',
+                'label' => 'Vig. Fim',
+                'type' => 'date',
+            ],
+            [
+                'name' => 'formatVlrGlobal',
+                'label' => 'Valor Global', // Table column heading
+                'type' => 'model_function',
                 'function_name' => 'formatVlrGlobal', // the method in your Model
                 'orderable' => true,
 //                'searchLogic'   => function ($query, $column, $searchTerm) {
@@ -135,19 +121,15 @@ class ContratoCrudController extends CrudController
 //                },
 
             ],
-        ]);
-
-        $this->crud->addColumn([
-            'name'  => 'num_parcelas',
-            'label' => 'Núm. Parcelas',
-            'type'  => 'number',
-        ]);
-
-        $this->crud->addColumns([
             [
-                'name'          => 'formatVlrParcela',
-                'label'         => 'Valor Parcela', // Table column heading
-                'type'          => 'model_function',
+                'name' => 'num_parcelas',
+                'label' => 'Núm. Parcelas',
+                'type' => 'number',
+            ],
+            [
+                'name' => 'formatVlrParcela',
+                'label' => 'Valor Parcela', // Table column heading
+                'type' => 'model_function',
                 'function_name' => 'formatVlrParcela', // the method in your Model
                 'orderable' => true,
 //                'searchLogic'   => function ($query, $column, $searchTerm) {
@@ -156,21 +138,12 @@ class ContratoCrudController extends CrudController
 //                },
 
             ],
-        ]);
-
-
-        $this->crud->addColumns([
             [
-                'name'          => 'getSituacao',
-                'label'         => 'Situação', // Table column heading
-                'type'          => 'model_function',
-                'function_name' => 'getSituacao', // the method in your Model
-                'orderable' => true,
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-
+                'name' => 'situacao',
+                'label' => 'Situação',
+                'type' => 'boolean',
+                // optionally override the Yes/No texts
+                'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
         ]);
 

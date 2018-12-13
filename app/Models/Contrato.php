@@ -73,14 +73,6 @@ class Contrato extends Model
 
     }
 
-    public function getSituacao()
-    {
-        if($this->situacao == false){
-            return "Inativo";
-        }else{
-            return "Ativo";
-        }
-    }
 
     public function formatVlrParcela()
     {

@@ -33,7 +33,7 @@
                             <div class="hidden-print {{ $crud->hasAccess('create')?'with-border':'' }}">
 
                                 @include('crud::inc.button_stack', ['stack' => 'top'])
-                                {{--<div id="datatable_button_stack" class="pull-right text-right hidden-xs"></div>--}}
+                                <div id="datatable_button_stack" class="pull-right text-right hidden-xs"></div>
                             </div>
                         @endif
                     </div>

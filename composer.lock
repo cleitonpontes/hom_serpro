@@ -101,16 +101,16 @@
         },
         {
             "name": "backpack/base",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Backpack/Base.git",
-                "reference": "5c6ccebd3041c2b6f53c6eb563543c77bdcfd639"
+                "reference": "c7e07f7a51322b5c2c3f6cd18579bb3f8bfa147c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Backpack/Base/zipball/5c6ccebd3041c2b6f53c6eb563543c77bdcfd639",
-                "reference": "5c6ccebd3041c2b6f53c6eb563543c77bdcfd639",
+                "url": "https://api.github.com/repos/Laravel-Backpack/Base/zipball/c7e07f7a51322b5c2c3f6cd18579bb3f8bfa147c",
+                "reference": "c7e07f7a51322b5c2c3f6cd18579bb3f8bfa147c",
                 "shasum": ""
             },
             "require": {
@@ -162,20 +162,20 @@
                 "backpack",
                 "base"
             ],
-            "time": "2018-12-06T16:36:27+00:00"
+            "time": "2018-12-10T08:23:26+00:00"
         },
         {
             "name": "backpack/crud",
-            "version": "3.5.10",
+            "version": "3.5.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Backpack/CRUD.git",
-                "reference": "e9020d230f0058be5f6c2c116598da16170adb5c"
+                "reference": "5fa371fbd0a8dfc4037074b6f640572a8a4b78d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Backpack/CRUD/zipball/e9020d230f0058be5f6c2c116598da16170adb5c",
-                "reference": "e9020d230f0058be5f6c2c116598da16170adb5c",
+                "url": "https://api.github.com/repos/Laravel-Backpack/CRUD/zipball/5fa371fbd0a8dfc4037074b6f640572a8a4b78d9",
+                "reference": "5fa371fbd0a8dfc4037074b6f640572a8a4b78d9",
                 "shasum": ""
             },
             "require": {
@@ -237,7 +237,7 @@
                 "read",
                 "update"
             ],
-            "time": "2018-12-05T06:11:56+00:00"
+            "time": "2018-12-13T10:14:30+00:00"
         },
         {
             "name": "backpack/logmanager",
@@ -1702,16 +1702,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v5.7.16",
+            "version": "v5.7.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "9acea9e0a356cba7e6a13f8784d5532a82fee92a"
+                "reference": "a15898e2de5f5ae5548a09349c558ef0435d495a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/9acea9e0a356cba7e6a13f8784d5532a82fee92a",
-                "reference": "9acea9e0a356cba7e6a13f8784d5532a82fee92a",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/a15898e2de5f5ae5548a09349c558ef0435d495a",
+                "reference": "a15898e2de5f5ae5548a09349c558ef0435d495a",
                 "shasum": ""
             },
             "require": {
@@ -1844,7 +1844,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2018-12-05T14:36:24+00:00"
+            "time": "2018-12-12T14:38:09+00:00"
         },
         {
             "name": "laravel/nexmo-notification-channel",
@@ -1905,16 +1905,16 @@
         },
         {
             "name": "laravel/slack-notification-channel",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/slack-notification-channel.git",
-                "reference": "0ede60acbbf5f91be2e45d0c0b4d95e2f3837252"
+                "reference": "6e164293b754a95f246faf50ab2bbea3e4923cc9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/slack-notification-channel/zipball/0ede60acbbf5f91be2e45d0c0b4d95e2f3837252",
-                "reference": "0ede60acbbf5f91be2e45d0c0b4d95e2f3837252",
+                "url": "https://api.github.com/repos/laravel/slack-notification-channel/zipball/6e164293b754a95f246faf50ab2bbea3e4923cc9",
+                "reference": "6e164293b754a95f246faf50ab2bbea3e4923cc9",
                 "shasum": ""
             },
             "require": {
@@ -1958,7 +1958,7 @@
                 "notifications",
                 "slack"
             ],
-            "time": "2018-12-04T12:58:59+00:00"
+            "time": "2018-12-12T13:12:06+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -3435,16 +3435,16 @@
         },
         {
             "name": "spatie/laravel-permission",
-            "version": "2.28.1",
+            "version": "2.28.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-permission.git",
-                "reference": "1b5a0631f77d72f06a8949b9e065ba0804ec93a3"
+                "reference": "1887a5851013bf1a457f2a65477f96e98ae3f53a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/1b5a0631f77d72f06a8949b9e065ba0804ec93a3",
-                "reference": "1b5a0631f77d72f06a8949b9e065ba0804ec93a3",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/1887a5851013bf1a457f2a65477f96e98ae3f53a",
+                "reference": "1887a5851013bf1a457f2a65477f96e98ae3f53a",
                 "shasum": ""
             },
             "require": {
@@ -3496,7 +3496,7 @@
                 "security",
                 "spatie"
             ],
-            "time": "2018-12-07T16:59:39+00:00"
+            "time": "2018-12-11T02:03:59+00:00"
         },
         {
             "name": "spatie/string",
@@ -5993,16 +5993,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "7.5.0",
+            "version": "7.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "520723129e2b3fc1dc4c0953e43c9d40e1ecb352"
+                "reference": "c23d78776ad415d5506e0679723cb461d71f488f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/520723129e2b3fc1dc4c0953e43c9d40e1ecb352",
-                "reference": "520723129e2b3fc1dc4c0953e43c9d40e1ecb352",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c23d78776ad415d5506e0679723cb461d71f488f",
+                "reference": "c23d78776ad415d5506e0679723cb461d71f488f",
                 "shasum": ""
             },
             "require": {
@@ -6073,7 +6073,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2018-12-07T07:08:12+00:00"
+            "time": "2018-12-12T07:20:32+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
