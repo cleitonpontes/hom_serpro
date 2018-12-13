@@ -18,12 +18,13 @@ class CreateContratoTable extends Migration
             $table->string('numero');
             $table->integer('fornecedor_id');
             $table->integer('unidade_id');
+            $table->integer('tipo_id')->nullable();
             $table->integer('categoria_id')->nullable();
             $table->string('processo')->nullable();
             $table->text('objeto');
             $table->text('info_complementar')->nullable();
             $table->string('fundamento_legal')->nullable();
-            $table->string('modalidade')->nullable();
+            $table->integer('modalidade_id')->nullable();
             $table->string('licitacao_numero')->nullable();
             $table->date('data_assinatura');
             $table->date('data_publicacao')->nullable();
@@ -42,6 +43,8 @@ class CreateContratoTable extends Migration
             $table->foreign('fornecedor_id')->references('id')->on('fornecedores')->onDelete('cascade');
             $table->foreign('unidade_id')->references('id')->on('unidades')->onDelete('cascade');
             $table->foreign('categoria_id')->references('id')->on('codigoitens')->onDelete('cascade');
+            $table->foreign('tipo_id')->references('id')->on('codigoitens')->onDelete('cascade');
+            $table->foreign('modalidade_id')->references('id')->on('codigoitens')->onDelete('cascade');
         });
     }
 

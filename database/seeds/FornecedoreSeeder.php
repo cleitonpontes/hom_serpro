@@ -189,7 +189,7 @@ class FornecedorSeeder extends Seeder
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '01.970.003/0001-10', 'nome' => 'METRO ENGENHARIA LTDA.']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '43.776.517/0001-80', 'nome' => 'SABESP COMPANHIA DE SANEAMENTO BÁSICO DO ESTADO DE SÃO PAULO']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '05.965.546/0001-09', 'nome' => 'CIA DE ELETRICIDADE DO AMAPA  CEA ']);
-        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '21.180.047/0001-54', 'nome' => ' ESTELAR LTDA']);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '21.180.047/0001-54', 'nome' => 'ESTELAR LTDA']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '10.427.246/0001-06', 'nome' => 'FUNDO DE INVESTIMENTO IMOBIILARIO FII PRIME PORTFOLIO']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '09.405.866/0001-57', 'nome' => 'PEDRAZUL SERVIÇOS LTDA']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '08.247.960/0001-62', 'nome' => 'REAL JG SERVIÇOS GERAIS EIRELI']);
@@ -281,7 +281,7 @@ class FornecedorSeeder extends Seeder
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '12.589.220/0001-81', 'nome' => 'EFICIENCIA SERVIÇOS TERCEIRIZADOS LTDA']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '43.217.850/0001-59', 'nome' => 'IOB INFORMAÇÃO OBJETIVAS PUBLICAÇÕES JURÍDICAS LTDA ']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '20.838.277/0001-03', 'nome' => '3R COMÉRCIO E SERVIÇOS DE MÁQUINAS LTDA ME']);
-        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '20.607.735/0001-95', 'nome' => '  SAAE  SERVIÇO AUTÔNOMO DE ÁGUA E ESGOTO  GOVERNADOR VALADARES']);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '20.607.735/0001-95', 'nome' => 'SAAE  SERVIÇO AUTÔNOMO DE ÁGUA E ESGOTO  GOVERNADOR VALADARES']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '08.203.639/0001-86', 'nome' => 'TATYANA EMPREENDIMENTOS E PARTICIPAÇÕES LTDA']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '18.045.377/0001-22', 'nome' => 'TULA INCORPORADORA LTDA']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '04.918.226/0001-27', 'nome' => 'GENESIS ADMINISTRADORA DE BENS LTDA']);

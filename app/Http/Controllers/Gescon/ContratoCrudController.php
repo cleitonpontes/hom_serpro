@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Models\Codigoitem;
+use App\Models\Fornecedor;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class ContratoCrudController
@@ -49,7 +52,7 @@ class ContratoCrudController extends CrudController
             [
                 'name' => 'numero',
                 'label' => 'Número Contrato',
-                'type' => 'text',
+                'type' => 'numcontrato',
             ],
             [
                 'name' => 'getUnidade',
@@ -147,26 +150,206 @@ class ContratoCrudController extends CrudController
             ],
         ]);
 
-//        $this->crud->addColumn([
-//            'name'  => 'cpf_cnpj_idgener',
-//            'label' => 'CPF/CNPJ/UG/ID Genérico',
-//            'type'  => 'text',
-//        ]);
-//
-//        $this->crud->addColumn([
-//            'name'  => 'nome',
-//            'label' => 'Nome / Razão Social',
-//            'type'  => 'text',
-//        ]);
-
-        // add asterisk for fields that are required in ContratoRequest
-
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration Campos Formulário
         |--------------------------------------------------------------------------
         */
+        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
+            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
+
+        $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
+
+        $categorias = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Categoria Contrato');
+        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+
+        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Modalidade Licitação');
+        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+
+        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Termo Aditivo')
+            ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->orderBy('descricao')
+            ->pluck('descricao', 'id')
+            ->toArray();
+
+        $categorias = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Categoria Contrato');
+        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+
+        $this->crud->addFields([
+            [
+                // select_from_array
+                'name' => 'tipo_id',
+                'label' => "Tipo",
+                'type' => 'select2_from_array',
+                'options' => $tipos,
+                'allows_null' => true,
+                'tab' => 'Dados Gerais',
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'categoria_id',
+                'label' => "Categoria",
+                'type' => 'select2_from_array',
+                'options' => $categorias,
+                'allows_null' => true,
+                'tab' => 'Dados Gerais',
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'numero',
+                'label' => 'Número Contrato',
+                'type' => 'numcontrato',
+                'tab' => 'Dados Gerais',
+            ],
+            [
+                'name' => 'processo',
+                'label' => 'Número Processo',
+                'type' => 'numprocesso',
+                'tab' => 'Dados Gerais',
+            ],
+            [ // select_from_array
+                'name' => 'fornecedor_id',
+                'label' => "Fornecedor",
+                'type' => 'select2_from_array',
+                'options' => $fornecedores,
+                'allows_null' => true,
+                'tab' => 'Dados Gerais',
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'unidade_id',
+                'label' => "Unidade Gestora",
+                'type' => 'select2_from_array',
+                'options' => $unidade,
+                'allows_null' => false,
+                'attributes' => [
+                    'disabled' => 'disabled',
+                ],
+                'tab' => 'Dados Gerais',
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'situacao',
+                'label' => "Situação",
+                'type' => 'select_from_array',
+                'options' => [1 => 'Ativo', 0 => 'Inativo'],
+                'allows_null' => false,
+                'tab' => 'Dados Gerais',
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+
+            [   // Date
+                'name' => 'data_assinatura',
+                'label' => 'Data Assinatura',
+                'type' => 'date',
+                'tab' => 'Dados Contrato',
+            ],
+            [   // Date
+                'name' => 'data_publicacao',
+                'label' => 'Data Publicação',
+                'type' => 'date',
+                'tab' => 'Dados Contrato',
+            ],
+            [
+                'name' => 'objeto',
+                'label' => 'Objeto',
+                'type' => 'textarea',
+                'tab' => 'Dados Contrato',
+            ],
+            [
+                'name' => 'info_complementar',
+                'label' => 'Informações Complementares',
+                'type' => 'textarea',
+                'tab' => 'Dados Contrato',
+            ],
+            [
+                // select_from_array
+                'name' => 'modalidade_id',
+                'label' => "Modalidade Licitação",
+                'type' => 'select2_from_array',
+                'options' => $modalidades,
+                'allows_null' => true,
+                'tab' => 'Dados Contrato',
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'licitacao_numero',
+                'label' => 'Número Licitação',
+                'type' => 'numcontrato',
+                'tab' => 'Dados Contrato',
+            ],
+            [   // Date
+                'name' => 'vigencia_inicio',
+                'label' => 'Data Vig. Início',
+                'type' => 'date',
+                'tab' => 'Vigência / Valores',
+            ],
+            [   // Date
+                'name' => 'vigencia_fim',
+                'label' => 'Data Vig. Fim',
+                'type' => 'date',
+                'tab' => 'Vigência / Valores',
+            ],
+            [   // Number
+                'name' => 'valor_global',
+                'label' => 'Valor Global',
+                'type' => 'number',
+                // optionals
+                'attributes' => [
+                    "step" => "any",
+                    "max" => '999999999999999.99',
+                    "min" => '0.01'
+                ], // allow decimals
+                'prefix' => "R$",
+                'tab' => 'Vigência / Valores',
+                // 'suffix' => ".00",
+            ],
+            [   // Number
+                'name' => 'num_parcelas',
+                'label' => 'Núm. Percelas',
+                'type' => 'number',
+                // optionals
+                'attributes' => [
+                    "step" => "any",
+                    "min" => '1',
+                ], // allow decimals
+//                'prefix' => "R$",
+                'tab' => 'Vigência / Valores',
+                // 'suffix' => ".00",
+            ],
+            [   // Number
+                'name' => 'valor_parcela',
+                'label' => 'Valor Parcela',
+                'type' => 'number',
+                // optionals
+                'attributes' => [
+                    "step" => "any",
+                    "max" => '999999999999999.99',
+                    "min" => '0.01'
+                ], // allow decimals
+                'prefix' => "R$",
+                'tab' => 'Vigência / Valores',
+                // 'suffix' => ".00",
+            ],
+        ]);
 
 
     }

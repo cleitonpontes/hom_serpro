@@ -116,7 +116,7 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '11','descres' => '48','descricao' => 'Locação Equipamentos' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '11','descres' => '999','descricao' => 'Internacional' ]);
 
-        DB::table('codigos')->insert(['descricao' => 'Tipo de Contrato SIASG','visivel' => false,]);
+        DB::table('codigos')->insert(['descricao' => 'Tipo de Contrato','visivel' => false,]);
         DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '50','descricao' => 'Contrato' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '51','descricao' => 'Credenciamento' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '52','descricao' => 'Comodato' ]);
@@ -126,6 +126,17 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '56','descricao' => 'Termo de Adesão' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '57','descricao' => 'Convênio' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '12','descres' => '60','descricao' => 'Termo de Apostilamento' ]);
+
+        DB::table('codigos')->insert(['descricao' => 'Modalidade Licitação','visivel' => false,]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'ADESAO','descricao' => 'Adesão' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'ATARP','descricao' => 'Ata RP' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'CONCORRE','descricao' => 'Concorrência' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'CONCURSO','descricao' => 'Concurso' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'CONVITE','descricao' => 'Convite' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'DISPENSA','descricao' => 'Dispensa' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'INEXIGIBI','descricao' => 'Inexigibilidade' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'PREGAO','descricao' => 'Pregão' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'TOMPRECO','descricao' => 'Tomada de Preços' ]);
 
     }
 }
