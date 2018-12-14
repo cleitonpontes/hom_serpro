@@ -452,27 +452,6 @@ class ContratoCrudController extends CrudController
     {
         $content = parent::show($id);
 
-//        $this->crud->addColumn([
-//            'name' => 'table',
-//            'label' => 'Table',
-//            'type' => 'table',
-//            'columns' => [
-//                'name'  => 'Name',
-//                'desc'  => 'Description',
-//                'price' => 'Price',
-//            ]
-//        ]);
-//        $this->crud->addColumn([
-//            'name' => 'fake_table',
-//            'label' => 'Fake Table',
-//            'type' => 'table',
-//            'columns' => [
-//                'name'  => 'Name',
-//                'desc'  => 'Description',
-//                'price' => 'Price',
-//            ],
-//        ]);
-//        $this->crud->addColumn('text');
         $this->crud->removeColumn('fornecedor_id');
         $this->crud->removeColumn('tipo_id');
         $this->crud->removeColumn('categoria_id');
@@ -488,8 +467,6 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('valor_parcela');
         $this->crud->removeColumn('valor_acumulado');
         $this->crud->removeColumn('situacao_siasg');
-
-
 
         return $content;
     }
