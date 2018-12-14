@@ -23,12 +23,13 @@ class Contrato extends Model
         'numero',
         'fornecedor_id',
         'unidade_id',
+        'tipo_id',
         'categoria_id',
         'processo',
         'objeto',
         'info_complementar',
         'fundamento_legal',
-        'modalidade',
+        'modalidade_id',
         'licitacao_numero',
         'data_assinatura',
         'data_publicacao',
@@ -62,6 +63,19 @@ class Contrato extends Model
     {
         $unidade = Unidade::find($this->unidade_id);
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+
+    }
+
+    public function getTipo()
+    {
+        if($this->tipo_id){
+            $tipo = Codigoitem::find($this->tipo_id);
+
+            return $tipo->descricao;
+        }else{
+            return '';
+        }
+
 
     }
 

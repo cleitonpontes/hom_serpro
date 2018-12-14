@@ -26,7 +26,21 @@ class ContratoRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+             'numero' => 'required',
+             'fornecedor_id' => 'required',
+             'tipo_id' => 'required',
+             'categoria_id' => 'required',
+             'processo' => 'required',
+             'objeto' => 'required',
+             'modalidade_id' => 'required',
+             'licitacao_numero' => 'required',
+             'data_assinatura' => 'required|date',
+             'vigencia_inicio' => 'required|date',
+             'vigencia_fim' => 'required|date',
+             'valor_global' => 'required|numeric|between:0.01,999999999999999.99',
+             'num_parcelas' => 'required',
+             'valor_parcela' => 'required|numeric|between:0.01,999999999999999.99',
+             'situacao' => 'required',
         ];
     }
 

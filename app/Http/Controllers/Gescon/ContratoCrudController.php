@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\DB;
  */
 class ContratoCrudController extends CrudController
 {
+    /**
+     *
+     */
     public function setup()
     {
         /*
@@ -37,12 +40,17 @@ class ContratoCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
-        $this->crud->enableAjaxTable();
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
 
-//        dd(session()->get('user_ug_id'));
+        (backpack_user()->can('contrato_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('contrato_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('contrato_deletar')) ? $this->crud->allowAccess('delete') : null;
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration Collumns Table
@@ -53,6 +61,11 @@ class ContratoCrudController extends CrudController
                 'name' => 'numero',
                 'label' => 'Número Contrato',
                 'type' => 'numcontrato',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'getUnidade',
@@ -60,6 +73,10 @@ class ContratoCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'getUnidade', // the method in your Model
                 'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
 //                'searchLogic' => function ($query, $column, $searchTerm) {
 //                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
 //                        $q->where('nome', 'like', '%' . $searchTerm . '%');
@@ -69,11 +86,31 @@ class ContratoCrudController extends CrudController
 //                },
             ],
             [
+                'name' => 'getTipo',
+                'label' => 'Tipo', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getTipo', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
+            ],
+            [
                 'name' => 'getCategoria',
                 'label' => 'Categoria', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getCategoria', // the method in your Model
                 'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
 //                'searchLogic'   => function ($query, $column, $searchTerm) {
 //                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
 //                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
@@ -86,6 +123,10 @@ class ContratoCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'getFornecedor', // the method in your Model
                 'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
 //                'searchLogic'   => function ($query, $column, $searchTerm) {
 //                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
 //                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
@@ -96,21 +137,41 @@ class ContratoCrudController extends CrudController
                 'name' => 'processo',
                 'label' => 'Processo',
                 'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'objeto',
                 'label' => 'Objeto',
                 'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'vigencia_inicio',
                 'label' => 'Vig. Início',
                 'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'vigencia_fim',
                 'label' => 'Vig. Fim',
                 'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'formatVlrGlobal',
@@ -118,6 +179,10 @@ class ContratoCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'formatVlrGlobal', // the method in your Model
                 'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
 //                'searchLogic'   => function ($query, $column, $searchTerm) {
 //                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
 //                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
@@ -128,6 +193,11 @@ class ContratoCrudController extends CrudController
                 'name' => 'num_parcelas',
                 'label' => 'Núm. Parcelas',
                 'type' => 'number',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'formatVlrParcela',
@@ -135,6 +205,10 @@ class ContratoCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'formatVlrParcela', // the method in your Model
                 'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
 //                'searchLogic'   => function ($query, $column, $searchTerm) {
 //                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
 //                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
@@ -145,6 +219,11 @@ class ContratoCrudController extends CrudController
                 'name' => 'situacao',
                 'label' => 'Situação',
                 'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
                 // optionally override the Yes/No texts
                 'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
@@ -155,6 +234,7 @@ class ContratoCrudController extends CrudController
         | CrudPanel Configuration Campos Formulário
         |--------------------------------------------------------------------------
         */
+
         $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
             ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
 
@@ -176,10 +256,6 @@ class ContratoCrudController extends CrudController
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
-
-        $categorias = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Categoria Contrato');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $this->crud->addFields([
             [
@@ -370,5 +446,51 @@ class ContratoCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+//        $this->crud->addColumn([
+//            'name' => 'table',
+//            'label' => 'Table',
+//            'type' => 'table',
+//            'columns' => [
+//                'name'  => 'Name',
+//                'desc'  => 'Description',
+//                'price' => 'Price',
+//            ]
+//        ]);
+//        $this->crud->addColumn([
+//            'name' => 'fake_table',
+//            'label' => 'Fake Table',
+//            'type' => 'table',
+//            'columns' => [
+//                'name'  => 'Name',
+//                'desc'  => 'Description',
+//                'price' => 'Price',
+//            ],
+//        ]);
+//        $this->crud->addColumn('text');
+        $this->crud->removeColumn('fornecedor_id');
+        $this->crud->removeColumn('tipo_id');
+        $this->crud->removeColumn('categoria_id');
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('info_complementar');
+        $this->crud->removeColumn('fundamento_legal');
+        $this->crud->removeColumn('modalidade_id');
+        $this->crud->removeColumn('licitacao_numero');
+        $this->crud->removeColumn('data_assinatura');
+        $this->crud->removeColumn('data_publicacao');
+        $this->crud->removeColumn('valor_inicial');
+        $this->crud->removeColumn('valor_global');
+        $this->crud->removeColumn('valor_parcela');
+        $this->crud->removeColumn('valor_acumulado');
+        $this->crud->removeColumn('situacao_siasg');
+
+
+
+        return $content;
     }
 }
