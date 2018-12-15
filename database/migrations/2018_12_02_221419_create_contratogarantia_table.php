@@ -16,14 +16,14 @@ class CreateContratogarantiaTable extends Migration
         Schema::create('contratogarantias', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('contrato_id');
-            $table->integer('tipo_garantia');
-            $table->decimal('valor_garantia');
-            $table->date('data_vencimento');
+            $table->integer('tipo');
+            $table->decimal('valor');
+            $table->date('vencimento');
             $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
-            $table->foreign('tipo_garantia')->references('id')->on('codigoitens')->onDelete('cascade');
+            $table->foreign('tipo')->references('id')->on('codigoitens')->onDelete('cascade');
         });
     }
 

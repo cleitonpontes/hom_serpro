@@ -102,7 +102,17 @@ class Contrato extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function responsaveis(){
 
+        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
+
+    }
+
+    public function garantias(){
+
+        return $this->hasMany(Contratogarantia::class, 'contrato_id');
+
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

@@ -63,5 +63,9 @@ Route::prefix('gescon')->group(function (){
         {
             CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
         });
+        Route::group(['prefix' => 'contrato/{contrato_id}'], function()
+        {
+            CRUD::resource('garantias', 'ContratogarantiaCrudController');
+        });
     });
 });

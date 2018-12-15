@@ -87,7 +87,6 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '8','descres' => 'FIANCABANC','descricao' => 'Fiança Bancária' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '8','descres' => 'SEGGARANTI','descricao' => 'Seguro Garantia' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '8','descres' => 'TITDIVPUB','descricao' => 'Título da Dívida Pública' ]);
-        DB::table('codigoitens')->insert(['codigo_id' => '8','descres' => 'NENHUMA','descricao' => 'Nenhuma' ]);
 
         DB::table('codigos')->insert(['descricao' => 'Tipo Fornecedor','visivel' => false,]);
         DB::table('codigoitens')->insert(['codigo_id' => '9','descres' => 'FISICA','descricao' => 'Pessoa Física' ]);

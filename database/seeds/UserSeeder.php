@@ -9,12 +9,14 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        $user = \App\User::create([
-            'name' => 'Super Administrador',
-            'cpf' => '111.111.111-11',
-            'email' => 'teste@teste.com',
+        $user = \App\Models\BackpackUser::create([
+            'name' => 'HELES RESENDE SILVA JÚNIOR',
+            'cpf' => '700.744.021-53',
+            'email' => 'helesjunior@gmail.com',
             'ugprimaria' => '1',
             'password' => bcrypt('123456'),
         ]);
+
+        $user->assignRole('Administrador');
     }
 }
