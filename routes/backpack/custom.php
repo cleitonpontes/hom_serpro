@@ -59,6 +59,9 @@ Route::prefix('gescon')->group(function (){
 
         CRUD::resource('contrato', 'ContratoCrudController');
         CRUD::resource('fornecedor', 'FornecedorCrudController');
-
+        Route::group(['prefix' => 'contrato/{contrato_id}'], function()
+        {
+            CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
+        });
     });
 });

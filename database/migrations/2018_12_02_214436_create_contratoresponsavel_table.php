@@ -17,8 +17,8 @@ class CreateContratoresponsavelTable extends Migration
             $table->increments('id');
             $table->integer('contrato_id');
             $table->integer('user_id');
-            $table->integer('funcao');
-            $table->string('unidade_funcao')->nullable();
+            $table->integer('funcao_id');
+            $table->integer('instalacao_id')->nullable();
             $table->string('portaria');
             $table->boolean('situacao');
             $table->softDeletes();
@@ -26,7 +26,8 @@ class CreateContratoresponsavelTable extends Migration
 
             $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('funcao')->references('id')->on('codigoitens')->onDelete('cascade');
+            $table->foreign('funcao_id')->references('id')->on('codigoitens')->onDelete('cascade');
+            $table->foreign('instalacao_id')->references('id')->on('instalacoes')->onDelete('cascade');
         });
     }
 

@@ -6,14 +6,15 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right">
         <li class="dropdown-header"><i class="fa fa-list"></i> Itens Contrato:</li>
-        <li><a href="/contrato/{{$entry->getKey()}}/empenho">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Empenhos</a></li>
-        <li><a href="/contrato/{{$entry->getKey()}}/fatura">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Faturas</a></li>
-        <li><a href="/contrato/{{$entry->getKey()}}/garantia">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Garantias</a></li>
-        <li><a href="/contrato/{{$entry->getKey()}}/ocorrencia">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Ocorrências</a></li>
-        <li><a href="/contrato/{{$entry->getKey()}}/terceirizado">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Terceirizados</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/empenhos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Empenhos</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/faturas">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Faturas</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/garantias">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Garantias</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/ocorrencias">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Ocorrências</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/responsaveis">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Responsáveis</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/terceirizados">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Terceirizados</a></li>
         <li class="dropdown-header"><i class="fa fa-edit"></i> Modificar Contrato:</li>
-        <li><a href="/contrato/{{$entry->getKey()}}/aditivo">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Aditivo</a></li>
-        <li><a href="/contrato/{{$entry->getKey()}}/apostilamento">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Apostilamento</a></li>
-        <li><a href="/contrato/{{$entry->getKey()}}/rescisao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Rescisão</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/aditivos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Aditivo</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/apostilamentos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Apostilamento</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/rescisao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Rescisão</a></li>
     </ul>
 </div>
