@@ -495,10 +495,10 @@ class FornecedorSeeder extends Seeder
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '04.236.076/0001-71', 'nome' => 'INSTITUTO DE DESENVOLVIMENTO EDUCACIONAL, CULTURAL E ASSISTENCIAL NACIONAL,']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '00.681.882/0001-06', 'nome' => 'ENTHERME ENGENHARIA DE SISTEMAS TERMOMECÂNICOS LTDA ']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '19.877.285/0003-33', 'nome' => 'LANLINK SOLUÇÕES E COMERCIALIZAÇÃO EM INFORMÁTICA SA']);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'JURIDICA', 'cpf_cnpj_idgener' => '08.823.749/0001-40', 'nome' => 'R. PINHEIRO GRIMM TRANSPORTES EPP']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '115406', 'nome' => 'EMPRESA BRASIL DE COMUNICAÇÃO']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '803010', 'nome' => 'SERPRO REGIONAL BRASILIA']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '806030', 'nome' => 'SERPRO REGIONAL BRASILIA SEDE']);
-        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '08.823.749/0001-40', 'nome' => 'R. PINHEIRO GRIMM TRANSPORTES EPP']);
 
     }
 }

@@ -26,7 +26,15 @@ class FornecedorCrudController extends CrudController
         $this->crud->setModel('App\Models\Fornecedor');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/fornecedor');
         $this->crud->setEntityNameStrings('fornecedor', 'fornecedores');
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
 
+        (backpack_user()->can('fornecedor_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('fornecedor_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('fornecedor_deletar')) ? $this->crud->allowAccess('delete') : null;
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -119,5 +127,13 @@ class FornecedorCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('tipo_fornecedor');
+
+        return $content;
     }
 }

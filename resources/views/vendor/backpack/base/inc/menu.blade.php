@@ -4,10 +4,10 @@
         <!-- ========== Top menu items (ordered left) ========== -->
         <!-- =================================================== -->
 
-        @if (backpack_auth()->check())
-            <!-- Topbar. Contains the left part -->
-            @include('backpack::inc.topbar_left_content')
-        @endif
+    @if (backpack_auth()->check())
+        <!-- Topbar. Contains the left part -->
+        @include('backpack::inc.topbar_left_content')
+    @endif
 
     <!-- ========== End of top menu left items ========== -->
     </ul>
@@ -29,27 +29,32 @@
                     <li><a href="{{ route('backpack.auth.register') }}">{{ trans('backpack::base.register') }}</a></li>
                 @endif
             @else
-                <!-- Topbar. Contains the right part -->
-                <li class="dropdown">
+            <!-- Topbar. Contains the right part -->
+                <li><a href="{{ url('/muda-ug') }}"><span><i class="fa fa-exchange"></i> Mudar UG</a></li>
+                <li><a href="{{ route('inicio.meusdados') }}"><span><i class="fa fa-user-circle-o"></i> {{ trans('backpack::base.my_account') }}</span></a>
+                </li>
+                {{--<li class="dropdown">--}}
                     {{--<a href="#" data-toggle="control-sidebar" title="Configurações"><i class="fa fa-gears"></i></a>--}}
                     {{--<li class="dropdown">--}}
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Configurações"><i
-                                class="fa fa-gears"></i> <span class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="{{ route('inicio.meusdados') }}"><span><i class="fa fa-user-circle-o"></i> {{ trans('backpack::base.my_account') }}</span></a></li>
-                        <li><a href="{{ url('/inicio/mudaug') }}"><span><i class="fa fa-exchange"></i> Mudar UG</a></li>
+                    {{--<a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Configurações"><i--}}
+                            {{--class="fa fa-gears"></i> <span class="caret"></span></a>--}}
+                    {{--<ul class="dropdown-menu" role="menu">--}}
+                        {{--<li><a href="{{ route('inicio.meusdados') }}"><span><i class="fa fa-user-circle-o"></i> {{ trans('backpack::base.my_account') }}</span></a>--}}
+                        {{--</li>--}}
+                        {{--<li><a href="{{ url('/inicio/mudaug') }}"><span><i class="fa fa-exchange"></i> Mudar UG</a></li>--}}
                         {{--<li class="divider"></li>--}}
                         {{--<li><a href="{{ url('/logout') }}" id="logout" title="Sair da Aplicação"--}}
                         {{--onclick="event.preventDefault();--}}
                         {{--document.getElementById('logout-form').submit();">--}}
                         {{--Sair da Aplicação--}}
                         {{--</a></li>--}}
-                    </ul>
-                </li>
+                    {{--</ul>--}}
+                {{--</li>--}}
                 @include('backpack::inc.topbar_right_content')
-                <li><a href="{{ route('backpack.auth.logout') }}"><i class="fa fa-btn fa-sign-out"></i> {{ trans('backpack::base.logout') }}</a></li>
-            @endif
+                <li><a href="{{ route('backpack.auth.logout') }}"><i
+                            class="fa fa-btn fa-sign-out"></i> {{ trans('backpack::base.logout') }}</a></li>
         @endif
-        <!-- ========== End of top menu right items ========== -->
+    @endif
+    <!-- ========== End of top menu right items ========== -->
     </ul>
 </div>
