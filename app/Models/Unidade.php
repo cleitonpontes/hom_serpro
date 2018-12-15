@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Unidade extends Model
@@ -11,9 +12,9 @@ class Unidade extends Model
     use CrudTrait;
     use LogsActivity;
     protected static $logFillable = true;
-    protected static $logName = 'unidades';
+    protected static $logName = 'unidade';
 
-
+    use SoftDeletes;
     protected $table = 'unidades';
 
     protected $fillable = [

@@ -15,6 +15,7 @@ class CreateContratofaturaTable extends Migration
     {
         Schema::create('contratofaturas', function (Blueprint $table) {
             $table->increments('id');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

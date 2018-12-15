@@ -15,6 +15,19 @@ class CreateContratoterceirizadoTable extends Migration
     {
         Schema::create('contratoterceirizados', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('contrato_id');
+            $table->string('cpf');
+            $table->string('nome');
+            $table->integer('oficio');
+            $table->integer('jornada');
+            $table->string('unidade');
+            $table->decimal('salario');
+            $table->decimal('custo');
+            $table->integer('escolaridade');
+            $table->date('data_inicio');
+            $table->date('data_fim');
+            $table->boolean('situacao');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

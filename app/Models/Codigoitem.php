@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Codigoitem extends Model
@@ -12,6 +13,7 @@ class Codigoitem extends Model
     use LogsActivity;
     protected static $logFillable = true;
     protected static $logName = 'codigoitens';
+    use SoftDeletes;
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES

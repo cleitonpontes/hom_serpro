@@ -19,6 +19,7 @@ class CreateCalendareventsTable extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('unidade_id');
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('unidade_id')->references('id')->on('unidades')->onDelete('cascade');

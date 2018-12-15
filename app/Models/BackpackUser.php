@@ -5,6 +5,7 @@ namespace App\Models;
 use App\User;
 use Backpack\Base\app\Notifications\ResetPasswordNotification as ResetPasswordNotification;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
@@ -17,6 +18,7 @@ class BackpackUser extends User
     use CrudTrait;
     use HasRoles;
     use LogsActivity;
+    use SoftDeletes;
 
 
     protected static $logFillable = true;

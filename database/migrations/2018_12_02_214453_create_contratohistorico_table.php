@@ -15,6 +15,7 @@ class CreateContratohistoricoTable extends Migration
     {
         Schema::create('contratohistorico', function (Blueprint $table) {
             $table->increments('id');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
