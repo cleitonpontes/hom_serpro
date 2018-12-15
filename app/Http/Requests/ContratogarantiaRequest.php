@@ -28,7 +28,7 @@ class ContratogarantiaRequest extends FormRequest
         return [
             'contrato_id' => 'required',
             'tipo' => 'required',
-            'valor' => 'required|numeric|between:0.01,999999999999999.99',
+            'valor' => 'required',
             'vencimento' => 'required|date',
         ];
     }

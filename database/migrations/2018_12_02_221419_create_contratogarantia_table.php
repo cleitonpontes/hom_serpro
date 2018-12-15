@@ -17,7 +17,7 @@ class CreateContratogarantiaTable extends Migration
             $table->increments('id');
             $table->integer('contrato_id');
             $table->integer('tipo');
-            $table->decimal('valor');
+            $table->decimal('valor',17,2);
             $table->date('vencimento');
             $table->softDeletes();
             $table->timestamps();

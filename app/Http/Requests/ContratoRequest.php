@@ -30,6 +30,7 @@ class ContratoRequest extends FormRequest
              'fornecedor_id' => 'required',
              'tipo_id' => 'required',
              'categoria_id' => 'required',
+             'unidade_id' => 'required',
              'processo' => 'required',
              'objeto' => 'required',
              'modalidade_id' => 'required',
@@ -37,9 +38,9 @@ class ContratoRequest extends FormRequest
              'data_assinatura' => 'required|date',
              'vigencia_inicio' => 'required|date',
              'vigencia_fim' => 'required|date',
-             'valor_global' => 'required|numeric|between:0.01,999999999999999.99',
+             'valor_global' => 'required',
              'num_parcelas' => 'required',
-             'valor_parcela' => 'required|numeric|between:0.01,999999999999999.99',
+             'valor_parcela' => 'required',
              'situacao' => 'required',
         ];
     }

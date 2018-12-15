@@ -17,6 +17,7 @@
 {{-- <script src="{{ asset('vendor/adminlte') }}/bower_components/fastclick/lib/fastclick.js"></script> --}}
 <script src="{{ asset('vendor/adminlte') }}/dist/js/adminlte.js"></script>
 <script src="{{asset('/js/jquery.maskedinput.js')}}" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
 
 <!-- page script -->
 <script type="text/javascript">

@@ -154,6 +154,16 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'info_complementar',
+                'label' => 'Informações Complementares',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'vigencia_inicio',
                 'label' => 'Vig. Início',
                 'type' => 'date',
@@ -310,9 +320,9 @@ class ContratoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => $unidade,
                 'allows_null' => false,
-                'attributes' => [
-                    'disabled' => 'disabled',
-                ],
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
@@ -347,12 +357,18 @@ class ContratoCrudController extends CrudController
                 'name' => 'objeto',
                 'label' => 'Objeto',
                 'type' => 'textarea',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
                 'tab' => 'Dados Contrato',
             ],
             [
                 'name' => 'info_complementar',
                 'label' => 'Informações Complementares',
                 'type' => 'textarea',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
                 'tab' => 'Dados Contrato',
             ],
             [
@@ -387,12 +403,10 @@ class ContratoCrudController extends CrudController
             [   // Number
                 'name' => 'valor_global',
                 'label' => 'Valor Global',
-                'type' => 'number',
+                'type' => 'money',
                 // optionals
                 'attributes' => [
-                    "step" => "any",
-                    "max" => '999999999999999.99',
-                    "min" => '0.01'
+                    'id' => 'valor_global',
                 ], // allow decimals
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
@@ -414,12 +428,10 @@ class ContratoCrudController extends CrudController
             [   // Number
                 'name' => 'valor_parcela',
                 'label' => 'Valor Parcela',
-                'type' => 'number',
+                'type' => 'money',
                 // optionals
                 'attributes' => [
-                    "step" => "any",
-                    "max" => '999999999999999.99',
-                    "min" => '0.01'
+                    'id' => 'valor_parcela',
                 ], // allow decimals
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
@@ -432,6 +444,11 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        $valor_parcela = str_replace(',', '.', str_replace('.','',$request->input('valor_parcela')));
+        $request->request->set('valor_parcela', number_format(floatval($valor_parcela),2,'.',''));
+
+        $valor_global = str_replace(',', '.', str_replace('.','',$request->input('valor_global')));
+        $request->request->set('valor_global', number_format(floatval($valor_global),2,'.',''));
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -441,6 +458,11 @@ class ContratoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $valor_parcela = str_replace(',', '.', str_replace('.','',$request->input('valor_parcela')));
+        $request->request->set('valor_parcela', number_format(floatval($valor_parcela),2,'.',''));
+
+        $valor_global = str_replace(',', '.', str_replace('.','',$request->input('valor_global')));
+        $request->request->set('valor_global', number_format(floatval($valor_global),2,'.',''));
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here

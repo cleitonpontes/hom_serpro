@@ -153,14 +153,13 @@ class ContratogarantiaCrudController extends CrudController
             [   // Number
                 'name' => 'valor',
                 'label' => 'Valor',
-                'type' => 'number',
-                // optionals
+                'type' => 'money',
                 'attributes' => [
-                    "step" => "any",
-                    "max" => '999999999999999.99',
-                    "min" => '0.01'
-                ], // allow decimals
+                    'id' => 'valor',
+                ],
                 'prefix' => "R$",
+                // optionals
+
                 // 'suffix' => ".00",
             ],
             [   // Date
@@ -178,6 +177,8 @@ class ContratogarantiaCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        $valor = str_replace(',', '.', str_replace('.','',$request->input('valor')));
+        $request->request->set('valor', number_format(floatval($valor),2,'.',''));
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -187,6 +188,9 @@ class ContratogarantiaCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+
+        $valor = str_replace(',', '.', str_replace('.','',$request->input('valor')));
+        $request->request->set('valor', number_format(floatval($valor),2,'.',''));
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here

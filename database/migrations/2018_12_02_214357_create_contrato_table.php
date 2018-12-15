@@ -30,11 +30,11 @@ class CreateContratoTable extends Migration
             $table->date('data_publicacao')->nullable();
             $table->date('vigencia_inicio');
             $table->date('vigencia_fim');
-            $table->decimal('valor_inicial', 15,2);
-            $table->decimal('valor_global',15,2);
+            $table->decimal('valor_inicial', 17,2)->nullable();
+            $table->decimal('valor_global',17,2);
             $table->integer('num_parcelas')->nullable();
-            $table->decimal('valor_parcela',15,2)->nullable();
-            $table->decimal('valor_acumulado',15,2)->nullable();
+            $table->decimal('valor_parcela',17,2)->nullable();
+            $table->decimal('valor_acumulado',17,2)->nullable();
             $table->string('situacao_siasg')->nullable();
             $table->boolean('situacao');
             $table->softDeletes();
