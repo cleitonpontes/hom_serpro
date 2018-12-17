@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Activitylog\Models\Activity;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +16,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        if (!app()->runningInConsole()) {
+            Activity::saving(function (Activity $activity) {
+                $activity->ip = \Request::ip();
+                $activity->causer_id = backpack_user()->id;
+            });
+        }
+
     }
 
     /**

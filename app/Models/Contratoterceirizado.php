@@ -7,29 +7,36 @@ use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratogarantia extends Model
+class Contratoterceirizado extends Model
 {
     use CrudTrait;
     use LogsActivity;
     protected static $logFillable = true;
-    protected static $logName = 'garantia';
+    protected static $logName = 'terceirizado';
     use SoftDeletes;
-
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contratogarantias';
+    protected $table = 'contratoterceirizados';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
-        'tipo',
-        'valor',
-        'vencimento'
+        'cpf',
+        'nome',
+        'funcao_id',
+        'jornada',
+        'unidade',
+        'salario',
+        'custo',
+        'escolaridade_id',
+        'data_inicio',
+        'data_fim',
+        'situacao'
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -48,20 +55,32 @@ class Contratogarantia extends Model
             return '';
         }
     }
-    public function getTipo()
+    public function getFuncao()
     {
-        if($this->tipo){
-            $tipo = Codigoitem::find($this->tipo);
-            return $tipo->descricao;
+        if($this->funcao_id){
+            $funcao = Codigoitem::find($this->funcao_id);
+            return $funcao->descricao;
         }else{
             return '';
         }
     }
-    public function formatVlr()
+    public function getEscolaridade()
     {
-        return 'R$ '.number_format($this->valor, 2, ',', '.');
+        if($this->escolaridade_id){
+            $escolaridade = Codigoitem::find($this->escolaridade_id);
+            return $escolaridade->descricao;
+        }else{
+            return '';
+        }
     }
-
+    public function formatVlrSalario()
+    {
+        return 'R$ '.number_format($this->salario, 2, ',', '.');
+    }
+    public function formatVlrCusto()
+    {
+        return 'R$ '.number_format($this->custo, 2, ',', '.');
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -70,6 +89,16 @@ class Contratogarantia extends Model
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
+    public function funcao()
+    {
+        return $this->belongsTo(Codigoitem::class, 'funcao_id');
+    }
+
+    public function escolaridade()
+    {
+        return $this->belongsTo(Codigoitem::class, 'escolaridade_id');
     }
     /*
     |--------------------------------------------------------------------------

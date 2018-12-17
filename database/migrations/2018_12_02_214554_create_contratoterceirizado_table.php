@@ -18,17 +18,21 @@ class CreateContratoterceirizadoTable extends Migration
             $table->integer('contrato_id');
             $table->string('cpf');
             $table->string('nome');
-            $table->integer('oficio');
+            $table->integer('funcao_id');
             $table->integer('jornada');
             $table->string('unidade');
             $table->decimal('salario');
             $table->decimal('custo');
-            $table->integer('escolaridade');
+            $table->integer('escolaridade_id');
             $table->date('data_inicio');
-            $table->date('data_fim');
+            $table->date('data_fim')->nullable();
             $table->boolean('situacao');
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
+            $table->foreign('funcao_id')->references('id')->on('codigoitens')->onDelete('cascade');
+            $table->foreign('escolaridade_id')->references('id')->on('codigoitens')->onDelete('cascade');
         });
     }
 

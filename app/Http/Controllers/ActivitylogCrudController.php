@@ -39,6 +39,7 @@ class ActivitylogCrudController extends CrudController
             'description',
             'subject_id',
             'subject_type',
+            'ip',
             'causer_id',
             'causer_type',
             'properties',

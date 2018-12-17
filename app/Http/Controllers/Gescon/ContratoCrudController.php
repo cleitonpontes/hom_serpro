@@ -9,6 +9,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -31,6 +32,11 @@ class ContratoCrudController extends CrudController
         $this->crud->setModel('App\Models\Contrato');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato');
         $this->crud->setEntityNameStrings('Contrato', 'Contratos');
+//        $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
+//        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
+        $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
+//        $this->crud->addClause('select', 'contratos.*');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -40,7 +46,7 @@ class ContratoCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
-        $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
+
         $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -77,12 +83,10 @@ class ContratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
+//                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('unidades.codigo', 'like', "%$searchTerm%");
+//                    $query->orWhere('unidades.nome', 'like', "%$searchTerm%");
+//                    $query->orWhere('unidades.nomeresumido', 'like', "%$searchTerm%");
 //                },
             ],
             [
@@ -123,15 +127,15 @@ class ContratoCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'getFornecedor', // the method in your Model
                 'orderable' => true,
+                'limit' => 1000,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
+//                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
 //                },
-
             ],
             [
                 'name' => 'processo',
@@ -147,6 +151,7 @@ class ContratoCrudController extends CrudController
                 'name' => 'objeto',
                 'label' => 'Objeto',
                 'type' => 'text',
+                'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big

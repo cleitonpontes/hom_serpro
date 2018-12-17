@@ -36,6 +36,7 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'fornecedor_editar']);
         Permission::create(['name' => 'fornecedor_deletar']);
 
+
         $role = Role::create(['name' => 'Administrador']);
         $role->givePermissionTo('usuario_inserir');
         $role->givePermissionTo('usuario_editar');

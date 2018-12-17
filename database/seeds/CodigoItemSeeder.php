@@ -137,5 +137,59 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'PREGAO','descricao' => 'Pregão' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '13','descres' => 'TOMPRECO','descricao' => 'Tomada de Preços' ]);
 
+        DB::table('codigos')->insert(['descricao' => 'Escolaridade','visivel' => false,]);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'S EXIG', 'descricao' => '00 – Sem Exigência']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'N LER', 'descricao' => '01 – Não sabe Ler/Escrever']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'ALFAB', 'descricao' => '02 – Alfabetizado']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'EFI', 'descricao' => '03 – Ensino Fundamental Incompleto']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'EFC', 'descricao' => '04 – Ensino Fundamental Completo']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'EMI', 'descricao' => '05 – Ensino Médio Incompleto']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'EMC', 'descricao' => '06 – Ensino Médio Completo']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'SUPI', 'descricao' => '07 – Superior Incompleto']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'SUPC', 'descricao' => '08 – Superior Completo']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'ESPEC', 'descricao' => '09 – Especialização/Residência']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'CTEC', 'descricao' => '10 – Curso Técnico Completo']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'PGRAD', 'descricao' => '11 – Pós-Graduação']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'MESTRE', 'descricao' => '12 – Mestrado']);
+        DB::table('codigoitens')->insert(['codigo_id' => '14','descres' => 'DOUTOR', 'descricao' => '13 – Doutorado']);
+
+        DB::table('codigos')->insert(['descricao' => 'Mão de Obra','visivel' => true,]);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'AUXSERVDIV', 'descricao' => 'Auxiliar de Serviços Diversos']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'AUXSERVREP', 'descricao' => 'Auxiliar de Serviços de Reprografia']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'BRIGADISTA', 'descricao' => 'Brigadista']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'COPEIRA', 'descricao' => 'Copeiragem']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'GARCOM', 'descricao' => 'Garçom']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'LIMPEZA', 'descricao' => 'Limpeza e Conservação']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'RECEPCIONA', 'descricao' => 'Recepcionista']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'TELEFONIST', 'descricao' => 'Telefonista']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'VIGIA', 'descricao' => 'Vigilante']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'MOTORISTA', 'descricao' => 'Motorista']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'PORTEIRO', 'descricao' => 'Porteiro']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'MECANAR', 'descricao' => 'Mecânico de Ar Condicionado e Refrigeração']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ELETRICIST', 'descricao' => 'Eletricista']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'MANUPREDIA', 'descricao' => 'Manutenção Predial']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ENCANADOR', 'descricao' => 'Encanador']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'PINTOR', 'descricao' => 'Pintor']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'AUXILIARCO', 'descricao' => 'Auxiliar Mecânico de Ar Condicionado']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'CONTINUO', 'descricao' => 'Contínuo']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'LAVACARRO', 'descricao' => 'Lavador de Carro']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ALMOXARIFE', 'descricao' => 'Almoxarife']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'CARREGADOR', 'descricao' => 'Carregador de Móveis']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ENCARREGAD', 'descricao' => 'Encarregado']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'AJUDANTE', 'descricao' => 'Ajudante']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ARQUITETO', 'descricao' => 'Arquiteto']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'BOMBEIROH', 'descricao' => 'Bombeiro Hidráulico']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ENGENHEIRO', 'descricao' => 'Engenheiro Civil']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ENGENHEELE', 'descricao' => 'Engenheiro Elétrico']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'MARCENEIRO', 'descricao' => 'Marceneiro']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'OPPLANTDI', 'descricao' => 'Operador Plantonista Diurno']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'OPPLANTNO', 'descricao' => 'Operador Plantonista Noturno']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'PEDREIRO', 'descricao' => 'Pedreiro']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'SERRALHEI', 'descricao' => 'Serralheiro']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'TAPECEIRO', 'descricao' => 'Tapeceiro']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'VIDRACEIRO', 'descricao' => 'Vidraceiro']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ASCENSORI', 'descricao' => 'Ascensorista']);
+        DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'AUXADM', 'descricao' => 'Auxiliar Administrativo']);
+
     }
 }
