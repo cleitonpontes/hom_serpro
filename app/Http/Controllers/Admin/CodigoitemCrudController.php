@@ -38,6 +38,16 @@ class CodigoitemCrudController extends CrudController
 
         $this->crud->addClause('where', 'codigo_id', '=', $codigo_id);
 
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
+
+        (backpack_user()->can('codigoitem_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('codigoitem_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('codigoitem_deletar')) ? $this->crud->allowAccess('delete') : null;
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -113,5 +123,14 @@ class CodigoitemCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('visivel');
+
+        return $content;
     }
 }

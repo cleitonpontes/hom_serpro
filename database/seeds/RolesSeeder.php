@@ -35,6 +35,12 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'fornecedor_inserir']);
         Permission::create(['name' => 'fornecedor_editar']);
         Permission::create(['name' => 'fornecedor_deletar']);
+        Permission::create(['name' => 'codigo_inserir']);
+        Permission::create(['name' => 'codigo_editar']);
+        Permission::create(['name' => 'codigo_deletar']);
+        Permission::create(['name' => 'codigoitem_inserir']);
+        Permission::create(['name' => 'codigoitem_editar']);
+        Permission::create(['name' => 'codigoitem_deletar']);
 
 
         $role = Role::create(['name' => 'Administrador']);
@@ -59,5 +65,11 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('fornecedor_inserir');
         $role->givePermissionTo('fornecedor_editar');
         $role->givePermissionTo('fornecedor_deletar');
+        $role->givePermissionTo('codigo_inserir');
+        $role->givePermissionTo('codigo_editar');
+        $role->givePermissionTo('codigo_deletar');
+        $role->givePermissionTo('codigoitem_inserir');
+        $role->givePermissionTo('codigoitem_editar');
+        $role->givePermissionTo('codigoitem_deletar');
     }
 }

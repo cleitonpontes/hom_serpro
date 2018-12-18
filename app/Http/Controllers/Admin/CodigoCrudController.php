@@ -27,6 +27,16 @@ class CodigoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Códigos', 'Códigos');
 
         $this->crud->addClause('where', 'visivel', '=', '1');
+
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
+
+        (backpack_user()->can('codigo_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('codigo_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('codigo_deletar')) ? $this->crud->allowAccess('delete') : null;
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -90,5 +100,14 @@ class CodigoCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('visivel');
+
+        return $content;
     }
 }
