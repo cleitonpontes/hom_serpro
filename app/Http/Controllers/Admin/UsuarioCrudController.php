@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Traits\Authorizes;
+use App\Jobs\UserMailPasswordJob;
 use App\Models\BackpackUser;
 use App\Models\Unidade;
-use App\Notifications\PasswordUserNotification;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -243,7 +243,7 @@ class UsuarioCrudController extends CrudController
         $usuario = BackpackUser::where('cpf', '=', $dados['cpf'])->first();
 
         if ($usuario) {
-            $usuario->notify(new PasswordUserNotification($dados));
+            UserMailPasswordJob::dispatch($usuario, $dados);
         }
 
         // your additional operations after save here
