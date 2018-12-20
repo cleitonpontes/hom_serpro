@@ -191,5 +191,12 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'ASCENSORI', 'descricao' => 'Ascensorista']);
         DB::table('codigoitens')->insert(['codigo_id' => '15', 'descres' => 'AUXADM', 'descricao' => 'Auxiliar Administrativo']);
 
+        DB::table('codigos')->insert(['descricao' => 'Situação Ocorrência','visivel' => false,]);
+        DB::table('codigoitens')->insert(['codigo_id' => '16','descres' => 'PENDENTE','descricao' => 'Pendente' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '16','descres' => 'ATENDIDA','descricao' => 'Atendida' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '16','descres' => 'PARCIAL','descricao' => 'Atendida Parcial' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '16','descres' => 'NAOATEND','descricao' => 'Não Atendida' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '16','descres' => 'CONCLUSIVA','descricao' => 'Conclusiva' ]);
+
     }
 }

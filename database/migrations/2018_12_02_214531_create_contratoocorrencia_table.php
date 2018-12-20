@@ -15,15 +15,22 @@ class CreateContratoocorrenciaTable extends Migration
     {
         Schema::create('contratoocorrencias', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('numero');
             $table->integer('contrato_id');
             $table->integer('user_id');
             $table->date('data');
             $table->text('ocorrencia');
             $table->boolean('notificapreposto');
-            $table->string('emailpreposto');
-            $table->string('situacao');
+            $table->string('emailpreposto')->nullable();
+            $table->integer('numeroocorrencia')->nullable();
+            $table->integer('novasituacao')->nullable();
+            $table->integer('situacao');
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('situacao')->references('id')->on('codigoitens')->onDelete('cascade');
         });
     }
 

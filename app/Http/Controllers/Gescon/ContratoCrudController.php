@@ -32,10 +32,10 @@ class ContratoCrudController extends CrudController
         $this->crud->setModel('App\Models\Contrato');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato');
         $this->crud->setEntityNameStrings('Contrato', 'Contratos');
-//        $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
-//        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
+        $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
+        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-//        $this->crud->addClause('select', 'contratos.*');
+        $this->crud->addClause('select', 'contratos.*');
 
 
         /*
@@ -66,7 +66,7 @@ class ContratoCrudController extends CrudController
             [
                 'name' => 'numero',
                 'label' => 'Número Contrato',
-                'type' => 'numcontrato',
+                'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -132,10 +132,10 @@ class ContratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-//                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
-//                },
+                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
+                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
+                },
             ],
             [
                 'name' => 'processo',
