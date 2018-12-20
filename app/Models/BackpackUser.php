@@ -59,11 +59,22 @@ class BackpackUser extends User
         return $this->email;
     }
 
+    public function havePermissionUg($id){
+
+        $ugprimaria = $this->where('ugprimaria','=',$id)->where('id','=',$this->id)->first();
+        $ugsecundaria = $this->whereHas('unidades', function ($query) use ($id) {
+            $query->where('unidade_id', '=', $id);
+        })->where('id','=',$this->id)->first();
+
+        if($ugprimaria or $ugsecundaria) {
+            return true;
+        }
+        return false;
+    }
+
     public function unidadeprimaria($id)
     {
-
         $ug = Unidade::find($id);
-
         return $ug;
 
     }
@@ -83,6 +94,5 @@ class BackpackUser extends User
     public function unidades()
     {
         return $this->belongsToMany(Unidade::class, 'unidadesusers', 'user_id', 'unidade_id');
-
     }
 }

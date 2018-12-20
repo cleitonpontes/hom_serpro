@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Redirect;
 
 class UgprimariaMiddleware
 {
@@ -24,6 +25,13 @@ class UgprimariaMiddleware
                 } else {
                     session(['user_ug' => null]);
                     session(['user_ug_id' => null]);
+                }
+            } else {
+                $ok = backpack_user()->havePermissionUg(session()->get('user_ug_id'));
+                if($ok == false){
+                    \Session::flush();
+                    backpack_auth()->logout();
+                    return Redirect::to('/inicio');
                 }
             }
         }

@@ -64,6 +64,9 @@ Route::group(
             Route::get('/meus-dados', 'AdminController@meusdados')->name('inicio.meusdados');
             Route::put('/meus-dados/atualiza', 'AdminController@meusdadosatualiza')->name('inicio.meusdados.atualiza');
 
+            Route::get('/mudar-ug', 'AdminController@mudarug')->name('inicio.mudarug');
+            Route::put('/mudaug', 'AdminController@mudaug')->name('inicio.mudaug');
+
             Route::get('edit-account-info', function () {
                 return redirect('/meus-dados');
             });

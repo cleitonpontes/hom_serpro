@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Forms\MeusdadosForm;
+use App\Forms\MudarUgForm;
 use App\Models\BackpackUser;
 use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
@@ -193,6 +194,82 @@ class AdminController extends Controller
 //        \toast()->success('Seus Dados foram atualizados!', 'Sucesso');
 
         return redirect()->route('inicio.meusdados');
+
+    }
+
+
+    public function mudarUg()
+    {
+        $ug = $this->buscaUg();
+
+        $form = \FormBuilder::create(MudarUgForm::class, [
+            'url' => route('inicio.mudaug'),
+            'data' => ['ugs' => $ug],
+            'method' => 'PUT',
+//            'model' => $user,
+        ]);
+
+
+        return view('backpack::base.auth.account.mudarug', compact('form'));
+
+    }
+
+    public function buscaUg(){
+
+        $ug = [];
+
+        $ugprimaria = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
+            ->where('id', '=', backpack_user()->ugprimaria)
+            ->where('tipo','=','E')
+            ->pluck('nome', 'id')
+            ->toArray();
+
+        $ugsecundaria = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
+            ->whereHas('users', function ($query) {
+                $query->where('user_id', '=', backpack_user()->id);
+            })
+            ->where('tipo','=','E')
+            ->pluck('nome', 'id')
+            ->toArray();
+
+        $ug = $ugprimaria + $ugsecundaria;
+
+        asort($ug);
+
+        return $ug;
+
+    }
+
+    public function mudaUg()
+    {
+        $ug = $this->buscaUg();
+
+        $form = \FormBuilder::create(MudarUgForm::class, [
+            'data' => ['ug' => $ug]
+        ]);
+
+        if (!$form->isValid()) {
+            return redirect()
+                ->back()
+                ->withErrors($form->getErrors())
+                ->withInput();
+        }
+
+        $data = $form->getFieldValues();
+
+        if(!$data['ug']==''){
+            $unidade = Unidade::find($data['ug']);
+            session(['user_ug' => $unidade->codigo]);
+            session(['user_ug_id' => $unidade->id]);
+        }else{
+            session(['user_ug' => null]);
+            session(['user_ug_id' => null]);
+        }
+
+
+        \Alert::success('Unidade alterada com sucesso!')->flash();
+
+        return redirect()->to('/inicio');
 
     }
 }

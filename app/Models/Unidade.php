@@ -38,7 +38,7 @@ class Unidade extends Model
     public function users()
     {
 
-        return $this->belongsToMany(BackpackUser::class, 'unidadeuser', 'unidade_id', 'user_id');
+        return $this->belongsToMany(BackpackUser::class, 'unidadesusers', 'unidade_id', 'user_id');
 
     }
 
