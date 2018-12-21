@@ -73,6 +73,16 @@ class Contratoocorrencia extends Model
             return '';
         }
     }
+
+    public function getNovaSituacao()
+    {
+        if($this->novasituacao){
+            $situacao = Codigoitem::find($this->novasituacao);
+            return $situacao->descricao;
+        }else{
+            return '';
+        }
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -81,6 +91,21 @@ class Contratoocorrencia extends Model
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
+    public function situacao()
+    {
+        return $this->belongsTo(Codigoitem::class, 'situacao');
+    }
+
+    public function novasituacao()
+    {
+        return $this->belongsTo(Codigoitem::class, 'novasituacao');
+    }
+
+    public function numeroocorrencia()
+    {
+        return $this->belongsTo(Contratoocorrencia::class, 'id');
     }
     /*
     |--------------------------------------------------------------------------

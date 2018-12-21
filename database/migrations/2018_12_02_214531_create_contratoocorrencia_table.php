@@ -30,6 +30,8 @@ class CreateContratoocorrenciaTable extends Migration
 
             $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('numeroocorrencia')->references('id')->on('contratoocorrencias')->onDelete('cascade');
+            $table->foreign('novasituacao')->references('id')->on('codigoitens')->onDelete('cascade');
             $table->foreign('situacao')->references('id')->on('codigoitens')->onDelete('cascade');
         });
     }

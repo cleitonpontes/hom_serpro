@@ -30,6 +30,9 @@ Route::group([
 
         CRUD::resource('activitylog', 'ActivitylogCrudController');
 
+        Route::get('/api/novasituacao', 'Api\NovasituacaoController@index');
+        Route::get('/api/novasituacao/{id}', 'Api\NovasituacaoController@show');
+
         Route::group([
             'prefix' => 'admin',
             'namespace' => 'Admin',

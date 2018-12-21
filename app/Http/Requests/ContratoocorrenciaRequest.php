@@ -25,8 +25,26 @@ class ContratoocorrenciaRequest extends FormRequest
      */
     public function rules()
     {
+        $novasituacao = '';
+        $numeroocorrencia = '';
+        $emailpreposto = '';
+
+        if($this->situacao == 132){
+            $novasituacao = 'required';
+            $numeroocorrencia = 'required';
+        }
+
+        if($this->notificapreposto == true){
+            $emailpreposto = 'required';
+        }
+
         return [
-            // 'name' => 'required|min:5|max:255'
+             'situacao' => 'required',
+             'novasituacao' => "{$novasituacao}",
+             'numeroocorrencia' => "{$numeroocorrencia}",
+             'data' => 'required|date',
+             'ocorrencia' => 'required',
+             'emailpreposto' => "{$emailpreposto}",
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Gescon;
 
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Contratoocorrencia;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -53,7 +54,7 @@ class ContratoocorrenciaCrudController extends CrudController
 
         if ($conresp) {
             $this->crud->AllowAccess('create');
-            $this->crud->AllowAccess('update');
+//            $this->crud->AllowAccess('update');
         }
         /*
         |--------------------------------------------------------------------------
@@ -119,11 +120,6 @@ class ContratoocorrenciaCrudController extends CrudController
                 'limit' => 9999,
             ],
             [
-                'name'  => 'ocorrencia',
-                'label' => 'Ocorrência',
-                'type'  => 'textarea',
-            ],
-            [
                 'name' => 'notificapreposto',
                 'label' => 'Notifica Preposto',
                 'type' => 'boolean',
@@ -146,10 +142,10 @@ class ContratoocorrenciaCrudController extends CrudController
                 'type'  => 'text',
             ],
             [
-                'name' => 'getSituacao',
+                'name' => 'getNovaSituacao',
                 'label' => 'Nova Situação', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getSituacao', // the method in your Model
+                'function_name' => 'getNovaSituacao', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -204,17 +200,119 @@ class ContratoocorrenciaCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
+        $numocorrencia = Contratoocorrencia::where('contrato_id', '=', $contrato_id )
+            ->where('situacao', '=', 128)
+            ->orWhere('situacao', '=', 130)
+            ->orderBy('numero')
+            ->pluck('numero', 'id')
+            ->toArray();
+
+        $this->crud->addFields([
+            [ // select_from_array
+                'name' => 'contrato_id',
+                'label' => "Número Contrato",
+                'type' => 'select_from_array',
+                'options' => $con,
+                'allows_null' => false,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'situacao',
+                'label' => "Situação",
+                'type' => 'select_from_array',
+                'options' => $situacao,
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'numeroocorrencia',
+                'label' => "Ocorrência Concluída",
+                'type' => 'select_from_array',
+                'options' => $numocorrencia,
+                'placeholder' => 'Selecione',
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'novasituacao',
+                'label' => "Nova Situação",
+                'type' => 'select_from_array',
+                'options' => $novasit,
+                'placeholder' => 'Selecione',
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name'  => 'data',
+                'label' => 'Data',
+                'type'  => 'date',
+            ],
+            [
+                'name'  => 'ocorrencia',
+                'label' => 'Ocorrência',
+                'type'  => 'textarea',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ]
+            ],
+            [
+                'name'        => 'notificapreposto', // the name of the db column
+                'label'       => 'Notifica Preposto?', // the input label
+                'type'        => 'radio',
+                'options'     => [
+                    0 => 'Não',
+                    1 => 'Sim'
+                ],
+                // optional
+                'inline'      => true, // show the radios all on the same line?
+            ],
+            [   // Email
+                'name' => 'emailpreposto',
+                'label' => 'E-mail Preposto',
+                'type' => 'email'
+            ],
+
+        ]);
 
 
         // add asterisk for fields that are required in ContratoocorrenciaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
-        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+//        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
     public function store(StoreRequest $request)
     {
+        $situacao = $request->input('situacao');
+
+        if($situacao != 132){
+            $request->request->set('novasituacao', null);
+            $request->request->set('numeroocorrencia', null);
+        }
+
+        $numero = Contratoocorrencia::where('contrato_id', '=', $request->input('contrato_id'))
+            ->orderBy('numero', 'desc')
+            ->first();
+
+        if ($numero) {
+            $request->request->set('numero', $numero->numero + 1);
+        }else{
+            $request->request->set('numero',1);
+        }
+
+        $request->request->set('user_id', backpack_user()->id);
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
+
+        if($situacao == 132){
+            $ocorrencia = Contratoocorrencia::find($request->input('numeroocorrencia'));
+            $ocorrencia->situacao = $request->input('novasituacao');
+            $ocorrencia->save();
+        }
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
@@ -227,5 +325,17 @@ class ContratoocorrenciaCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('contrato_id');
+        $this->crud->removeColumn('user_id');
+        $this->crud->removeColumn('novasituacao');
+        $this->crud->removeColumn('situacao');
+
+        return $content;
     }
 }

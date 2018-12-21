@@ -135,7 +135,7 @@ class ContratogarantiaCrudController extends CrudController
             [ // select_from_array
                 'name' => 'contrato_id',
                 'label' => "Número Contrato",
-                'type' => 'select2_from_array',
+                'type' => 'select_from_array',
                 'options' => $con,
                 'allows_null' => false,
 //                'default' => 'one',
