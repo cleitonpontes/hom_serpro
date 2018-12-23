@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Jobs\OcorrenciaMailJob;
+use App\Mail\EmailOcorrencia;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratoocorrencia;
@@ -10,6 +12,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoocorrenciaRequest as StoreRequest;
 use App\Http\Requests\ContratoocorrenciaRequest as UpdateRequest;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Class ContratoocorrenciaCrudController
@@ -23,9 +26,9 @@ class ContratoocorrenciaCrudController extends CrudController
 
         $contrato_id = \Route::current()->parameter('contrato_id');
 
-        $contrato = Contrato::where('id','=',$contrato_id)
-            ->where('unidade_id','=',session()->get('user_ug_id'))->first();
-        if(!$contrato){
+        $contrato = Contrato::where('id', '=', $contrato_id)
+            ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
+        if (!$contrato) {
             abort('403', 'Acesso negado - você não possui a permissão necessária para acessar esta página.');
         }
 
@@ -35,7 +38,7 @@ class ContratoocorrenciaCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Contratoocorrencia');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/ocorrencias');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/ocorrencias');
         $this->crud->setEntityNameStrings('Ocorrências', 'ocorrências');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
@@ -62,14 +65,14 @@ class ContratoocorrenciaCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->orderBy('numero','asc');
+        $this->crud->orderBy('numero', 'asc');
 
         // TODO: remove setFromDb() and manually define Fields and Columns
         $this->crud->addColumns([
             [
-                'name'  => 'numero',
+                'name' => 'numero',
                 'label' => 'Número',
-                'type'  => 'text',
+                'type' => 'text',
             ],
             [
                 'name' => 'getContrato',
@@ -109,14 +112,14 @@ class ContratoocorrenciaCrudController extends CrudController
 //                },
             ],
             [
-                'name'  => 'data',
+                'name' => 'data',
                 'label' => 'Data',
-                'type'  => 'date',
+                'type' => 'date',
             ],
             [
-                'name'  => 'ocorrencia',
+                'name' => 'ocorrencia',
                 'label' => 'Ocorrência',
-                'type'  => 'textarea',
+                'type' => 'textarea',
                 'limit' => 9999,
             ],
             [
@@ -132,14 +135,14 @@ class ContratoocorrenciaCrudController extends CrudController
                 'options' => [0 => 'Não', 1 => 'Sim']
             ],
             [
-                'name'  => 'emailpreposto',
+                'name' => 'emailpreposto',
                 'label' => 'E-mail Preposto',
-                'type'  => 'text',
+                'type' => 'text',
             ],
             [
-                'name'  => 'numeroocorrencia',
+                'name' => 'numeroocorrencia',
                 'label' => 'Ocorrência Alterada',
-                'type'  => 'text',
+                'type' => 'text',
             ],
             [
                 'name' => 'getNovaSituacao',
@@ -200,7 +203,7 @@ class ContratoocorrenciaCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
-        $numocorrencia = Contratoocorrencia::where('contrato_id', '=', $contrato_id )
+        $numocorrencia = Contratoocorrencia::where('contrato_id', '=', $contrato_id)
             ->where('situacao', '=', 128)
             ->orWhere('situacao', '=', 130)
             ->orderBy('numero')
@@ -247,28 +250,28 @@ class ContratoocorrenciaCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
-                'name'  => 'data',
+                'name' => 'data',
                 'label' => 'Data',
-                'type'  => 'date',
+                'type' => 'date',
             ],
             [
-                'name'  => 'ocorrencia',
+                'name' => 'ocorrencia',
                 'label' => 'Ocorrência',
-                'type'  => 'textarea',
+                'type' => 'textarea',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"
                 ]
             ],
             [
-                'name'        => 'notificapreposto', // the name of the db column
-                'label'       => 'Notifica Preposto?', // the input label
-                'type'        => 'radio',
-                'options'     => [
+                'name' => 'notificapreposto', // the name of the db column
+                'label' => 'Notifica Preposto?', // the input label
+                'type' => 'radio',
+                'options' => [
                     0 => 'Não',
                     1 => 'Sim'
                 ],
                 // optional
-                'inline'      => true, // show the radios all on the same line?
+                'inline' => true, // show the radios all on the same line?
             ],
             [   // Email
                 'name' => 'emailpreposto',
@@ -284,11 +287,18 @@ class ContratoocorrenciaCrudController extends CrudController
 //        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
+    /**
+     * @param UpdateRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(StoreRequest $request)
     {
+        $request->request->set('ocorrencia', trim(str_replace('  ', '', str_replace('\r', '',
+            str_replace('\n', '', strip_tags($request->input('ocorrencia')))))));
+
         $situacao = $request->input('situacao');
 
-        if($situacao != 132){
+        if ($situacao != 132) {
             $request->request->set('novasituacao', null);
             $request->request->set('numeroocorrencia', null);
         }
@@ -299,8 +309,8 @@ class ContratoocorrenciaCrudController extends CrudController
 
         if ($numero) {
             $request->request->set('numero', $numero->numero + 1);
-        }else{
-            $request->request->set('numero',1);
+        } else {
+            $request->request->set('numero', 1);
         }
 
         $request->request->set('user_id', backpack_user()->id);
@@ -308,14 +318,52 @@ class ContratoocorrenciaCrudController extends CrudController
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
 
-        if($situacao == 132){
+        if ($situacao == 132) {
             $ocorrencia = Contratoocorrencia::find($request->input('numeroocorrencia'));
             $ocorrencia->situacao = $request->input('novasituacao');
             $ocorrencia->save();
         }
+
+        if ($request->input('notificapreposto')) {
+
+            $dadosOcorrencia = $this->getDadosOcorrencia($id = $this->crud->entry->id);
+
+            OcorrenciaMailJob::dispatch($dadosOcorrencia);
+
+        }
+
+
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function getDadosOcorrencia($id)
+    {
+
+        $ocorrencia = Contratoocorrencia::find($id);
+        $contrato = Contrato::find($ocorrencia->contrato_id);
+        $orgao = $contrato->getOrgao();
+        $unidade = $contrato->getUnidade();
+        $fornecedor = $contrato->getFornecedor();
+        $usuario = $ocorrencia->getUser();
+        $situacao = $ocorrencia->getSituacao();
+
+
+
+        $dadosOcorrencia = [
+            'orgao' => $orgao,
+            'unidade' => $unidade,
+            'fornecedor' => $fornecedor,
+            'contrato_numero' => $contrato->numero,
+            'user' => $usuario,
+            'emailpreposto' => $ocorrencia->emailpreposto,
+            'data' => $ocorrencia->data,
+            'textoocorrencia' => $ocorrencia->ocorrencia,
+            'situacao' => $situacao
+        ];
+
+        return $dadosOcorrencia;
     }
 
     public function update(UpdateRequest $request)

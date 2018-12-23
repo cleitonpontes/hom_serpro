@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use function foo\func;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -72,6 +73,16 @@ class Contrato extends Model
 
     }
 
+    public function getOrgao()
+    {
+        $orgao = Orgao::whereHas('unidades', function ($query) {
+            $query->where('id','=', $this->unidade_id);
+        })->first();
+
+        return $orgao->codigo . ' - ' . $orgao->nome;
+
+    }
+
     public function getTipo()
     {
         if($this->tipo_id){
@@ -84,6 +95,7 @@ class Contrato extends Model
 
 
     }
+
 
     public function getCategoria()
     {
@@ -117,6 +129,13 @@ class Contrato extends Model
     public function garantias(){
 
         return $this->hasMany(Contratogarantia::class, 'contrato_id');
+
+    }
+
+    public function unidade()
+    {
+
+        return $this->belongsTo(Unidade::class, 'unidade_id');
 
     }
     /*

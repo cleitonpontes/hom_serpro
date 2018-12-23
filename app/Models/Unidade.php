@@ -37,11 +37,14 @@ class Unidade extends Model
 
     public function users()
     {
-
         return $this->belongsToMany(BackpackUser::class, 'unidadesusers', 'unidade_id', 'user_id');
-
     }
 
+    public function contratos(){
+
+        return $this->hasMany(Contrato::class, 'unidade_id');
+
+    }
     public function getCodigoNome()
     {
         return $this->codigo . ' - ' . $this->nomeresumido;
