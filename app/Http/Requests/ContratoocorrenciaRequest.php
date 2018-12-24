@@ -43,7 +43,7 @@ class ContratoocorrenciaRequest extends FormRequest
              'novasituacao' => "{$novasituacao}",
              'numeroocorrencia' => "{$numeroocorrencia}",
              'data' => 'required|date',
-             'ocorrencia' => 'required',
+             'ocorrencia' => 'required|min:20',
              'emailpreposto' => "{$emailpreposto}",
         ];
     }
@@ -68,7 +68,13 @@ class ContratoocorrenciaRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'situacao.required' => 'O campo Situação é obrigatório.',
+            'novasituacao.required' => 'O campo Nova Situação é obrigatório.',
+            'numeroocorrencia.required' => 'O campo Ocorrência Concluida é obrigatório.',
+            'data.required' => 'O campo Data é obrigatório.',
+            'ocorrencia.required' => 'O campo Ocorrência é obrigatório.',
+            'ocorrencia.min' => 'O campo Ocorrência deve ter pelo menos 20 caracteres.',
+            'emailpreposto.required' => 'O campo E-mail Preposto é obrigatório.',
         ];
     }
 }
