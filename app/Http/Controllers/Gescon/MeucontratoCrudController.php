@@ -30,7 +30,7 @@ class MeucontratoCrudController extends CrudController
         $this->crud->addClause('whereHas', 'responsaveis', function($query) {
             $query->whereHas('user', function ($query) {
                 $query->where('id', '=', backpack_user()->id);
-            });
+            })->where('situacao', '=', true);
         });
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));

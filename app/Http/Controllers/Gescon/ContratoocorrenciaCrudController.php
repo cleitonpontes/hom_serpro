@@ -51,7 +51,7 @@ class ContratoocorrenciaCrudController extends CrudController
         $conresp = $contrato->whereHas('responsaveis', function ($query) {
             $query->whereHas('user', function ($query) {
                 $query->where('id', '=', backpack_user()->id);
-            });
+            })->where('situacao', '=', true);
         })->where('id', '=', $contrato_id)
             ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
 
