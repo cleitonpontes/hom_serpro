@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateContratofaturaTable extends Migration
+class CreateTipolistafaturaTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class CreateContratofaturaTable extends Migration
      */
     public function up()
     {
-        Schema::create('contratofaturas', function (Blueprint $table) {
+        Schema::create('tipolistafatura', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('nome');
+            $table->text('descricao');
+            $table->boolean('situacao');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -27,6 +30,6 @@ class CreateContratofaturaTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contratofaturas');
+        Schema::dropIfExists('tipolistafatura');
     }
 }

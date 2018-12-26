@@ -30,8 +30,6 @@ Route::group([
 
         CRUD::resource('activitylog', 'ActivitylogCrudController');
 
-        Route::get('/api/novasituacao', 'Api\NovasituacaoController@index');
-        Route::get('/api/novasituacao/{id}', 'Api\NovasituacaoController@show');
 
         Route::group([
             'prefix' => 'admin',
@@ -54,17 +52,19 @@ Route::group([
         ], function () {
 
             CRUD::resource('contrato', 'ContratoCrudController');
+            CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
+
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
             });
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
             });
-            Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
+            Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
             });
-            Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
+            Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
             });
         });
