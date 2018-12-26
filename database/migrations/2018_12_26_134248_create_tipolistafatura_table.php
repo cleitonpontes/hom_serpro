@@ -16,7 +16,6 @@ class CreateTipolistafaturaTable extends Migration
         Schema::create('tipolistafatura', function (Blueprint $table) {
             $table->increments('id');
             $table->string('nome');
-            $table->text('descricao');
             $table->boolean('situacao');
             $table->softDeletes();
             $table->timestamps();

@@ -18,5 +18,10 @@ class DatabaseSeeder extends Seeder
         $this->call(FornecedorSeeder::class);
         $this->call(ContratoSeeder::class);
         $this->call(InstalacaoSeeder::class);
+        $this->call(JustificativafaturaSeeder::class);
+        $this->call(TipolistafaturaSeeder::class);
+        $this->call(NaturezadespesaSeeder::class);
+        $this->call(NaturezasubitemSeeder::class);
+        $this->call(PlanointernoSeeder::class);
     }
 }

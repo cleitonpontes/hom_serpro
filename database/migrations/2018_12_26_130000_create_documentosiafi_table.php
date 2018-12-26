@@ -16,8 +16,10 @@ class CreateDocumentosiafiTable extends Migration
         Schema::create('documentosiafi', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('empenho_id');
+            $table->date('data');
             $table->string('numero');
             $table->string('docorigem');
+            $table->decimal('valor',17,2);
             $table->softDeletes();
             $table->timestamps();
 
