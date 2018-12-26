@@ -28,7 +28,15 @@ class Activitylog extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-
+    public function getUser()
+    {
+        if($this->causer_id){
+            $user = BackpackUser::find($this->causer_id);
+            return $user->cpf . ' - ' . $user->name;
+        }else{
+            return '';
+        }
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

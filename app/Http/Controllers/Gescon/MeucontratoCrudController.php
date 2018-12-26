@@ -46,15 +46,6 @@ class MeucontratoCrudController extends CrudController
 
         /*
         |--------------------------------------------------------------------------
-        | CrudPanel Configuration Global
-        |--------------------------------------------------------------------------
-        */
-//        $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
-
-
-
-        /*
-        |--------------------------------------------------------------------------
         | CrudPanel Configuration Collumns Table
         |--------------------------------------------------------------------------
         */

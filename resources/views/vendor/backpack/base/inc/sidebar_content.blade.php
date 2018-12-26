@@ -78,7 +78,7 @@
             <ul class="treeview-menu">
                 <li><a href='{{ url(config('backpack.base.route_prefix', 'admin').'/log') }}'><i
                             class='fa fa-terminal'></i> <span>Logs</span></a></li>
-                <li><a href='{{ backpack_url('/activitylog') }}'><i class='fa fa-terminal'></i>
+                <li><a href='{{ backpack_url('/admin/activitylog') }}'><i class='fa fa-terminal'></i>
                         <span>Logs Banco</span></a></li>
             </ul>
         </li>

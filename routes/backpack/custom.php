@@ -28,13 +28,11 @@ Route::group([
             Route::get('/dashboard', 'AdminController@redirect')->name('backpack');
         }
 
-        CRUD::resource('activitylog', 'ActivitylogCrudController');
-
-
         Route::group([
             'prefix' => 'admin',
             'namespace' => 'Admin',
         ], function () {
+            CRUD::resource('activitylog', 'ActivitylogCrudController');
             CRUD::resource('usuario', 'UsuarioCrudController');
             CRUD::resource('orgaosuperior', 'OrgaoSuperiorCrudController');
             CRUD::resource('orgao', 'OrgaoCrudController');
