@@ -24,6 +24,7 @@ class CreateContratoocorrenciaTable extends Migration
             $table->string('emailpreposto')->nullable();
             $table->integer('numeroocorrencia')->nullable();
             $table->integer('novasituacao')->nullable();
+            $table->string('arquivos')->nullable();
             $table->integer('situacao');
             $table->softDeletes();
             $table->timestamps();

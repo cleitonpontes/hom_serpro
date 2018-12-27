@@ -231,6 +231,18 @@ class ContratoCrudController extends CrudController
 
             ],
             [
+                'name' => 'arquivos',
+                'label' => 'Arquivos',
+                'type' => 'upload_multiple',
+                'disk' => 'local',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+            ],
+            [
                 'name' => 'situacao',
                 'label' => 'Situação',
                 'type' => 'boolean',
@@ -441,6 +453,14 @@ class ContratoCrudController extends CrudController
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
                 // 'suffix' => ".00",
+            ],
+            [   // Upload
+                'name' => 'arquivos',
+                'label' => 'Arquivos',
+                'type' => 'upload_multiple',
+                'upload' => true,
+                'tab' => 'Arquivos',
+                'disk' => 'local' // if you store files in the /public folder, please ommit this; if you store them in /storage or S3, please specify it;
             ],
         ]);
 

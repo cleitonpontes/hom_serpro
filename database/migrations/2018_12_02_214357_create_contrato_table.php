@@ -35,6 +35,7 @@ class CreateContratoTable extends Migration
             $table->integer('num_parcelas')->nullable();
             $table->decimal('valor_parcela',17,2)->nullable();
             $table->decimal('valor_acumulado',17,2)->nullable();
+            $table->string('arquivos')->nullable();
             $table->string('situacao_siasg')->nullable();
             $table->boolean('situacao');
             $table->softDeletes();

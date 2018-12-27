@@ -48,9 +48,13 @@ class Contrato extends Model
         'valor_parcela',
         'valor_acumulado',
         'situacao_siasg',
+        'arquivos',
         'situacao',
     ];
 
+    protected $casts = [
+        'arquivos' => 'array'
+    ];
 
     // protected $hidden = [];
     // protected $dates = [];
@@ -155,4 +159,14 @@ class Contrato extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
+    public function setArquivosAttribute($value)
+    {
+        $attribute_name = "arquivos";
+        $disk = "local";
+        $destination_path = "contrato/".$this->id."_".str_replace('/','_',$this->numero);
+
+
+        $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
+    }
 }

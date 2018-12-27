@@ -28,6 +28,9 @@ Route::group([
             Route::get('/dashboard', 'AdminController@redirect')->name('backpack');
         }
 
+        Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+
+
         Route::group([
             'prefix' => 'admin',
             'namespace' => 'Admin',
