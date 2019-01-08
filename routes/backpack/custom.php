@@ -69,5 +69,15 @@ Route::group([
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
             });
         });
+
+        Route::group([
+            'prefix' => 'execfin',
+            'namespace' => 'Execfin',
+        ], function () {
+
+            CRUD::resource('empenho', 'EmpenhoCrudController');
+
+        });
+
     });
 });
