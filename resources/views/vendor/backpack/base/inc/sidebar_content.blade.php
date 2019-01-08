@@ -1,6 +1,20 @@
 <!-- This file is used to store sidebar items, starting with Backpack\Base 0.9.0 -->
 <li><a href="{{ backpack_url('inicio') }}"><i class="fa fa-home"></i> <span>Início</span></a></li>
+<li class="treeview">
+    <a href="#"><i class="fa fa-dollar"></i> <span>Execução Financeira</span> <i
+            class="fa fa-angle-left pull-right"></i></a>
+    <ul class="treeview-menu">
 
+        <li class="treeview">
+            <a href="#"><i class='fa fa-edit'></i> <span>Cadastro</span> <i
+                    class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+                <li><a href="{{ backpack_url('/execfin/empenho') }}"><i class="fa fa-money"></i>
+                        <span>Empenhos</span></a></li>
+            </ul>
+        </li>
+    </ul>
+</li>
 <li class="treeview">
     <a href="#"><i class="fa fa-file-text-o"></i> <span>Gestão de Contratos</span> <i
             class="fa fa-angle-left pull-right"></i></a>
