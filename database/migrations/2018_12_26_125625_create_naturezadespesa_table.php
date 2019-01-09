@@ -18,6 +18,7 @@ class CreateNaturezadespesaTable extends Migration
             $table->string('codigo');
             $table->string('descricao');
             $table->boolean('situacao');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
