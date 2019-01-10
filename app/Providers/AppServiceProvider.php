@@ -16,11 +16,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
         if (!app()->runningInConsole()) {
-            Activity::saving(function (Activity $activity) {
-                $activity->ip = \Request::ip();
-                $activity->causer_id = backpack_user()->id;
-            });
+            if(backpack_user()){
+                Activity::saving(function (Activity $activity) {
+                    $activity->ip = \Request::ip();
+                    $activity->causer_id = backpack_user()->id;
+                });
+            }
         }
 
     }
