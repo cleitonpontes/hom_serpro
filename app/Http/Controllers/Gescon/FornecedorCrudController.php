@@ -62,6 +62,7 @@ class FornecedorCrudController extends CrudController
 
         $this->crud->addColumn([
             'name'  => 'nome',
+            'limit' => 1000,
             'label' => 'Nome / Razão Social',
             'type'  => 'text',
         ]);
