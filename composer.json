@@ -9,6 +9,7 @@
         "backpack/crud": "^3.5",
         "backpack/logmanager": "^2.3",
         "backpack/permissionmanager": "^3.12",
+        "eduardokum/laravel-mail-auto-embed": "^1.0",
         "fideloper/proxy": "^4.0",
         "fx3costa/laravelchartjs": "^2.5",
         "geekcom/validator-docs": "^1.3",

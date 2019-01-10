@@ -2,7 +2,7 @@
     {{-- Header --}}
     @slot('header')
         @component('mail::header', ['url' => config('app.url')])
-            <img src="{{ $message->embed(public_path('img/logo.png')) }}" width="130px" alt="Sistema Conta">
+            <img src="http://novo-conta-hom.agu.gov.br/img/logo.png" width="130px" alt="Sistema Conta" data-auto-embed="base64">
         @endcomponent
     @endslot
 
