@@ -41,6 +41,9 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'codigoitem_inserir']);
         Permission::create(['name' => 'codigoitem_editar']);
         Permission::create(['name' => 'codigoitem_deletar']);
+        Permission::create(['name' => 'contratoarquivo_inserir']);
+        Permission::create(['name' => 'contratoarquivo_editar']);
+        Permission::create(['name' => 'contratoarquivo_deletar']);
 
 
 
@@ -72,6 +75,9 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('codigoitem_inserir');
         $role->givePermissionTo('codigoitem_editar');
         $role->givePermissionTo('codigoitem_deletar');
+        $role->givePermissionTo('contratoarquivo_inserir');
+        $role->givePermissionTo('contratoarquivo_editar');
+        $role->givePermissionTo('contratoarquivo_deletar');
 
     }
 }

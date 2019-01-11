@@ -58,16 +58,15 @@ Route::group([
 
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
-            });
-            Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
+                CRUD::resource('arquivos', 'ContratoarquivoCrudController');
             });
+
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
-            });
-            Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
             });
+
         });
 
         Route::group([

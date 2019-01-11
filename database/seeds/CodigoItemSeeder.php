@@ -198,5 +198,16 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '16','descres' => 'NAOATEND','descricao' => 'Não Atendida' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '16','descres' => 'CONCLUSIVA','descricao' => 'Conclusiva' ]);
 
+        DB::table('codigos')->insert(['descricao' => 'Tipo Arquivos Contrato','visivel' => false,]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'CONTRATO','descricao' => 'Contrato' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'ADITIVO','descricao' => 'Termo Aditivo' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'APOSTILA','descricao' => 'Termo Apostilamento' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'TR','descricao' => 'Termo Referência' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'RESCISAO','descricao' => 'Termo Rescisão' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'EMPENHO','descricao' => 'Nota de Empenho' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'GARANTIA','descricao' => 'Garantia' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'PLANILHA','descricao' => 'Planilha Custo' ]);
+        DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'OUTROS','descricao' => 'Outros Arquivos' ]);
+
     }
 }
