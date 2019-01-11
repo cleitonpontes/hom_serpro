@@ -16,7 +16,25 @@ class UserSeeder extends Seeder
             'ugprimaria' => '1',
             'password' => bcrypt('123456'),
         ]);
-
         $user->assignRole('Administrador');
+
+        $user = \App\Models\BackpackUser::create([
+            'name' => 'JUNIA MARIA MARTINS DIAS',
+            'cpf' => '027.291.246-83',
+            'email' => 'junia.dias@agu.gov.br',
+            'ugprimaria' => '3',
+            'password' => bcrypt('123456'),
+        ]);
+        $user->assignRole('Administrador');
+
+        $user = \App\Models\BackpackUser::create([
+            'name' => 'IVALDO DE MESQUITA VERAS',
+            'cpf' => '619.798.991-34',
+            'email' => 'ivaldo.veras@agu.gov.br',
+            'ugprimaria' => '1',
+            'password' => bcrypt('123456'),
+        ]);
+        $user->assignRole('Administrador');
+
     }
 }
