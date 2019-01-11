@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
 
                 Activity::saving(function (Activity $activity) {
                     $activity->ip = \Request::ip();
-                    if(backpack_user()->id){
+                    if(backpack_user()){
                         $activity->causer_id = backpack_user()->id;
                     }
                 });
