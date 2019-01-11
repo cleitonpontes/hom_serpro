@@ -4,5 +4,5 @@
         {{--{{ trans('backpack::base.powered_by') }} <a target="_blank" href="http://backpackforlaravel.com?ref=panel_footer_link">Backpack for Laravel</a>--}}
     </div>
 @endif
-&nbsp;<strong>Copyright &copy; 2018 <a href="#">{{ env('APP_NAME') }}</a> - </strong> Todos direitos reservados.
+&nbsp;<strong>Copyright &copy; {{ date('Y') }} <a href="#">{{ env('APP_NAME') }}</a> - </strong> Todos direitos reservados.
 {{--{{ trans('backpack::base.handcrafted_by') }} <a target="_blank" href="{{ config('backpack.base.developer_link') }}">{{ config('backpack.base.developer_name') }}</a>.--}}
