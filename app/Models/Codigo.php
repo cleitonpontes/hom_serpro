@@ -49,7 +49,7 @@ class Codigo extends Model
 
         $button = '<div class="btn-group">
                         <button type="button" title="Mais" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle-split"
-                            data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false"><i class="fa fa-gears"></i> Mais 
+                            data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false"><i class="fa fa-gears"></i> 
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
