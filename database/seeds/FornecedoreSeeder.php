@@ -499,6 +499,15 @@ class FornecedorSeeder extends Seeder
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '115406', 'nome' => 'EMPRESA BRASIL DE COMUNICAÇÃO']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '803010', 'nome' => 'SERPRO REGIONAL BRASILIA']);
         DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '806030', 'nome' => 'SERPRO REGIONAL BRASILIA SEDE']);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110161', 'nome' => strtoupper('Superin. de Adm. no Distrito Federal')]);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110592', 'nome' => strtoupper('Unidade de Atendimento em Minas Gerais')]);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110102', 'nome' => strtoupper('Superin. de Adm. no Rio de Janeiro')]);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110099', 'nome' => strtoupper('Superin. de Adm. em São Paulo')]);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110096', 'nome' => strtoupper('Superin. de Adm. em Pernambuco')]);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110097', 'nome' => strtoupper('Superin. de Adm. no Rio Grande do Sul')]);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110062', 'nome' => strtoupper('Diretoria de Gestão de Pessoas')]);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110581', 'nome' => strtoupper('Diárias e Passagens')]);
+        DB::table('fornecedores')->insert(['tipo_fornecedor' => 'UG', 'cpf_cnpj_idgener' => '110156', 'nome' => strtoupper('Escola da Advocacia-Geral da União')]);
 
     }
 }
