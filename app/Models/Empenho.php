@@ -120,12 +120,7 @@ class Empenho extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function unidade()
-    {
 
-        return $this->belongsTo(Unidade::class, 'unidade_id');
-
-    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES
