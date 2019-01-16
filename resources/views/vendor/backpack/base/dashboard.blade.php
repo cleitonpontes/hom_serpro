@@ -16,85 +16,78 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-12">
-            <div class="box">
-                <div class="box-header with-border">
-                    <div class="box-title">Informações gerais</div>
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>07</h3>
+
+                    <p>Novos Contratos no SIASG</p>
                 </div>
-
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-lg-3 col-xs-6">
-                            <!-- small box -->
-                            <div class="small-box bg-aqua">
-                                <div class="inner">
-                                    <h3>07</h3>
-
-                                    <p>Novos Contratos no SIASG</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="ion ion-ios-cloud-download"></i>
-                                </div>
-                                <a href="#" class="small-box-footer">Inserir agora <i
-                                            class="fa fa-arrow-circle-right"></i></a>
-                            </div>
-                        </div>
-                        <!-- ./col -->
-                        <div class="col-lg-3 col-xs-6">
-                            <!-- small box -->
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3>05</h3>
-
-                                    <p>Contratos Atualizados no SIASG</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="ion ion-ios-refresh"></i>
-                                </div>
-                                <a href="#" class="small-box-footer">Atualizar agora <i
-                                            class="fa fa-arrow-circle-right"></i></a>
-                            </div>
-                        </div>
-                        <!-- ./col -->
-                        <div class="col-lg-3 col-xs-6">
-                            <!-- small box -->
-                            <div class="small-box bg-red">
-                                <div class="inner">
-                                    <h3>03</h3>
-
-                                    <p>Contratos vencidos</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="ion ion-ios-close"></i>
-                                </div>
-                                <a href="#" class="small-box-footer">Solucionar <i class="fa fa-arrow-circle-right"></i></a>
-                            </div>
-                        </div>
-                        <!-- ./col -->
-
-                        <div class="col-lg-3 col-xs-6">
-                            <!-- small box -->
-                            <div class="small-box bg-yellow">
-                                <div class="inner">
-                                    <h3>12</h3>
-
-                                    <p>Mensagens pendentes</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="ion ion-ios-email"></i>
-                                </div>
-                                <a href="#" class="small-box-footer">Ler agora <i class="fa fa-arrow-circle-right"></i></a>
-                            </div>
-                        </div>
-                        <!-- ./col -->
-                    </div>
+                <div class="icon">
+                    <i class="ion ion-ios-cloud-download"></i>
                 </div>
-
+                <a href="#" class="small-box-footer">Inserir agora <i
+                        class="fa fa-arrow-circle-right"></i></a>
             </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-green">
+                <div class="inner">
+                    <h3>05</h3>
+
+                    <p>Contratos Atualizados no SIASG</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-refresh"></i>
+                </div>
+                <a href="#" class="small-box-footer">Atualizar agora <i
+                        class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-red">
+                <div class="inner">
+                    <h3>03</h3>
+
+                    <p>Contratos vencidos</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-close"></i>
+                </div>
+                <a href="#" class="small-box-footer">Solucionar <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-yellow">
+                <div class="inner">
+                    <h3>12</h3>
+
+                    <p>Mensagens pendentes</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-email"></i>
+                </div>
+                <a href="#" class="small-box-footer">Ler agora <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+
             <div class="row">
                 <section class="col-lg-7 connectedSortable ui-sortable">
                     <div class="box box-solid">
                         <div class="box-header with-border">
+                            <i class="fa fa-bar-chart"></i>
                             <h3 class="box-title">Contratos por Categoria</h3>
 
                             <div class="box-tools pull-right">
@@ -111,7 +104,7 @@
                 </section>
                 <section class="col-lg-5 connectedSortable ui-sortable">
                     <div class="box box-solid">
-                        <div class="box-header ui-sortable-handle" style="cursor: move;">
+                        <div class="box-header ui-sortable-handle with-border" style="cursor: move;">
                             <i class="fa fa-calendar"></i>
 
                             <h3 class="box-title">Calendário</h3>
