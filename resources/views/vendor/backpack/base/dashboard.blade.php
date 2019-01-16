@@ -28,9 +28,9 @@
                             <!-- small box -->
                             <div class="small-box bg-aqua">
                                 <div class="inner">
-                                    <h3>7</h3>
+                                    <h3>07</h3>
 
-                                    <p>Novos Contratos</p>
+                                    <p>Novos Contratos no SIASG</p>
                                 </div>
                                 <div class="icon">
                                     <i class="ion ion-ios-cloud-download"></i>
@@ -44,9 +44,9 @@
                             <!-- small box -->
                             <div class="small-box bg-green">
                                 <div class="inner">
-                                    <h3>15</h3>
+                                    <h3>05</h3>
 
-                                    <p>Contratos desatualizados</p>
+                                    <p>Contratos Atualizados no SIASG</p>
                                 </div>
                                 <div class="icon">
                                     <i class="ion ion-ios-refresh"></i>
@@ -76,7 +76,7 @@
                             <!-- small box -->
                             <div class="small-box bg-yellow">
                                 <div class="inner">
-                                    <h3>5</h3>
+                                    <h3>12</h3>
 
                                     <p>Mensagens pendentes</p>
                                 </div>
