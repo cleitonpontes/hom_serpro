@@ -16,4 +16,10 @@ class Planointerno extends Model
     use SoftDeletes;
 
     protected $table = 'planointerno';
+
+    protected $fillable = [
+        'codigo',
+        'descricao',
+        'situacao',
+    ];
 }

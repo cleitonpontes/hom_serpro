@@ -76,6 +76,7 @@ Route::group([
 
             CRUD::resource('empenho', 'EmpenhoCrudController');
 
+            Route::get('/migracaoempenhos', 'EmpenhoCrudController@migracaoEmpenho');
         });
 
     });

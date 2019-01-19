@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use App\Models\Empenho;
+use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
+use App\Models\Planointerno;
+use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -27,14 +31,14 @@ class EmpenhoCrudController extends CrudController
         $this->crud->setModel('App\Models\Empenho');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/execfin/empenho');
         $this->crud->setEntityNameStrings('empenho', 'empenhos');
-        
+
         $this->crud->addClause('select', 'empenhos.*');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'empenhos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'empenhos.unidade_id');
         $this->crud->addClause('join', 'planointerno', 'planointerno.id', '=', 'empenhos.planointerno_id');
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
 
-        
+
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -62,11 +66,11 @@ class EmpenhoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                 'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-                     $query->orWhere('unidades.codigo', 'like', "%$searchTerm%");
-                     $query->orWhere('unidades.nome', 'like', "%".strtoupper($searchTerm)."%");
-                     $query->orWhere('unidades.nomeresumido', 'like', "%".strtoupper($searchTerm)."%");
-                 },
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('unidades.codigo', 'like', "%$searchTerm%");
+                    $query->orWhere('unidades.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+                    $query->orWhere('unidades.nomeresumido', 'like', "%" . strtoupper($searchTerm) . "%");
+                },
             ],
             [
                 'name' => 'numero',
@@ -89,9 +93,9 @@ class EmpenhoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                    $query->orWhere('fornecedores.nome', 'like', "%".strtoupper($searchTerm)."%");
+                    $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
                 },
             ],
             [
@@ -105,9 +109,9 @@ class EmpenhoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('planointerno.codigo', 'like', "%".strtoupper($searchTerm)."%");
-                    $query->orWhere('planointerno.descricao', 'like', "%".strtoupper($searchTerm)."%");
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('planointerno.codigo', 'like', "%" . strtoupper($searchTerm) . "%");
+                    $query->orWhere('planointerno.descricao', 'like', "%" . strtoupper($searchTerm) . "%");
                 },
             ],
             [
@@ -121,9 +125,9 @@ class EmpenhoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('naturezadespesa.codigo', 'like', "%".strtoupper($searchTerm)."%");
-                    $query->orWhere('naturezadespesa.descricao', 'like', "%".strtoupper($searchTerm)."%");
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('naturezadespesa.codigo', 'like', "%" . strtoupper($searchTerm) . "%");
+                    $query->orWhere('naturezadespesa.descricao', 'like', "%" . strtoupper($searchTerm) . "%");
                 },
             ],
             [
@@ -255,7 +259,8 @@ class EmpenhoCrudController extends CrudController
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
-    public function Colunas(){
+    public function Colunas()
+    {
         $colunas = [
             [
                 'name' => 'getUnidade',
@@ -267,11 +272,11 @@ class EmpenhoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-               // 'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-               //     $query->orWhere('unidades.codigo', 'like', "%$searchTerm%");
-               //     $query->orWhere('unidades.nome', 'like', "%$searchTerm%");
-               //     $query->orWhere('unidades.nomeresumido', 'like', "%$searchTerm%");
-               // },
+                // 'searchLogic'   => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('unidades.codigo', 'like', "%$searchTerm%");
+                //     $query->orWhere('unidades.nome', 'like', "%$searchTerm%");
+                //     $query->orWhere('unidades.nomeresumido', 'like', "%$searchTerm%");
+                // },
             ],
             [
                 'name' => 'numero',
@@ -294,7 +299,7 @@ class EmpenhoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
                     $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
                 },
@@ -451,7 +456,7 @@ class EmpenhoCrudController extends CrudController
 //                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
 //                },
             ],
-            
+
         ];
 
         return $colunas;
@@ -487,4 +492,93 @@ class EmpenhoCrudController extends CrudController
 
         return $content;
     }
+
+    public function migracaoEmpenho()
+    {
+        $migracao_url = config('migracao.migracao_empenhos');
+        $dados = json_decode(file_get_contents($migracao_url), true);
+
+        foreach ($dados as $d) {
+
+            $unidade = Unidade::where('codigo', '=', $d['ug'])
+            ->first();
+
+            echo $d['credor']['cpfcnpjugidgener'].'<br>';
+
+            $credor = $this->buscaFornecedor($d['credor']);
+
+            if($d['pi']['codigo']){
+                $pi = $this->buscaPi($d['pi']);
+            }
+
+            $naturezadespesa = Naturezadespesa::where('codigo', '=', $d['naturezadespesa'])
+                ->first();
+
+            $empenho = Empenho::where('numero', '=', $d['numero'])
+                ->where('unidade_id', '=', $unidade->id)
+                ->where('fornecedor_id','=',$credor->id)
+                ->where('planointerno_id','=',$pi->id)
+                ->where('naturezadespesa_id','=',$naturezadespesa->id)
+                ->first();
+
+            if(!$empenho){
+                $empenho = Empenho::create([
+                    'numero' => $d['numero'],
+                    'unidade_id' => $unidade->id,
+                    'fornecedor_id' => $credor->id,
+                    'planointerno_id' => $pi->id,
+                    'naturezadespesa_id' => $naturezadespesa->id
+                ]);
+            }
+
+        }
+
+
+//        str_pad($input, 2, "0", STR_PAD_LEFT);
+
+
+//        dd($dados);
+    }
+
+    public function buscaFornecedor($credor){
+
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
+            ->first();
+
+        if (!$fornecedor) {
+            $tipo = 'JURIDICA';
+            if (strlen($credor['cpfcnpjugidgener']) == 14) {
+                $tipo = 'FISICA';
+            }elseif(strlen($credor['cpfcnpjugidgener']) == 9) {
+                $tipo = 'IDGENERICO';
+            }elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+                $tipo = 'UG';
+            };
+
+            $fornecedor = Fornecedor::create([
+                'tipo_fornecedor' => $tipo,
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
+                'nome' => strtoupper($credor['nome'])
+            ]);
+        }
+        return $fornecedor;
+    }
+
+    public function buscaPi($pi){
+
+        $planointerno = Planointerno::where('codigo', '=', $pi['codigo'])
+            ->first();
+
+        if (!$planointerno) {
+
+            $planointerno = Planointerno::create([
+                'codigo' => $pi['codigo'],
+                'descricao' => strtoupper($pi['descricao']),
+                'situacao' => true
+            ]);
+        }
+        return $planointerno;
+    }
+
+
 }
