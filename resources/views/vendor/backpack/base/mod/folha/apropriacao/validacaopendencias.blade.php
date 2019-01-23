@@ -2,7 +2,7 @@
 $erros = session('validacao.erros');
 session(['validacao.erros' => null]);
 
-if (count($erros) >0) {
+if (isset($erros)) {
     ?>
     <div class="box-body">
     	<h4 class="box-title text-danger">

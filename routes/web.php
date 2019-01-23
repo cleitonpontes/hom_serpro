@@ -81,7 +81,8 @@ Route::group(
         // Módulo Folha de Pagamento
         Route::group([
             'prefix' => 'folha',
-            'namespace' => 'Folha',
+            'namespace' => 'Folha\\',
+            'as' => 'folha.',
         ], function () {
 
             /**
@@ -112,8 +113,8 @@ Route::group(
 
             // Passo 1
             Route::get('/apropriacao/passo/1', 'Apropriacao\Passo1Controller@novo')
-                ->name('apropriacao.passo.1')
-                ->middleware('permission:folha_apropriacao_passo');
+                ->name('apropriacao.passo.1');
+                //->middleware('permission:folha_apropriacao_passo');
             Route::post('/apropriacao/passo/1/adiciona', 'Apropriacao\Passo1Controller@adiciona')
                 ->name('apropriacao.passo.1.grava');
 

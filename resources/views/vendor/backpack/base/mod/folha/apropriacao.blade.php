@@ -23,7 +23,7 @@
         <div class="box-body">
             <div class="box-tools">
                 {!! Button::primary('<i class="fa fa-plus"></i> Nova apropriação')
-                    ->asLinkTo(route('apropriacao.passo.1'))
+                    ->asLinkTo(route('folha.apropriacao.passo.1'))
                 !!}
                 <div class="btn-group">
                     {!! DropdownButton::normal('<i class="fa fa-gear"></i> Exportação')->withContents([

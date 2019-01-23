@@ -1,15 +1,21 @@
-@extends('adminlte::layouts.app')
+@extends('backpack::layout')
 
-@push('breadcrumb')
-    {{ Breadcrumbs::render() }}
-@endpush
-
-@section('htmlheader_title')
-    {{ trans('adminlte_lang::message.users') }}
+@section('header')
+    <section class="content-header">
+        <h1>
+            Folha
+            <small>Apropriação</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>
+            <li>Folha</li>
+            <li class="active">Apropriação</li>
+        </ol>
+    </section>
 @endsection
 
-@section('main-content')
-	@include('adminlte::mod.folha.apropriacao.cabecalho')
+@section('content')
+	@include('backpack::mod.folha.apropriacao.cabecalho')
 	
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
@@ -31,9 +37,9 @@
                     </fieldset>
                 </div>
                 
-                @include('adminlte::mod.folha.apropriacao.validacaopendencias')
+                @include('backpack::mod.folha.apropriacao.validacaopendencias')
                 
-                @include('adminlte::mod.folha.apropriacao.sucessoimportacao')
+                @include('backpack::mod.folha.apropriacao.sucessoimportacao')
                 
             </div>
         </div>

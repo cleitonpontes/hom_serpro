@@ -38,7 +38,7 @@ class Passo1Controller extends BaseController
             'method' => 'POST'
         ]);
 
-        return view('adminlte::mod.folha.apropriacao.passo1', compact('form'));
+        return view('backpack::mod.folha.apropriacao.passo1', compact('form'));
     }
 
     /**
