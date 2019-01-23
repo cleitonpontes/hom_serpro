@@ -7,6 +7,11 @@
 <script src="{{ asset('vendor/adminlte') }}/bower_components/chart.js/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
 
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+
 {{-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{ asset('vendor/adminlte') }}/bower_components/jquery/dist/jquery.min.js"><\/script>')</script> --}}
 
@@ -38,9 +43,14 @@
         location.hash = e.target.hash.replace("#tab_", "#");
     });
 </script>
+
 <script type="text/javascript">
     function maiuscula(z){
         v = z.value.toUpperCase();
         z.value = v;
     }
+</script>
+
+<script type="text/javascript">
+    $.fn.dataTable.ext.errMode = 'throw';
 </script>

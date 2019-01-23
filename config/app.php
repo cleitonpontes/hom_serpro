@@ -166,6 +166,7 @@ return [
         geekcom\ValidatorDocs\ValidatorProvider::class,
         Kris\LaravelFormBuilder\FormBuilderServiceProvider::class,
         Bootstrapper\BootstrapperL5ServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -225,6 +226,9 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'FormBuilder' => Kris\LaravelFormBuilder\Facades\FormBuilder::class,
         'Icon' => Bootstrapper\Facades\Icon::class,
+        'Button' => Bootstrapper\Facades\Button::class,
+        'DropdownButton' => Bootstrapper\Facades\DropdownButton::class,
+        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
 
     ],
 

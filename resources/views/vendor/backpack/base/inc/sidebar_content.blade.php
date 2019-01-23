@@ -16,6 +16,21 @@
     </ul>
 </li>
 <li class="treeview">
+    <a href="#"><i class="fa fa-dollar"></i> <span>Folha</span> <i
+            class="fa fa-angle-left pull-right"></i></a>
+    <ul class="treeview-menu">
+
+        <li class="treeview">
+            <a href="#"><i class='fa fa-edit'></i> <span>Cadastro</span> <i
+                    class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+                <li><a href="{{ backpack_url('/folha/apropriacao') }}"><i class="fa fa-money"></i>
+                        <span>Apropriação</span></a></li>
+            </ul>
+        </li>
+    </ul>
+</li>
+<li class="treeview">
     <a href="#"><i class="fa fa-file-text-o"></i> <span>Gestão de Contratos</span> <i
             class="fa fa-angle-left pull-right"></i></a>
     <ul class="treeview-menu">
