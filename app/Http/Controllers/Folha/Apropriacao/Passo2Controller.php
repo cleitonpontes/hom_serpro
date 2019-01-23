@@ -75,7 +75,7 @@ class Passo2Controller extends BaseController
 
         $html = $this->retornaGrid();
 
-        return view('adminlte::mod.folha.apropriacao.passo2', compact('html'));
+        return view('backpack::mod.folha.apropriacao.passo2', compact('html'));
     }
 
     /**

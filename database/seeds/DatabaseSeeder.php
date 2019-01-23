@@ -24,5 +24,9 @@ class DatabaseSeeder extends Seeder
         $this->call(NaturezasubitemSeeder::class);
         $this->call(PlanointernoSeeder::class);
         $this->call(EmpenhosSeeder::class);
+        $this->call(ExecsiafisituacaoSeeder::class);
+        $this->call(RubricaSeeder::class);
+        $this->call(RhSituacaoSeeder::class);
+        $this->call(SituacaoXRubricaSeeder::class);
     }
 }

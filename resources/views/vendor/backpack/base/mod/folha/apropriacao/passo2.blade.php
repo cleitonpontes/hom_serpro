@@ -1,19 +1,26 @@
-@extends('adminlte::layouts.app')
+@extends('backpack::layout')
+
+@section('header')
+    <section class="content-header">
+        <h1>
+            Folha
+            <small>Apropriação</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>
+            <li>Folha</li>
+            <li class="active">Apropriação</li>
+        </ol>
+    </section>
+@endsection
 
 @php
 $apid = Request()->apid;
 @endphp
 
-@push('breadcrumb')
-    {{ Breadcrumbs::render() }}
-@endpush
 
-@section('htmlheader_title')
-    {{ trans('adminlte_lang::message.users') }}
-@endsection
-
-@section('main-content')
-	@include('adminlte::mod.folha.apropriacao.cabecalho')
+@section('content')
+	@include('backpack::mod.folha.apropriacao.cabecalho')
 	
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
@@ -28,11 +35,11 @@ $apid = Request()->apid;
         </div>
     </div>
     
-	@include('adminlte::mod.folha.apropriacao.botoes')
+	@include('backpack::mod.folha.apropriacao.botoes')
 	
 @endsection
 
-@push('scripts')
+@push('after_scripts')
     {!! $html->scripts() !!}
     <script type="text/javascript">
 		$('body').delegate('.situacao', 'click', function() {

@@ -114,7 +114,8 @@ class BaseController extends Controller
      */
     protected function exibeMensagemSucesso($mensagem)
     {
-        \toast()->success($mensagem, 'Sucesso');
+        \Alert::success($mensagem)->flash();
+//        \toast()->success($mensagem, 'Sucesso');
     }
 
     /**
@@ -124,7 +125,8 @@ class BaseController extends Controller
      */
     protected function exibeMensagemAlerta($mensagem)
     {
-        \toast()->warning($mensagem, 'Alerta');
+        \Alert::warning($mensagem)->flash();
+//        \toast()->warning($mensagem, 'Alerta');
     }
 
     /**
@@ -134,7 +136,8 @@ class BaseController extends Controller
      */
     protected function exibeMensagemErro($mensagem)
     {
-        \toast()->error($mensagem, 'Erro');
+        \Alert::error($mensagem)->flash();
+//        \toast()->error($mensagem, 'Erro');
     }
 
     /**

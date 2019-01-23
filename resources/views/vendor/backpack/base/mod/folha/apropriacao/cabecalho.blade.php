@@ -17,7 +17,7 @@
     $passos[2] = 'Identificar Situação';
     $passos[3] = 'Identificar Empenho';
     $passos[4] = 'Validar Saldo';
-    $passos[5] = 'Informar Dados<br /> Complementares';
+    $passos[5] = 'Informar Dados';
     $passos[6] = 'Persistir Dados';
     $passos[7] = 'Gerar XML';
 @endphp
@@ -46,7 +46,7 @@
 </div>
 <br />
 
-@push('scripts')
+@push('after_scripts')
     <style type="text/css">
         .circulo {
             display: block;

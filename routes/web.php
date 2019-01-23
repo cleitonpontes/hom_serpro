@@ -120,8 +120,8 @@ Route::group(
 
             // Passo 2
             Route::get('/apropriacao/passo/2/apid/{apid}', 'Apropriacao\Passo2Controller@index')
-                ->name('apropriacao.passo.2')
-                ->middleware('permission:folha_apropriacao_passo');
+                ->name('apropriacao.passo.2');
+//                ->middleware('permission:folha_apropriacao_passo');
             /*
             Route::put('/apropriacao/situacao/apid/{apid}/id/{id}/sit/{sit}/vpd/{vpd}', 'Apropriacao\Passo2Controller@atualiza')
                 ->name('apropriacao.passo.2.situacao.atualiza');
