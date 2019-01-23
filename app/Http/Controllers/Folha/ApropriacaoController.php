@@ -22,6 +22,7 @@ class ApropriacaoController extends BaseController
         $modelo = new Apropriacao();
         $apropriacao = $modelo->retornaListagem();
 
+
         if ($request->ajax()) {
             return DataTables::of($apropriacao)->addColumn('action', function ($apropriacao) {
                 // Se dada apropriação já tiver sido finalizada...
