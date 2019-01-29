@@ -32,7 +32,7 @@ class BaseController extends Controller
     public function __construct(Builder $htmlBuilder)
     {
         $this->htmlBuilder = $htmlBuilder;
-//        $this->middleware('auth');
+        $this->middleware('web');
     }
 
     /**
@@ -141,7 +141,8 @@ class BaseController extends Controller
     }
 
     /**
-     *
+     * Formata número
+     * 
      * @param number $valor
      * @return number
      */

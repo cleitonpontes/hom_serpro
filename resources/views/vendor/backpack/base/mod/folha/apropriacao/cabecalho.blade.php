@@ -33,9 +33,9 @@
 					
 					@foreach($passos as $num => $descricao)
 						@php $cor = ($passo >= $num) ? 'azul' : ''; @endphp
-    					<div class="btn btn-app">
-    						<span class="circulo {{$cor}}">{{$num}}</span>
-    						{!! $descricao !!}
+    					<div class="btn btn-app" style="width: 108px;">
+                            <span class="circulo {{$cor}}">{{$num}}</span>
+                            {!! $descricao !!}
     					</div>
 					@endforeach
 					

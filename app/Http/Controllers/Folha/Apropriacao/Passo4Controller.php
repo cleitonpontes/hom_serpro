@@ -76,7 +76,7 @@ class Passo4Controller extends BaseController
     }
 
     /**
-     * Retorna dados de empenhos
+     * Retorna dados de empenhos e já efetua suas respectivas validações de saldos via WebService do SIAFI
      * 
      * @param number $id
      * @return mixed
@@ -142,6 +142,7 @@ class Passo4Controller extends BaseController
             'data' => 'saldo_necessario',
             'name' => 'saldo_necessario',
             'title' => 'Saldo Necessário',
+            // 'type' => 'html',
             'class' => 'text-right'
         ]);
         $html->addColumn([
@@ -180,13 +181,14 @@ class Passo4Controller extends BaseController
      */
     private function validaSaldo($dados)
     {
+        session(['apropriacao.valida.saldo.avanca' => 'true']);
+        
         // Valores fixos
         $amb = 'PROD';
         $contacontabil1 = config('app.conta_contabil');
         $count = 0;
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
-        session(['apropriacao.valida.saldo.avanca' => 'true']);
-
+        
         foreach ($dados as $registro) {
             $ug = $registro['ug'];
             $ano = $registro['ano'];

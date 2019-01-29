@@ -109,7 +109,7 @@ class Apropriacaosituacao extends Model
         $empenho = array();
         $empenhos = array();
         
-        $modeloEmpenhos = new Empenhos();
+        $modeloEmpenhos = new Empenho();
         
         foreach ($importacoes as $registroSituacao) {
             $situacao['apropriacao_id'] = $apid;

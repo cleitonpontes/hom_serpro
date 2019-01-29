@@ -1,32 +1,48 @@
 <?php
 /**
- |--------------------------------------------------------------------------
- | MENSAGENS
- |--------------------------------------------------------------------------
+ * Mensagens diversas referentes à Apropriação da Folha
+ *
+ * @author Basis Tecnologia da Informação
+ * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
  */
+
+//
+// |--------------------------------------------------------------------------
+// | MENSAGENS
+// |--------------------------------------------------------------------------
+//
 return [
 
-    /**
-     |--------------------------------------------------------------------------
-     | APROPRIAÇÃO - Listagem
-     |--------------------------------------------------------------------------
-     */
-    
+    // |--------------------------------------------------------------------------
+    // | APROPRIAÇÃO - Listagem
+    // |--------------------------------------------------------------------------
+
     // Mensagem de sucesso após criação de nova apropriação
     'apropriacao-novo' => 'Nova apropriação criada a partir da importação.',
-    
+
     // Mensagem de sucesso após exclusão
     'apropriacao-exclusao' => 'Apropriação excluída.',
-    
-    /**
-     |--------------------------------------------------------------------------
-     | APROPRIAÇÃO - 1 - Importação DDP
-     |--------------------------------------------------------------------------
-     */
-    
+
+    // |--------------------------------------------------------------------------
+    // | APROPRIAÇÃO - Relatório
+    // |--------------------------------------------------------------------------
+
+    // Mensagem de erro após busca dos dados de identificação
+    'apropriacao-relatorio-erro-ident' => 'Relatório da Apropriação não possui dados de indentificação.',
+
+    // Mensagem de erro por ausência de dados do passo 5
+    'apropriacao-relatorio-erro-passo-5' => 'Relatório da Apropriação não possui dados complementares.',
+
+    // Mensagem de erro após busca dos dados dos PCOs
+    'apropriacao-relatorio-erro-pco' => 'Relatório da Apropriação não possui dados de PCO e/ou PCO Item.',
+
+    // |--------------------------------------------------------------------------
+    // | APROPRIAÇÃO - 1 - Importação DDP
+    // |--------------------------------------------------------------------------
+
     // Mensagem na exclusão de apropriação em fase finalizada
     'apropriacao-exclusao-alerta' => 'Apropriação não pode ser excluída por já ter sido finalizada!',
-    
+
     // Quantidade de arquivos DDP a importar
     'import-ddp-qtde-arquivos' => 'Total de arquivos deve ser entre 1 e 3.',
 
@@ -58,7 +74,7 @@ return [
     'import-ddp-linha-campo-nivel' => 'Nível deve ser A, B, E ou T.',
 
     // Categoria fora do intervalo de 1 a 6
-    'import-ddp-linha-campo-categoria' => 'Categoria deve ser 1, 2, 3, 4, 5, 6 ou 7.',
+    'import-ddp-linha-campo-categoria' => 'Categoria deve ser 1, 2 ou 5.',
 
     // Conta - Natureza de Despesa - não possui 8 dígitos
     'import-ddp-linha-campo-conta' => 'Conta deve possuir 8 dígitos.',
@@ -71,47 +87,45 @@ return [
 
     // Valor não é válido
     'import-ddp-linha-campo-valor' => 'Valor inválido.',
-    
+
     // Mensagem de alerta para existência de pendências
     'import-ddp-pendencia-validacoes' => 'A importação foi cancelada por existência de pendência(s) na validação.',
-    
-    /**
-     |--------------------------------------------------------------------------
-     | APROPRIAÇÃO - 2 - Identificar Situação
-     |--------------------------------------------------------------------------
-     */
-    
+
+    // |--------------------------------------------------------------------------
+    // | APROPRIAÇÃO - 2 - Identificar Situação
+    // |--------------------------------------------------------------------------
+
     // Mensagem de alerta se houver situações a identificar
     'apropriacao-situacao-pendencias' => 'Ainda há registros que não tiveram sua situação identificada.',
-    
-    /**
-     |--------------------------------------------------------------------------
-     | APROPRIAÇÃO - 3 - Identificar Empenhos
-     |--------------------------------------------------------------------------
-     */
-    
+
+    // |--------------------------------------------------------------------------
+    // | APROPRIAÇÃO - 3 - Identificar Empenhos
+    // |--------------------------------------------------------------------------
+
     // Mensagem de alerta se houver empenhos a identificar ou valores a ratear
-    'apropriacao-empenho-pendencias' => 'Ainda há registros que não tiveram seu empenho identificado ou seu valor rateado.',
-    
-    /**
-     |--------------------------------------------------------------------------
-     | APROPRIAÇÃO - 4 - Validar Saldos
-     |--------------------------------------------------------------------------
-     */
-    
+    'apropriacao-empenho-pendencias' => 'Ainda há registros sem empenho identificado ou seu valor rateado.',
+
+    // |--------------------------------------------------------------------------
+    // | APROPRIAÇÃO - 4 - Validar Saldos
+    // |--------------------------------------------------------------------------
+
     // Mensagem de alerta se houver empenhos a identificar ou valores a ratear
     'apropriacao-saldo-pendencias' => 'Ainda há registros que não estão com saldo de empenho atual suficiente.',
-    
-    /**
-     |--------------------------------------------------------------------------
-     | APROPRIAÇÃO - Informar dados complementares - Validações - Sucesso
-     |--------------------------------------------------------------------------
-     */
-    
+
+    // |--------------------------------------------------------------------------
+    // | APROPRIAÇÃO - 5 - Informar dados complementares
+    // |--------------------------------------------------------------------------
+
     // Mensagem na exclusão de apropriação em fase finalizada
     'apropriacao-dados-complementares-salvos' => 'Dados complementares informados com sucesso.',
-    
+
     // Mensagem de alerta se houver empenhos a identificar ou valores a ratear
     'apropriacao-dados-complementares-pendencias' => 'Todos os campos são obrigatórios.',
-    
+
+    // |--------------------------------------------------------------------------
+    // | APROPRIAÇÃO - 6 - Persistir Dados
+    // |--------------------------------------------------------------------------
+
+    // Mensagem de alerta se houver empenhos a identificar ou valores a ratear
+    'apropriacao-persistir-pendencias' => 'Não foram encontrados dados persistidos para essa apropriação.'
 ];

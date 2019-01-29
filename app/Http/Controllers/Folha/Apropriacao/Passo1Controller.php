@@ -666,7 +666,7 @@ class Passo1Controller extends BaseController
         }
         
         if ($nivel != 'T') {
-            // Não se registro o nível T, meramente de total
+            // Não grava registro, se o nível for 'T', meramente de total
             $this->gravaNivelEmMemoria($nivel);
         }
 
@@ -687,7 +687,8 @@ class Passo1Controller extends BaseController
         }
 
         // Está no conjunto abaixo
-        $categorias = ['1', '2', '3', '4', '5', '6', '7'];
+        // $categorias = ['1', '2', '3', '4', '5', '6', '7'];
+        $categorias = ['1', '2', '5'];
         if (! in_array($categoria, $categorias)) {
             return false;
         }
