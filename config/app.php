@@ -2,6 +2,12 @@
 
 return [
 
+    //Apropriação Folha de Pagamento
+    'conta_contabil' => 622920101,
+    'situacao_pco' => 'PCO',
+    'situacao_despesa_anular' => 'DESPESA_ANULAR',
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

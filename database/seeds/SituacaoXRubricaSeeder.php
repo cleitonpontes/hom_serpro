@@ -1240,5 +1240,19 @@ class SituacaoXRubricaSeeder extends Seeder
         DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '168', 'rhrubrica_id' => '2671']);
         DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '113', 'rhrubrica_id' => '2672']);
         DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '114', 'rhrubrica_id' => '2672']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '19', 'rhrubrica_id' => '1806']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '227', 'rhrubrica_id' => '1859']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '228', 'rhrubrica_id' => '1859']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '227', 'rhrubrica_id' => '2673']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '228', 'rhrubrica_id' => '2673']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '150', 'rhrubrica_id' => '2560']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '150', 'rhrubrica_id' => '1018']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '206', 'rhrubrica_id' => '2674']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '207', 'rhrubrica_id' => '2674']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '229', 'rhrubrica_id' => '101']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '230', 'rhrubrica_id' => '101']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '151', 'rhrubrica_id' => '1481']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '231', 'rhrubrica_id' => '36']);
+        DB::table('rhsituacao_rhrubrica')->insert(['rhsituacao_id' => '232', 'rhrubrica_id' => '36']);
     }
 }

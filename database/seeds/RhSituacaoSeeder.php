@@ -234,5 +234,11 @@ class RhSituacaoSeeder extends Seeder
         DB::table('rhsituacao')->insert(['id' => '224', 'execsfsituacao_id' => '94', 'nd' => '00000000', 'nddesc' => 'DEDUÇÃO', 'vpd' => '0561', 'vpddesc' => '', 'status' => 'true', 'ddp_nivel' => 'B']);
         DB::table('rhsituacao')->insert(['id' => '225', 'execsfsituacao_id' => '152', 'nd' => '00000000', 'nddesc' => 'DEDUÇÃO', 'vpd' => '218810199', 'vpddesc' => '', 'status' => 'true', 'ddp_nivel' => 'E']);
         DB::table('rhsituacao')->insert(['id' => '226', 'execsfsituacao_id' => '111', 'nd' => '00000000', 'nddesc' => 'DEDUÇÃO', 'vpd' => '2402', 'vpddesc' => '', 'status' => 'true', 'ddp_nivel' => 'E']);
+        DB::table('rhsituacao')->insert(['id' => '227', 'execsfsituacao_id' => '6', 'nd' => '31909401', 'nddesc' => ' REMUNERACAO COMPENSATORIA', 'vpd' => '311110800', 'vpddesc' => 'REMUNERACAO A PESSOAL ATIVO CIVIL-RPPS-INDENIZACOES', 'status' => 'true', 'ddp_nivel' => 'A']);
+        DB::table('rhsituacao')->insert(['id' => '228', 'execsfsituacao_id' => '211', 'nd' => '31909401', 'nddesc' => ' REMUNERACAO COMPENSATORIA', 'vpd' => '311110800', 'vpddesc' => 'REMUNERACAO A PESSOAL ATIVO CIVIL-RPPS-INDENIZACOES', 'status' => 'true', 'ddp_nivel' => 'A']);
+        DB::table('rhsituacao')->insert(['id' => '229', 'execsfsituacao_id' => '29', 'nd' => '31901145', 'nddesc' => 'FERIAS - ABONO CONSTITUCIONAL', 'vpd' => '113110102', 'vpddesc' => 'ADIANATAMENTO DE FERIAS', 'status' => 'true', 'ddp_nivel' => 'B']);
+        DB::table('rhsituacao')->insert(['id' => '230', 'execsfsituacao_id' => '226', 'nd' => '31901145', 'nddesc' => 'FERIAS - ABONO CONSTITUCIONAL', 'vpd' => '113110102', 'vpddesc' => 'ADIANATAMENTO DE FERIAS', 'status' => 'true', 'ddp_nivel' => 'B']);
+        DB::table('rhsituacao')->insert(['id' => '231', 'execsfsituacao_id' => '8', 'nd' => '33903628', 'nddesc' => 'SERVICO DE SELECAO E TREINAMENTO', 'vpd' => '313119900', 'vpddesc' => 'BENEFICIOS A PESSOAL-RPPS-OUTROS', 'status' => 'true', 'ddp_nivel' => 'E']);
+        DB::table('rhsituacao')->insert(['id' => '232', 'execsfsituacao_id' => '212', 'nd' => '33903628', 'nddesc' => 'SERVICO DE SELECAO E TREINAMENTO', 'vpd' => '313119900', 'vpddesc' => 'BENEFICIOS A PESSOAL-RPPS-OUTROS', 'status' => 'true', 'ddp_nivel' => 'E']);
     }
 }

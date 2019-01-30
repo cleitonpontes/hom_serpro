@@ -9,7 +9,6 @@ namespace App\Http\Controllers\Folha\Apropriacao;
 
 use App\Models\Apropriacaonotaempenho;
 use App\Models\Apropriacaosituacao;
-use App\Models\Empenho;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
@@ -37,7 +36,7 @@ class Passo3Controller extends BaseController
         // $modelo = new Apropriacaonotaempenho();
         $modelo = new Apropriacaosituacao();
         $dados = $modelo->retornaListagemPasso3($apid);
-
+        
         if ($request->ajax()) {
             $grid = DataTables::of($dados);
 
@@ -129,11 +128,6 @@ class Passo3Controller extends BaseController
     {
         $html = $this->htmlBuilder;
         
-        $html->addColumn([
-            'data' => 'id',
-            'name' => 'id',
-            'title' => 'ID'
-        ]);
         $html->addColumn([
             'data' => 'situacao',
             'name' => 'situacao',

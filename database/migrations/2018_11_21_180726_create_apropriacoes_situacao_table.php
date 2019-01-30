@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateApropriacoesSituacaoTable extends Migration
 {
-    
+
     /**
      * Run the migrations.
      *
@@ -22,7 +22,7 @@ class CreateApropriacoesSituacaoTable extends Migration
             $table->decimal('valor_agrupado', 15, 2)->default(0);
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *
@@ -32,5 +32,4 @@ class CreateApropriacoesSituacaoTable extends Migration
     {
         Schema::dropIfExists('apropriacoes_situacao');
     }
-    
 }

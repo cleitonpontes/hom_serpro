@@ -37,7 +37,7 @@ class CreateSituacoesView extends Migration
         $sql .= '    WHERE ';
         $sql .= "        R.situacao = 'ATIVA' ";
         $sql .= ') ';
-        
+
         DB::statement($sql);
     }
 
@@ -51,8 +51,7 @@ class CreateSituacoesView extends Migration
         $sql = '';
         $sql .= 'DROP VIEW IF EXISTS ';
         $sql .= '    situacoes ';
-        
+
         DB::statement($sql);
     }
-    
 }
