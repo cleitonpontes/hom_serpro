@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Execfin;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
-use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
 use App\Models\Unidade;
@@ -42,7 +41,7 @@ class EmpenhoCrudController extends CrudController
 
 
         $this->crud->enableExportButtons();
-        $this->crud->denyAccess('create');
+        $this->crud->allowAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
@@ -550,11 +549,8 @@ class EmpenhoCrudController extends CrudController
 
         }
 
+        
 
-//        str_pad($input, 2, "0", STR_PAD_LEFT);
-
-
-//        dd($dados);
     }
 
     public function buscaFornecedor($credor){
