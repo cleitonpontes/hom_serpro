@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Execfin;
 
 use App\Models\Empenho;
+use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
+use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
 use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -511,14 +513,17 @@ class EmpenhoCrudController extends CrudController
                 $pi = $this->buscaPi($d['pi']);
             }
 
-            $naturezadespesa = Naturezadespesa::where('codigo', '=', $d['naturezadespesa'])
+            $naturezasubitem = Naturezasubitem::whereHas('naturezadespesa', function ($query) use ($d) {
+                    $query->where('codigo', '=', $d['naturezadespesa']);
+                })
+                ->where('codigo', '=', str_pad($d['subitem'], 2, "0", STR_PAD_LEFT))
                 ->first();
 
             $empenho = Empenho::where('numero', '=', $d['numero'])
                 ->where('unidade_id', '=', $unidade->id)
                 ->where('fornecedor_id','=',$credor->id)
                 ->where('planointerno_id','=',$pi->id)
-                ->where('naturezadespesa_id','=',$naturezadespesa->id)
+                ->where('naturezadespesa_id','=',$naturezasubitem->naturezadespesa_id)
                 ->first();
 
             if(!$empenho){
@@ -527,9 +532,21 @@ class EmpenhoCrudController extends CrudController
                     'unidade_id' => $unidade->id,
                     'fornecedor_id' => $credor->id,
                     'planointerno_id' => $pi->id,
-                    'naturezadespesa_id' => $naturezadespesa->id
+                    'naturezadespesa_id' => $naturezasubitem->naturezadespesa_id
                 ]);
             }
+
+            $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                ->where('naturezasubitem_id','=',$naturezasubitem->id)
+                ->first();
+
+            if(!$empenhodetalhado){
+                $empenhodetalhado = Empenhodetalhado::create([
+                    'empenho_id' => $empenho->id,
+                    'naturezasubitem_id' => $naturezasubitem->id
+                ]);
+            }
+
 
         }
 

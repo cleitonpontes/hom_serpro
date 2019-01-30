@@ -16,4 +16,12 @@ class Naturezadespesa extends Model
     use SoftDeletes;
 
     protected $table = 'naturezadespesa';
+
+    public function naturezasubitem(){
+
+        return $this->hasMany(Naturezasubitem::class, 'naturezasubitem_id');
+
+    }
+
+
 }
