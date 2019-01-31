@@ -220,7 +220,7 @@ class Passo3Controller extends BaseController
             $qtdeEmpenhosNulos = session('identificacao.empenho.qtde.nulos', 0);
             
             $empenhos .= '<a href=';
-            $empenhos .= url('/execfin/empenho/create');
+            $empenhos .= route('crud.empenho.create');
             $empenhos .= '>';
             $empenhos .= 'Cadastrar NE';
             $empenhos .= '</a>';

@@ -179,7 +179,4 @@ Route::group(
                 ->middleware('permission:folha_apropriacao_passo');
         });
 
-        Route::get('/execsiafi/empenho', 'EmpenhoCrudController@index')->name('execsiafi.empenho');
-
-
     });

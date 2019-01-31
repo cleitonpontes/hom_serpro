@@ -380,7 +380,16 @@ class Passo2Controller extends BaseController
         $campo .= '<!-- ' . $qtdeAchados . ' -->';
         $campo .= ($formulario == '') ? $sitParte : $formulario;
         $campo .= '</div>';
-        
+
+        if($qtdeAchados == 0){
+            $campo = '';
+            $campo .= '<a href=';
+            $campo .= route('crud.empenho.create');
+            $campo .= '>';
+            $campo .= 'Cadastrar Situação';
+            $campo .= '</a>';
+        }
+
         return $campo;
     }
 }
