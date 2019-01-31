@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Execfin;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
+use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
 use App\Models\Unidade;
@@ -14,6 +15,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\EmpenhoRequest as StoreRequest;
 use App\Http\Requests\EmpenhoRequest as UpdateRequest;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class EmpenhoCrudController
@@ -38,14 +40,13 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'empenhos.unidade_id');
         $this->crud->addClause('join', 'planointerno', 'planointerno.id', '=', 'empenhos.planointerno_id');
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
-
+        $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
         $this->crud->enableExportButtons();
         $this->crud->allowAccess('create');
-        $this->crud->denyAccess('update');
+        $this->crud->allowAccess('update');
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -56,7 +57,32 @@ class EmpenhoCrudController extends CrudController
         // TODO: remove setFromDb() and manually define Fields and Columns
 
         $colunas = $this->Colunas();
-        $this->crud->addColumns([
+        $this->crud->addColumns($colunas);
+
+        $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
+
+        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
+            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
+
+        $planointerno = Planointerno::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
+            ->orderBy('codigo', 'asc')->pluck('nome', 'id')->toArray();
+
+        $naturezadespesa = Naturezadespesa::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
+            ->orderBy('codigo', 'asc')->pluck('nome', 'id')->toArray();
+
+
+        $campos = $this->Campos($unidade, $fornecedores, $planointerno, $naturezadespesa);
+
+        $this->crud->addFields($campos);
+
+        // add asterisk for fields that are required in EmpenhoRequest
+        $this->crud->setRequiredFields(StoreRequest::class, 'create');
+        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+    }
+
+    public function Colunas()
+    {
+        $colunas = [
             [
                 'name' => 'getUnidade',
                 'label' => 'Unidade Gestora', // Table column heading
@@ -252,216 +278,64 @@ class EmpenhoCrudController extends CrudController
 //                },
             ],
 
-        ]);
-
-
-        // add asterisk for fields that are required in EmpenhoRequest
-        $this->crud->setRequiredFields(StoreRequest::class, 'create');
-        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
-    }
-
-    public function Colunas()
-    {
-        $colunas = [
-            [
-                'name' => 'getUnidade',
-                'label' => 'Unidade Gestora', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getUnidade', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                // 'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('unidades.codigo', 'like', "%$searchTerm%");
-                //     $query->orWhere('unidades.nome', 'like', "%$searchTerm%");
-                //     $query->orWhere('unidades.nomeresumido', 'like', "%$searchTerm%");
-                // },
-            ],
-            [
-                'name' => 'numero',
-                'label' => 'Número Empenho',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getFornecedor',
-                'label' => 'Fornecedor', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getFornecedor', // the method in your Model
-                'orderable' => true,
-                'limit' => 1000,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
-                },
-            ],
-            [
-                'name' => 'getPi',
-                'label' => 'Plano Interno', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getPi', // the method in your Model
-                'orderable' => true,
-                'limit' => 1000,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                //'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-                //    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                //    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
-                //},
-            ],
-            [
-                'name' => 'getNatureza',
-                'label' => 'Natureza Despesa', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getNatureza', // the method in your Model
-                'orderable' => true,
-                'limit' => 1000,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                //'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-                //    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                //    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
-                //},
-            ],
-            [
-                'name' => 'formatVlrEmpenhado',
-                'label' => 'Empenhado', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrEmpenhado', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-            [
-                'name' => 'formatVlraLiquidar',
-                'label' => 'a Liquidar', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlraLiquidar', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-            [
-                'name' => 'formatVlrLiquidado',
-                'label' => 'Liquidado', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrLiquidado', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-            [
-                'name' => 'formatVlrPago',
-                'label' => 'Pago', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrPago', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-            [
-                'name' => 'formatVlrRpInscrito',
-                'label' => 'RP Inscrito', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrRpInscrito', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-            [
-                'name' => 'formatVlrRpaLiquidar',
-                'label' => 'RP a Liquidar', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrRpaLiquidar', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-            [
-                'name' => 'formatVlrRpLiquidado',
-                'label' => 'RP Liquidado', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrRpLiquidado', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-            [
-                'name' => 'formatVlrRpPago',
-                'label' => 'RP Pago', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrRpPago', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-
         ];
 
         return $colunas;
 
+    }
+
+    public function Campos($unidade, $fornecedores, $planointerno, $naturezadespesa)
+    {
+
+        $campos = [
+            [ // select_from_array
+                'name' => 'unidade_id',
+                'label' => "Unidade Gestora",
+                'type' => 'select2_from_array',
+                'options' => $unidade,
+                'allows_null' => false,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'numero',
+                'label' => "Número Empenho",
+                'type' => 'empenho',
+//                'allows_null' => false,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'fornecedor_id',
+                'label' => "Credor / Fornecedor",
+                'type' => 'select2_from_array',
+                'options' => $fornecedores,
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'planointerno_id',
+                'label' => "Plano Interno (PI)",
+                'type' => 'select2_from_array',
+                'options' => $planointerno,
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'naturezadespesa_id',
+                'label' => "Natureza Despesa (ND)",
+                'type' => 'select2_from_array',
+                'options' => $naturezadespesa,
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+
+        ];
+
+        return $campos;
     }
 
     public function store(StoreRequest $request)

@@ -5,6 +5,16 @@
             class="fa fa-angle-left pull-right"></i></a>
     <ul class="treeview-menu">
         <li class="treeview">
+            <a href="#"><i class='fa fa-edit'></i> <span>Apropriação</span> <i
+                    class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+                <li><a href="{{ backpack_url('/fatura/apropriacao') }}"><i class="fa fa-money"></i>
+                        <span>Fatura</span></a></li>
+                <li><a href="{{ backpack_url('/folha/apropriacao') }}"><i class="fa fa-money"></i>
+                        <span>Folha</span></a></li>
+            </ul>
+        </li>
+        <li class="treeview">
             <a href="#"><i class='fa fa-edit'></i> <span>Cadastro</span> <i
                     class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
@@ -16,16 +26,6 @@
                         <span>Rubrica</span></a></li>
                 <li><a href="{{ backpack_url('/execfin/rhsituacao') }}"><i class="fa fa-list-ol"></i>
                         <span>RH - Situação</span></a></li>
-            </ul>
-        </li>
-        <li class="treeview">
-            <a href="#"><i class='fa fa-edit'></i> <span>Apropriação</span> <i
-                    class="fa fa-angle-left pull-right"></i></a>
-            <ul class="treeview-menu">
-                <li><a href="{{ backpack_url('/fatura/apropriacao') }}"><i class="fa fa-money"></i>
-                        <span>Fatura</span></a></li>
-                <li><a href="{{ backpack_url('/folha/apropriacao') }}"><i class="fa fa-money"></i>
-                        <span>Folha</span></a></li>
             </ul>
         </li>
     </ul>
