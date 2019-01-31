@@ -141,17 +141,19 @@ class Apropriacaoimportacao extends Model
         $listagem = $this->where('apropriacao_id', $apropriacaoId);
 
         $listagem->whereIn('categoria', ['1', '2']);
+
         if ($condicaoRaw != '') {
             $listagem->whereRaw($condicaoRaw);
         }
 
-        $listagem->groupBy(['situacao', 'vpd', 'conta']);
+        $listagem->groupBy(['competencia', 'situacao', 'vpd', 'conta']);
 
         $listagem->orderBy('situacao');
         $listagem->orderBy('vpd');
         $listagem->orderBy('conta');
 
         $listagem->select([
+            DB::raw('left(competencia, 4) as ano'),
             'situacao',
             'vpd',
             DB::raw('left(conta, 6) as natureza'),
@@ -239,7 +241,7 @@ class Apropriacaoimportacao extends Model
 
     /**
      * Iguala campos 'originais' com seus respectivos Situacao e VPD [após ações e conferências]
-     * 
+     *
      * @param number $apid
      */
     public function igualaCamposOriginais($apid)

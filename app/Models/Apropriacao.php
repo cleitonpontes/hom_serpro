@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Model;
 
 class Apropriacao extends Model
@@ -97,38 +98,68 @@ class Apropriacao extends Model
         return $query->exists();
     }
     
+    public function retornaDadosPasso6($id)
+    {
+        $ug = session('user_ug');
+        
+        $listagem = $this->select([
+            'id',
+            'competencia',
+            DB::raw('left(competencia, 4) as ano'),
+            DB::raw('right(competencia, 2) as mes'),
+            'ug',
+            'nivel',
+            'valor_liquido',
+            'valor_bruto',
+            'arquivos',
+            'ateste',
+            'nup',
+            'doc_origem',
+            'observacoes'
+        ]);
+        
+        $listagem->where('ug', $ug);
+        $listagem->where('id', $id);
+        
+        $registros = $listagem->get()->toArray();
+        $dados = isset($registros[0]) ? $registros[0] : null;
+        
+        return $dados;
+    }
     
-    
-    
-    
-    
-    
-    
-    
-    
-
     /**
-     * Retorna dados da apropriação para apresentação
+     * Retorna dados da apropriação para apresentação em relatório
      *
      * @return array
      */
-    public function getRelatorioId($id)
+    public function retornaDadosRelatorio($apid)
     {
         $ug = session('user_ug');
-        $listagem = Apropriacao::join('apropriacoes_fases AS F', 'F.id', '=', 'apropriacoes.fase_id');
-
-        $listagem->select([
+        
+        $listagem = $this->select([
             'apropriacoes.id',
+            DB::raw('"O"."nome" as orgao_nome'),
+            'ug',
+            DB::raw('"U"."nome" as ug_nome'),
             'competencia',
             'nivel',
             'valor_liquido',
             'valor_bruto',
-            'fase_id',
-            'F.fase',
-            'arquivos'
-        ])->where('ug', $ug)
-        ->where('apropriacoes.id', $id);
-
-        return $listagem->get();
+            'arquivos',
+            'ateste',
+            'nup',
+            'doc_origem',
+            'observacoes'
+        ]);
+        
+        $listagem->leftjoin('unidade as U', 'U.codigo', '=', 'apropriacoes.ug');
+        $listagem->leftjoin('orgao as O', 'O.id', '=', 'U.orgao_id');
+        
+        $listagem->where('ug', $ug);
+        $listagem->where('apropriacoes.id', $apid);
+        
+        $dados = $listagem->get()->toArray();
+        
+        return $dados;
     }
 }
