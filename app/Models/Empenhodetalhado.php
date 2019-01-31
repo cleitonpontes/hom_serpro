@@ -66,7 +66,7 @@ class Empenhodetalhado extends Model
     public function getNaturezadespesa()
     {
         $naturezadespesa = Naturezasubitem::find($this->naturezasubitem_id);
-        return $naturezadespesa->naturezadespesa->codigo;
+        return $naturezadespesa->naturezadespesa->codigo . ' - ' . $naturezadespesa->naturezadespesa->descricao;
 
     }
 
@@ -75,6 +75,95 @@ class Empenhodetalhado extends Model
         return 'R$ ' . number_format($this->empaliquidar, 2, ',', '.');
     }
 
+    public function formatVlrEmpemliquidacao()
+    {
+        return 'R$ ' . number_format($this->empemliquidacao, 2, ',', '.');
+    }
+
+    public function formatVlrEmpliquidado()
+    {
+        return 'R$ ' . number_format($this->empliquidado, 2, ',', '.');
+    }
+
+    public function formatVlrEmppago()
+    {
+        return 'R$ ' . number_format($this->emppago, 2, ',', '.');
+    }
+
+    public function formatVlrEmpaliqrpnp()
+    {
+        return 'R$ ' . number_format($this->empaliqrpnp, 2, ',', '.');
+    }
+
+    public function formatVlrEmpemliqrpnp()
+    {
+        return 'R$ ' . number_format($this->empemliqrpnp, 2, ',', '.');
+    }
+
+    public function formatVlrEmprpp()
+    {
+        return 'R$ ' . number_format($this->emprpp, 2, ',', '.');
+    }
+
+    public function formatVlrRpnpaliquidar()
+    {
+        return 'R$ ' . number_format($this->rpnpaliquidar, 2, ',', '.');
+    }
+
+    public function formatVlrRpnpaliquidaremliquidacao()
+    {
+        return 'R$ ' . number_format($this->rpnpaliquidaremliquidacao, 2, ',', '.');
+    }
+
+    public function formatVlrRpnpliquidado()
+    {
+        return 'R$ ' . number_format($this->rpnpliquidado, 2, ',', '.');
+    }
+
+    public function formatVlrRpnppago()
+    {
+        return 'R$ ' . number_format($this->rpnppago, 2, ',', '.');
+    }
+
+    public function formatVlrRpnpaliquidarbloq()
+    {
+        return 'R$ ' . number_format($this->rpnpaliquidarbloq, 2, ',', '.');
+    }
+
+    public function formatVlrRpnpaliquidaremliquidbloq()
+    {
+        return 'R$ ' . number_format($this->rpnpaliquidaremliquidbloq, 2, ',', '.');
+    }
+
+    public function formatVlrRpnpcancelado()
+    {
+        return 'R$ ' . number_format($this->rpnpcancelado, 2, ',', '.');
+    }
+
+    public function formatVlrRpnpoutrocancelamento()
+    {
+        return 'R$ ' . number_format($this->rpnpoutrocancelamento, 2, ',', '.');
+    }
+
+    public function formatVlrRpnpemliqoutrocancelamento()
+    {
+        return 'R$ ' . number_format($this->rpnpemliqoutrocancelamento, 2, ',', '.');
+    }
+
+    public function formatVlrRppliquidado()
+    {
+        return 'R$ ' . number_format($this->rppliquidado, 2, ',', '.');
+    }
+
+    public function formatVlrRpppago()
+    {
+        return 'R$ ' . number_format($this->rpppago, 2, ',', '.');
+    }
+
+    public function formatVlrRppcancelado()
+    {
+        return 'R$ ' . number_format($this->rppcancelado, 2, ',', '.');
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

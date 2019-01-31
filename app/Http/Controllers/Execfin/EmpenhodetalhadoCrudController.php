@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Execfin;
 
 use App\Models\Empenho;
+use App\Models\Naturezasubitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -67,6 +68,20 @@ class EmpenhodetalhadoCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
+        $naturezasubitem = Naturezasubitem::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
+            ->where('naturezadespesa_id', '=', $empenho->naturezadespesa_id)
+            ->where('codigo', '<>', '00')
+            ->orderBy('codigo', 'asc')
+            ->pluck('nome', 'id')->toArray();
+
+//        dd();
+
+        $emp = $empenho->where('id','=', $empenho_id)->pluck('numero', 'id')->toArray();
+
+        $campos = $this->Campos($emp, $naturezasubitem);
+
+        $this->crud->addFields($campos);
+
         // add asterisk for fields that are required in EmpenhodetalhadoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
@@ -91,8 +106,9 @@ class EmpenhodetalhadoCrudController extends CrudController
             ],
             [
                 'name' => 'getNaturezadespesa',
-                'label' => 'ND', // Table column heading
+                'label' => 'Natureza Despesa (ND)', // Table column heading
                 'type' => 'model_function',
+                'limit' => 1000,
                 'function_name' => 'getNaturezadespesa', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -106,9 +122,10 @@ class EmpenhodetalhadoCrudController extends CrudController
             ],
             [
                 'name' => 'getSubitem',
-                'label' => 'Sub-Item', // Table column heading
+                'label' => 'Subitem', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getSubitem', // the method in your Model
+                'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -129,116 +146,205 @@ class EmpenhodetalhadoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
             ],
-//            [
-//                'name' => 'formatVlraLiquidar',
-//                'label' => 'a Liquidar', // Table column heading
-//                'type' => 'model_function',
-//                'function_name' => 'formatVlraLiquidar', // the method in your Model
-//                'orderable' => true,
-//                'visibleInTable' => true, // no point, since it's a large text
-//                'visibleInModal' => true, // would make the modal too big
-//                'visibleInExport' => true, // not important enough
-//                'visibleInShow' => true, // sure, why not
-////                'searchLogic'   => function ($query, $column, $searchTerm) {
-////                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-////                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-////                },
-//            ],
-//            [
-//                'name' => 'formatVlrLiquidado',
-//                'label' => 'Liquidado', // Table column heading
-//                'type' => 'model_function',
-//                'function_name' => 'formatVlrLiquidado', // the method in your Model
-//                'orderable' => true,
-//                'visibleInTable' => true, // no point, since it's a large text
-//                'visibleInModal' => true, // would make the modal too big
-//                'visibleInExport' => true, // not important enough
-//                'visibleInShow' => true, // sure, why not
-////                'searchLogic'   => function ($query, $column, $searchTerm) {
-////                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-////                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-////                },
-//            ],
-//            [
-//                'name' => 'formatVlrPago',
-//                'label' => 'Pago', // Table column heading
-//                'type' => 'model_function',
-//                'function_name' => 'formatVlrPago', // the method in your Model
-//                'orderable' => true,
-//                'visibleInTable' => true, // no point, since it's a large text
-//                'visibleInModal' => true, // would make the modal too big
-//                'visibleInExport' => true, // not important enough
-//                'visibleInShow' => true, // sure, why not
-////                'searchLogic'   => function ($query, $column, $searchTerm) {
-////                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-////                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-////                },
-//            ],
-//            [
-//                'name' => 'formatVlrRpInscrito',
-//                'label' => 'RP Inscrito', // Table column heading
-//                'type' => 'model_function',
-//                'function_name' => 'formatVlrRpInscrito', // the method in your Model
-//                'orderable' => true,
-//                'visibleInTable' => true, // no point, since it's a large text
-//                'visibleInModal' => true, // would make the modal too big
-//                'visibleInExport' => true, // not important enough
-//                'visibleInShow' => true, // sure, why not
-////                'searchLogic'   => function ($query, $column, $searchTerm) {
-////                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-////                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-////                },
-//            ],
-//            [
-//                'name' => 'formatVlrRpaLiquidar',
-//                'label' => 'RP a Liquidar', // Table column heading
-//                'type' => 'model_function',
-//                'function_name' => 'formatVlrRpaLiquidar', // the method in your Model
-//                'orderable' => true,
-//                'visibleInTable' => true, // no point, since it's a large text
-//                'visibleInModal' => true, // would make the modal too big
-//                'visibleInExport' => true, // not important enough
-//                'visibleInShow' => true, // sure, why not
-////                'searchLogic'   => function ($query, $column, $searchTerm) {
-////                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-////                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-////                },
-//            ],
-//            [
-//                'name' => 'formatVlrRpLiquidado',
-//                'label' => 'RP Liquidado', // Table column heading
-//                'type' => 'model_function',
-//                'function_name' => 'formatVlrRpLiquidado', // the method in your Model
-//                'orderable' => true,
-//                'visibleInTable' => true, // no point, since it's a large text
-//                'visibleInModal' => true, // would make the modal too big
-//                'visibleInExport' => true, // not important enough
-//                'visibleInShow' => true, // sure, why not
-////                'searchLogic'   => function ($query, $column, $searchTerm) {
-////                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-////                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-////                },
-//            ],
-//            [
-//                'name' => 'formatVlrRpPago',
-//                'label' => 'RP Pago', // Table column heading
-//                'type' => 'model_function',
-//                'function_name' => 'formatVlrRpPago', // the method in your Model
-//                'orderable' => true,
-//                'visibleInTable' => true, // no point, since it's a large text
-//                'visibleInModal' => true, // would make the modal too big
-//                'visibleInExport' => true, // not important enough
-//                'visibleInShow' => true, // sure, why not
-////                'searchLogic'   => function ($query, $column, $searchTerm) {
-////                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-////                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-////                },
-//            ],
+            [
+                'name' => 'formatVlrEmpemliquidacao',
+                'label' => 'Emp. em Liquidação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrEmpemliquidacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrEmpliquidado',
+                'label' => 'Emp. Liquidado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrEmpliquidado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrEmppago',
+                'label' => 'Emp. Pago', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrEmppago', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrEmpaliqrpnp',
+                'label' => 'Emp. a Liquidar RPNP', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrEmpaliqrpnp', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrEmpemliqrpnp',
+                'label' => 'Emp. em Liquidação RPNP', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrEmpemliqrpnp', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrEmprpp',
+                'label' => 'Emp. RPP', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrEmprpp', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnpaliquidar',
+                'label' => 'RPNP a Liquidar', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnpaliquidar', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnpaliquidaremliquidacao',
+                'label' => 'RPNP a Liqu. em Liquidação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnpaliquidaremliquidacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnpliquidado',
+                'label' => 'RPNP Liquidado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnpliquidado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnppago',
+                'label' => 'RPNP Pago', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnppago', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnpaliquidarbloq',
+                'label' => 'RPNP a Liq. Bloqueado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnpaliquidarbloq', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnpaliquidaremliquidbloq',
+                'label' => 'RPNP a Liq. em Liquid. Bloqueado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnpaliquidaremliquidbloq', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnpcancelado',
+                'label' => 'RPNP Cancelado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnpcancelado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnpoutrocancelamento',
+                'label' => 'RPNP Outros Cancelamentos', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnpoutrocancelamento', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpnpemliqoutrocancelamento',
+                'label' => 'RPNP em Liq. Out. Cancelam.', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpnpemliqoutrocancelamento', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRppliquidado',
+                'label' => 'RPP Liquidado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRppliquidado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRpppago',
+                'label' => 'RPP Pago', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRpppago', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRppcancelado',
+                'label' => 'RPP Cancelado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRppcancelado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
 
         ];
 
@@ -246,6 +352,33 @@ class EmpenhodetalhadoCrudController extends CrudController
 
     }
 
+    public function Campos($empenho, $naturezasubitem)
+    {
+
+        $campos = [
+            [ // select_from_array
+                'name' => 'empenho_id',
+                'label' => "Empenho",
+                'type' => 'select2_from_array',
+                'options' => $empenho,
+                'allows_null' => false,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'naturezasubitem_id',
+                'label' => "Subitem",
+                'type' => 'select2_from_array',
+                'options' => $naturezasubitem,
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+
+        ];
+
+        return $campos;
+    }
 
     public function store(StoreRequest $request)
     {
@@ -263,5 +396,34 @@ class EmpenhodetalhadoCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('empenho_id');
+        $this->crud->removeColumn('naturezasubitem_id');
+        $this->crud->removeColumn('empaliquidar');
+        $this->crud->removeColumn('empemliquidacao');
+        $this->crud->removeColumn('empliquidado');
+        $this->crud->removeColumn('emppago');
+        $this->crud->removeColumn('empaliqrpnp');
+        $this->crud->removeColumn('empemliqrpnp');
+        $this->crud->removeColumn('emprpp');
+        $this->crud->removeColumn('rpnpaliquidar');
+        $this->crud->removeColumn('rpnpaliquidaremliquidacao');
+        $this->crud->removeColumn('rpnpliquidado');
+        $this->crud->removeColumn('rpnppago');
+        $this->crud->removeColumn('rpnpaliquidarbloq');
+        $this->crud->removeColumn('rpnpaliquidaremliquidbloq');
+        $this->crud->removeColumn('rpnpcancelado');
+        $this->crud->removeColumn('rpnpoutrocancelamento');
+        $this->crud->removeColumn('rpnpemliqoutrocancelamento');
+        $this->crud->removeColumn('rppliquidado');
+        $this->crud->removeColumn('rpppago');
+        $this->crud->removeColumn('rppcancelado');
+
+        return $content;
     }
 }

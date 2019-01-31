@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call(NaturezadespesaSeeder::class);
         $this->call(NaturezasubitemSeeder::class);
         $this->call(PlanointernoSeeder::class);
-        $this->call(EmpenhosSeeder::class);
+//        $this->call(EmpenhosSeeder::class);
         $this->call(ApropriacaofasesSeeder::class);
         $this->call(ExecsiafisituacaoSeeder::class);
         $this->call(ExecsiafisituacaoUpdateSeeder::class);

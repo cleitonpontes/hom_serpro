@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use App\Jobs\MigracaoempenhoJob;
 use App\Models\Empenho;
 use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
@@ -41,6 +42,7 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
+        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho', 'migrarempenho', 'end') : null;
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
         $this->crud->enableExportButtons();
@@ -375,102 +377,16 @@ class EmpenhoCrudController extends CrudController
 
     public function migracaoEmpenho()
     {
-        $migracao_url = config('migracao.migracao_empenhos');
-        $dados = json_decode(file_get_contents($migracao_url), true);
 
-        foreach ($dados as $d) {
+        MigracaoempenhoJob::dispatch();
 
-            $unidade = Unidade::where('codigo', '=', $d['ug'])
-            ->first();
+        \Alert::success('Migração de Empenhos em Andamento!')->flash();
 
-            echo $d['credor']['cpfcnpjugidgener'].'<br>';
-
-            $credor = $this->buscaFornecedor($d['credor']);
-
-            if($d['pi']['codigo']){
-                $pi = $this->buscaPi($d['pi']);
-            }
-
-            $naturezasubitem = Naturezasubitem::whereHas('naturezadespesa', function ($query) use ($d) {
-                    $query->where('codigo', '=', $d['naturezadespesa']);
-                })
-                ->where('codigo', '=', str_pad($d['subitem'], 2, "0", STR_PAD_LEFT))
-                ->first();
-
-            $empenho = Empenho::where('numero', '=', $d['numero'])
-                ->where('unidade_id', '=', $unidade->id)
-                ->where('fornecedor_id','=',$credor->id)
-                ->where('planointerno_id','=',$pi->id)
-                ->where('naturezadespesa_id','=',$naturezasubitem->naturezadespesa_id)
-                ->first();
-
-            if(!$empenho){
-                $empenho = Empenho::create([
-                    'numero' => $d['numero'],
-                    'unidade_id' => $unidade->id,
-                    'fornecedor_id' => $credor->id,
-                    'planointerno_id' => $pi->id,
-                    'naturezadespesa_id' => $naturezasubitem->naturezadespesa_id
-                ]);
-            }
-
-            $empenhodetalhado = EmpenhodetalhadoOld::where('empenho_id', '=', $empenho->id)
-                ->where('naturezasubitem_id','=',$naturezasubitem->id)
-                ->first();
-
-            if(!$empenhodetalhado){
-                $empenhodetalhado = EmpenhodetalhadoOld::create([
-                    'empenho_id' => $empenho->id,
-                    'naturezasubitem_id' => $naturezasubitem->id
-                ]);
-            }
-
-
-        }
-
-
+        return redirect('/execfin/empenho');
 
     }
 
-    public function buscaFornecedor($credor){
 
-        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
-            ->first();
-
-        if (!$fornecedor) {
-            $tipo = 'JURIDICA';
-            if (strlen($credor['cpfcnpjugidgener']) == 14) {
-                $tipo = 'FISICA';
-            }elseif(strlen($credor['cpfcnpjugidgener']) == 9) {
-                $tipo = 'IDGENERICO';
-            }elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
-                $tipo = 'UG';
-            };
-
-            $fornecedor = Fornecedor::create([
-                'tipo_fornecedor' => $tipo,
-                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
-                'nome' => strtoupper($credor['nome'])
-            ]);
-        }
-        return $fornecedor;
-    }
-
-    public function buscaPi($pi){
-
-        $planointerno = Planointerno::where('codigo', '=', $pi['codigo'])
-            ->first();
-
-        if (!$planointerno) {
-
-            $planointerno = Planointerno::create([
-                'codigo' => $pi['codigo'],
-                'descricao' => strtoupper($pi['descricao']),
-                'situacao' => true
-            ]);
-        }
-        return $planointerno;
-    }
 
 
 }
