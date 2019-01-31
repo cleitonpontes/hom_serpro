@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Execfin;
 
 use App\Models\Empenho;
-use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
@@ -42,11 +41,17 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
+        $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
+
         $this->crud->enableExportButtons();
-        $this->crud->allowAccess('create');
-        $this->crud->allowAccess('update');
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
+
+        (backpack_user()->can('empenho_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('empenho_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('empenho_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
         |--------------------------------------------------------------------------
@@ -409,12 +414,12 @@ class EmpenhoCrudController extends CrudController
                 ]);
             }
 
-            $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+            $empenhodetalhado = EmpenhodetalhadoOld::where('empenho_id', '=', $empenho->id)
                 ->where('naturezasubitem_id','=',$naturezasubitem->id)
                 ->first();
 
             if(!$empenhodetalhado){
-                $empenhodetalhado = Empenhodetalhado::create([
+                $empenhodetalhado = EmpenhodetalhadoOld::create([
                     'empenho_id' => $empenho->id,
                     'naturezasubitem_id' => $naturezasubitem->id
                 ]);

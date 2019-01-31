@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -21,28 +21,81 @@ class Empenhodetalhado extends Model
     // protected $guarded = ['id'];
     protected $fillable = [
         'empenho_id',
+        'naturezadespesa_id',
         'naturezasubitem_id',
-//        'empaliquidar',
-//        'empemliquidacao',
-//        'empaliquidado',
-//        'emppago',
-//        'empaliqrpnp',
-//        'empemliqrpnp',
-//        'emprpp',
+        'empaliquidar',
+        'empemliquidacao',
+        'empliquidado',
+        'emppago',
+        'empaliqrpnp',
+        'empemliqrpnp',
+        'emprpp',
+        'rpnpaliquidar',
+        'rpnpaliquidaremliquidacao',
+        'rpnpliquidado',
+        'rpnppago',
+        'rpnpaliquidarbloq',
+        'rpnpaliquidaremliquidbloq',
+        'rpnpcancelado',
+        'rpnpoutrocancelamento',
+        'rpnpemliqoutrocancelamento',
+        'rppliquidado',
+        'rpppago',
+        'rppcancelado',
     ];
 
-
-    public function empenho()
+    /*
+    |--------------------------------------------------------------------------
+    | FUNCTIONS
+    |--------------------------------------------------------------------------
+    */
+    public function getEmpenho()
     {
-        return $this->belongsTo(Empenho::class, 'empenho_id');
+        $empenho = Empenho::find($this->empenho_id);
+        return $empenho->numero;
+
     }
 
-
-    public function naturezasubitem()
+    public function getSubitem()
     {
-        return $this->belongsTo(Naturezasubitem::class, 'naturezasubitem_id');
+        $subitem = Naturezasubitem::find($this->naturezasubitem_id);
+        return $subitem->codigo . " - " . $subitem->descricao;
+
     }
 
+    public function getNaturezadespesa()
+    {
+        $naturezadespesa = Naturezasubitem::find($this->naturezasubitem_id);
+        return $naturezadespesa->naturezadespesa->codigo;
 
+    }
 
+    public function formatVlrEmpaliquidar()
+    {
+        return 'R$ ' . number_format($this->empaliquidar, 2, ',', '.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESORS
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | MUTATORS
+    |--------------------------------------------------------------------------
+    */
 }
