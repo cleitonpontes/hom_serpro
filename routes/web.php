@@ -22,7 +22,7 @@ Route::get('/home', function () {
 
 Route::group(
     [
-        'middleware' => 'web',
+        'middleware' => ['web'],
         'prefix' => config('backpack.base.route_prefix'),
     ],
     function () {

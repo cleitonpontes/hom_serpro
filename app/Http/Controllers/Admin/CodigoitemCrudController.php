@@ -29,7 +29,7 @@ class CodigoitemCrudController extends CrudController
         $codigo = Codigo::find($codigo_id);
 
         if($codigo->visivel == false){
-            abort('403', 'Sem permissão!');
+            abort('403', config('app.erro_permissao'));
         }
 
         $this->crud->setModel('App\Models\Codigoitem');

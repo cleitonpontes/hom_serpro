@@ -27,7 +27,7 @@ class EmpenhodetalhadoCrudController extends CrudController
         $empenho = Empenho::where('id', '=', $empenho_id)
             ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
         if (!$empenho) {
-            abort('403', 'Acesso negado - você não possui a permissão necessária para acessar esta página.');
+            abort('403', config('app.erro_permissao'));
         }
 
         /*

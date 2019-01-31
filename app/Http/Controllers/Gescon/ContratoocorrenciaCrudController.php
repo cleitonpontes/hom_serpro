@@ -29,7 +29,7 @@ class ContratoocorrenciaCrudController extends CrudController
         $contrato = Contrato::where('id', '=', $contrato_id)
             ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
         if (!$contrato) {
-            abort('403', 'Acesso negado - você não possui a permissão necessária para acessar esta página.');
+            abort('403', config('app.erro_permissao'));
         }
 
         /*

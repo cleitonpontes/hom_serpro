@@ -6,6 +6,7 @@ return [
     'conta_contabil' => 622920101,
     'situacao_pco' => 'PCO',
     'situacao_despesa_anular' => 'DESPESA_ANULAR',
+    'erro_permissao' => 'Acesso negado - você não possui a permissão necessária para acessar esta página.<br \> <a href="javascript:history.back()" \'="">Voltar</a>',
 
 
     /*
