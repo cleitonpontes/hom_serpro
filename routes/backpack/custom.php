@@ -75,6 +75,7 @@ Route::group([
         ], function () {
 
             CRUD::resource('empenho', 'EmpenhoCrudController');
+            CRUD::resource('situacaosiafi', 'ExecsfsituacaoCrudController');
 
             Route::get('/migracaoempenhos', 'EmpenhoCrudController@migracaoEmpenho');
 

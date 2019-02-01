@@ -15,11 +15,17 @@ class PermissionMiddleware
      */
     public function handle($request, Closure $next, $permission)
     {
+        if (!backpack_user()) {
+            return redirect()->route('backpack.auth.login');;
+        }
+
         if (backpack_user()->can($permission)) {
             return $next($request);
         } else {
             abort('403', config('app.erro_permissao'));
         }
+
+
 
     }
 }

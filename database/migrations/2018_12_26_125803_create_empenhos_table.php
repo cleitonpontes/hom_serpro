@@ -20,14 +20,14 @@ class CreateEmpenhosTable extends Migration
             $table->integer('fornecedor_id');
             $table->integer('planointerno_id')->nullable();
             $table->integer('naturezadespesa_id');
-            $table->decimal('empenhado',17,2)->nullable();
-            $table->decimal('aliquidar',17,2)->nullable();
-            $table->decimal('liquidado',17,2)->nullable();
-            $table->decimal('pago',17,2)->nullable();
-            $table->decimal('rpinscrito',17,2)->nullable();
-            $table->decimal('rpaliquidar',17,2)->nullable();
-            $table->decimal('rpliquidado',17,2)->nullable();
-            $table->decimal('rppago',17,2)->nullable();
+            $table->decimal('empenhado',17,2)->default(0);
+            $table->decimal('aliquidar',17,2)->default(0);
+            $table->decimal('liquidado',17,2)->default(0);
+            $table->decimal('pago',17,2)->default(0);
+            $table->decimal('rpinscrito',17,2)->default(0);
+            $table->decimal('rpaliquidar',17,2)->default(0);
+            $table->decimal('rpliquidado',17,2)->default(0);
+            $table->decimal('rppago',17,2)->default(0);
             $table->softDeletes();
             $table->timestamps();
 

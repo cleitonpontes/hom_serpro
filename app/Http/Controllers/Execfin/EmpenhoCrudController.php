@@ -347,6 +347,11 @@ class EmpenhoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+
+        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
+            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
+
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here

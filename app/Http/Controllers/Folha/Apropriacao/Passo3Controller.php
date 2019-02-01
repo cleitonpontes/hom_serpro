@@ -193,7 +193,7 @@ class Passo3Controller extends BaseController
             'paging' => true,
             'lengthChange' => true,
             'language' => [
-                'url' => "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese-Brasil.json"
+                'url' => asset('/json/pt_br.json')
             ]
         ]);
         

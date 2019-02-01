@@ -20,8 +20,8 @@
             <ul class="treeview-menu">
                 <li><a href="{{ backpack_url('/execfin/empenho') }}"><i class="fa fa-money"></i>
                         <span>Empenho</span></a></li>
-                <li><a href="{{ backpack_url('/execfin/situacao') }}"><i class="fa fa-list-ol"></i>
-                        <span>Situação</span></a></li>
+                <li><a href="{{ backpack_url('/execfin/situacaosiafi') }}"><i class="fa fa-list-ol"></i>
+                        <span>Situação Siafi</span></a></li>
                 <li><a href="{{ backpack_url('/execfin/rubrica') }}"><i class="fa fa-list-ol"></i>
                         <span>Rubrica</span></a></li>
                 <li><a href="{{ backpack_url('/execfin/rhsituacao') }}"><i class="fa fa-list-ol"></i>
