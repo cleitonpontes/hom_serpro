@@ -35,6 +35,9 @@ class CreateEmpenhosTable extends Migration
             $table->foreign('fornecedor_id')->references('id')->on('fornecedores')->onDelete('cascade');
             $table->foreign('planointerno_id')->references('id')->on('planointerno')->onDelete('cascade');
             $table->foreign('naturezadespesa_id')->references('id')->on('naturezadespesa')->onDelete('cascade');
+
+            $table->unique(['numero','unidade_id']);
+
         });
     }
 

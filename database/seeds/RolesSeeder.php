@@ -53,6 +53,9 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'folha_apropriacao_acesso']);
         Permission::create(['name' => 'folha_apropriacao_passo']);
         Permission::create(['name' => 'folha_apropriacao_deletar']);
+        Permission::create(['name' => 'situacaosiafi_inserir']);
+        Permission::create(['name' => 'situacaosiafi_editar']);
+        Permission::create(['name' => 'situacaosiafi_deletar']);
 
 
 
@@ -97,6 +100,9 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('empenhodetalhado_inserir');
         $role->givePermissionTo('empenhodetalhado_editar');
         $role->givePermissionTo('empenhodetalhado_deletar');
+        $role->givePermissionTo('situacaosiafi_inserir');
+        $role->givePermissionTo('situacaosiafi_editar');
+        $role->givePermissionTo('situacaosiafi_deletar');
 
     }
 }

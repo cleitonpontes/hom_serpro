@@ -31,7 +31,15 @@ class Empenho extends Model
         'unidade_id',
         'fornecedor_id',
         'planointerno_id',
-        'naturezadespesa_id'
+        'naturezadespesa_id',
+        'empenhado',
+        'aliquidar',
+        'liquidado',
+        'pago',
+        'rpinscrito',
+        'rpaliquidar',
+        'rpliquidado',
+        'rppago',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -73,7 +81,7 @@ class Empenho extends Model
             $planointerno = Planointerno::find($this->planointerno_id);
             return $planointerno->codigo . ' - ' . $planointerno->descricao;
         } else {
-            return '';
+            return '-';
         }
     }
 

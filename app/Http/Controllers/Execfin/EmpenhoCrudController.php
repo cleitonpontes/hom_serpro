@@ -38,7 +38,7 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('select', 'empenhos.*');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'empenhos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'empenhos.unidade_id');
-        $this->crud->addClause('join', 'planointerno', 'planointerno.id', '=', 'empenhos.planointerno_id');
+//        $this->crud->addClause('join', 'planointerno', 'planointerno.id', '=', 'empenhos.planointerno_id');
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
@@ -143,10 +143,10 @@ class EmpenhoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('planointerno.codigo', 'like', "%" . strtoupper($searchTerm) . "%");
-                    $query->orWhere('planointerno.descricao', 'like', "%" . strtoupper($searchTerm) . "%");
-                },
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('planointerno.codigo', 'like', "%" . strtoupper($searchTerm) . "%");
+//                    $query->orWhere('planointerno.descricao', 'like', "%" . strtoupper($searchTerm) . "%");
+//                },
             ],
             [
                 'name' => 'getNatureza',

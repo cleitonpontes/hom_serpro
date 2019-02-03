@@ -209,5 +209,16 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'PLANILHA','descricao' => 'Planilha Custo' ]);
         DB::table('codigoitens')->insert(['codigo_id' => '17','descres' => 'OUTROS','descricao' => 'Outros Arquivos' ]);
 
+        DB::table('codigos')->insert(['descricao' => 'Abas Situações','visivel' => false,]);
+        DB::table('codigoitens')->insert(['codigo_id' => '18','descres' => 'PCO', 'descricao' => 'PCO']);
+        DB::table('codigoitens')->insert(['codigo_id' => '18','descres' => 'PCO', 'descricao' => 'PSO']);
+        DB::table('codigoitens')->insert(['codigo_id' => '18','descres' => 'DEDUCAO', 'descricao' => 'DEDUCAO']);
+        DB::table('codigoitens')->insert(['codigo_id' => '18','descres' => 'OUTROLANC', 'descricao' => 'OUTROSLANCAMENTOS']);
+        DB::table('codigoitens')->insert(['codigo_id' => '18','descres' => 'ENCARGO', 'descricao' => 'ENCARGO']);
+        DB::table('codigoitens')->insert(['codigo_id' => '18','descres' => 'DESPANULAR', 'descricao' => 'DESPESA_ANULAR']);
+        DB::table('codigoitens')->insert(['codigo_id' => '18','descres' => 'CREDITO', 'descricao' => 'CREDITO']);
+
+
+
     }
 }

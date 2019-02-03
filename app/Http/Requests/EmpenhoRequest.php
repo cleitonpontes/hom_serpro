@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Unique;
 
 class EmpenhoRequest extends FormRequest
 {
@@ -25,8 +26,16 @@ class EmpenhoRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+        $unidade_id = $this->unidade_id;
+
         return [
-            'numero' => 'required',
+            'numero' => [
+                'required',
+                (new Unique('empenhos','numero'))
+                    ->ignore($id)
+                    ->where('unidade_id',$unidade_id)
+            ],
             'unidade_id' => 'required',
             'fornecedor_id' => 'required',
             'naturezadespesa_id' => 'required',
@@ -53,7 +62,11 @@ class EmpenhoRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'numero.required' => 'O campo "Número Empenho" é obrigatório!',
+            'numero.unique' => 'Este Número de Empenho já está cadastrado!',
+            'unidade_id.required' => 'O campo "Unidade Gestora" é obrigatório!',
+            'fornecedor_id.required' => 'O campo "Credor / Fornecedor" é obrigatório!',
+            'naturezadespesa_id.required' => 'O campo "Natureza Despesa (ND)" é obrigatório!',
         ];
     }
 }
