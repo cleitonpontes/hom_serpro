@@ -60,26 +60,26 @@ class Apropriacaosituacao extends Model
      */
     public function retornaListagemPasso3($apid)
     {
-        $qtde = $this->retornaQtdeDadosPasso3($apid);
-
+        $temDados = $this->retornaHaDadosPasso3($apid);
+        
         $modeloImportacao = new Apropriacaoimportacao();
-
-        if ($qtde == 0) {
+        
+        if ($temDados == false) {
             $importacoes = $modeloImportacao->retornaDadosPasso3($apid);
-
+            
             // Grava novos dados conforme agrupamento dos valores importados
             $this->gravaNovosDadosPasso3($apid, $importacoes);
-            session(['empenho.fonte.conta' => array()]);
         } else {
             // Verifica se houve mudança de Situações / VPDs
             $this->avaliaMudancaSituacaoVpd($apid);
         }
-
+        
         // Iguala os campos, para não conterem mais distinções
         $modeloImportacao->igualaCamposOriginais($apid);
-
+        
         // Rebusca os dados conforme $apid, agora com o id dos registros
         $dados = $this->retornaListagem($apid);
+        session(['empenho.fonte.conta' => array()]);
 
         return $dados;
     }
@@ -144,15 +144,15 @@ class Apropriacaosituacao extends Model
     }
 
     /**
-     * Retorna a quantidade de registros conforme Apropriação ($apid)
+     * Retorna a verificação da existência ou não de registros conforme Apropriação ($apid)
      *
      * @param number $apid
      * @return number
      */
-    private function retornaQtdeDadosPasso3($apid)
+    private function retornaHaDadosPasso3($apid)
     {
         $consulta = $this->where('apropriacao_id', $apid);
-        return $consulta->count();
+        return $consulta->exists();
     }
 
     /**
@@ -166,7 +166,6 @@ class Apropriacaosituacao extends Model
         $situacao = array();
         $empenho = array();
         $empenhos = array();
-
 
         $modeloEmpenhos = new Empenhos();
 

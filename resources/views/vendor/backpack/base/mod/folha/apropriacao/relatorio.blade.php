@@ -1,138 +1,276 @@
+<?php
+$orgaoNome = $apropriacao['orgao_nome'];
+$ug = $apropriacao['ug'];
+$competencia = $apropriacao['competencia'];
+$nup = $apropriacao['nup'];
+$docOrigem = $apropriacao['doc_origem'];
+$observacoes = $apropriacao['observacoes'];
+$vrBruto = $apropriacao['valor_bruto'];
+$vrLiquido = $apropriacao['valor_liquido'];
+
+$ugDescricao = $ug;
+$ateste = '';
+$vrDesconto = $vrBruto - $vrLiquido;
+
+$valorBruto = retornaValorFormatado($vrBruto);
+$valorLiquido = retornaValorFormatado($vrLiquido);
+$valorDesconto = retornaValorFormatado($vrDesconto);
+$totalPco = 0;
+$totalDespesa = 0;
+
+if (!is_null($apropriacao['ug_nome']) && $apropriacao['ug_nome'] != '') {
+    $ugDescricao .= ' - ' . $apropriacao['ug_nome'];
+}
+
+if (!is_null($apropriacao['ateste'])) {
+    $dtAteste = new \DateTime($apropriacao['ateste']);
+    $ateste = $dtAteste->format('d/m/Y');
+}
+
+$ordemPco = 1;
+$ordemDespesa = 1;
+?>
+
 @extends('adminlte::layouts.app')
 
-{{--@section('style')--}}
-    {{--<link rel="stylesheet" href="{{asset('css/app.css')}}">--}}
-{{--@endsection--}}
+@push('breadcrumb')
+    {{ Breadcrumbs::render() }}
+@endpush
 
-{{--@push('breadcrumb')--}}
-    {{--{{ Breadcrumbs::render() }}--}}
-{{--@endpush--}}
-
-{{--@section('htmlheader_title')--}}
-    {{--{{ trans('adminlte_lang::message.users') }}--}}
-{{--@endsection--}}
-
-@php
-    $param = $apropriacao[0];
-@endphp
+@section('htmlheader_title')
+    {{ trans('adminlte_lang::message.users') }}
+@endsection
 
 @section('main-content')
-    <div class="row">
-        <div class="col-md-12">
-            <div class="box box-primary">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Relatório da Apropriação por Competência</h3>
-                </div>
-
-                <div class="box-body row">
-                    <div class="col-lg-12">Orgão: Advocacia Geral da União</div>
-                    <div class="col-lg-12 row">
-                        <div class="col-lg-5">UG: 110062 - DGPE</div>
-                        <div class="col-lg-5">Competência: {{$param['competencia']}}</div>
+    <div class="box box-solid box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title"> Relatório da Apropriação por Competência </h3>
+        </div>
+        
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12 text-left">
+                    <h3 class="bg-primary" style="padding: 5px;"> Identificação </h3>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                    		<strong>
+                    			Órgão:
+                    		</strong>
+                        </div>
+                        <div class="col-lg-10">
+                    		{{$orgaoNome}}
+                        </div>
                     </div>
-                    <div class="col-lg-12">Processo: 00000.0000/0000-00</div>
-                    <div class="col-lg-12 row">
-                        <div class="col-lg-5">Emissão: DD/MM/AAAA</div>
-                        <div class="col-lg-5">Ateste: DD/MM/AAAA</div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                    		<strong>
+                    			Unidade gestora:
+                    		</strong>
+                        </div>
+                        <div class="col-lg-10">
+                    		{{$ugDescricao}}
+                        </div>
                     </div>
-                    <div class="col-lg-12">Documento de origem: FOPAG - MM/AAAA</div>
-                </div>
-
-                <div class="box-body">
-                    <table id="pdc" border="1" class="col-lg-12">
-                        <caption>PCO</caption>
-                        <thead>
-                            <tr>
-                                <th>Situção</th>
-                                <th>Nome situção</th>
-                                <th>VPD</th>
-                                <th>NE</th>
-                                <th>Sub item</th>
-                                <th>Fonte</th>
-                                <th>Valor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($apropriacao as $categoria)
-                            @php
-                            $dataCriacao = Carbon\Carbon::parse($categoria['created_at'])->format('d-m-Y');
-                            $dataAlteracao = Carbon\Carbon::parse($categoria['updated_at'])->format('d-m-Y');
-                            @endphp
-                            <tr>
-                                <td>DFL001</td>
-                                <td>Despesa com Remuneração e pessoal ativo</td>
-                                <td>3.1111.1.00.00</td>
-                                <td>2018NE0000001</td>
-                                <td>34</td>
-                                <td>01000000000000000</td>
-                                <td>131.179,14</td>
-                            </tr>
-                            @endforeach
-                            <tr style="background-color: grey; color: black;">
-                                <td colspan="6"><b>&nbsp;Total</b></td>
-                                <td colspan="1"><b>170.233.440,55</b></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="box-body">
-                    <table id="despesasAnular" border="1" class="col-lg-12">
-                        <caption>Despesas a Anular</caption>
-                        <thead>
-                            <tr>
-                                <th>Situção</th>
-                                <th>Nome situção</th>
-                                <th>VPD</th>
-                                <th>NE</th>
-                                <th>Sub item</th>
-                                <th>Fonte</th>
-                                <th>Valor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($apropriacao as $categoria)
-                            @php
-                            $dataCriacao = Carbon\Carbon::parse($categoria['created_at'])->format('d-m-Y');
-                            $dataAlteracao = Carbon\Carbon::parse($categoria['updated_at'])->format('d-m-Y');
-                            @endphp
-                            <tr>
-                                <td>DFL001</td>
-                                <td>Despesa com Remuneração e pessoal ativo</td>
-                                <td>3.1111.1.00.00</td>
-                                <td>2018NE0000001</td>
-                                <td>34</td>
-                                <td>01000000000000000</td>
-                                <td>131.179,14</td>
-                            </tr>
-                            @endforeach
-                            <tr style="background-color: grey; color: black;">
-                                <td colspan="6"><b>&nbsp;Total</b></td>
-                                <td colspan="1"><b>170.233.440,55</b></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="box-body">
-                    <div class="col-lg-12" style="background-color: grey; color: black;"><b>RESUMO</b></div>
-                    <div class="col-lg-12 row">
-                        <div class="col-lg-9" style="text-align: left">Valor Bruto:</div>
-                        <div class="col-lg-3" style="text-align: right">{{$param['valor_bruto']}}</div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                        	<strong>
+                        		Competência:
+                        	</strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$competencia}}
+                        </div>
                     </div>
-                    <div class="col-lg-12 row">
-                        <div class="col-lg-9" style="text-align: left">Descontos:</div>
-                        <div class="col-lg-3" style="text-align: right">{{($param['valor_bruto'] - $param['valor_liquido'])}}</div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                        	<strong>
+                        		Processo:
+                        	</strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$nup}}
+                        </div>
                     </div>
-                    <div class="col-lg-12 row">
-                        <div class="col-lg-9" style="text-align: left">Líquido:</div>
-                        <div class="col-lg-3" style="text-align: right">{{$param['valor_liquido']}}</div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                        	<strong>
+                        		Data de ateste:
+                        	</strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$ateste}}
+                        </div>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                        	<strong>
+                        		Documento origem:
+                        	</strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$docOrigem}}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                        	<strong>
+                        		Observações:
+                        	</strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$observacoes}}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                        	<strong>
+                        		Valor bruto:
+                        	</strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$valorBruto}}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                        	<strong>
+                        		Valor desconto:
+                        	</strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$valorDesconto}}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-2">
+                        	<strong>
+                        		Valor líquido:
+                        	</strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$valorLiquido}}
+                        </div>
+                    </div>
+                    
                 </div>
-
-                <br>
             </div>
+            
+            <div class="row">
+                <div class="col-md-12 text-left">
+                    <h3 class="bg-primary" style="padding: 5px;"> PCO </h3>
+                    
+                    <table id="tbPco" class="col-lg-12 table-striped table-bordered nowrap">
+                        <thead>
+                            <tr>
+                                <th nowrap> # &nbsp; </th>
+                                <th nowrap> Situação &nbsp; </th>
+                                <th nowrap> Descrição situação </th>
+                                <th> Empenho </th>
+                                <th nowrap class="text-right"> &nbsp; Sub item </th>
+                                <th class="text-right"> VPD </th>
+                                <th nowrap class="text-right"> &nbsp; Fonte </th>
+                                <th class="text-right"> Valor </th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                        	@foreach($pcos as $pco)
+                        	@php $totalPco += $pco['valor'] @endphp
+                            <tr>
+                                <td> {{ $ordemPco++ }} </td>
+                                <td> {{ $pco['situacao'] }} </td>
+                                <td> {{ ucwords(mb_strtolower($pco['descricao'])) }} </td>
+                                <td> {{ $pco['empenho'] }} </td>
+                                <td class="text-right"> {{ $pco['subitem'] }} </td>
+                                <td class="text-right"> {{ $pco['vpd'] }} </td>
+                                <td class="text-right"> {{ $pco['fonte'] }} </td>
+                                <td class="text-right"> {{ retornaValorFormatado($pco['valor']) }} </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        
+                        <tfoot>
+                            <tr style="background-color: #eeeeee; ">
+                                <th colspan="7"> Total </th>
+                                <th class="text-right"> {!! '&nbsp;' . retornaValorFormatado($totalPco) !!} </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <br />
+            
+            <div class="row">
+                <div class="col-md-12 text-left">
+                    <h3 class="bg-primary" style="padding: 5px;"> Despesa a anular </h3>
+                    
+                    <table id="tbDespesa" class="col-lg-12 table-striped table-bordered nowrap">
+                        <thead>
+                            <tr>
+                                <th nowrap> # &nbsp; </th>
+                                <th nowrap> Situação &nbsp; </th>
+                                <th nowrap> Descrição situação </th>
+                                <th> Empenho </th>
+                                <th nowrap class="text-right"> &nbsp; Sub item </th>
+                                <th class="text-right"> VPD </th>
+                                <th nowrap class="text-right"> &nbsp; Fonte </th>
+                                <th class="text-right"> Valor </th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                        	@foreach($despesas as $despesa)
+                        	@php $totalDespesa += $despesa['valor'] @endphp
+                            <tr>
+                                <td> {{ $ordemDespesa++ }} </td>
+                                <td> {{ $despesa['situacao'] }} </td>
+                                <td> {{ ucwords(mb_strtolower($despesa['descricao'])) }} </td>
+                                <td> {{ $despesa['empenho'] }} </td>
+                                <td class="text-right"> {{ $despesa['subitem'] }} </td>
+                                <td class="text-right"> {{ $despesa['vpd'] }} </td>
+                                <td class="text-right"> {{ $despesa['fonte'] }} </td>
+                                <td class="text-right"> {{ retornaValorFormatado($despesa['valor']) }} </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        
+                        <tfoot>
+                            <tr style="background-color: #eeeeee; ">
+                                <th colspan="7"> Total </th>
+                                <th class="text-right"> {!! '&nbsp;' . retornaValorFormatado($totalDespesa) !!} </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <br />
         </div>
     </div>
 @endsection
 
+<?php
+/**
+ * Formata número
+ *
+ * @param number $valor
+ * @return number
+ */
+function retornaValorFormatado($valor)
+{
+    if (! is_numeric($valor)) {
+        return $valor;
+    }
+    
+    return number_format(floatval($valor), 2, ',', '.');
+}
+?>

@@ -122,26 +122,17 @@ Route::group(
             Route::get('/apropriacao/passo/2/apid/{apid}', 'Apropriacao\Passo2Controller@index')
                 ->name('apropriacao.passo.2')
                 ->middleware('permission:folha_apropriacao_passo');
-            /*
-            Route::put('/apropriacao/situacao/apid/{apid}/id/{id}/sit/{sit}/vpd/{vpd}', 'Apropriacao\Passo2Controller@atualiza')
-                ->name('apropriacao.passo.2.situacao.atualiza');
-            */
             Route::put('/apropriacao/situacao/{apid}/{id}/{sit}/{vpd}', 'Apropriacao\Passo2Controller@atualiza')
                 ->name('apropriacao.passo.2.situacao.atualiza');
             Route::get('/apropriacao/passo/2/avanca/apid/{apid}', 'Apropriacao\Passo2Controller@avancaPasso')
                 ->name('apropriacao.passo.2.avanca')
                 ->middleware('permission:folha_apropriacao_passo');
 
-
-            Route::get('/apropriacao/relatorio/{id}', 'ApropriacaoController@relatorio')
-                ->name('apropriacao.relatorio');
-
-
             // Passo 3
             Route::get('/apropriacao/passo/3/apid/{apid}', 'Apropriacao\Passo3Controller@index')
                 ->name('apropriacao.passo.3')
                 ->middleware('permission:folha_apropriacao_passo');
-            Route::put('/apropriacao/ne/{id}/{vr}', 'Apropriacao\Passo3Controller@atualiza')
+            Route::put('/apropriacao/empenho/atualiza/{id}/{vr}', 'Apropriacao\Passo3Controller@atualiza')
                 ->name('apropriacao.passo.3.situacao.atualiza');
             Route::get('/apropriacao/passo/3/avanca/apid/{apid}', 'Apropriacao\Passo3Controller@avancaPasso')
                 ->name('apropriacao.passo.3.avanca')
@@ -151,6 +142,8 @@ Route::group(
             Route::get('/apropriacao/passo/4/apid/{apid}', 'Apropriacao\Passo4Controller@index')
                 ->name('apropriacao.passo.4')
                 ->middleware('permission:folha_apropriacao_passo');
+            Route::put('/apropriacao/empenho/saldo/{ug}/{ano}/{mes}/{empenho}/{subitem}', 'Apropriacao\Passo4Controller@atualiza')
+                ->name('apropriacao.passo.4.empenho.saldo');
             Route::get('/apropriacao/passo/4/avanca/apid/{apid}', 'Apropriacao\Passo4Controller@avancaPasso')
                 ->name('apropriacao.passo.4.avanca')
                 ->middleware('permission:folha_apropriacao_passo');
@@ -172,6 +165,9 @@ Route::group(
             Route::get('/apropriacao/passo/6/avanca/apid/{apid}', 'Apropriacao\Passo6Controller@avancaPasso')
                 ->name('apropriacao.passo.6.avanca')
                 ->middleware('permission:folha_apropriacao_passo');
+
+            Route::put('/apropriacao/persistir/{apid}/{dados}', 'Apropriacao\Passo6Controller@persistir')
+                ->name('apropriacao.passo.6.situacao.persistir');
 
             // Passo 7
             Route::get('/apropriacao/passo/7/apid/{apid}', 'Apropriacao\Passo7Controller@gerarXml')

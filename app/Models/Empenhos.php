@@ -17,13 +17,7 @@ class Empenhos extends Model
     public function retornaEmpenhoFontePorAnoConta($ano, $conta)
     {
         // Dados de todos os empenhos - em memória
-        $empenhos = session('empenho.fonte.conta');
-
-        if (count($empenhos) == 0) {
-            // Se não houver dados na session, busca os dados no banco
-            $empenhos = $this->retornaEmpenhosFonteAnoConta($ano, $conta);
-            session(['empenho.fonte.conta' => $empenhos]);
-        }
+        $empenhos = $this->retornaEmpenhosPorAno($ano);
 
         $registrosEncontrados = array_filter($empenhos, function ($empenho) use ($ano, $conta) {
             return ($empenho->ano == $ano && $empenho->nd == $conta);
@@ -33,12 +27,32 @@ class Empenhos extends Model
     }
 
     /**
+     * Retorna empenhos por $ano
+     *
+     * @param number $ano
+     * @return array
+     */
+    public function retornaEmpenhosPorAno($ano)
+    {
+        // Dados de todos os empenhos - em memória
+        $empenhos = session('empenho.fonte.conta');
+
+        if (count($empenhos) == 0) {
+            // Se não houver dados na session, busca os dados no banco
+            $empenhos = $this->retornaEmpenhosFonteAno($ano);
+            session(['empenho.fonte.conta' => $empenhos]);
+        }
+
+        return $empenhos;
+    }
+
+    /**
      * Retorna conjunto de Empenhos, fonte e conta (nd + subitem) por $ug
      *
      * @param number $ano
      * @return array
      */
-    public function retornaEmpenhosFonteAnoConta($ano)
+    public function retornaEmpenhosFonteAno($ano)
     {
         $ug = session('user_ug_id');
 

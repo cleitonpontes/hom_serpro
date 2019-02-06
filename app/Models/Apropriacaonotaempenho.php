@@ -50,6 +50,97 @@ class Apropriacaonotaempenho extends Model
     {
         return $this->hasMany('App\Models\Apropriacao', 'id');
     }
+    
+    /**
+     * Retorna dados da dos empenhos para validação do saldo
+     *
+     * @param number $apropriacaoId
+     * @return array
+     */
+    public function retornaListagemPasso4ComSaldos($apropriacaoId)
+    {
+        $ug = session('user_ug');
+        
+        $listagem = $this->where('A.ug', $ug);
+        $listagem->where('A.id', $apropriacaoId);
+        $listagem->where('valor_rateado', '>', 0);
+        
+        $listagem->leftjoin('apropriacoes_situacao as S', 'S.id', '=', 'apropriacao_situacao_id');
+        $listagem->leftjoin('apropriacoes AS A', 'A.id', '=', 'S.apropriacao_id');
+        $listagem->leftjoin('unidades AS U', function ($relacao) {
+            $relacao->on('U.codigo', '=', 'A.ug');
+        });
+        $listagem->leftjoin('empenhos AS E', function ($relacao) {
+            $relacao->on('E.unidade_id', '=', 'U.id');
+            $relacao->on('E.numero', '=', 'empenho');
+        });
+        $listagem->leftjoin('naturezasubitem AS N', function ($relacao) {
+            $relacao->on('N.codigo', '=', DB::raw('right("S"."conta", 2)'));
+        });
+        $listagem->leftjoin('empenhodetalhado AS D', function ($relacao) {
+            $relacao->on('D.empenho_id', '=', 'E.id');
+            $relacao->on('D.naturezasubitem_id' , '=', 'N.id');
+        });
+        
+        $listagem->groupBy([
+            'A.competencia',
+            'A.ug',
+            'empenho',
+            'fonte',
+            'S.conta',
+            'S.vpd',
+            'D.empaliquidar'
+        ]);
+        
+        $listagem->select([
+            DB::raw('left("A"."competencia", 4) as ano'),
+            DB::raw('right("A"."competencia", 2) as mes'),
+            'A.ug',
+            'empenho',
+            'fonte',
+            'S.conta',
+            DB::raw('left("S"."conta", 6) as natureza'),
+            DB::raw('right("S"."conta", 2) as subitem'),
+            'S.vpd',
+            DB::raw('coalesce(sum(valor_rateado), 0) as saldo_necessario'),
+            DB::raw('"D"."empaliquidar" as saldo_atual')
+        ]);
+
+        return $listagem->get()->toArray();
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     /**
      * Retorna todos os registros de empenhos por $id
@@ -119,6 +210,9 @@ class Apropriacaonotaempenho extends Model
             DB::raw('sum(valor_rateado) as saldo_necessario'),
             DB::raw('0 as saldo_atual')
         ]);
+        
+        $sql = $listagem->toSql();
+        dd($sql);
 
         return $listagem->get()->toArray();
     }

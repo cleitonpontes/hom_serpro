@@ -8,9 +8,9 @@
 namespace App\Http\Controllers\Folha\Apropriacao;
 
 use App\Models\Apropriacaonotaempenho;
+use App\Models\Empenhodetalhado;
 use App\XML\Execsiafi;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
 
 /**
  * Disponibiliza as funcionalidades específicas para o Passo 4 - Validar Saldos
@@ -26,20 +26,6 @@ class Passo4Controller extends BaseController
 {
 
     /**
-     * Constante para texto de saldo suficiente
-     *
-     * @var string
-     */
-    const SALDO_SUFICIENTE = '<span style="color: blue"> Saldo suficiente </span>';
-
-    /**
-     * Constante para texto de saldo insuficiente
-     *
-     * @var string
-     */
-    const SALDO_INSUFICIENTE = '<span style="color: red"> Saldo insuficiente </span>';
-
-    /**
      * Show the form for creating a new resource.
      *
      * @param Request $request
@@ -48,38 +34,39 @@ class Passo4Controller extends BaseController
      */
     public function index(Request $request, $apid)
     {
-        $dados = $this->getDataEmpenho($apid);
+        $modelo = new Apropriacaonotaempenho();
+        $empenhos = $modelo->retornaListagemPasso4ComSaldos($apid);
 
-        if ($request->ajax()) {
-            $grid = DataTables::of($dados);
-
-            $grid->editColumn('saldo_necessario', '{!! number_format(floatval($saldo_necessario), 2, ",", ".") !!}');
-            $grid->editColumn('saldo_atual', '{!! number_format(floatval($saldo_atual), 2, ",", ".") !!}');
-
-            $grid->rawColumns(['utilizacao']);
-
-            return $grid->make(true);
-        }
-
-        $html = $this->retornaGrid();
-
-        return view('adminlte::mod.folha.apropriacao.passo4', compact('html'));
+        return view('backpack::mod.folha.apropriacao.passo4', compact('empenhos'));
     }
 
     /**
-     * Retorna dados de empenhos e já efetua suas respectivas validações de saldos via WebService do SIAFI
+     * Consulta saldo de empenho no SIAFI e o atualiza no banco
      *
-     * @param number $id
-     * @return mixed
+     * @param string $ug
+     * @param number $ano
+     * @param number $mes
+     * @param string $empenho
+     * @param string $subitem
+     * @return number
      */
-    public function getDataEmpenho($id)
+    public function atualiza($ug, $ano, $mes, $empenho, $subitem)
     {
-        $modelo = new Apropriacaonotaempenho();
+        $registro = array();
+        
+        $registro['ug'] = $ug;
+        $registro['ano'] = $ano;
+        $registro['mes'] = $mes;
+        $registro['empenho'] = $empenho;
+        $registro['subitem'] = $subitem;
 
-        $importacoes = $modelo->retornaListagemPasso4($id);
-        $dados = $this->validaSaldo($importacoes);
+        // Consulta saldo do empenho
+        $saldoAtual = $this->consultaSaldoSiafi($registro);
 
-        return $dados;
+        // Atualiza o saldo retornado
+        $this->atualizaSaldo($empenho, $subitem, $saldoAtual);
+
+        return $saldoAtual;
     }
 
     /**
@@ -90,7 +77,12 @@ class Passo4Controller extends BaseController
      */
     public function verificaPodeAvancar(Request $request)
     {
-        $valid = session('apropriacao.valida.saldo.avanca');
+        //
+        //
+        // TODO: RE-GERAR VALIDAÇÃO APÓS REFACTORY!!
+        //
+        //
+        $valid = false;
 
         return ($valid == 'true');
     }
@@ -106,63 +98,85 @@ class Passo4Controller extends BaseController
     }
 
     /**
-     * Monta $html com definições do Grid
+     * Realiza consulta do saldo do empenho no SIAFI de um dado empenho + subitem
      *
-     * @return \Yajra\DataTables\Html\Builder
+     * @param array $registro
+     * @return number|string
      */
-    private function retornaGrid()
+    private function consultaSaldoSiafi($registro)
     {
-        $html = $this->htmlBuilder;
+        // Valores fixos
+        $amb = 'PROD';
+        $contacontabil1 = config('app.conta_contabil');
+        $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
 
-        $html->addColumn([
-            'data' => 'empenho',
-            'name' => 'empenho',
-            'title' => 'Nº do Empenho'
-        ]);
-        $html->addColumn([
-            'data' => 'subitem',
-            'name' => 'subitem',
-            'title' => 'Sub Item'
-        ]);
-        $html->addColumn([
-            'data' => 'fonte',
-            'name' => 'fonte',
-            'title' => 'Fonte'
-        ]);
-        $html->addColumn([
-            'data' => 'saldo_necessario',
-            'name' => 'saldo_necessario',
-            'title' => 'Saldo Necessário',
-            // 'type' => 'html',
-            'class' => 'text-right'
-        ]);
-        $html->addColumn([
-            'data' => 'saldo_atual',
-            'name' => 'saldo_atual',
-            'title' => 'Saldo Atual',
-            'class' => 'text-right'
-        ]);
-        $html->addColumn([
-            'data' => 'utilizacao',
-            'name' => 'utilizacao',
-            'title' => 'Utilização'
-        ]);
+        $ug = $registro['ug'];
+        $ano = $registro['ano'];
+        $mes = $meses[(int) $registro['mes']];
+        $empenho = $registro['empenho'];
+        $subitem = $registro['subitem'];
 
-        $html->parameters([
-            'processing' => true,
-            'serverSide' => true,
-            'responsive' => true,
-            'info' => true,
-            'autoWidth' => true,
-            'paging' => true,
-            'lengthChange' => true,
-            'language' => [
-                'url' => asset('/json/pt_br.json')
-            ]
-        ]);
+        $contacorrente = 'N' . $empenho . str_pad($subitem, 2, '0', STR_PAD_LEFT);
+        $saldoAtual = 0;
 
-        return $html;
+        try {
+            $execsiafi = new Execsiafi();
+
+            $retorno = null;
+            $retorno = $execsiafi->conrazao($ug, $amb, $ano, $ug, $contacontabil1, $contacorrente, $mes);
+
+            if (isset($retorno->resultado[4])) {
+                $saldoAtual = (string) $retorno->resultado[4];
+            }
+        } catch (Exception $e) {
+            // dd('Erro no validaSaldo()', $e);
+        }
+
+        return $saldoAtual;
     }
+
+    /**
+     * Grava registro com a atualização do saldo consultado
+     * 
+     * @param string $empenho
+     * @param string $subitem
+     * @param number $saldo
+     */
+    private function atualizaSaldo($empenho, $subitem, $saldo)
+    {
+        $ug = session('user_ug_id');
+
+        $modelo = new Empenhodetalhado();
+
+        $dados = $modelo->leftjoin('empenho as E', 'E.id', '=', 'empenho_id');
+
+        $dados->where('E.unidade_id', $ug);
+        $dados->where('E.numero', $empenho);
+        $dados->where('subitem', $subitem);
+
+        // Atualiza saldo
+        $dados->update(['empaliquidar' => $saldo]);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     /**
      * Valida saldo por registro dos $dados
@@ -170,12 +184,8 @@ class Passo4Controller extends BaseController
      * @param mixed $params
      * @return mixed
      */
-    private function validaSaldo($dados)
+    private function validaSaldo_OLD($dados)
     {
-        session([
-            'apropriacao.valida.saldo.avanca' => 'true'
-        ]);
-
         // Valores fixos
         $amb = 'PROD';
         $contacontabil1 = config('app.conta_contabil');
@@ -206,7 +216,9 @@ class Passo4Controller extends BaseController
 
             if ($registro['saldo_necessario'] > $saldoAtual) {
                 $dados[$count]['utilizacao'] = self::SALDO_INSUFICIENTE;
-                session(['apropriacao.valida.saldo.avanca' => 'false']);
+                session([
+                    'apropriacao.valida.saldo.avanca' => 'false'
+                ]);
             }
             $count ++;
         }

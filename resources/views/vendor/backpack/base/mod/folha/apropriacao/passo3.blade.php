@@ -14,7 +14,6 @@
     </section>
 @endsection
 
-
 @section('content')
 	@include('backpack::mod.folha.apropriacao.cabecalho')
 	
@@ -32,7 +31,6 @@
     </div>
     
     @include('backpack::mod.folha.apropriacao.botoes')
-    
 @endsection
 
 @push('after_scripts')
@@ -50,7 +48,7 @@
 					// Passagem do token no header
 			    	'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 		    	},
-		    	url: '/folha/apropriacao/ne/' + id + '/' + valor,
+		    	url: '/folha/apropriacao/empenho/atualiza/' + id + '/' + valor,
 		    	success: function(retorno) {
 			    	// alert('Update...');
 		    	},
