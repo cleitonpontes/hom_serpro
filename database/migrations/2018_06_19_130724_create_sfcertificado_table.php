@@ -18,8 +18,11 @@ class CreateSfcertificadoTable extends Migration
             $table->string('certificado');
             $table->string('chaveprivada');
             $table->date('vencimento');
-            $table->string('situacao');
+            $table->boolean('situacao');
             $table->timestamps();
+
+            $table->softDeletes();
+
         });
     }
 

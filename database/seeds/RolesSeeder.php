@@ -56,6 +56,9 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'situacaosiafi_inserir']);
         Permission::create(['name' => 'situacaosiafi_editar']);
         Permission::create(['name' => 'situacaosiafi_deletar']);
+        Permission::create(['name' => 'sfcertificado_inserir']);
+        Permission::create(['name' => 'sfcertificado_editar']);
+        Permission::create(['name' => 'sfcertificado_deletar']);
 
 
 
@@ -103,6 +106,9 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('situacaosiafi_inserir');
         $role->givePermissionTo('situacaosiafi_editar');
         $role->givePermissionTo('situacaosiafi_deletar');
+        $role->givePermissionTo('sfcertificado_inserir');
+        $role->givePermissionTo('sfcertificado_editar');
+        $role->givePermissionTo('sfcertificado_deletar');
 
     }
 }

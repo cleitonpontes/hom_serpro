@@ -41,6 +41,7 @@ Route::group([
             CRUD::resource('orgao', 'OrgaoCrudController');
             CRUD::resource('unidade', 'UnidadeCrudController');
             CRUD::resource('codigo', 'CodigoCrudController');
+            CRUD::resource('sfcertificado', 'SfcertificadoCrudController');
 
             Route::group(['prefix' => 'codigo/{codigo_id}'], function () {
                 CRUD::resource('codigoitem', 'CodigoitemCrudController');

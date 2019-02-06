@@ -123,8 +123,8 @@ class Apropriacaosituacao extends Model
      */
     public function retornaDadosPasso6Pco($apid)
     {
-        $condicaoRaw = '"E"."execsfsituacao_id" is null';
-        $dados = $this->retornaDadosPasso6($apid, $condicaoRaw);
+        $categoriaDdp = 1; // 1 = PCO
+        $dados = $this->retornaDadosPasso6($apid, $categoriaDdp);
 
         return $dados;
     }
@@ -137,8 +137,8 @@ class Apropriacaosituacao extends Model
      */
     public function retornaDadosPasso6DespesaAnular($apid)
     {
-        $condicaoRaw = '"E"."execsfsituacao_id" is not null';
-        $dados = $this->retornaDadosPasso6($apid, $condicaoRaw);
+        $categoriaDdp = 2; // 2 = Despesas a anular
+        $dados = $this->retornaDadosPasso6($apid, $categoriaDdp);
 
         return $dados;
     }
@@ -262,10 +262,10 @@ class Apropriacaosituacao extends Model
      * Retorna dados básicos, pertinentes passo 6
      *
      * @param number $apid
-     * @param string $condicaoRaw
+     * @param number $categoria
      * @return array
      */
-    private function retornaDadosPasso6($apid, $condicaoRaw = '')
+    private function retornaDadosPasso6($apid, $categoria = '')
     {
         $listagem = $this->select([
             'A.ug',
@@ -286,8 +286,8 @@ class Apropriacaosituacao extends Model
         $listagem->where('apropriacao_id', $apid);
         $listagem->where('N.valor_rateado', '>', 0);
 
-        if ($condicaoRaw != '') {
-            $listagem->whereRaw($condicaoRaw);
+        if ($categoria != '') {
+            $listagem->where('E.categoria_ddp', $categoria);
         }
 
         $listagem->orderBy('A.ug');

@@ -50,7 +50,7 @@ class Apropriacaonotaempenho extends Model
     {
         return $this->hasMany('App\Models\Apropriacao', 'id');
     }
-    
+
     /**
      * Retorna dados da dos empenhos para validação do saldo
      *
@@ -59,40 +59,77 @@ class Apropriacaonotaempenho extends Model
      */
     public function retornaListagemPasso4ComSaldos($apropriacaoId)
     {
+        $dados = $this->retornaDadosBase($apropriacaoId);
+        
+        return $dados;
+    }
+
+    /**
+     * Faz verificação se pode ou não avançar para o pŕoximo passo 
+     * 
+     * @param number $apropriacaoId
+     * @return boolean
+     */
+    public function validarPasso4($apropriacaoId)
+    {
+        $dados = $this->retornaDadosBase($apropriacaoId);
+        
+        $semSaldos = array_column($dados, 'sem_saldo');
+        $qtde = array_sum($semSaldos);
+        
+        return $qtde == 0;
+    }
+
+    /**
+     * Retorna os dados básicos para a listagem do Passo 4
+     * 
+     * @param number $apropriacaoId
+     * @return array
+     */
+    private function retornaDadosBase($apropriacaoId)
+    {
         $ug = session('user_ug');
-        
-        $listagem = $this->where('A.ug', $ug);
-        $listagem->where('A.id', $apropriacaoId);
-        $listagem->where('valor_rateado', '>', 0);
-        
-        $listagem->leftjoin('apropriacoes_situacao as S', 'S.id', '=', 'apropriacao_situacao_id');
-        $listagem->leftjoin('apropriacoes AS A', 'A.id', '=', 'S.apropriacao_id');
-        $listagem->leftjoin('unidades AS U', function ($relacao) {
+
+        $dados = $this->where('A.ug', $ug);
+        $dados->where('A.id', $apropriacaoId);
+        $dados->where('X.categoria_ddp', 1); // 1 = PCO
+        $dados->where('valor_rateado', '>', 0);
+
+        $dados->leftjoin('apropriacoes_situacao as S', 'S.id', '=', 'apropriacao_situacao_id');
+        $dados->leftjoin('execsfsituacao as X', 'X.codigo', '=', 'S.situacao');
+        $dados->leftjoin('apropriacoes AS A', 'A.id', '=', 'S.apropriacao_id');
+        $dados->leftjoin('unidades AS U', function ($relacao) {
             $relacao->on('U.codigo', '=', 'A.ug');
         });
-        $listagem->leftjoin('empenhos AS E', function ($relacao) {
+        $dados->leftjoin('empenhos AS E', function ($relacao) {
             $relacao->on('E.unidade_id', '=', 'U.id');
             $relacao->on('E.numero', '=', 'empenho');
         });
-        $listagem->leftjoin('naturezasubitem AS N', function ($relacao) {
+        $dados->leftjoin('naturezasubitem AS N', function ($relacao) {
             $relacao->on('N.codigo', '=', DB::raw('right("S"."conta", 2)'));
         });
-        $listagem->leftjoin('empenhodetalhado AS D', function ($relacao) {
+        $dados->leftjoin('empenhodetalhado AS D', function ($relacao) {
             $relacao->on('D.empenho_id', '=', 'E.id');
             $relacao->on('D.naturezasubitem_id' , '=', 'N.id');
         });
-        
-        $listagem->groupBy([
-            'A.competencia',
+
+        $dados->groupBy([
             'A.ug',
+            'A.competencia',
             'empenho',
-            'fonte',
             'S.conta',
-            'S.vpd',
+            'fonte',
             'D.empaliquidar'
         ]);
         
-        $listagem->select([
+        $dados->orderBy('A.ug');
+        $dados->orderBy('A.competencia');
+        $dados->orderBy('empenho');
+        $dados->orderBy('S.conta');
+        $dados->orderBy('fonte');
+        $dados->orderBy('D.empaliquidar');
+        
+        $dados->select([
             DB::raw('left("A"."competencia", 4) as ano'),
             DB::raw('right("A"."competencia", 2) as mes'),
             'A.ug',
@@ -101,47 +138,17 @@ class Apropriacaonotaempenho extends Model
             'S.conta',
             DB::raw('left("S"."conta", 6) as natureza'),
             DB::raw('right("S"."conta", 2) as subitem'),
-            'S.vpd',
             DB::raw('coalesce(sum(valor_rateado), 0) as saldo_necessario'),
-            DB::raw('"D"."empaliquidar" as saldo_atual')
+            DB::raw('"D"."empaliquidar" as saldo_atual'),
+            DB::raw('coalesce(sum(valor_rateado), 0) > "D"."empaliquidar" as sem_saldo')
         ]);
-
-        return $listagem->get()->toArray();
+        
+//        $sql = $dados->toSql();
+        // dd($sql);
+        
+        return $dados->get()->toArray();
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
     /**
      * Retorna todos os registros de empenhos por $id
      *
@@ -177,18 +184,18 @@ class Apropriacaonotaempenho extends Model
      * @param number $apropriacaoId
      * @return array
      */
-    public function retornaListagemPasso4($apropriacaoId)
+    public function retornaListagemPasso4_OLD($apropriacaoId)
     {
         $ug = session('user_ug');
 
-        $listagem = $this->where('A.ug', $ug);
-        $listagem->where('A.id', $apropriacaoId);
-        $listagem->where('valor_rateado', '>', 0);
+        $dados = $this->where('A.ug', $ug);
+        $dados->where('A.id', $apropriacaoId);
+        $dados->where('valor_rateado', '>', 0);
 
-        $listagem->leftjoin('apropriacoes_situacao as S', 'S.id', '=', 'apropriacao_situacao_id');
-        $listagem->leftjoin('apropriacoes AS A', 'A.id', '=', 'S.apropriacao_id');
+        $dados->leftjoin('apropriacoes_situacao as S', 'S.id', '=', 'apropriacao_situacao_id');
+        $dados->leftjoin('apropriacoes AS A', 'A.id', '=', 'S.apropriacao_id');
 
-        $listagem->groupBy([
+        $dados->groupBy([
             'A.competencia',
             'A.ug',
             'empenho',
@@ -197,7 +204,7 @@ class Apropriacaonotaempenho extends Model
             'S.vpd'
         ]);
 
-        $listagem->select([
+        $dados->select([
             DB::raw('left("A"."competencia", 4) as ano'),
             DB::raw('right("A"."competencia", 2) as mes'),
             'A.ug',
@@ -210,11 +217,11 @@ class Apropriacaonotaempenho extends Model
             DB::raw('sum(valor_rateado) as saldo_necessario'),
             DB::raw('0 as saldo_atual')
         ]);
-        
-        $sql = $listagem->toSql();
+
+        $sql = $dados->toSql();
         dd($sql);
 
-        return $listagem->get()->toArray();
+        return $dados->get()->toArray();
     }
 
     /**

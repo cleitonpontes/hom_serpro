@@ -39,11 +39,24 @@ class Execsiafi
         }
 
 
-        $certificado = SfCertificado::where('situacao', 'Ativo')->orderBy('id','desc')->first();
+        $certificado = SfCertificado::where('situacao', '=', 1)->orderBy('id','desc')->first();
+
+        $dado = null;
+        foreach ($certificado->chaveprivada as $c){
+            $dado = explode('/',$c);
+        }
+        $chave = $dado[0][2];
+
+        $dado = null;
+        foreach ($certificado->certificado as $c){
+            $dado = explode('/',$c);
+        }
+        $cert = $dado[0][2];
+
 
         //certificado
-        $key = env('APP_PATH').env('APP_PATH_CERT'). $certificado->chaveprivada;
-        $crtkey    = env('APP_PATH').env('APP_PATH_CERT'). $certificado->certificado;
+        $key = env('APP_PATH').env('APP_PATH_CERT'). $chave;
+        $crtkey    = env('APP_PATH').env('APP_PATH_CERT'). $cert;
 
 
         $context = stream_context_create([

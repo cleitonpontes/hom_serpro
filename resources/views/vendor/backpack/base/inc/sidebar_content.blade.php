@@ -98,7 +98,7 @@
             <ul class="treeview-menu">
                 <li><a href='{{ backpack_url('/admin/codigo') }}'><i class='fa fa-gear'></i>
                         <span>Códigos e Itens</span></a></li>
-                <li><a href="{{ backpack_url('/admin/certificadosf') }}"><i class="fa fa-lock"></i> <span>Certificado Siafi</span></a>
+                <li><a href="{{ backpack_url('/admin/sfcertificado') }}"><i class="fa fa-lock"></i> <span>Certificado Siafi</span></a>
                 </li>
             </ul>
         </li>

@@ -29,6 +29,7 @@ class CreateAtualizaSaldosFunction extends Migration
         $sql .= '    FROM ';
         $sql .= '        ( ';
         $sql .= '        SELECT ';
+        $sql .= '            empenho_id, ';
         $sql .= '            coalesce(sum(empaliquidar), 0)               as aliquidar, ';
         $sql .= '            coalesce(sum(empliquidado), 0)               as liquidado, ';
         $sql .= '            coalesce(sum(emppago), 0)                    as pago, ';
@@ -42,7 +43,9 @@ class CreateAtualizaSaldosFunction extends Migration
         $sql .= '            empenho_id = new.empenho_id ';
         $sql .= '        GROUP BY ';
         $sql .= '            empenho_id ';
-        $sql .= '        ) origem; ';
+        $sql .= '        ) origem ';
+        $sql .= '    WHERE ';
+        $sql .= '        id = origem.empenho_id; ';
         $sql .= '';
         $sql .= '    RETURN NULL; ';
         $sql .= 'END; ';
