@@ -1,15 +1,21 @@
-@extends('adminlte::layouts.app')
+@extends('backpack::layout')
 
-@push('breadcrumb')
-    {{ Breadcrumbs::render() }}
-@endpush
-
-@section('htmlheader_title')
-    {{ trans('adminlte_lang::message.users') }}
+@section('header')
+    <section class="content-header">
+        <h1>
+            Folha
+            <small>Apropriação</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>
+            <li>Folha</li>
+            <li class="active">Apropriação</li>
+        </ol>
+    </section>
 @endsection
 
-@section('main-content')
-	@include('adminlte::mod.folha.apropriacao.cabecalho')
+@section('content')
+	@include('backpack::mod.folha.apropriacao.cabecalho')
 	
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
@@ -26,19 +32,20 @@
                 </div>
                 
                 <div class="box-body">
-                    <fieldset class="form-group">
-                    	<?php
-                    	// TODO: Informar a correta rota para a geração do XML 
-                    	?>
-                    	{!! Button::primary('<i class="fa fa-file"></i> Apropriar SIAFI')
-                    		->asLinkTo(route('folha.apropriacao.passo.1'))
-                		!!}
-                    </fieldset>
+                    <br />
+                    
+                    <div class="row">
+                    	<div class="col-md-12 text-center">
+                        	{!! Button::success('<i class="fa fa-file"></i> Apropriar SIAFI')
+                    			->asLinkTo(route('folha.apropriacao.passo.1'))
+                			!!}
+                    	</div>
+                	</div>
+                	<br />
                 </div>
             </div>
         </div>
     </div>
     
-    @include('adminlte::mod.folha.apropriacao.botoes')
-    
+    @include('backpack::mod.folha.apropriacao.botoes')
 @endsection

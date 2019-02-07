@@ -101,6 +101,8 @@ Route::group(
             Route::get('/apropriacao/remove/{id}', 'ApropriacaoController@remove')
                 ->name('apropriacao.excluir.id')
                 ->middleware('permission:folha_apropriacao_deletar');
+            Route::get('/apropriacao/relatorio/{apid}', 'ApropriacaoController@relatorio')
+                ->name('apropriacao.relatorio');
 
             /**
              *

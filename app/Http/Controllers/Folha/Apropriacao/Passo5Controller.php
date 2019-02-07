@@ -43,7 +43,7 @@ class Passo5Controller extends BaseController
             'model' => $apropriacao
         ]);
 
-        return view('adminlte::mod.folha.apropriacao.passo5', compact('form'));
+        return view('backpack::mod.folha.apropriacao.passo5', compact('form'));
     }
 
     /**

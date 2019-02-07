@@ -152,8 +152,8 @@ class Apropriacao extends Model
             'observacoes'
         ]);
         
-        $listagem->leftjoin('unidade as U', 'U.codigo', '=', 'apropriacoes.ug');
-        $listagem->leftjoin('orgao as O', 'O.id', '=', 'U.orgao_id');
+        $listagem->leftjoin('unidades as U', 'U.codigo', '=', 'apropriacoes.ug');
+        $listagem->leftjoin('orgaos as O', 'O.id', '=', 'U.orgao_id');
         
         $listagem->where('ug', $ug);
         $listagem->where('apropriacoes.id', $apid);

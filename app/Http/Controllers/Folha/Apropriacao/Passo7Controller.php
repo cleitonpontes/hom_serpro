@@ -30,6 +30,6 @@ class Passo7Controller extends BaseController
      */
     public function gerarXml($id)
     {
-        return view('adminlte::mod.folha.apropriacao.passo7');
+        return view('backpack::mod.folha.apropriacao.passo7');
     }
 }

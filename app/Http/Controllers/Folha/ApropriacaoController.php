@@ -134,7 +134,7 @@ class ApropriacaoController extends BaseController
         $modeloDespesa = new SfDespesaAnular();
         $despesas = $modeloDespesa->retornaDadosRelatorioApropriacao($apid);
         
-        return view('adminlte::mod.folha.apropriacao.relatorio', compact('apid', 'apropriacao', 'pcos', 'despesas'));
+        return view('backpack::mod.folha.apropriacao.relatorio', compact('apid', 'apropriacao', 'pcos', 'despesas'));
     }
     
     /**

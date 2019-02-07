@@ -193,7 +193,7 @@ class Passo3Controller extends BaseController
             'paging' => true,
             'lengthChange' => true,
             'language' => [
-                'url' => asset('/json/pt_br.json')
+                'url' => "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese-Brasil.json"
             ]
         ]);
         
@@ -220,7 +220,7 @@ class Passo3Controller extends BaseController
             $qtdeEmpenhosNulos = session('identificacao.empenho.qtde.nulos', 0);
             
             $empenhos .= '<a href=';
-            $empenhos .= route('crud.empenho.index');
+            $empenhos .= route('execsiafi.empenho');
             $empenhos .= '>';
             $empenhos .= 'Cadastrar NE';
             $empenhos .= '</a>';

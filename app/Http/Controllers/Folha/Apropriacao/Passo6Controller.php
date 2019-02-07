@@ -42,7 +42,7 @@ class Passo6Controller extends BaseController
      */
     public function index(Request $request, $apid)
     {
-        return view('adminlte::mod.folha.apropriacao.passo6', compact('apid'));
+        return view('backpack::mod.folha.apropriacao.passo6', compact('apid'));
     }
 
     /**
@@ -213,7 +213,7 @@ class Passo6Controller extends BaseController
 
         $dadosPadrao['fk'] = $apid;
         $dadosPadrao['categoriapadrao'] = 'EXECFOLHA';
-        $dadosPadrao['decricaopadrao'] = Auth::user()->username;
+        $dadosPadrao['decricaopadrao'] = backpack_user()->cpf;
         $dadosPadrao['codugemit'] = $ug;
         $dadosPadrao['anodh'] = $ano;
         $dadosPadrao['codtipodh'] = 'FL';
