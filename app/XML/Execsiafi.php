@@ -2,7 +2,7 @@
 
 namespace App\XML;
 
-use App\Models\SfCertificado;
+use App\Models\Sfcertificado;
 use App\Models\SfNonce;
 
 class Execsiafi
