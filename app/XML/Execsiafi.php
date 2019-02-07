@@ -45,16 +45,13 @@ class Execsiafi
         foreach ($certificado->chaveprivada as $c){
             $dado = explode('/',$c);
         }
-        $chave = $dado[0][2];
+        $chave = $dado[2];
 
         $dado = null;
         foreach ($certificado->certificado as $c){
             $dado = explode('/',$c);
         }
-        $cert = $dado[0][2];
-
-        $chave = "125133201902065c5ad85573449.txt";
-        $cert = "125133201902065c5ad8556ab5a.txt";
+        $cert = $dado[2];
 
         //certificado
         $key = env('APP_PATH').env('APP_PATH_CERT'). $chave;
