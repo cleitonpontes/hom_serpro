@@ -144,6 +144,8 @@ Route::group(
                 ->middleware('permission:folha_apropriacao_passo');
             Route::put('/apropriacao/empenho/saldo/{ug}/{ano}/{mes}/{empenho}/{subitem}', 'Apropriacao\Passo4Controller@atualiza')
                 ->name('apropriacao.passo.4.empenho.saldo');
+            Route::put('/apropriacao/empenho/saldo/todos/{apid}', 'Apropriacao\Passo4Controller@atualizaTodos')
+                ->name('apropriacao.passo.4.empenho.saldo.todos');
             Route::get('/apropriacao/passo/4/avanca/apid/{apid}', 'Apropriacao\Passo4Controller@avancaPasso')
                 ->name('apropriacao.passo.4.avanca')
                 ->middleware('permission:folha_apropriacao_passo');

@@ -96,22 +96,19 @@ class Apropriacaonotaempenho extends Model
         $dados->where('valor_rateado', '>', 0);
 
         $dados->leftjoin('apropriacoes_situacao as S', 'S.id', '=', 'apropriacao_situacao_id');
-        $dados->leftjoin('execsfsituacao as X', 'X.codigo', '=', 'S.situacao');
         $dados->leftjoin('apropriacoes AS A', 'A.id', '=', 'S.apropriacao_id');
-        $dados->leftjoin('unidades AS U', function ($relacao) {
-            $relacao->on('U.codigo', '=', 'A.ug');
-        });
+        $dados->leftjoin('unidades AS U', 'U.codigo', '=', 'A.ug');
         $dados->leftjoin('empenhos AS E', function ($relacao) {
-            $relacao->on('E.unidade_id', '=', 'U.id');
             $relacao->on('E.numero', '=', 'empenho');
+            $relacao->on('E.unidade_id', '=', 'U.id');
         });
-        $dados->leftjoin('naturezasubitem AS N', function ($relacao) {
-            $relacao->on('N.codigo', '=', DB::raw('right("S"."conta", 2)'));
+        $dados->leftjoin('naturezadespesa AS N', 'N.codigo', '=', DB::raw('left("S"."conta", 6)'));
+        $dados->leftjoin('naturezasubitem AS I', function ($relacao) {
+            $relacao->on('I.codigo', '=', DB::raw('right("S"."conta", 2)'));
+            $relacao->on('I.naturezadespesa_id', '=', 'N.id');
         });
-        $dados->leftjoin('empenhodetalhado AS D', function ($relacao) {
-            $relacao->on('D.empenho_id', '=', 'E.id');
-            $relacao->on('D.naturezasubitem_id' , '=', 'N.id');
-        });
+        $dados->leftjoin('empenhodetalhado AS D', 'D.naturezasubitem_id', '=', 'I.id');
+        $dados->leftjoin('execsfsituacao as X', 'X.codigo', '=', 'S.situacao');
 
         $dados->groupBy([
             'A.ug',
@@ -121,14 +118,14 @@ class Apropriacaonotaempenho extends Model
             'fonte',
             'D.empaliquidar'
         ]);
-        
+
         $dados->orderBy('A.ug');
         $dados->orderBy('A.competencia');
         $dados->orderBy('empenho');
         $dados->orderBy('S.conta');
         $dados->orderBy('fonte');
         $dados->orderBy('D.empaliquidar');
-        
+
         $dados->select([
             DB::raw('left("A"."competencia", 4) as ano'),
             DB::raw('right("A"."competencia", 2) as mes'),
@@ -142,10 +139,10 @@ class Apropriacaonotaempenho extends Model
             DB::raw('"D"."empaliquidar" as saldo_atual'),
             DB::raw('coalesce(sum(valor_rateado), 0) > "D"."empaliquidar" as sem_saldo')
         ]);
-        
-//        $sql = $dados->toSql();
+
+        $sql = $dados->toSql();
         // dd($sql);
-        
+
         return $dados->get()->toArray();
     }
     

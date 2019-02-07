@@ -32,11 +32,12 @@ $saldoPositivo = '<span style="color: blue">Saldo suficiente</span>';
         	<div class="text-right">
         		<button type="button"
         				id="btnAtualizaTodosSaldos"
+        				data-apid="{{ $apid }}"
         				class="btn btn-danger">
         			<i class="fa fa-repeat"></i>
         			Atualizar todos os Saldos
         		</button>
-        		
+
         	</div>
             <br/>
             <table id="datatable" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
@@ -52,39 +53,39 @@ $saldoPositivo = '<span style="color: blue">Saldo suficiente</span>';
                         <th class="text-right"> Ação </th>
                     </tr>
                 </thead>
-                
+
                 <tbody>
                 	@foreach($empenhos as $registro)
                 	<?php
                 	$seq++;
-                	
+
                     // Campos para exibição
                     $empenho = $registro['empenho'];
                     $subitem = $registro['subitem'];
                     $fonte = $registro['fonte'];
                     $saldoNecessario = $registro['saldo_necessario'];
                     $saldoAtual = $registro['saldo_atual'];
-                    
+
                     // Validação para utilização
                     $bSaldo = $saldoAtual >= $saldoNecessario;
-                    
+
                     // Outras variáveis/campos auxiliares
                     $saldoNecessarioFormatado = retornaValorFormatado($saldoNecessario);
                     $saldoAtualFormatado = retornaValorFormatado($saldoAtual);
                     $status = $bSaldo ? $saldoPositivo : $saldoNegativo;
-                    
+
                     $neId = $empenho . '_' . $subitem;
                     $registroId = $neId . '_' . $seq;
                     $btnClasse = $bSaldo ? 'btn-light' : 'btn-danger';
                     $habilita = $bSaldo ? 'disabled' : '';
-                    
+
                     // Botão para atualização do saldo
                     $ug = $registro['ug'];
                     $ano = $registro['ano'];
                     $mes = $registro['mes'];
-                    
+
                     ?>
-                    
+
                     <tr>
                         <td> {{ $seq }} </td>
                         <td> {{ $empenho }} </td>
@@ -123,7 +124,7 @@ $saldoPositivo = '<span style="color: blue">Saldo suficiente</span>';
             <br />
         </div>
     </div>
-    
+
     @include('backpack::mod.folha.apropriacao.botoes')
 @endsection
 
@@ -228,6 +229,29 @@ $saldoPositivo = '<span style="color: blue">Saldo suficiente</span>';
 				}
     		});
     	}
+
+    	$('#btnAtualizaTodosSaldos').click(function() {
+        	var apid = $(this).data('apid');
+
+        	$(document.body).css({ 'cursor': 'wait' });
+
+			$.ajax({
+		    	type: 'PUT',
+		    	dataType: 'text',
+		    	headers: {
+					// Passagem do token no header
+			    	'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		    	},
+		    	url: '/folha/apropriacao/empenho/saldo/todos/' + apid,
+		    	success: function(retorno) {
+		    		$(document.body).css({ 'cursor': 'default' });
+		    		window.location='/folha/apropriacao/passo/4/apid/' + apid;
+		    	},
+		    	error: function(e) {
+		    		$(document.body).css({ 'cursor': 'default' });
+		    	}
+	    	});
+    	});
 	</script>
 @endpush
 

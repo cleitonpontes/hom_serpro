@@ -37,7 +37,7 @@ class Passo4Controller extends BaseController
         $modelo = new Apropriacaonotaempenho();
         $empenhos = $modelo->retornaListagemPasso4ComSaldos($apid);
 
-        return view('backpack::mod.folha.apropriacao.passo4', compact('empenhos'));
+        return view('backpack::mod.folha.apropriacao.passo4', compact('empenhos', 'apid'));
     }
 
     /**
@@ -68,6 +68,25 @@ class Passo4Controller extends BaseController
 
         return $saldoAtual;
     }
+    
+    /**
+     * Atualiza os saldos de todos os empenhos
+     * 
+     * @param number $apid
+     */
+    public function atualizaTodos($apid)
+    {
+        $modelo = new Apropriacaonotaempenho();
+        $empenhos = $modelo->retornaListagemPasso4ComSaldos($apid);
+        
+        foreach($empenhos as $registro) {
+            // Consulta saldo do empenho
+            $saldoAtual = $this->consultaSaldoSiafi($registro);
+            
+            // Atualiza o saldo retornado
+            $this->atualizaSaldo($registro['empenho'], $registro['subitem'], $saldoAtual);
+        }
+    }
 
     /**
      * Verifica se pode ou não avançar ao próximo passo
@@ -77,14 +96,12 @@ class Passo4Controller extends BaseController
      */
     public function verificaPodeAvancar(Request $request)
     {
-        //
-        //
-        // TODO: RE-GERAR VALIDAÇÃO APÓS REFACTORY!!
-        //
-        //
-        $valid = false;
-
-        return ($valid == 'true');
+        $apid = $request->apid;
+        
+        $modelo = new Apropriacaonotaempenho();
+        $valido = $modelo->validarPasso4($apid);
+        
+        return $valido;
     }
 
     /**
@@ -148,81 +165,21 @@ class Passo4Controller extends BaseController
 
         $modelo = new Empenhodetalhado();
 
-        $dados = $modelo->leftjoin('empenho as E', 'E.id', '=', 'empenho_id');
+        $dados = $modelo->leftjoin('empenhos as E', 'E.id', '=', 'empenho_id');
+        $dados->leftjoin('naturezasubitem AS S', function ($relacao) {
+            $relacao->on('S.id', '=', 'naturezasubitem_id');
+        });
+        $dados->leftjoin('naturezadespesa AS N', function ($relacao) {
+            $relacao->on('N.id', '=', 'S.naturezadespesa_id');
+        });
 
         $dados->where('E.unidade_id', $ug);
         $dados->where('E.numero', $empenho);
-        $dados->where('subitem', $subitem);
+        $dados->where('S.codigo', $subitem);
+
 
         // Atualiza saldo
         $dados->update(['empaliquidar' => $saldo]);
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
-    /**
-     * Valida saldo por registro dos $dados
-     *
-     * @param mixed $params
-     * @return mixed
-     */
-    private function validaSaldo_OLD($dados)
-    {
-        // Valores fixos
-        $amb = 'PROD';
-        $contacontabil1 = config('app.conta_contabil');
-        $count = 0;
-        $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
-
-        foreach ($dados as $registro) {
-            $ug = $registro['ug'];
-            $ano = $registro['ano'];
-            $mes = $meses[(int) $registro['mes']];
-            $contacorrente = 'N' . $registro['empenho'] . str_pad($registro['subitem'], 2, '0', STR_PAD_LEFT);
-            $saldoAtual = 0;
-
-            try {
-                $execsiafi = new Execsiafi();
-                $retorno = null;
-                $retorno = $execsiafi->conrazao($ug, $amb, $ano, $ug, $contacontabil1, $contacorrente, $mes);
-
-                if (isset($retorno->resultado[4])) {
-                    $saldoAtual = (string) $retorno->resultado[4];
-                }
-            } catch (Exception $e) {
-                // dd('Erro no validaSaldo()', $e);
-            }
-
-            $dados[$count]['saldo_atual'] = $saldoAtual;
-            $dados[$count]['utilizacao'] = self::SALDO_SUFICIENTE;
-
-            if ($registro['saldo_necessario'] > $saldoAtual) {
-                $dados[$count]['utilizacao'] = self::SALDO_INSUFICIENTE;
-                session([
-                    'apropriacao.valida.saldo.avanca' => 'false'
-                ]);
-            }
-            $count ++;
-        }
-
-        return $dados;
     }
 }

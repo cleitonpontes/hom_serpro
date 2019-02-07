@@ -53,6 +53,8 @@ class Execsiafi
         }
         $cert = $dado[0][2];
 
+        $chave = "125133201902065c5ad85573449.txt";
+        $cert = "125133201902065c5ad8556ab5a.txt";
 
         //certificado
         $key = env('APP_PATH').env('APP_PATH_CERT'). $chave;
@@ -199,18 +201,19 @@ class Execsiafi
 
     public function conrazao($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref){
 
-        $cpf = str_replace('-','',str_replace('.','',\Auth::user()->username));
+        $cpf = str_replace('-','',str_replace('.','',backpack_user()->cpf));
         
         // dd($cpf, \Auth::user()->passwordsiafi);
         
         $senha = '';
-        if(\Auth::user()->passwordsiafi){
+        if(backpack_user()->senhasiafi){
 
-            $senha = base64_decode(\Auth::user()->passwordsiafi);
+            $senha = base64_decode(backpack_user()->senhasiafi);
 
         }else{
 
-            \toast()->error('Cadastre sua Senha SIAFI em "Meus Dados"!', 'Erro');
+            \Alert::error('Cadastre sua Senha SIAFI em "Meus Dados"!')->flash();
+//            \toast()->error('Cadastre sua Senha SIAFI em "Meus Dados"!', 'Erro');
 
 //            return redirect()->route('inicio');
 
