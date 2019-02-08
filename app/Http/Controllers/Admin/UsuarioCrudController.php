@@ -32,11 +32,16 @@ class UsuarioCrudController extends CrudController
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuario');
         $this->crud->setEntityNameStrings('usuario', 'usuarios');
+
+
         $this->crud->enableExportButtons();
-        $this->crud->enableAjaxTable();
-//        $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-//        $this->crud->addButtonFromView('line', 'moreusuario', 'moreusuario', 'end');
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
+
+        (backpack_user()->can('usuario_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('usuario_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('usuario_deletar')) ? $this->crud->allowAccess('delete') : null;
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Columns
