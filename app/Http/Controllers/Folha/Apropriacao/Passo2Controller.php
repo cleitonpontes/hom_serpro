@@ -178,7 +178,8 @@ class Passo2Controller extends BaseController
             'serverSide' => true,
             'responsive' => true,
             'info' => true,
-            'autoWidth' => true,
+            'autoWidth' => false,
+            'bAutoWidth' => false,
             'paging' => true,
             'lengthChange' => true,
             'language' => [
