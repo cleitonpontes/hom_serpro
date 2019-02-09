@@ -32,7 +32,8 @@ class BaseController extends Controller
     public function __construct(Builder $htmlBuilder)
     {
         $this->htmlBuilder = $htmlBuilder;
-        $this->middleware('web');
+        backpack_auth()->check();
+//        $this->middleware('web');
     }
 
     /**

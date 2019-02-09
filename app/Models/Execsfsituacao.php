@@ -24,7 +24,6 @@ class Execsfsituacao extends Model
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'id',
         'codigo',
         'descricao',
         'execsfsituacao_id',

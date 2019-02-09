@@ -25,8 +25,20 @@ class ExecsfsituacaoRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+
+        $execsfsituacao_id = '';
+
+        if($this->aba == 'DESPESA_ANULAR'){
+            $execsfsituacao_id = 'required';
+        }
+
         return [
-            // 'name' => 'required|min:5|max:255'
+            'codigo' => "required|unique:execsfsituacao,codigo,{$id}",
+            'descricao' => 'required',
+            'aba' => 'required',
+            'execsfsituacao_id' => $execsfsituacao_id,
+            'status' => 'required'
         ];
     }
 
@@ -50,7 +62,12 @@ class ExecsfsituacaoRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'codigo.required' => 'O campo "Código" é obrigatório!',
+            'codigo.unique' => 'Este "Código" já está cadastrado!',
+            'descricao.required' => 'O campo "Descriçao" é obrigatório!',
+            'aba.required' => 'O campo "Aba" é obrigatório!',
+            'execsfsituacao_id.required' => 'O campo "Anula Situação" é obrigatório!',
+            'status.required' => 'O campo "Situação" é obrigatório!',
         ];
     }
 }

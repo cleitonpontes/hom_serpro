@@ -8,6 +8,26 @@ return [
     'situacao_despesa_anular' => 'DESPESA_ANULAR',
     'erro_permissao' => 'Acesso negado - você não possui a permissão necessária para acessar esta página.<br \> <a href="javascript:history.back()" \'="">Voltar</a>',
 
+    'abas' => [
+        "CREDITO" => "Créditos",
+        "DEDUCAO" => "Deduções",
+        "DESPESA_ANULAR" => "Despesa a Anular",
+        "ENCARGO" => "Encargos",
+        "PCO" => "Principal com Orçamento",
+        "PSO" => "Principal sem Orçamento",
+        "OUTROSLANCAMENTOS" => "Outros Lançamentos",
+    ],
+
+    'aba_x_categoria_ddp' => [
+        "1" => "PCO",
+        "2" => "DESPESA_ANULAR",
+        "3" => "DEDUCAO",
+        "4" => "PSO",
+        "6" => "ENCARGO",
+        "7" => "OUTROSLANCAMENTOS",
+        "8" => "CREDITO",
+    ],
+
 
     /*
     |--------------------------------------------------------------------------

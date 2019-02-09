@@ -18,6 +18,10 @@ class SfcertificadoCrudController extends CrudController
 {
     public function setup()
     {
+
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information

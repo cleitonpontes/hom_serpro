@@ -29,6 +29,12 @@ class UsuarioCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
+
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
+
+
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuario');
         $this->crud->setEntityNameStrings('usuario', 'usuarios');

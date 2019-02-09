@@ -105,22 +105,14 @@ class ExecsfsituacaoCrudController extends CrudController
             [
                 'name' => 'aba',
                 'label' => 'Aba',
-                'type' => 'text',
+                'type' => 'select_from_array',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'categoria_ddp',
-                'label' => 'Categoria DDP',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+                'options' => config('app.abas')
             ],
             [
                 'name' => 'status',
@@ -167,9 +159,11 @@ class ExecsfsituacaoCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [ // select_from_array
-                'name' => 'categoria_ddp',
-                'label' => "Categoria DDP",
-                'type' => 'categoriaddp',
+                'name' => 'aba',
+                'label' => "Aba",
+                'type' => 'select_from_array',
+                'options' => config('app.abas'),
+                'allows_null' => true,
             ],
             [ // select_from_array
                 'name' => 'status',
@@ -187,6 +181,22 @@ class ExecsfsituacaoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
+
+        $request->request->set(
+            'codigo',
+            strtoupper($request->input('codigo'))
+        );
+
+        $request->request->set(
+            'descricao',
+            strtoupper($request->input('descricao'))
+        );
+
+        $request->request->set(
+            'categoria_ddp',
+            array_search($request->input('aba'), config('app.aba_x_categoria_ddp'))
+        );
+
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -195,6 +205,20 @@ class ExecsfsituacaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $request->request->set(
+            'codigo',
+            strtoupper($request->input('codigo'))
+        );
+
+        $request->request->set(
+            'descricao',
+            strtoupper($request->input('descricao'))
+        );
+
+        $request->request->set(
+            'categoria_ddp',
+            array_search($request->input('aba'), config('app.aba_x_categoria_ddp'))
+        );
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
