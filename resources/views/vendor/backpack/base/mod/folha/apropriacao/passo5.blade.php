@@ -13,7 +13,9 @@
         </ol>
     </section>
 @endsection
-
+@php
+    $apid = Request()->apid;
+@endphp
 @section('content')
 	@include('backpack::mod.folha.apropriacao.cabecalho')
 	

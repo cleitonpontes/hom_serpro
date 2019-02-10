@@ -13,7 +13,9 @@
         </ol>
     </section>
 @endsection
-
+@php
+    $apid = Request()->apid;
+@endphp
 @section('content')
     @include('backpack::mod.folha.apropriacao.cabecalho')
     
@@ -101,14 +103,15 @@
 
 @push('after_scripts')
     <style type="text/css">
-        .azul {
-            color: blue;
-        }
-        
+        /*.azul {*/
+            /*color: blue;*/
+        /*}*/
+
         .vermelho {
             color: red;
         }
     </style>
+
 @endpush
 
 @push('after_scripts')

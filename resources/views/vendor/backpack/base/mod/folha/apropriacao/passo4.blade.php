@@ -20,7 +20,9 @@ $saldoPositivo = '<span style="color: blue">Saldo suficiente</span>';
         </ol>
     </section>
 @endsection
-
+@php
+    $apid = Request()->apid;
+@endphp
 @section('content')
     @include('backpack::mod.folha.apropriacao.cabecalho')
 

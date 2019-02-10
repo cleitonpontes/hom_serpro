@@ -34,8 +34,18 @@
 					@foreach($passos as $num => $descricao)
 						@php $cor = ($passo >= $num) ? 'azul' : ''; @endphp
     					<div class="btn btn-app" style="width: 108px;">
+                            @if($cor=="azul")
+                                @if($num == 1)
+                                    <a href="/folha/apropriacao">
+                                @else
+                                    <a href="/folha/apropriacao/passo/{{$num}}/apid/{{$apid}}">
+                                @endif
+                            @endif
                             <span class="circulo {{$cor}}">{{$num}}</span>
                             {!! $descricao !!}
+                            @if($cor=="azul")
+                                </a>
+                            @endif
     					</div>
 					@endforeach
 					
