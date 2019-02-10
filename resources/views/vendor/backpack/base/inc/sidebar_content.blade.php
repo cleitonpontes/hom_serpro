@@ -22,7 +22,7 @@
                         <span>Empenho</span></a></li>
                 <li><a href="{{ backpack_url('/execfin/situacaosiafi') }}"><i class="fa fa-list-ol"></i>
                         <span>Situação Siafi</span></a></li>
-                <li><a href="{{ backpack_url('/execfin/rubrica') }}"><i class="fa fa-list-ol"></i>
+                <li><a href="{{ backpack_url('/execfin/rhrubrica') }}"><i class="fa fa-list-ol"></i>
                         <span>Rubrica</span></a></li>
                 <li><a href="{{ backpack_url('/execfin/rhsituacao') }}"><i class="fa fa-list-ol"></i>
                         <span>RH - Situação</span></a></li>
