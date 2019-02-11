@@ -385,7 +385,7 @@ class Passo2Controller extends BaseController
         if($qtdeAchados == 0){
             $campo = '';
             $campo .= '<a href=';
-            $campo .= route('crud.empenho.create');
+            $campo .= route('crud.rhsituacao.index');
             $campo .= '>';
             $campo .= 'Cadastrar Situação';
             $campo .= '</a>';
