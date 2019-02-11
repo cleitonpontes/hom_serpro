@@ -20,6 +20,11 @@ class CreateApropriacoesSituacaoTable extends Migration
             $table->string('situacao', 8);
             $table->string('vpd', 9);
             $table->decimal('valor_agrupado', 15, 2)->default(0);
+
+            $table->foreign('apropriacao_id')
+                ->references('id')
+                ->on('apropriacoes')
+                ->onDelete('cascade');
         });
     }
 

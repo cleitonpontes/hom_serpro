@@ -31,6 +31,11 @@ class CreateApropriacoesImportacaoTable extends Migration
             // Marca o valor anterior da situação e vpd (quando o registro for atualizado após Passo 3)
             $table->string('situacao_original', 8)->nullable();
             $table->string('vpd_original', 9)->nullable();
+
+            $table->foreign('apropriacao_id')
+                ->references('id')
+                ->on('apropriacoes')
+                ->onDelete('cascade');
         });
     }
 
