@@ -40,7 +40,16 @@ class Rhsituacao extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getExecsfsituacao()
+    {
+        if ($this->execsfsituacao_id) {
+            $execsfsituacao = Execsfsituacao::find($this->execsfsituacao_id);
+            return $execsfsituacao->codigo . ' - ' . $execsfsituacao->descricao;
+        }else{
+            return '-';
+        }
 
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

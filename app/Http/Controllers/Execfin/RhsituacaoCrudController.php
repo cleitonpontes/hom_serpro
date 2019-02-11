@@ -34,13 +34,97 @@ class RhsituacaoCrudController extends CrudController
         */
 
         // TODO: remove setFromDb() and manually define Fields and Columns
-        $this->crud->setFromDb();
+        $colunas = $this->Colunas();
+        $this->crud->addColumns($colunas);
 
         // add asterisk for fields that are required in RhsituacaoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
+    public function Colunas()
+    {
+        $colunas = [
+            [
+                'name' => 'getExecsfsituacao',
+                'label' => 'Situação Siafi', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getExecsfsituacao', // the method in your Model
+                'orderable' => true,
+                'limit' => 1000,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'nd',
+                'label' => 'Natureza Despesa (ND)',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'nddesc',
+                'label' => 'Descrição ND',
+                'type' => 'text',
+                'limit' => 1000,
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'vpd',
+                'label' => 'VPD',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'vpddesc',
+                'label' => 'Descrição VPD',
+                'type' => 'text',
+                'limit' => 1000,
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'ddp_nivel',
+                'label' => 'DDP Nível',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'status',
+                'label' => 'Situação',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+        ];
 
+        return $colunas;
+
+    }
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
