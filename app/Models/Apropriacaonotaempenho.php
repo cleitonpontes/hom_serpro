@@ -116,6 +116,7 @@ class Apropriacaonotaempenho extends Model
             'empenho',
             'S.conta',
             'fonte',
+            'valor_rateado',
             'D.empaliquidar'
         ]);
 
@@ -135,13 +136,14 @@ class Apropriacaonotaempenho extends Model
             'S.conta',
             DB::raw('left("S"."conta", 6) as natureza'),
             DB::raw('right("S"."conta", 2) as subitem'),
-            DB::raw('coalesce(sum(valor_rateado), 0) as saldo_necessario'),
+//            DB::raw('coalesce(sum(valor_rateado), 0) as saldo_necessario'),
+            DB::raw('valor_rateado as saldo_necessario'),
             DB::raw('"D"."empaliquidar" as saldo_atual'),
             DB::raw('coalesce(sum(valor_rateado), 0) > "D"."empaliquidar" as sem_saldo')
         ]);
 
         $sql = $dados->toSql();
-        // dd($sql);
+//        dd($sql);
 
         return $dados->get()->toArray();
     }
