@@ -45,6 +45,7 @@ class Apropriacao extends Model
         'ateste',
         'nup',
         'doc_origem',
+        'centro_custo',
         'observacoes'
     ];
 

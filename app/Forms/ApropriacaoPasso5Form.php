@@ -18,15 +18,22 @@ class ApropriacaoPasso5Form extends Form
         ])
         ->add('nup', 'text', [
             'label' => 'N.U.P. (Número único de protocolo)',
-            'rules' => 'required|max:50'
+            'rules' => 'required|max:20'
         ])
         ->add('doc_origem', 'text', [
             'label' => 'Número do documento de origem',
-            'rules' => 'required|max:50'
+            'rules' => 'required|max:17'
+        ])
+        ->add('centro_custo', 'text', [
+            'label' => 'Cód. Centro de Custo',
+            'rules' => 'required|max:11',
+            'attr' => [
+                'onkeyup' => "maiuscula(this)"
+            ]
         ])
         ->add('observacoes', 'textarea', [
             'label' => 'Observações',
-            'rules' => 'required',
+            'rules' => 'required|max:468',
         ])
         ->add('importar', 'submit', [
             'label' => '<i class="fa fa-save"></i> Salvar',

@@ -25,6 +25,7 @@ class CreateApropriacoesTable extends Migration
             $table->date('ateste')->nullable();
             $table->string('nup', 50)->nullable();
             $table->string('doc_origem', 50)->nullable();
+            $table->string('centro_custo', 50)->nullable();
             $table->text('observacoes')->nullable();
         });
     }
