@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
         $user = \App\Models\BackpackUser::create([
             'name' => 'HELES RESENDE SILVA JÚNIOR',
             'cpf' => '700.744.021-53',
-            'email' => 'helesjunior@gmail.com',
+            'email' => 'heles.junior@agu.gov.br',
             'ugprimaria' => '8',
             'password' => bcrypt('123456'),
         ]);
