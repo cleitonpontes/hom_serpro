@@ -59,6 +59,15 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'sfcertificado_inserir']);
         Permission::create(['name' => 'sfcertificado_editar']);
         Permission::create(['name' => 'sfcertificado_deletar']);
+        Permission::create(['name' => 'rhsituacao_inserir']);
+        Permission::create(['name' => 'rhsituacao_editar']);
+        Permission::create(['name' => 'rhsituacao_deletar']);
+        Permission::create(['name' => 'rhrubrica_inserir']);
+        Permission::create(['name' => 'rhrubrica_editar']);
+        Permission::create(['name' => 'rhrubrica_deletar']);
+        Permission::create(['name' => 'rhsituacao_rhrubrica_inserir']);
+        Permission::create(['name' => 'rhsituacao_rhrubrica_editar']);
+        Permission::create(['name' => 'rhsituacao_rhrubrica_deletar']);
 
 
 
@@ -109,6 +118,15 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('sfcertificado_inserir');
         $role->givePermissionTo('sfcertificado_editar');
         $role->givePermissionTo('sfcertificado_deletar');
+        $role->givePermissionTo('rhsituacao_inserir');
+        $role->givePermissionTo('rhsituacao_editar');
+        $role->givePermissionTo('rhsituacao_deletar');
+        $role->givePermissionTo('rhrubrica_inserir');
+        $role->givePermissionTo('rhrubrica_editar');
+        $role->givePermissionTo('rhrubrica_deletar');
+        $role->givePermissionTo('rhsituacao_rhrubrica_inserir');
+        $role->givePermissionTo('rhsituacao_rhrubrica_editar');
+        $role->givePermissionTo('rhsituacao_rhrubrica_deletar');
 
     }
 }

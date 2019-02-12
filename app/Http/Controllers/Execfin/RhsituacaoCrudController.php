@@ -27,6 +27,16 @@ class RhsituacaoCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/execfin/rhsituacao');
         $this->crud->setEntityNameStrings('RH - Situação', 'RH - Situações');
 
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
+
+        (backpack_user()->can('rhsituacao_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('rhsituacao_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('rhsituacao_deletar')) ? $this->crud->allowAccess('delete') : null;
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
