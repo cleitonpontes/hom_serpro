@@ -1,11 +1,17 @@
 <?php
 namespace App\Models;
 
+use Backpack\CRUD\CrudTrait;
 use DB;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Apropriacaoimportacao extends Model
 {
+    use CrudTrait;
+    use LogsActivity;
+    protected static $logFillable = true;
+    protected static $logName = 'apropriacoes_importacao';
 
     /**
      * Informa que não utilizará os campos create_at e update_at do Laravel
