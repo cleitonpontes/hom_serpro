@@ -25,8 +25,14 @@ class RhrubricaRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+
         return [
-            // 'name' => 'required|min:5|max:255'
+             'codigo' => "required|unique:rhrubrica,codigo,{$id}",
+             'descricao' => 'required',
+             'criacao' => 'required',
+             'tipo' => 'required',
+             'situacao' => 'required',
         ];
     }
 
@@ -50,7 +56,12 @@ class RhrubricaRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'codigo.required' => 'O campo "Código" é obrigatório!',
+            'codigo.unique' => 'Este "Código" já está cadastrado!',
+            'descricao.required' => 'O campo "Descriçao" é obrigatório!',
+            'tipo.required' => 'O campo "Tipo" é obrigatório!',
+            'criacao.required' => 'O campo "Criação" é obrigatório!',
+            'situacao.required' => 'O campo "Situação" é obrigatório!',
         ];
     }
 }

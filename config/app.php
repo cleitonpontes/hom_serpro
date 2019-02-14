@@ -28,6 +28,17 @@ return [
         "8" => "CREDITO",
     ],
 
+    'tipo_rubrica' => [
+        "AMBAS" => "AMBAS",
+        "DESCONTO" => "DESCONTO",
+        "RENDIMENTO" => "RENDIMENTO",
+    ],
+
+    'situacao_rubrica' => [
+        "ATIVA" => "ATIVA",
+        "INATIVA" => "INATIVA",
+    ],
+
 
     /*
     |--------------------------------------------------------------------------

@@ -43,13 +43,123 @@ class RhrubricaCrudController extends CrudController
         */
 
         // TODO: remove setFromDb() and manually define Fields and Columns
-        $this->crud->setFromDb();
+        $colunas = $this->Colunas();
+        $this->crud->addColumns($colunas);
+
+        $campos = $this->Campos();
+        $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in RhrubricaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
+    public function Colunas()
+    {
+        $colunas = [
+            [
+                'name' => 'codigo',
+                'label' => 'Código',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'descricao',
+                'label' => 'Descrição',
+                'type' => 'text',
+                'limit' => 1000,
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'criacao',
+                'label' => 'Criação',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'tipo',
+                'label' => 'Tipo',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+            ],
+            [
+                'name' => 'situacao',
+                'label' => 'Situação',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+            ],
+        ];
 
+        return $colunas;
+
+    }
+
+    public function Campos()
+    {
+
+        $campos = [
+            [ // select_from_array
+                'name' => 'codigo',
+                'label' => "Código",
+                'type' => 'codigorubrica',
+                'attributes' => [
+                    'autofocus' => "autofocus",
+                ]
+            ],
+            [ // select_from_array
+                'name' => 'descricao',
+                'label' => "Descrição",
+                'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ]
+            ],
+            [ // select_from_array
+                'name' => 'criacao',
+                'label' => "Criação (MM/AAAA)",
+                'type' => 'criacaorubrica',
+
+            ],
+            [ // select_from_array
+                'name' => 'tipo',
+                'label' => "Tipo",
+                'type' => 'select_from_array',
+                'options' => config('app.tipo_rubrica'),
+                'allows_null' => true,
+            ],
+            [ // select_from_array
+                'name' => 'situacao',
+                'label' => "Situação",
+                'type' => 'select_from_array',
+                'options' => config('app.situacao_rubrica'),
+                'allows_null' => true,
+            ],
+
+        ];
+
+        return $campos;
+    }
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
