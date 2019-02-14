@@ -113,7 +113,11 @@ class Apropriacaonotaempenho extends Model
             $relacao->on('I.codigo', '=', DB::raw('right("S"."conta", 2)'));
             $relacao->on('I.naturezadespesa_id', '=', 'N.id');
         });
-        $dados->leftjoin('empenhodetalhado AS D', 'D.naturezasubitem_id', '=', 'I.id');
+        $dados->leftjoin('empenhodetalhado AS D', function ($relacao) {
+            $relacao->on('D.naturezasubitem_id', '=', 'I.id');
+            $relacao->on('D.empenho_id', '=', 'E.id');
+        });
+//        $dados->leftjoin('empenhodetalhado AS D', 'D.naturezasubitem_id', '=', 'I.id');
         $dados->leftjoin('execsfsituacao as X', 'X.codigo', '=', 'S.situacao');
 
         $dados->groupBy([
