@@ -3,6 +3,7 @@ $orgaoNome = $apropriacao['orgao_nome'];
 $ug = $apropriacao['ug'];
 $competencia = $apropriacao['competencia'];
 $nup = $apropriacao['nup'];
+$centro_custo = $apropriacao['centro_custo'];
 $docOrigem = $apropriacao['doc_origem'];
 $observacoes = $apropriacao['observacoes'];
 $vrBruto = $apropriacao['valor_bruto'];
@@ -101,7 +102,7 @@ $ordemDespesa = 1;
                             {{$nup}}
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-lg-2">
                         	<strong>
@@ -134,7 +135,18 @@ $ordemDespesa = 1;
                             {{$observacoes}}
                         </div>
                     </div>
-                    
+
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <strong>
+                                Centro de Custo:
+                            </strong>
+                        </div>
+                        <div class="col-lg-10">
+                            {{$centro_custo}}
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-lg-2">
                         	<strong>
@@ -183,8 +195,8 @@ $ordemDespesa = 1;
                                 <th nowrap> Descrição situação </th>
                                 <th> Empenho </th>
                                 <th nowrap class="text-right"> &nbsp; Sub item </th>
-                                <th class="text-right"> VPD </th>
                                 <th nowrap class="text-right"> &nbsp; Fonte </th>
+                                <th class="text-right"> VPD </th>
                                 <th class="text-right"> Valor </th>
                             </tr>
                         </thead>
@@ -198,8 +210,8 @@ $ordemDespesa = 1;
                                 <td> {{ ucwords(mb_strtolower($pco['descricao'])) }} </td>
                                 <td> {{ $pco['empenho'] }} </td>
                                 <td class="text-right"> {{ $pco['subitem'] }} </td>
-                                <td class="text-right"> {{ $pco['vpd'] }} </td>
                                 <td class="text-right"> {{ $pco['fonte'] }} </td>
+                                <td class="text-right"> {{ $pco['vpd'] }} </td>
                                 <td class="text-right"> {{ retornaValorFormatado($pco['valor']) }} </td>
                             </tr>
                             @endforeach
@@ -228,8 +240,8 @@ $ordemDespesa = 1;
                                 <th nowrap> Descrição situação </th>
                                 <th> Empenho </th>
                                 <th nowrap class="text-right"> &nbsp; Sub item </th>
-                                <th class="text-right"> VPD </th>
                                 <th nowrap class="text-right"> &nbsp; Fonte </th>
+                                <th class="text-right"> VPD </th>
                                 <th class="text-right"> Valor </th>
                             </tr>
                         </thead>
@@ -243,8 +255,8 @@ $ordemDespesa = 1;
                                 <td> {{ ucwords(mb_strtolower($despesa['descricao'])) }} </td>
                                 <td> {{ $despesa['empenho'] }} </td>
                                 <td class="text-right"> {{ $despesa['subitem'] }} </td>
-                                <td class="text-right"> {{ $despesa['vpd'] }} </td>
                                 <td class="text-right"> {{ $despesa['fonte'] }} </td>
+                                <td class="text-right"> {{ $despesa['vpd'] }} </td>
                                 <td class="text-right"> {{ retornaValorFormatado($despesa['valor']) }} </td>
                             </tr>
                             @endforeach

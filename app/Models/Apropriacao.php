@@ -156,6 +156,7 @@ class Apropriacao extends Model
             'arquivos',
             'ateste',
             'nup',
+            'centro_custo',
             'doc_origem',
             'observacoes'
         ]);
