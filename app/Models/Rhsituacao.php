@@ -55,6 +55,10 @@ class Rhsituacao extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function rhrubricas()
+    {
+        return $this->belongsToMany(Rhrubrica::class, 'rhsituacao_rhrubrica', 'rhsituacao_id', 'rhrubrica_id');
+    }
 
     /*
     |--------------------------------------------------------------------------

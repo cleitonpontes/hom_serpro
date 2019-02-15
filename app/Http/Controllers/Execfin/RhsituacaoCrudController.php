@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Execfin;
 
 use App\Models\Execsfsituacao;
 use App\Models\Naturezasubitem;
+use App\Models\Rhrubrica;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -133,6 +134,16 @@ class RhsituacaoCrudController extends CrudController
                 // optionally override the Yes/No texts
                 'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
+            [ // n-n relationship (with pivot table)
+                'name'      => 'rhrubricas',
+                'label'     => 'Rubricas',
+                'type'      => 'select_multiple',
+                'entity'    => 'rhrubricas',
+                'attribute' => 'codigo',
+                'model'     => Rhrubrica::class,
+                'pivot'     => true,
+            ],
+
         ];
 
         return $colunas;
@@ -177,6 +188,19 @@ class RhsituacaoCrudController extends CrudController
                 'type' => 'select_from_array',
                 'options' => [1 => 'Ativo', 0 => 'Inativo'],
                 'allows_null' => false,
+            ],
+            [       // Select2Multiple = n-n relationship (with pivot table)
+                'label' => "Rubricas",
+                'type' => 'select2_multiple',
+                'name' => 'rhrubricas', // the method that defines the relationship in your Model
+                'entity' => 'rhrubricas', // the method that defines the relationship in your Model
+                'attribute' => 'codigo', // foreign key attribute that is shown to user
+                'model' => "App\Models\Rhrubrica", // foreign key model
+                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+                'options' => (function ($query) {
+                    return $query->orderBy('codigo', 'ASC')->get();
+                }),
+                // 'select_all' => true, // show Select All and Clear buttons?
             ],
 
         ];
