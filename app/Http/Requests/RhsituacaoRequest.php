@@ -44,6 +44,7 @@ class RhsituacaoRequest extends FormRequest
              'vpd' => 'required',
              'ddp_nivel' => 'required',
              'status' => 'required',
+             'rhrubricas' => 'required',
         ];
     }
 
@@ -73,6 +74,7 @@ class RhsituacaoRequest extends FormRequest
             'vpd.required' => 'O campo "VPD" é obrigatório!',
             'ddp_nivel.required' => 'O campo "DDP Nível" é obrigatório!',
             'situacao.required' => 'O campo "Situação" é obrigatório!',
+            'rhrubricas.required' => 'O campo "Rubrica" é obrigatório!',
         ];
     }
 }
