@@ -8,6 +8,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\RhsituacaoRequest as StoreRequest;
 use App\Http\Requests\RhsituacaoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class RhsituacaoCrudController
@@ -26,6 +27,9 @@ class RhsituacaoCrudController extends CrudController
         $this->crud->setModel('App\Models\Rhsituacao');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/execfin/rhsituacao');
         $this->crud->setEntityNameStrings('RH - Situação', 'RH - Situações');
+        $this->crud->addClause('join', 'execsfsituacao', 'execsfsituacao.id', '=', 'rhsituacao.execsfsituacao_id');
+        $this->crud->addClause('select', 'rhsituacao.*');
+
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -65,22 +69,15 @@ class RhsituacaoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('execsfsituacao.codigo', 'like', strtoupper("%$searchTerm%"));
+                    $query->orWhere('execsfsituacao.descricao', 'like', strtoupper("%$searchTerm%"));
+                },
             ],
             [
                 'name' => 'nd',
-                'label' => 'Natureza Despesa (ND)',
+                'label' => 'ND Detalhada',
                 'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'nddesc',
-                'label' => 'Descrição ND',
-                'type' => 'text',
-                'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -91,17 +88,6 @@ class RhsituacaoCrudController extends CrudController
                 'name' => 'vpd',
                 'label' => 'VPD',
                 'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'vpddesc',
-                'label' => 'Descrição VPD',
-                'type' => 'text',
-                'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
