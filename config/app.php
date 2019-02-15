@@ -42,7 +42,9 @@ return [
     'ddp_nivel' => [
         "A" => "A - Ativos",
         "B" => "B - Aposentados e Pensionistas",
-        "E" => "E - Cedidos",
+        "C" => "C - ...",
+        "D" => "D - ...",
+        "E" => "E - Sem Vínculo",
     ],
 
 
