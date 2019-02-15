@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Unique;
 
 class RhsituacaoRequest extends FormRequest
 {
@@ -25,8 +26,24 @@ class RhsituacaoRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+        $nd = $this->nd;
+        $vpd = $this->vpd;
+        $ddp_nivel = $this->ddp_nivel;
+
         return [
-            // 'name' => 'required|min:5|max:255'
+             'execsfsituacao_id' => [
+                 'required',
+                 (new Unique('rhsituacao','execsfsituacao_id'))
+                     ->ignore($id)
+                     ->where('nd',$nd)
+                     ->where('vpd',$vpd)
+                     ->where('ddp_nivel',$ddp_nivel)
+             ],
+             'nd' => 'required',
+             'vpd' => 'required',
+             'ddp_nivel' => 'required',
+             'status' => 'required',
         ];
     }
 
@@ -50,7 +67,12 @@ class RhsituacaoRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'execsfsituacao_id.required' => 'O campo "Situação Siafi" é obrigatório!',
+            'execsfsituacao_id.unique' => 'Essa "RH - Situação" já está cadastrada!',
+            'nd.required' => 'O campo "ND Detalhada" é obrigatório!',
+            'vpd.required' => 'O campo "VPD" é obrigatório!',
+            'ddp_nivel.required' => 'O campo "DDP Nível" é obrigatório!',
+            'situacao.required' => 'O campo "Situação" é obrigatório!',
         ];
     }
 }

@@ -39,6 +39,12 @@ return [
         "INATIVA" => "INATIVA",
     ],
 
+    'ddp_nivel' => [
+        "A" => "A - Ativos",
+        "B" => "B - Aposentados e Pensionistas",
+        "E" => "E - Cedidos",
+    ],
+
 
     /*
     |--------------------------------------------------------------------------

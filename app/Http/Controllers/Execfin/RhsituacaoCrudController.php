@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use App\Models\Execsfsituacao;
+use App\Models\Naturezasubitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -9,6 +11,7 @@ use App\Http\Requests\RhsituacaoRequest as StoreRequest;
 use App\Http\Requests\RhsituacaoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class RhsituacaoCrudController
@@ -50,6 +53,20 @@ class RhsituacaoCrudController extends CrudController
         // TODO: remove setFromDb() and manually define Fields and Columns
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
+
+        $dados = new Naturezasubitem();
+        $nddetalhada = $dados->retornaNdDetalhada();
+
+        $execsfsituacao = Execsfsituacao::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
+            ->where('status','=','true')
+            ->orderBy('codigo', 'asc')
+            ->pluck('nome', 'id')
+            ->toArray();
+
+
+        $campos = $this->Campos($execsfsituacao,$nddetalhada);
+        $this->crud->addFields($campos);
+
 
         // add asterisk for fields that are required in RhsituacaoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -121,6 +138,53 @@ class RhsituacaoCrudController extends CrudController
         return $colunas;
 
     }
+
+    public function Campos($execsfsituacao,$nddetalhada)
+    {
+
+        $campos = [
+            [ // select2_from_array
+                'name' => 'execsfsituacao_id',
+                'label' => 'Situação Siafi',
+                'type' => 'select2_from_array',
+                'options' => $execsfsituacao,
+                'allows_null' => true,
+                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select2_from_array
+                'name' => 'nd',
+                'label' => 'ND Detalhada',
+                'type' => 'select2_from_array',
+                'options' => $nddetalhada,
+                'allows_null' => true,
+                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select_from_array
+                'name' => 'vpd',
+                'label' => "VPD",
+                'type' => 'vpd',
+            ],
+            [ // select_from_array
+                'name' => 'ddp_nivel',
+                'label' => "DDP Nível",
+                'type' => 'select_from_array',
+                'options' => config('app.ddp_nivel'),
+                'allows_null' => true,
+            ],
+            [ // select_from_array
+                'name' => 'status',
+                'label' => "Situação",
+                'type' => 'select_from_array',
+                'options' => [1 => 'Ativo', 0 => 'Inativo'],
+                'allows_null' => false,
+            ],
+
+        ];
+
+        return $campos;
+    }
+
+
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
