@@ -167,7 +167,7 @@ class ContratoresponsavelCrudController extends CrudController
             ->orWhereHas('unidades', function ($query) {
                 $query->where('unidade_id', '=', session()->get('user_ug_id'));
             })
-            ->orderBy('nome', 'asc')
+            ->orderBy('name', 'asc')
             ->pluck('nome', 'id')
             ->toArray();
 
