@@ -43,6 +43,10 @@ Route::group([
             CRUD::resource('codigo', 'CodigoCrudController');
             CRUD::resource('sfcertificado', 'SfcertificadoCrudController');
 
+            // Download apropriação
+            Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
+                ->name('apropriacao.download');
+
             Route::group(['prefix' => 'codigo/{codigo_id}'], function () {
                 CRUD::resource('codigoitem', 'CodigoitemCrudController');
             });

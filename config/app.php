@@ -275,6 +275,7 @@ return [
         'Button' => Bootstrapper\Facades\Button::class,
         'DropdownButton' => Bootstrapper\Facades\DropdownButton::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 
     ],
 

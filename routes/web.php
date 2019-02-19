@@ -177,6 +177,9 @@ Route::group(
             Route::get('/apropriacao/passo/7/apid/{apid}', 'Apropriacao\Passo7Controller@gerarXml')
                 ->name('apropriacao.passo.7')
                 ->middleware('permission:folha_apropriacao_passo');
+
+
+
         });
 
     });
