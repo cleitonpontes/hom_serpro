@@ -158,24 +158,24 @@ class Passo3Controller extends BaseController
             'data' => 'empenho',
             'name' => 'empenho',
             'title' => 'Nota <br />de empenho',
-            'orderable' => true,
-            'searchable' => false
+            'orderable' => true
+//            'searchable' => false
         ]);
         $html->addColumn([
             'data' => 'fonte',
             'name' => 'fonte',
             'title' => 'Fonte',
             'class' => 'text-right',
-            'orderable' => false,
-            'searchable' => false
+            'orderable' => false
+//            'searchable' => false
         ]);
         $html->addColumn([
             'data' => 'valor',
             'name' => 'valor',
             'title' => 'Valor <br />a ratear',
             'class' => 'text-right',
-            'orderable' => true,
-            'searchable' => false
+            'orderable' => true
+//            'searchable' => false
         ]);
         $html->addColumn([
             'data' => 'conta',

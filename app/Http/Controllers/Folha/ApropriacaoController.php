@@ -178,7 +178,7 @@ class ApropriacaoController extends BaseController
         ])
         ->addColumn([
             'data' => 'fase',
-            'name' => 'F.fase',
+            'name' => 'fase',
             'title' => 'Status'
         ])
         ->addColumn([

@@ -156,15 +156,15 @@ class Passo2Controller extends BaseController
             'data' => 'situacao',
             'name' => 'situacao',
             'title' => 'Situação',
-            'orderable' => true,
-            'searchable' => false
+            'orderable' => true
+//            'searchable' => false
         ]);
         $html->addColumn([
             'data' => 'vpd',
             'name' => 'vpd',
             'title' => 'VPD',
-            'orderable' => true,
-            'searchable' => false
+            'orderable' => true
+//            'searchable' => false
         ]);
         $html->addColumn([
             'data' => 'conta',
