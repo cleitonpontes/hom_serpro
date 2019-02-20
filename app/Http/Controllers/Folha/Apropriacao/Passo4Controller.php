@@ -60,12 +60,13 @@ class Passo4Controller extends BaseController
         $registro['empenho'] = $empenho;
         $registro['subitem'] = $subitem;
 
+
         // Consulta saldo do empenho
         $saldoAtual = $this->consultaSaldoSiafi($registro);
-
-        // Atualiza o saldo retornado
-        $this->atualizaSaldo($empenho, $subitem, $saldoAtual);
-
+        if($saldoAtual > 0) {
+            // Atualiza o saldo retornado
+            $this->atualizaSaldo($empenho, $subitem, $saldoAtual);
+        }
         return $saldoAtual;
     }
     
@@ -82,9 +83,12 @@ class Passo4Controller extends BaseController
         foreach($empenhos as $registro) {
             // Consulta saldo do empenho
             $saldoAtual = $this->consultaSaldoSiafi($registro);
-            
-            // Atualiza o saldo retornado
-            $this->atualizaSaldo($registro['empenho'], $registro['subitem'], $saldoAtual);
+
+            if($saldoAtual > 0){
+                // Atualiza o saldo retornado
+                $this->atualizaSaldo($registro['empenho'], $registro['subitem'], $saldoAtual);
+            }
+
         }
     }
 
