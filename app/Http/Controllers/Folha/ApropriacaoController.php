@@ -147,7 +147,7 @@ class ApropriacaoController extends BaseController
         $html = $this->htmlBuilder->addColumn([
             'data' => 'id',
             'name' => 'id',
-            'title' => 'Id'
+            'title' => 'Id',
         ])
         ->addColumn([
             'data' => 'competencia',
@@ -193,6 +193,10 @@ class ApropriacaoController extends BaseController
             'serverSide' => true,
             'responsive' => true,
             'info' => true,
+            'order' => [
+                0,
+                'desc'
+            ],
             'autoWidth' => false,
             'bAutoWidth' => false,
             'paging' => true,
