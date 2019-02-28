@@ -9,6 +9,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratogarantiaRequest as StoreRequest;
 use App\Http\Requests\ContratogarantiaRequest as UpdateRequest;
+use Backpack\CRUD\CrudPanel;
 
 /**
  * Class ContratogarantiaCrudController
@@ -33,7 +34,7 @@ class ContratogarantiaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratogarantia');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/garantias');
-        $this->crud->setEntityNameStrings('Garantias', 'garantias');
+        $this->crud->setEntityNameStrings('Garantia do Contrato', 'Garantias - Contrato');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();

@@ -25,8 +25,6 @@ class AlterSfrelitemdespanularTable extends Migration
      */
     public function down()
     {
-        Schema::table('sfrelitemdespanular', function (Blueprint $table) {
-            $table->decimal('vlr', 8, 2)->nullable()->change();
-        });
+
     }
 }

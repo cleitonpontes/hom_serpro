@@ -6,7 +6,7 @@ use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
-class EmpenhoRequest extends FormRequest
+class ContratoempenhoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,18 +27,17 @@ class EmpenhoRequest extends FormRequest
     public function rules()
     {
         $id = $this->id ?? "NULL";
-        $unidade_id = $this->unidade_id ?? "NULL";
+        $empenho_id = $this->empenho_id ?? "NULL";
 
         return [
-            'numero' => [
+            'contrato_id' => [
                 'required',
-                (new Unique('empenhos','numero'))
+                (new Unique('contratoempenhos','contrato_id'))
                     ->ignore($id)
-                    ->where('unidade_id',$unidade_id)
+                    ->where('empenho_id',$empenho_id)
             ],
-            'unidade_id' => 'required',
             'fornecedor_id' => 'required',
-            'naturezadespesa_id' => 'required',
+            'empenho_id' => 'required',
         ];
     }
 
@@ -62,11 +61,10 @@ class EmpenhoRequest extends FormRequest
     public function messages()
     {
         return [
-            'numero.required' => 'O campo "Número Empenho" é obrigatório!',
-            'numero.unique' => 'Este Número de Empenho já está cadastrado!',
-            'unidade_id.required' => 'O campo "Unidade Gestora" é obrigatório!',
-            'fornecedor_id.required' => 'O campo "Credor / Fornecedor" é obrigatório!',
-            'naturezadespesa_id.required' => 'O campo "Natureza Despesa (ND)" é obrigatório!',
+            'contrato_id.required' => 'O campo "Contrato" é obrigatório!',
+            'contrato_id.unique' => 'Este Empenho já foi adicionado!',
+            'fornecedor_id.required' => 'O campo "Favorecido" é obrigatório!',
+            'empenho_id.required' => 'O campo "Empenho" é obrigatório!',
         ];
     }
 }

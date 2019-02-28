@@ -199,6 +199,12 @@ class Empenho extends Model
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');
     }
+
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

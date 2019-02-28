@@ -12,6 +12,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoocorrenciaRequest as StoreRequest;
 use App\Http\Requests\ContratoocorrenciaRequest as UpdateRequest;
+use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -39,7 +40,7 @@ class ContratoocorrenciaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratoocorrencia');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/ocorrencias');
-        $this->crud->setEntityNameStrings('Ocorrências', 'ocorrências');
+        $this->crud->setEntityNameStrings('Ocorrência do Contrato', 'Ocorrências - Contrato');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
         $this->crud->enableExportButtons();

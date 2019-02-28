@@ -9,6 +9,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoarquivoRequest as StoreRequest;
 use App\Http\Requests\ContratoarquivoRequest as UpdateRequest;
+use Backpack\CRUD\CrudPanel;
 
 /**
  * Class ContratoarquivoCrudController
@@ -35,8 +36,7 @@ class ContratoarquivoCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratoarquivo');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/arquivos');
-        $this->crud->setEntityNameStrings('contratoarquivo', 'contratoarquivos');
-        $this->crud->setEntityNameStrings('Arquivos', 'arquivos');
+        $this->crud->setEntityNameStrings('Arquivo do Contrato', 'Arquivos - Contrato');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();

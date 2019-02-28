@@ -20,6 +20,14 @@ Route::group([
 ], function () {
     Route::group(['middleware' => 'ugprimaria'], function () {
 
+        Route::group([
+            'prefix' => 'api',
+            'namespace' => 'Api',
+        ], function () {
+            //busca empenhos via ajax
+            Route::get('empenho', 'EmpenhoController@index');
+            Route::get('empenho/{id}', 'EmpenhoController@show');
+        });
 
 // if not otherwise configured, setup the dashboard routes
         if (config('backpack.base.setup_dashboard_routes')) {
@@ -29,6 +37,9 @@ Route::group([
         }
 
         Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+
+
+
 
 
         Route::group([
@@ -65,6 +76,7 @@ Route::group([
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
                 CRUD::resource('arquivos', 'ContratoarquivoCrudController');
+                CRUD::resource('empenhos', 'ContratoempenhoCrudController');
             });
 
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {

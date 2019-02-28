@@ -68,6 +68,9 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'rhsituacao_rhrubrica_inserir']);
         Permission::create(['name' => 'rhsituacao_rhrubrica_editar']);
         Permission::create(['name' => 'rhsituacao_rhrubrica_deletar']);
+        Permission::create(['name' => 'contratoempenho_inserir']);
+        Permission::create(['name' => 'contratoempenho_editar']);
+        Permission::create(['name' => 'contratoempenho_deletar']);
 
 
 
@@ -127,6 +130,9 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('rhsituacao_rhrubrica_inserir');
         $role->givePermissionTo('rhsituacao_rhrubrica_editar');
         $role->givePermissionTo('rhsituacao_rhrubrica_deletar');
+        $role->givePermissionTo('contratoempenho_inserir');
+        $role->givePermissionTo('contratoempenho_editar');
+        $role->givePermissionTo('contratoempenho_deletar');
 
     }
 }

@@ -62,7 +62,10 @@ class Fornecedor extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
+    public function empenhos()
+    {
+        return $this->hasMany(Empenhos::class);
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

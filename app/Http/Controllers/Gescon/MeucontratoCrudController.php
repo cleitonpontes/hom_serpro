@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gescon;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+use Backpack\CRUD\CrudPanel;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 

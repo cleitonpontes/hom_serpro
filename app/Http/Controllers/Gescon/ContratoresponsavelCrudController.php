@@ -11,6 +11,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoresponsavelRequest as StoreRequest;
 use App\Http\Requests\ContratoresponsavelRequest as UpdateRequest;
+use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -37,7 +38,7 @@ class ContratoresponsavelCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratoresponsavel');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/responsaveis');
-        $this->crud->setEntityNameStrings('Responsáveis', 'responsáveis');
+        $this->crud->setEntityNameStrings('Responsável do Contrato', 'Responsáveis - Contrato');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
