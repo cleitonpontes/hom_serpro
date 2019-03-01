@@ -27,17 +27,17 @@ class ContratoempenhoRequest extends FormRequest
     public function rules()
     {
         $id = $this->id ?? "NULL";
-        $empenho_id = $this->empenho_id ?? "NULL";
+//        $empenho_id = $this->empenho_id ?? "NULL";
 
         return [
             'contrato_id' => [
                 'required',
-                (new Unique('contratoempenhos','contrato_id'))
-                    ->ignore($id)
-                    ->where('empenho_id',$empenho_id)
+//                (new Unique('contratoempenhos','contrato_id'))
+//                    ->ignore($id)
+//                    ->where('empenho_id',$empenho_id)
             ],
             'fornecedor_id' => 'required',
-            'empenho_id' => 'required',
+            'empenho_id' => "required|unique:contratoempenhos,empenho_id,{$id}",
         ];
     }
 
@@ -65,6 +65,7 @@ class ContratoempenhoRequest extends FormRequest
             'contrato_id.unique' => 'Este Empenho já foi adicionado!',
             'fornecedor_id.required' => 'O campo "Favorecido" é obrigatório!',
             'empenho_id.required' => 'O campo "Empenho" é obrigatório!',
+            'empenho_id.unique' => 'Este Empenho está vinculado a um contrato!',
         ];
     }
 }
