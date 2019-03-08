@@ -24,10 +24,14 @@ class CreateContratofaturasTable extends Migration
             $table->date('vencimento')->nullable();
             $table->date('prazo')->nullable();
             $table->decimal('valor',17,2);
-            $table->decimal('glosa',17,2)->nullable();
+            $table->decimal('juros',17,2)->default(0);
+            $table->decimal('multa',17,2)->default(0);
+            $table->decimal('glosa',17,2)->default(0);
+            $table->decimal('valorliquido',17,2);
             $table->string('processo');
             $table->date('protocolo')->nullable();
             $table->date('ateste')->nullable();
+            $table->boolean('repactuacao')->default(0);
             $table->string('infcomplementar')->nullable();
             $table->string('mesref');
             $table->string('anoref');

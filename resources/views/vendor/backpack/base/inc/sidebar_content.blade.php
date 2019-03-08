@@ -92,6 +92,10 @@
                         <span>Códigos e Itens</span></a></li>
                 <li><a href="{{ backpack_url('/admin/sfcertificado') }}"><i class="fa fa-lock"></i> <span>Certificado Siafi</span></a>
                 </li>
+                <li><a href="{{ backpack_url('/admin/tipolistafatura') }}"><i class="fa fa-list"></i> <span>Tipo Lista Fatura</span></a>
+                </li>
+                <li><a href="{{ backpack_url('/admin/justificativafatura') }}"><i class="fa fa-list"></i> <span>Justificativa Fatura</span></a>
+                </li>
             </ul>
         </li>
         <li class="treeview">

@@ -71,6 +71,12 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'contratoempenho_inserir']);
         Permission::create(['name' => 'contratoempenho_editar']);
         Permission::create(['name' => 'contratoempenho_deletar']);
+        Permission::create(['name' => 'tipolistafatura_inserir']);
+        Permission::create(['name' => 'tipolistafatura_editar']);
+        Permission::create(['name' => 'tipolistafatura_deletar']);
+        Permission::create(['name' => 'justificativafatura_inserir']);
+        Permission::create(['name' => 'justificativafatura_editar']);
+        Permission::create(['name' => 'justificativafatura_deletar']);
 
 
 
@@ -133,6 +139,12 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('contratoempenho_inserir');
         $role->givePermissionTo('contratoempenho_editar');
         $role->givePermissionTo('contratoempenho_deletar');
+        $role->givePermissionTo('tipolistafatura_inserir');
+        $role->givePermissionTo('tipolistafatura_editar');
+        $role->givePermissionTo('tipolistafatura_deletar');
+        $role->givePermissionTo('justificativafatura_inserir');
+        $role->givePermissionTo('justificativafatura_editar');
+        $role->givePermissionTo('justificativafatura_deletar');
 
     }
 }

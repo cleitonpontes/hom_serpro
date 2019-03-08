@@ -53,6 +53,8 @@ Route::group([
             CRUD::resource('unidade', 'UnidadeCrudController');
             CRUD::resource('codigo', 'CodigoCrudController');
             CRUD::resource('sfcertificado', 'SfcertificadoCrudController');
+            CRUD::resource('justificativafatura', 'JustificativafaturaCrudController');
+            CRUD::resource('tipolistafatura', 'TipolistafaturaCrudController');
 
             // Download apropriação
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
