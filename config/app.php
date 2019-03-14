@@ -8,6 +8,16 @@ return [
     'situacao_despesa_anular' => 'DESPESA_ANULAR',
     'erro_permissao' => 'Acesso negado - você não possui a permissão necessária para acessar esta página.<br \> <a href="javascript:history.back()" \'="">Voltar</a>',
 
+    'situacao_fatura' => [
+        "PEN" => 'Pendente',
+        "PGS" => 'Pagamento Suspenso',
+        "PGP" => 'Pago Parcial',
+        "PGO" => 'Pago',
+        "ANA" => 'Analisado',
+        "PPG" => 'Pronto para Pagamento',
+        "APR" => 'Apropriado Siafi',
+    ],
+
     'abas' => [
         "CREDITO" => "Créditos",
         "DEDUCAO" => "Deduções",

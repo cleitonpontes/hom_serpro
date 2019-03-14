@@ -20,7 +20,7 @@ class AlterContratofaturasTable extends Migration
             $table->integer('contrato_id');
             $table->integer('tipolistafatura_id');
             $table->integer('justificativafatura_id')->nullable();
-            $table->integer('documentosiafi_id')->nullable();
+            $table->integer('sfpadrao_id')->nullable();
             $table->string('numero');
             $table->date('emissao');
             $table->date('vencimento')->nullable();
@@ -37,13 +37,14 @@ class AlterContratofaturasTable extends Migration
             $table->string('infcomplementar')->nullable();
             $table->string('mesref');
             $table->string('anoref');
+            $table->string('situacao');
             $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
             $table->foreign('tipolistafatura_id')->references('id')->on('tipolistafatura')->onDelete('cascade');
             $table->foreign('justificativafatura_id')->references('id')->on('justificativafatura')->onDelete('cascade');
-            $table->foreign('documentosiafi_id')->references('id')->on('documentosiafi')->onDelete('cascade');
+            $table->foreign('sfpadrao_id')->references('id')->on('sfpadrao')->onDelete('cascade');
         });
     }
 

@@ -84,6 +84,7 @@ Route::group([
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
+                CRUD::resource('faturas', 'ContratofaturaCrudController');
             });
 
         });

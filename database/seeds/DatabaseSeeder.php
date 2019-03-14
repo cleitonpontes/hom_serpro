@@ -29,5 +29,6 @@ class DatabaseSeeder extends Seeder
         $this->call(RubricaSeeder::class);
         $this->call(RhSituacaoSeeder::class);
         $this->call(SituacaoXRubricaSeeder::class);
+        $this->call(CentrocustoSeeder::class);
     }
 }
