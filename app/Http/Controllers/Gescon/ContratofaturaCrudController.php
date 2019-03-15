@@ -82,7 +82,7 @@ class ContratofaturaCrudController extends CrudController
 
 
 
-        $campos = $this->Campos($con, $tipolistafatura);
+        $campos = $this->Campos($con, $tipolistafatura, $contrato_id);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in ContratofaturaRequest
@@ -416,8 +416,10 @@ class ContratofaturaCrudController extends CrudController
 
     }
 
-    public function Campos($contrato,$tipolistafatura)
+    public function Campos($contrato,$tipolistafatura, $contrato_id)
     {
+
+        $con = Contrato::find($contrato_id);
 
         $campos = [
             [ // select_from_array
@@ -430,6 +432,7 @@ class ContratofaturaCrudController extends CrudController
                     'readonly'=>'readonly',
 //                    'disabled'=>'disabled',
                 ], // chan
+                'tab' => 'Dados Fatura',
             ],
             [ // select_from_array
                 'name' => 'tipolistafatura_id',
@@ -437,44 +440,128 @@ class ContratofaturaCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => $tipolistafatura,
                 'allows_null' => true,
+                'tab' => 'Dados Fatura',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
-//            [ // select2_from_array
-//                'name' => 'execsfsituacao_id',
-//                'label' => 'Situação Siafi',
-//                'type' => 'select2_from_array',
-//                'options' => $execsfsituacao,
-//                'allows_null' => true,
-//                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
-//            ],
-//            [ // select2_from_array
-//                'name' => 'nd',
-//                'label' => 'ND Detalhada',
-//                'type' => 'select2_from_array',
-//                'options' => $nddetalhada,
-//                'allows_null' => true,
-//                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
-//            ],
-//            [ // select_from_array
-//                'name' => 'vpd',
-//                'label' => "VPD",
-//                'type' => 'vpd',
-//            ],
-//            [ // select_from_array
-//                'name' => 'ddp_nivel',
-//                'label' => "DDP Nível",
-//                'type' => 'select_from_array',
-//                'options' => config('app.ddp_nivel'),
-//                'allows_null' => true,
-//            ],
-//            [ // select_from_array
-//                'name' => 'status',
-//                'label' => "Situação",
-//                'type' => 'select_from_array',
-//                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-//                'allows_null' => false,
-//            ],
+            [ // select_from_array
+                'name' => 'numero',
+                'label' => "Número",
+                'type' => 'text',
+                'attributes' => [
+                    'maxlength'=>'17',
+                    'onkeyup' => "maiuscula(this)",
+//                    'disabled'=>'disabled',
+                ],
+                'tab' => 'Dados Fatura',
+            ],
+            [ // select_from_array
+                'name' => 'emissao',
+                'label' => "Dt. Emissão",
+                'type' => 'date',
+                'tab' => 'Dados Fatura',
+            ],
+            [ // select_from_array
+                'name' => 'vencimento',
+                'label' => "Dt. Vencimento",
+                'type' => 'date',
+                'tab' => 'Dados Fatura',
+            ],
+
+            [   // Number
+                'name' => 'valor',
+                'label' => 'Valor',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'valor',
+                ], // allow decimals
+                'prefix' => "R$",
+                'tab' => 'Dados Fatura',
+            ],
+            [   // Number
+                'name' => 'juros',
+                'label' => 'Juros',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'juros',
+                ], // allow decimals
+                'prefix' => "R$",
+                'tab' => 'Dados Fatura',
+            ],
+            [   // Number
+                'name' => 'multa',
+                'label' => 'Multa',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'multa',
+                ], // allow decimals
+                'prefix' => "R$",
+                'tab' => 'Dados Fatura',
+            ],
+            [   // Number
+                'name' => 'glosa',
+                'label' => 'Glosa',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'glosa',
+                ], // allow decimals
+                'prefix' => "R$",
+                'tab' => 'Dados Fatura',
+            ],
+            [ // select_from_array
+                'name' => 'processo',
+                'label' => "Processo",
+                'type' => 'numprocesso',
+                'tab' => 'Outras Informações',
+            ],
+            [ // select_from_array
+                'name' => 'protocolo',
+                'label' => "Dt. Protocolo",
+                'type' => 'date',
+                'tab' => 'Outras Informações',
+            ],
+            [ // select_from_array
+                'name' => 'ateste',
+                'label' => "Dt. Ateste",
+                'type' => 'date',
+                'tab' => 'Outras Informações',
+            ],
+            [ // select_from_array
+                'name' => 'repactuacao',
+                'label' => "Repactuação?",
+                'type' => 'radio',
+                'options' => [0 => 'Não', 1 => 'Sim'],
+                'default'    => 0,
+                'inline'      => true,
+                'tab' => 'Outras Informações',
+            ],
+            [ // select_from_array
+                'name' => 'infcomplementar',
+                'label' => "Informações Complementares",
+                'type' => 'text',
+                'tab' => 'Outras Informações',
+            ],
+            [ // select_from_array
+                'name' => 'mesref',
+                'label' => "Mês Referência",
+                'type' => 'select2_from_array',
+                'options' => config('app.meses_referencia_fatura'),
+                'allows_null' => false,
+                'tab' => 'Outras Informações',
+            ],
+            [ // select_from_array
+                'name' => 'anoref',
+                'label' => "Ano Referência",
+                'type' => 'select2_from_array',
+                'options' => config('app.anos_referencia_fatura'),
+                'default'    => date('Y'),
+                'allows_null' => false,
+                'tab' => 'Outras Informações',
+            ],
             [       // Select2Multiple = n-n relationship (with pivot table)
                 'label' => "Empenhos",
                 'type' => 'select2_multiple',
@@ -483,9 +570,13 @@ class ContratofaturaCrudController extends CrudController
                 'attribute' => 'numero', // foreign key attribute that is shown to user
                 'model' => "App\Models\Empenho", // foreign key model
                 'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
-                'options' => (function ($query) {
-                    return $query->orderBy('numero', 'ASC')->where('unidade_id',session()->get('user_ug_id'))->get();
+                'options' => (function ($query) use ($con) {
+                    return $query->orderBy('numero', 'ASC')
+                        ->where('unidade_id',session()->get('user_ug_id'))
+                        ->where('fornecedor_id',$con->fornecedor_id)
+                        ->get();
                 }),
+                'tab' => 'Outras Informações',
                 // 'select_all' => true, // show Select All and Clear buttons?
             ],
             [ // select_from_array
@@ -499,6 +590,7 @@ class ContratofaturaCrudController extends CrudController
                     'disabled'=>'disabled',
                 ],
                 'allows_null' => false,
+                'tab' => 'Outras Informações',
             ],
 
         ];
