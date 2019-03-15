@@ -39,7 +39,6 @@ class ContratofaturaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/faturas');
         $this->crud->setEntityNameStrings('Fatura do Contrato', 'Faturas - Contrato');
         $this->crud->addClause('join', 'tipolistafatura', 'tipolistafatura.id', '=', 'contratofaturas.tipolistafatura_id');
-        $this->crud->addClause('join', 'justificativafatura', 'justificativafatura.id', '=', 'contratofaturas.justificativafatura_id');
         $this->crud->addClause('select', 'contratofaturas.*');
 
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
@@ -137,9 +136,9 @@ class ContratofaturaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('justificativafatura.nome', 'like', "%$searchTerm%");
-                },
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('justificativafatura.nome', 'like', "%$searchTerm%");
+//                },
             ],
             [
                 'name' => 'getSfpadrao',
@@ -189,20 +188,6 @@ class ContratofaturaCrudController extends CrudController
                 'type' => 'date',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-            ],
-            [
-                'name' => 'prazo',
-                'label' => 'Dt. Prazo Pagto.', // Table column heading
-                'type' => 'date',
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
@@ -328,6 +313,20 @@ class ContratofaturaCrudController extends CrudController
 //                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
 //                },
             ],
+            [
+                'name' => 'prazo',
+                'label' => 'Dt. Prazo Pagto.', // Table column heading
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+            ],
             [ // n-n relationship (with pivot table)
                 'name'      => 'empenhos',
                 'label'     => 'Empenhos',
@@ -430,7 +429,7 @@ class ContratofaturaCrudController extends CrudController
                 'allows_null' => false,
                 'attributes' => [
                     'readonly'=>'readonly',
-//                    'disabled'=>'disabled',
+                    'style' => 'pointer-events: none;touch-action: none;'
                 ], // chan
                 'tab' => 'Dados Fatura',
             ],
@@ -543,6 +542,10 @@ class ContratofaturaCrudController extends CrudController
                 'name' => 'infcomplementar',
                 'label' => "Informações Complementares",
                 'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)",
+//                    'disabled'=>'disabled',
+                ],
                 'tab' => 'Outras Informações',
             ],
             [ // select_from_array
@@ -587,7 +590,7 @@ class ContratofaturaCrudController extends CrudController
                 'default'    => 'PEN',
                 'attributes' => [
                     'readonly'=>'readonly',
-                    'disabled'=>'disabled',
+                    'style' => 'pointer-events: none;touch-action: none;'
                 ],
                 'allows_null' => false,
                 'tab' => 'Outras Informações',
@@ -600,20 +603,40 @@ class ContratofaturaCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        $situacao = $request->input('situacao');
-        $contrato_id = $request->input('contrato_id');
-        // your additional operations before save here
-        if($situacao == 'PEN'){
-            $redirect_location = parent::storeCrud($request);
-            return $redirect_location;
+        $v = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('valor')))),2,'.','');
+        $j = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('juros')))),2,'.','');
+        $m = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('multa')))),2,'.','');
+        $g = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('glosa')))),2,'.','');
+        $vl = number_format(floatval($v + $j + $m - $g),2,'.','');
+
+
+        if($request->input('vencimento')){
+
+            $request->request->set('prazo', $request->input('vencimento'));
+
         }else{
-            \Alert::warning('Para incluir a Situação deve ser Pendente!')->flash();
-            return redirect('/gescon/meus-contratos/'.$contrato_id.'/faturas');
+            $tipolistafatura = $request->input('tipolistafatura_id');
+            if($tipolistafatura == '5'){
+                $ateste = $request->input('ateste');
+                $request->request->set('prazo', date('Y-m-d', strtotime("+5 days",strtotime($ateste))));
+            }else{
+                $ateste = $request->input('ateste');
+                $request->request->set('prazo', date('Y-m-d', strtotime("+30 days",strtotime($ateste))));
+            }
         }
 
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
+        $request->request->set('valor', $v);
+        $request->request->set('juros', $j);
+        $request->request->set('multa', $m);
+        $request->request->set('glosa', $g);
+        $request->request->set('valorliquido', $vl);
 
+        $request->request->set('situacao', 'PEN');
+
+
+        $redirect_location = parent::storeCrud($request);
+
+        return $redirect_location;
     }
 
     public function update(UpdateRequest $request)
@@ -622,11 +645,42 @@ class ContratofaturaCrudController extends CrudController
         $situacao = $request->input('situacao');
 
         if($situacao == 'PEN'){
+
+            $v = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('valor')))),2,'.','');
+            $j = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('juros')))),2,'.','');
+            $m = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('multa')))),2,'.','');
+            $g = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('glosa')))),2,'.','');
+            $vl = number_format(floatval($v + $j + $m - $g),2,'.','');
+
+            if($request->input('vencimento')){
+
+                $request->request->set('prazo', $request->input('vencimento'));
+
+            }else{
+                $tipolistafatura = $request->input('tipolistafatura_id');
+                if($tipolistafatura == '5'){
+                    $ateste = $request->input('ateste');
+                    $request->request->set('prazo', date('Y-m-d', strtotime("+5 days",strtotime($ateste))));
+                }else{
+                    $ateste = $request->input('ateste');
+                    $request->request->set('prazo', date('Y-m-d', strtotime("+30 days",strtotime($ateste))));
+                }
+            }
+
+            $request->request->set('valor', $v);
+            $request->request->set('juros', $j);
+            $request->request->set('multa', $m);
+            $request->request->set('glosa', $g);
+            $request->request->set('valorliquido', $vl);
+
             $redirect_location = parent::updateCrud($request);
             return $redirect_location;
+
         }else{
+
             \Alert::error('Essa Fatura não pode ser alterada!')->flash();
             return redirect('/gescon/meus-contratos/'.$contrato_id.'/faturas');
+
         }
 
 

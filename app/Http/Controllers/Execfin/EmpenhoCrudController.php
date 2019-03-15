@@ -38,7 +38,6 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('select', 'empenhos.*');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'empenhos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'empenhos.unidade_id');
-//        $this->crud->addClause('join', 'planointerno', 'planointerno.id', '=', 'empenhos.planointerno_id');
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 

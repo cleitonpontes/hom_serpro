@@ -11,8 +11,6 @@ return [
     'situacao_fatura' => [
         "PEN" => 'Pendente',
         "PGS" => 'Pagamento Suspenso',
-        "PGP" => 'Pago Parcial',
-        "PGO" => 'Pago',
         "ANA" => 'Analisado',
         "PPG" => 'Pronto para Pagamento',
         "APR" => 'Apropriado Siafi',

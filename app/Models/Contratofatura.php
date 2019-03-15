@@ -26,7 +26,27 @@ class Contratofatura extends Model
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-
+        'contrato_id',
+        'tipolistafatura_id',
+        'justificativafatura_id',
+        'sfadrao_id',
+        'numero',
+        'emissao',
+        'prazo',
+        'vencimento',
+        'valor',
+        'juros',
+        'multa',
+        'glosa',
+        'valorliquido',
+        'processo',
+        'protocolo',
+        'ateste',
+        'repactuacao',
+        'infcomplementar',
+        'mesref',
+        'anoref',
+        'situacao'
     ];
     // protected $hidden = [];
     // protected $dates = [];
