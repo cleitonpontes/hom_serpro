@@ -382,12 +382,72 @@ class EmpenhoCrudController extends CrudController
     public function migracaoEmpenho()
     {
 
-        MigracaoempenhoJob::dispatch();
+        $unidades = Unidade::where('tipo', 'E')
+            ->get();
 
-        \Alert::success('Migração de Empenhos em Andamento!')->flash();
+        $ano = '2019';
 
-        return redirect('/execfin/empenho');
+        foreach ($unidades as $unidade) {
+            $migracao_url = config('migracao.api_sta');
+            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/'.$ano.'/ug/'.$unidade->codigo), true);
 
+            foreach ($dados as $d) {
+
+                dd($d);
+
+                $credor = $this->buscaFornecedor($d['credor']);
+
+                if ($d['pi']['codigo']) {
+                    $pi = $this->buscaPi($d['pi']);
+                }
+
+                $naturezasubitem = Naturezasubitem::whereHas('naturezadespesa', function ($query) use ($d) {
+                    $query->where('codigo', '=', $d['naturezadespesa']);
+                })
+                    ->where('codigo', '=', str_pad($d['subitem'], 2, "0", STR_PAD_LEFT))
+                    ->first();
+
+                $empenho = Empenho::where('numero', '=', $d['numero'])
+                    ->where('unidade_id', '=', $unidade->id)
+                    ->where('fornecedor_id', '=', $credor->id)
+                    ->where('planointerno_id', '=', $pi->id)
+                    ->where('naturezadespesa_id', '=', $naturezasubitem->naturezadespesa_id)
+                    ->first();
+
+                if (!$empenho) {
+                    $empenho = Empenho::create([
+                        'numero' => $d['numero'],
+                        'unidade_id' => $unidade->id,
+                        'fornecedor_id' => $credor->id,
+                        'planointerno_id' => $pi->id,
+                        'naturezadespesa_id' => $naturezasubitem->naturezadespesa_id
+                    ]);
+                }
+
+                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                    ->first();
+
+                if (!$empenhodetalhado) {
+                    $empenhodetalhado = Empenhodetalhado::create([
+                        'empenho_id' => $empenho->id,
+                        'naturezasubitem_id' => $naturezasubitem->id
+                    ]);
+                }
+            }
+
+
+        }
+
+
+
+//        MigracaoempenhoJob::dispatch();
+//
+//        \Alert::success('Migração de Empenhos em Andamento!')->flash();
+
+//        return redirect('/execfin/empenho');
+
+        return 'Concluido';
     }
 
 

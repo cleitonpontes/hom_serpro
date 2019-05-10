@@ -9,4 +9,5 @@
 return [
     'migracao_contratos' => 'https://conta.agu.gov.br/migracao_contratos/xxxx',
     'migracao_empenhos' => 'https://conta.agu.gov.br/migracao_empenhos/leitura.php',
+    'api_sta' => 'http://10.61.22.65:8000',
 ];
