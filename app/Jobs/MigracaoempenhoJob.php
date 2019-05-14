@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
+use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
 use App\Models\Unidade;
@@ -41,7 +42,7 @@ class MigracaoempenhoJob implements ShouldQueue
         $unidades = Unidade::where('tipo', 'E')
             ->get();
 
-        $ano = '2019';
+        $ano = '2018';
 
         foreach ($unidades as $unidade) {
             $migracao_url = config('migracao.api_sta');
@@ -76,14 +77,10 @@ class MigracaoempenhoJob implements ShouldQueue
                     ]);
                 }
 
-                $uggestaoempenho = $unidade->cogigo . $unidade->gestao . $d['numero'];
-                $itensempenho = json_decode(file_get_contents($migracao_url . '/api/empenhodetalhado/' . $uggestaoempenho),
-                    true);
+                foreach ($d['itens'] as $item) {
 
-                foreach ($itensempenho as $item) {
-
-                    $naturezasubitem = Naturezasubitem::where('codigo',$item['subitem'])
-                        ->where('naturezadespesa_id',$naturezadespesa->id)
+                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                        ->where('naturezadespesa_id', $naturezadespesa->id)
                         ->first();
 
                     $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
@@ -101,7 +98,6 @@ class MigracaoempenhoJob implements ShouldQueue
             }
 
         }
-
 
 
     }
