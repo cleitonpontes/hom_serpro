@@ -45,29 +45,25 @@ class MigracaoempenhoJob implements ShouldQueue
 
         foreach ($unidades as $unidade) {
             $migracao_url = config('migracao.api_sta');
-            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/'.$ano.'/ug/'.$unidade->codigo), true);
+            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+                true);
 
             foreach ($dados as $d) {
 
-                dd($d);
+                $credor = $this->buscaFornecedor($d);
 
-                $credor = $this->buscaFornecedor($d['credor']);
-
-                if ($d['pi']['codigo']) {
-                    $pi = $this->buscaPi($d['pi']);
+                if ($d['picodigo']) {
+                    $pi = $this->buscaPi($d);
                 }
 
-                $naturezasubitem = Naturezasubitem::whereHas('naturezadespesa', function ($query) use ($d) {
-                    $query->where('codigo', '=', $d['naturezadespesa']);
-                })
-                    ->where('codigo', '=', str_pad($d['subitem'], 2, "0", STR_PAD_LEFT))
+                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                     ->first();
 
                 $empenho = Empenho::where('numero', '=', $d['numero'])
                     ->where('unidade_id', '=', $unidade->id)
                     ->where('fornecedor_id', '=', $credor->id)
                     ->where('planointerno_id', '=', $pi->id)
-                    ->where('naturezadespesa_id', '=', $naturezasubitem->naturezadespesa_id)
+                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
                     ->first();
 
                 if (!$empenho) {
@@ -76,22 +72,33 @@ class MigracaoempenhoJob implements ShouldQueue
                         'unidade_id' => $unidade->id,
                         'fornecedor_id' => $credor->id,
                         'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezasubitem->naturezadespesa_id
+                        'naturezadespesa_id' => $naturezadespesa->id
                     ]);
                 }
 
-                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                    ->first();
+                $uggestaoempenho = $unidade->cogigo . $unidade->gestao . $d['numero'];
+                $itensempenho = json_decode(file_get_contents($migracao_url . '/api/empenhodetalhado/' . $uggestaoempenho),
+                    true);
 
-                if (!$empenhodetalhado) {
-                    $empenhodetalhado = Empenhodetalhado::create([
-                        'empenho_id' => $empenho->id,
-                        'naturezasubitem_id' => $naturezasubitem->id
-                    ]);
+                foreach ($itensempenho as $item) {
+
+                    $naturezasubitem = Naturezasubitem::where('codigo',$item['subitem'])
+                        ->where('naturezadespesa_id',$naturezadespesa->id)
+                        ->first();
+
+                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                        ->first();
+
+                    if (!$empenhodetalhado) {
+                        $empenhodetalhado = Empenhodetalhado::create([
+                            'empenho_id' => $empenho->id,
+                            'naturezasubitem_id' => $naturezasubitem->id
+                        ]);
+                    }
                 }
+
             }
-
 
         }
 
@@ -127,14 +134,14 @@ class MigracaoempenhoJob implements ShouldQueue
     public function buscaPi($pi)
     {
 
-        $planointerno = Planointerno::where('codigo', '=', $pi['codigo'])
+        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
             ->first();
 
         if (!$planointerno) {
 
             $planointerno = Planointerno::create([
-                'codigo' => $pi['codigo'],
-                'descricao' => strtoupper($pi['descricao']),
+                'codigo' => $pi['picodigo'],
+                'descricao' => strtoupper($pi['pidescricao']),
                 'situacao' => true
             ]);
         }

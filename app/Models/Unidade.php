@@ -20,6 +20,7 @@ class Unidade extends Model
     protected $fillable = [
         'orgao_id',
         'codigo',
+        'gestao',
         'codigosiasg',
         'nome',
         'nomeresumido',

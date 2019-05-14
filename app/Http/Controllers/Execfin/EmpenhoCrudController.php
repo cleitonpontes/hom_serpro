@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Execfin;
 
 use App\Jobs\MigracaoempenhoJob;
 use App\Models\Empenho;
+use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
@@ -41,7 +42,8 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
-        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho', 'migrarempenho', 'end') : null;
+        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
+            'migrarempenho', 'end') : null;
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
         $this->crud->enableExportButtons();
@@ -381,6 +383,12 @@ class EmpenhoCrudController extends CrudController
 
     public function migracaoEmpenho()
     {
+//        MigracaoempenhoJob::dispatch();
+//
+//        \Alert::success('Migração de Empenhos em Andamento!')->flash();
+//
+//        return redirect('/execfin/empenho');
+
 
         $unidades = Unidade::where('tipo', 'E')
             ->get();
@@ -389,29 +397,25 @@ class EmpenhoCrudController extends CrudController
 
         foreach ($unidades as $unidade) {
             $migracao_url = config('migracao.api_sta');
-            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/'.$ano.'/ug/'.$unidade->codigo), true);
+            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+                true);
 
             foreach ($dados as $d) {
 
-                dd($d);
+                $credor = $this->buscaFornecedor($d);
 
-                $credor = $this->buscaFornecedor($d['credor']);
-
-                if ($d['pi']['codigo']) {
-                    $pi = $this->buscaPi($d['pi']);
+                if ($d['picodigo']) {
+                    $pi = $this->buscaPi($d);
                 }
 
-                $naturezasubitem = Naturezasubitem::whereHas('naturezadespesa', function ($query) use ($d) {
-                    $query->where('codigo', '=', $d['naturezadespesa']);
-                })
-                    ->where('codigo', '=', str_pad($d['subitem'], 2, "0", STR_PAD_LEFT))
+                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                     ->first();
 
                 $empenho = Empenho::where('numero', '=', $d['numero'])
                     ->where('unidade_id', '=', $unidade->id)
                     ->where('fornecedor_id', '=', $credor->id)
                     ->where('planointerno_id', '=', $pi->id)
-                    ->where('naturezadespesa_id', '=', $naturezasubitem->naturezadespesa_id)
+                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
                     ->first();
 
                 if (!$empenho) {
@@ -420,37 +424,81 @@ class EmpenhoCrudController extends CrudController
                         'unidade_id' => $unidade->id,
                         'fornecedor_id' => $credor->id,
                         'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezasubitem->naturezadespesa_id
+                        'naturezadespesa_id' => $naturezadespesa->id
                     ]);
                 }
 
-                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                    ->first();
+                $uggestaoempenho = $unidade->codigo . $unidade->gestao . $d['numero'];
+                $itensempenho = json_decode(file_get_contents($migracao_url . '/api/empenhodetalhado/' . $uggestaoempenho),
+                    true);
 
-                if (!$empenhodetalhado) {
-                    $empenhodetalhado = Empenhodetalhado::create([
-                        'empenho_id' => $empenho->id,
-                        'naturezasubitem_id' => $naturezasubitem->id
-                    ]);
+                foreach ($itensempenho as $item) {
+
+                    $naturezasubitem = Naturezasubitem::where('codigo',$item['subitem'])
+                        ->where('naturezadespesa_id',$naturezadespesa->id)
+                        ->first();
+
+                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                        ->first();
+
+                    if (!$empenhodetalhado) {
+                        $empenhodetalhado = Empenhodetalhado::create([
+                            'empenho_id' => $empenho->id,
+                            'naturezasubitem_id' => $naturezasubitem->id
+                        ]);
+                    }
                 }
+
             }
-
 
         }
 
 
 
-//        MigracaoempenhoJob::dispatch();
-//
-//        \Alert::success('Migração de Empenhos em Andamento!')->flash();
-
-//        return redirect('/execfin/empenho');
-
-        return 'Concluido';
     }
 
+    public function buscaFornecedor($credor)
+    {
 
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
+            ->first();
+
+        if (!$fornecedor) {
+            $tipo = 'JURIDICA';
+            if (strlen($credor['cpfcnpjugidgener']) == 14) {
+                $tipo = 'FISICA';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
+                $tipo = 'IDGENERICO';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+                $tipo = 'UG';
+            };
+
+            $fornecedor = Fornecedor::create([
+                'tipo_fornecedor' => $tipo,
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
+                'nome' => strtoupper($credor['nome'])
+            ]);
+        }
+        return $fornecedor;
+    }
+
+    public function buscaPi($pi)
+    {
+
+        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
+            ->first();
+
+        if (!$planointerno) {
+
+            $planointerno = Planointerno::create([
+                'codigo' => $pi['picodigo'],
+                'descricao' => strtoupper($pi['pidescricao']),
+                'situacao' => true
+            ]);
+        }
+        return $planointerno;
+    }
 
 
 }
