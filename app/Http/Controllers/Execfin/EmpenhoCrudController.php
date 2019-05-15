@@ -385,8 +385,6 @@ class EmpenhoCrudController extends CrudController
     {
         MigracaoempenhoJob::dispatch();
 
-        //teste de alteração na branck do gitlab
-
         \Alert::success('Migração de Empenhos em Andamento!')->flash();
 
         return redirect('/execfin/empenho');
