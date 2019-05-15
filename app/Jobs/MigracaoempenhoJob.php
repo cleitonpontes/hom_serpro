@@ -42,7 +42,7 @@ class MigracaoempenhoJob implements ShouldQueue
         $unidades = Unidade::where('tipo', 'E')
             ->get();
 
-        $ano = '2018';
+        $ano = date('Y');
 
         foreach ($unidades as $unidade) {
             $migracao_url = config('migracao.api_sta');
