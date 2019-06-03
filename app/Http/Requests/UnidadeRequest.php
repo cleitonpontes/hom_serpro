@@ -25,8 +25,17 @@ class UnidadeRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+
         return [
-            // 'name' => 'required|min:5|max:255'
+            'orgao_id' => "required",
+            'codigo' => "required|max:6|min:6|unique:unidades,codigo,{$id}",
+            'gestao' => "required|max:5|min:5",
+            'codigosiasg' => "required|max:6|min:6|unique:unidades,codigosiasg,{$id}",
+            'nome' => "required|max:255",
+            'nomeresumido' => "required|max:10",
+            'tipo' => 'required',
+            'situacao' => 'required',
         ];
     }
 
@@ -50,7 +59,18 @@ class UnidadeRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'orgao_id.required' => 'O campo "Órgão" é obrigatório!',
+            'codigo.required' => 'O campo "Código SIAFI" é obrigatório!',
+            'gestao.required' => 'O campo "Código SIAFI" é obrigatório!',
+            'codigo.unique' => 'Este Código SIAFI já está cadastrado!',
+            'codigosiasg.required' => 'O campo "Código SIASG" é obrigatório!',
+            'codigosiasg.unique' => 'Este Código SIASG já está cadastrado!',
+            'nome.required' => 'O campo "Nome" é obrigatório!',
+            'nomeresumido.required' => 'O campo "Nome Resumido" é obrigatório!',
+            'nome.max' => 'O campo "Nome" deve ser no máximo 255 caracteres!',
+            'nomeresumido.max' => 'O campo "Nome Resumido" deve ser no máximo 10 caracteres!',
+            'tipo.required' => 'O campo "Situação" é obrigatório!',
+            'situacao.required' => 'O campo "Situação" é obrigatório!',
         ];
     }
 }

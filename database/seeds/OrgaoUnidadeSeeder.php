@@ -11,7 +11,7 @@ class OrgaoUnidadeSeeder extends Seeder
     {
         DB::table('orgaossuperiores')->insert([
             'codigo' => '63000',
-            'nome' => 'Advocacia-Geral da União',
+            'nome' => 'ADVOCACIA-GERAL DA UNIÃO',
             'situacao' => true
         ]);
 
@@ -19,7 +19,7 @@ class OrgaoUnidadeSeeder extends Seeder
             'orgaosuperior_id' => '1',
             'codigo' => '63000',
             'codigosiasg' => '20114',
-            'nome' => 'Advocacia-Geral da União',
+            'nome' => 'ADVOCACIA-GERAL DA UNIÃO',
             'situacao' => true
         ]);
 

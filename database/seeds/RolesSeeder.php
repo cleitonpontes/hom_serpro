@@ -77,6 +77,15 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'justificativafatura_inserir']);
         Permission::create(['name' => 'justificativafatura_editar']);
         Permission::create(['name' => 'justificativafatura_deletar']);
+        Permission::create(['name' => 'orgaosuperior_inserir']);
+        Permission::create(['name' => 'orgaosuperior_editar']);
+        Permission::create(['name' => 'orgaosuperior_deletar']);
+        Permission::create(['name' => 'orgao_inserir']);
+        Permission::create(['name' => 'orgao_editar']);
+        Permission::create(['name' => 'orgao_deletar']);
+        Permission::create(['name' => 'unidade_inserir']);
+        Permission::create(['name' => 'unidade_editar']);
+        Permission::create(['name' => 'unidade_deletar']);
 
 
 
@@ -145,6 +154,15 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('justificativafatura_inserir');
         $role->givePermissionTo('justificativafatura_editar');
         $role->givePermissionTo('justificativafatura_deletar');
+        $role->givePermissionTo('orgaosuperior_inserir');
+        $role->givePermissionTo('orgaosuperior_editar');
+        $role->givePermissionTo('orgaosuperior_deletar');
+        $role->givePermissionTo('orgao_inserir');
+        $role->givePermissionTo('orgao_editar');
+        $role->givePermissionTo('orgao_deletar');
+        $role->givePermissionTo('unidade_inserir');
+        $role->givePermissionTo('unidade_editar');
+        $role->givePermissionTo('unidade_deletar');
 
     }
 }
