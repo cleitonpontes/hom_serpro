@@ -29,6 +29,33 @@ class Unidade extends Model
         'situacao'
     ];
 
+    public function getOrgao()
+    {
+        $orgao = Orgao::find($this->orgao_id);
+        return $orgao->codigo . " - " . $orgao->nome;
+
+    }
+
+    public function getTipo()
+    {
+
+        if($this->tipo == 'E'){
+            $tipo = "Executora";
+        }
+
+        if($this->tipo == 'C'){
+            $tipo = "Controle";
+        }
+
+        if($this->tipo == 'S'){
+            $tipo = "Setorial Contábil";
+        }
+
+
+        return $tipo;
+
+    }
+
     public function orgao()
     {
 
@@ -44,28 +71,6 @@ class Unidade extends Model
     public function contratos(){
 
         return $this->hasMany(Contrato::class, 'unidade_id');
-
-    }
-    public function getCodigoNome()
-    {
-        return $this->codigo . ' - ' . $this->nomeresumido;
-    }
-
-    public function moreOptions($crud = false)
-    {
-        $button = '<div class="btn-group">
-                        <button type="button" title="Mais" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle-split"
-                            data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false"><i class="fa fa-gear"></i>'.$this->id.'
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                            <ul class="dropdown-menu" >
-                                <li><a href="#">Teste 1</a></li>
-                                <li><a href="#">Teste 2</a></li>
-                            </ul>
-                    </div>';
-
-        return $button;
 
     }
 

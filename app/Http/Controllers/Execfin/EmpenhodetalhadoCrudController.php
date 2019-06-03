@@ -41,7 +41,6 @@ class EmpenhodetalhadoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Empenho detalhado', 'Empenho Detalhado');
 
         $this->crud->addClause('join', 'empenhos', 'empenhos.id', '=', 'empenhodetalhado.empenho_id');
-//        $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhodetalhado.naturezadespesa_id');
         $this->crud->addClause('join', 'naturezasubitem', 'naturezasubitem.id', '=', 'empenhodetalhado.naturezasubitem_id');
         $this->crud->addClause('where', 'empenho_id', '=', $empenho_id);
         $this->crud->addClause('select', 'empenhodetalhado.*');
