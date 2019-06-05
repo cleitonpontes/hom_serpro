@@ -79,6 +79,7 @@ Route::group([
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
                 CRUD::resource('arquivos', 'ContratoarquivoCrudController');
                 CRUD::resource('empenhos', 'ContratoempenhoCrudController');
+                Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {

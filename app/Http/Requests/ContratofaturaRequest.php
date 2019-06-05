@@ -26,7 +26,18 @@ class ContratofaturaRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'contrato_id' => 'required',
+            'tipolistafatura_id' => 'required',
+            'numero' => 'required|max:17',
+            'emissao' => 'required|date',
+            'vencimento' => 'required|date',
+            'valor' => 'required',
+            'processo' => 'required|max:20',
+            'protocolo' => 'required|date',
+            'ateste' => 'required|date',
+            'repactuacao' => 'required',
+            'mesref' => 'required',
+            'anoref' => 'required',
         ];
     }
 
