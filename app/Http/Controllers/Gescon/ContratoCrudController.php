@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Gescon;
 
 use App\Models\Codigoitem;
 use App\Models\Fornecedor;
+use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
+use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -47,6 +49,7 @@ class ContratoCrudController extends CrudController
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
 
+        $this->crud->addButtonFromView('line', 'extratocontrato', 'extratocontrato', 'beginning');
         $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -62,7 +65,48 @@ class ContratoCrudController extends CrudController
         | CrudPanel Configuration Collumns Table
         |--------------------------------------------------------------------------
         */
-        $this->crud->addColumns([
+
+        $colunas = $this->Colunas();
+        $this->crud->addColumns($colunas);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CrudPanel Configuration Campos Formulário
+        |--------------------------------------------------------------------------
+        */
+
+        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
+            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
+
+        $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
+
+        $categorias = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Categoria Contrato');
+        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+
+        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Modalidade Licitação');
+        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+
+        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Termo Aditivo')
+            ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->orderBy('descricao')
+            ->pluck('descricao', 'id')
+            ->toArray();
+
+
+        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos);
+        $this->crud->addFields($campos);
+
+    }
+
+    public function Colunas()
+    {
+        $colunas = [
             [
                 'name' => 'numero',
                 'label' => 'Número Contrato',
@@ -83,11 +127,6 @@ class ContratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('unidades.codigo', 'like', "%$searchTerm%");
-//                    $query->orWhere('unidades.nome', 'like', "%$searchTerm%");
-//                    $query->orWhere('unidades.nomeresumido', 'like', "%$searchTerm%");
-//                },
             ],
             [
                 'name' => 'getTipo',
@@ -99,11 +138,6 @@ class ContratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-
             ],
             [
                 'name' => 'getCategoria',
@@ -115,11 +149,6 @@ class ContratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-
             ],
             [
                 'name' => 'getFornecedor',
@@ -132,7 +161,7 @@ class ContratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
                     $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
                 },
@@ -198,11 +227,6 @@ class ContratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-
             ],
             [
                 'name' => 'num_parcelas',
@@ -224,24 +248,7 @@ class ContratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-
             ],
-//            [
-//                'name' => 'arquivos',
-//                'label' => 'Arquivos',
-//                'type' => 'upload_multiple',
-//                'disk' => 'local',
-//                'orderable' => true,
-//                'visibleInTable' => true, // no point, since it's a large text
-//                'visibleInModal' => true, // would make the modal too big
-//                'visibleInExport' => true, // not important enough
-//                'visibleInShow' => true, // sure, why not
-//                // optionally override the Yes/No texts
-//            ],
             [
                 'name' => 'situacao',
                 'label' => 'Situação',
@@ -254,37 +261,15 @@ class ContratoCrudController extends CrudController
                 // optionally override the Yes/No texts
                 'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
-        ]);
+        ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | CrudPanel Configuration Campos Formulário
-        |--------------------------------------------------------------------------
-        */
+        return $colunas;
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
+    }
 
-        $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
-
-        $categorias = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Categoria Contrato');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
-
-        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Modalidade Licitação');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
-
-        $tipos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '<>', 'Termo Aditivo')
-            ->where('descricao', '<>', 'Termo de Apostilamento')
-            ->orderBy('descricao')
-            ->pluck('descricao', 'id')
-            ->toArray();
-
-        $this->crud->addFields([
+    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos)
+    {
+        $campos = [
             [
                 // select_from_array
                 'name' => 'tipo_id',
@@ -454,28 +439,23 @@ class ContratoCrudController extends CrudController
                 'tab' => 'Vigência / Valores',
                 // 'suffix' => ".00",
             ],
-//            [   // Upload
-//                'name' => 'arquivos',
-//                'label' => 'Arquivos',
-//                'type' => 'upload_multiple',
-//                'upload' => true,
-//                'tab' => 'Arquivos',
-//                'disk' => 'local' // if you store files in the /public folder, please ommit this; if you store them in /storage or S3, please specify it;
-//            ],
-        ]);
 
+        ];
 
+        return $campos;
     }
 
     public function store(StoreRequest $request)
     {
-        $valor_parcela = str_replace(',', '.', str_replace('.','',$request->input('valor_parcela')));
-        $request->request->set('valor_parcela', number_format(floatval($valor_parcela),2,'.',''));
+        $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
+        $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
-        $valor_global = str_replace(',', '.', str_replace('.','',$request->input('valor_global')));
-        $request->request->set('valor_global', number_format(floatval($valor_global),2,'.',''));
+        $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
+        $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
+
+
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
@@ -483,11 +463,13 @@ class ContratoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $valor_parcela = str_replace(',', '.', str_replace('.','',$request->input('valor_parcela')));
-        $request->request->set('valor_parcela', number_format(floatval($valor_parcela),2,'.',''));
+        $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
+        $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
-        $valor_global = str_replace(',', '.', str_replace('.','',$request->input('valor_global')));
-        $request->request->set('valor_global', number_format(floatval($valor_global),2,'.',''));
+        $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
+        $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
+
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -516,5 +498,17 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('situacao_siasg');
 
         return $content;
+    }
+
+    public function extratoPdf()
+    {
+        $pdf = new Pdf("P","mm","A4");
+        $pdf->SetTitle("Extrato Contrato",1);
+        $pdf->AliasNbPages();
+        $pdf->AddPage();
+        $pdf->SetFont('Courier', 'B', 18);
+        $pdf->Cell(50, 25, 'Hello World!');
+        $pdf->Output('D','download.pdf');
+
     }
 }

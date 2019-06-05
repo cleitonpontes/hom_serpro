@@ -102,12 +102,6 @@ class ContratofaturaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('contrato_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                    });
-//                },
             ],
             [
                 'name' => 'getTipoListaFatura',
