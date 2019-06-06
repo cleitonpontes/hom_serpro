@@ -35,6 +35,7 @@ class Contrato extends Model
         'processo',
         'objeto',
         'info_complementar',
+        'receita_despesa',
         'fundamento_legal',
         'modalidade_id',
         'licitacao_numero',
@@ -66,6 +67,19 @@ class Contrato extends Model
         return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
 
     }
+
+    public function getReceitaDespesa()
+    {
+        if($this->receita_despesa == 'D'){
+            return 'Despesa';
+        }
+        if($this->receita_despesa == 'R'){
+            return 'Receita';
+        }
+
+        return '';
+    }
+
     public function getUnidade()
     {
         $unidade = Unidade::find($this->unidade_id);
@@ -138,6 +152,27 @@ class Contrato extends Model
         return $this->belongsTo(Unidade::class, 'unidade_id');
 
     }
+
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Codigoitem::class, 'categoria_id');
+    }
+
+    public function modalidade()
+    {
+        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

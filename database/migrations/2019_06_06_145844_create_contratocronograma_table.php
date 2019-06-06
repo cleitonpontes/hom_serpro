@@ -15,6 +15,7 @@ class CreateContratocronogramaTable extends Migration
     {
         Schema::create('contratocronograma', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('contrato_id');
             $table->integer('contratohistorico_id');
             $table->char('receita_despesa',1);
             $table->string('mesref');
@@ -23,6 +24,9 @@ class CreateContratocronogramaTable extends Migration
             $table->decimal('valor',17,2)->default(0);
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
+            $table->foreign('contratohistorico_id')->references('id')->on('contratohistorico')->onDelete('cascade');
         });
     }
 

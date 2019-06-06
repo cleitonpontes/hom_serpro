@@ -39,6 +39,35 @@ class Contratohistorico extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function contrato()
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
+    public function unidade()
+    {
+        return $this->belongsTo(Unidade::class, 'unidade_id');
+    }
+
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Codigoitem::class, 'categoria_id');
+    }
+
+    public function modalidade()
+    {
+        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
+    }
 
     /*
     |--------------------------------------------------------------------------

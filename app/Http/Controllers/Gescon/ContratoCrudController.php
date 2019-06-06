@@ -57,7 +57,6 @@ class ContratoCrudController extends CrudController
         $this->crud->allowAccess('show');
 
         (backpack_user()->can('contrato_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('contrato_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('contrato_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
@@ -107,6 +106,17 @@ class ContratoCrudController extends CrudController
     public function Colunas()
     {
         $colunas = [
+            [
+                'name' => 'getReceitaDespesa',
+                'label' => 'Receita / Despesa', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getReceitaDespesa', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
             [
                 'name' => 'numero',
                 'label' => 'Número Contrato',
@@ -270,6 +280,23 @@ class ContratoCrudController extends CrudController
     public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos)
     {
         $campos = [
+            [ // select_from_array
+                'name' => 'receita_despesa',
+                'label' => "Receita / Despesa",
+                'type' => 'select_from_array',
+                'options' => [
+                    'D' => 'Despesa',
+                    'R' => 'Receita',
+                ],
+                'default' => 'D',
+                'allows_null' => false,
+                'tab' => 'Dados Gerais',
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
             [
                 // select_from_array
                 'name' => 'tipo_id',
@@ -292,7 +319,7 @@ class ContratoCrudController extends CrudController
 //                    'disabled' => 'disabled',
 //                ],
 //                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
                 'name' => 'numero',
