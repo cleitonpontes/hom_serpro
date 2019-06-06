@@ -30,6 +30,7 @@ class ContratoRequest extends FormRequest
             'fornecedor_id' => 'required',
             'tipo_id' => 'required',
             'categoria_id' => 'required',
+            'receita_despesa' => 'required',
             'unidade_id' => 'required',
             'processo' => 'required',
             'objeto' => 'required',
