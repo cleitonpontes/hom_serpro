@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ContratoRequest extends FormRequest
+class ContratohistoricoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,24 +26,7 @@ class ContratoRequest extends FormRequest
     public function rules()
     {
         return [
-            'numero' => 'required',
-            'fornecedor_id' => 'required',
-            'tipo_id' => 'required',
-            'categoria_id' => 'required',
-            'receita_despesa' => 'required',
-            'unidade_id' => 'required',
-            'processo' => 'required',
-            'objeto' => 'required',
-            'modalidade_id' => 'required',
-            'licitacao_numero' => 'required',
-            'data_assinatura' => 'required|date',
-            'vigencia_inicio' => 'required|date',
-            'vigencia_fim' => 'required|date',
-            'valor_global' => 'required',
-            'num_parcelas' => 'required',
-            'valor_parcela' => 'required',
-//            'arquivos' => 'file|mimes:pdf',
-            'situacao' => 'required',
+            // 'name' => 'required|min:5|max:255'
         ];
     }
 

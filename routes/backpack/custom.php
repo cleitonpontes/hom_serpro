@@ -79,6 +79,8 @@ Route::group([
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
                 CRUD::resource('arquivos', 'ContratoarquivoCrudController');
                 CRUD::resource('empenhos', 'ContratoempenhoCrudController');
+                CRUD::resource('historico', 'ContratohistoricoCrudController');
+                CRUD::resource('cronograma', 'ContratocronogramaCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 

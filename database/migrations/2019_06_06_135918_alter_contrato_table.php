@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateContratohistoricoTable extends Migration
+class AlterContratoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,8 @@ class CreateContratohistoricoTable extends Migration
      */
     public function up()
     {
-        Schema::create('contratohistorico', function (Blueprint $table) {
-            $table->increments('id');
-            $table->softDeletes();
-            $table->timestamps();
+        Schema::table('contratos', function (Blueprint $table) {
+            $table->char('receita_despesa',1)->nullable();
         });
     }
 
@@ -27,6 +25,8 @@ class CreateContratohistoricoTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contratohistorico');
+        Schema::table('contratos', function ($table) {
+            $table->dropColumn('receita_despesa');
+        });
     }
 }

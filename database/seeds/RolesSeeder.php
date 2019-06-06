@@ -24,7 +24,6 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'permissao_editar']);
         Permission::create(['name' => 'permissao_deletar']);
         Permission::create(['name' => 'contrato_inserir']);
-        Permission::create(['name' => 'contrato_editar']);
         Permission::create(['name' => 'contrato_deletar']);
         Permission::create(['name' => 'responsavel_inserir']);
         Permission::create(['name' => 'responsavel_editar']);
@@ -86,6 +85,9 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'unidade_inserir']);
         Permission::create(['name' => 'unidade_editar']);
         Permission::create(['name' => 'unidade_deletar']);
+        Permission::create(['name' => 'contratocronograma_inserir']);
+        Permission::create(['name' => 'contratocronograma_editar']);
+        Permission::create(['name' => 'contratocronograma_deletar']);
 
 
 
@@ -101,7 +103,6 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('permissao_editar');
         $role->givePermissionTo('permissao_deletar');
         $role->givePermissionTo('contrato_inserir');
-        $role->givePermissionTo('contrato_editar');
         $role->givePermissionTo('contrato_deletar');
         $role->givePermissionTo('responsavel_inserir');
         $role->givePermissionTo('responsavel_editar');
@@ -163,6 +164,9 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('unidade_inserir');
         $role->givePermissionTo('unidade_editar');
         $role->givePermissionTo('unidade_deletar');
+        $role->givePermissionTo('contratocronograma_inserir');
+        $role->givePermissionTo('contratocronograma_editar');
+        $role->givePermissionTo('contratocronograma_deletar');
 
     }
 }
