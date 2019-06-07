@@ -68,7 +68,18 @@ class AdminController extends Controller
 
         $categoria_contrato = Codigoitem::whereHas('codigo', function ($q){
             $q->where('descricao', '=', 'Categoria Contrato');
-        })->orderBy('codigo_id', 'asc')->pluck('descricao')->toArray();
+        })
+            ->join('contratos', function ($join){
+                $join->on('codigoitens.id', '=', 'contratos.categoria_id');
+            })
+            ->orderBy('codigo_id', 'asc')->pluck('descricao')->toArray();
+
+        $cat = array_unique($categoria_contrato);
+
+        $categorias=[];
+        foreach ($cat as $c){
+            $categorias[] = $c;
+        }
 
         $contrato = DB::table('contratos')
             ->select(DB::raw('categoria_id, count(categoria_id)'))
@@ -81,7 +92,7 @@ class AdminController extends Controller
             ->name('pieChartTest')
             ->type('doughnut')
             ->size(['width' => 400, 'height' => 200])
-            ->labels($categoria_contrato)
+            ->labels($categorias)
             ->datasets([
                 [
                     'backgroundColor' => $colors,

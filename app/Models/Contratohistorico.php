@@ -24,7 +24,29 @@ class Contratohistorico extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = [];
+    protected $fillable = [
+        'numero',
+        'contrato_id',
+        'fornecedor_id',
+        'unidade_id',
+        'tipo_id',
+        'categoria_id',
+        'receita_despesa',
+        'processo',
+        'objeto',
+        'info_complementar',
+        'fundamento_legal',
+        'modalidade_id',
+        'licitacao_numero',
+        'data_assinatura',
+        'data_publicacao',
+        'vigencia_inicio',
+        'vigencia_fim',
+        'valor_inicial',
+        'valor_global',
+        'num_parcelas',
+        'valor_parcela',
+    ];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -33,6 +55,83 @@ class Contratohistorico extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
+    public function createFromNewContrato(array $dado)
+    {
+        $this->fill($dado);
+        $this->save();
+        return $this;
+    }
+
+    public function getFornecedor()
+    {
+        $fornecedor = Fornecedor::find($this->fornecedor_id);
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+
+    }
+
+    public function getReceitaDespesa()
+    {
+        if($this->receita_despesa == 'D'){
+            return 'Despesa';
+        }
+        if($this->receita_despesa == 'R'){
+            return 'Receita';
+        }
+
+        return '';
+    }
+
+    public function getUnidade()
+    {
+        $unidade = Unidade::find($this->unidade_id);
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+
+    }
+
+    public function getOrgao()
+    {
+        $orgao = Orgao::whereHas('unidades', function ($query) {
+            $query->where('id','=', $this->unidade_id);
+        })->first();
+
+        return $orgao->codigo . ' - ' . $orgao->nome;
+
+    }
+
+    public function getTipo()
+    {
+        if($this->tipo_id){
+            $tipo = Codigoitem::find($this->tipo_id);
+
+            return $tipo->descricao;
+        }else{
+            return '';
+        }
+
+
+    }
+
+
+    public function getCategoria()
+    {
+        $categoria = Codigoitem::find($this->categoria_id);
+
+        return $categoria->descricao;
+
+    }
+
+
+    public function formatVlrParcela()
+    {
+        return 'R$ '.number_format($this->valor_parcela, 2, ',', '.');
+    }
+
+    public function formatVlrGlobal()
+    {
+        return 'R$ '.number_format($this->valor_global, 2, ',', '.');
+    }
+
 
     /*
     |--------------------------------------------------------------------------
