@@ -1,5 +1,31 @@
 ![Logo](public/img/logo_mail.png)
 ## SISTEMA CONTA - Gestão Administrativa para Órgãos Públicos
+Sistema de Gestão Administrativa e de Contratos para Órgãos Públicos.
+
+## Tecnologia Utilizada
+
+A ferramenta é desenvolvida em PHP, utilizando  Framework Laravel versão 5.7.*
+
+Essa ferramenta é Gratuita, e cada Instituição Pública poderá utilizá-la sem limites.
+ 
+Caso o órgão queira implementar nova funcionalidade, pedimos que disponibilize esta para que outras instituições possa utilizar.
+
+## Licença
+
+A licença dessa ferramenta é GPLv2. Pedimos que toda implementação seja disponibilizada para a comunidade.
+
+## Versões, Requisitos, Instalação e Configuração
+
+### Versões
+
+- Laravel 5.7;
+- PHP 7.1+;
+- PostgreSQL 9.6+
+
+### Requisitos para instalação
+
+- Git;
+- Composer.
 
 ### Como Instalar
 Para baixar o conteúdo via Git utilize o seguinte comando:
