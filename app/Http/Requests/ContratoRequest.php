@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Unique;
 
 class ContratoRequest extends FormRequest
 {
@@ -25,8 +26,16 @@ class ContratoRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+        $unidade_id = $this->unidade_id ?? "NULL";
+
         return [
-            'numero' => 'required',
+            'numero' => [
+                'required',
+                (new Unique('contratos','numero'))
+                    ->ignore($id)
+                    ->where('unidade_id',$unidade_id)
+            ],
             'fornecedor_id' => 'required',
             'tipo_id' => 'required',
             'categoria_id' => 'required',
