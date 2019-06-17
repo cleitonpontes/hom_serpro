@@ -24,7 +24,15 @@ class Contratocronograma extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = [];
+    protected $fillable = [
+        'contrato_id',
+        'contratohistorico_id',
+        'receita_despesa',
+        'mesref',
+        'anoref',
+        'vencimento',
+        'valor',
+    ];
     // protected $hidden = [];
     // protected $dates = [];
 

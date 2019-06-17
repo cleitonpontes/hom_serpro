@@ -30,7 +30,7 @@ class ContratohistoricoListener
     public function handle(ContratohistoricoEvent $event)
     {
 
-        $this->contratohistorico->createNewHistorico($event);
+        $this->contratohistorico->createNewHistorico($event->contratohistorico);
 
         event(new ContratocronogramaEvent($this->contratohistorico));
 

@@ -15,6 +15,8 @@ class ContratocronogramaEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $contratohistorico;
+
     /**
      * Create a new event instance.
      *

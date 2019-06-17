@@ -15,6 +15,8 @@ class ContratohistoricoEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $contratohistorico;
+
     /**
      * Create a new event instance.
      *
