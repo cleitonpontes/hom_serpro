@@ -46,15 +46,15 @@ class ContratohistoricoObserve
 
             }
 
-            $cronograma = $this->contratocronograma->where('contrato_id', '=' ,$contratohistorico->contrato_id)
-                ->where('contratohistorico_id','=',$contratohistorico->id)
-                ->get();
-
-            if($cronograma){
-                foreach ($cronograma as $cron){
-                    $cron->delete();
-                }
-            }
+//            $cronograma = $this->contratocronograma->where('contrato_id', '=' ,$contratohistorico->contrato_id)
+//                ->where('contratohistorico_id','=',$contratohistorico->id)
+//                ->get();
+//
+//            if($cronograma){
+//                foreach ($cronograma as $cron){
+//                    $cron->delete();
+//                }
+//            }
 
             DB::table('contratocronograma')->insert($dado);
 
