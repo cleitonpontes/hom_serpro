@@ -58,7 +58,9 @@ class ContratocronogramaListener
                 ->get();
 
             if($cronograma){
-                $cronograma->delete();
+                foreach ($cronograma as $cron){
+                    $cron->delete();
+                }
             }
 
             DB::table('contratocronograma')->insert($dado);
