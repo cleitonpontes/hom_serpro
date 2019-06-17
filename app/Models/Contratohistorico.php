@@ -163,6 +163,12 @@ class Contratohistorico extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function cronograma(){
+
+        return $this->hasMany(Contratocronograma::class, 'contratohistorico_id');
+
+    }
+
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');

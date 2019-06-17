@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Contrato;
+use App\Models\Contratohistorico;
+use App\Observers\ContratohistoricoObserve;
+use App\Observers\ContratoObserve;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -18,15 +22,6 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        'App\Events\ContratoInsertEvent' => [
-            'App\Listeners\ContratoInsertListener',
-        ],
-        'App\Events\ContratohistoricoEvent' => [
-            'App\Listeners\ContratohistoricoListener',
-        ],
-        'App\Events\ContratocronogramaEvent' => [
-            'App\Listeners\ContratocronogramaListener',
-        ],
     ];
 
     /**
@@ -36,6 +31,10 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        Contrato::observe(ContratoObserve::class);
+        Contratohistorico::observe(ContratohistoricoObserve::class);
+
         parent::boot();
 
         //

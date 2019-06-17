@@ -485,8 +485,6 @@ class ContratoCrudController extends CrudController
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
 
-        event(new ContratoInsertEvent($this->crud->entry));
-
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;

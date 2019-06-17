@@ -134,6 +134,19 @@ class Contrato extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function historico(){
+
+        return $this->hasMany(Contratohistorico::class, 'contrato_id');
+
+    }
+
+    public function cronograma(){
+
+        return $this->hasMany(Contratocronograma::class, 'contrato_id');
+
+    }
+
+
     public function responsaveis(){
 
         return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
@@ -143,6 +156,36 @@ class Contrato extends Model
     public function garantias(){
 
         return $this->hasMany(Contratogarantia::class, 'contrato_id');
+
+    }
+
+    public function arquivos(){
+
+        return $this->hasMany(Contratoarquivo::class, 'contrato_id');
+
+    }
+
+    public function empenhos(){
+
+        return $this->hasMany(Contratoempenho::class, 'contrato_id');
+
+    }
+
+    public function faturas(){
+
+        return $this->hasMany(Contratofatura::class, 'contrato_id');
+
+    }
+
+    public function ocorrencias(){
+
+        return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
+
+    }
+
+    public function terceirizados(){
+
+        return $this->hasMany(Contratoterceirizado::class, 'contrato_id');
 
     }
 

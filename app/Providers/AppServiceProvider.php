@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Contrato;
+use App\Models\Contratohistorico;
+use App\Observers\ContratohistoricoObserve;
+use App\Observers\ContratoObserve;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
@@ -18,16 +22,13 @@ class AppServiceProvider extends ServiceProvider
     {
 
         if (!app()->runningInConsole()) {
-
-                Activity::saving(function (Activity $activity) {
-                    $activity->ip = \Request::ip();
-                    if(backpack_user()){
-                        $activity->causer_id = backpack_user()->id;
-                    }
-                });
-
+            Activity::saving(function (Activity $activity) {
+                $activity->ip = \Request::ip();
+                if (backpack_user()) {
+                    $activity->causer_id = backpack_user()->id;
+                }
+            });
         }
-
     }
 
     /**
@@ -37,6 +38,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+
     }
 }
