@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Contrato;
+use App\Models\Contratohistorico;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -11,19 +11,18 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class ContratoEvent
+class ContratocronogramaEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $contrato;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Contrato $contrato)
+    public function __construct(Contratohistorico $contratohistorico)
     {
-        $this->contrato = $contrato;
+        $this->contratohistorico = $contratohistorico;
     }
 
     /**

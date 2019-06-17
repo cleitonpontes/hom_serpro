@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Gescon;
 
-use App\Events\ContratoEvent;
+use App\Events\ContratoInsertEvent;
 use App\Models\Codigoitem;
 use App\Models\Contratohistorico;
 use App\Models\Fornecedor;
@@ -485,7 +485,7 @@ class ContratoCrudController extends CrudController
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
 
-        event(new ContratoEvent($this->crud->entry));
+        event(new ContratoInsertEvent($this->crud->entry));
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry

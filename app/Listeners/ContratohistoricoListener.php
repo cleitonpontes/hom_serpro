@@ -2,20 +2,23 @@
 
 namespace App\Listeners;
 
+use App\Events\ContratocronogramaEvent;
+use App\Events\ContratoInsertEvent;
 use App\Events\ContratohistoricoEvent;
+use App\Models\Contratohistorico;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ContratoCronogramaListener
+class ContratohistoricoListener
 {
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Contratohistorico $contratohistorico)
     {
-        //
+        $this->contratohistorico = $contratohistorico;
     }
 
     /**
@@ -26,6 +29,10 @@ class ContratoCronogramaListener
      */
     public function handle(ContratohistoricoEvent $event)
     {
-        //
+
+        $this->contratohistorico->createNewHistorico($event);
+
+        event(new ContratocronogramaEvent($this->contratohistorico));
+
     }
 }

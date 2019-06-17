@@ -2,33 +2,33 @@
 
 namespace App\Listeners;
 
-use App\Events\ContratoEvent;
+use App\Events\ContratoInsertEvent;
 use App\Events\ContratohistoricoEvent;
 use App\Models\Contratohistorico;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ContratoHistoricoListener
+class ContratoInsertListener
 {
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(Contratohistorico $contratohistorico)
+    public function __construct()
     {
-        $this->contratohistorico = $contratohistorico;
+
     }
 
     /**
      * Handle the event.
      *
-     * @param  ContratoEvent  $event->contrato
+     * @param  ContratoInsertEvent  $event->contrato
      * @return void
      */
-    public function handle(ContratoEvent $event)
+    public function handle(ContratoInsertEvent $event)
     {
-        $instrumento_inicial = [
+        $instrumento = [
             'numero' => trim($event->contrato->numero),
             'contrato_id' => trim($event->contrato->id),
             'fornecedor_id' => trim($event->contrato->fornecedor_id),
@@ -52,9 +52,7 @@ class ContratoHistoricoListener
             'valor_parcela' => trim($event->contrato->valor_parcela),
         ];
 
-        $this->contratohistorico->createFromNewContrato($instrumento_inicial);
-
-        event(new ContratohistoricoEvent($this->contratohistorico));
+        event(new ContratohistoricoEvent($instrumento));
 
     }
 }

@@ -56,11 +56,23 @@ class Contratohistorico extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function createFromNewContrato(array $dado)
+    public function createNewHistorico(array $dado)
     {
-        $this->fill($dado);
-        $this->save();
-        return $this;
+        $contratohistorico = $this->where('numero', '=', $dado['numero'])
+            ->where('contrato_id', '=', $dado['contrato_id'])
+            ->where('tipo_id', '=', $dado['tipo_id'])
+            ->first();
+
+        if(!$contratohistorico){
+            $this->fill($dado);
+            $this->save();
+            return $this;
+        }
+
+        $contratohistorico->fill($dado);
+        $contratohistorico->save();
+        return $contratohistorico;
+
     }
 
     public function getFornecedor()
