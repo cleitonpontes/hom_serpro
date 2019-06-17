@@ -14,9 +14,9 @@ class ContratoObserve
      * @return void
      */
     public function created(Contrato $contrato)
-    {
-        Contratohistorico::create($contrato->toArray()+['contrato_id' => $contrato->id]);
-    }
+{
+    Contratohistorico::create($contrato->toArray()+['contrato_id' => $contrato->id]);
+}
 
     /**
      * Handle the contrato "updated" event.
