@@ -18,6 +18,12 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        'App\Events\ContratoEvent' => [
+            'App\Listeners\ContratoHistoricoListener',
+        ],
+        'App\Events\ContratohistoricoEvent' => [
+            'App\Listeners\ContratoCronogramaListener'
+        ],
     ];
 
     /**

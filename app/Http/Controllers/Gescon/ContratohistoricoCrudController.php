@@ -164,6 +164,62 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'fundamento_legal',
+                'label' => 'Fundamento Legal',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'getModalidade',
+                'label' => 'Modalidade', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getModalidade', // the method in your Model
+                'orderable' => true,
+                'limit' => 1000,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
+//                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
+//                },
+            ],
+            [
+                'name' => 'licitacao_numero',
+                'label' => 'Número Licitação',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'data_assinatura',
+                'label' => 'Data Assinatura',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'data_publicacao',
+                'label' => 'Data Publicação',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'vigencia_inicio',
                 'label' => 'Vig. Início',
                 'type' => 'date',
@@ -216,21 +272,38 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'situacao',
-                'label' => 'Situação',
-                'type' => 'boolean',
+                'name' => 'situacao_siasg',
+                'label' => 'Situação SIASG',
+                'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                // optionally override the Yes/No texts
-                'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
         ];
 
         return $colunas;
 
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('fornecedor_id');
+        $this->crud->removeColumn('tipo_id');
+        $this->crud->removeColumn('categoria_id');
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('modalidade_id');
+        $this->crud->removeColumn('valor_inicial');
+        $this->crud->removeColumn('valor_global');
+        $this->crud->removeColumn('valor_parcela');
+        $this->crud->removeColumn('valor_acumulado');
+        $this->crud->removeColumn('receita_despesa');
+        $this->crud->removeColumn('contrato_id');
+
+        return $content;
     }
     
     public function store(StoreRequest $request)

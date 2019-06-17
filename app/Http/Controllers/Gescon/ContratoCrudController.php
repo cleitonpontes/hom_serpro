@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Events\ContratoEvent;
 use App\Models\Codigoitem;
 use App\Models\Contratohistorico;
 use App\Models\Fornecedor;
@@ -484,32 +485,7 @@ class ContratoCrudController extends CrudController
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
 
-        $instrumento_inicial = [
-            'numero' => trim($this->crud->entry->numero),
-            'contrato_id' => trim($this->crud->entry->id),
-            'fornecedor_id' => trim($this->crud->entry->fornecedor_id),
-            'unidade_id' => trim($this->crud->entry->unidade_id),
-            'tipo_id' => trim($this->crud->entry->tipo_id),
-            'categoria_id' => trim($this->crud->entry->categoria_id),
-            'receita_despesa' => trim($this->crud->entry->receita_despesa),
-            'processo' => trim($this->crud->entry->processo),
-            'objeto' => trim($this->crud->entry->objeto),
-            'info_complementar' => trim($this->crud->entry->info_complementar),
-            'fundamento_legal' => trim($this->crud->entry->fundamento_legal),
-            'modalidade_id' => trim($this->crud->entry->modalidade_id),
-            'licitacao_numero' => trim($this->crud->entry->licitacao_numero),
-            'data_assinatura' => trim($this->crud->entry->data_assinatura),
-            'data_publicacao' => trim($this->crud->entry->data_publicacao),
-            'vigencia_inicio' => trim($this->crud->entry->vigencia_inicio),
-            'vigencia_fim' => trim($this->crud->entry->vigencia_fim),
-            'valor_inicial' => trim($this->crud->entry->valor_inicial),
-            'valor_global' => trim($this->crud->entry->valor_global),
-            'num_parcelas' => trim($this->crud->entry->num_parcelas),
-            'valor_parcela' => trim($this->crud->entry->valor_parcela),
-        ];
-
-        $historico = new Contratohistorico;
-        $historico->createFromNewContrato($instrumento_inicial);
+        event(new ContratoEvent($this->crud->entry));
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -551,6 +527,7 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('valor_parcela');
         $this->crud->removeColumn('valor_acumulado');
         $this->crud->removeColumn('situacao_siasg');
+
 
         return $content;
     }

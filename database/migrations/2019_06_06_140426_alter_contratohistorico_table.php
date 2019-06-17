@@ -23,7 +23,7 @@ class AlterContratohistoricoTable extends Migration
             $table->integer('unidade_id')->nullable();
             $table->integer('tipo_id')->nullable();
             $table->integer('categoria_id')->nullable();
-            $table->char('receita_despesa')->nullable();
+            $table->char('receita_despesa',1)->nullable();
             $table->string('processo')->nullable();
             $table->text('objeto')->nullable();
             $table->text('info_complementar')->nullable();

@@ -112,6 +112,19 @@ class Contratohistorico extends Model
 
     }
 
+    public function getModalidade()
+    {
+        if($this->modalidade_id){
+            $modalidade = Codigoitem::find($this->modalidade_id);
+
+            return $modalidade->descricao;
+        }else{
+            return '';
+        }
+
+
+    }
+
 
     public function getCategoria()
     {

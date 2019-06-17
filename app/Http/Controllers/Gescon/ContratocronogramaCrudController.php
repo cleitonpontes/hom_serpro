@@ -36,6 +36,7 @@ class ContratocronogramaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/cronograma');
         $this->crud->setEntityNameStrings('Cronograma Contrato', 'Cronograma Contrato');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
+        $this->crud->orderBy('vencimento', 'asc');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -54,11 +55,107 @@ class ContratocronogramaCrudController extends CrudController
         */
 
         // TODO: remove setFromDb() and manually define Fields and Columns
-        $this->crud->setFromDb();
+        $colunas = $this->Colunas();
+        $this->crud->addColumns($colunas);
 
         // add asterisk for fields that are required in ContratocronogramaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+    }
+
+    public function Colunas()
+    {
+        $colunas = [
+            [
+                'name' => 'getReceitaDespesa',
+                'label' => 'Receita / Despesa', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getReceitaDespesa', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'getContratoNumero',
+                'label' => 'Número Contrato', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getContratoNumero', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'getContratoHistorico',
+                'label' => 'Instrumento - Número', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getContratoHistorico', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'mesref',
+                'label' => 'Mês Referência', // Table column heading
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'anoref',
+                'label' => 'Ano Referência', // Table column heading
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'vencimento',
+                'label' => 'Vencimento',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlr',
+                'label' => 'Valor', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlr', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+        ];
+
+        return $colunas;
+
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('contrato_id');
+        $this->crud->removeColumn('contratohistorico_id');
+        $this->crud->removeColumn('receita_despesa');
+        $this->crud->removeColumn('valor');
+
+        return $content;
     }
 
     public function store(StoreRequest $request)

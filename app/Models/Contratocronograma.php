@@ -33,7 +33,41 @@ class Contratocronograma extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getReceitaDespesa()
+    {
+        if($this->receita_despesa == 'D'){
+            return 'Despesa';
+        }
+        if($this->receita_despesa == 'R'){
+            return 'Receita';
+        }
 
+        return '';
+    }
+
+    public function getContratoNumero()
+    {
+        $contrato = Contrato::find($this->contrato_id);
+        return $contrato->numero;
+
+    }
+    public function getContratoHistorico()
+    {
+        $contratohistorico = Contratohistorico::find($this->contratohistorico_id);
+
+        return $contratohistorico->tipo->descricao . ' - ' . $contratohistorico->numero;
+
+    }
+    public function getMesAnoReferencia()
+    {
+        return $this->mesref . '/' . $this->anoref;
+
+    }
+
+    public function formatVlr()
+    {
+        return 'R$ '.number_format($this->valor, 2, ',', '.');
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
