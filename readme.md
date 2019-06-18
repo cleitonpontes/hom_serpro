@@ -77,3 +77,7 @@ chmod +x up.sh
 __*Observação: O usuário que executar esses comandos deverá ter as permissões necessárias.*__
 
 Conheça nossa [Wiki](https://gitlab.com/sistema-conta/sc/wikis/home)!
+
+## Atualização e Versões
+
+Todas as atualizações realizadas no Sistema Conta serão disponibilizadas no arquivo: [changelog.md](https://gitlab.com/sistema-conta/sc/blob/master/changelog.md)!
