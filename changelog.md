@@ -1,10 +1,11 @@
 # Changelog
 
-Todas as alterações do Sistema Conta serão documentadas neste arquivo
+Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
-## [5.0.001] Próxima - 31/07/2019
+## [5.0.001] Próxima - Previsão: 31/07/2019
 
 ### Implementação
+- CRUD para alteração do Instrumento Inicial para correção de erros digitação;
 - Data Início e Data Fim para Responsáveis de Contratos;
 - Cronograma de Desembolso Financeiro do Contrato;
 - Todas as funcionalidades do Sistema Conta Versão 4.1.11 (Framework Scriptcase);
@@ -20,16 +21,13 @@ Todas as alterações do Sistema Conta serão documentadas neste arquivo
 
 ### Segurança
 - Nenhuma
+
 -----------
 
-<!--
-## [5.0.xxx] - 18/06/2019 (Previsão: 31/07/2019)
+## [5.0.000] - 15/03/2019 - Versão de Sistema em Desenvolvimento
 
 ### Implementação - em Andamento
-- Data Início e Data Fim para Responsáveis de Contratos;
-- Cronograma de Desembolso Financeiro do Contrato;
-- Todas as funcionalidades do Sistema Conta Versão 4.1.11 (Framework Scriptcase);
+- Algumas as funcionalidades do Sistema Conta Versão 4.1.11 (Framework Scriptcase);
 
 ### Bug
-- Alteração do campo receita_despesa da tabela contratohistorico para CHAR(1).
--->
+- Nenhuma.
