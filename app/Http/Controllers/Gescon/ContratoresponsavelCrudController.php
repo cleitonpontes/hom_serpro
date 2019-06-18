@@ -145,6 +145,26 @@ class ContratoresponsavelCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'data_inicio',
+                'label' => 'Data Início',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'data_fim',
+                'label' => 'Data Fim',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'situacao',
                 'label' => 'Situação',
                 'type' => 'boolean',
@@ -224,6 +244,16 @@ class ContratoresponsavelCrudController extends CrudController
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"
                 ]
+            ],
+            [
+                'name' => 'data_inicio',
+                'label' => 'Data Início',
+                'type' => 'date',
+            ],
+            [
+                'name' => 'data_fim',
+                'label' => 'Data Fim',
+                'type' => 'date',
             ],
             [ // select_from_array
                 'name' => 'situacao',

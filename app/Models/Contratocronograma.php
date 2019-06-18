@@ -97,7 +97,15 @@ class Contratocronograma extends Model
 
     private function inserirDadosEmMassa(array $dados)
     {
-        DB::table('contratocronograma')->insert($dados);
+        $newdados = [];
+        foreach ($dados as $d){
+            $newdados[] = $d + [
+                'created_at' => \Carbon\Carbon::now(),
+                'updated_at' => \Carbon\Carbon::now(),
+                    ];
+        }
+
+        DB::table('contratocronograma')->insert($newdados);
 
         return true;
 
