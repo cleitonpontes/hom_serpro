@@ -24,6 +24,7 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'permissao_editar']);
         Permission::create(['name' => 'permissao_deletar']);
         Permission::create(['name' => 'contrato_inserir']);
+        Permission::create(['name' => 'contrato_editar']);
         Permission::create(['name' => 'contrato_deletar']);
         Permission::create(['name' => 'responsavel_inserir']);
         Permission::create(['name' => 'responsavel_editar']);
@@ -103,6 +104,7 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('permissao_editar');
         $role->givePermissionTo('permissao_deletar');
         $role->givePermissionTo('contrato_inserir');
+        $role->givePermissionTo('contrato_editar');
         $role->givePermissionTo('contrato_deletar');
         $role->givePermissionTo('responsavel_inserir');
         $role->givePermissionTo('responsavel_editar');

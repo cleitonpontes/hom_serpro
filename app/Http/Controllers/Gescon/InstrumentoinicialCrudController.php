@@ -3,78 +3,77 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Models\Codigoitem;
-use App\Models\Contratohistorico;
+use App\Models\Contrato;
 use App\Models\Fornecedor;
-use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
-use App\Http\Requests\ContratoRequest as StoreRequest;
-use App\Http\Requests\ContratoRequest as UpdateRequest;
-use Codedge\Fpdf\Fpdf\Fpdf;
-use Illuminate\Database\Eloquent\Builder;
+use App\Http\Requests\InstrumentoinicialRequest as StoreRequest;
+use App\Http\Requests\InstrumentoinicialRequest as UpdateRequest;
+use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Class ContratoCrudController
+ * Class InstrumentoinicialCrudController
  * @package App\Http\Controllers\Admin
  * @property-read CrudPanel $crud
  */
-class ContratoCrudController extends CrudController
+class InstrumentoinicialCrudController extends CrudController
 {
-    /**
-     *
-     */
     public function setup()
     {
+
+        $contrato_id = \Route::current()->parameter('contrato_id');
+
+        $contrato = Contrato::where('id','=',$contrato_id)
+            ->where('unidade_id','=',session()->get('user_ug_id'))->first();
+        if(!$contrato){
+            abort('403', config('app.erro_permissao'));
+        }
+
+        $tps = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '=', 'Termo Aditivo')
+            ->orWhere('descricao', '=', 'Termo de Apostilamento')
+            ->pluck('id')
+            ->toArray();
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel('App\Models\Contrato');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato');
-        $this->crud->setEntityNameStrings('Contrato', 'Contratos');
-        $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
-        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
+        $this->crud->setModel('App\Models\Contratohistorico');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/instrumentoinicial');
+        $this->crud->setEntityNameStrings('Instrumento Inicial', 'Instrumento Inicial');
+        $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratohistorico.fornecedor_id');
+        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratohistorico.unidade_id');
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-        $this->crud->addClause('select', 'contratos.*');
+        $this->crud->addClause('select', 'contratohistorico.*');
+        $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
+        foreach ($tps as $t){
+            $this->crud->addClause('where', 'tipo_id', '<>', $t);
+        }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CrudPanel Configuration Global
-        |--------------------------------------------------------------------------
-        */
-        $this->crud->setRequiredFields(StoreRequest::class, 'create');
-        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
-
-        $this->crud->addButtonFromView('line', 'extratocontrato', 'extratocontrato', 'beginning');
-        $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
-        (backpack_user()->can('contrato_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('contrato_deletar')) ? $this->crud->allowAccess('delete') : null;
+        (backpack_user()->can('contrato_editar')) ? $this->crud->allowAccess('update') : null;
 
         /*
         |--------------------------------------------------------------------------
-        | CrudPanel Configuration Collumns Table
+        | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
 
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CrudPanel Configuration Campos Formulário
-        |--------------------------------------------------------------------------
-        */
 
         $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
             ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
@@ -102,16 +101,19 @@ class ContratoCrudController extends CrudController
         $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos);
         $this->crud->addFields($campos);
 
+        // add asterisk for fields that are required in InstrumentoinicialRequest
+        $this->crud->setRequiredFields(StoreRequest::class, 'create');
+        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
     public function Colunas()
     {
         $colunas = [
             [
-                'name' => 'getReceitaDespesa',
+                'name' => 'getReceitaDespesaHistorico',
                 'label' => 'Receita / Despesa', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getReceitaDespesa', // the method in your Model
+                'function_name' => 'getReceitaDespesaHistorico', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -129,10 +131,10 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'getUnidade',
+                'name' => 'getUnidadeHistorico',
                 'label' => 'Unidade Gestora', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getUnidade', // the method in your Model
+                'function_name' => 'getUnidadeHistorico', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -140,10 +142,10 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'getTipo',
+                'name' => 'getTipoHistorico',
                 'label' => 'Tipo', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getTipo', // the method in your Model
+                'function_name' => 'getTipoHistorico', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -151,10 +153,10 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'getCategoria',
+                'name' => 'getCategoriaHistorico',
                 'label' => 'Categoria', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getCategoria', // the method in your Model
+                'function_name' => 'getCategoriaHistorico', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -162,20 +164,20 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'getFornecedor',
+                'name' => 'getFornecedorHistorico',
                 'label' => 'Fornecedor', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getFornecedor', // the method in your Model
+                'function_name' => 'getFornecedorHistorico', // the method in your Model
                 'orderable' => true,
                 'limit' => 1000,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
-                },
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
+//                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
+//                },
             ],
             [
                 'name' => 'processo',
@@ -229,10 +231,10 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'formatVlrGlobal',
+                'name' => 'formatVlrGlobalHistorico',
                 'label' => 'Valor Global', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'formatVlrGlobal', // the method in your Model
+                'function_name' => 'formatVlrGlobalHistorico', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -250,10 +252,10 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'formatVlrParcela',
+                'name' => 'formatVlrParcelaHistorico',
                 'label' => 'Valor Parcela', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'formatVlrParcela', // the method in your Model
+                'function_name' => 'formatVlrParcelaHistorico', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -320,7 +322,7 @@ class ContratoCrudController extends CrudController
 //                    'disabled' => 'disabled',
 //                ],
 //                'default' => 'one',
-            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
                 'name' => 'numero',
@@ -513,7 +515,6 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('tipo_id');
         $this->crud->removeColumn('categoria_id');
         $this->crud->removeColumn('unidade_id');
-        $this->crud->removeColumn('info_complementar');
         $this->crud->removeColumn('fundamento_legal');
         $this->crud->removeColumn('modalidade_id');
         $this->crud->removeColumn('licitacao_numero');
@@ -524,20 +525,10 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('valor_parcela');
         $this->crud->removeColumn('valor_acumulado');
         $this->crud->removeColumn('situacao_siasg');
+        $this->crud->removeColumn('contrato_id');
+        $this->crud->removeColumn('receita_despesa');
 
 
         return $content;
-    }
-
-    public function extratoPdf()
-    {
-        $pdf = new Pdf("P","mm","A4");
-        $pdf->SetTitle("Extrato Contrato",1);
-        $pdf->AliasNbPages();
-        $pdf->AddPage();
-        $pdf->SetFont('Courier', 'B', 18);
-        $pdf->Cell(50, 25, 'Hello World!');
-        $pdf->Output('D','download.pdf');
-
     }
 }

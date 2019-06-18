@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Contrato;
 use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,22 @@ class ContratohistoricoObserve
      */
     public function updated(Contratohistorico $contratohistorico)
     {
-        $this->contratocronograma->atualizaCronogramaFromHistorico($contratohistorico);
+        $historico = Contratohistorico::where('contrato_id','=',$contratohistorico->contrato_id)
+            ->orderBy('data_assinatura')
+            ->get();
+
+        foreach ($historico as $h){
+            $this->contratocronograma->atualizaCronogramaFromHistorico($h);
+
+            $arrayhistorico = $h->toArray();
+            unset($arrayhistorico['contrato_id']);
+            unset($arrayhistorico['id']);
+
+            Contrato::where('id','=',$contratohistorico->contrato_id)
+                ->update($arrayhistorico);
+
+        }
+
     }
 
     /**

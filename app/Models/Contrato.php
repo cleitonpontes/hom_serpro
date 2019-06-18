@@ -61,6 +61,12 @@ class Contrato extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function atualizaContratoFromHistorico(Contratohistorico $contratohistorico){
+
+
+
+    }
+
     public function getFornecedor()
     {
         $fornecedor = Fornecedor::find($this->fornecedor_id);

@@ -81,6 +81,9 @@ Route::group([
                 CRUD::resource('empenhos', 'ContratoempenhoCrudController');
                 CRUD::resource('historico', 'ContratohistoricoCrudController');
                 CRUD::resource('cronograma', 'ContratocronogramaCrudController');
+                CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
+                CRUD::resource('aditivos', 'AditivoCrudController');
+                CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 

@@ -55,6 +55,74 @@ class Contratohistorico extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getFornecedorHistorico()
+    {
+        $fornecedor = Fornecedor::find($this->fornecedor_id);
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+
+    }
+
+    public function getReceitaDespesaHistorico()
+    {
+        if($this->receita_despesa == 'D'){
+            return 'Despesa';
+        }
+        if($this->receita_despesa == 'R'){
+            return 'Receita';
+        }
+
+        return '';
+    }
+
+    public function getUnidadeHistorico()
+    {
+        $unidade = Unidade::find($this->unidade_id);
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+
+    }
+
+    public function getOrgaoHistorico()
+    {
+        $orgao = Orgao::whereHas('unidades', function ($query) {
+            $query->where('id','=', $this->unidade_id);
+        })->first();
+
+        return $orgao->codigo . ' - ' . $orgao->nome;
+
+    }
+
+    public function getTipoHistorico()
+    {
+        if($this->tipo_id){
+            $tipo = Codigoitem::find($this->tipo_id);
+
+            return $tipo->descricao;
+        }else{
+            return '';
+        }
+
+
+    }
+
+
+    public function getCategoriaHistorico()
+    {
+        $categoria = Codigoitem::find($this->categoria_id);
+
+        return $categoria->descricao;
+
+    }
+
+
+    public function formatVlrParcelaHistorico()
+    {
+        return 'R$ '.number_format($this->valor_parcela, 2, ',', '.');
+    }
+
+    public function formatVlrGlobalHistorico()
+    {
+        return 'R$ '.number_format($this->valor_global, 2, ',', '.');
+    }
 
     public function createNewHistorico(array $dado)
     {
