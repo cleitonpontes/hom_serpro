@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
@@ -39,14 +40,37 @@ class ContratohistoricoObserve
             ->get();
 
         foreach ($historico as $h){
+
             $this->contratocronograma->atualizaCronogramaFromHistorico($h);
 
             $arrayhistorico = $h->toArray();
-            unset($arrayhistorico['contrato_id']);
+
+            $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
+
+            if($tipo->descricao == 'Termo Aditivo' or $tipo->descricao == 'Termo de Apostilamento'){
+                unset($arrayhistorico['numero']);
+                unset($arrayhistorico['receita_despesa']);
+                unset($arrayhistorico['tipo_id']);
+                unset($arrayhistorico['categoria_id']);
+                unset($arrayhistorico['processo']);
+                unset($arrayhistorico['modalidade_id']);
+                unset($arrayhistorico['licitacao_numero']);
+                unset($arrayhistorico['data_assinatura']);
+                unset($arrayhistorico['data_publicacao']);
+                unset($arrayhistorico['valor_inicial']);
+            }
             unset($arrayhistorico['id']);
+            unset($arrayhistorico['contrato_id']);
+            unset($arrayhistorico['created_at']);
+            unset($arrayhistorico['updated_at']);
+
+            $array = array_filter($arrayhistorico, function($a) {
+                return trim($a) !== "";
+            });
+
 
             Contrato::where('id','=',$contratohistorico->contrato_id)
-                ->update($arrayhistorico);
+                ->update($array);
 
         }
 
