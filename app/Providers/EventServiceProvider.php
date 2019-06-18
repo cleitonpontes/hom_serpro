@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Contrato;
+use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
+use App\Observers\ContratocronogramaObserve;
 use App\Observers\ContratohistoricoObserve;
 use App\Observers\ContratoObserve;
 use Illuminate\Support\Facades\Event;
@@ -31,9 +33,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
-        Contrato::observe(ContratoObserve::class);
-        Contratohistorico::observe(ContratohistoricoObserve::class);
 
         parent::boot();
 

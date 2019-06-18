@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Contrato;
+use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
+use App\Observers\ContratocronogramaObserve;
 use App\Observers\ContratohistoricoObserve;
 use App\Observers\ContratoObserve;
 use Illuminate\Support\Facades\App;
@@ -29,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
         }
+
+        Contrato::observe(ContratoObserve::class);
+        Contratohistorico::observe(ContratohistoricoObserve::class);
+        Contratocronograma::observe(ContratocronogramaObserve::class);
+
     }
 
     /**

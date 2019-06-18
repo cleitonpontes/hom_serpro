@@ -61,10 +61,14 @@ class Contrato extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function atualizaContratoFromHistorico(Contratohistorico $contratohistorico){
+    public function atualizaValorAcumuladoFromCronograma(Contratocronograma $contratocronograma){
+        $contrato_id = $contratocronograma->contrato_id;
 
+        $valor_acumulado = $contratocronograma->where('contrato_id','=',$contrato_id)
+            ->sum('valor');
 
-
+        $this->where('id','=',$contrato_id)
+            ->update(['valor_acumulado' => $valor_acumulado]);
     }
 
     public function getFornecedor()
@@ -134,6 +138,11 @@ class Contrato extends Model
     public function formatVlrGlobal()
     {
         return 'R$ '.number_format($this->valor_global, 2, ',', '.');
+    }
+
+    public function formatVlrAcumulado()
+    {
+        return 'R$ '.number_format($this->valor_acumulado, 2, ',', '.');
     }
     /*
     |--------------------------------------------------------------------------

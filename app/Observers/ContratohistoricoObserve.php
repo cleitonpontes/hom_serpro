@@ -19,7 +19,7 @@ class ContratohistoricoObserve
     /**
      * Handle the contratohistorico "created" event.
      *
-     * @param  \App\Contratohistorico $contratohistorico
+     * @param  \App\Models\Contratohistorico $contratohistorico
      * @return void
      */
     public function created(Contratohistorico $contratohistorico)
@@ -30,7 +30,7 @@ class ContratohistoricoObserve
     /**
      * Handle the contratohistorico "updated" event.
      *
-     * @param  \App\Contratohistorico $contratohistorico
+     * @param  \App\Models\Contratohistorico $contratohistorico
      * @return void
      */
     public function updated(Contratohistorico $contratohistorico)
@@ -79,7 +79,7 @@ class ContratohistoricoObserve
     /**
      * Handle the contratohistorico "deleted" event.
      *
-     * @param  \App\Contratohistorico $contratohistorico
+     * @param  \App\Models\Contratohistorico $contratohistorico
      * @return void
      */
     public function deleted(Contratohistorico $contratohistorico)
@@ -90,7 +90,7 @@ class ContratohistoricoObserve
     /**
      * Handle the contratohistorico "restored" event.
      *
-     * @param  \App\Contratohistorico $contratohistorico
+     * @param  \App\Models\Contratohistorico $contratohistorico
      * @return void
      */
     public function restored(Contratohistorico $contratohistorico)
@@ -101,7 +101,7 @@ class ContratohistoricoObserve
     /**
      * Handle the contratohistorico "force deleted" event.
      *
-     * @param  \App\Contratohistorico $contratohistorico
+     * @param  \App\Models\Contratohistorico $contratohistorico
      * @return void
      */
     public function forceDeleted(Contratohistorico $contratohistorico)

@@ -14,6 +14,7 @@ Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 - Nenhuma
 
 ### Bug
+- Correção do cálculo do Valor Acumulado atualizado por meio do Cronograma (bug da versão 4.1.11).
 - Alteração do campo receita_despesa da tabela contratohistorico para CHAR(1).
 
 ### Removida
