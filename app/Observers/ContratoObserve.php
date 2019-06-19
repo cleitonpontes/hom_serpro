@@ -15,7 +15,13 @@ class ContratoObserve
      */
     public function created(Contrato $contrato)
 {
-    Contratohistorico::create($contrato->toArray()+['contrato_id' => $contrato->id]);
+    $con = $contrato;
+
+    Contratohistorico::create($contrato->toArray()+[
+        'contrato_id' => $contrato->id,
+        'observacao' => 'CELEBRAÇÃO DO CONTRATO: '.$con->numero.' DE ACORDO COM PROCESSO NÚMERO: '.$con->processo,
+        ]);
+
 }
 
     /**

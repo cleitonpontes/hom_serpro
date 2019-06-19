@@ -61,6 +61,7 @@ class ContratohistoricoObserve
             }
             unset($arrayhistorico['id']);
             unset($arrayhistorico['contrato_id']);
+            unset($arrayhistorico['observacao']);
             unset($arrayhistorico['created_at']);
             unset($arrayhistorico['updated_at']);
 

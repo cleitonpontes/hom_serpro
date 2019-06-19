@@ -535,6 +535,7 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('valor_parcela');
         $this->crud->removeColumn('valor_acumulado');
         $this->crud->removeColumn('situacao_siasg');
+        $this->crud->removeColumn('receita_despesa');
 
 
         return $content;

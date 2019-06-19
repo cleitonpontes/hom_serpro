@@ -121,6 +121,17 @@ class InstrumentoinicialCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'observacao',
+                'label' => 'Observação',
+                'type' => 'text',
+                'limit' => 1000,
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'numero',
                 'label' => 'Número Contrato',
                 'type' => 'text',
@@ -299,6 +310,15 @@ class InstrumentoinicialCrudController extends CrudController
 //                ],
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'observacao',
+                'label' => 'Observação',
+                'type' => 'textarea',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
+                'tab' => 'Dados Gerais',
             ],
             [
                 // select_from_array

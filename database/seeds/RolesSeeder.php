@@ -89,6 +89,15 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'contratocronograma_inserir']);
         Permission::create(['name' => 'contratocronograma_editar']);
         Permission::create(['name' => 'contratocronograma_deletar']);
+        Permission::create(['name' => 'contratoaditivo_inserir']);
+        Permission::create(['name' => 'contratoaditivo_editar']);
+        Permission::create(['name' => 'contratoaditivo_deletar']);
+        Permission::create(['name' => 'contratoapostilamento_inserir']);
+        Permission::create(['name' => 'contratoapostilamento_editar']);
+        Permission::create(['name' => 'contratoapostilamento_deletar']);
+        Permission::create(['name' => 'contratorescisao_inserir']);
+        Permission::create(['name' => 'contratorescisao_editar']);
+        Permission::create(['name' => 'contratorescisao_deletar']);
 
 
 
@@ -169,6 +178,15 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('contratocronograma_inserir');
         $role->givePermissionTo('contratocronograma_editar');
         $role->givePermissionTo('contratocronograma_deletar');
+        $role->givePermissionTo('contratoaditivo_inserir');
+        $role->givePermissionTo('contratoaditivo_editar');
+        $role->givePermissionTo('contratoaditivo_deletar');
+        $role->givePermissionTo('contratoapostilamento_inserir');
+        $role->givePermissionTo('contratoapostilamento_editar');
+        $role->givePermissionTo('contratoapostilamento_deletar');
+        $role->givePermissionTo('contratorescisao_inserir');
+        $role->givePermissionTo('contratorescisao_editar');
+        $role->givePermissionTo('contratorescisao_deletar');
 
     }
 }

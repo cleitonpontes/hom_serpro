@@ -46,6 +46,11 @@ class Contratohistorico extends Model
         'valor_global',
         'num_parcelas',
         'valor_parcela',
+        'novo_valor_global',
+        'novo_num_parcelas',
+        'novo_valor_parcela',
+        'data_inicio_novo_valor',
+        'observacao',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -107,6 +112,10 @@ class Contratohistorico extends Model
 
     public function getCategoriaHistorico()
     {
+        if(!$this->categoria_id){
+            return '';
+        }
+
         $categoria = Codigoitem::find($this->categoria_id);
 
         return $categoria->descricao;
@@ -208,9 +217,14 @@ class Contratohistorico extends Model
 
     public function getCategoria()
     {
-        $categoria = Codigoitem::find($this->categoria_id);
+        if($this->categoria_id){
+            $categoria = Codigoitem::find($this->categoria_id);
 
-        return $categoria->descricao;
+            return $categoria->descricao;
+        }else{
+            return '';
+        }
+
 
     }
 

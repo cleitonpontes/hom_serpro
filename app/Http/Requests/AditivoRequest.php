@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Unique;
 
 class AditivoRequest extends FormRequest
 {
@@ -25,8 +26,30 @@ class AditivoRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+        $unidade_id = $this->unidade_id ?? "NULL";
+        $tipo_id = $this->tipo_id ?? "NULL";
+
         return [
-            // 'name' => 'required|min:5|max:255'
+            'numero' => [
+                'required',
+                (new Unique('contratohistorico','numero'))
+                    ->ignore($id)
+                    ->where('unidade_id',$unidade_id)
+                    ->where('tipo_id',$tipo_id)
+            ],
+            'fornecedor_id' => 'required',
+            'contrato_id' => 'required',
+            'tipo_id' => 'required',
+            'unidade_id' => 'required',
+            'data_assinatura' => 'required|date',
+            'data_publicacao' => 'required|date',
+            'vigencia_inicio' => 'required|date',
+            'vigencia_fim' => 'required|date',
+            'valor_global' => 'required',
+            'num_parcelas' => 'required',
+            'valor_parcela' => 'required',
+            'observacao' => 'required',
         ];
     }
 
