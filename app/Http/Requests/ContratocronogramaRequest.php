@@ -26,7 +26,12 @@ class ContratocronogramaRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'contrato_id' => 'required',
+            'contratohistorico_id' => 'required',
+            'vencimento' => 'required|date',
+            'mesref' => 'required',
+            'anoref' => 'required',
+            'valor' => 'required',
         ];
     }
 

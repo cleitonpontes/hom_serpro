@@ -142,6 +142,22 @@ class Contratocronograma extends Model
 
     }
 
+    public function montaArrayTipoDescricaoNumeroInstrumento(string $contrato_id)
+    {
+        $array = [];
+
+        $historico = Contratohistorico::where('contrato_id','=',$contrato_id)
+            ->orderBy('data_assinatura')
+            ->get();
+
+        foreach ($historico as $h){
+            $array[$h->id] = implode('/',array_reverse(explode('-',$h->data_assinatura))) . ' | ' . $h->tipo->descricao . ' - ' . $h->numero;
+        }
+
+        return $array;
+
+    }
+
     public function getMesAnoReferencia()
     {
         return $this->mesref . '/' . $this->anoref;
