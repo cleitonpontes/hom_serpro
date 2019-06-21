@@ -346,16 +346,6 @@ class ContratoCrudController extends CrudController
                 'tab' => 'Dados Gerais',
             ],
             [ // select_from_array
-                'name' => 'fornecedor_id',
-                'label' => "Fornecedor",
-                'type' => 'select2_from_array',
-                'options' => $fornecedores,
-                'allows_null' => true,
-                'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [ // select_from_array
                 'name' => 'unidade_id',
                 'label' => "Unidade Gestora",
                 'type' => 'select2_from_array',
@@ -382,6 +372,16 @@ class ContratoCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
 
+            [ // select_from_array
+                'name' => 'fornecedor_id',
+                'label' => "Fornecedor",
+                'type' => 'select2_from_array',
+                'options' => $fornecedores,
+                'allows_null' => true,
+                'tab' => 'Dados Contrato',
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
             [   // Date
                 'name' => 'data_assinatura',
                 'label' => 'Data Assinatura',

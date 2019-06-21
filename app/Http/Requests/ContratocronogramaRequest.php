@@ -32,6 +32,7 @@ class ContratocronogramaRequest extends FormRequest
             'mesref' => 'required',
             'anoref' => 'required',
             'valor' => 'required',
+            'retroativo' => 'required',
         ];
     }
 

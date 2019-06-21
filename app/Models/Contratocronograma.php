@@ -33,6 +33,7 @@ class Contratocronograma extends Model
         'anoref',
         'vencimento',
         'valor',
+        'retroativo',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -81,15 +82,42 @@ class Contratocronograma extends Model
             $vencimento = date('Y-m-d', strtotime("+" . $i . " month", strtotime($mesrefnew)));
             $ref = date('Y-m-d', strtotime("-1 month", strtotime($vencimento)));
 
-            $dados[] = [
-                'contrato_id' => $contratohistorico->contrato_id,
-                'contratohistorico_id' => $contratohistorico->id,
-                'receita_despesa' => $contratohistorico->receita_despesa,
-                'mesref' => date('m', strtotime($ref)),
-                'anoref' => date('Y', strtotime($ref)),
-                'vencimento' => $vencimento,
-                'valor' => $contratohistorico->valor_parcela,
-            ];
+            $buscacron = $this->where('contrato_id','=',$contratohistorico->contrato_id)
+                ->where('mesref','=',date('m', strtotime($ref)))
+                ->where('anoref','=',date('Y', strtotime($ref)))
+                ->where('retroativo','=','f')
+                ->get();
+
+            $valor = $contratohistorico->valor_parcela;
+
+            if($buscacron){
+                $v = $valor;
+                foreach ($buscacron as $b){
+                    $v = $valor - $b->valor;
+                }
+                    $dados[] = [
+                        'contrato_id' => $contratohistorico->contrato_id,
+                        'contratohistorico_id' => $contratohistorico->id,
+                        'receita_despesa' => $contratohistorico->receita_despesa,
+                        'mesref' => date('m', strtotime($ref)),
+                        'anoref' => date('Y', strtotime($ref)),
+                        'vencimento' => $vencimento,
+                        'valor' => $v,
+                    ];
+            }else{
+                $dados[] = [
+                    'contrato_id' => $contratohistorico->contrato_id,
+                    'contratohistorico_id' => $contratohistorico->id,
+                    'receita_despesa' => $contratohistorico->receita_despesa,
+                    'mesref' => date('m', strtotime($ref)),
+                    'anoref' => date('Y', strtotime($ref)),
+                    'vencimento' => $vencimento,
+                    'valor' => $valor,
+                ];
+            }
+
+
+
         }
 
         return $dados;
@@ -98,7 +126,9 @@ class Contratocronograma extends Model
     private function inserirDadosEmMassa(array $dados)
     {
         foreach ($dados as $d){
-            $cronograma = $this->insertCronograma($d);
+            if($d['valor'] != 0){
+                $cronograma = $this->insertCronograma($d);
+            }
         }
 
         return true;

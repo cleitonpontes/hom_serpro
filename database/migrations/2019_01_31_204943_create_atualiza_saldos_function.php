@@ -13,6 +13,12 @@ class CreateAtualizaSaldosFunction extends Migration
     public function up()
     {
         $sql = '';
+        $sql .= 'DROP FUNCTION IF EXISTS ';
+        $sql .= '    atualiza_saldos() ';
+
+        DB::statement($sql);
+
+        $sql = '';
         $sql .= 'CREATE FUNCTION ';
         $sql .= '    atualiza_saldos() ';
         $sql .= 'RETURNS TRIGGER ';

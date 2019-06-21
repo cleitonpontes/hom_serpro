@@ -239,6 +239,14 @@ class ContratocronogramaCrudController extends CrudController
                 ], // allow decimals
                 'prefix' => "R$",
             ],
+            [ // select_from_array
+                'name' => 'retroativo',
+                'label' => "Retroativo?",
+                'type' => 'radio',
+                'options' => [0 => 'Não', 1 => 'Sim'],
+                'default'    => 0,
+                'inline'      => true,
+            ],
 
         ];
 

@@ -251,6 +251,7 @@ class AditivoCrudController extends CrudController
                 'label' => 'Número Termo Aditivo',
                 'type' => 'numcontrato',
                 'tab' => 'Dados Gerais',
+
             ],
             [
                 'name' => 'observacao',

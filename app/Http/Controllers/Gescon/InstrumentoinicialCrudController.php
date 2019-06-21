@@ -222,6 +222,26 @@ class InstrumentoinicialCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'data_assinatura',
+                'label' => 'Data Assinatura',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'data_publicacao',
+                'label' => 'Data Publicação',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'vigencia_inicio',
                 'label' => 'Vig. Início',
                 'type' => 'date',
@@ -272,18 +292,6 @@ class InstrumentoinicialCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'situacao',
-                'label' => 'Situação',
-                'type' => 'boolean',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                // optionally override the Yes/No texts
-                'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
         ];
 
@@ -538,8 +546,8 @@ class InstrumentoinicialCrudController extends CrudController
         $this->crud->removeColumn('fundamento_legal');
         $this->crud->removeColumn('modalidade_id');
         $this->crud->removeColumn('licitacao_numero');
-        $this->crud->removeColumn('data_assinatura');
-        $this->crud->removeColumn('data_publicacao');
+//        $this->crud->removeColumn('data_assinatura');
+//        $this->crud->removeColumn('data_publicacao');
         $this->crud->removeColumn('valor_inicial');
         $this->crud->removeColumn('valor_global');
         $this->crud->removeColumn('valor_parcela');
@@ -547,6 +555,10 @@ class InstrumentoinicialCrudController extends CrudController
         $this->crud->removeColumn('situacao_siasg');
         $this->crud->removeColumn('contrato_id');
         $this->crud->removeColumn('receita_despesa');
+        $this->crud->removeColumn('novo_valor_global');
+        $this->crud->removeColumn('novo_num_parcelas');
+        $this->crud->removeColumn('novo_valor_parcela');
+        $this->crud->removeColumn('data_inicio_novo_valor');
 
 
         return $content;
