@@ -8,11 +8,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+/**
+ * Class Contratocronograma
+ * @package App\Models
+ */
 class Contratocronograma extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    /**
+     * @var bool
+     */
     protected static $logFillable = true;
+    /**
+     * @var string
+     */
     protected static $logName = 'contrato_cronograma';
     use SoftDeletes;
     /*
@@ -21,10 +31,16 @@ class Contratocronograma extends Model
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * @var string
+     */
     protected $table = 'contratocronograma';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
+    /**
+     * @var array
+     */
     protected $fillable = [
         'contrato_id',
         'contratohistorico_id',
@@ -43,6 +59,10 @@ class Contratocronograma extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    /**
+     * @param Contratohistorico $contratohistorico
+     * @return $this|string
+     */
     public function inserirCronogramaFromHistorico(Contratohistorico $contratohistorico)
     {
         if (!$contratohistorico->num_parcelas AND !$contratohistorico->vigencia_inicio AND !$contratohistorico->valor_parcela) {
@@ -56,6 +76,10 @@ class Contratocronograma extends Model
 
     }
 
+    /**
+     * @param Contratohistorico $contratohistorico
+     * @return $this|string
+     */
     public function atualizaCronogramaFromHistorico(Contratohistorico $contratohistorico)
     {
         if (!$contratohistorico->num_parcelas AND !$contratohistorico->vigencia_inicio AND !$contratohistorico->valor_parcela) {
@@ -70,6 +94,10 @@ class Contratocronograma extends Model
 
     }
 
+    /**
+     * @param Contratohistorico $contratohistorico
+     * @return array
+     */
     private function montaCronograma(Contratohistorico $contratohistorico)
     {
         $data = date_create($contratohistorico->vigencia_inicio);
@@ -123,6 +151,10 @@ class Contratocronograma extends Model
         return $dados;
     }
 
+    /**
+     * @param array $dados
+     * @return bool
+     */
     private function inserirDadosEmMassa(array $dados)
     {
         foreach ($dados as $d){
@@ -135,6 +167,10 @@ class Contratocronograma extends Model
 
     }
 
+    /**
+     * @param array $dado
+     * @return mixed
+     */
     private function insertCronograma(array $dado){
 
         $cronograma = new $this;
@@ -145,6 +181,9 @@ class Contratocronograma extends Model
     }
 
 
+    /**
+     * @return string
+     */
     public function getReceitaDespesa()
     {
         if ($this->receita_despesa == 'D') {
@@ -157,6 +196,9 @@ class Contratocronograma extends Model
         return '';
     }
 
+    /**
+     * @return mixed
+     */
     public function getContratoNumero()
     {
         $contrato = Contrato::find($this->contrato_id);
@@ -164,6 +206,9 @@ class Contratocronograma extends Model
 
     }
 
+    /**
+     * @return string
+     */
     public function getContratoHistorico()
     {
         $contratohistorico = Contratohistorico::find($this->contratohistorico_id);
@@ -172,6 +217,10 @@ class Contratocronograma extends Model
 
     }
 
+    /**
+     * @param string $contrato_id
+     * @return array
+     */
     public function montaArrayTipoDescricaoNumeroInstrumento(string $contrato_id)
     {
         $array = [];
@@ -188,12 +237,18 @@ class Contratocronograma extends Model
 
     }
 
+    /**
+     * @return string
+     */
     public function getMesAnoReferencia()
     {
         return $this->mesref . '/' . $this->anoref;
 
     }
 
+    /**
+     * @return string
+     */
     public function formatVlr()
     {
         return 'R$ ' . number_format($this->valor, 2, ',', '.');
