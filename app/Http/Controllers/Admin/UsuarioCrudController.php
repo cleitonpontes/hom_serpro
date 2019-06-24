@@ -163,6 +163,8 @@ class UsuarioCrudController extends CrudController
                 'name' => 'unidades', // the method that defines the relationship in your Model
                 'entity' => 'unidades', // the method that defines the relationship in your Model
                 'attribute' => 'codigo', // foreign key attribute that is shown to user
+                'attribute2' => 'nomeresumido', // foreign key attribute that is shown to user
+                'attribute_separator' => ' - ', // foreign key attribute that is shown to user
                 'model' => "App\Models\Unidade", // foreign key model
                 'allows_null' => true,
                 'pivot' => true, // on create&update, do you need to add/delete pivot table entries?

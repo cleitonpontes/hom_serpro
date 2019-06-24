@@ -29,7 +29,7 @@
                             <option value="{{ $option->getKey() }}" selected>{{ $option->{$field['attribute']} }}</option>
                         @endif
                 @else
-                    @if(isset($field['attribute_separator']))
+                    @if(isset($field['attribute2']))
                         <option value="{{ $option->getKey() }}">{{ $option->{$field['attribute']} }}{{ $field['attribute_separator'] }}{{ $option->{$field['attribute2']} }}</option>
                     @else
                         <option value="{{ $option->getKey() }}">{{ $option->{$field['attribute']} }}</option>
