@@ -113,6 +113,18 @@ class ContratocronogramaCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'retroativo',
+                'label' => 'Retroativo',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+                'options' => [0 => 'Não', 1 => 'Sim']
+            ],
+            [
                 'name' => 'mesref',
                 'label' => 'Mês Referência', // Table column heading
                 'type' => 'text',
@@ -153,6 +165,8 @@ class ContratocronogramaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+
+
         ];
 
         return $colunas;

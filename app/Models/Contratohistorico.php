@@ -51,6 +51,13 @@ class Contratohistorico extends Model
         'novo_valor_parcela',
         'data_inicio_novo_valor',
         'observacao',
+        'retroativo',
+        'retroativo_mesref_de',
+        'retroativo_anoref_de',
+        'retroativo_mesref_ate',
+        'retroativo_anoref_ate',
+        'retroativo_vencimento',
+        'retroativo_valor',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -69,10 +76,10 @@ class Contratohistorico extends Model
 
     public function getReceitaDespesaHistorico()
     {
-        if($this->receita_despesa == 'D'){
+        if ($this->receita_despesa == 'D') {
             return 'Despesa';
         }
-        if($this->receita_despesa == 'R'){
+        if ($this->receita_despesa == 'R') {
             return 'Receita';
         }
 
@@ -89,7 +96,7 @@ class Contratohistorico extends Model
     public function getOrgaoHistorico()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
-            $query->where('id','=', $this->unidade_id);
+            $query->where('id', '=', $this->unidade_id);
         })->first();
 
         return $orgao->codigo . ' - ' . $orgao->nome;
@@ -98,11 +105,11 @@ class Contratohistorico extends Model
 
     public function getTipoHistorico()
     {
-        if($this->tipo_id){
+        if ($this->tipo_id) {
             $tipo = Codigoitem::find($this->tipo_id);
 
             return $tipo->descricao;
-        }else{
+        } else {
             return '';
         }
 
@@ -112,7 +119,7 @@ class Contratohistorico extends Model
 
     public function getCategoriaHistorico()
     {
-        if(!$this->categoria_id){
+        if (!$this->categoria_id) {
             return '';
         }
 
@@ -125,12 +132,31 @@ class Contratohistorico extends Model
 
     public function formatVlrParcelaHistorico()
     {
-        return 'R$ '.number_format($this->valor_parcela, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor_parcela, 2, ',', '.');
     }
 
     public function formatVlrGlobalHistorico()
     {
-        return 'R$ '.number_format($this->valor_global, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor_global, 2, ',', '.');
+    }
+
+
+    public function formatNovoVlrParcelaHistorico()
+    {
+        return 'R$ ' . number_format($this->novo_valor_parcela, 2, ',', '.');
+    }
+
+    public function formatNovoVlrGlobalHistorico()
+    {
+        return 'R$ ' . number_format($this->novo_valor_global, 2, ',', '.');
+    }
+
+    public function formatVlrRetroativoValor()
+    {
+        if($this->retroativo_valor){
+            return 'R$ ' . number_format($this->retroativo_valor, 2, ',', '.');
+        }
+        return '';
     }
 
     public function createNewHistorico(array $dado)
@@ -140,7 +166,7 @@ class Contratohistorico extends Model
             ->where('tipo_id', '=', $dado['tipo_id'])
             ->first();
 
-        if(!$contratohistorico){
+        if (!$contratohistorico) {
             $this->fill($dado);
             $this->save();
             return $this;
@@ -149,6 +175,26 @@ class Contratohistorico extends Model
         $contratohistorico->fill($dado);
         $contratohistorico->save();
         return $contratohistorico;
+
+    }
+
+    public function getRetroativoMesAnoReferenciaDe()
+    {
+        if($this->retroativo_mesref_de and $this->retroativo_anoref_de){
+            return $this->retroativo_mesref_de . '/' . $this->retroativo_anoref_de;
+        }
+
+        return '';
+
+    }
+
+    public function getRetroativoMesAnoReferenciaAte()
+    {
+        if($this->retroativo_mesref_ate and $this->retroativo_anoref_ate){
+            return $this->retroativo_mesref_ate . '/' . $this->retroativo_anoref_ate;
+        }
+
+        return '';
 
     }
 
@@ -161,10 +207,10 @@ class Contratohistorico extends Model
 
     public function getReceitaDespesa()
     {
-        if($this->receita_despesa == 'D'){
+        if ($this->receita_despesa == 'D') {
             return 'Despesa';
         }
-        if($this->receita_despesa == 'R'){
+        if ($this->receita_despesa == 'R') {
             return 'Receita';
         }
 
@@ -181,7 +227,7 @@ class Contratohistorico extends Model
     public function getOrgao()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
-            $query->where('id','=', $this->unidade_id);
+            $query->where('id', '=', $this->unidade_id);
         })->first();
 
         return $orgao->codigo . ' - ' . $orgao->nome;
@@ -190,11 +236,11 @@ class Contratohistorico extends Model
 
     public function getTipo()
     {
-        if($this->tipo_id){
+        if ($this->tipo_id) {
             $tipo = Codigoitem::find($this->tipo_id);
 
             return $tipo->descricao;
-        }else{
+        } else {
             return '';
         }
 
@@ -203,11 +249,11 @@ class Contratohistorico extends Model
 
     public function getModalidade()
     {
-        if($this->modalidade_id){
+        if ($this->modalidade_id) {
             $modalidade = Codigoitem::find($this->modalidade_id);
 
             return $modalidade->descricao;
-        }else{
+        } else {
             return '';
         }
 
@@ -217,11 +263,11 @@ class Contratohistorico extends Model
 
     public function getCategoria()
     {
-        if($this->categoria_id){
+        if ($this->categoria_id) {
             $categoria = Codigoitem::find($this->categoria_id);
 
             return $categoria->descricao;
-        }else{
+        } else {
             return '';
         }
 
@@ -231,12 +277,12 @@ class Contratohistorico extends Model
 
     public function formatVlrParcela()
     {
-        return 'R$ '.number_format($this->valor_parcela, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor_parcela, 2, ',', '.');
     }
 
     public function formatVlrGlobal()
     {
-        return 'R$ '.number_format($this->valor_global, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor_global, 2, ',', '.');
     }
 
 
@@ -245,7 +291,8 @@ class Contratohistorico extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function cronograma(){
+    public function cronograma()
+    {
 
         return $this->hasMany(Contratocronograma::class, 'contratohistorico_id');
 

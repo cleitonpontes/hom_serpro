@@ -42,14 +42,21 @@ class AditivoRequest extends FormRequest
             'contrato_id' => 'required',
             'tipo_id' => 'required',
             'unidade_id' => 'required',
-            'data_assinatura' => 'required|date',
+            'data_assinatura' => 'required|date|before_or_equal:vigencia_inicio',
             'data_publicacao' => 'required|date',
-            'vigencia_inicio' => 'required|date',
-            'vigencia_fim' => 'required|date',
+            'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',
+            'vigencia_fim' => 'required|date|after:vigencia_inicio',
             'valor_global' => 'required',
             'num_parcelas' => 'required',
             'valor_parcela' => 'required',
             'observacao' => 'required',
+            'retroativo' => 'required',
+            'retroativo_mesref_de' => 'required_if:retroativo,==,1',
+            'retroativo_anoref_de' => 'required_if:retroativo,==,1',
+            'retroativo_mesref_ate' => 'required_if:retroativo,==,1',
+            'retroativo_anoref_ate' => 'required_if:retroativo,==,1',
+            'retroativo_vencimento' => 'required_if:retroativo,==,1',
+            'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
     }
 

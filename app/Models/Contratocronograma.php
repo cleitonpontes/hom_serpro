@@ -25,6 +25,7 @@ class Contratocronograma extends Model
      */
     protected static $logName = 'contrato_cronograma';
     use SoftDeletes;
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -100,39 +101,53 @@ class Contratocronograma extends Model
      */
     private function montaCronograma(Contratohistorico $contratohistorico)
     {
-        $data = date_create($contratohistorico->vigencia_inicio);
+        if ($contratohistorico->data_inicio_novo_valor) {
+            $data = date_create($contratohistorico->data_inicio_novo_valor);
+
+            $mesinicio = new \DateTime($contratohistorico->data_inicio_novo_valor);
+            $mesfim = new \DateTime($contratohistorico->vigencia_fim);
+            $interval = $mesinicio->diff($mesfim);
+            if ($interval->y != 0) {
+                $t = ($interval->y * 12) + $interval->m + 1;
+            } else {
+                $t = $interval->m + 1;
+            }
+
+        } else {
+            $data = date_create($contratohistorico->vigencia_inicio);
+            $t = $contratohistorico->num_parcelas;
+        }
         $mesref = date_format($data, 'Y-m');
         $mesrefnew = $mesref . "-01";
 
-        $t = $contratohistorico->num_parcelas;
         $dados = [];
         for ($i = 1; $i <= $t; $i++) {
             $vencimento = date('Y-m-d', strtotime("+" . $i . " month", strtotime($mesrefnew)));
             $ref = date('Y-m-d', strtotime("-1 month", strtotime($vencimento)));
 
-            $buscacron = $this->where('contrato_id','=',$contratohistorico->contrato_id)
-                ->where('mesref','=',date('m', strtotime($ref)))
-                ->where('anoref','=',date('Y', strtotime($ref)))
-                ->where('retroativo','=','f')
+            $buscacron = $this->where('contrato_id', '=', $contratohistorico->contrato_id)
+                ->where('mesref', '=', date('m', strtotime($ref)))
+                ->where('anoref', '=', date('Y', strtotime($ref)))
+                ->where('retroativo', '=', 'f')
                 ->get();
 
             $valor = $contratohistorico->valor_parcela;
 
-            if($buscacron){
+            if ($buscacron) {
                 $v = $valor;
-                foreach ($buscacron as $b){
+                foreach ($buscacron as $b) {
                     $v = $valor - $b->valor;
                 }
-                    $dados[] = [
-                        'contrato_id' => $contratohistorico->contrato_id,
-                        'contratohistorico_id' => $contratohistorico->id,
-                        'receita_despesa' => $contratohistorico->receita_despesa,
-                        'mesref' => date('m', strtotime($ref)),
-                        'anoref' => date('Y', strtotime($ref)),
-                        'vencimento' => $vencimento,
-                        'valor' => $v,
-                    ];
-            }else{
+                $dados[] = [
+                    'contrato_id' => $contratohistorico->contrato_id,
+                    'contratohistorico_id' => $contratohistorico->id,
+                    'receita_despesa' => $contratohistorico->receita_despesa,
+                    'mesref' => date('m', strtotime($ref)),
+                    'anoref' => date('Y', strtotime($ref)),
+                    'vencimento' => $vencimento,
+                    'valor' => $v,
+                ];
+            } else {
                 $dados[] = [
                     'contrato_id' => $contratohistorico->contrato_id,
                     'contratohistorico_id' => $contratohistorico->id,
@@ -143,8 +158,63 @@ class Contratocronograma extends Model
                     'valor' => $valor,
                 ];
             }
+        }
+
+        if ($contratohistorico->retroativo == 1) {
+
+            $ret_mesref_de = $contratohistorico->retroativo_mesref_de;
+            $ret_anoref_de = $contratohistorico->retroativo_anoref_de;
+            $ret_mesref_ate = $contratohistorico->retroativo_mesref_ate;
+            $ret_anoref_ate = $contratohistorico->retroativo_anoref_ate;
 
 
+            if ($ret_mesref_de == $ret_mesref_ate AND $ret_anoref_de == $ret_anoref_ate) {
+                $dados[] = [
+                    'contrato_id' => $contratohistorico->contrato_id,
+                    'contratohistorico_id' => $contratohistorico->id,
+                    'receita_despesa' => $contratohistorico->receita_despesa,
+                    'mesref' => $ret_mesref_de,
+                    'anoref' => $ret_anoref_de,
+                    'vencimento' => $contratohistorico->retroativo_vencimento,
+                    'valor' => $contratohistorico->retroativo_valor,
+                    'retroativo' => true,
+                ];
+            } else {
+                $mesrefde = new \DateTime($ret_anoref_de . '-' . $ret_mesref_de . '-01');
+                $mesrefate = new \DateTime($ret_anoref_ate . '-' . $ret_mesref_ate . '-01');
+                $intervalo = $mesrefde->diff($mesrefate);
+                if ($intervalo->y != 0) {
+                    $meses = ($intervalo->y * 12) + $intervalo->m + 1;
+                } else {
+                    $meses = $intervalo->m + 1;
+                }
+
+                $valor_ret = number_format($contratohistorico->retroativo_valor / $meses, 2);
+
+                for ($j = 1; $j <= $meses; $j++) {
+                    $dtformat = $ret_anoref_de . '-' . $ret_mesref_de . '-01';
+
+                    if ($j == 1) {
+                        $ref1 = date('Y-m-d', strtotime($dtformat));
+                    } else {
+                        $p = $j - 1;
+                        $ref1 = date('Y-m-d', strtotime("+" . $p . " month", strtotime($dtformat)));
+                    }
+
+                    $dados[] = [
+                        'contrato_id' => $contratohistorico->contrato_id,
+                        'contratohistorico_id' => $contratohistorico->id,
+                        'receita_despesa' => $contratohistorico->receita_despesa,
+                        'mesref' => date('m', strtotime($ref1)),
+                        'anoref' => date('Y', strtotime($ref1)),
+                        'vencimento' => $contratohistorico->retroativo_vencimento,
+                        'valor' => $valor_ret,
+                        'retroativo' => true,
+                    ];
+
+                }
+
+            }
 
         }
 
@@ -157,8 +227,8 @@ class Contratocronograma extends Model
      */
     private function inserirDadosEmMassa(array $dados)
     {
-        foreach ($dados as $d){
-            if($d['valor'] != 0){
+        foreach ($dados as $d) {
+            if ($d['valor'] != 0) {
                 $cronograma = $this->insertCronograma($d);
             }
         }
@@ -171,7 +241,8 @@ class Contratocronograma extends Model
      * @param array $dado
      * @return mixed
      */
-    private function insertCronograma(array $dado){
+    private function insertCronograma(array $dado)
+    {
 
         $cronograma = new $this;
         $cronograma->fill($dado);
@@ -225,12 +296,13 @@ class Contratocronograma extends Model
     {
         $array = [];
 
-        $historico = Contratohistorico::where('contrato_id','=',$contrato_id)
+        $historico = Contratohistorico::where('contrato_id', '=', $contrato_id)
             ->orderBy('data_assinatura')
             ->get();
 
-        foreach ($historico as $h){
-            $array[$h->id] = implode('/',array_reverse(explode('-',$h->data_assinatura))) . ' | ' . $h->tipo->descricao . ' - ' . $h->numero;
+        foreach ($historico as $h) {
+            $array[$h->id] = implode('/', array_reverse(explode('-',
+                    $h->data_assinatura))) . ' | ' . $h->tipo->descricao . ' - ' . $h->numero;
         }
 
         return $array;

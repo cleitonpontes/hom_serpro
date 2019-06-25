@@ -75,14 +75,6 @@ class AditivoCrudController extends CrudController
 
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
-        $categorias = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Categoria Contrato');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
-
-        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Modalidade Licitação');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
-
         $tipos = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
@@ -210,6 +202,62 @@ class AditivoCrudController extends CrudController
                 'function_name' => 'formatVlrParcelaHistorico', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+
+            [
+                'name' => 'retroativo',
+                'label' => 'Retroativo',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+                'options' => [0 => 'Não', 1 => 'Sim']
+            ],
+            [
+                'name' => 'getRetroativoMesAnoReferenciaDe',
+                'label' => 'Retroativo Mês Ref. De', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getRetroativoMesAnoReferenciaDe', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'getRetroativoMesAnoReferenciaAte',
+                'label' => 'Retroativo Mês Ref. Até', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getRetroativoMesAnoReferenciaAte', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'retroativo_vencimento',
+                'label' => 'Vencimento Retroativo',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'formatVlrRetroativoValor',
+                'label' => 'Valor Retroativo', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrRetroativoValor', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
@@ -363,6 +411,69 @@ class AditivoCrudController extends CrudController
                 // 'suffix' => ".00",
             ],
 
+
+            [ // select_from_array
+                'name' => 'retroativo',
+                'label' => "Retroativo?",
+                'type' => 'radio',
+                'options' => [0 => 'Não', 1 => 'Sim'],
+                'default'    => 0,
+                'inline'      => true,
+                'tab' => 'Retroativo',
+            ],
+            [ // select_from_array
+                'name' => 'retroativo_mesref_de',
+                'label' => "Mês Referência De",
+                'type' => 'select2_from_array',
+                'options' => config('app.meses_referencia_fatura'),
+                'allows_null' => true,
+                'tab' => 'Retroativo',
+            ],
+            [ // select_from_array
+                'name' => 'retroativo_anoref_de',
+                'label' => "Ano Referência De",
+                'type' => 'select2_from_array',
+                'options' => config('app.anos_referencia_fatura'),
+//                'default'    => date('Y'),
+                'allows_null' => true,
+                'tab' => 'Retroativo',
+            ],
+            [ // select_from_array
+                'name' => 'retroativo_mesref_ate',
+                'label' => "Mês Referência Até",
+                'type' => 'select2_from_array',
+                'options' => config('app.meses_referencia_fatura'),
+                'allows_null' => true,
+                'tab' => 'Retroativo',
+            ],
+            [ // select_from_array
+                'name' => 'retroativo_anoref_ate',
+                'label' => "Ano Referência Até",
+                'type' => 'select2_from_array',
+                'options' => config('app.anos_referencia_fatura'),
+//                'default'    => date('Y'),
+                'allows_null' => true,
+                'tab' => 'Retroativo',
+            ],
+            [   // Date
+                'name' => 'retroativo_vencimento',
+                'label' => 'Vencimento Retroativo',
+                'type' => 'date',
+                'tab' => 'Retroativo',
+            ],
+            [   // Number
+                'name' => 'retroativo_valor',
+                'label' => 'Valor Retroativo',
+                'type' => 'money',
+                // optionals
+                'attributes' => [
+                    'id' => 'retroativo_valor',
+                ], // allow decimals
+                'prefix' => "R$",
+                'tab' => 'Retroativo',
+                // 'suffix' => ".00",
+            ],
+
         ];
 
         return $campos;
@@ -376,6 +487,10 @@ class AditivoCrudController extends CrudController
         $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
+
+        $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
+        $request->request->set('retroativo_valor', number_format(floatval($retroativo_valor), 2, '.', ''));
+
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -390,6 +505,9 @@ class AditivoCrudController extends CrudController
         $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
 
+        $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
+        $request->request->set('retroativo_valor', number_format(floatval($retroativo_valor), 2, '.', ''));
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -401,22 +519,35 @@ class AditivoCrudController extends CrudController
     {
         $content = parent::show($id);
 
-        $this->crud->removeColumn('fornecedor_id');
-        $this->crud->removeColumn('tipo_id');
-        $this->crud->removeColumn('categoria_id');
-        $this->crud->removeColumn('unidade_id');
-        $this->crud->removeColumn('fundamento_legal');
-        $this->crud->removeColumn('modalidade_id');
-        $this->crud->removeColumn('licitacao_numero');
-        $this->crud->removeColumn('data_assinatura');
-        $this->crud->removeColumn('data_publicacao');
-        $this->crud->removeColumn('valor_inicial');
-        $this->crud->removeColumn('valor_global');
-        $this->crud->removeColumn('valor_parcela');
-        $this->crud->removeColumn('valor_acumulado');
-        $this->crud->removeColumn('situacao_siasg');
-        $this->crud->removeColumn('contrato_id');
-        $this->crud->removeColumn('receita_despesa');
+        $this->crud->removeColumns([
+            'retroativo_mesref_de',
+            'retroativo_anoref_de',
+            'retroativo_mesref_ate',
+            'retroativo_anoref_ate',
+            'retroativo_valor',
+            'fornecedor_id',
+            'tipo_id',
+            'categoria_id',
+            'unidade_id',
+            'fundamento_legal',
+            'modalidade_id',
+            'licitacao_numero',
+            'data_assinatura',
+            'data_publicacao',
+            'valor_inicial',
+            'valor_global',
+            'valor_parcela',
+            'valor_acumulado',
+            'situacao_siasg',
+            'contrato_id',
+            'receita_despesa',
+            'processo',
+            'objeto',
+            'novo_valor_global',
+            'novo_valor_parcela',
+            'novo_num_parcelas',
+            'data_inicio_novo_valor',
+        ]);
 
 
         return $content;
