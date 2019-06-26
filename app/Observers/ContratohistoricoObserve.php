@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
@@ -32,6 +33,7 @@ class ContratohistoricoObserve
 
         $this->atualizaContrato($historico);
 
+        $this->createEventCalendar($contratohistorico);
 
     }
 
@@ -50,6 +52,8 @@ class ContratohistoricoObserve
         $this->contratocronograma->atualizaCronogramaFromHistorico($contratohistorico);
 
         $this->atualizaContrato($historico);
+
+        $this->createEventCalendar($contratohistorico);
 
     }
 
@@ -129,10 +133,47 @@ class ContratohistoricoObserve
                 return trim($a) !== "";
             });
 
-            Contrato::where('id', '=', $contrato_id)
-                ->update($array);
+            $contrato = new Contrato();
+            $contrato->atualizaContratoFromHistorico($contrato_id, $array);
+
+
 
         }
+    }
+
+    public function createEventCalendar(Contratohistorico $contratohistorico)
+    {
+        $contrato = Contrato::find($contratohistorico->contrato_id);
+
+        $fornecedor = $contrato->fornecedor->cpf_cnpj_idgener . ' - ' . $contrato->fornecedor->nome;
+        $ug = $contrato->unidade->codigo . ' - ' . $contrato->unidade->nomeresumido;
+
+        $tituloinicio = 'Início Vigência Contrato: ' . $contrato->numero. ' Fornecedor: ' . $fornecedor . ' da UG: ' . $ug;
+        $titulofim = 'Fim Vigência Contrato: ' . $contrato->numero. ' Fornecedor: ' . $fornecedor . ' da UG: ' . $ug;
+
+        $events= [
+            [
+                'title' => $tituloinicio,
+                'start_date' => new \DateTime($contrato->vigencia_inicio),
+                'end_date' => new \DateTime($contrato->vigencia_inicio),
+                'unidade_id' => $contrato->unidade_id
+            ],
+            [
+                'title' => $titulofim,
+                'start_date' => new \DateTime($contrato->vigencia_fim),
+                'end_date' => new \DateTime($contrato->vigencia_fim),
+                'unidade_id' => $contrato->unidade_id
+            ]
+
+        ];
+
+        foreach ($events as $e){
+            $calendario = new CalendarEvent();
+            $calendario->insertEvents($e);
+        }
+
+        return $calendario;
+
     }
 
 }

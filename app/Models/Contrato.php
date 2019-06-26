@@ -61,13 +61,22 @@ class Contrato extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function atualizaValorAcumuladoFromCronograma(Contratocronograma $contratocronograma){
+    public function atualizaContratoFromHistorico(string $contrato_id, array $array)
+    {
+        $this->where('id', '=', $contrato_id)
+            ->update($array);
+
+        return $this;
+    }
+
+    public function atualizaValorAcumuladoFromCronograma(Contratocronograma $contratocronograma)
+    {
         $contrato_id = $contratocronograma->contrato_id;
 
-        $valor_acumulado = $contratocronograma->where('contrato_id','=',$contrato_id)
+        $valor_acumulado = $contratocronograma->where('contrato_id', '=', $contrato_id)
             ->sum('valor');
 
-        $this->where('id','=',$contrato_id)
+        $this->where('id', '=', $contrato_id)
             ->update(['valor_acumulado' => $valor_acumulado]);
     }
 
@@ -80,10 +89,10 @@ class Contrato extends Model
 
     public function getReceitaDespesa()
     {
-        if($this->receita_despesa == 'D'){
+        if ($this->receita_despesa == 'D') {
             return 'Despesa';
         }
-        if($this->receita_despesa == 'R'){
+        if ($this->receita_despesa == 'R') {
             return 'Receita';
         }
 
@@ -100,7 +109,7 @@ class Contrato extends Model
     public function getOrgao()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
-            $query->where('id','=', $this->unidade_id);
+            $query->where('id', '=', $this->unidade_id);
         })->first();
 
         return $orgao->codigo . ' - ' . $orgao->nome;
@@ -109,11 +118,11 @@ class Contrato extends Model
 
     public function getTipo()
     {
-        if($this->tipo_id){
+        if ($this->tipo_id) {
             $tipo = Codigoitem::find($this->tipo_id);
 
             return $tipo->descricao;
-        }else{
+        } else {
             return '';
         }
 
@@ -132,73 +141,83 @@ class Contrato extends Model
 
     public function formatVlrParcela()
     {
-        return 'R$ '.number_format($this->valor_parcela, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor_parcela, 2, ',', '.');
     }
 
     public function formatVlrGlobal()
     {
-        return 'R$ '.number_format($this->valor_global, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor_global, 2, ',', '.');
     }
 
     public function formatVlrAcumulado()
     {
-        return 'R$ '.number_format($this->valor_acumulado, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor_acumulado, 2, ',', '.');
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function historico(){
+    public function historico()
+    {
 
         return $this->hasMany(Contratohistorico::class, 'contrato_id');
 
     }
 
-    public function cronograma(){
+    public function cronograma()
+    {
 
         return $this->hasMany(Contratocronograma::class, 'contrato_id');
 
     }
 
 
-    public function responsaveis(){
+    public function responsaveis()
+    {
 
         return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
 
     }
 
-    public function garantias(){
+    public function garantias()
+    {
 
         return $this->hasMany(Contratogarantia::class, 'contrato_id');
 
     }
 
-    public function arquivos(){
+    public function arquivos()
+    {
 
         return $this->hasMany(Contratoarquivo::class, 'contrato_id');
 
     }
 
-    public function empenhos(){
+    public function empenhos()
+    {
 
         return $this->hasMany(Contratoempenho::class, 'contrato_id');
 
     }
 
-    public function faturas(){
+    public function faturas()
+    {
 
         return $this->hasMany(Contratofatura::class, 'contrato_id');
 
     }
 
-    public function ocorrencias(){
+    public function ocorrencias()
+    {
 
         return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
 
     }
 
-    public function terceirizados(){
+    public function terceirizados()
+    {
 
         return $this->hasMany(Contratoterceirizado::class, 'contrato_id');
 
