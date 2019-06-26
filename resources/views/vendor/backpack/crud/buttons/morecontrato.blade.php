@@ -11,6 +11,7 @@
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/empenhos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Empenhos</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/garantias">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Garantias</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/historico">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Histórico</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/itens">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Itens</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/responsaveis">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Responsáveis</a></li>
         <li class="dropdown-header"><i class="fa fa-edit"></i> Modificar Contrato:</li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/instrumentoinicial">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Instrumento Inicial</a></li>

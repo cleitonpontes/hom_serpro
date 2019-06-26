@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateContratoitemTable extends Migration
+class CreateCatmatseratualizacaoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,12 @@ class CreateContratoitemTable extends Migration
      */
     public function up()
     {
-        Schema::create('contratoitens', function (Blueprint $table) {
+        Schema::create('catmatseratualizacao', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('contrato_id');
-            $table->integer('num_item');
-            $table->string('descricao');
-            $table->integer('quantidade');
-            $table->decimal('valor');
+            $table->string('arquivo');
+            $table->char('situacao',1)->default('P');
             $table->softDeletes();
             $table->timestamps();
-
-            $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
-
         });
     }
 
@@ -35,6 +29,6 @@ class CreateContratoitemTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contratoitens');
+        Schema::dropIfExists('catmatseratualizacao');
     }
 }

@@ -2,11 +2,15 @@
 
 namespace App\Providers;
 
+use App\Models\Catmatseratualizacao;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
+use App\Models\Contratoitem;
+use App\Observers\CatmatseratualizacaoObserver;
 use App\Observers\ContratocronogramaObserve;
 use App\Observers\ContratohistoricoObserve;
+use App\Observers\ContratoitemObserver;
 use App\Observers\ContratoObserve;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
         Contrato::observe(ContratoObserve::class);
         Contratohistorico::observe(ContratohistoricoObserve::class);
         Contratocronograma::observe(ContratocronogramaObserve::class);
+        Contratoitem::observe(ContratoitemObserver::class);
+        Catmatseratualizacao::observe(CatmatseratualizacaoObserver::class);
 
     }
 

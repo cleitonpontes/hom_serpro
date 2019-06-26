@@ -98,6 +98,12 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'contratorescisao_inserir']);
         Permission::create(['name' => 'contratorescisao_editar']);
         Permission::create(['name' => 'contratorescisao_deletar']);
+        Permission::create(['name' => 'contratoitem_inserir']);
+        Permission::create(['name' => 'contratoitem_editar']);
+        Permission::create(['name' => 'contratoitem_deletar']);
+        Permission::create(['name' => 'atualizacaocatmatser_inserir']);
+        Permission::create(['name' => 'atualizacaocatmatser_editar']);
+        Permission::create(['name' => 'atualizacaocatmatser_deletar']);
 
 
 
@@ -187,6 +193,12 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('contratorescisao_inserir');
         $role->givePermissionTo('contratorescisao_editar');
         $role->givePermissionTo('contratorescisao_deletar');
+        $role->givePermissionTo('contratoitem_inserir');
+        $role->givePermissionTo('contratoitem_editar');
+        $role->givePermissionTo('contratoitem_deletar');
+        $role->givePermissionTo('atualizacaocatmatser_inserir');
+        $role->givePermissionTo('atualizacaocatmatser_editar');
+        $role->givePermissionTo('atualizacaocatmatser_deletar');
 
     }
 }

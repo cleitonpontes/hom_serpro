@@ -55,6 +55,7 @@ Route::group([
             CRUD::resource('sfcertificado', 'SfcertificadoCrudController');
             CRUD::resource('justificativafatura', 'JustificativafaturaCrudController');
             CRUD::resource('tipolistafatura', 'TipolistafaturaCrudController');
+            CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
 
             // Download apropriação
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
@@ -84,6 +85,7 @@ Route::group([
                 CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
                 CRUD::resource('aditivos', 'AditivoCrudController');
                 CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
+                CRUD::resource('itens', 'ContratoitemCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 

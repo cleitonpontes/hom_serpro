@@ -96,6 +96,8 @@
                 </li>
                 <li><a href="{{ backpack_url('/admin/justificativafatura') }}"><i class="fa fa-list"></i> <span>Justificativa Fatura</span></a>
                 </li>
+                <li><a href="{{ backpack_url('/admin/catmatseratualizacao') }}"><i class="fa fa-list"></i> <span>Atualização CatMatSer</span></a>
+                </li>
             </ul>
         </li>
         <li class="treeview">

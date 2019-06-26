@@ -219,6 +219,9 @@ class CodigoItemSeeder extends Seeder
         DB::table('codigoitens')->insert(['codigo_id' => '18','descres' => 'CREDITO', 'descricao' => 'CREDITO']);
 
 
+        DB::table('codigos')->insert(['descricao' => 'Tipo CATMAT e CATSER','visivel' => false,]);
+        DB::table('codigoitens')->insert(['codigo_id' => '19','descres' => 'MATERIAL', 'descricao' => 'Material']);
+        DB::table('codigoitens')->insert(['codigo_id' => '19','descres' => 'SERVIÇO', 'descricao' => 'Serviço']);
 
     }
 }
