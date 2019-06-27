@@ -27,7 +27,10 @@ class Contratoitem extends Model
     // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
+        'tipo_id',
+        'grupo_id',
         'catmatseritem_id',
+        'descricao_complementar',
         'quantidade',
         'valorunitario',
         'valortotal',
@@ -74,8 +77,8 @@ class Contratoitem extends Model
 
     public function getCatmatsergrupo()
     {
-        if ($this->catmatsergrupo_id) {
-            $grupo = Catmatsergrupo::find($this->catmatsergrupo_id);
+        if ($this->grupo_id) {
+            $grupo = Catmatsergrupo::find($this->grupo_id);
 
             return $grupo->descricao;
         } else {
@@ -102,7 +105,17 @@ class Contratoitem extends Model
         return $this->belongsTo(Contrato::class, 'contrato_id');
     }
 
-    public function catmatseritem()
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
+
+    public function grupo()
+    {
+        return $this->belongsTo(Catmatsergrupo::class, 'grupo_id');
+    }
+
+    public function item()
     {
         return $this->belongsTo(Catmatseritem::class, 'catmatseritem_id');
     }

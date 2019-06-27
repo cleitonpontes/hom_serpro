@@ -19,6 +19,7 @@ class CreateContratoitemTable extends Migration
             $table->integer('tipo_id');
             $table->integer('grupo_id');
             $table->integer('catmatseritem_id');
+            $table->text('descricao_complementar')->nullable();
             $table->integer('quantidade');
             $table->decimal('valorunitario',17,2)->default(0);
             $table->decimal('valortotal',17,2)->default(0);

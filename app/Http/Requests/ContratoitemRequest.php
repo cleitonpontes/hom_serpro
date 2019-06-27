@@ -26,7 +26,12 @@ class ContratoitemRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'tipo_id' => 'required',
+            'grupo_id' => 'required',
+            'catmatseritem_id' => 'required',
+            'quantidade' => 'required',
+            'valorunitario' => 'required',
+            'valortotal' => 'required',
         ];
     }
 

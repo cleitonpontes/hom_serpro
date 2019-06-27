@@ -18,7 +18,9 @@ class CatmatseratualizacaoObserver
      */
     public function created(Catmatseratualizacao $catmatseratualizacao)
     {
-        ProcessaCatmatseratualizacaoJob::dispatch($catmatseratualizacao);
+        if($catmatseratualizacao->situacao == 'P'){
+            ProcessaCatmatseratualizacaoJob::dispatch($catmatseratualizacao);
+        }
     }
 
     /**
@@ -29,7 +31,9 @@ class CatmatseratualizacaoObserver
      */
     public function updated(Catmatseratualizacao $catmatseratualizacao)
     {
-        //
+        if($catmatseratualizacao->situacao == 'P') {
+            ProcessaCatmatseratualizacaoJob::dispatch($catmatseratualizacao);
+        }
     }
 
     /**

@@ -143,6 +143,8 @@ class CatmatseratualizacaoCrudController extends CrudController
     {
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
+
+        \Alert::success('Atualização do CATMAT e CATSER em andamento!')->flash();
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
@@ -152,6 +154,8 @@ class CatmatseratualizacaoCrudController extends CrudController
     {
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
+
+        \Alert::success('Atualização do CATMAT e CATSER em andamento!')->flash();
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;

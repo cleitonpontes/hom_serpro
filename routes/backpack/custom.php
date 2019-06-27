@@ -27,6 +27,10 @@ Route::group([
             //busca empenhos via ajax
             Route::get('empenho', 'EmpenhoController@index');
             Route::get('empenho/{id}', 'EmpenhoController@show');
+            Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
+            Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
+            Route::get('catmatseritem', 'CatmatseritemController@index');
+            Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
         });
 
 // if not otherwise configured, setup the dashboard routes

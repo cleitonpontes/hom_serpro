@@ -64,6 +64,8 @@ class ContratocronogramaCrudController extends CrudController
             ->toArray();
 
 
+
+
         $historico = new Contratocronograma();
         $arrayhistorico = $historico->montaArrayTipoDescricaoNumeroInstrumento($contrato_id);
 
