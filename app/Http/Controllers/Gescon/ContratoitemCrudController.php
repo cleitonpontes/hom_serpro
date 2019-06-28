@@ -34,7 +34,7 @@ class ContratoitemCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Contratoitem');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/itens');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/itens');
         $this->crud->setEntityNameStrings('Item Contratado', 'Itens Contratados');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
@@ -233,29 +233,46 @@ class ContratoitemCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [ // select2_from_ajax: 1-n relationship
-                'name' => 'grupo_id', // the column that contains the ID of that connected entity
-                'label' => "Grupo", // Table column heading
+                'name' => 'grupo_id',
+                // the column that contains the ID of that connected entity
+                'label' => "Grupo",
+                // Table column heading
                 'type' => 'select2_from_ajax',
-                'entity' => 'grupo', // the method that defines the relationship in your Model
-                'attribute' => 'descricao', // foreign key attribute that is shown to user
+                'entity' => 'grupo',
+                // the method that defines the relationship in your Model
+                'attribute' => 'descricao',
+                // foreign key attribute that is shown to user
 //                'process_results_template' => 'gescon.process_results', // foreign key attribute that is shown to user
-                'data_source' => url('api/catmatsergrupo'), // url to controller search function (with /{id} should return model)
-                'placeholder' => 'Selecione o Grupo', // placeholder for the select
-                'minimum_input_length' => 0, // minimum characters to type before querying results
-                'dependencies' => ['tipo_id'], // when a dependency changes, this select2 is reset to null
+                'data_source' => url('api/catmatsergrupo'),
+                // url to controller search function (with /{id} should return model)
+                'placeholder' => 'Selecione o Grupo',
+                // placeholder for the select
+                'minimum_input_length' => 0,
+                // minimum characters to type before querying results
+                'dependencies' => ['tipo_id'],
+                // when a dependency changes, this select2 is reset to null
                 // ‘method'                    => ‘GET’, // optional - HTTP method to use for the AJAX call (GET, POST)
             ],
             [ // select2_from_ajax: 1-n relationship
-                'name' => 'catmatseritem_id', // the column that contains the ID of that connected entity
-                'label' => "Item", // Table column heading
+                'name' => 'catmatseritem_id',
+                // the column that contains the ID of that connected entity
+                'label' => "Item",
+                // Table column heading
                 'type' => 'select2_from_ajax',
-                'entity' => 'item', // the method that defines the relationship in your Model
-                'attribute' => 'descricao', // foreign key attribute that is shown to user
-                'process_results_template' => 'gescon.process_results_catmatseritem', // foreign key attribute that is shown to user
-                'data_source' => url('api/catmatseritem'), // url to controller search function (with /{id} should return model)
-                'placeholder' => 'Selecione o Item', // placeholder for the select
-                'minimum_input_length' => 0, // minimum characters to type before querying results
-                'dependencies' => ['grupo_id'], // when a dependency changes, this select2 is reset to null
+                'entity' => 'item',
+                // the method that defines the relationship in your Model
+                'attribute' => 'descricao',
+                // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_catmatseritem',
+                // foreign key attribute that is shown to user
+                'data_source' => url('api/catmatseritem'),
+                // url to controller search function (with /{id} should return model)
+                'placeholder' => 'Selecione o Item',
+                // placeholder for the select
+                'minimum_input_length' => 0,
+                // minimum characters to type before querying results
+                'dependencies' => ['grupo_id'],
+                // when a dependency changes, this select2 is reset to null
                 // ‘method'                    => ‘GET’, // optional - HTTP method to use for the AJAX call (GET, POST)
             ],
             [
@@ -304,11 +321,11 @@ class ContratoitemCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        $valorunitario = str_replace(',', '.', str_replace('.','',$request->input('valorunitario')));
-        $request->request->set('valorunitario', number_format(floatval($valorunitario),2,'.',''));
+        $valorunitario = str_replace(',', '.', str_replace('.', '', $request->input('valorunitario')));
+        $request->request->set('valorunitario', number_format(floatval($valorunitario), 2, '.', ''));
 
-        $valortotal = str_replace(',', '.', str_replace('.','',$request->input('valortotal')));
-        $request->request->set('valortotal', number_format(floatval($valortotal),2,'.',''));
+        $valortotal = str_replace(',', '.', str_replace('.', '', $request->input('valortotal')));
+        $request->request->set('valortotal', number_format(floatval($valortotal), 2, '.', ''));
 
 
         // your additional operations before save here
@@ -321,16 +338,32 @@ class ContratoitemCrudController extends CrudController
     public function update(UpdateRequest $request)
     {
 
-        $valorunitario = str_replace(',', '.', str_replace('.','',$request->input('valorunitario')));
-        $request->request->set('valorunitario', number_format(floatval($valorunitario),2,'.',''));
+        $valorunitario = str_replace(',', '.', str_replace('.', '', $request->input('valorunitario')));
+        $request->request->set('valorunitario', number_format(floatval($valorunitario), 2, '.', ''));
 
-        $valortotal = str_replace(',', '.', str_replace('.','',$request->input('valortotal')));
-        $request->request->set('valortotal', number_format(floatval($valortotal),2,'.',''));
+        $valortotal = str_replace(',', '.', str_replace('.', '', $request->input('valortotal')));
+        $request->request->set('valortotal', number_format(floatval($valortotal), 2, '.', ''));
 
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumns([
+            'contrato_id',
+            'tipo_id',
+            'grupo_id',
+            'catmatseritem_id',
+            'valorunitario',
+            'valortotal',
+        ]);
+
+        return $content;
     }
 }
