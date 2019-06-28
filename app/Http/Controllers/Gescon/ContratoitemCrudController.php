@@ -119,6 +119,7 @@ class ContratoitemCrudController extends CrudController
                 'label' => 'Item Grupo', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getCatmatsergrupo', // the method in your Model
+                'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -137,6 +138,7 @@ class ContratoitemCrudController extends CrudController
                 'label' => 'Item', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getCatmatseritem', // the method in your Model
+                'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
