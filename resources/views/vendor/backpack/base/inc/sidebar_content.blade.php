@@ -88,15 +88,17 @@
             <a href="#"><i class='fa fa-gear'></i> <span>Outros</span> <i
                     class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-                <li><a href='{{ backpack_url('/admin/codigo') }}'><i class='fa fa-gear'></i>
-                        <span>Códigos e Itens</span></a></li>
+                <li><a href="{{ backpack_url('/admin/catmatseratualizacao') }}"><i class="fa fa-list"></i> <span>Atualização CatMatSer</span></a>
+                </li>
                 <li><a href="{{ backpack_url('/admin/sfcertificado') }}"><i class="fa fa-lock"></i> <span>Certificado Siafi</span></a>
                 </li>
-                <li><a href="{{ backpack_url('/admin/tipolistafatura') }}"><i class="fa fa-list"></i> <span>Tipo Lista Fatura</span></a>
+                <li><a href='{{ backpack_url('/admin/codigo') }}'><i class='fa fa-gear'></i> <span>Códigos e Itens</span></a>
+                </li>
+                <li><a href='{{ backpack_url('/admin/comunica') }}'><i class='fa fa-envelope'></i> <span>Comunica</span></a>
                 </li>
                 <li><a href="{{ backpack_url('/admin/justificativafatura') }}"><i class="fa fa-list"></i> <span>Justificativa Fatura</span></a>
                 </li>
-                <li><a href="{{ backpack_url('/admin/catmatseratualizacao') }}"><i class="fa fa-list"></i> <span>Atualização CatMatSer</span></a>
+                <li><a href="{{ backpack_url('/admin/tipolistafatura') }}"><i class="fa fa-list"></i> <span>Tipo Lista Fatura</span></a>
                 </li>
             </ul>
         </li>

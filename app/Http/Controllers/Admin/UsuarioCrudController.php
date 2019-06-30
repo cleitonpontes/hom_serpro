@@ -30,7 +30,7 @@ class UsuarioCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        if(!backpack_user()->hasRole('Administrador')){
+        if (!backpack_user()->hasRole('Administrador')) {
             abort('403', config('app.erro_permissao'));
         }
 
@@ -122,6 +122,9 @@ class UsuarioCrudController extends CrudController
                 'name' => 'cpf',
                 'label' => 'CPF',
                 'type' => 'cpf',
+//                'wrapperAttributes' => [
+//                    'class' => 'form-group col-md-3'
+//                ],
                 'tab' => 'Dados Pessoais',
             ],
             [
@@ -131,7 +134,10 @@ class UsuarioCrudController extends CrudController
                 'tab' => 'Dados Pessoais',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"
-                ]
+                ],
+//                'wrapperAttributes' => [
+//                    'class' => 'form-group col-md-3'
+//                ],
             ],
             [
                 'name' => 'email',

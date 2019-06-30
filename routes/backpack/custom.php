@@ -60,6 +60,7 @@ Route::group([
             CRUD::resource('justificativafatura', 'JustificativafaturaCrudController');
             CRUD::resource('tipolistafatura', 'TipolistafaturaCrudController');
             CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
+            CRUD::resource('comunica', 'ComunicaCrudController');
 
             // Download apropriação
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')

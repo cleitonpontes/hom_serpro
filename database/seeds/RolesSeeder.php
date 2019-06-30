@@ -104,6 +104,9 @@ class RolesSeeder extends Seeder
         Permission::create(['name' => 'atualizacaocatmatser_inserir']);
         Permission::create(['name' => 'atualizacaocatmatser_editar']);
         Permission::create(['name' => 'atualizacaocatmatser_deletar']);
+        Permission::create(['name' => 'comunica_inserir']);
+        Permission::create(['name' => 'comunica_editar']);
+        Permission::create(['name' => 'comunica_deletar']);
 
 
 
@@ -199,6 +202,9 @@ class RolesSeeder extends Seeder
         $role->givePermissionTo('atualizacaocatmatser_inserir');
         $role->givePermissionTo('atualizacaocatmatser_editar');
         $role->givePermissionTo('atualizacaocatmatser_deletar');
+        $role->givePermissionTo('comunica_inserir');
+        $role->givePermissionTo('comunica_editar');
+        $role->givePermissionTo('comunica_deletar');
 
     }
 }
