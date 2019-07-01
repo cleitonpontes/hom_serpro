@@ -101,8 +101,8 @@ class ComunicaCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'menssagem',
-                'label' => 'Menssagem', // Table column heading
+                'name' => 'mensagem',
+                'label' => 'Mensagem', // Table column heading
                 'type' => 'text',
                 'limit' => 1000,
                 'orderable' => true,
@@ -176,8 +176,8 @@ class ComunicaCrudController extends CrudController
                 ]
             ],
             [ // select_from_array
-                'name' => 'menssagem',
-                'label' => "Menssagem",
+                'name' => 'mensagem',
+                'label' => "Mensagem",
                 'type' => 'ckeditor',
             ],
             [   // Upload

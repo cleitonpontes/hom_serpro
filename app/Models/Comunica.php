@@ -30,7 +30,7 @@ class Comunica extends Model
         'unidade_id',
         'role_id',
         'assunto',
-        'menssagem',
+        'mensagem',
         'anexos',
         'situacao'
     ];

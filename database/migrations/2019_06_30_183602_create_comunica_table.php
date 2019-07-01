@@ -18,7 +18,7 @@ class CreateComunicaTable extends Migration
             $table->integer('unidade_id')->nullable();
             $table->integer('role_id')->nullable();
             $table->string('assunto');
-            $table->text('menssagem');
+            $table->text('mensagem');
             $table->string('anexos')->nullable();
             $table->char('situacao',1)->default('P');
             $table->softDeletes();
