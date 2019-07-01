@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Html2Text\Html2Text;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -63,6 +64,16 @@ class Comunica extends Model
             return $grupo->name;
         } else {
             return 'Todos';
+        }
+    }
+
+    public function getMensagem()
+    {
+        if ($this->mensagem) {
+            $mensagem = new Html2Text($this->mensagem);
+            return $mensagem->getText();
+        } else {
+            return '';
         }
     }
 

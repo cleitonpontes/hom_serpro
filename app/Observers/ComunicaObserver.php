@@ -92,6 +92,8 @@ class ComunicaObserver
                     $user->notify(new ComunicaNotification($comunica,$user));
                 }
             }
+            $comunica->situacao = 'E';
+            $comunica->save();
         }
     }
 }

@@ -29,7 +29,7 @@ class ComunicaCrudController extends CrudController
         $this->crud->setModel('App\Models\Comunica');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/comunica');
         $this->crud->setEntityNameStrings('Comunica', 'Comunica');
-
+        $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
@@ -100,10 +100,12 @@ class ComunicaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+
             [
-                'name' => 'mensagem',
+                'name' => 'getMensagem',
                 'label' => 'Mensagem', // Table column heading
-                'type' => 'text',
+                'type' => 'model_function',
+                'function_name' => 'getMensagem', // the method in your Model
                 'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -111,6 +113,17 @@ class ComunicaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+//            [
+//                'name' => 'mensagem',
+//                'label' => 'Mensagem', // Table column heading
+//                'type' => 'text',
+//                'limit' => 1000,
+//                'orderable' => true,
+//                'visibleInTable' => true, // no point, since it's a large text
+//                'visibleInModal' => true, // would make the modal too big
+//                'visibleInExport' => true, // not important enough
+//                'visibleInShow' => true, // sure, why not
+//            ],
             [
                 'name' => 'anexos',
                 'label' => 'Anexos', // Table column heading
@@ -192,7 +205,7 @@ class ComunicaCrudController extends CrudController
                 'name' => 'situacao',
                 'label' => "Situação",
                 'type' => 'select_from_array',
-                'options' => ['I' => 'Inacabado', 'P' => 'Pronta para Envio'],
+                'options' => ['E' => 'Enviado', 'I' => 'Inacabado', 'P' => 'Pronta para Envio'],
                 'allows_null' => true,
             ],
 
@@ -226,6 +239,7 @@ class ComunicaCrudController extends CrudController
         $this->crud->removeColumns([
             'unidade_id',
             'role_id',
+            'mensagem',
             'situacao',
         ]);
 
