@@ -192,7 +192,7 @@ class Passo6Controller extends BaseController
     private function eliminaDadosAnteriores($apid)
     {
         $modeloPadrao = new SfPadrao();
-        $modeloPadrao->where('fk', $apid)->delete();
+        $modeloPadrao->where('fk', $apid)->where('categoriapadrao','=','EXECFOLHA')->delete();
     }
 
     /**
