@@ -411,11 +411,11 @@ class ApropriacaoController extends BaseController
                     $nsfpadrao->fill($this->montaArraySfPadrao($nsfp, $i));
                     $nsfpadrao->save();
 
-                    $fk =  $nsfpadrao->id;
+                    $fk1 =  $nsfpadrao->id;
 
                     $arraypco = $pco->toArray();
                     unset($arraypco['id']);
-                    $arraypco['sfpadrao_id'] = $fk;
+                    $arraypco['sfpadrao_id'] = $fk1;
                     $npco = new SfPco();
                     $npco->fill($arraypco);
                     $npco->save();
@@ -428,7 +428,7 @@ class ApropriacaoController extends BaseController
                     $npcoitens->save();
 
                     $arraycentrocustos = [
-                        'sfpadrao_id' => $fk,
+                        'sfpadrao_id' => $fk1,
                         'numseqitem' => 1,
                         'codcentrocusto' => $apropriacao->centro_custo,
                         'mesreferencia' => substr($apropriacao->competencia,5,2),
