@@ -466,7 +466,7 @@ class ApropriacaoController extends BaseController
 
         if ($i == 1) {
             $array = [
-                'fk' => $sfp['fk'],
+                'fk' => $sfp['id'],
                 'categoriapadrao' => 'EXECFOLHAAPROPRIA',
                 'decricaopadrao' => $sfp['decricaopadrao'],
                 'codugemit' => $sfp['codugemit'],
