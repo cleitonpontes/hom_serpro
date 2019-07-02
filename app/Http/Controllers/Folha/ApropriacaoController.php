@@ -384,8 +384,8 @@ class ApropriacaoController extends BaseController
                         'sfpadrao_id' => $fk,
                         'numseqitem' => 1,
                         'codcentrocusto' => $apropriacao->centro_custo,
-                        'mesreferencia' => substr($apropriacao->competencia,5,2),
-                        'anoreferencia' => substr($apropriacao->competencia,0,4),
+                        'mesreferencia' => substr($apropriacao->competencia, 5, 2),
+                        'anoreferencia' => substr($apropriacao->competencia, 0, 4),
                         'codugbenef' => $apropriacao->ug,
                     ];
 
@@ -411,7 +411,7 @@ class ApropriacaoController extends BaseController
                     $nsfpadrao->fill($this->montaArraySfPadrao($nsfp, $i));
                     $nsfpadrao->save();
 
-                    $fk1 =  $nsfpadrao->id;
+                    $fk1 = $nsfpadrao->id;
 
                     $arraypco = $pco->toArray();
                     unset($arraypco['id']);
@@ -431,8 +431,8 @@ class ApropriacaoController extends BaseController
                         'sfpadrao_id' => $fk1,
                         'numseqitem' => 1,
                         'codcentrocusto' => $apropriacao->centro_custo,
-                        'mesreferencia' => substr($apropriacao->competencia,5,2),
-                        'anoreferencia' => substr($apropriacao->competencia,0,4),
+                        'mesreferencia' => substr($apropriacao->competencia, 5, 2),
+                        'anoreferencia' => substr($apropriacao->competencia, 0, 4),
                         'codugbenef' => $apropriacao->ug,
                     ];
 
@@ -451,7 +451,6 @@ class ApropriacaoController extends BaseController
                     $nrelitemvlrcc = new Sfrelitemvlrcc();
                     $nrelitemvlrcc->fill($arrayrelitemvlrcc);
                     $nrelitemvlrcc->save();
-
 
                 }
                 $i++;
