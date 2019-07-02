@@ -5,14 +5,21 @@
  * @author Basis Tecnologia da Informação
  * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
  */
+
 namespace App\Http\Controllers\Folha;
 
 use App\Http\Controllers\Folha\Apropriacao\BaseController;
 use App\Models\Apropriacao;
 use App\Models\Apropriacaofases;
 use App\Models\Apropriacaoimportacao;
+use App\Models\Sfcentrocusto;
+use App\Models\SfDadosBasicos;
+use App\Models\SfDocOrigem;
+use App\Models\SfPadrao;
 use App\Models\SfPco;
 use App\Models\SfDespesaAnular;
+use App\Models\SfPcoItem;
+use App\Models\Sfrelitemvlrcc;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
@@ -49,9 +56,9 @@ class ApropriacaoController extends BaseController
 
                 return $acoes;
             })
-            ->editColumn('valor_bruto', '{!! number_format(floatval($valor_bruto), 2, ",", ".") !!}')
-            ->editColumn('valor_liquido', '{!! number_format(floatval($valor_liquido), 2, ",", ".") !!}')
-            ->make(true);
+                ->editColumn('valor_bruto', '{!! number_format(floatval($valor_bruto), 2, ",", ".") !!}')
+                ->editColumn('valor_liquido', '{!! number_format(floatval($valor_liquido), 2, ",", ".") !!}')
+                ->make(true);
         }
 
         $html = $this->retornaGrid();
@@ -75,7 +82,7 @@ class ApropriacaoController extends BaseController
         if ($apropriacao->fase_id != Apropriacaofases::APROP_FASE_FINALIZADA) {
             // Exclui os registros importados da apropriação
             Apropriacaoimportacao::where('apropriacao_id', $id)->delete();
-            
+
             // Exclui o registro da própria apropriação
             $apropriacao->delete();
 
@@ -90,7 +97,7 @@ class ApropriacaoController extends BaseController
 
     /**
      * Exibe relatório da apropriação
-     * 
+     *
      * @param $apid
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -98,45 +105,45 @@ class ApropriacaoController extends BaseController
     {
         $modeloApropriacao = new Apropriacao();
         $apropriacoes = $modeloApropriacao->retornaDadosRelatorio($apid);
-        
+
         // Verificação de presença dos dados
         if (count($apropriacoes) != 1) {
             $msg = config('mensagens.apropriacao-relatorio-erro-ident');
             $this->exibeMensagemAlerta($msg);
-            
+
             return redirect('/folha/apropriacao')->withInput();
         }
-        
+
         // Ajusta dados, se for o caso
         $apropriacao = isset($apropriacoes[0]) ? $apropriacoes[0] : null;
-        
+
         $processo = $apropriacao['nup'];
-        
+
         // Verifica se já passou pelo passo 5
         if ($processo == '') {
             $msg = config('mensagens.apropriacao-relatorio-erro-passo-5');
             $this->exibeMensagemAlerta($msg);
-            
+
             return redirect('/folha/apropriacao')->withInput();
         }
-        
+
         $modeloPco = new SfPco();
         $pcos = $modeloPco->retornaDadosRelatorioApropriacao($apid);
-        
+
         // Verifica se já passou pelo passo 6
         if (count($pcos) <= 0) {
             $msg = config('mensagens.apropriacao-relatorio-erro-pco');
             $this->exibeMensagemAlerta($msg);
-            
+
             return redirect('/folha/apropriacao')->withInput();
         }
-        
+
         $modeloDespesa = new SfDespesaAnular();
         $despesas = $modeloDespesa->retornaDadosRelatorioApropriacao($apid);
-        
+
         return view('backpack::mod.folha.apropriacao.relatorio', compact('apid', 'apropriacao', 'pcos', 'despesas'));
     }
-    
+
     /**
      * Monta $html com definições do Grid
      *
@@ -149,66 +156,66 @@ class ApropriacaoController extends BaseController
             'name' => 'id',
             'title' => 'Id',
         ])
-        ->addColumn([
-            'data' => 'competencia',
-            'name' => 'competencia',
-            'title' => 'Competência'
-        ])
-        ->addColumn([
-            'data' => 'nivel',
-            'name' => 'nivel',
-            'title' => 'Nível'
-        ])
-        ->addColumn([
-            'data' => 'valor_bruto',
-            'name' => 'valor_bruto',
-            'title' => 'VR Bruto',
-            'class' => 'text-right'
-        ])
-        ->addColumn([
-            'data' => 'valor_liquido',
-            'name' => 'valor_liquido',
-            'title' => 'VR Líquido',
-            'class' => 'text-right'
-        ])
-        ->addColumn([
-            'data' => 'arquivos',
-            'name' => 'arquivos',
-            'title' => 'Arquivos'
-        ])
-        ->addColumn([
-            'data' => 'fase',
-            'name' => 'fase',
-            'title' => 'Status'
-        ])
-        ->addColumn([
-            'data' => 'action',
-            'name' => 'action',
-            'title' => 'Ações',
-            'orderable' => false,
-            'searchable' => false
-        ])
-        ->parameters([
-            'processing' => true,
-            'serverSide' => true,
-            'responsive' => true,
-            'info' => true,
-            'order' => [
-                0,
-                'desc'
-            ],
-            'autoWidth' => false,
-            'bAutoWidth' => false,
-            'paging' => true,
-            'lengthChange' => true,
-            'language' => [
-                'url' => asset('/json/pt_br.json')
-            ]
-        ]);
-        
+            ->addColumn([
+                'data' => 'competencia',
+                'name' => 'competencia',
+                'title' => 'Competência'
+            ])
+            ->addColumn([
+                'data' => 'nivel',
+                'name' => 'nivel',
+                'title' => 'Nível'
+            ])
+            ->addColumn([
+                'data' => 'valor_bruto',
+                'name' => 'valor_bruto',
+                'title' => 'VR Bruto',
+                'class' => 'text-right'
+            ])
+            ->addColumn([
+                'data' => 'valor_liquido',
+                'name' => 'valor_liquido',
+                'title' => 'VR Líquido',
+                'class' => 'text-right'
+            ])
+            ->addColumn([
+                'data' => 'arquivos',
+                'name' => 'arquivos',
+                'title' => 'Arquivos'
+            ])
+            ->addColumn([
+                'data' => 'fase',
+                'name' => 'fase',
+                'title' => 'Status'
+            ])
+            ->addColumn([
+                'data' => 'action',
+                'name' => 'action',
+                'title' => 'Ações',
+                'orderable' => false,
+                'searchable' => false
+            ])
+            ->parameters([
+                'processing' => true,
+                'serverSide' => true,
+                'responsive' => true,
+                'info' => true,
+                'order' => [
+                    0,
+                    'desc'
+                ],
+                'autoWidth' => false,
+                'bAutoWidth' => false,
+                'paging' => true,
+                'lengthChange' => true,
+                'language' => [
+                    'url' => asset('/json/pt_br.json')
+                ]
+            ]);
+
         return $html;
     }
-    
+
     /**
      * Retorna html das ações disponíveis
      *
@@ -221,22 +228,22 @@ class ApropriacaoController extends BaseController
         $editar = $this->retornaBtnEditar($apropriacaoId, $faseId);
         $excluir = $this->retornaBtnExcluir($apropriacaoId);
         $relatorio = $this->retornaBtnRelatorio($apropriacaoId);
-        
+
         $acaoFinalizada = $relatorio;
         $acaoEmAndamento = $editar . $excluir;
-        
+
         if ($faseId >= Apropriacaofases::APROP_FASE_PERSISTIR_DADOS) {
             $acaoEmAndamento .= $relatorio;
         }
-        
+
         $acoes = '';
         $acoes = '<div class="btn-group">';
         $acoes .= ($finalizada == true) ? $acaoFinalizada : $acaoEmAndamento;
         $acoes .= '</div>';
-        
+
         return $acoes;
     }
-    
+
     /**
      * Retorna html do botão editar
      *
@@ -254,10 +261,10 @@ class ApropriacaoController extends BaseController
         $editar .= "class='btn btn-default btn-sm' ";
         $editar .= 'title="Apropriar competência">';
         $editar .= '<i class="fa fa-play"></i></a>';
-        
+
         return $editar;
     }
-    
+
     /**
      * Retorna html do botão excluir
      *
@@ -277,24 +284,241 @@ class ApropriacaoController extends BaseController
         $excluir .= 'name="delete_modal" ';
         $excluir .= 'title="Excluir apropriação">';
         $excluir .= '<i class="fa fa-trash"></i></a>';
-        
+
         return $excluir;
     }
-    
+
     /**
      * Retorna html do botão do relatório da apropriação
-     * 
+     *
      * @param number $apropriacaoId
      * @return string
      */
-    private function retornaBtnRelatorio($apropriacaoId) {
+    private function retornaBtnRelatorio($apropriacaoId)
+    {
         $relatorio = '';
         $relatorio .= '<a href="/folha/apropriacao/relatorio/';
         $relatorio .= $apropriacaoId . '" ';
         $relatorio .= "class='btn btn-default btn-sm' ";
         $relatorio .= 'title="Relatório da apropriação">';
         $relatorio .= '<i class="fa fa-list-alt"></i></a>';
-        
+
         return $relatorio;
     }
+
+    public function apropriaSiafi($apropriacaoId)
+    {
+
+        $sfpadrao = SfPadrao::where('fk', '=', $apropriacaoId)
+            ->where('categoriapadrao', '=', 'EXECFOLHA')
+            ->first();
+
+        if ($sfpadrao->situacao == 'P') {
+            $this->criaNovoSfpadrao($sfpadrao);
+            $sfpadrao->situacao = 'E';
+            $sfpadrao->save();
+
+            \Alert::success('Documento Hábil em Processo de apropriação no SIAFI. Aguarde!')->flash();
+            return redirect()->route('folha.apropriacao');
+        }
+
+        if ($sfpadrao->situacao == 'E') {
+            \Alert::warning('Este Documento Hábil já foi apropriado ou está em processo de apropriação. Aguarde!')->flash();
+            return redirect()->route('folha.apropriacao');
+        }
+
+    }
+
+    private function criaNovoSfpadrao(SfPadrao $sfpadrao)
+    {
+        $sfp = $sfpadrao->toArray();
+
+        $apropriacao = Apropriacao::find($sfpadrao->fk);
+
+        $dadosbasicos = SfDadosBasicos::where('sfpadrao_id', '=', $sfpadrao->id)
+            ->first();
+
+
+        $i = 1;
+        foreach ($sfpadrao->pco as $pco) {
+            foreach ($pco->pcoItens as $pcoItem) {
+                if ($i == 1) {
+                    $nsfpadrao = new SfPadrao();
+                    $nsfpadrao->fill($this->montaArraySfPadrao($sfp, $i));
+                    $nsfpadrao->save();
+
+                    $nsfp = $nsfpadrao->toArray();
+                    $fk = $nsfpadrao->id;
+
+                    $arraysfdadosbasicos = $dadosbasicos->toArray();
+                    $arraysfdadosbasicos['sfpadrao_id'] = $fk;
+                    unset($arraysfdadosbasicos['id']);
+                    $ndadosbasicos = new SfDadosBasicos();
+                    $ndadosbasicos->fill($arraysfdadosbasicos);
+                    $ndadosbasicos->save();
+
+                    foreach ($dadosbasicos->docOrigem as $docorigem) {
+                        $arraydocorigem = $docorigem->toArray();
+                        unset($arraydocorigem['id']);
+                        $arraydocorigem['sfdadosbasicos_id'] = $ndadosbasicos->id;
+                        $ndocorigem = new SfDocOrigem();
+                        $ndocorigem->fill($arraydocorigem);
+                        $ndocorigem->save();
+                    }
+
+                    $arraypco = $pco->toArray();
+                    unset($arraypco['id']);
+                    $arraypco['sfpadrao_id'] = $fk;
+                    $npco = new SfPco();
+                    $npco->fill($arraypco);
+                    $npco->save();
+
+                    $arraypcoitem = $pcoItem->toArray();
+                    unset($arraypcoitem['id']);
+                    $arraypcoitem['sfpco_id'] = $npco->id;
+                    $npcoitens = new SfPcoItem();
+                    $npcoitens->fill($arraypcoitem);
+                    $npcoitens->save();
+
+                    $arraycentrocustos = [
+                        'sfpadrao_id' => $fk,
+                        'numseqitem' => 1,
+                        'codcentrocusto' => $apropriacao->centro_custo,
+                        'mesreferencia' => substr($apropriacao->competencia,5,2),
+                        'anoreferencia' => substr($apropriacao->competencia,0,4),
+                        'codugbenef' => $apropriacao->ug,
+                    ];
+
+                    $ncentrocusto = new Sfcentrocusto();
+                    $ncentrocusto->fill($arraycentrocustos);
+                    $ncentrocusto->save();
+
+                    $arrayrelitemvlrcc = [
+                        'sfcc_id' => $ncentrocusto->id,
+                        'numseqpai' => 1,
+                        'numseqitem' => 1,
+                        'vlr' => $npcoitens->vlr,
+                        'tipo' => 'PCO'
+                    ];
+
+                    $nrelitemvlrcc = new Sfrelitemvlrcc();
+                    $nrelitemvlrcc->fill($arrayrelitemvlrcc);
+                    $nrelitemvlrcc->save();
+                } else {
+
+                    $nsfp['fk'] = $fk;
+                    $nsfpadrao = new SfPadrao();
+                    $nsfpadrao->fill($this->montaArraySfPadrao($nsfp, $i));
+                    $nsfpadrao->save();
+
+                    $fk =  $nsfpadrao->id;
+
+                    $arraypco = $pco->toArray();
+                    unset($arraypco['id']);
+                    $arraypco['sfpadrao_id'] = $fk;
+                    $npco = new SfPco();
+                    $npco->fill($arraypco);
+                    $npco->save();
+
+                    $arraypcoitem = $pcoItem->toArray();
+                    unset($arraypcoitem['id']);
+                    $arraypcoitem['sfpco_id'] = $npco->id;
+                    $npcoitens = new SfPcoItem();
+                    $npcoitens->fill($arraypcoitem);
+                    $npcoitens->save();
+
+                    $arraycentrocustos = [
+                        'sfpadrao_id' => $fk,
+                        'numseqitem' => 1,
+                        'codcentrocusto' => $apropriacao->centro_custo,
+                        'mesreferencia' => substr($apropriacao->competencia,5,2),
+                        'anoreferencia' => substr($apropriacao->competencia,0,4),
+                        'codugbenef' => $apropriacao->ug,
+                    ];
+
+                    $ncentrocusto = new Sfcentrocusto();
+                    $ncentrocusto->fill($arraycentrocustos);
+                    $ncentrocusto->save();
+
+                    $arrayrelitemvlrcc = [
+                        'sfcc_id' => $ncentrocusto->id,
+                        'numseqpai' => 1,
+                        'numseqitem' => 1,
+                        'vlr' => $npcoitens->vlr,
+                        'tipo' => 'PCO'
+                    ];
+
+                    $nrelitemvlrcc = new Sfrelitemvlrcc();
+                    $nrelitemvlrcc->fill($arrayrelitemvlrcc);
+                    $nrelitemvlrcc->save();
+
+
+                }
+                $i++;
+            }
+        }
+
+
+    }
+
+    private function montaArraySfPadrao(array $sfp, string $i)
+    {
+
+        if ($i == 1) {
+            $array = [
+                'fk' => $sfp['fk'],
+                'categoriapadrao' => 'EXECFOLHAAPROPRIA',
+                'decricaopadrao' => $sfp['decricaopadrao'],
+                'codugemit' => $sfp['codugemit'],
+                'anodh' => $sfp['anodh'],
+                'codtipodh' => $sfp['codtipodh'],
+                'dtemis' => $sfp['dtemis'],
+                'tipo' => 'E',
+                'situacao' => 'P',
+            ];
+        } else {
+            $array = [
+                'fk' => $sfp['fk'],
+                'categoriapadrao' => 'EXECFOLHAALTERA',
+                'decricaopadrao' => $sfp['decricaopadrao'],
+                'codugemit' => $sfp['codugemit'],
+                'anodh' => $sfp['anodh'],
+                'codtipodh' => $sfp['codtipodh'],
+                'dtemis' => $sfp['dtemis'],
+                'txtmotivo' => 'Incluir novo item aba pco.',
+                'tipo' => 'E',
+                'situacao' => 'P',
+            ];
+        }
+
+        return $array;
+    }
+
+    private function montaArraySfDadosBasicos($sfDadosBasicos, string $i)
+    {
+
+        $array = [];
+
+        if ($i == 1) {
+            dd($sfDadosBasicos, $sfDadosBasicos);
+            foreach ($sfDadosBasicos as $dadosBasicos) {
+                $array = [
+                    'dtemis' => $dadosBasicos->dtemis,
+                    'dtvenc' => $dadosBasicos->dtvenc,
+                    'codugpagto' => $dadosBasicos->codugpagto,
+                    'vlr' => $dadosBasicos->vlr,
+                    'txtobser' => $dadosBasicos->txtobser,
+                    'vlrtaxacambio' => $dadosBasicos->vlrtaxacambio,
+                    'txtprocesso' => $dadosBasicos->txtprocesso,
+                    'dtateste' => $dadosBasicos->dtateste,
+                    'codcredordevedor' => $dadosBasicos->codcredordevedor,
+                    'dtpgtoreceb' => $dadosBasicos->dtpgtoreceb,
+                ];
+            }
+        }
+
+
+        return $array;
+    }
+
 }

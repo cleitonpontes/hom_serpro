@@ -33,4 +33,9 @@ class SfDocOrigem extends Model
         'numdocorigem',
         'vlr'
     ];
+
+    public function dadosBasicos()
+    {
+        return $this->belongsTo(SfDadosBasicos::class, 'sfdadosbasicos_id');
+    }
 }

@@ -39,7 +39,7 @@
                     <div class="row">
                     	<div class="col-md-12 text-center">
                         	{!! Button::success('<i class="fa fa-file"></i> Apropriar SIAFI')
-                    			->asLinkTo(route('folha.apropriacao.passo.1'))
+                    			->asLinkTo(url('folha/apropriacao/siafi/'.$apid))
                 			!!}
                     	</div>
                 	</div>

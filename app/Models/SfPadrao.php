@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -40,4 +41,19 @@ class SfPadrao extends Model
         'tipo',
         'situacao'
     ];
+
+    public function dadosBasicos()
+    {
+        return $this->hasOne(SfDadosBasicos::class, 'sfpadrao_id');
+    }
+
+    public function pco()
+    {
+        return $this->hasMany(SfPco::class, 'sfpadrao_id');
+    }
+
+    public function centroCusto()
+    {
+        return $this->hasMany(Sfcentrocusto::class, 'sfpadrao_id');
+    }
 }
