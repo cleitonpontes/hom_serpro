@@ -228,8 +228,9 @@ class ApropriacaoController extends BaseController
         $editar = $this->retornaBtnEditar($apropriacaoId, $faseId);
         $excluir = $this->retornaBtnExcluir($apropriacaoId);
         $relatorio = $this->retornaBtnRelatorio($apropriacaoId);
+        $dochabil = $this->retornaBtnDocHabil($apropriacaoId);
 
-        $acaoFinalizada = $relatorio;
+        $acaoFinalizada = $relatorio . $dochabil;
         $acaoEmAndamento = $editar . $excluir;
 
         if ($faseId >= Apropriacaofases::APROP_FASE_PERSISTIR_DADOS) {
@@ -302,6 +303,18 @@ class ApropriacaoController extends BaseController
         $relatorio .= "class='btn btn-default btn-sm' ";
         $relatorio .= 'title="Relatório da apropriação">';
         $relatorio .= '<i class="fa fa-list-alt"></i></a>';
+
+        return $relatorio;
+    }
+
+    private function retornaBtnDocHabil($apropriacaoId)
+    {
+        $relatorio = '';
+        $relatorio .= '<a href="/folha/apropriacao/siafi/dochabil/';
+        $relatorio .= $apropriacaoId . '" ';
+        $relatorio .= "class='btn btn-default btn-sm' ";
+        $relatorio .= 'title="Documento Hábil Apropriado">';
+        $relatorio .= '<i class="fa fa-file-o"></i></a>';
 
         return $relatorio;
     }
@@ -520,6 +533,16 @@ class ApropriacaoController extends BaseController
 
 
         return $array;
+    }
+
+    public function docHabilSiafi($apropriacaoId)
+    {
+        $dado = SfPadrao::where('fk', $apropriacaoId)
+            ->where('categoriapadrao', '=', 'EXECFOLHA')
+            ->first();
+
+
+        return view('backpack::mod.folha.dochabilfolha',['dado' => $dado]);
     }
 
 }
