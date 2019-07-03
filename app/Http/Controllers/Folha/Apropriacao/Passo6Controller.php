@@ -5,6 +5,7 @@
  * @author Basis Tecnologia da Informação
  * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
  */
+
 namespace App\Http\Controllers\Folha\Apropriacao;
 
 use App\Models\Apropriacao;
@@ -191,8 +192,32 @@ class Passo6Controller extends BaseController
      */
     private function eliminaDadosAnteriores($apid)
     {
-        $modeloPadrao = new SfPadrao();
-        $modeloPadrao->where('fk', $apid)->where('categoriapadrao','=','EXECFOLHA')->delete();
+        $modeloPadrao = SfPadrao::where('fk', $apid)->where('categoriapadrao', '=', 'EXECFOLHA')
+            ->first();
+
+        if ($modeloPadrao->id) {
+            $fk = $modeloPadrao->id;
+            $modeloPadrao->delete();
+
+            $nsfpadrao = SfPadrao::where('fk', '=', $fk)
+                ->where('categoriapadrao', '=', 'EXECFOLHAAPROPRIA')
+                ->first();
+
+            if ($nsfpadrao->id) {
+                $fk2 = $nsfpadrao->id;
+                $nsfpadrao->delete();
+
+                $nsfpadrao2 = SfPadrao::where('fk', '=', $fk2)
+                    ->where('categoriapadrao', '=', 'EXECFOLHAALTERA')
+                    ->get();
+
+                foreach ($nsfpadrao2 as $item){
+                    $item->delete();
+                }
+            }
+
+        }
+
     }
 
     /**
@@ -343,7 +368,7 @@ class Passo6Controller extends BaseController
                 $novoIdPco = $novoRegistroPco->id;
 
                 $situacaoAnterior = $situacao;
-                $numSequenciaPco ++;
+                $numSequenciaPco++;
                 $numSequenciaPcoItem = 1;
             }
 
@@ -370,8 +395,8 @@ class Passo6Controller extends BaseController
             $dadosRelacionamentosPco[$iArray]['numclassa'] = $vpd;
             $dadosRelacionamentosPco[$iArray]['vlr'] = $valor;
 
-            $numSequenciaPcoItem ++;
-            $iArray ++;
+            $numSequenciaPcoItem++;
+            $iArray++;
         }
 
         // Salva array em memória para posterior gravação
@@ -435,7 +460,7 @@ class Passo6Controller extends BaseController
                 $novoIdDespesa = $novoRegistroDespesa->id;
 
                 $situacaoAnterior = $situacao;
-                $numSequenciaDespesa ++;
+                $numSequenciaDespesa++;
                 $numSequenciaDespesaItem = 1;
             }
 
@@ -447,8 +472,8 @@ class Passo6Controller extends BaseController
             $dadosDespesaItem[$iArray]['vlr'] = $valor;
             $dadosDespesaItem[$iArray]['numclassa'] = $vpd;
 
-            $numSequenciaDespesaItem ++;
-            $iArray ++;
+            $numSequenciaDespesaItem++;
+            $iArray++;
         }
 
         // Salva array em memória para posterior gravação
@@ -483,7 +508,7 @@ class Passo6Controller extends BaseController
             $dadosRelacionamentos[$sequencia]['numseqitem'] = $retorno['numseqitem'];
             $dadosRelacionamentos[$sequencia]['vlr'] = $valor;
 
-            $sequencia ++;
+            $sequencia++;
         }
 
         // Salva array em memória para posterior gravação

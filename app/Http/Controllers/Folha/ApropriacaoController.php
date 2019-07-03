@@ -457,6 +457,8 @@ class ApropriacaoController extends BaseController
             }
         }
 
+        $apropriacao->fase_id = 8;
+        $apropriacao->save();
 
     }
 
@@ -484,8 +486,8 @@ class ApropriacaoController extends BaseController
                 'anodh' => $sfp['anodh'],
                 'codtipodh' => $sfp['codtipodh'],
                 'dtemis' => $sfp['dtemis'],
-                'txtmotivo' => 'Incluir novo item aba pco.',
-                'tipo' => 'E',
+                'txtmotivo' => 'Incluir novo item aba PCO, apropriação de Folha de Pagamento Automatizada via Sistema Conta.',
+                'tipo' => 'A',
                 'situacao' => 'P',
             ];
         }

@@ -36,25 +36,7 @@ class SfpadraoObserver
      */
     public function deleted(SfPadrao $sfPadrao)
     {
-        if($sfPadrao->categoriapadrao == 'EXECFOLHA'){
-            $nsfpadrao = new SfPadrao();
-            $nsfpadrao->where('fk','=',$sfPadrao->id)
-                ->where('categoriapadrao','=','EXECFOLHAAPROPRIA')
-                ->first();
 
-            $fk = $nsfpadrao->id;
-            $nsfpadrao->delete();
-
-            $n2sfpadrao = new SfPadrao();
-            $n2sfpadrao->where('fk','=',$fk)
-                ->where('categoriapadrao','=','EXECFOLHAALTERA')
-                ->get();
-
-            foreach ($n2sfpadrao as $item) {
-                $item->delete();
-            }
-
-        }
     }
 
     /**
