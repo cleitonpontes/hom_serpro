@@ -27,7 +27,7 @@ class Sfcentrocusto extends Model
 
     public function relComItemVlr()
     {
-        return $this->hasOne(Sfrelitemvlrcc::class, 'sfcc_id');
+        return $this->hasMany(Sfrelitemvlrcc::class, 'sfcc_id');
     }
 
 
