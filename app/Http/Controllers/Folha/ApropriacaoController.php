@@ -335,13 +335,37 @@ class ApropriacaoController extends BaseController
             \Alert::success('Documento Hábil em Processo de apropriação no SIAFI. Aguarde!')->flash();
 
             $nsfpadrao = $this->criaNovoSfpadrao($sfpadrao);
-//            $sfpadrao->situacao = 'E';
-//            $sfpadrao->save();
+            $sfpadrao->situacao = 'E';
+            $sfpadrao->save();
 
-//            $xml = new Execsiafi();
-//            $retorno = $xml->apropriaNovoDh(backpack_user(),session()->get('user_ug'),'PROD' ,'2019',$nsfpadrao);
+            $xml = new Execsiafi();
+            $retorno = $xml->apropriaNovoDh(backpack_user(), session()->get('user_ug'), 'PROD', '2019', $nsfpadrao);
 
-            dd($retorno);
+            if ($retorno->resultado[0] == 'SUCESSO') {
+                $numdh = $retorno->resultado[1];
+                $nsfpadrao->numdh = $numdh;
+                $nsfpadrao->msgretorno = $retorno->resultado[2];
+                $nsfpadrao->situacao = 'E';
+                $nsfpadrao->save();
+
+                $sfpadrao->numdh = $numdh;
+                $sfpadrao->msgretorno = $retorno->resultado[2];
+                $sfpadrao->save();
+
+                $sfsaltera = SfPadrao::where('fk', $nsfpadrao->id)
+                    ->where('categoriapadrao', 'EXECFOLHAALTERA')
+                    ->update(['numdh' => $numdh]);
+            }
+
+            if ($retorno->resultado[0] == 'FALHA') {
+                $nsfpadrao->msgretorno = $retorno->resultado[1];
+                $nsfpadrao->situacao = 'E';
+                $nsfpadrao->save();
+
+                $sfpadrao->msgretorno = $retorno->resultado[1];
+                $sfpadrao->save();
+
+            }
 
             return redirect()->route('folha.apropriacao');
         }
@@ -356,16 +380,22 @@ class ApropriacaoController extends BaseController
     private function criaNovoSfpadrao(SfPadrao $sfpadrao)
     {
         $sfp = $sfpadrao->toArray();
-
+        $retornsfp = null;
         $apropriacao = Apropriacao::find($sfpadrao->fk);
 
         $dadosbasicos = SfDadosBasicos::where('sfpadrao_id', '=', $sfpadrao->id)
             ->first();
 
+        $pcos = SfPco::where('sfpadrao_id',$sfpadrao->id)
+            ->orderBy('id')
+            ->get();
 
         $i = 1;
-        foreach ($sfpadrao->pco as $pco) {
-            foreach ($pco->pcoItens as $pcoItem) {
+        foreach ($pcos as $pco) {
+            $pcoitens = SfPcoItem::where('sfpco_id', $pco->id)
+                ->orderBy('id')
+                ->get();
+            foreach ($pcoitens as $pcoItem) {
                 if ($i == 1) {
                     $nsfpadrao = new SfPadrao();
                     $nsfpadrao->fill($this->montaArraySfPadrao($sfp, $i));
@@ -434,53 +464,53 @@ class ApropriacaoController extends BaseController
                     $nrelitemvlrcc->save();
                 } else {
 
-//                    $nsfp['fk'] = $fk;
-//                    $nsfpadrao = new SfPadrao();
-//                    $nsfpadrao->fill($this->montaArraySfPadrao($nsfp, $i));
-//                    $nsfpadrao->save();
-//
-//                    $fk1 = $nsfpadrao->id;
-//
-//                    $arraypco = $pco->toArray();
-//                    unset($arraypco['id']);
-//                    $arraypco['sfpadrao_id'] = $fk1;
-//                    $arraypco['numseqitem'] = 1;
-//                    $npco = new SfPco();
-//                    $npco->fill($arraypco);
-//                    $npco->save();
-//
-//                    $arraypcoitem = $pcoItem->toArray();
-//                    unset($arraypcoitem['id']);
-//                    $arraypcoitem['sfpco_id'] = $npco->id;
-//                    $arraypcoitem['numseqitem'] = 1;
-//                    $npcoitens = new SfPcoItem();
-//                    $npcoitens->fill($arraypcoitem);
-//                    $npcoitens->save();
-//
-//                    $arraycentrocustos = [
-//                        'sfpadrao_id' => $fk1,
-//                        'numseqitem' => 1,
-//                        'codcentrocusto' => $apropriacao->centro_custo,
-//                        'mesreferencia' => substr($apropriacao->competencia, 5, 2),
-//                        'anoreferencia' => substr($apropriacao->competencia, 0, 4),
-//                        'codugbenef' => $apropriacao->ug,
-//                    ];
-//
-//                    $ncentrocusto = new Sfcentrocusto();
-//                    $ncentrocusto->fill($arraycentrocustos);
-//                    $ncentrocusto->save();
-//
-//                    $arrayrelitemvlrcc = [
-//                        'sfcc_id' => $ncentrocusto->id,
-//                        'numseqpai' => 1,
-//                        'numseqitem' => 1,
-//                        'vlr' => $npcoitens->vlr,
-//                        'tipo' => 'RELPCOITEM'
-//                    ];
-//
-//                    $nrelitemvlrcc = new Sfrelitemvlrcc();
-//                    $nrelitemvlrcc->fill($arrayrelitemvlrcc);
-//                    $nrelitemvlrcc->save();
+                    $nsfp['fk'] = $fk;
+                    $nsfpadrao = new SfPadrao();
+                    $nsfpadrao->fill($this->montaArraySfPadrao($nsfp, $i));
+                    $nsfpadrao->save();
+
+                    $fk1 = $nsfpadrao->id;
+
+                    $arraypco = $pco->toArray();
+                    unset($arraypco['id']);
+                    $arraypco['sfpadrao_id'] = $fk1;
+                    $arraypco['numseqitem'] = 1;
+                    $npco = new SfPco();
+                    $npco->fill($arraypco);
+                    $npco->save();
+
+                    $arraypcoitem = $pcoItem->toArray();
+                    unset($arraypcoitem['id']);
+                    $arraypcoitem['sfpco_id'] = $npco->id;
+                    $arraypcoitem['numseqitem'] = 1;
+                    $npcoitens = new SfPcoItem();
+                    $npcoitens->fill($arraypcoitem);
+                    $npcoitens->save();
+
+                    $arraycentrocustos = [
+                        'sfpadrao_id' => $fk1,
+                        'numseqitem' => 1,
+                        'codcentrocusto' => $apropriacao->centro_custo,
+                        'mesreferencia' => substr($apropriacao->competencia, 5, 2),
+                        'anoreferencia' => substr($apropriacao->competencia, 0, 4),
+                        'codugbenef' => $apropriacao->ug,
+                    ];
+
+                    $ncentrocusto = new Sfcentrocusto();
+                    $ncentrocusto->fill($arraycentrocustos);
+                    $ncentrocusto->save();
+
+                    $arrayrelitemvlrcc = [
+                        'sfcc_id' => $ncentrocusto->id,
+                        'numseqpai' => 1,
+                        'numseqitem' => 1,
+                        'vlr' => $npcoitens->vlr,
+                        'tipo' => 'RELPCOITEM'
+                    ];
+
+                    $nrelitemvlrcc = new Sfrelitemvlrcc();
+                    $nrelitemvlrcc->fill($arrayrelitemvlrcc);
+                    $nrelitemvlrcc->save();
 
                 }
                 $i++;
@@ -535,7 +565,7 @@ class ApropriacaoController extends BaseController
             ->first();
 
 
-        return view('backpack::mod.folha.dochabilfolha',['dado' => $dado]);
+        return view('backpack::mod.folha.dochabilfolha', ['dado' => $dado]);
     }
 
 }

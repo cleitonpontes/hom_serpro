@@ -45,7 +45,7 @@
                         </tr>
                         <tr>
                             <th scope="row">Número Doc. Hábil</th>
-                            <td>{{$dado->anodh.$dado->codtipodh.$dado->numdh}}</td>
+                            <td>{{$dado->anodh.$dado->codtipodh.str_pad($dado->numdh , 6 , '0' , STR_PAD_LEFT)}}</td>
 
                         </tr>
                         <tr>

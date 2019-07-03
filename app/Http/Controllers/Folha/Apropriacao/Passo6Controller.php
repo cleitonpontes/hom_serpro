@@ -193,30 +193,31 @@ class Passo6Controller extends BaseController
     private function eliminaDadosAnteriores($apid)
     {
         $modeloPadrao = SfPadrao::where('fk', $apid)->where('categoriapadrao', '=', 'EXECFOLHA')
-            ->first();
+            ->delete();
 
-        if ($modeloPadrao->id) {
-            $fk = $modeloPadrao->id;
-            $modeloPadrao->delete();
+//        foreach ($modeloPadrao as $item) {
+//            $fk = $item->id;
+//            $item->delete();
+//
+//            $nsfpadrao = SfPadrao::where('fk', '=', $fk)
+//                ->where('categoriapadrao', '=', 'EXECFOLHAAPROPRIA')
+//                ->first();
+//
+//            if ($nsfpadrao->id) {
+//                $fk2 = $nsfpadrao->id;
+//                $nsfpadrao->delete();
+//
+//                $nsfpadrao2 = SfPadrao::where('fk', '=', $fk2)
+//                    ->where('categoriapadrao', '=', 'EXECFOLHAALTERA')
+//                    ->get();
+//
+//                foreach ($nsfpadrao2 as $item2) {
+//                    $item2->delete();
+//                }
+//            }
+//
+//        }
 
-            $nsfpadrao = SfPadrao::where('fk', '=', $fk)
-                ->where('categoriapadrao', '=', 'EXECFOLHAAPROPRIA')
-                ->first();
-
-            if ($nsfpadrao->id) {
-                $fk2 = $nsfpadrao->id;
-                $nsfpadrao->delete();
-
-                $nsfpadrao2 = SfPadrao::where('fk', '=', $fk2)
-                    ->where('categoriapadrao', '=', 'EXECFOLHAALTERA')
-                    ->get();
-
-                foreach ($nsfpadrao2 as $item){
-                    $item->delete();
-                }
-            }
-
-        }
 
     }
 
