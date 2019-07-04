@@ -260,6 +260,55 @@ class Execsiafi
 
     }
 
+    public function apropriaAlteracaoDh(
+        BackpackUser $user,
+        string $ug_user,
+        string $amb,
+        string $ano,
+        SfPadrao $sfpadrao
+    ) {
+
+        $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
+        $senha = '';
+        if ($user->senhasiafi) {
+
+            $senha = base64_decode($user->senhasiafi);
+
+        } else {
+
+            \Alert::error('Cadastre sua Senha SIAFI em "Meus Dados"!')->flash();
+
+        }
+
+        $client = $this->conexao_xml($cpf, $senha, $ug_user, $sfpadrao->id, $amb, $ano, 'CPR');
+
+        $parms = $this->montaXmlcprDHAlterarIncluirItensEntrada($sfpadrao);
+
+        $retorno = $this->submit($client, $parms, 'ALTDH');
+
+        return $this->trataretorno($retorno);
+
+    }
+
+    private function montaXmlcprDHAlterarIncluirItensEntrada(SfPadrao $sfPadrao)
+    {
+
+
+        $parms = new \stdClass;
+        $parms->cprDHAlterarIncluirItensEntrada = [
+            'codUgEmit' => $sfPadrao->codugemit,
+            'anoDH' => $sfPadrao->anodh,
+            'codTipoDH' => $sfPadrao->codtipodh,
+            'numDH' => $sfPadrao->numdh,
+            'dtEmis' => $sfPadrao->dtemis,
+            'txtMotivo' => $sfPadrao->txtmotivo,
+            'pco' => $this->montaPco($sfPadrao->id),
+            'centroCusto' => $this->montaCentroCusto($sfPadrao->id),
+        ];
+
+        return $parms;
+    }
+
     private function montaXmlcprDHCadastrar(SfPadrao $sfPadrao)
     {
 
@@ -508,6 +557,21 @@ class Execsiafi
 
                         }
 
+                        if (isset($var4->ns3cprDHAlterarDHIncluirItensResponse)) {
+
+                            foreach ($var4->ns3cprDHAlterarDHIncluirItensResponse as $var5) {
+
+                                foreach ($var5->cprDhResposta as $var6) {
+
+                                    $this->resultado[1] = $var6->numDH;
+                                    $this->resultado[2] = $var6->numNs;
+
+                                }
+
+                            }
+
+                        }
+
                         if (isset($var4->ns3tabConsultarSaldoContabilResponse)) {
 
                             foreach ($var4->ns3tabConsultarSaldoContabilResponse as $var5) {
@@ -542,12 +606,37 @@ class Execsiafi
 
                                     if (isset($var6->mensagem)) {
 
-                                        $this->resultado[1] = 0;
+                                        $this->resultado[1] = '';
 
                                         foreach ($var6->mensagem as $var7) {
 
                                             $this->resultado[1] .= " | " . str_replace('"', '',
-                                                    str_replace("'", "", $var7->txtMsg));
+                                                    str_replace("'", "", trim($var7->txtMsg)));
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                        if (isset($var4->ns3cprDHAlterarDHIncluirItensResponse)) {
+
+                            foreach ($var4->ns3cprDHAlterarDHIncluirItensResponse as $var5) {
+
+                                foreach ($var5->cprDhResposta as $var6) {
+
+                                    if (isset($var6->mensagem)) {
+
+                                        $this->resultado[1] = '';
+
+                                        foreach ($var6->mensagem as $var7) {
+
+                                            $this->resultado[1] .= " | " . str_replace('"', '',
+                                                    str_replace("'", "", trim($var7->txtMsg)));
 
                                         }
 

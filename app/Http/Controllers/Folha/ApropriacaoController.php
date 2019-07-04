@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Folha;
 
 use App\Http\Controllers\Folha\Apropriacao\BaseController;
+use App\Jobs\ApropriaAlteracaoDhFolhaJob;
 use App\Models\Apropriacao;
 use App\Models\Apropriacaofases;
 use App\Models\Apropriacaoimportacao;
@@ -332,14 +333,14 @@ class ApropriacaoController extends BaseController
             ->first();
 
         if ($sfpadrao->situacao == 'P') {
-            \Alert::success('Documento Hábil em Processo de apropriação no SIAFI. Aguarde!')->flash();
 
             $nsfpadrao = $this->criaNovoSfpadrao($sfpadrao);
             $sfpadrao->situacao = 'E';
             $sfpadrao->save();
 
             $xml = new Execsiafi();
-            $retorno = $xml->apropriaNovoDh(backpack_user(), session()->get('user_ug'), 'PROD', '2019', $nsfpadrao);
+            $retorno = $xml->apropriaNovoDh(backpack_user(), session()->get('user_ug'), 'PROD', $sfpadrao->anodh,
+                $nsfpadrao);
 
             if ($retorno->resultado[0] == 'SUCESSO') {
                 $numdh = $retorno->resultado[1];
@@ -355,18 +356,22 @@ class ApropriacaoController extends BaseController
                 $sfsaltera = SfPadrao::where('fk', $nsfpadrao->id)
                     ->where('categoriapadrao', 'EXECFOLHAALTERA')
                     ->update(['numdh' => $numdh]);
+
+                $sfsaltera = SfPadrao::where('fk', $nsfpadrao->id)
+                    ->where('categoriapadrao', 'EXECFOLHAALTERA')
+                    ->orderBy('id')
+                    ->get();
+
+                if ($sfsaltera) {
+                    foreach ($sfsaltera as $sfaltera) {
+                        ApropriaAlteracaoDhFolhaJob::dispatch(backpack_user(), session()->get('user_ug'), $sfaltera);
+                    }
+                }
+
             }
 
-            if ($retorno->resultado[0] == 'FALHA') {
-                $nsfpadrao->msgretorno = $retorno->resultado[1];
-                $nsfpadrao->situacao = 'E';
-                $nsfpadrao->save();
 
-                $sfpadrao->msgretorno = $retorno->resultado[1];
-                $sfpadrao->save();
-
-            }
-
+            \Alert::success('Documento Hábil em Processo de apropriação no SIAFI. Aguarde!')->flash();
             return redirect()->route('folha.apropriacao');
         }
 
@@ -386,7 +391,7 @@ class ApropriacaoController extends BaseController
         $dadosbasicos = SfDadosBasicos::where('sfpadrao_id', '=', $sfpadrao->id)
             ->first();
 
-        $pcos = SfPco::where('sfpadrao_id',$sfpadrao->id)
+        $pcos = SfPco::where('sfpadrao_id', $sfpadrao->id)
             ->orderBy('id')
             ->get();
 
@@ -560,12 +565,79 @@ class ApropriacaoController extends BaseController
 
     public function docHabilSiafi($apropriacaoId)
     {
-        $dado = SfPadrao::where('fk', $apropriacaoId)
+
+        $dados = [];
+
+        $sfpadrao = SfPadrao::where('fk', $apropriacaoId)
             ->where('categoriapadrao', '=', 'EXECFOLHA')
             ->first();
 
+        if($sfpadrao){
 
-        return view('backpack::mod.folha.dochabilfolha', ['dado' => $dado]);
+            $nsfpadrao = SfPadrao::where('fk', $sfpadrao->id)
+                ->where('categoriapadrao', '=', 'EXECFOLHAAPROPRIA')
+                ->first();
+
+            $pco = $this->buscaPco($nsfpadrao->id);
+            $pcoitem = $this->buscaPcoItem($pco->id);
+
+            $dados[] = [
+                'DH Principal',
+                implode('/', array_reverse(explode('-', $nsfpadrao->dtemis))),
+                $nsfpadrao->anodh . $nsfpadrao->codtipodh . str_pad($nsfpadrao->numdh, 6, '0', STR_PAD_LEFT),
+                $pco->codsit,
+                $pcoitem->numempe,
+                str_pad($pcoitem->codsubitemempe, 2, '0', STR_PAD_LEFT),
+                number_format($pcoitem->vlr, 2, ',', '.'),
+                $nsfpadrao->msgretorno
+            ];
+
+            if($nsfpadrao){
+                $nsfsaltera = SfPadrao::where('fk', $nsfpadrao->id)
+                    ->where('categoriapadrao', '=', 'EXECFOLHAALTERA')
+                    ->orderBy('id')
+                    ->get();
+
+                if($nsfsaltera){
+                    foreach ($nsfsaltera as $nsfaltera){
+
+                        $pco = $this->buscaPco($nsfaltera->id);
+                        $pcoitem = $this->buscaPcoItem($pco->id);
+
+                        $dados[] = [
+                            'DH Alteração',
+                            implode('/', array_reverse(explode('-', $nsfaltera->dtemis))),
+                            $nsfaltera->anodh . $nsfaltera->codtipodh . str_pad($nsfaltera->numdh, 6, '0', STR_PAD_LEFT),
+                            $pco->codsit,
+                            $pcoitem->numempe,
+                            str_pad($pcoitem->codsubitemempe, 2, '0', STR_PAD_LEFT),
+                            number_format($pcoitem->vlr, 2, ',', '.'),
+                            ($nsfaltera->msgretorno)==''?'Em Andamento':$nsfaltera->msgretorno
+                        ];
+                    }
+                }
+            }
+        }
+
+        return view('backpack::mod.folha.dochabilfolha', ['dados' => $dados]);
+    }
+
+    private function buscaPco(string $sfpadrao_id)
+    {
+        $pco = SfPco::where('sfpadrao_id',$sfpadrao_id)
+            ->orderBy('id')
+            ->first();
+
+        return $pco;
+    }
+
+    private function buscaPcoItem(string $sfpco_id)
+    {
+        $pcoitem = SfPcoItem::where('sfpco_id',$sfpco_id)
+            ->orderBy('id')
+            ->first();
+
+        return $pcoitem;
     }
 
 }

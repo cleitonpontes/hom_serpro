@@ -28,30 +28,46 @@
 
                 </div>
                 <div class="box-body">
-                    <table class="table table-bordered">
+                    <table class="table table-striped table-hover table-bordered table-responsive">
+                        <thead>
+                        <tr>
+                            <td align="center" width="2%"><b>#</b></td>
+                            <td align="center" width="8%"><b>Tipo</b></td>
+                            <td align="center"><b>Emissão</b></td>
+                            <td align="center"><b>Num. DH</b></td>
+                            <td align="center"><b>Situação</b></td>
+                            <td align="center"><b>Empenho</b></td>
+                            <td align="center"><b>SubItem</b></td>
+                            <td align="center"><b>Valor (R$)</b></td>
+                            <td align="center"><b>Msg. Retorno</b></td>
+                        </tr>
+                        </thead>
                         <tbody>
-                        <tr>
-                            <th scope="row">Id Apropriação</th>
-                            <td width="70%">{{$dado->fk}}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Data Emissão</th>
-                            <td>
-                                @php
-                                    $data = implode('/',array_reverse(explode('-',$dado->dtemis)));
-                                @endphp
-                                {{$data}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Número Doc. Hábil</th>
-                            <td>{{$dado->anodh.$dado->codtipodh.str_pad($dado->numdh , 6 , '0' , STR_PAD_LEFT)}}</td>
-
-                        </tr>
-                        <tr>
-                            <th scope="row">Mensagem retorno</th>
-                            <td>{{$dado->msgretorno}}</td>
-                        </tr>
+                        @php
+                            $i = 1;
+                        @endphp
+                        @foreach($dados as $dado)
+                            <tr>
+                                <td align="center">{{$i}}</td>
+                                <td>{{$dado[0]}}</td>
+                                <td>{{$dado[1]}}</td>
+                                <td>{{$dado[2]}}</td>
+                                <td>{{$dado[3]}}</td>
+                                <td>{{$dado[4]}}</td>
+                                <td>{{$dado[5]}}</td>
+                                <td align="right">{{$dado[6]}}</td>
+                                <td>
+                                    @if($dado[7] == 'Em Andamento')
+                                        <i class="fa fa-spinner"></i> {{$dado[7]}}
+                                    @else
+                                        {{$dado[7]}}
+                                    @endif
+                                </td>
+                            </tr>
+                            @php
+                                $i++;
+                            @endphp
+                        @endforeach
                         </tbody>
                     </table>
 
