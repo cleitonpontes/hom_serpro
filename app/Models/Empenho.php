@@ -143,12 +143,10 @@ class Empenho extends Model
         }
 
 
-
         $registrosEncontrados = array_filter($empenhos, function ($empenho) use ($conta) {
 
             return ($empenho->nd == $conta);
         });
-
 
 
         return $registrosEncontrados;
@@ -222,4 +220,10 @@ class Empenho extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
+    public function getNumeroAliquidarAttribute()
+    {
+        return $this->numero . ' - ' . $this->aliquidar;
+    }
+
 }

@@ -15,9 +15,38 @@ class CalendarEvent extends Model
 
     protected $table = 'calendarevents';
 
-    protected $fillable = ['title','start_date','end_date','unidade_id'];
+    protected $fillable = [
+        'title',
+        'start_date',
+        'end_date',
+        'unidade_id'
+    ];
 
-    public function unidade(){
+    public function insertEvents(array $evento)
+    {
+
+        $eventoencontrado = $this->consultaEventos($evento);
+
+        if(!$eventoencontrado){
+            $this->fill($evento);
+            $this->save();
+        }
+
+    }
+
+    public function consultaEventos(array $evento)
+    {
+        $eventoencontrado = $this->where('title','=',$evento['title'])
+            ->where('start_date','=',$evento['start_date'])
+            ->where('end_date','=',$evento['end_date'])
+            ->where('unidade_id','=',$evento['unidade_id'])
+            ->first();
+
+        return $eventoencontrado;
+    }
+
+    public function unidade()
+    {
 
         return $this->belongsTo(Unidade::class, 'unidade_id');
 

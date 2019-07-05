@@ -30,6 +30,7 @@ class ContratoresponsavelRequest extends FormRequest
             'user_id' => 'required',
             'funcao_id' => 'required',
             'portaria' => 'required|max:255',
+            'data_inicio' => 'required',
             'situacao' => 'required',
         ];
     }

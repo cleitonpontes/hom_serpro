@@ -178,6 +178,16 @@ Route::group(
                 ->name('apropriacao.passo.7')
                 ->middleware('permission:folha_apropriacao_passo');
 
+            // Apropriar SIAFI
+            Route::get('/apropriacao/siafi/{apid}', 'ApropriacaoController@apropriaSiafi')
+                ->name('apropriacao.siafi')
+                ->middleware('permission:folha_apropriacao_passo');
+
+            // Apropriar SIAFI
+            Route::get('/apropriacao/siafi/dochabil/{apid}', 'ApropriacaoController@docHabilSiafi')
+                ->name('apropriacao.siafi.dochabil')
+                ->middleware('permission:folha_apropriacao_passo');
+
 
 
         });

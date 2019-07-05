@@ -63,19 +63,20 @@
             </div>
         </div>
         <!-- ./col -->
-
+        @php
+            $totalmsg = backpack_user()->unreadNotifications()->count() ?? 0;
+        @endphp
         <div class="col-lg-3 col-xs-6">
             <!-- small box -->
             <div class="small-box bg-yellow">
                 <div class="inner">
-                    <h3>12</h3>
-
+                    <h3>{{$totalmsg}}</h3>
                     <p>Mensagens pendentes</p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-email"></i>
                 </div>
-                <a href="#" class="small-box-footer">Ler agora <i class="fa fa-arrow-circle-right"></i></a>
+                <a href="/mensagens" class="small-box-footer">Ler agora <i class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->

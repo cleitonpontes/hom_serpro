@@ -102,6 +102,9 @@
                                 form: form.serializeArray()  // all other form inputs
                             };
                         },
+                        @if(isset($field['process_results_template']))
+                            @include($field['process_results_template'])
+                        @else
                         processResults: function (data, params) {
                             params.page = params.page || 1;
 
@@ -113,13 +116,14 @@
                                         id: item["{{ $connected_entity_key_name }}"]
                                     }
                                 }),
-                               pagination: {
-                                     more: data.current_page < data.last_page
-                               }
+                                pagination: {
+                                    more: data.current_page < data.last_page
+                                }
                             };
 
                             return result;
                         },
+                        @endif
                         cache: true
                     },
                 })

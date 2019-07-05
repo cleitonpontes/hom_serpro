@@ -29,6 +29,7 @@ class SfPcoItem extends Model
         'id',
         'sfpco_id',
         'numseqitem',
+        'numempe',
         'codsubitemempe',
         'indrliquidado',
         'vlr',
@@ -39,4 +40,9 @@ class SfPcoItem extends Model
         'txtinscrc',
         'numclassc'
     ];
+
+    public function pco()
+    {
+        return $this->belongsTo(SfPco::class, 'sfpco_id');
+    }
 }

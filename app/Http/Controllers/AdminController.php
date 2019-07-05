@@ -66,18 +66,18 @@ class AdminController extends Controller
 
 //        shuffle($colors);
 
-        $categoria_contrato = Codigoitem::whereHas('codigo', function ($q){
+        $categoria_contrato = Codigoitem::whereHas('codigo', function ($q) {
             $q->where('descricao', '=', 'Categoria Contrato');
         })
-            ->join('contratos', function ($join){
+            ->join('contratos', function ($join) {
                 $join->on('codigoitens.id', '=', 'contratos.categoria_id');
             })
             ->orderBy('codigo_id', 'asc')->pluck('descricao')->toArray();
 
         $cat = array_unique($categoria_contrato);
 
-        $categorias=[];
-        foreach ($cat as $c){
+        $categorias = [];
+        foreach ($cat as $c) {
             $categorias[] = $c;
         }
 
@@ -113,7 +113,8 @@ class AdminController extends Controller
     }
 
 
-    protected function getEvents(){
+    protected function getEvents()
+    {
 
         $events = [];
         $eventsCollections = $this->getCalendarEvents();
@@ -135,7 +136,8 @@ class AdminController extends Controller
         return $events;
     }
 
-    protected function getCalendarEvents(){
+    protected function getCalendarEvents()
+    {
 
         $eventsCollections = CalendarEvent::all();
         if (session()->get('user_ug_id')) {
@@ -161,7 +163,7 @@ class AdminController extends Controller
 
         $ug = [];
 
-        if($user->ugprimaria){
+        if ($user->ugprimaria) {
             $ug = Unidade::find($user->ugprimaria)->pluck('codigo', 'id')->toArray();
         }
 
@@ -225,13 +227,14 @@ class AdminController extends Controller
 
     }
 
-    public function buscaUg(){
+    public function buscaUg()
+    {
 
         $ug = [];
 
         $ugprimaria = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
             ->where('id', '=', backpack_user()->ugprimaria)
-            ->where('tipo','=','E')
+            ->where('tipo', '=', 'E')
             ->pluck('nome', 'id')
             ->toArray();
 
@@ -239,7 +242,7 @@ class AdminController extends Controller
             ->whereHas('users', function ($query) {
                 $query->where('user_id', '=', backpack_user()->id);
             })
-            ->where('tipo','=','E')
+            ->where('tipo', '=', 'E')
             ->pluck('nome', 'id')
             ->toArray();
 
@@ -268,11 +271,11 @@ class AdminController extends Controller
 
         $data = $form->getFieldValues();
 
-        if(!$data['ug']==''){
+        if (!$data['ug'] == '') {
             $unidade = Unidade::find($data['ug']);
             session(['user_ug' => $unidade->codigo]);
             session(['user_ug_id' => $unidade->id]);
-        }else{
+        } else {
             session(['user_ug' => null]);
             session(['user_ug_id' => null]);
         }
@@ -282,5 +285,19 @@ class AdminController extends Controller
 
         return redirect()->to('/inicio');
 
+    }
+
+    public function listaMensagens()
+    {
+        $mensagens = backpack_user()->notifications()->paginate(10);
+
+        return view('backpack::mensagens',['mensagens' => $mensagens]);
+    }
+
+    public function lerMensagem($id)
+    {
+        $notificacao = backpack_user()->notifications()->find($id);
+        $notificacao->update(['read_at' => now()]);
+        return view('backpack::mensagem',['notificacao' => $notificacao]);
     }
 }

@@ -31,9 +31,12 @@ class Unidade extends Model
 
     public function getOrgao()
     {
-        $orgao = Orgao::find($this->orgao_id);
-        return $orgao->codigo . " - " . $orgao->nome;
+        if($this->orgao_id){
+            $orgao = Orgao::find($this->orgao_id);
+            return $orgao->codigo . " - " . $orgao->nome;
+        }
 
+        return '';
     }
 
     public function getTipo()

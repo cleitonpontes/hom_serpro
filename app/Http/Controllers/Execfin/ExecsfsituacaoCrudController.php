@@ -115,6 +115,18 @@ class ExecsfsituacaoCrudController extends CrudController
                 'options' => config('app.abas')
             ],
             [
+                'name' => 'afeta_custo',
+                'label' => 'Afeta Custo?',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+                'options' => [0 => 'Não', 1 => 'Sim']
+            ],
+            [
                 'name' => 'status',
                 'label' => 'Situação',
                 'type' => 'boolean',
@@ -164,6 +176,14 @@ class ExecsfsituacaoCrudController extends CrudController
                 'type' => 'select_from_array',
                 'options' => config('app.abas'),
                 'allows_null' => true,
+            ],
+            [ // select_from_array
+                'name' => 'afeta_custo',
+                'label' => "Afeta Custo?",
+                'type' => 'radio',
+                'options' => [1 => 'Sim', 0 => 'Não'],
+                'inline' => true,
+                'default' => 1
             ],
             [ // select_from_array
                 'name' => 'status',

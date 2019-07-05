@@ -28,8 +28,9 @@ class Passo7Controller extends BaseController
      * @param number $id
      * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
      */
-    public function gerarXml($id)
+    public function gerarXml($apid)
     {
-        return view('backpack::mod.folha.apropriacao.passo7');
+
+        return view('backpack::mod.folha.apropriacao.passo7',['apid' => $apid]);
     }
 }

@@ -30,7 +30,7 @@ class UsuarioCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        if(!backpack_user()->hasRole('Administrador')){
+        if (!backpack_user()->hasRole('Administrador')) {
             abort('403', config('app.erro_permissao'));
         }
 
@@ -122,6 +122,9 @@ class UsuarioCrudController extends CrudController
                 'name' => 'cpf',
                 'label' => 'CPF',
                 'type' => 'cpf',
+//                'wrapperAttributes' => [
+//                    'class' => 'form-group col-md-3'
+//                ],
                 'tab' => 'Dados Pessoais',
             ],
             [
@@ -131,7 +134,10 @@ class UsuarioCrudController extends CrudController
                 'tab' => 'Dados Pessoais',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"
-                ]
+                ],
+//                'wrapperAttributes' => [
+//                    'class' => 'form-group col-md-3'
+//                ],
             ],
             [
                 'name' => 'email',
@@ -163,6 +169,8 @@ class UsuarioCrudController extends CrudController
                 'name' => 'unidades', // the method that defines the relationship in your Model
                 'entity' => 'unidades', // the method that defines the relationship in your Model
                 'attribute' => 'codigo', // foreign key attribute that is shown to user
+                'attribute2' => 'nomeresumido', // foreign key attribute that is shown to user
+                'attribute_separator' => ' - ', // foreign key attribute that is shown to user
                 'model' => "App\Models\Unidade", // foreign key model
                 'allows_null' => true,
                 'pivot' => true, // on create&update, do you need to add/delete pivot table entries?

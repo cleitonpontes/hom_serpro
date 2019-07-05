@@ -261,6 +261,17 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'formatVlrAcumulado',
+                'label' => 'Valor Acumulado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatVlrAcumulado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'situacao',
                 'label' => 'Situação',
                 'type' => 'boolean',
@@ -335,16 +346,6 @@ class ContratoCrudController extends CrudController
                 'tab' => 'Dados Gerais',
             ],
             [ // select_from_array
-                'name' => 'fornecedor_id',
-                'label' => "Fornecedor",
-                'type' => 'select2_from_array',
-                'options' => $fornecedores,
-                'allows_null' => true,
-                'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [ // select_from_array
                 'name' => 'unidade_id',
                 'label' => "Unidade Gestora",
                 'type' => 'select2_from_array',
@@ -371,6 +372,16 @@ class ContratoCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
 
+            [ // select_from_array
+                'name' => 'fornecedor_id',
+                'label' => "Fornecedor",
+                'type' => 'select2_from_array',
+                'options' => $fornecedores,
+                'allows_null' => true,
+                'tab' => 'Dados Contrato',
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
             [   // Date
                 'name' => 'data_assinatura',
                 'label' => 'Data Assinatura',
@@ -484,33 +495,6 @@ class ContratoCrudController extends CrudController
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
 
-        $instrumento_inicial = [
-            'numero' => trim($this->crud->entry->numero),
-            'contrato_id' => trim($this->crud->entry->id),
-            'fornecedor_id' => trim($this->crud->entry->fornecedor_id),
-            'unidade_id' => trim($this->crud->entry->unidade_id),
-            'tipo_id' => trim($this->crud->entry->tipo_id),
-            'categoria_id' => trim($this->crud->entry->categoria_id),
-            'receita_despesa' => trim($this->crud->entry->receita_despesa),
-            'processo' => trim($this->crud->entry->processo),
-            'objeto' => trim($this->crud->entry->objeto),
-            'info_complementar' => trim($this->crud->entry->info_complementar),
-            'fundamento_legal' => trim($this->crud->entry->fundamento_legal),
-            'modalidade_id' => trim($this->crud->entry->modalidade_id),
-            'licitacao_numero' => trim($this->crud->entry->licitacao_numero),
-            'data_assinatura' => trim($this->crud->entry->data_assinatura),
-            'data_publicacao' => trim($this->crud->entry->data_publicacao),
-            'vigencia_inicio' => trim($this->crud->entry->vigencia_inicio),
-            'vigencia_fim' => trim($this->crud->entry->vigencia_fim),
-            'valor_inicial' => trim($this->crud->entry->valor_inicial),
-            'valor_global' => trim($this->crud->entry->valor_global),
-            'num_parcelas' => trim($this->crud->entry->num_parcelas),
-            'valor_parcela' => trim($this->crud->entry->valor_parcela),
-        ];
-
-        $historico = new Contratohistorico;
-        $historico->createFromNewContrato($instrumento_inicial);
-
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
@@ -551,6 +535,8 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('valor_parcela');
         $this->crud->removeColumn('valor_acumulado');
         $this->crud->removeColumn('situacao_siasg');
+        $this->crud->removeColumn('receita_despesa');
+
 
         return $content;
     }

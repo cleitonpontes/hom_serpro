@@ -23,9 +23,17 @@
         @if (isset($field['model']))
             @foreach ($options as $option)
                 @if( (old(square_brackets_to_dots($field["name"])) && in_array($option->getKey(), old($field["name"]))) || (is_null(old(square_brackets_to_dots($field["name"]))) && isset($field['value']) && in_array($option->getKey(), $field['value']->pluck($option->getKeyName(), $option->getKeyName())->toArray())))
-                    <option value="{{ $option->getKey() }}" selected>{{ $option->{$field['attribute']} }}</option>
+                        @if(isset($field['attribute2']))
+                            <option value="{{ $option->getKey() }}" selected>{{ $option->{$field['attribute']} }}{{ $field['attribute_separator'] }}{{ $option->{$field['attribute2']} }}</option>
+                        @else
+                            <option value="{{ $option->getKey() }}" selected>{{ $option->{$field['attribute']} }}</option>
+                        @endif
                 @else
-                    <option value="{{ $option->getKey() }}">{{ $option->{$field['attribute']} }}</option>
+                    @if(isset($field['attribute_separator']))
+                        <option value="{{ $option->getKey() }}">{{ $option->{$field['attribute']} }}{{ $field['attribute_separator'] }}{{ $option->{$field['attribute2']} }}</option>
+                    @else
+                        <option value="{{ $option->getKey() }}">{{ $option->{$field['attribute']} }}</option>
+                    @endif
                 @endif
             @endforeach
         @endif

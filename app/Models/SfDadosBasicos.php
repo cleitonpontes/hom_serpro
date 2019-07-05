@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -47,4 +48,14 @@ class SfDadosBasicos extends Model
         'codcredordevedor',
         'dtpgtoreceb'
     ];
+
+    public function docOrigem()
+    {
+        return $this->hasMany(SfDocOrigem::class, 'sfdadosbasicos_id');
+    }
+
+    public function sfpadrao()
+    {
+        return $this->belongsTo(SfPadrao::class, 'sfpadrao_id');
+    }
 }

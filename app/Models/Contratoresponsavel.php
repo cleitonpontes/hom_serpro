@@ -31,7 +31,9 @@ class Contratoresponsavel extends Model
         'funcao_id',
         'instalacao_id',
         'portaria',
-        'situacao'
+        'situacao',
+        'data_inicio',
+        'data_fim',
     ];
     // protected $hidden = [];
     // protected $dates = [];

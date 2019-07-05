@@ -132,8 +132,8 @@ class Passo4Controller extends BaseController
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
 
         $ug = $registro['ug'];
-        $ano = $registro['ano'];
-        $mes = $meses[(int) $registro['mes']];
+        $ano = date('Y'); //$registro['ano'];
+        $mes = $meses[(int) date('m')];//$meses[(int) $registro['mes']];
         $empenho = $registro['empenho'];
         $subitem = $registro['subitem'];
 

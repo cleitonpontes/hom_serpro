@@ -11,7 +11,6 @@ class PasswordUserNotification extends Notification
 {
     use Queueable;
 
-
     protected $dados;
 
     /**

@@ -27,6 +27,10 @@ Route::group([
             //busca empenhos via ajax
             Route::get('empenho', 'EmpenhoController@index');
             Route::get('empenho/{id}', 'EmpenhoController@show');
+            Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
+            Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
+            Route::get('catmatseritem', 'CatmatseritemController@index');
+            Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
         });
 
 // if not otherwise configured, setup the dashboard routes
@@ -37,6 +41,11 @@ Route::group([
         }
 
         Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+        Route::get('/storage/comunica/anexos/{file}', 'DownloadsController@anexoscomunica');
+
+
+        Route::get('/mensagens', 'AdminController@listaMensagens');
+        Route::get('/mensagem/{id}', 'AdminController@lerMensagem');
 
 
 
@@ -55,6 +64,8 @@ Route::group([
             CRUD::resource('sfcertificado', 'SfcertificadoCrudController');
             CRUD::resource('justificativafatura', 'JustificativafaturaCrudController');
             CRUD::resource('tipolistafatura', 'TipolistafaturaCrudController');
+            CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
+            CRUD::resource('comunica', 'ComunicaCrudController');
 
             // Download apropriação
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
@@ -81,6 +92,10 @@ Route::group([
                 CRUD::resource('empenhos', 'ContratoempenhoCrudController');
                 CRUD::resource('historico', 'ContratohistoricoCrudController');
                 CRUD::resource('cronograma', 'ContratocronogramaCrudController');
+                CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
+                CRUD::resource('aditivos', 'AditivoCrudController');
+                CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
+                CRUD::resource('itens', 'ContratoitemCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 

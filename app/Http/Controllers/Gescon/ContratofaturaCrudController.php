@@ -565,6 +565,8 @@ class ContratofaturaCrudController extends CrudController
                 'name' => 'empenhos', // the method that defines the relationship in your Model
                 'entity' => 'empenhos', // the method that defines the relationship in your Model
                 'attribute' => 'numero', // foreign key attribute that is shown to user
+                'attribute2' => 'aliquidar', // foreign key attribute that is shown to user
+                'attribute_separator' => ' - Valor a Liquidar: R$ ', // foreign key attribute that is shown to user
                 'model' => "App\Models\Empenho", // foreign key model
                 'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
                 'options' => (function ($query) use ($con) {

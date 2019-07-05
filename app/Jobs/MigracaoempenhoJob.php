@@ -19,7 +19,7 @@ class MigracaoempenhoJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 1200;
+    public $timeout = 1500;
 
     /**
      * Create a new job instance.

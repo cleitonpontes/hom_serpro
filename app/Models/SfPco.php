@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use DB;
@@ -41,7 +42,7 @@ class SfPco extends Model
 
     /**
      * Valida existência ou não de dados referentes ao Passo 6
-     * 
+     *
      * @param number $apid
      * @return boolean
      */
@@ -54,7 +55,7 @@ class SfPco extends Model
 
     /**
      * Retorna dados para o relatório de apropriação - PCO
-     * 
+     *
      * @param number $apid
      * @return array
      */
@@ -81,7 +82,7 @@ class SfPco extends Model
 
     /**
      * Retorna estrutura de dados para consultas posteriores
-     * 
+     *
      * @param number $apid
      * @return array
      */
@@ -100,4 +101,15 @@ class SfPco extends Model
 
         return $dados;
     }
+
+    public function pcoItens()
+    {
+        return $this->hasMany(SfPcoItem::class, 'sfpco_id');
+    }
+
+    public function sfpadrao()
+    {
+        return $this->belongsTo(SfPadrao::class, 'sfpadrao_id');
+    }
+
 }

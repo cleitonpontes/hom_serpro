@@ -293,6 +293,7 @@ class ContratoempenhoCrudController extends CrudController
                 'type' => 'select2_from_ajax',
                 'entity' => 'empenho', // the method that defines the relationship in your Model
                 'attribute' => 'numero', // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results', // foreign key attribute that is shown to user
                 'data_source' => url('api/empenho'), // url to controller search function (with /{id} should return model)
                 'placeholder' => 'Selecione o Empenho', // placeholder for the select
                 'minimum_input_length' => 0, // minimum characters to type before querying results

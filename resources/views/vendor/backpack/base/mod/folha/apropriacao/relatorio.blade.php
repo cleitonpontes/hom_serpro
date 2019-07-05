@@ -52,7 +52,13 @@ $ordemDespesa = 1;
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
             <h3 class="box-title"> Relatório da Apropriação por Competência </h3>
+            <div class="box-tools pull-right">
+                <a href="/folha/apropriacao" class="btn btn-box-tool" title="Voltar">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
         </div>
+
         
         <div class="box-body">
             <div class="row">
