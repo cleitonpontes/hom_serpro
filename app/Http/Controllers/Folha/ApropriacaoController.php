@@ -13,6 +13,7 @@ use App\Jobs\ApropriaAlteracaoDhFolhaJob;
 use App\Models\Apropriacao;
 use App\Models\Apropriacaofases;
 use App\Models\Apropriacaoimportacao;
+use App\Models\Execsfsituacao;
 use App\Models\Sfcentrocusto;
 use App\Models\SfDadosBasicos;
 use App\Models\SfDocOrigem;
@@ -464,30 +465,36 @@ class ApropriacaoController extends BaseController
                     $npcoitens->fill($arraypcoitem);
                     $npcoitens->save();
 
-                    $arraycentrocustos = [
-                        'sfpadrao_id' => $fk,
-                        'numseqitem' => 1,
-                        'codcentrocusto' => $apropriacao->centro_custo,
-                        'mesreferencia' => substr($apropriacao->competencia, 5, 2),
-                        'anoreferencia' => substr($apropriacao->competencia, 0, 4),
-                        'codugbenef' => $apropriacao->ug,
-                    ];
+                    $situacao = Execsfsituacao::where('codigo','=',$arraypco['codsit'])
+                        ->first();
 
-                    $ncentrocusto = new Sfcentrocusto();
-                    $ncentrocusto->fill($arraycentrocustos);
-                    $ncentrocusto->save();
+                    if($situacao->afeta_custo == true){
+                        $arraycentrocustos = [
+                            'sfpadrao_id' => $fk,
+                            'numseqitem' => 1,
+                            'codcentrocusto' => $apropriacao->centro_custo,
+                            'mesreferencia' => substr($apropriacao->competencia, 5, 2),
+                            'anoreferencia' => substr($apropriacao->competencia, 0, 4),
+                            'codugbenef' => $apropriacao->ug,
+                        ];
 
-                    $arrayrelitemvlrcc = [
-                        'sfcc_id' => $ncentrocusto->id,
-                        'numseqpai' => 1,
-                        'numseqitem' => 1,
-                        'vlr' => $npcoitens->vlr,
-                        'tipo' => 'RELPCOITEM'
-                    ];
+                        $ncentrocusto = new Sfcentrocusto();
+                        $ncentrocusto->fill($arraycentrocustos);
+                        $ncentrocusto->save();
 
-                    $nrelitemvlrcc = new Sfrelitemvlrcc();
-                    $nrelitemvlrcc->fill($arrayrelitemvlrcc);
-                    $nrelitemvlrcc->save();
+                        $arrayrelitemvlrcc = [
+                            'sfcc_id' => $ncentrocusto->id,
+                            'numseqpai' => 1,
+                            'numseqitem' => 1,
+                            'vlr' => $npcoitens->vlr,
+                            'tipo' => 'RELPCOITEM'
+                        ];
+
+                        $nrelitemvlrcc = new Sfrelitemvlrcc();
+                        $nrelitemvlrcc->fill($arrayrelitemvlrcc);
+                        $nrelitemvlrcc->save();
+                    }
+
                 } else {
 
                     $nsfp['fk'] = $fk;
@@ -513,30 +520,36 @@ class ApropriacaoController extends BaseController
                     $npcoitens->fill($arraypcoitem);
                     $npcoitens->save();
 
-                    $arraycentrocustos = [
-                        'sfpadrao_id' => $fk1,
-                        'numseqitem' => 1,
-                        'codcentrocusto' => $apropriacao->centro_custo,
-                        'mesreferencia' => substr($apropriacao->competencia, 5, 2),
-                        'anoreferencia' => substr($apropriacao->competencia, 0, 4),
-                        'codugbenef' => $apropriacao->ug,
-                    ];
 
-                    $ncentrocusto = new Sfcentrocusto();
-                    $ncentrocusto->fill($arraycentrocustos);
-                    $ncentrocusto->save();
+                    $situacao = Execsfsituacao::where('codigo','=',$arraypco['codsit'])
+                        ->first();
 
-                    $arrayrelitemvlrcc = [
-                        'sfcc_id' => $ncentrocusto->id,
-                        'numseqpai' => 1,
-                        'numseqitem' => 1,
-                        'vlr' => $npcoitens->vlr,
-                        'tipo' => 'RELPCOITEM'
-                    ];
+                    if($situacao->afeta_custo == true){
+                        $arraycentrocustos = [
+                            'sfpadrao_id' => $fk1,
+                            'numseqitem' => 1,
+                            'codcentrocusto' => $apropriacao->centro_custo,
+                            'mesreferencia' => substr($apropriacao->competencia, 5, 2),
+                            'anoreferencia' => substr($apropriacao->competencia, 0, 4),
+                            'codugbenef' => $apropriacao->ug,
+                        ];
 
-                    $nrelitemvlrcc = new Sfrelitemvlrcc();
-                    $nrelitemvlrcc->fill($arrayrelitemvlrcc);
-                    $nrelitemvlrcc->save();
+                        $ncentrocusto = new Sfcentrocusto();
+                        $ncentrocusto->fill($arraycentrocustos);
+                        $ncentrocusto->save();
+
+                        $arrayrelitemvlrcc = [
+                            'sfcc_id' => $ncentrocusto->id,
+                            'numseqpai' => 1,
+                            'numseqitem' => 1,
+                            'vlr' => $npcoitens->vlr,
+                            'tipo' => 'RELPCOITEM'
+                        ];
+
+                        $nrelitemvlrcc = new Sfrelitemvlrcc();
+                        $nrelitemvlrcc->fill($arrayrelitemvlrcc);
+                        $nrelitemvlrcc->save();
+                    }
 
                 }
                 $i++;

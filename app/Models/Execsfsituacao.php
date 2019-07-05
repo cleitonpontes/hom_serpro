@@ -29,7 +29,8 @@ class Execsfsituacao extends Model
         'execsfsituacao_id',
         'aba',
         'status',
-        'categoria_ddp'
+        'categoria_ddp',
+        'afeta_custo'
         ];
     // protected $hidden = [];
     // protected $dates = [];
