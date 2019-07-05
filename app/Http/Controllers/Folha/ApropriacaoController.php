@@ -368,19 +368,40 @@ class ApropriacaoController extends BaseController
                     }
                 }
 
+                \Alert::success('Documento Hábil em Processo de apropriação no SIAFI. Aguarde!')->flash();
+                return redirect()->route('folha.apropriacao');
             }
 
+            if ($retorno->resultado[0] == 'FALHA') {
 
-            \Alert::success('Documento Hábil em Processo de apropriação no SIAFI. Aguarde!')->flash();
-            return redirect()->route('folha.apropriacao');
-        }
+                $sfpadrao->situacao = 'P';
+                $sfpadrao->save();
 
-        if ($sfpadrao->situacao == 'E') {
+                $sfsaltera = SfPadrao::where('fk', $nsfpadrao->id)
+                    ->where('categoriapadrao', 'EXECFOLHAALTERA')
+                    ->orderBy('id')
+                    ->get();
+
+                foreach ($sfsaltera as $sfaltera){
+                    $sfaltera->delete();
+                }
+                $nsfpadrao->delete();
+
+                $apropriacao = Apropriacao::find($apropriacaoId);
+                $apropriacao->fase_id = 7;
+                $apropriacao->save();
+
+                \Alert::error('Ocorreu um Erro: ' . $retorno->resultado[1])->flash();
+                return redirect()->route('folha.apropriacao');
+            }
+
+        } else {
             \Alert::warning('Este Documento Hábil já foi apropriado ou está em processo de apropriação. Aguarde!')->flash();
             return redirect()->route('folha.apropriacao');
         }
 
     }
+
 
     private function criaNovoSfpadrao(SfPadrao $sfpadrao)
     {
@@ -572,7 +593,7 @@ class ApropriacaoController extends BaseController
             ->where('categoriapadrao', '=', 'EXECFOLHA')
             ->first();
 
-        if($sfpadrao){
+        if ($sfpadrao) {
 
             $nsfpadrao = SfPadrao::where('fk', $sfpadrao->id)
                 ->where('categoriapadrao', '=', 'EXECFOLHAAPROPRIA')
@@ -592,14 +613,14 @@ class ApropriacaoController extends BaseController
                 $nsfpadrao->msgretorno
             ];
 
-            if($nsfpadrao){
+            if ($nsfpadrao) {
                 $nsfsaltera = SfPadrao::where('fk', $nsfpadrao->id)
                     ->where('categoriapadrao', '=', 'EXECFOLHAALTERA')
                     ->orderBy('id')
                     ->get();
 
-                if($nsfsaltera){
-                    foreach ($nsfsaltera as $nsfaltera){
+                if ($nsfsaltera) {
+                    foreach ($nsfsaltera as $nsfaltera) {
 
                         $pco = $this->buscaPco($nsfaltera->id);
                         $pcoitem = $this->buscaPcoItem($pco->id);
@@ -607,12 +628,13 @@ class ApropriacaoController extends BaseController
                         $dados[] = [
                             'DH Alteração',
                             implode('/', array_reverse(explode('-', $nsfaltera->dtemis))),
-                            $nsfaltera->anodh . $nsfaltera->codtipodh . str_pad($nsfaltera->numdh, 6, '0', STR_PAD_LEFT),
+                            $nsfaltera->anodh . $nsfaltera->codtipodh . str_pad($nsfaltera->numdh, 6, '0',
+                                STR_PAD_LEFT),
                             $pco->codsit,
                             $pcoitem->numempe,
                             str_pad($pcoitem->codsubitemempe, 2, '0', STR_PAD_LEFT),
                             number_format($pcoitem->vlr, 2, ',', '.'),
-                            ($nsfaltera->msgretorno)==''?'Em Andamento':$nsfaltera->msgretorno
+                            ($nsfaltera->msgretorno) == '' ? 'Em Andamento' : $nsfaltera->msgretorno
                         ];
                     }
                 }
@@ -624,7 +646,7 @@ class ApropriacaoController extends BaseController
 
     private function buscaPco(string $sfpadrao_id)
     {
-        $pco = SfPco::where('sfpadrao_id',$sfpadrao_id)
+        $pco = SfPco::where('sfpadrao_id', $sfpadrao_id)
             ->orderBy('id')
             ->first();
 
@@ -633,7 +655,7 @@ class ApropriacaoController extends BaseController
 
     private function buscaPcoItem(string $sfpco_id)
     {
-        $pcoitem = SfPcoItem::where('sfpco_id',$sfpco_id)
+        $pcoitem = SfPcoItem::where('sfpco_id', $sfpco_id)
             ->orderBy('id')
             ->first();
 

@@ -48,7 +48,7 @@ class ApropriaAlteracaoDhFolhaJob implements ShouldQueue
 
         if ($retorno->resultado[0] == 'FALHA') {
             $this->sfpadrao->msgretorno = $retorno->resultado[1];
-            $this->sfpadrao->situacao = 'E';
+            $this->sfpadrao->situacao = 'P';
             $this->sfpadrao->save();
         }
 
