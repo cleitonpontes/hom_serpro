@@ -365,7 +365,8 @@ class ApropriacaoController extends BaseController
 
                 if ($sfsaltera) {
                     foreach ($sfsaltera as $sfaltera) {
-                        ApropriaAlteracaoDhFolhaJob::dispatch(backpack_user(), session()->get('user_ug'), $sfaltera);
+                        ApropriaAlteracaoDhFolhaJob::dispatch(backpack_user(), session()->get('user_ug'), $sfaltera)
+                            ->onQueue('siafialteradh');
                     }
                 }
 
