@@ -42,31 +42,35 @@ class AlterAtualizaSaldoFunction extends Migration
         $sql .= '        aliquidar   = origem.aliquidar, ';
         $sql .= '        liquidado   = origem.liquidado, ';
         $sql .= '        pago        = origem.pago, ';
-        $sql .= '        empenhado   = origem.empenhado ';
-        $sql .= '        empenhado   = origem.rpinscrito ';
-        $sql .= '        empenhado   = origem.rpaliquidar ';
-        $sql .= '        empenhado   = origem.rpliquidado ';
+        $sql .= '        empenhado   = origem.empenhado, ';
+        $sql .= '        empenhado   = origem.rpinscrito, ';
+        $sql .= '        empenhado   = origem.rpaliquidar, ';
+        $sql .= '        empenhado   = origem.rpliquidado, ';
         $sql .= '        empenhado   = origem.rppago ';
         $sql .= '    FROM ';
         $sql .= '        ( ';
         $sql .= '        SELECT ';
         $sql .= '            empenho_id, ';
+
         //empenho aliquidar
         $sql .= '            coalesce(sum(empaliquidar), 0) + ';
         $sql .= '            coalesce(sum(empemliquidacao), 0)               as aliquidar, ';
+
         //empenho liquidado
         $sql .= '            coalesce(sum(emprpp), 0) + ';
         $sql .= '            coalesce(sum(empliquidado), 0)               as liquidado, ';
+
         //empenho pago
         $sql .= '            coalesce(sum(emppago), 0)                    as pago, ';
-        // Abaixo: Total do valor empenhado
+
+        // empenhado
         $sql .= '            coalesce(sum(empaliquidar), 0) + ';
         $sql .= '            coalesce(sum(empemliquidacao), 0) + ';
         $sql .= '            coalesce(sum(empliquidado), 0) + ';
         $sql .= '            coalesce(sum(empaliqrpnp), 0) + ';
         $sql .= '            coalesce(sum(empemliqrpnp), 0) + ';
         $sql .= '            coalesce(sum(emprpp), 0) + ';
-        $sql .= '            coalesce(sum(emppago), 0)                    as empenhado ';
+        $sql .= '            coalesce(sum(emppago), 0)                    as empenhado, ';
 
         //rp aliquidar
         $sql .= '            coalesce(sum(rpnpaliquidar), 0) + ';
@@ -83,6 +87,32 @@ class AlterAtualizaSaldoFunction extends Migration
         //rp pago
         $sql .= '            coalesce(sum(rpnppago), 0) + ';
         $sql .= '            coalesce(sum(rpppago), 0)               as rppago, ';
+
+        //rp inscrito
+        $sql .= '            coalesce(sum(rpnpaliquidinsc), 0) + ';
+        $sql .= '            coalesce(sum(rpnpemliquidinsc), 0) + ';
+        $sql .= '            coalesce(sum(reinscrpnpaliquidbloq), 0) + ';
+        $sql .= '            coalesce(sum(reinscrpnpemliquid), 0) + ';
+        $sql .= '            coalesce(sum(rpnprestab), 0) + ';
+        $sql .= '            coalesce(sum(rpnpaliquidtransfdeb), 0) + ';
+        $sql .= '            coalesce(sum(rpnpaliquidemliquidtransfdeb), 0) + ';
+        $sql .= '            coalesce(sum(rpnpliquidapgtransfdeb), 0) + ';
+        $sql .= '            coalesce(sum(rpnpbloqtransfdeb), 0) + ';
+        $sql .= '            coalesce(sum(rppinsc), 0) + ';
+        $sql .= '            coalesce(sum(rppexecant), 0) + ';
+        $sql .= '            coalesce(sum(rpptrasf), 0) - ';
+        $sql .= '            coalesce(sum(rpnpaliquidtransfcred), 0) - ';
+        $sql .= '            coalesce(sum(rpnpaliquidemliquidtransfcred), 0) - ';
+        $sql .= '            coalesce(sum(rpnpliquidapgtransfcred), 0) - ';
+        $sql .= '            coalesce(sum(rpnpbloqtransfcred), 0) - ';
+        $sql .= '            coalesce(sum(rpptransffusao), 0) - ';
+        $sql .= '            coalesce(sum(ajusterpexecant), 0) - ';
+        $sql .= '            coalesce(sum(rpnpcancelado), 0) - ';
+        $sql .= '            coalesce(sum(rpnpoutrocancelamento), 0) - ';
+        $sql .= '            coalesce(sum(rpnpemliqoutrocancelamento), 0) - ';
+        $sql .= '            coalesce(sum(rpppago), 0) - ';
+        $sql .= '            coalesce(sum(rppcancelado), 0)               as rpinscrito ';
+
 
         $sql .= '        FROM ';
         $sql .= '            empenhodetalhado ';
