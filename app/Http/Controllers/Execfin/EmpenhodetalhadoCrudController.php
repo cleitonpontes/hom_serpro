@@ -46,8 +46,8 @@ class EmpenhodetalhadoCrudController extends CrudController
         $this->crud->addClause('select', 'empenhodetalhado.*');
         $this->crud->orderBy('naturezasubitem_id', 'asc');
 
-
         $this->crud->addButtonFromView('top', 'voltar', 'voltarempenho', 'end');
+
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');

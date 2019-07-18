@@ -43,10 +43,10 @@ class AlterAtualizaSaldoFunction extends Migration
         $sql .= '        liquidado   = origem.liquidado, ';
         $sql .= '        pago        = origem.pago, ';
         $sql .= '        empenhado   = origem.empenhado, ';
-        $sql .= '        empenhado   = origem.rpinscrito, ';
-        $sql .= '        empenhado   = origem.rpaliquidar, ';
-        $sql .= '        empenhado   = origem.rpliquidado, ';
-        $sql .= '        empenhado   = origem.rppago ';
+        $sql .= '        rpinscrito   = origem.rpinscrito, ';
+        $sql .= '        rpaliquidar   = origem.rpaliquidar, ';
+        $sql .= '        rpliquidado   = origem.rpliquidado, ';
+        $sql .= '        rppago   = origem.rppago ';
         $sql .= '    FROM ';
         $sql .= '        ( ';
         $sql .= '        SELECT ';

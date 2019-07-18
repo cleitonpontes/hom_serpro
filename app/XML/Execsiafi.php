@@ -74,36 +74,45 @@ class Execsiafi
             'stream_context' => $context,
         ]);
 
-        $client->__setSoapHeaders(array($this->wssecurity($user, $pass), $this->cabecalho($ug, $sf_id)));
+
+        $cabecalho = $this->cabecalho($ug, $sf_id, $wsdl);
+
+        $client->__setSoapHeaders(array($this->wssecurity($user, $pass), $cabecalho));
 
         return $client;
 
     }
 
-    protected function cabecalho($ug, $sf_id)
+    protected function cabecalho($ug, $sf_id, $wsdl)
     {
 
-        $nonce = SfNonce::select()->orderBy('id', 'desc')->first();
+        if($wsdl == 'CONSULTA'){
+            $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug></ns1:cabecalhoSIAFI>';
+            $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+                'Security',
+                new \SoapVar($xml, XSD_ANYXML),
+                true
+            );
+        }else{
+            $nonce = SfNonce::select()->orderBy('id', 'desc')->first();
+            $nonce_id = $nonce->id + 1;
+            $data = [
+                'sf_id' => $sf_id,
+                'tipo' => $ug . "_" . $nonce_id . "_" . $sf_id,
+            ];
+            if ($sf_id == '') {
+                unset($data['sf_id']);
+            }
+            SfNonce::create($data);
 
-        $nonce_id = $nonce->id + 1;
-
-        $data = [
-            'sf_id' => $sf_id,
-            'tipo' => $ug . "_" . $nonce_id . "_" . $sf_id,
-        ];
-
-        if ($sf_id == '') {
-            unset($data['sf_id']);
+            $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug><bilhetador><nonce>' . $nonce_id . '</nonce></bilhetador></ns1:cabecalhoSIAFI>';
+            $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+                'Security',
+                new \SoapVar($xml, XSD_ANYXML),
+                true
+            );
         }
 
-        SfNonce::create($data);
-
-        $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug><bilhetador><nonce>' . $nonce_id . '</nonce></bilhetador></ns1:cabecalhoSIAFI>';
-        $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
-            'Security',
-            new \SoapVar($xml, XSD_ANYXML),
-            true
-        );
 
         return $header;
 
@@ -210,6 +219,33 @@ class Execsiafi
 
             \Alert::error('Cadastre sua Senha SIAFI em "Meus Dados"!')->flash();
 
+        }
+
+        $client = $this->conexao_xml($cpf, $senha, $ug_user, '', $amb, $ano, 'CONSULTA');
+
+        $parms = new \stdClass;
+        $parms->tabConsultarSaldo = [
+            'codUG' => $ug,
+            'contaContabil' => $contacontabil,
+            'contaCorrente' => $contacorrente,
+            'mesRefSaldo' => $mesref
+        ];
+
+        $retorno = $this->submit($client, $parms, 'CONRAZAO');
+
+        return $this->trataretorno($retorno);
+
+
+    }
+
+    public function conrazaoUser($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref, $user)
+    {
+
+        $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
+        $senha = '';
+
+        if($user->senhasiafi){
+            $senha = base64_decode($user->senhasiafi);
         }
 
         $client = $this->conexao_xml($cpf, $senha, $ug_user, '', $amb, $ano, 'CONSULTA');

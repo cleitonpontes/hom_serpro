@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoempenhoJob;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
@@ -10,6 +11,7 @@ use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
 use App\Models\Unidade;
+use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -42,8 +44,12 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
+        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
+            'atualizasaldosempenhos', 'end') : null;
+
         (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
             'migrarempenho', 'end') : null;
+
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
         $this->crud->enableExportButtons();
@@ -390,4 +396,52 @@ class EmpenhoCrudController extends CrudController
         return redirect('/execfin/empenho');
     }
 
+    public function atualizaSaldosEmpenhos()
+    {
+        $empenhos = Empenho::all();
+        $amb = 'PROD';
+        $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
+        $ano = date('Y'); //$registro['ano'];
+        $mes = $meses[(int)date('m')];//$meses[(int) $registro['mes']];
+
+        foreach ($empenhos as $empenho) {
+
+            $anoEmpenho = substr($empenho->numero, 0, 4);
+
+            if ($anoEmpenho == $ano) {
+                $contas_contabeis = config('app.contas_contabeis_empenhodetalhado_exercicioatual');
+            } else {
+                $contas_contabeis = config('app.contas_contabeis_empenhodetalhado_exercicioanterior');
+            }
+
+            $ug = $empenho->unidade->codigo;
+
+            $empenhodetalhes = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                ->get();
+
+
+            foreach ($empenhodetalhes as $empenhodetalhe) {
+
+                $contacorrente = 'N' . $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
+                        STR_PAD_LEFT);
+
+                AtualizasaldosmpenhosJobs::dispatch(
+                    $ug,
+                    $amb,
+                    $ano,
+                    $contacorrente,
+                    $mes,
+                    $empenhodetalhe,
+                    $contas_contabeis,
+                    backpack_user()
+                    )->onQueue('atualizasaldone');
+            }
+        }
+
+        \Alert::success('Atualização de saldos de Empenhos em Andamento!')->flash();
+
+        return redirect('/execfin/empenho');
+
+
+    }
 }
