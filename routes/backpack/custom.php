@@ -48,8 +48,13 @@ Route::group([
         Route::get('/mensagem/{id}', 'AdminController@lerMensagem');
 
 
-
-
+        Route::group([
+            'prefix' => 'painel',
+            'namespace' => 'Painel'
+        ], function (){
+            Route::get('financeiro', 'FinanceiroController@index')->name('painel.financeiro');
+            Route::get('orcamentario', 'OrcamentarioController@index')->name('painel.orcamentario');
+        });
 
         Route::group([
             'prefix' => 'admin',

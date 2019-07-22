@@ -1,6 +1,22 @@
 <!-- This file is used to store sidebar items, starting with Backpack\Base 0.9.0 -->
 <li><a href="{{ backpack_url('inicio') }}"><i class="fa fa-home"></i> <span>Início</span></a></li>
 <li class="treeview">
+    <a href="#"><i class="fa fa-bar-chart"></i> <span>Painéis</span> <i
+            class="fa fa-angle-left pull-right"></i></a>
+    <ul class="treeview-menu">
+        <li class="treeview">
+            <a href="#"><i class='fa fa-edit'></i> <span>Orçamento e Finanças</span> <i
+                    class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+                <li><a href="{{ backpack_url('/painel/financeiro') }}"><i class="fa fa-money"></i>
+                        <span>Financeiro</span></a></li>
+                <li><a href="{{ backpack_url('/painel/orcamentario') }}"><i class="fa fa-money"></i>
+                        <span>Orçamentário</span></a></li>
+            </ul>
+        </li>
+    </ul>
+</li>
+<li class="treeview">
     <a href="#"><i class="fa fa-dollar"></i> <span>Execução Financeira</span> <i
             class="fa fa-angle-left pull-right"></i></a>
     <ul class="treeview-menu">
