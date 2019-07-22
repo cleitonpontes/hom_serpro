@@ -46,7 +46,7 @@ class ContratoRequest extends FormRequest
             'modalidade_id' => 'required',
             'licitacao_numero' => 'required',
             'data_assinatura' => 'required|date|before_or_equal:vigencia_inicio',
-            'vigencia_inicio' => 'required|date|before:vigencia_fim',
+            'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',
             'vigencia_fim' => 'required|date|after:vigencia_inicio',
             'valor_global' => 'required',
             'num_parcelas' => 'required',
