@@ -203,6 +203,11 @@ class Empenho extends Model
         return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
     }
 
+    public function naturezadespesa()
+    {
+        return $this->belongsTo(Naturezadespesa::class, 'naturezadespesa_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

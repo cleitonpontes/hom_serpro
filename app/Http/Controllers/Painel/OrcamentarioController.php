@@ -36,14 +36,17 @@ class OrcamentarioController extends Controller
     {
         $this->data['title'] = "Painel Orçamentário";//trans('backpack::base.dashboard'); // set the page title
 
-        $graficoempenhos = $this->graficoEmpenhos();
+        $graficoEmpenhosOutrasDespesasCorrentes = $this->graficoEmpenhosOutrasDespesasCorrentes();
 
 
         return view('backpack::mod.paineis.painelorcamentario',
-            ['data' => $this->data, 'graficoempenhos' => $graficoempenhos]);
+            [
+                'data' => $this->data,
+                'graficoEmpenhosOutrasDespesasCorrentes' => $graficoEmpenhosOutrasDespesasCorrentes
+            ]);
     }
 
-    private function graficoEmpenhos()
+    private function graficoEmpenhosOutrasDespesasCorrentes()
     {
 
         $unidades = Unidade::select(DB::raw("codigo ||' - '|| nomeresumido as nome"))
@@ -54,6 +57,9 @@ class OrcamentarioController extends Controller
 
         $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
             $q->where('situacao', '=', true);
+        });
+        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
+            $q->where('codigo', 'LIKE', '33%');
         });
         $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
         $valores_empenhos->orderBy('unidades.id');
@@ -107,7 +113,34 @@ class OrcamentarioController extends Controller
                     'data' => $pago,
                 ],
             ])
-            ->options([]);
+            ->optionsRaw("{
+            legend: {
+                display:true
+            },
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        display:false
+                    }  
+                }]
+            },
+            tooltips: {
+                enabled: true,
+                mode: 'single',
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                    if (label) {
+                        label += ': ';
+                    }
+                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.round(tooltipItem.yLabel * 100) / 100);
+                    return label;
+                }
+                }
+            }
+        }");
+
 
         return $chartjs;
     }
@@ -116,11 +149,11 @@ class OrcamentarioController extends Controller
     {
         $colors = [];
         for ($i = 0; $i < $quantidade; $i++) {
-            $r = number_format(rand(0,255),0,'','');
-            $g = number_format(rand(0,255),0,'','');
-            $b = number_format(rand(0,255),0,'','');
+            $r = number_format(rand(0, 255), 0, '', '');
+            $g = number_format(rand(0, 255), 0, '', '');
+            $b = number_format(rand(0, 255), 0, '', '');
 
-            $colors[] = "rgba(".$r.",".$g.",".$b.", 0.5)";
+            $colors[] = "rgba(" . $r . "," . $g . "," . $b . ", 0.5)";
         }
 
         return $colors;
