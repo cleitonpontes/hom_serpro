@@ -78,6 +78,8 @@ class OrcamentarioController extends Controller
             $pago[] = $v['pago'];
         }
 
+        $colors = $this->colors(4);
+
         $chartjs = app()->chartjs
             ->name('pieChartTest')
             ->type('bar')
@@ -86,22 +88,22 @@ class OrcamentarioController extends Controller
             ->datasets([
                 [
                     'label' => 'Empenhado',
-                    'backgroundColor' => 'poolColors(4)',
+                    'backgroundColor' => $colors[0],
                     'data' => $empenhado,
                 ],
                 [
                     'label' => 'A Liquidar',
-                    'backgroundColor' => 'poolColors(4)',
+                    'backgroundColor' => $colors[1],
                     'data' => $aliquidar,
                 ],
                 [
                     'label' => 'Liquidado',
-                    'backgroundColor' => 'poolColors(4)',
+                    'backgroundColor' => $colors[2],
                     'data' => $liquidado,
                 ],
                 [
                     'label' => 'Pago',
-                    'backgroundColor' => 'poolColors(4)',
+                    'backgroundColor' => $colors[3],
                     'data' => $pago,
                 ],
             ])
@@ -112,30 +114,14 @@ class OrcamentarioController extends Controller
 
     public function colors(int $quantidade)
     {
-        foreach ()
+        $colors = [];
+        for ($i = 0; $i < $quantidade; $i++) {
+            $r = number_format(rand(0,255),0,'','');
+            $g = number_format(rand(0,255),0,'','');
+            $b = number_format(rand(0,255),0,'','');
 
-        $colors = [
-            '#1f77b4',
-            '#aec7e8',
-            '#ff7f0e',
-            '#ffbb78',
-            '#2ca02c',
-            '#98df8a',
-            '#d62728',
-            '#ff9896',
-            '#9467bd',
-            '#c5b0d5',
-            '#8c564b',
-            '#c49c94',
-            '#e377c2',
-            '#f7b6d2',
-            '#7f7f7f',
-            '#c7c7c7',
-            '#bcbd22',
-            '#dbdb8d',
-            '#17becf',
-            '#9edae5'
-        ];
+            $colors[] = "rgba(".$r.",".$g.",".$b.", 0.5)";
+        }
 
         return $colors;
     }

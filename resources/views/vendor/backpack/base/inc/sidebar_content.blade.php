@@ -8,10 +8,10 @@
             <a href="#"><i class='fa fa-edit'></i> <span>Orçamento e Finanças</span> <i
                     class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-                <li><a href="{{ backpack_url('/painel/financeiro') }}"><i class="fa fa-money"></i>
-                        <span>Financeiro</span></a></li>
-                <li><a href="{{ backpack_url('/painel/orcamentario') }}"><i class="fa fa-money"></i>
-                        <span>Orçamentário</span></a></li>
+{{--                <li><a href="{{ backpack_url('/painel/financeiro') }}"><i class="fa fa-money"></i>--}}
+                        {{--<span>Financeiro</span></a></li>--}}
+{{--                <li><a href="{{ backpack_url('/painel/orcamentario') }}"><i class="fa fa-money"></i>--}}
+                        {{--<span>Orçamentário</span></a></li>--}}
             </ul>
         </li>
     </ul>
