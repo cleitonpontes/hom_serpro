@@ -102,15 +102,14 @@ class Contratocronograma extends Model
     private function montaCronograma(Contratohistorico $contratohistorico)
     {
         if ($contratohistorico->data_inicio_novo_valor) {
-            $dt = date('Y-m-d', strtotime("-1 month", strtotime($contratohistorico->data_inicio_novo_valor)));
-            $data = date_create($dt);
+            $data = date_create($contratohistorico->data_inicio_novo_valor);
             $mesinicio = new \DateTime($contratohistorico->data_inicio_novo_valor);
             $mesfim = new \DateTime($contratohistorico->vigencia_fim);
             $interval = $mesinicio->diff($mesfim);
             if ($interval->y != 0) {
-                $t = ($interval->y * 12) + $interval->m + 1;
+                $t = ($interval->y * 12) + $interval->m;
             } else {
-                $t = $interval->m + 1;
+                $t = $interval->m;
             }
 
         } else {
