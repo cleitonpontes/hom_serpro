@@ -35,8 +35,7 @@ class OrcamentarioController extends Controller
         $this->data['title'] = "Painel Orçamentário";//trans('backpack::base.dashboard'); // set the page title
 
         $dadosEmpenhosOutrasDespesasCorrentes = $this->retornaDadosEmpenhosOutrasDespesasCorrentes();
-
-        $graficoEmpenhosOutrasDespesasCorrentes = $this->graficoEmpenhosOutrasDespesasCorrentes();
+        $graficoEmpenhosOutrasDespesasCorrentes = $this->graficoEmpenhosOutrasDespesasCorrentes($dadosEmpenhosOutrasDespesasCorrentes);
 
 
         return view('backpack::mod.paineis.painelorcamentario',
@@ -72,39 +71,17 @@ class OrcamentarioController extends Controller
 
     }
 
-    private function graficoEmpenhosOutrasDespesasCorrentes()
+    private function graficoEmpenhosOutrasDespesasCorrentes(array $valores_empenhos)
     {
 
-        $unidades = Unidade::select(DB::raw("codigo ||' - '|| nomeresumido as nome"))
-            ->where('tipo', 'E')
-            ->where('situacao', true)
-            ->orderBy('nome', 'asc')
-            ->pluck('nome')->toArray();
-
-        $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
-            $q->where('situacao', '=', true);
-        });
-        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
-            $q->where('codigo', 'LIKE', '33%');
-        });
-        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
-        $valores_empenhos->orderBy('nome');
-        $valores_empenhos->groupBy('unidades.codigo');
-        $valores_empenhos->groupBy('unidades.nomeresumido');
-        $valores_empenhos->select([
-            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
-            DB::raw('sum(empenhos.empenhado) as empenhado'),
-            DB::raw("sum(empenhos.aliquidar) as aliquidar"),
-            DB::raw("sum(empenhos.liquidado) as liquidado"),
-            DB::raw("sum(empenhos.pago) as pago")
-        ]);
-
+        $unidades = [];
         $empenhado = [];
         $aliquidar = [];
         $liquidado = [];
         $pago = [];
 
-        foreach ($valores_empenhos->get()->toArray() as $v) {
+        foreach ($valores_empenhos as $v) {
+            $unidades[] = $v['nome'];
             $empenhado[] = $v['empenhado'];
             $aliquidar[] = $v['aliquidar'];
             $liquidado[] = $v['liquidado'];
