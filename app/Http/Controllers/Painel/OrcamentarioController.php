@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers\Painel;
 
-use App\Forms\MeusdadosForm;
-use App\Forms\MudarUgForm;
 use App\Http\Controllers\Controller;
 use App\Models\BackpackUser;
-use App\Models\CalendarEvent;
-use App\Models\Codigoitem;
-use App\Models\Contrato;
 use App\Models\Empenho;
 use App\Models\Unidade;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use MaddHatter\LaravelFullcalendar\Calendar;
+use Yajra\DataTables\Html\Builder;
+use Yajra\DataTables\DataTables;
 
 class OrcamentarioController extends Controller
 {
@@ -22,8 +19,9 @@ class OrcamentarioController extends Controller
     /**
      * Create a new controller instance.
      */
-    public function __construct()
+    public function __construct(Builder $htmlBuilder)
     {
+        $this->htmlBuilder = $htmlBuilder;
         $this->middleware(backpack_middleware());
     }
 
@@ -36,14 +34,42 @@ class OrcamentarioController extends Controller
     {
         $this->data['title'] = "Painel Orçamentário";//trans('backpack::base.dashboard'); // set the page title
 
+        $dadosEmpenhosOutrasDespesasCorrentes = $this->retornaDadosEmpenhosOutrasDespesasCorrentes();
+
         $graficoEmpenhosOutrasDespesasCorrentes = $this->graficoEmpenhosOutrasDespesasCorrentes();
 
 
         return view('backpack::mod.paineis.painelorcamentario',
             [
                 'data' => $this->data,
-                'graficoEmpenhosOutrasDespesasCorrentes' => $graficoEmpenhosOutrasDespesasCorrentes
+                'graficoEmpenhosOutrasDespesasCorrentes' => $graficoEmpenhosOutrasDespesasCorrentes,
+                'dadosEmpenhosOutrasDespesasCorrentes' => $dadosEmpenhosOutrasDespesasCorrentes
             ]);
+    }
+
+    private function retornaDadosEmpenhosOutrasDespesasCorrentes()
+    {
+
+        $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
+            $q->where('situacao', '=', true);
+        });
+        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
+            $q->where('codigo', 'LIKE', '33%');
+        });
+        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
+        $valores_empenhos->orderBy('nome');
+        $valores_empenhos->groupBy('unidades.codigo');
+        $valores_empenhos->groupBy('unidades.nomeresumido');
+        $valores_empenhos->select([
+            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
+            DB::raw('sum(empenhos.empenhado) as empenhado'),
+            DB::raw("sum(empenhos.aliquidar) as aliquidar"),
+            DB::raw("sum(empenhos.liquidado) as liquidado"),
+            DB::raw("sum(empenhos.pago) as pago")
+        ]);
+
+        return $valores_empenhos->get()->toArray();
+
     }
 
     private function graficoEmpenhosOutrasDespesasCorrentes()
@@ -52,7 +78,7 @@ class OrcamentarioController extends Controller
         $unidades = Unidade::select(DB::raw("codigo ||' - '|| nomeresumido as nome"))
             ->where('tipo', 'E')
             ->where('situacao', true)
-            ->orderBy('id', 'asc')
+            ->orderBy('nome', 'asc')
             ->pluck('nome')->toArray();
 
         $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
@@ -62,10 +88,11 @@ class OrcamentarioController extends Controller
             $q->where('codigo', 'LIKE', '33%');
         });
         $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
-        $valores_empenhos->orderBy('unidades.id');
-        $valores_empenhos->groupBy('unidades.id');
+        $valores_empenhos->orderBy('nome');
+        $valores_empenhos->groupBy('unidades.codigo');
+        $valores_empenhos->groupBy('unidades.nomeresumido');
         $valores_empenhos->select([
-            "unidades.id",
+            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
             DB::raw('sum(empenhos.empenhado) as empenhado'),
             DB::raw("sum(empenhos.aliquidar) as aliquidar"),
             DB::raw("sum(empenhos.liquidado) as liquidado"),
@@ -120,7 +147,7 @@ class OrcamentarioController extends Controller
             scales: {
                 xAxes: [{
                     gridLines: {
-                        display:false
+                        display:true
                     }  
                 }]
             },
