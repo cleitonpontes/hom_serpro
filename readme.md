@@ -19,7 +19,7 @@ A licença dessa ferramenta é GPLv2. Pedimos que toda implementação seja disp
 ### Versões
 
 - Laravel 5.7;
-- PHP 7.1+;
+- PHP 7.1.8+;
 - PostgreSQL 9.6+
 
 ### Requisitos para instalação
