@@ -4,23 +4,21 @@ namespace App\Http\Controllers\Admin;
 
 use App\Jobs\UserMailPasswordJob;
 use App\Models\BackpackUser;
-use App\Models\Orgao;
 use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
-use App\Http\Requests\UsuarioOrgaoRequest as StoreRequest;
-use App\Http\Requests\UsuarioOrgaoRequest as UpdateRequest;
+use App\Http\Requests\UsuarioUnidadeRequest as StoreRequest;
+use App\Http\Requests\UsuarioUnidadeRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
-use function foo\func;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Class UsuarioOrgaoCrudController
+ * Class UsuarioUnidadeCrudController
  * @package App\Http\Controllers\Admin
  * @property-read CrudPanel $crud
  */
-class UsuarioOrgaoCrudController extends CrudController
+class UsuarioUnidadeCrudController extends CrudController
 {
     public function setup()
     {
@@ -29,27 +27,21 @@ class UsuarioOrgaoCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-
-        if (!backpack_user()->hasRole('Administrador Órgão')) { //alterar para novo grupo de Administrador Orgão
+        if (!backpack_user()->hasRole('Administrador Unidade')) { //alterar para novo grupo de Administrador Orgão
             abort('403', config('app.erro_permissao'));
         }
 
         $unidade_user = Unidade::find(session()->get('user_ug_id'));
 
-        $orgao = Orgao::find($unidade_user->orgao_id);
-        $unidades_orgao = Unidade::where('orgao_id', $orgao->id)
-            ->pluck('id')->toArray();
-
 
         $this->crud->setModel('App\Models\BackpackUser');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuarioorgao');
-        $this->crud->setEntityNameStrings('Usuário Órgão: ' . $orgao->codigo, 'Usuários Órgão: ' . $orgao->codigo);
-        $this->crud->addClause('WhereHas', 'unidades', function ($q) use ($unidades_orgao) {
-            $q->whereIn('unidade_id', $unidades_orgao);
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuariounidade');
+        $this->crud->setEntityNameStrings('Usuário Unidade: ' . $unidade_user->codigo,
+            'Usuários Unidade: ' . $unidade_user->codigo);
+        $this->crud->addClause('WhereHas', 'unidades', function ($q) use ($unidade_user) {
+            $q->where('unidade_id', $unidade_user->id);
         });
-        foreach ($unidades_orgao as $item) {
-            $this->crud->addClause('orwhere', 'ugprimaria', '=', $item);
-        }
+        $this->crud->addClause('orwhere', 'ugprimaria', '=', $unidade_user->id);
 
 
         $this->crud->enableExportButtons();
@@ -75,16 +67,16 @@ class UsuarioOrgaoCrudController extends CrudController
         $ugs = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
             ->where('tipo', '=', 'E')
             ->where('situacao', '=', true)
-            ->whereIn('id',$unidades_orgao)
+            ->where('id', $unidade_user->id)
             ->orderBy('codigo', 'asc')
             ->pluck('nome', 'id')
             ->toArray();
 
 
-        $campos = $this->Campos($ugs, $unidades_orgao);
+        $campos = $this->Campos($ugs, $unidade_user->id);
         $this->crud->addFields($campos);
 
-        // add asterisk for fields that are required in UsuarioOrgaoRequest
+        // add asterisk for fields that are required in UsuarioUnidadeRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
@@ -142,7 +134,7 @@ class UsuarioOrgaoCrudController extends CrudController
         return $colunas;
     }
 
-    public function campos($ugs, $unidades_orgao)
+    public function campos($ug, $unidade)
     {
         $campos = [
             [
@@ -176,7 +168,7 @@ class UsuarioOrgaoCrudController extends CrudController
                 'name' => 'ugprimaria',
                 'label' => 'UG Primária',
                 'type' => 'select2_from_array',
-                'options' => $ugs,
+                'options' => $ug,
                 'allows_null' => true,
                 'tab' => 'Outros',
                 'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
@@ -194,10 +186,10 @@ class UsuarioOrgaoCrudController extends CrudController
                 'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
                 'select_all' => true,
                 'tab' => 'Outros',
-                'options' => (function ($query) use ($unidades_orgao) {
+                'options' => (function ($query) use ($unidade) {
                     return $query->orderBy('codigo', 'ASC')
                         ->where('tipo', '=', 'E')
-                        ->whereIn('id',$unidades_orgao)
+                        ->where('id', $unidade)
                         ->get();
                 }),
             ],
@@ -214,8 +206,9 @@ class UsuarioOrgaoCrudController extends CrudController
                 'tab' => 'Outros',
                 'options' => (function ($query) {
                     return $query->orderBy('name', 'ASC')
-                        ->where('name','<>','Administrador')
-                        ->where('name','<>','Administrador Órgão')
+                        ->where('name', '<>', 'Administrador')
+                        ->where('name', '<>', 'Administrador Órgão')
+                        ->where('name', '<>', 'Administrador Unidade')
                         ->get();
                 }),
             ],
