@@ -53,12 +53,12 @@ class UsuarioOrgaoCrudController extends CrudController
 
 
         $this->crud->enableExportButtons();
-//        $this->crud->denyAccess('create');
-//        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
 
-//        (backpack_user()->can('usuarioorgao_inserir')) ? $this->crud->allowAccess('create') : null;
-//        (backpack_user()->can('usuarioorgao_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('usuarioorgao_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('usuarioorgao_editar')) ? $this->crud->allowAccess('update') : null;
 //        (backpack_user()->can('usuarioorgao_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
