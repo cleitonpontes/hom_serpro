@@ -425,25 +425,25 @@ class EmpenhoCrudController extends CrudController
                 $contacorrente = 'N' . $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
                         STR_PAD_LEFT);
 
-//                AtualizasaldosmpenhosJobs::dispatch(
-//                    $ug,
-//                    $amb,
-//                    $ano,
-//                    $contacorrente,
-//                    $mes,
-//                    $empenhodetalhe,
-//                    $contas_contabeis,
-//                    backpack_user()
-//                    )->onQueue('atualizasaldone');
-
-                $this->teste($ug,
+                AtualizasaldosmpenhosJobs::dispatch(
+                    $ug,
                     $amb,
                     $ano,
                     $contacorrente,
                     $mes,
                     $empenhodetalhe,
                     $contas_contabeis,
-                    backpack_user());
+                    backpack_user()
+                    )->onQueue('atualizasaldone');
+
+//                $this->teste($ug,
+//                    $amb,
+//                    $ano,
+//                    $contacorrente,
+//                    $mes,
+//                    $empenhodetalhe,
+//                    $contas_contabeis,
+//                    backpack_user());
             }
         }
 
@@ -484,7 +484,7 @@ class EmpenhoCrudController extends CrudController
                 $mes,
                 $user);
 
-            dd($retorno);
+//            dd($retorno);
 
             if ($retorno->resultado[0] == 'SUCESSO') {
                 if (isset($retorno->resultado[4])) {
