@@ -425,16 +425,25 @@ class EmpenhoCrudController extends CrudController
                 $contacorrente = 'N' . $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
                         STR_PAD_LEFT);
 
-                AtualizasaldosmpenhosJobs::dispatch(
-                    $ug,
+//                AtualizasaldosmpenhosJobs::dispatch(
+//                    $ug,
+//                    $amb,
+//                    $ano,
+//                    $contacorrente,
+//                    $mes,
+//                    $empenhodetalhe,
+//                    $contas_contabeis,
+//                    backpack_user()
+//                    )->onQueue('atualizasaldone');
+
+                $this->teste($ug,
                     $amb,
                     $ano,
                     $contacorrente,
                     $mes,
                     $empenhodetalhe,
                     $contas_contabeis,
-                    backpack_user()
-                    )->onQueue('atualizasaldone');
+                    backpack_user());
             }
         }
 
@@ -444,4 +453,52 @@ class EmpenhoCrudController extends CrudController
 
 
     }
+
+    public function teste(
+        $ug,
+        $amb,
+        $ano,
+        $contacorrente,
+        $mes,
+        $empenhodetalhado,
+        $contas_contabeis,
+        $user
+    ) {
+
+        $dado = [];
+        foreach ($contas_contabeis as $item => $valor) {
+
+            $contacontabil1 = $valor;
+            $saldoAtual = 0;
+
+            $execsiafi = new Execsiafi();
+
+            $retorno = null;
+            $retorno = $execsiafi->conrazaoUser(
+                $ug,
+                $amb,
+                $ano,
+                $ug,
+                $contacontabil1,
+                $contacorrente,
+                $mes,
+                $user);
+
+            dd($retorno);
+
+            if ($retorno->resultado[0] == 'SUCESSO') {
+                if (isset($retorno->resultado[4])) {
+                    $saldoAtual = (float)$retorno->resultado[4];
+                }
+                $dado[$item] = $saldoAtual;
+            }
+
+        }
+
+
+
+        $empenhodetalhado->fill($dado);
+        $empenhodetalhado->push();
+    }
+
 }

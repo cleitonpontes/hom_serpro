@@ -112,6 +112,11 @@ class SfcertificadoCrudController extends CrudController
                 'label' => 'Vencimento',
                 'type' => 'date'
             ],
+            [   // Date
+                'name' => 'senhacertificado',
+                'label' => 'Senha Certificado',
+                'type' => 'password'
+            ],
             [ // select_from_array
                 'name' => 'situacao',
                 'label' => "Situação",
@@ -127,6 +132,10 @@ class SfcertificadoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+
+        $senha = $request->input('senhacertificado');
+        $request->request->set('senhacertificado', base64_encode($senha));
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -136,6 +145,8 @@ class SfcertificadoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $senha = $request->input('senhacertificado');
+        $request->request->set('senhacertificado', base64_encode($senha));
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here

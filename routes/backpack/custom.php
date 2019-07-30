@@ -62,6 +62,8 @@ Route::group([
         ], function () {
             CRUD::resource('activitylog', 'ActivitylogCrudController');
             CRUD::resource('usuario', 'UsuarioCrudController');
+            CRUD::resource('usuarioorgao', 'UsuarioOrgaoCrudController');
+//            CRUD::resource('usuariounidade', 'UsuarioUnidadeCrudController');
             CRUD::resource('orgaosuperior', 'OrgaoSuperiorCrudController');
             CRUD::resource('orgao', 'OrgaoCrudController');
             CRUD::resource('unidade', 'UnidadeCrudController');
