@@ -176,7 +176,7 @@ class Contratocronograma extends Model
                     'mesref' => $ret_mesref_de,
                     'anoref' => $ret_anoref_de,
                     'vencimento' => $contratohistorico->retroativo_vencimento,
-                    'valor' => $contratohistorico->retroativo_valor,
+                    'valor' => number_format($contratohistorico->retroativo_valor,2,'.',''),
                     'retroativo' => true,
                 ];
             } else {
@@ -189,7 +189,7 @@ class Contratocronograma extends Model
                     $meses = $intervalo->m + 1;
                 }
 
-                $valor_ret = number_format($contratohistorico->retroativo_valor / $meses, 2);
+                $valor_ret = number_format($contratohistorico->retroativo_valor / $meses, 2,'.','');
 
                 for ($j = 1; $j <= $meses; $j++) {
                     $dtformat = $ret_anoref_de . '-' . $ret_mesref_de . '-01';
@@ -208,7 +208,7 @@ class Contratocronograma extends Model
                         'mesref' => date('m', strtotime($ref1)),
                         'anoref' => date('Y', strtotime($ref1)),
                         'vencimento' => $contratohistorico->retroativo_vencimento,
-                        'valor' => $valor_ret,
+                        'valor' => number_format($valor_ret,2,'.',''),
                         'retroativo' => true,
                     ];
 
