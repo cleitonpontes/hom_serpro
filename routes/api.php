@@ -16,3 +16,10 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::group([
+    'namespace' => 'Api',
+], function () {
+    //API Consulta Banco de Dados
+    Route::get('/contrato/ug/{unidade}', 'ContratoController@contratoAtivoPorUg');
+});
