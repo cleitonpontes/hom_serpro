@@ -9,9 +9,22 @@ use App\Http\Controllers\Controller;
 
 class ContratoController extends Controller
 {
-    public function contratoAtivoPorUg(string $unidade)
+    public function empenhosPorContratoId(int $contrato_id)
     {
+        $empenhos_array = [];
 
+        return json_encode($empenhos_array);
+    }
+
+    public function historicoPorContratoId(int $contrato_id)
+    {
+        $historico_array = [];
+
+        return json_encode($historico_array);
+    }
+
+    public function contratoAtivoPorUg(int $unidade)
+    {
         $contratos_array = [];
         $contratos = $this->buscaContratosPorUg($unidade);
 
@@ -21,6 +34,17 @@ class ContratoController extends Controller
             $contratos_array[] = [
                 'id' => $contrato->id,
                 'numero' => $contrato->numero,
+                'contratante' => [
+                    'orgao' => [
+                        'codigo' => $contrato->unidade->orgao->codigo,
+                        'nome' => $contrato->unidade->orgao->nome,
+                        'unidade_gestora' => [
+                            'codigo' => $contrato->unidade->codigo,
+                            'nome_resumido' => $contrato->unidade->nomeresumido,
+                            'nome' => $contrato->unidade->nome,
+                        ],
+                    ],
+                ],
                 'fornecedor' => [
                     'tipo' => $fornecedor->tipo_fornecedor,
                     'cnpj_cpf_idgener' => $fornecedor->cpf_cnpj_idgener,
@@ -37,11 +61,15 @@ class ContratoController extends Controller
                 'data_publicacao' => $contrato->data_publicacao,
                 'vigencia_inicio' => $contrato->vigencia_inicio,
                 'vigencia_fim' => $contrato->vigencia_fim,
-                'valor_inicial' => number_format($contrato->valor_inicial,2,',','.'),
-                'valor_global' => number_format($contrato->valor_global,2,',','.'),
+                'valor_inicial' => number_format($contrato->valor_inicial, 2, ',', '.'),
+                'valor_global' => number_format($contrato->valor_global, 2, ',', '.'),
                 'num_parcelas' => $contrato->num_parcelas,
-                'valor_parcela' => number_format($contrato->valor_parcela,2,',','.'),
-                'valor_acumulado' => number_format($contrato->valor_acumulado,2,',','.'),
+                'valor_parcela' => number_format($contrato->valor_parcela, 2, ',', '.'),
+                'valor_acumulado' => number_format($contrato->valor_acumulado, 2, ',', '.'),
+                'links' => [
+                    'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
+                    'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
+                ]
             ];
 
         }

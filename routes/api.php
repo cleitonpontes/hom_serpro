@@ -20,6 +20,18 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group([
     'namespace' => 'Api',
 ], function () {
-    //API Consulta Banco de Dados
-    Route::get('/contrato/ug/{unidade}', 'ContratoController@contratoAtivoPorUg');
+
+    //API Consulta Contratos
+    Route::group([
+        'prefix' => 'contrato',
+    ], function (){
+        Route::get('/ug/{unidade_codigo}', 'ContratoController@contratoAtivoPorUg');
+        Route::get('/{contrato_id}/historico', 'ContratoController@historicoPorContratoId');
+        Route::get('/{contrato_id}/empenhos', 'ContratoController@empenhosPorContratoId');
+
+    });
+
+
+
+
 });
