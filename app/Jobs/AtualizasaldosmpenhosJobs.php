@@ -76,11 +76,13 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
                 $this->mes,
                 $this->user);
 
-            if($retorno->resultado[0] == 'SUCESSO'){
-                if (isset($retorno->resultado[4])) {
-                    $saldoAtual = (float)$retorno->resultado[4];
+            if(isset($retorno->resultado[0])){
+                if($retorno->resultado[0] == 'SUCESSO'){
+                    if (isset($retorno->resultado[4])) {
+                        $saldoAtual = (float)$retorno->resultado[4];
+                    }
+                    $dado[$item] = $saldoAtual;
                 }
-                $dado[$item] = $saldoAtual;
             }
 
         }

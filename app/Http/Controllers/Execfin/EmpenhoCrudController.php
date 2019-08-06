@@ -484,7 +484,7 @@ class EmpenhoCrudController extends CrudController
                 $mes,
                 $user);
 
-//            dd($retorno);
+            dd($retorno);
 
             if ($retorno->resultado[0] == 'SUCESSO') {
                 if (isset($retorno->resultado[4])) {
