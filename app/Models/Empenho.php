@@ -208,6 +208,11 @@ class Empenho extends Model
         return $this->belongsTo(Naturezadespesa::class, 'naturezadespesa_id');
     }
 
+    public function planointerno()
+    {
+        return $this->belongsTo(Planointerno::class, 'planointerno_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

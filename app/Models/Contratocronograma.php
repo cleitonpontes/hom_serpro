@@ -331,6 +331,16 @@ class Contratocronograma extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function contrato()
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
+    public function contratohistorico()
+    {
+        return $this->belongsTo(Contratohistorico::class, 'contratohistorico_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
