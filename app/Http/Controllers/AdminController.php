@@ -300,4 +300,11 @@ class AdminController extends Controller
         $notificacao->update(['read_at' => now()]);
         return view('backpack::mensagem',['notificacao' => $notificacao]);
     }
+
+    public function phpInfo(){
+
+        phpinfo();
+
+    }
+
 }
