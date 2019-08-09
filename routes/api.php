@@ -29,10 +29,13 @@ Route::group([
         Route::get('/{contrato_id}/historico', 'ContratoController@historicoPorContratoId');
         Route::get('/{contrato_id}/empenhos', 'ContratoController@empenhosPorContratoId');
         Route::get('/{contrato_id}/cronograma', 'ContratoController@cronogramaPorContratoId');
-
     });
 
-
+    Route::group([
+        'prefix' => 'empenho',
+    ], function (){
+        Route::get('/ano/{ano}/ug/{unidade}', 'EmpenhoController@empenhosPorAnoUg');
+    });
 
 
 });

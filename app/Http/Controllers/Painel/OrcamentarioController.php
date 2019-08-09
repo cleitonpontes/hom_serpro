@@ -73,31 +73,30 @@ class OrcamentarioController extends Controller
         $html->addColumn([
             'data' => 'nome',
             'name' => 'nome',
-            'title' => 'Unidade Gestora'
+            'title' => 'Unidade Gestora',
         ]);
         $html->addColumn([
             'data' => 'empenhado',
             'name' => 'empenhado',
-            'title' => 'Empenhado'
+            'title' => 'Empenhado',
         ]);
         $html->addColumn([
             'data' => 'aliquidar',
             'name' => 'aliquidar',
-            'title' => 'A Liquidar'
+            'title' => 'A Liquidar',
         ]);
         $html->addColumn([
             'data' => 'liquidado',
             'name' => 'liquidado',
-            'title' => 'Liquidado'
+            'title' => 'Liquidado',
         ]);
         $html->addColumn([
             'data' => 'pago',
             'name' => 'pago',
-            'title' => 'Pago'
+            'title' => 'Pago',
         ]);
 
         $html->parameters([
-
             'processing' => true,
             'serverSide' => true,
             'responsive' => true,
@@ -109,14 +108,11 @@ class OrcamentarioController extends Controller
             'language' => [
                 'url' => asset('/json/pt_br.json')
             ],
-//            'dom'          => 'Bfrtip',
-//            'buttons'      => ['export', 'print'],
 
         ]);
 
         return $html;
     }
-
 
 
     private function retornaDadosEmpenhosOutrasDespesasCorrentesArray()
