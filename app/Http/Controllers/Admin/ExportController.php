@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Painel\OrcamentarioController;
 use App\Models\Apropriacao;
 //use App\Models\Permission;
 //use App\Models\Role;
 //use App\Models\Unidade;
+use App\Models\Empenho;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -89,6 +91,33 @@ class ExportController extends Controller
         $data = $apropriacao->toArray();
         
         return Excel::create('apropriacao', function ($excel) use ($data) {
+            $excel->sheet('lista', function ($sheet) use ($data) {
+                $sheet->fromArray($data);
+            });
+        })->export($type);
+    }
+
+
+    public function downloadExecucaoPorEmpenho(Request $request, $type)
+    {
+
+        $modelo = new Empenho();
+        $dados = $modelo->retornaDadosEmpenhosGroupUgArray();
+        $totais = $modelo->retornaDadosEmpenhosSumArray();
+
+        $totais_linha = [];
+        foreach ($totais as $total){
+            $totais_linha[] = [
+                'nome' => 'Total',
+                'empenhado' => $total['empenhado'],
+                'aliquidar' => $total['aliquidar'],
+                'liquidado' => $total['liquidado'],
+                'pago' => $total['pago'],
+            ];
+        }
+        $data = array_merge($dados,$totais_linha);
+
+        return Excel::create('ExecucaoPorEmpenho', function ($excel) use ($data) {
             $excel->sheet('lista', function ($sheet) use ($data) {
                 $sheet->fromArray($data);
             });

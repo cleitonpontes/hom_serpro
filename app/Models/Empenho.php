@@ -188,6 +188,53 @@ class Empenho extends Model
         return $dados;
     }
 
+    public function retornaDadosEmpenhosGroupUgArray()
+    {
+        $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
+            $q->where('situacao', '=', true);
+        });
+//        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
+//            $q->where('codigo', 'LIKE', '33%');
+//        });
+        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
+        $valores_empenhos->orderBy('nome');
+        $valores_empenhos->groupBy('unidades.codigo');
+        $valores_empenhos->groupBy('unidades.nomeresumido');
+        $valores_empenhos->select([
+            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
+            DB::raw('sum(empenhos.empenhado) as empenhado'),
+            DB::raw("sum(empenhos.aliquidar) as aliquidar"),
+            DB::raw("sum(empenhos.liquidado) as liquidado"),
+            DB::raw("sum(empenhos.pago) as pago")
+        ]);
+
+        return $valores_empenhos->get()->toArray();
+
+    }
+
+    public function retornaDadosEmpenhosSumArray()
+    {
+        $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
+            $q->where('situacao', '=', true);
+        });
+//        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
+//            $q->where('codigo', 'LIKE', '33%');
+//        });
+        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
+        $valores_empenhos->select([
+//            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
+            DB::raw('sum(empenhos.empenhado) as empenhado'),
+            DB::raw("sum(empenhos.aliquidar) as aliquidar"),
+            DB::raw("sum(empenhos.liquidado) as liquidado"),
+            DB::raw("sum(empenhos.pago) as pago")
+        ]);
+
+        return $valores_empenhos->get()->toArray();
+
+    }
+
+
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

@@ -34,9 +34,23 @@ class OrcamentarioController extends Controller
     {
         $this->data['title'] = "Painel Orçamentário";//trans('backpack::base.dashboard'); // set the page title
 
-        $dadosEmpenhosOutrasDespesasCorrentes = $this->retornaDadosEmpenhosOutrasDespesasCorrentesArray();
+        $empenhos = new Empenho();
+        $dadosEmpenhosOutrasDespesasCorrentes = $empenhos->retornaDadosEmpenhosGroupUgArray();
         $graficoEmpenhosOutrasDespesasCorrentes = $this->graficoEmpenhosOutrasDespesasCorrentes($dadosEmpenhosOutrasDespesasCorrentes);
 
+        $totais = $empenhos->retornaDadosEmpenhosSumArray();
+        $totais_linha = [];
+        foreach ($totais as $total){
+            $totais_linha[] = [
+                'nome' => 'Total',
+                'empenhado' => $total['empenhado'],
+                'aliquidar' => $total['aliquidar'],
+                'liquidado' => $total['liquidado'],
+                'pago' => $total['pago'],
+            ];
+        }
+
+        $dadosEmpenhosOutrasDespesasCorrentes = array_merge($dadosEmpenhosOutrasDespesasCorrentes,$totais_linha);
 
         //datatables
         if ($request->ajax()) {
@@ -45,24 +59,18 @@ class OrcamentarioController extends Controller
             $grid->editColumn('aliquidar', 'R$ {!! number_format(floatval($aliquidar), 2, ",", ".") !!}');
             $grid->editColumn('liquidado', 'R$ {!! number_format(floatval($liquidado), 2, ",", ".") !!}');
             $grid->editColumn('pago', 'R$ {!! number_format(floatval($pago), 2, ",", ".") !!}');
-            $grid->with([
-                'empenhado' => 0.00,
-                'aliquidar' => 0.00,
-                'liquidado' => 0.00,
-                'pago' => 0.00,
-            ]);
+
             return $grid->make(true);
         }
 
         $html = $this->retornaGrid();
-
 
         return view('backpack::mod.paineis.painelorcamentario',
             [
                 'data' => $this->data,
                 'graficoEmpenhosOutrasDespesasCorrentes' => $graficoEmpenhosOutrasDespesasCorrentes,
                 'dadosEmpenhosOutrasDespesasCorrentes' => $dadosEmpenhosOutrasDespesasCorrentes,
-                'html' => $html
+                'dataTable' => $html
             ]);
     }
 
@@ -79,21 +87,25 @@ class OrcamentarioController extends Controller
             'data' => 'empenhado',
             'name' => 'empenhado',
             'title' => 'Empenhado',
+            'class' => 'text-right'
         ]);
         $html->addColumn([
             'data' => 'aliquidar',
             'name' => 'aliquidar',
             'title' => 'A Liquidar',
+            'class' => 'text-right'
         ]);
         $html->addColumn([
             'data' => 'liquidado',
             'name' => 'liquidado',
             'title' => 'Liquidado',
+            'class' => 'text-right'
         ]);
         $html->addColumn([
             'data' => 'pago',
             'name' => 'pago',
             'title' => 'Pago',
+            'class' => 'text-right'
         ]);
 
         $html->parameters([
@@ -112,57 +124,6 @@ class OrcamentarioController extends Controller
         ]);
 
         return $html;
-    }
-
-
-    private function retornaDadosEmpenhosOutrasDespesasCorrentesArray()
-    {
-
-        $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
-            $q->where('situacao', '=', true);
-        });
-        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
-            $q->where('codigo', 'LIKE', '33%');
-        });
-        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
-        $valores_empenhos->orderBy('nome');
-        $valores_empenhos->groupBy('unidades.codigo');
-        $valores_empenhos->groupBy('unidades.nomeresumido');
-        $valores_empenhos->select([
-            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
-            DB::raw('sum(empenhos.empenhado) as empenhado'),
-            DB::raw("sum(empenhos.aliquidar) as aliquidar"),
-            DB::raw("sum(empenhos.liquidado) as liquidado"),
-            DB::raw("sum(empenhos.pago) as pago")
-        ]);
-
-        return $valores_empenhos->get()->toArray();
-
-    }
-
-    private function retornaDadosEmpenhosOutrasDespesasCorrentes()
-    {
-
-        $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
-            $q->where('situacao', '=', true);
-        });
-        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
-            $q->where('codigo', 'LIKE', '33%');
-        });
-        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
-        $valores_empenhos->orderBy('nome');
-        $valores_empenhos->groupBy('unidades.codigo');
-        $valores_empenhos->groupBy('unidades.nomeresumido');
-        $valores_empenhos->select([
-            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
-            DB::raw('sum(empenhos.empenhado) as empenhado'),
-            DB::raw("sum(empenhos.aliquidar) as aliquidar"),
-            DB::raw("sum(empenhos.liquidado) as liquidado"),
-            DB::raw("sum(empenhos.pago) as pago")
-        ]);
-
-        return $valores_empenhos->get();
-
     }
 
     private function graficoEmpenhosOutrasDespesasCorrentes(array $valores_empenhos)

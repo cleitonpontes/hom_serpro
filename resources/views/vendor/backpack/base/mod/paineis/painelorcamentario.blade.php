@@ -22,7 +22,7 @@
                     <div class="box box-solid">
                         <div class="box-header with-border">
                             <i class="fa fa-bar-chart"></i>
-                            <h3 class="box-title">Execução por Empenho - Outras Despesas Corrente (330000)</h3>
+                            <h3 class="box-title">Execução por Empenho</h3>
 
                             <div class="box-tools pull-right">
                                 {{--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>--}}
@@ -33,8 +33,18 @@
                         <div class="box-body">
                             {!! $graficoEmpenhosOutrasDespesasCorrentes->render() !!}
                             <br><br>
+                            <div class="box-tools">
+                                <div class="btn-group">
+                                    {!! DropdownButton::normal('<i class="fa fa-gear"></i> Exportação')->withContents([
+                                        ['url' => '/admin/downloadexecucaoporempenho/xlsx', 'label' => '<i class="fa fa-file-excel-o"></i> xlsx '],
+                                        ['url' => '/admin/downloadexecucaoporempenho/xls', 'label' => '<i class="fa fa-file-excel-o"></i> xls '],
+                                        ['url' => '/admin/downloadexecucaoporempenho/csv', 'label' => '<i class="fa fa-file-text-o"></i> csv ']
+                                ])->split() !!}
+                                </div>
+                            </div>
+                            <br>
                             <div class="col-sm-12">
-                                {!! $html->table() !!}
+                                {!! $dataTable->table() !!}
                             </div>
                         </div>
                         <!-- /.box-body -->
@@ -73,7 +83,7 @@
 @endsection
 @push('after_scripts')
 
-    {!! $html->scripts() !!}
+    {!! $dataTable->scripts() !!}
 
 @endpush
 

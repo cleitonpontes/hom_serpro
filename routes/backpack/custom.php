@@ -76,9 +76,11 @@ Route::group([
             CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
             CRUD::resource('comunica', 'ComunicaCrudController');
 
-            // Download apropriação
+            // Exporatções
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
                 ->name('apropriacao.download');
+            Route::get('downloadexecucaoporempenho/{type}', 'ExportController@downloadExecucaoPorEmpenho')
+                ->name('execucaoporempenho.download');
 
             Route::group(['prefix' => 'codigo/{codigo_id}'], function () {
                 CRUD::resource('codigoitem', 'CodigoitemCrudController');
