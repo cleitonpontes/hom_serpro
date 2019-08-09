@@ -22,7 +22,7 @@
                     <div class="box box-solid">
                         <div class="box-header with-border">
                             <i class="fa fa-bar-chart"></i>
-                            <h3 class="box-title">Execução por Empenho</h3>
+                            <h3 class="box-title">Execução por Empenho - Outras Despesas Corrente (330000)</h3>
 
                             <div class="box-tools pull-right">
                                 {{--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>--}}

@@ -193,9 +193,9 @@ class Empenho extends Model
         $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
             $q->where('situacao', '=', true);
         });
-//        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
-//            $q->where('codigo', 'LIKE', '33%');
-//        });
+        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
+            $q->where('codigo', 'LIKE', '33%');
+        });
         $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
         $valores_empenhos->orderBy('nome');
         $valores_empenhos->groupBy('unidades.codigo');
@@ -217,9 +217,9 @@ class Empenho extends Model
         $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
             $q->where('situacao', '=', true);
         });
-//        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
-//            $q->where('codigo', 'LIKE', '33%');
-//        });
+        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
+            $q->where('codigo', 'LIKE', '33%');
+        });
         $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
         $valores_empenhos->select([
 //            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
