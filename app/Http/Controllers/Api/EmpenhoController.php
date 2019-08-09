@@ -48,7 +48,7 @@ class EmpenhoController extends Controller
         foreach ($empenhos as $empenho) {
             $empenhos_array[] = [
                 'numero' => $empenho->numero,
-                'unidade' => $empenho->unidade->codigo,
+                'unidade' => $empenho->unidade->codigo . ' - ' . $empenho->unidade->nomeresumido,
                 'fornecedor' => $empenho->fornecedor->cpf_cnpj_idgener . ' - ' . $empenho->fornecedor->nome,
                 'naturezadespesa' => $empenho->naturezadespesa->codigo . ' - ' . $empenho->naturezadespesa->descricao,
                 'empenhado' => number_format($empenho->empenhado, 2, ',', '.'),
