@@ -90,7 +90,7 @@ class ExportController extends Controller
         
         $data = $apropriacao->toArray();
         
-        return Excel::create('apropriacao', function ($excel) use ($data) {
+        return Excel::create('apropriacao_'. date('YmdHis'), function ($excel) use ($data) {
             $excel->sheet('lista', function ($sheet) use ($data) {
                 $sheet->fromArray($data);
             });
@@ -117,7 +117,7 @@ class ExportController extends Controller
         }
         $data = array_merge($dados,$totais_linha);
 
-        return Excel::create('ExecucaoPorEmpenho', function ($excel) use ($data) {
+        return Excel::create('ExecucaoPorEmpenho_'. date('YmdHis'), function ($excel) use ($data) {
             $excel->sheet('lista', function ($sheet) use ($data) {
                 $sheet->fromArray($data);
             });
