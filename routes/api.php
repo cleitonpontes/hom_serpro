@@ -35,6 +35,7 @@ Route::group([
         'prefix' => 'empenho',
     ], function (){
         Route::get('/ano/{ano}/ug/{unidade}', 'EmpenhoController@empenhosPorAnoUg');
+        Route::get('/ug/{unidade}', 'EmpenhoController@empenhosPorUg');
     });
 
 
