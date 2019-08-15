@@ -334,6 +334,9 @@ class InstrumentoinicialCrudController extends CrudController
                 'label' => "Tipo",
                 'type' => 'select2_from_array',
                 'options' => $tipos,
+                'attributes' => [
+                    'id' => 'tipo_contrato',
+                ],
                 'allows_null' => true,
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
@@ -445,7 +448,7 @@ class InstrumentoinicialCrudController extends CrudController
             [
                 'name' => 'licitacao_numero',
                 'label' => 'Número Licitação',
-                'type' => 'numcontrato',
+                'type' => 'numlicitacao',
                 'tab' => 'Dados Contrato',
             ],
             [   // Date
