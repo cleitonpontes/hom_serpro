@@ -144,6 +144,7 @@ class ContratoCrudController extends CrudController
                 'label' => 'Tipo', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getTipo', // the method in your Model
+
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -315,6 +316,9 @@ class ContratoCrudController extends CrudController
                 'label' => "Tipo",
                 'type' => 'select2_from_array',
                 'options' => $tipos,
+                'attributes' => [
+                    'id' => 'tipo_contrato',
+                ],
                 'allows_null' => true,
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
