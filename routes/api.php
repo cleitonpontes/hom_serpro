@@ -38,5 +38,11 @@ Route::group([
         Route::get('/ug/{unidade}', 'EmpenhoController@empenhosPorUg');
     });
 
+    Route::group([
+        'prefix' => 'cronograma',
+    ], function (){
+        Route::get('/ug/{unidade}', 'ContratocronogramaController@cronogramaPorUg');
+    });
+
 
 });

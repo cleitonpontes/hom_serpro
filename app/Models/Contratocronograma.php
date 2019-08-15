@@ -176,7 +176,7 @@ class Contratocronograma extends Model
                     'mesref' => $ret_mesref_de,
                     'anoref' => $ret_anoref_de,
                     'vencimento' => $contratohistorico->retroativo_vencimento,
-                    'valor' => number_format($contratohistorico->retroativo_valor,2,'.',''),
+                    'valor' => number_format($contratohistorico->retroativo_valor, 2, '.', ''),
                     'retroativo' => true,
                 ];
             } else {
@@ -189,7 +189,7 @@ class Contratocronograma extends Model
                     $meses = $intervalo->m + 1;
                 }
 
-                $valor_ret = number_format($contratohistorico->retroativo_valor / $meses, 2,'.','');
+                $valor_ret = number_format($contratohistorico->retroativo_valor / $meses, 2, '.', '');
 
                 for ($j = 1; $j <= $meses; $j++) {
                     $dtformat = $ret_anoref_de . '-' . $ret_mesref_de . '-01';
@@ -208,7 +208,7 @@ class Contratocronograma extends Model
                         'mesref' => date('m', strtotime($ref1)),
                         'anoref' => date('Y', strtotime($ref1)),
                         'vencimento' => $contratohistorico->retroativo_vencimento,
-                        'valor' => number_format($valor_ret,2,'.',''),
+                        'valor' => number_format($valor_ret, 2, '.', ''),
                         'retroativo' => true,
                     ];
 
@@ -309,6 +309,34 @@ class Contratocronograma extends Model
 
     }
 
+    public function buscaCronogramasPorUg(int $ug)
+    {
+        $cronogramas = $this->whereHas('contrato', function ($contrato) use ($ug) {
+            $contrato->whereHas('unidade', function ($unidade) use ($ug){
+               $unidade->where('codigo',$ug);
+            });
+        });
+
+        $cronogramas->leftjoin('contratos', 'contratos.id', '=', 'contratocronograma.contrato_id');
+        $cronogramas->leftjoin('unidades', 'unidades.id', '=', 'contratos.unidade_id');
+
+        $cronogramas->orderBy('unidade');
+        $cronogramas->orderBy('anoref');
+        $cronogramas->orderBy('mesref');
+
+        $cronogramas->groupBy('unidade');
+        $cronogramas->groupBy('mesref');
+        $cronogramas->groupBy('anoref');
+
+        $cronogramas->select([
+            DB::raw('unidades.codigo || \' - \' || unidades.nomeresumido AS unidade'),
+            DB::raw('contratocronograma.mesref || \'/\' || contratocronograma.anoref  AS mesref'),
+            DB::raw('sum(valor) AS valor'),
+        ]);
+
+        return $cronogramas->get()->toArray();
+    }
+
     /**
      * @return string
      */
@@ -325,6 +353,7 @@ class Contratocronograma extends Model
     {
         return 'R$ ' . number_format($this->valor, 2, ',', '.');
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
