@@ -430,7 +430,7 @@ class ContratoCrudController extends CrudController
             [
                 'name' => 'licitacao_numero',
                 'label' => 'Número Licitação',
-                'type' => 'numcontrato',
+                'type' => 'numlicitacao',
                 'tab' => 'Dados Contrato',
             ],
             [   // Date
