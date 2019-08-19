@@ -31,6 +31,8 @@ class UsuarioUnidadeRequest extends FormRequest
             'cpf' => "required|cpf|unique:users,cpf,{$id}",
             'name' => 'required|max:255',
             'email' => "required|email|max:255|unique:users,email,{$id}",
+            'ugprimaria' => "required",
+            'roles' => "required",
         ];
     }
 
