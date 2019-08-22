@@ -112,10 +112,17 @@ class ProcessaCatmatseratualizacaoJob implements ShouldQueue
 
 
             }
+
+            $this->catmatseratualizacao->situacao = 'L';
+            $this->catmatseratualizacao->save();
+
+        }else{
+
+            $this->catmatseratualizacao->situacao = 'E';
+            $this->catmatseratualizacao->save();
+
         }
 
-        $this->catmatseratualizacao->situacao = 'L';
-        $this->catmatseratualizacao->save();
 
     }
 }

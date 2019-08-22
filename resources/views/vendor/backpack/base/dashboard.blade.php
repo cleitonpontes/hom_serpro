@@ -27,6 +27,7 @@
                 <div class="icon">
                     <i class="ion ion-ios-cloud-download"></i>
                 </div>
+
                 <a href="#" class="small-box-footer">Inserir agora <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
