@@ -112,6 +112,11 @@ class Contratocronograma extends Model
                 $t = $interval->m;
             }
 
+            if($interval->d > 0)
+            {
+                $t = $t + 1;
+            }
+
         } else {
             $data = date_create($contratohistorico->vigencia_inicio);
             $t = $contratohistorico->num_parcelas;

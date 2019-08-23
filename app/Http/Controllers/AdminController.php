@@ -108,8 +108,26 @@ class AdminController extends Controller
                 ]
             ]);
 
+        $dados_contratos = [];
+        if(session()->get('user_ug_id')){
+            $contratos = new Contrato();
+            $dados_contratos['novos']  = $contratos->buscaContratosNovosPorUg(session()->get('user_ug_id'));
+            $dados_contratos['atualizados']  = $contratos->buscaContratosAtualizadosPorUg(session()->get('user_ug_id'));
+            $dados_contratos['vencidos']  = $contratos->buscaContratosVencidosPorUg(session()->get('user_ug_id'));
 
-        return view('backpack::dashboard', ['calendar' => $calendar, 'data' => $this->data, 'chartjs' => $chartjs]);
+        }else{
+            $dados_contratos['novos'] = '0';
+            $dados_contratos['atualizados'] = '0';
+            $dados_contratos['vencidos'] = '0';
+        }
+
+
+        return view('backpack::dashboard', [
+            'calendar' => $calendar,
+            'data' => $this->data,
+            'chartjs' => $chartjs,
+            'html' => $dados_contratos
+        ]);
     }
 
 

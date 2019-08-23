@@ -61,6 +61,37 @@ class Contrato extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function buscaContratosNovosPorUg(int $unidade_id)
+    {
+        $data = date('Y-m-d H:i:s', strtotime('-5 days'));
+        $contratos = $this->where('unidade_id',$unidade_id)
+            ->where('created_at','>=',$data)
+            ->get();
+
+        return $contratos->count();
+    }
+
+    public function buscaContratosAtualizadosPorUg(int $unidade_id)
+    {
+        $data = date('Y-m-d H:i:s', strtotime('-5 days'));
+        $contratos = $this->where('unidade_id',$unidade_id)
+            ->where('updated_at','>=',$data)
+            ->get();
+
+        return $contratos->count();
+    }
+
+    public function buscaContratosVencidosPorUg(int $unidade_id)
+    {
+        $data = date('Y-m-d');
+        $contratos = $this->where('unidade_id',$unidade_id)
+            ->where('vigencia_fim','<',$data)
+            ->where('situacao',true)
+            ->get();
+
+        return $contratos->count();
+    }
+
     public function atualizaContratoFromHistorico(string $contrato_id, array $array)
     {
         $this->where('id', '=', $contrato_id)

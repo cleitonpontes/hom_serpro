@@ -20,15 +20,14 @@
             <!-- small box -->
             <div class="small-box bg-aqua">
                 <div class="inner">
-                    <h3>07</h3>
+                    <h3>{{$html['novos']}}</h3>
 
-                    <p>Novos Contratos no SIASG</p>
+                    <p>Novos Contratos inseridos</p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-cloud-download"></i>
                 </div>
-
-                <a href="#" class="small-box-footer">Inserir agora <i
+                <a href="/gescon/contrato" class="small-box-footer">Ver contratos <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
@@ -37,14 +36,14 @@
             <!-- small box -->
             <div class="small-box bg-green">
                 <div class="inner">
-                    <h3>05</h3>
+                    <h3>{{$html['atualizados']}}</h3>
 
-                    <p>Contratos Atualizados no SIASG</p>
+                    <p>Contratos Atualizados</p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-refresh"></i>
                 </div>
-                <a href="#" class="small-box-footer">Atualizar agora <i
+                <a href="/gescon/contrato" class="small-box-footer">Ver contratos <i
                         class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
@@ -53,14 +52,15 @@
             <!-- small box -->
             <div class="small-box bg-red">
                 <div class="inner">
-                    <h3>03</h3>
+                    <h3>{{$html['vencidos']}}</h3>
 
                     <p>Contratos vencidos</p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-close"></i>
                 </div>
-                <a href="#" class="small-box-footer">Solucionar <i class="fa fa-arrow-circle-right"></i></a>
+                <a href="/gescon/contrato" class="small-box-footer">Ver contratos <i
+                        class="fa fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->

@@ -44,6 +44,7 @@ class ApostilamentoRequest extends FormRequest
             'data_assinatura' => 'required|date',
             'data_inicio_novo_valor' => 'required|date|after_or_equal:data_assinatura',
             'novo_valor_parcela' => 'required',
+            'novo_valor_global' => 'required',
             'observacao' => 'required',
             'retroativo' => 'required',
             'retroativo_mesref_de' => 'required_if:retroativo,==,1',

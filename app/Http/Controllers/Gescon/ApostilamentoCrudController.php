@@ -24,9 +24,9 @@ class ApostilamentoCrudController extends CrudController
     {
         $contrato_id = \Route::current()->parameter('contrato_id');
 
-        $contrato = Contrato::where('id','=',$contrato_id)
-            ->where('unidade_id','=',session()->get('user_ug_id'))->first();
-        if(!$contrato){
+        $contrato = Contrato::where('id', '=', $contrato_id)
+            ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
+        if (!$contrato) {
             abort('403', config('app.erro_permissao'));
         }
 
@@ -44,14 +44,14 @@ class ApostilamentoCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Contratohistorico');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/apostilamentos');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/apostilamentos');
         $this->crud->setEntityNameStrings('Termo de Apostilamento', 'Termos de Apostilamentos');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratohistorico.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratohistorico.unidade_id');
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratohistorico.*');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
-        foreach ($tps as $t){
+        foreach ($tps as $t) {
             $this->crud->addClause('where', 'tipo_id', '=', $t);
         }
 
@@ -325,6 +325,19 @@ class ApostilamentoCrudController extends CrudController
                 'tab' => 'Dados Apostilamento',
                 // 'suffix' => ".00",
             ],
+            [   // Number
+                'name' => 'novo_valor_global',
+                'label' => 'Novo Valor Global',
+                'type' => 'money',
+                // optionals
+                'attributes' => [
+                    'id' => 'novo_valor_global',
+                ], // allow decimals
+                'prefix' => "R$",
+                'default' => number_format($contrato->valor_global, 2, ',', '.'),
+                'tab' => 'Dados Apostilamento',
+                // 'suffix' => ".00",
+            ],
 
 
             [ // select_from_array
@@ -332,8 +345,8 @@ class ApostilamentoCrudController extends CrudController
                 'label' => "Retroativo?",
                 'type' => 'radio',
                 'options' => [0 => 'Não', 1 => 'Sim'],
-                'default'    => 0,
-                'inline'      => true,
+                'default' => 0,
+                'inline' => true,
                 'tab' => 'Retroativo',
             ],
             [ // select_from_array
@@ -396,14 +409,14 @@ class ApostilamentoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        $novo_valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_parcela')));
-        $request->request->set('novo_valor_parcela', number_format(floatval($novo_valor_parcela), 2, '.', ''));
-        $request->request->set('valor_parcela', number_format(floatval($novo_valor_parcela), 2, '.', ''));
+        $novo_valor_parcela = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_parcela'))));
+        $request->request->set('novo_valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
+        $request->request->set('valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
 
-        $num_parcelas = $request->input('novo_num_parcelas');
-        $request->request->set('num_parcelas', $num_parcelas);
+        $novo_num_parcelas = $request->input('novo_num_parcelas');
+        $request->request->set('num_parcelas', $novo_num_parcelas);
 
-        $novo_valor_global = $novo_valor_parcela * $num_parcelas;
+        $novo_valor_global = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_global'))));
         $request->request->set('novo_valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
         $request->request->set('valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($novo_valor_global), 2, '.', ''));
@@ -419,16 +432,17 @@ class ApostilamentoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $novo_valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_parcela')));
-        $request->request->set('novo_valor_parcela', number_format(floatval($novo_valor_parcela), 2, '.', ''));
-        $request->request->set('valor_parcela', number_format(floatval($novo_valor_parcela), 2, '.', ''));
+        $novo_valor_parcela = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_parcela'))));
+        $request->request->set('novo_valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
+        $request->request->set('valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
 
-        $num_parcelas = $request->input('novo_num_parcelas');
-        $request->request->set('num_parcelas', $num_parcelas);
+        $novo_num_parcelas = $request->input('novo_num_parcelas');
+        $request->request->set('num_parcelas', $novo_num_parcelas);
 
-        $novo_valor_global = $novo_valor_parcela * $num_parcelas;
+        $novo_valor_global = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_global'))));
         $request->request->set('novo_valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
         $request->request->set('valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
+        $request->request->set('valor_inicial', number_format(floatval($novo_valor_global), 2, '.', ''));
 
         $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
         $request->request->set('retroativo_valor', number_format(floatval($retroativo_valor), 2, '.', ''));
@@ -477,4 +491,5 @@ class ApostilamentoCrudController extends CrudController
 
         return $content;
     }
+
 }
