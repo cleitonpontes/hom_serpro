@@ -190,7 +190,13 @@ class Empenho extends Model
 
     public function retornaDadosEmpenhosGroupUgArray()
     {
-        $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
+
+        $unidade = Unidade::find(session()->get('user_ug_id'));
+
+        $valores_empenhos = Empenho::whereHas('unidade', function ($q) use ($unidade) {
+            $q->whereHas('orgao', function ($o) use ($unidade){
+               $o->where('id',$unidade->orgao_id);
+            });
             $q->where('situacao', '=', true);
         });
         $valores_empenhos->whereHas('naturezadespesa', function ($q) {
