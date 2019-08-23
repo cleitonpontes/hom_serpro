@@ -314,7 +314,7 @@ class AdminController extends Controller
 
     public function phpInfo(){
 
-        phpinfo();
+//        phpinfo();
 
     }
 

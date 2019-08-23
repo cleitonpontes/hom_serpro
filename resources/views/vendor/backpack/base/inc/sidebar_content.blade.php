@@ -24,8 +24,8 @@
             <a href="#"><i class='fa fa-edit'></i> <span>Apropriação</span> <i
                     class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-                <li><a href="{{ backpack_url('/fatura/apropriacao') }}"><i class="fa fa-money"></i>
-                        <span>Fatura</span></a></li>
+{{--                <li><a href="{{ backpack_url('/fatura/apropriacao') }}"><i class="fa fa-money"></i>--}}
+                        {{--<span>Fatura</span></a></li>--}}
                 <li><a href="{{ backpack_url('/folha/apropriacao') }}"><i class="fa fa-money"></i>
                         <span>Folha</span></a></li>
             </ul>

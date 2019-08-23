@@ -47,7 +47,7 @@ Route::group([
         Route::get('/mensagens', 'AdminController@listaMensagens');
         Route::get('/mensagem/{id}', 'AdminController@lerMensagem');
 
-        Route::get('/admin/phpinfo', 'AdminController@phpInfo');
+//        Route::get('/admin/phpinfo', 'AdminController@phpInfo');
 
 
         Route::group([
