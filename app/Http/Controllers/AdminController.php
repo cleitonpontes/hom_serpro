@@ -99,13 +99,6 @@ class AdminController extends Controller
                     'borderColor' => $colors,
                     'data' => $contrato,
                 ]
-            ])
-            ->options([
-                'plugins' => [
-                    'colorschemes' => [
-                        'scheme' => 'brewer.PiYG6',
-                    ]
-                ]
             ]);
 
         $dados_contratos = [];
