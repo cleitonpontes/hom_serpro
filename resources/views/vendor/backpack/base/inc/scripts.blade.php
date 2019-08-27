@@ -50,8 +50,31 @@
         v = z.value.toUpperCase();
         z.value = v;
     }
-</script>
 
+    function mascaraCNPJ(element) {
+        $(element).mask("99.999.999/9999-99");
+    }
+
+    function mascaraCPF(element) {
+        $(element).mask("999.999.999-99");
+    }
+
+    function mascaraUG(element) {
+        $(element).mask("999999");
+    }
+
+    function mascaraIDGener(element) {
+        $(element).mask("*********");
+    }
+
+    function mascaraEmpenho(element) {
+        $(element).mask("9999NE999999");
+    }
+
+    function mascaraContrato(element) {
+        $(element).mask("9999/9999");
+    }
+</script>
 
 
 <script type="text/javascript">

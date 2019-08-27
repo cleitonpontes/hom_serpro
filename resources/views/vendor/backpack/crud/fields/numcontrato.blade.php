@@ -46,14 +46,6 @@
 
         });
 
-        function mascaraEmpenho(element) {
-            $(element).mask("9999NE999999");
-        }
-
-        function mascaraContrato(element) {
-            $(element).mask("9999/9999");
-        }
-
     </script>
 @endpush
 

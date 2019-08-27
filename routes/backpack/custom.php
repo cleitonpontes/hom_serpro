@@ -136,5 +136,12 @@ Route::group([
             });
         });
 
+        Route::group([
+            'prefix' => 'relatorio',
+            'namespace' => 'Relatorio',
+        ], function () {
+            Route::get('listacontrato', 'RelContratoController@index')->name('relatorio.listacontrato');
+        });
+
     });
 });

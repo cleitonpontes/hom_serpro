@@ -39,7 +39,7 @@ class MigracaoempenhoJob implements ShouldQueue
     public function handle()
     {
 
-        $unidades = Unidade::where('tipo', 'E')
+        $unidades = Unidade::where('id', session()->get('user_ug_id'))
             ->get();
 
         $ano = date('Y');

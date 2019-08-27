@@ -63,22 +63,6 @@
                 mascaraIDGener('#{{ $field['name'] }}');
             }
         });
-
-        function mascaraCNPJ(element) {
-            $(element).mask("99.999.999/9999-99");
-        }
-
-        function mascaraCPF(element) {
-            $(element).mask("999.999.999-99");
-        }
-
-        function mascaraUG(element) {
-            $(element).mask("999999");
-        }
-
-        function mascaraIDGener(element) {
-            $(element).mask("*********");
-        }
     </script>
 @endpush
 

@@ -3,10 +3,11 @@
 @section('header')
     <section class="content-header">
         <h1>
-            {{ $data['title'] }}
+            Relatório - {{ $data['title'] }}
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>
+            <li>Relatórios</li>
             <li class="active">{{ $data['title'] }}</li>
         </ol>
     </section>
@@ -16,13 +17,12 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-
             <div class="row">
-                <section class="col-lg-7 connectedSortable ui-sortable">
-                    <div class="box box-solid">
+                <section class="col-lg-12 connectedSortable ui-sortable">
+                    <div class="box box-solid box-primary">
                         <div class="box-header with-border">
-                            <i class="fa fa-bar-chart"></i>
-                            <h3 class="box-title">Execução por Empenho - Outras Despesas Corrente (330000)</h3>
+                            <i class="fa fa-search"></i>
+                            <h3 class="box-title">Filtro - {{ $data['title'] }}</h3>
 
                             <div class="box-tools pull-right">
                                 {{--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>--}}
@@ -31,8 +31,37 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            {!! $graficoEmpenhosOutrasDespesasCorrentes->render() !!}
-                            <br><br>
+                            <fieldset class="form-group">
+                                {!! form_start($form) !!}
+                                <div class="col-md-6">
+                                    {!! form_row($form->tipo_contrato) !!}
+                                </div>
+                                <div class="col-md-6">
+                                    {!! form_row($form->numero) !!}
+                                </div>
+                                <div class="col-md-12">
+                                    {!! form_end($form) !!}
+                                </div>
+                            </fieldset>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
+            <div class="row">
+                <section class="col-lg-12 connectedSortable ui-sortable">
+                    <div class="box box-solid box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-table"></i>
+                            <h3 class="box-title">Dados - {{ $data['title'] }}</h3>
+
+                            <div class="box-tools pull-right">
+                                {{--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>--}}
+                                {{--</button>--}}
+                                {{--<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>--}}
+                            </div>
+                        </div>
+                        <div class="box-body">
                             <div class="box-tools">
                                 <div class="btn-group">
                                     {!! DropdownButton::normal('<i class="fa fa-gear"></i> Exportação')->withContents([
@@ -45,32 +74,6 @@
                             <br>
                             <div class="col-sm-12">
                                 {!! $dataTable->table() !!}
-                            </div>
-                        </div>
-                        <!-- /.box-body -->
-                    </div>
-                </section>
-                <section class="col-lg-5 connectedSortable ui-sortable">
-                    <div class="box box-solid">
-                        <div class="box-header ui-sortable-handle with-border" style="cursor: move;">
-                            <i class="fa fa-calendar"></i>
-
-                            <h3 class="box-title">Calendário</h3>
-                            <!-- tools box -->
-                            <div class="pull-right box-tools">
-                                <!-- button with a dropdown -->
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i
-                                        class="fa fa-times"></i></button>
-                            </div>
-                            <!-- /. tools -->
-                        </div>
-                        <!-- /.box-header -->
-                        <div class="box-body no-padding">
-                            <div class="col-sm-12">
-
                             </div>
                         </div>
                         <!-- /.box-body -->
