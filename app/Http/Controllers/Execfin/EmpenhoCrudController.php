@@ -398,7 +398,9 @@ class EmpenhoCrudController extends CrudController
 
     public function atualizaSaldosEmpenhos()
     {
-        $empenhos = Empenho::all();
+        $empenhos = Empenho::where('unidade_id', session()->get('user_ug_id'))
+            ->get();
+
         $amb = 'PROD';
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
         $ano = date('Y'); //$registro['ano'];
@@ -434,7 +436,7 @@ class EmpenhoCrudController extends CrudController
                     $empenhodetalhe,
                     $contas_contabeis,
                     backpack_user()
-                    )->onQueue('atualizasaldone');
+                )->onQueue('atualizasaldone');
 
 //                $this->teste($ug,
 //                    $amb,
@@ -494,7 +496,6 @@ class EmpenhoCrudController extends CrudController
             }
 
         }
-
 
 
         $empenhodetalhado->fill($dado);
