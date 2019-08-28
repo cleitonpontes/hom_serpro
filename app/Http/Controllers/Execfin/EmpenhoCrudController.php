@@ -11,6 +11,7 @@ use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
 use App\Models\Unidade;
+use App\STA\ConsultaApiSta;
 use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -473,30 +474,49 @@ class EmpenhoCrudController extends CrudController
             $contacontabil1 = $valor;
             $saldoAtual = 0;
 
-            $execsiafi = new Execsiafi();
+            $unidade = Unidade::where('codigo', $ug)
+                ->first();
+            $gestao = $unidade->gestao;
 
+            $saldocontabilSta = new ConsultaApiSta();
             $retorno = null;
-            $retorno = $execsiafi->conrazaoUser(
+            $retorno = $saldocontabilSta->saldocontabilUgGestaoContacontabilContacorrente(
                 $ug,
-                $amb,
-                $ano,
-                $ug,
+                $gestao,
                 $contacontabil1,
-                $contacorrente,
-                $mes,
-                $user);
+                $contacorrente);
 
-            dd($retorno);
-
-            if ($retorno->resultado[0] == 'SUCESSO') {
-                if (isset($retorno->resultado[4])) {
-                    $saldoAtual = (float)$retorno->resultado[4];
-                }
+            if ($retorno!=null) {
+                $saldoAtual = $retorno['saldo'];
+                $dado[$item] = $saldoAtual;
+            } else {
                 $dado[$item] = $saldoAtual;
             }
 
-        }
 
+//            $execsiafi = new Execsiafi();
+//
+//            $retorno = null;
+//            $retorno = $execsiafi->conrazaoUser(
+//                $ug,
+//                $amb,
+//                $ano,
+//                $ug,
+//                $contacontabil1,
+//                $contacorrente,
+//                $mes,
+//                $user);
+
+
+
+//            if ($retorno->resultado[0] == 'SUCESSO') {
+//                if (isset($retorno->resultado[4])) {
+//                    $saldoAtual = (float)$retorno->resultado[4];
+//                }
+//                $dado[$item] = $saldoAtual;
+//            }
+
+        }
 
         $empenhodetalhado->fill($dado);
         $empenhodetalhado->push();
