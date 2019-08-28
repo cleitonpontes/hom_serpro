@@ -174,8 +174,8 @@ class ContratoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
+                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%".strtoupper($searchTerm)."%");
+                    $query->orWhere('fornecedores.nome', 'like', "%".strtoupper($searchTerm)."%");
                 },
             ],
             [

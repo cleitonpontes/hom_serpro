@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Gescon;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 
@@ -121,8 +122,8 @@ class MeucontratoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
+                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%".strtoupper($searchTerm)."%");
+                    $query->orWhere('fornecedores.nome', 'like', "%".strtoupper($searchTerm)."%");
                 },
             ],
             [
