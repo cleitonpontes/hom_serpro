@@ -32,7 +32,7 @@ class Activitylog extends Model
     {
         if($this->causer_id){
             $user = BackpackUser::find($this->causer_id);
-            if($user->cpf and $user->name){
+            if(isset($user->cpf) and isset($user->name)){
                 return $user->cpf . ' - ' . $user->name;
             }else{
                 return '';
