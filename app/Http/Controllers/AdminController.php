@@ -72,7 +72,9 @@ class AdminController extends Controller
             ->join('contratos', function ($join) {
                 $join->on('codigoitens.id', '=', 'contratos.categoria_id');
             })
+            ->where('contratos.unidade_id',session()->get('user_ug_id'))
             ->orderBy('codigo_id', 'asc')->pluck('descricao')->toArray();
+
 
         $cat = array_unique($categoria_contrato);
 
@@ -84,6 +86,7 @@ class AdminController extends Controller
         $contrato = DB::table('contratos')
             ->select(DB::raw('categoria_id, count(categoria_id)'))
             ->where('situacao', '=', true)
+            ->where('unidade_id',session()->get('user_ug_id'))
             ->orderBy('categoria_id', 'asc')
             ->groupBy('categoria_id')
             ->pluck('count')->toArray();
