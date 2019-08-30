@@ -85,11 +85,5 @@ class Kernel extends HttpKernel
         \Illuminate\Auth\Middleware\Authorize::class,
     ];
 
-    protected function schedule(Schedule $schedule)
-    {
-        $schedule->job(new MigracaoempenhoJob)->everyMinute();
-        $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@atualizaSaldosEmpenhos')->dailyAt('08:50');
-
-    }
 
 }
