@@ -38,7 +38,6 @@ class MigracaoempenhoJob implements ShouldQueue
      */
     public function handle()
     {
-
         $unidades = Unidade::where('tipo', 'E')
             ->where('situacao', true)
             ->get();
@@ -97,9 +96,67 @@ class MigracaoempenhoJob implements ShouldQueue
                 }
 
             }
+            //dispara atualização de saldo do empenho por aqui.
+//            $retorno = $this->atualizaSaldosEmpenhos($unidade->id);
 
         }
 
+    }
+
+    public function atualizaSaldosEmpenhos()
+    {
+        $empenhos = Empenho::where('id', $unidade_id)
+            ->get();
+
+        $amb = 'PROD';
+        $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
+        $ano = date('Y'); //$registro['ano'];
+        $mes = $meses[(int)date('m')];//$meses[(int) $registro['mes']];
+
+        foreach ($empenhos as $empenho) {
+
+            $anoEmpenho = substr($empenho->numero, 0, 4);
+
+            if ($anoEmpenho == $ano) {
+                $contas_contabeis = config('app.contas_contabeis_empenhodetalhado_exercicioatual');
+            } else {
+                $contas_contabeis = config('app.contas_contabeis_empenhodetalhado_exercicioanterior');
+            }
+
+            $ug = $empenho->unidade->codigo;
+
+            $empenhodetalhes = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                ->get();
+
+
+            foreach ($empenhodetalhes as $empenhodetalhe) {
+
+                $contacorrente = 'N' . $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
+                        STR_PAD_LEFT);
+
+                AtualizasaldosmpenhosJobs::dispatch(
+                    $ug,
+                    $amb,
+                    $ano,
+                    $contacorrente,
+                    $mes,
+                    $empenhodetalhe,
+                    $contas_contabeis,
+                    backpack_user()
+                )->onQueue('atualizasaldone');
+
+//                $this->teste($ug,
+//                    $amb,
+//                    $ano,
+//                    $contacorrente,
+//                    $mes,
+//                    $empenhodetalhe,
+//                    $contas_contabeis,
+//                    backpack_user());
+            }
+        }
+
+        return true;
 
     }
 
@@ -144,4 +201,6 @@ class MigracaoempenhoJob implements ShouldQueue
         }
         return $planointerno;
     }
+
+
 }

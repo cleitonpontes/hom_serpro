@@ -45,11 +45,11 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
-        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
-            'atualizasaldosempenhos', 'end') : null;
-
-        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
-            'migrarempenho', 'end') : null;
+//        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
+//            'atualizasaldosempenhos', 'end') : null;
+//
+//        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
+//            'migrarempenho', 'end') : null;
 
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
@@ -399,8 +399,7 @@ class EmpenhoCrudController extends CrudController
 
     public function atualizaSaldosEmpenhos()
     {
-        $empenhos = Empenho::where('unidade_id', session()->get('user_ug_id'))
-            ->get();
+        $empenhos = Empenho::all();
 
         $amb = 'PROD';
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
@@ -450,7 +449,7 @@ class EmpenhoCrudController extends CrudController
             }
         }
 
-        \Alert::success('Atualização de saldos de Empenhos em Andamento!')->flash();
+//        \Alert::success('Atualização de saldos de Empenhos em Andamento!')->flash();
 
         return redirect('/execfin/empenho');
 
