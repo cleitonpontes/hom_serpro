@@ -7,6 +7,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ActivitylogRequest as StoreRequest;
 use App\Http\Requests\ActivitylogRequest as UpdateRequest;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class ActivitylogCrudController
@@ -36,8 +37,8 @@ class ActivitylogCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->enableExportButtons();
 
-        $this->crud->addClause('join', 'users', 'users.id', '=', 'activity_log.causer_id');
-        $this->crud->addClause('select', 'activity_log.*');
+//        $this->crud->addClause('select', 'activity_log.*');
+//        $this->crud->addClause('join', 'users', 'users.id', '=', 'activity_log.causer_id');
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -117,7 +118,8 @@ class ActivitylogCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
 //                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('users.name', 'like', "%$searchTerm%");
+//                    $query->orWhere('users.name', 'like', "%".strtoupper($searchTerm)."%");
+//                    $query->orWhere('users.cpf', 'like', "%".strtoupper($searchTerm)."%");
 //                },
             ],
             [
