@@ -36,8 +36,8 @@ class ActivitylogCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->enableExportButtons();
 
-//        $this->crud->addClause('join', 'users', 'users.id', '=', 'activity_log.causer_id');
-//        $this->crud->addClause('select', 'activity_log.*');
+        $this->crud->addClause('join', 'users', 'users.id', '=', 'activity_log.causer_id');
+        $this->crud->addClause('select', 'activity_log.*');
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
