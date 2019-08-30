@@ -87,7 +87,7 @@ class Kernel extends HttpKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new MigracaoempenhoJob)->dailyAt('11:05');
+        $schedule->job(new MigracaoempenhoJob)->everyMinute();
         $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@atualizaSaldosEmpenhos')->dailyAt('08:50');
 
     }
