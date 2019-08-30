@@ -24,7 +24,6 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
     protected $ano;
     protected $empenhodetalhado;
     protected $contas_contabeis;
-    protected $user;
 
     /**
      * Create a new job instance.
@@ -38,8 +37,7 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
         string $contacorrente,
         string $mes,
         Empenhodetalhado $empenhodetalhado,
-        array $contas_contabeis,
-        BackpackUser $user
+        array $contas_contabeis
     ) {
         $this->ug = $ug;
         $this->amb = $amb;
@@ -48,8 +46,6 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
         $this->ano = $ano;
         $this->empenhodetalhado = $empenhodetalhado;
         $this->contas_contabeis = $contas_contabeis;
-        $this->user = $user;
-
     }
 
     /**

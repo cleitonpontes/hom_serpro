@@ -434,8 +434,7 @@ class EmpenhoCrudController extends CrudController
                     $contacorrente,
                     $mes,
                     $empenhodetalhe,
-                    $contas_contabeis,
-                    backpack_user()
+                    $contas_contabeis
                 )->onQueue('atualizasaldone');
 
 //                $this->teste($ug,
