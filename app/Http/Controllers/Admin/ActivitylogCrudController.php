@@ -31,6 +31,7 @@ class ActivitylogCrudController extends CrudController
         $this->crud->setModel('App\Models\Activitylog');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/activitylog');
         $this->crud->setEntityNameStrings('activity_log', 'activity_logs');
+        $this->crud->orderBy('id', 'desc');
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -52,7 +53,7 @@ class ActivitylogCrudController extends CrudController
                 'label' => 'Id',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
