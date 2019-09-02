@@ -38,7 +38,7 @@ class UsuarioUnidadeCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuariounidade');
         $this->crud->setEntityNameStrings('Usuário Unidade: ' . $unidade_user->codigo,
             'Usuários Unidade: ' . $unidade_user->codigo);
-        $this->crud->addClause('WhereHas', 'unidades', function ($q) use ($unidade_user) {
+        $this->crud->addClause('whereHas', 'unidades', function ($q) use ($unidade_user) {
             $q->where('unidade_id', $unidade_user->id);
         });
         $this->crud->addClause('orwhere', 'ugprimaria', '=', $unidade_user->id);

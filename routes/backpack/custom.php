@@ -85,6 +85,11 @@ Route::group([
             Route::group(['prefix' => 'codigo/{codigo_id}'], function () {
                 CRUD::resource('codigoitem', 'CodigoitemCrudController');
             });
+
+            Route::group(['prefix' => 'unidade/{unidade_id}'], function () {
+                CRUD::resource('configuracao', 'UnidadeconfiguracaoCrudController');
+            });
+
         });
 
         Route::group([

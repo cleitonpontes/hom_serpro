@@ -34,6 +34,7 @@ class UnidadeCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/unidade');
         $this->crud->setEntityNameStrings('Unidade', 'Unidades');
         $this->crud->enableExportButtons();
+        $this->crud->addButtonFromView('line', 'moreunidade', 'moreunidade', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');

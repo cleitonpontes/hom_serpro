@@ -18,10 +18,10 @@ class CreateUnidadesTable extends Migration
             $table->integer('orgao_id');
             $table->string('codigo')->unique();
             $table->string('gestao')->default('00001');
-            $table->string('codigosiasg')->nullable();;
+            $table->string('codigosiasg')->nullable();
             $table->string('nome');
             $table->string('nomeresumido');
-            $table->string('telefone')->nullable();;
+            $table->string('telefone')->nullable();
             $table->string('tipo');
             $table->boolean('situacao');
             $table->softDeletes();
