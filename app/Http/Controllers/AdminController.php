@@ -73,7 +73,7 @@ class AdminController extends Controller
                 $join->on('codigoitens.id', '=', 'contratos.categoria_id');
             })
             ->where('contratos.unidade_id',session()->get('user_ug_id'))
-            ->orderBy('codigo_id', 'asc')->pluck('descricao')->toArray();
+            ->orderBy('id', 'asc')->pluck('descricao')->toArray();
 
 
         $cat = array_unique($categoria_contrato);
