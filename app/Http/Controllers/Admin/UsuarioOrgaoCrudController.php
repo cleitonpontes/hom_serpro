@@ -52,7 +52,6 @@ class UsuarioOrgaoCrudController extends CrudController
         }
 
 
-
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
