@@ -13,6 +13,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\UnidadeconfiguracaoRequest as StoreRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -30,6 +31,22 @@ class UnidadeconfiguracaoCrudController extends CrudController
         if (!$unidade) {
             abort('403', config('app.erro_permissao'));
         }
+
+        $ug_user = [];
+        if(backpack_user()->ugprimaria){
+            $ug_user[] = backpack_user()->ugprimaria;
+        }
+
+        $ugs = backpack_user()->unidades;
+
+        foreach ($ugs as $u){
+            $ug_user[] = $u->id;
+        }
+
+        if(array_search($unidade_id,$ug_user) == false){
+            abort('403', config('app.erro_permissao'));
+        }
+
 
         /*
         |--------------------------------------------------------------------------
