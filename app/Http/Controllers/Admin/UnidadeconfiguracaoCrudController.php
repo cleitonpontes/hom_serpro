@@ -34,7 +34,7 @@ class UnidadeconfiguracaoCrudController extends CrudController
 
         $ug_user = [];
         if(backpack_user()->ugprimaria){
-            $ug_user[] = backpack_user()->ugprimaria;
+            $ug_user[1] = backpack_user()->ugprimaria;
         }
 
         $ugs = backpack_user()->unidades;
@@ -43,9 +43,12 @@ class UnidadeconfiguracaoCrudController extends CrudController
             $ug_user[] = $u->id;
         }
 
+        $ug_user = array_unique($ug_user);
+
         if(array_search($unidade_id,$ug_user) == false){
             abort('403', config('app.erro_permissao'));
         }
+
 
 
         /*
