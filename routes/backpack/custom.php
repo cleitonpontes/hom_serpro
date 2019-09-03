@@ -69,6 +69,7 @@ Route::group([
             CRUD::resource('orgaosuperior', 'OrgaoSuperiorCrudController');
             CRUD::resource('orgao', 'OrgaoCrudController');
             CRUD::resource('unidade', 'UnidadeCrudController');
+            CRUD::resource('administradorunidade', 'UnidadeAdministradorUnidadeCrudController');
             CRUD::resource('codigo', 'CodigoCrudController');
             CRUD::resource('sfcertificado', 'SfcertificadoCrudController');
             CRUD::resource('justificativafatura', 'JustificativafaturaCrudController');
