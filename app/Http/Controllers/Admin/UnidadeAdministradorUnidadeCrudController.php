@@ -222,4 +222,17 @@ class UnidadeAdministradorUnidadeCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumns([
+            'tipo',
+            'orgao_id',
+        ]);
+
+
+        return $content;
+    }
 }
