@@ -60,6 +60,7 @@ class UnidadeconfiguracaoCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/unidade/' . $unidade_id . '/configuracao');
         $this->crud->setEntityNameStrings('Configuração da Unidade', 'Configuração da Unidade');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarunidade', 'end');
+        $this->crud->addClause('where', 'id', '=', $unidade_id);
 //        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'unidadeconfiguracao.unidade_id');
 //        $this->crud->addClause('join', 'users', 'users.id', '=', 'unidadeconfiguracao.user1_id');
 //        $this->crud->addClause('select', 'unidadeconfiguracao.*');
