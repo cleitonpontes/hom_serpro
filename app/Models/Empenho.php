@@ -228,7 +228,7 @@ class Empenho extends Model
             });
             $q->where('situacao', '=', true);
         });
-        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
+//        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
         $valores_empenhos->select([
 //            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
             DB::raw('sum(empenhos.empenhado) as empenhado'),
