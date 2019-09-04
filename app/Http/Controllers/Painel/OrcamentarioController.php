@@ -38,19 +38,31 @@ class OrcamentarioController extends Controller
         $dadosEmpenhosOutrasDespesasCorrentes = $empenhos->retornaDadosEmpenhosGroupUgArray();
         $graficoEmpenhosOutrasDespesasCorrentes = $this->graficoEmpenhosOutrasDespesasCorrentes($dadosEmpenhosOutrasDespesasCorrentes);
 
-        $totais = $empenhos->retornaDadosEmpenhosSumArray();
+
         $totais_linha = [];
-        foreach ($totais as $total){
-            $totais_linha[] = [
-                'nome' => 'Total',
-                'empenhado' => $total['empenhado'],
-                'aliquidar' => $total['aliquidar'],
-                'liquidado' => $total['liquidado'],
-                'pago' => $total['pago'],
-            ];
+        $t_empenhado = 0;
+        $t_aliquidar = 0;
+        $t_liquidado = 0;
+        $t_pago = 0;
+
+        foreach ($dadosEmpenhosOutrasDespesasCorrentes as $dadosEmpenhosOutrasDespesasCorrente) {
+            $t_empenhado += $dadosEmpenhosOutrasDespesasCorrente['empenhado'];
+            $t_aliquidar += $dadosEmpenhosOutrasDespesasCorrente['aliquidar'];
+            $t_liquidado += $dadosEmpenhosOutrasDespesasCorrente['liquidado'];
+            $t_pago += $dadosEmpenhosOutrasDespesasCorrente['pago'];
         }
 
+        $totais_linha = [
+            'nome' => 'Total',
+            'empenhado' => $t_empenhado,
+            'aliquidar' => $t_aliquidar,
+            'liquidado' => $t_liquidado,
+            'pago' => $t_pago,
+        ];
+
+
         $dadosEmpenhosOutrasDespesasCorrentes = array_merge($dadosEmpenhosOutrasDespesasCorrentes,$totais_linha);
+
 
         //datatables
         if ($request->ajax()) {
