@@ -52,7 +52,7 @@ class OrcamentarioController extends Controller
             $t_pago += $dadosEmpenhosOutrasDespesasCorrente['pago'];
         }
 
-        $totais_linha = [
+        $totais_linha[] = [
             'nome' => 'Total',
             'empenhado' => $t_empenhado,
             'aliquidar' => $t_aliquidar,
