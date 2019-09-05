@@ -97,7 +97,7 @@ class MigracaoempenhoJob implements ShouldQueue
 
             }
             //dispara atualização de saldo do empenho por aqui.
-            $retorno = $this->atualizaSaldosEmpenhos($unidade->id);
+//            $retorno = $this->atualizaSaldosEmpenhos($unidade->id);
 
         }
 
