@@ -565,51 +565,11 @@ class ContratoCrudController extends CrudController
     public function notificaUsers()
     {
 
-        $dia = date('d');
-
-        $dados_email = [];
-
-        $unidades_mensal = Unidade::whereHas('configuracao', function ($c) {
-            $c->where('email_mensal', true);
-        })
-            ->where('situacao', true)
-            ->where('tipo', 'E')
-            ->get();
-
-
-        foreach ($unidades_mensal as $unidade_mensal) {
-            if ($unidade_mensal->configuracao->email_mensal_dia == $dia) {
-                $contratos_mensal = $unidade_mensal->contratos()->get();
-                $dados_email['texto'] = $unidade_mensal->configuracao->email_mensal_texto;
-                $dados_email['nomerotina'] = 'Extrato Mensal';
-                $dados_email['telefones'] =  ($unidade_mensal->configuracao->telefone2) ? $unidade_mensal->configuracao->telefone1.' / ' . $unidade_mensal->configuracao->telefone2 : $unidade_mensal->configuracao->telefone1;
-
-                $users = [];
-                foreach ($contratos_mensal as $cm) {
-                    $responsaveis = $cm->responsaveis()->get();
-                    foreach ($responsaveis as $responsavel) {
-                        if ($responsavel->situacao == true) {
-                            $users[] = $responsavel->user()->get();
-                        }
-                    }
-                }
-
-                foreach ($users as $users_colection) {
-                    foreach ($users_colection as $user) {
-                        $contratos_user = Contrato::whereHas('responsaveis', function ($r) use ($user) {
-                            $r->where('user_id', $user->id);
-                        })
-                            ->get();
-
-                        $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['texto']);
-
-                        $user->notify(new RotinaAlertaContratoNotification($user,$dados_email,$contratos_user));
-
-                    }
-                }
-            }
-        }
+        $alerta_mensal = new AlertaContratoJob();
+        $alerta_mensal->extratoMensal();
 
         return redirect()->back();
     }
+
+
 }
