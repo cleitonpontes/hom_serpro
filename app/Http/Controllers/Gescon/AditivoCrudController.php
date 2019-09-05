@@ -111,7 +111,7 @@ class AditivoCrudController extends CrudController
                 'name' => 'observacao',
                 'label' => 'Observação',
                 'type' => 'text',
-                'limit' => 1000,
+//                'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
