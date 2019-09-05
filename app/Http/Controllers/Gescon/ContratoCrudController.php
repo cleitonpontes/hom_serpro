@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Jobs\AlertaContratoJob;
 use App\Models\Codigoitem;
+use App\Models\Contrato;
 use App\Models\Contratohistorico;
 use App\Models\Fornecedor;
+use App\Models\Unidade;
+use App\Notifications\RotinaAlertaContratoNotification;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -40,6 +44,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratos.*');
 
+        $this->crud->addButtonFromView('top', 'notificausers', 'notificausers', 'end');
 
         /*
         |--------------------------------------------------------------------------
@@ -174,8 +179,8 @@ class ContratoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%".strtoupper($searchTerm)."%");
-                    $query->orWhere('fornecedores.nome', 'like', "%".strtoupper($searchTerm)."%");
+                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
+                    $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
                 },
             ],
             [
@@ -335,7 +340,7 @@ class ContratoCrudController extends CrudController
 //                    'disabled' => 'disabled',
 //                ],
 //                'default' => 'one',
-            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
                 'name' => 'numero',
@@ -547,13 +552,64 @@ class ContratoCrudController extends CrudController
 
     public function extratoPdf()
     {
-        $pdf = new Pdf("P","mm","A4");
-        $pdf->SetTitle("Extrato Contrato",1);
+        $pdf = new Pdf("P", "mm", "A4");
+        $pdf->SetTitle("Extrato Contrato", 1);
         $pdf->AliasNbPages();
         $pdf->AddPage();
         $pdf->SetFont('Courier', 'B', 18);
         $pdf->Cell(50, 25, 'Hello World!');
-        $pdf->Output('D','download.pdf');
+        $pdf->Output('D', 'download.pdf');
 
+    }
+
+    public function notificaUsers()
+    {
+
+        $dia = date('d');
+
+        $dados_email = [];
+
+        $unidades_mensal = Unidade::whereHas('configuracao', function ($c) {
+            $c->where('email_mensal', true);
+        })
+            ->where('situacao', true)
+            ->where('tipo', 'E')
+            ->get();
+
+
+        foreach ($unidades_mensal as $unidade_mensal) {
+            if ($unidade_mensal->configuracao->email_mensal_dia == $dia) {
+                $contratos_mensal = $unidade_mensal->contratos()->get();
+                $dados_email['texto'] = $unidade_mensal->configuracao->email_mensal_texto;
+                $dados_email['nomerotina'] = 'Extrato Mensal';
+                $dados_email['telefones'] =  ($unidade_mensal->configuracao->telefone2) ? $unidade_mensal->configuracao->telefone1.' / ' . $unidade_mensal->configuracao->telefone2 : $unidade_mensal->configuracao->telefone1;
+
+                $users = [];
+                foreach ($contratos_mensal as $cm) {
+                    $responsaveis = $cm->responsaveis()->get();
+                    foreach ($responsaveis as $responsavel) {
+                        if ($responsavel->situacao == true) {
+                            $users[] = $responsavel->user()->get();
+                        }
+                    }
+                }
+
+                foreach ($users as $users_colection) {
+                    foreach ($users_colection as $user) {
+                        $contratos_user = Contrato::whereHas('responsaveis', function ($r) use ($user) {
+                            $r->where('user_id', $user->id);
+                        })
+                            ->get();
+
+                        $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['texto']);
+
+                        $user->notify(new RotinaAlertaContratoNotification($user,$dados_email,$contratos_user));
+
+                    }
+                }
+            }
+        }
+
+        return redirect()->back();
     }
 }

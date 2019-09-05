@@ -122,6 +122,8 @@ Route::group([
                 CRUD::resource('faturas', 'ContratofaturaCrudController');
             });
 
+            Route::get('/notificausers', 'ContratoCrudController@notificaUsers');
+
         });
 
         Route::group([

@@ -1,13 +1,13 @@
 @component('mail::message')
-# Rotina de Alerta {{ $nomerotina }}
+# Rotina de Alerta - {{ strtoupper($nomerotina) }}
 
 {{ $texto }}
 
 @component('mail::table')
-    | Número | Processo | Fornecedor | Objeto | Valor Global (R$) | Vig. início | Vig. Fim |
-    | :----: | :------: | ---------- | ---------- | ------ |-----------------: | :---------: | :------: |
+    |  Número  |  Processo  |  Fornecedor  | Objeto | Valor Global (R$) |   Vig. início   |   Vig. Fim   |
+    | :------: | :--------: | ------------ | ------ | ----------------: | :-------------: | :----------: |
 @foreach($contratos as $contrato)
-    | {{$contrato['numero']}} | {{$contrato['processo']}} | {{ $contrato['cpf_cnpj_idgener'] . ' - ' . $contrato['nome'] }} | {{$contrato['objeto']}} {{number_format($contrato['valor_global'],2,',','.')}} | {{ implode("/",array_reverse(explode("-", $contrato['vigencia_inicio']))) }} | {{ implode("/",array_reverse(explode("-", $contrato['vigencia_fim']))) }} |
+    | {{$contrato['numero']}} | {{$contrato['processo']}} | {{ $contrato['cpf_cnpj_idgener'] . ' - ' . $contrato['nome'] }} | {{$contrato['objeto']}} | {{number_format($contrato['valor_global'],2,',','.')}} | {{ implode("/",array_reverse(explode("-", $contrato['vigencia_inicio']))) }} | {{ implode("/",array_reverse(explode("-", $contrato['vigencia_fim']))) }} |
 @endforeach
 @endcomponent
 
