@@ -52,6 +52,11 @@ class AlertaContratoJob implements ShouldQueue
 
     }
 
+    public function emailDiario()
+    {
+
+    }
+
     public function extratoMensal()
     {
         $dia = date('d');
