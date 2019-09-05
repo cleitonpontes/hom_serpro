@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->job(new MigracaoempenhoJob)->dailyAt('08:45');
-        $schedule->job(new MigracaoempenhoJob)->everyMinute();
+//        $schedule->job(new MigracaoempenhoJob)->everyMinute();
         $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@atualizaSaldosEmpenhos')->dailyAt('08:50');
         $schedule->job(new AlertaContratoJob)->dailyAt('08:00');
     }
