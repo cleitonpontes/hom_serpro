@@ -81,15 +81,18 @@ class Contratocronograma extends Model
      * @param Contratohistorico $contratohistorico
      * @return $this|string
      */
-    public function atualizaCronogramaFromHistorico(Contratohistorico $contratohistorico)
+    public function atualizaCronogramaFromHistorico(Contratohistorico $historico)
     {
-        if (!$contratohistorico->num_parcelas AND !$contratohistorico->vigencia_inicio AND !$contratohistorico->valor_parcela) {
-            return '';
-        }
 
-        $contratohistorico->cronograma()->delete();
-        $dados = $this->montaCronograma($contratohistorico);
-        $this->inserirDadosEmMassa($dados);
+        foreach ($historico as $contratohistorico) {
+            if (!$contratohistorico->num_parcelas AND !$contratohistorico->vigencia_inicio AND !$contratohistorico->valor_parcela) {
+                return '';
+            }
+
+            $contratohistorico->cronograma()->delete();
+            $dados = $this->montaCronograma($contratohistorico);
+            $this->inserirDadosEmMassa($dados);
+        }
 
         return $this;
 
