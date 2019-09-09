@@ -49,6 +49,7 @@ class AditivoCrudController extends CrudController
         $this->crud->addClause('select', 'contratohistorico.*');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addClause('where', 'tipo_id', '=', $tps->id);
+        $this->crud->orderBy('data_assinatura', 'asc');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();

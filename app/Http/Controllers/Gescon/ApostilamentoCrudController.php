@@ -54,6 +54,7 @@ class ApostilamentoCrudController extends CrudController
         foreach ($tps as $t) {
             $this->crud->addClause('where', 'tipo_id', '=', $t);
         }
+        $this->crud->orderBy('data_assinatura', 'asc');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
