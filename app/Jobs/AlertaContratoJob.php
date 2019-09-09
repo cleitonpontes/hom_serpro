@@ -34,26 +34,22 @@ class AlertaContratoJob implements ShouldQueue
      */
     public function handle()
     {
-
         $this->extratoMensal();
 
-//        $unidades_diario = Unidade::whereHas('configuracao', function ($c) {
-//            $c->where('email_diario', true);
-//        })
-//            ->where('situacao', true)
-//            ->where('tipo', 'E')
-//            ->get();
-//
-//
-//        $contratos_diario = $this->buscaContratosDiario($unidades_diario->configuracao->email_diario_periodicidade);
-//
-//        $usuarios_d = $this->buscaUsuarios($contratos_diario);
-
+        $this->emailDiario();
 
     }
 
     public function emailDiario()
     {
+
+        $unidades_diario = Unidade::whereHas('configuracao', function ($c) {
+            $c->where('email_diario', true);
+        })
+            ->where('situacao', true)
+            ->where('tipo', 'E')
+            ->get();
+
 
     }
 
