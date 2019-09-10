@@ -34,7 +34,7 @@ class Kernel extends ConsoleKernel
         $schedule->call('App\Jobs\MigracaoempenhoJob@atualizaSaldosEmpenhos')->dailyAt('08:50');
 //        $schedule->call('App\Jobs\MigracaoempenhoJob@atualizaSaldosEmpenhos')->everyFiveMinutes();
         $schedule->job(new AlertaContratoJob)->dailyAt('08:00');
-//        $schedule->job(new AlertaContratoJob)->everyMinute();
+        $schedule->job(new AlertaContratoJob)->everyMinute();
     }
 
     /**

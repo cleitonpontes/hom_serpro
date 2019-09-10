@@ -62,7 +62,7 @@ class AlertaContratoJob implements ShouldQueue
 
             }
 
-            $dados_email['texto'] = $unidade_diario->configuracao->email_diario_texto;
+            $dados_email['textobase'] = $unidade_diario->configuracao->email_diario_texto;
 
             $dados_email['telefones'] = ($unidade_diario->configuracao->telefone2) ? $unidade_diario->configuracao->telefone1 . ' / ' . $unidade_diario->configuracao->telefone2 : $unidade_diario->configuracao->telefone1;
             $dados_email['copiados']['user1'] = $unidade_diario->configuracao->user1;
@@ -82,10 +82,11 @@ class AlertaContratoJob implements ShouldQueue
                 $qtd_dias = $key;
                 foreach ($prazo as $contrato) {
                     foreach ($contrato->responsaveis as $responsavel) {
-                        if($responsavel->situacao == true){
+                        if ($responsavel->situacao == true) {
                             $user = $responsavel->user;
                             $dados_email['nomerotina'] = 'Contratos à vencer em: ' . $qtd_dias . ' Dias!';
-                            $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['texto']);
+                            $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name,
+                                $dados_email['textobase']);
                             $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contrato));
 
                         }
@@ -115,7 +116,7 @@ class AlertaContratoJob implements ShouldQueue
         foreach ($unidades_mensal as $unidade_mensal) {
             if ($unidade_mensal->configuracao->email_mensal_dia == $dia) {
                 $contratos_mensal = $unidade_mensal->contratos()->get();
-                $dados_email['texto'] = $unidade_mensal->configuracao->email_mensal_texto;
+                $dados_email['textobase'] = $unidade_mensal->configuracao->email_mensal_texto;
                 $dados_email['nomerotina'] = 'Extrato Mensal';
                 $dados_email['telefones'] = ($unidade_mensal->configuracao->telefone2) ? $unidade_mensal->configuracao->telefone1 . ' / ' . $unidade_mensal->configuracao->telefone2 : $unidade_mensal->configuracao->telefone1;
 
@@ -124,24 +125,21 @@ class AlertaContratoJob implements ShouldQueue
                     $responsaveis = $cm->responsaveis()->get();
                     foreach ($responsaveis as $responsavel) {
                         if ($responsavel->situacao == true) {
-                            $users[] = $responsavel->user()->get();
+                            $users[] = $responsavel->user;
                         }
                     }
                 }
 
-                foreach ($users as $users_colection) {
-                    foreach ($users_colection as $user) {
-                        $contratos_user = Contrato::whereHas('responsaveis', function ($r) use ($user) {
-                            $r->where('user_id', $user->id);
-                        })
-                            ->orderBy('vigencia_fim', 'DESC')
-                            ->get();
+                $users = array_unique($users);
 
-                        $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['texto']);
-
-                        $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contratos_user));
-
-                    }
+                foreach ($users as $user) {
+                    $contratos_user = Contrato::whereHas('responsaveis', function ($r) use ($user) {
+                        $r->where('user_id', $user->id);
+                    })
+                        ->orderBy('vigencia_fim', 'DESC')
+                        ->get();
+                    $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['textobase']);
+                    $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contratos_user));
                 }
             }
         }
