@@ -44,7 +44,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratos.*');
 
-        $this->crud->addButtonFromView('top', 'notificausers', 'notificausers', 'end');
+//        $this->crud->addButtonFromView('top', 'notificausers', 'notificausers', 'end');
 
         /*
         |--------------------------------------------------------------------------
@@ -566,7 +566,7 @@ class ContratoCrudController extends CrudController
     {
 
         $alerta_mensal = new AlertaContratoJob();
-        $alerta_mensal->emailDiario();
+//        $alerta_mensal->emailDiario();
 //        $alerta_mensal->extratoMensal();
 
         return redirect()->back();
