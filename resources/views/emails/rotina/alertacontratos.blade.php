@@ -1,5 +1,5 @@
 @component('mail::message')
-# Rotina de Alerta - {{ strtoupper($nomerotina) }}
+# Rotina de Alerta - {{ $nomerotina }}
 
 {{ $texto }}
 

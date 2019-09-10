@@ -35,7 +35,6 @@ class AlertaContratoJob implements ShouldQueue
     public function handle()
     {
         $this->extratoMensal();
-
         $this->emailDiario();
 
     }
@@ -79,12 +78,13 @@ class AlertaContratoJob implements ShouldQueue
             }
 
             $users = [];
-            foreach ($contratos as $prazo) {
+            foreach ($contratos as $key => $prazo) {
+                $qtd_dias = $key;
                 foreach ($prazo as $contrato) {
                     foreach ($contrato->responsaveis as $responsavel) {
                         if($responsavel->situacao == true){
                             $user = $responsavel->user;
-                            $dados_email['nomerotina'] = 'Contratos à vencer em: ' . $unidade_diario->configuracao->email_diario_periodicidade;
+                            $dados_email['nomerotina'] = 'Contratos à vencer em: ' . $qtd_dias . ' Dias!';
                             $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['texto']);
                             $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contrato));
 
