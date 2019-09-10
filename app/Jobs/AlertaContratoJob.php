@@ -50,10 +50,56 @@ class AlertaContratoJob implements ShouldQueue
             ->where('tipo', 'E')
             ->get();
 
+        foreach ($unidades_diario as $unidade_diario) {
+
+            $prazos = explode(';', $unidade_diario->configuracao->email_diario_periodicidade);
+            $contratos = [];
+            $data_vencimento = [];
+            foreach ($prazos as $prazo) {
+                $data_vencimento[$prazo] = date('Y-m-d', strtotime("+" . $prazo . " days", strtotime(date('Y-m-d'))));
+                $contratos[$prazo] = $unidade_diario->contratos()
+                    ->where('vigencia_fim', $data_vencimento[$prazo])
+                    ->get();
+
+            }
+
+            $dados_email['texto'] = $unidade_diario->configuracao->email_diario_texto;
+
+            $dados_email['telefones'] = ($unidade_diario->configuracao->telefone2) ? $unidade_diario->configuracao->telefone1 . ' / ' . $unidade_diario->configuracao->telefone2 : $unidade_diario->configuracao->telefone1;
+            $dados_email['copiados']['user1'] = $unidade_diario->configuracao->user1;
+
+            if ($unidade_diario->configuracao->user2_id) {
+                $dados_email['copiados']['user2'] = $unidade_diario->configuracao->user2;
+            }
+            if ($unidade_diario->configuracao->user3_id) {
+                $dados_email['copiados']['user3'] = $unidade_diario->configuracao->user3;
+            }
+            if ($unidade_diario->configuracao->user4_id) {
+                $dados_email['copiados']['user4'] = $unidade_diario->configuracao->user4;
+            }
+
+            $users = [];
+            foreach ($contratos as $prazo) {
+                foreach ($prazo as $contrato) {
+                    foreach ($contrato->responsaveis as $responsavel) {
+                        if($responsavel->situacao == true){
+                            $user = $responsavel->user;
+                            $dados_email['nomerotina'] = 'Contratos à vencer em: ' . $unidade_diario->configuracao->email_diario_periodicidade;
+                            $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['texto']);
+                            $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contrato));
+
+                        }
+                    }
+                }
+            }
+
+        }
+
 
     }
 
-    public function extratoMensal()
+    public
+    function extratoMensal()
     {
         $dia = date('d');
 

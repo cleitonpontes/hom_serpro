@@ -100,6 +100,26 @@ class Unidadeconfiguracao extends Model
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');
     }
+
+    public function user1()
+    {
+        return $this->belongsTo(BackpackUser::class, 'user1_id');
+    }
+
+    public function user2()
+    {
+        return $this->belongsTo(BackpackUser::class, 'user2_id');
+    }
+
+    public function user3()
+    {
+        return $this->belongsTo(BackpackUser::class, 'user3_id');
+    }
+
+    public function user4()
+    {
+        return $this->belongsTo(BackpackUser::class, 'user4_id');
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

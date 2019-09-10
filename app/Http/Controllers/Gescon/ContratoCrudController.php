@@ -566,7 +566,7 @@ class ContratoCrudController extends CrudController
     {
 
         $alerta_mensal = new AlertaContratoJob();
-        $alerta_mensal->extratoMensal();
+        $alerta_mensal->emailDiario();
 
         return redirect()->back();
     }

@@ -51,16 +51,30 @@ class RotinaAlertaContratoNotification extends Notification
 
 
         $contratos = [];
-        foreach ($this->contratos as $contrato) {
+        if ($this->dado_email['nomerotina'] == 'Extrato Mensal') {
+
+            foreach ($this->contratos as $contrato) {
+                $contratos[] = [
+                    'numero' => $contrato->numero,
+                    'processo' => $contrato->processo,
+                    'cpf_cnpj_idgener' => $contrato->fornecedor->cpf_cnpj_idgener,
+                    'nome' => $contrato->fornecedor->nome,
+                    'objeto' => substr($contrato->objeto, 0, 100) . '...',
+                    'valor_global' => $contrato->valor_global,
+                    'vigencia_inicio' => $contrato->vigencia_inicio,
+                    'vigencia_fim' => $contrato->vigencia_fim,
+                ];
+            }
+        } else {
             $contratos[] = [
-                'numero' => $contrato->numero,
-                'processo' => $contrato->processo,
-                'cpf_cnpj_idgener' => $contrato->fornecedor->cpf_cnpj_idgener,
-                'nome' => $contrato->fornecedor->nome,
-                'objeto' => substr($contrato->objeto,0,100).'...',
-                'valor_global' => $contrato->valor_global,
-                'vigencia_inicio' => $contrato->vigencia_inicio,
-                'vigencia_fim' => $contrato->vigencia_fim,
+                'numero' => $this->contratos->numero,
+                'processo' => $this->contratos->processo,
+                'cpf_cnpj_idgener' => $this->contratos->fornecedor->cpf_cnpj_idgener,
+                'nome' => $this->contratos->fornecedor->nome,
+                'objeto' => substr($this->contratos->objeto, 0, 100) . '...',
+                'valor_global' => $this->contratos->valor_global,
+                'vigencia_inicio' => $this->contratos->vigencia_inicio,
+                'vigencia_fim' => $this->contratos->vigencia_fim,
             ];
         }
 
@@ -72,6 +86,14 @@ class RotinaAlertaContratoNotification extends Notification
             'telefones' => $this->dado_email['telefones'],
             'contratos' => $contratos
         ]);
+
+        if (isset($this->dado_email['copiados'])) {
+            $emails_copiados = [];
+            foreach ($this->dado_email['copiados'] as $copiado) {
+                $emails_copiados[] = $copiado->email;
+            }
+            $mensagem->cc($emails_copiados);
+        }
 
         return $mensagem;
     }
@@ -98,15 +120,31 @@ class RotinaAlertaContratoNotification extends Notification
                         </tr>
                         </thead>
                         <tbody>';
-        foreach ($this->contratos as $contrato) {
+        if ($this->dado_email['nomerotina'] == 'Extrato Mensal') {
+            foreach ($this->contratos as $contrato) {
+                $html .= "<tr>";
+                $html .= '<td align="center">' . $contrato->numero . '</td>';
+                $html .= '<td align="center">' . $contrato->processo . '</td>';
+                $html .= '<td>' . $contrato->fornecedor->cpf_cnpj_idgener . ' - ' . $contrato->fornecedor->nome . '</td>';
+                $html .= '<td align="justify">' . substr($contrato->objeto, 0, 100) . '...</td>';
+                $html .= '<td align="right">' . number_format($contrato->valor_global, 2, ',', '.') . '</td>';
+                $html .= '<td align="center">' . implode("/",
+                        array_reverse(explode("-", $contrato->vigencia_inicio))) . '</td>';
+                $html .= '<td align="center">' . implode("/",
+                        array_reverse(explode("-", $contrato->vigencia_fim))) . '</td>';
+                $html .= "</tr>";
+            }
+        } else {
             $html .= "<tr>";
-            $html .= '<td align="center">'.$contrato->numero.'</td>';
-            $html .= '<td align="center">'.$contrato->processo.'</td>';
-            $html .= '<td>'.$contrato->fornecedor->cpf_cnpj_idgener.' - '.$contrato->fornecedor->nome.'</td>';
-            $html .= '<td align="justify">'.substr($contrato->objeto,0,100).'...</td>';
-            $html .= '<td align="right">'.number_format($contrato->valor_global,2,',','.').'</td>';
-            $html .= '<td align="center">'.implode("/",array_reverse(explode("-",$contrato->vigencia_inicio))).'</td>';
-            $html .= '<td align="center">'.implode("/",array_reverse(explode("-",$contrato->vigencia_fim))).'</td>';
+            $html .= '<td align="center">' . $this->contratos->numero . '</td>';
+            $html .= '<td align="center">' . $this->contratos->processo . '</td>';
+            $html .= '<td>' . $this->contratos->fornecedor->cpf_cnpj_idgener . ' - ' . $this->contratos->fornecedor->nome . '</td>';
+            $html .= '<td align="justify">' . substr($this->contratos->objeto, 0, 100) . '...</td>';
+            $html .= '<td align="right">' . number_format($this->contratos->valor_global, 2, ',', '.') . '</td>';
+            $html .= '<td align="center">' . implode("/",
+                    array_reverse(explode("-", $this->contratos->vigencia_inicio))) . '</td>';
+            $html .= '<td align="center">' . implode("/",
+                    array_reverse(explode("-", $this->contratos->vigencia_fim))) . '</td>';
             $html .= "</tr>";
         }
         $html .= '</tbody>';
@@ -114,8 +152,8 @@ class RotinaAlertaContratoNotification extends Notification
 
 
         return [
-            'assunto' => 'Rotina de Alerta - ' . strtoupper($this->dado_email['nomerotina']),
-            'mensagem' => $this->texto_html.$html,
+            'assunto' => 'Rotina de Alerta - ' . $this->dado_email['nomerotina'],
+            'mensagem' => $this->texto_html . $html,
             'anexos' => '',
         ];
     }
