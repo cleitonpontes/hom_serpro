@@ -14,7 +14,7 @@ class Contrato extends Model
     use LogsActivity;
     protected static $logFillable = true;
     protected static $logName = 'contrato';
-    use SoftDeletes;
+//    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
