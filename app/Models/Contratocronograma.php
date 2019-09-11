@@ -81,7 +81,7 @@ class Contratocronograma extends Model
      * @param Contratohistorico $contratohistorico
      * @return $this|string
      */
-    public function atualizaCronogramaFromHistorico(Contratohistorico $historico)
+    public function atualizaCronogramaFromHistorico($historico)
     {
 
         foreach ($historico as $contratohistorico) {
