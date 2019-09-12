@@ -32,6 +32,7 @@ class Contrato extends Model
         'unidade_id',
         'tipo_id',
         'categoria_id',
+        'subcategoria_id',
         'processo',
         'objeto',
         'info_complementar',
@@ -168,6 +169,17 @@ class Contrato extends Model
         return $categoria->descricao;
 
     }
+    public function getSubCategoria()
+    {
+        if($this->subcategoria_id){
+            $subcategoria = OrgaoSubcategoria::find($this->subcategoria_id);
+            return $subcategoria->descricao;
+        }else{
+            return '';
+        }
+
+
+    }
 
 
     public function formatVlrParcela()
@@ -279,6 +291,11 @@ class Contrato extends Model
     public function modalidade()
     {
         return $this->belongsTo(Codigoitem::class, 'modalidade_id');
+    }
+
+    public function orgaosubcategoria()
+    {
+        $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
     }
 
     /*

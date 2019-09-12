@@ -33,6 +33,7 @@ class OrgaoCrudController extends CrudController
         $this->crud->setModel('App\Models\Orgao');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/orgao');
         $this->crud->setEntityNameStrings('Órgão', 'Órgãos');
+        $this->crud->addButtonFromView('line', 'moreorgao', 'moreorgao', 'end');
 
 //        $this->crud->addClause('select', 'orgaos.*');
 //        $this->crud->addClause('join', 'orgaossuperiores', 'orgaossuperiores.id', '=', 'orgaos.orgaosuperior_id');

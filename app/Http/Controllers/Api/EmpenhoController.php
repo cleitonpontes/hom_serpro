@@ -32,7 +32,7 @@ class EmpenhoController extends Controller
             $results = $options->paginate(10);
         }
 
-        return $options->paginate(10);
+        return $results;
     }
 
     public function show($id)

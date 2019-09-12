@@ -95,4 +95,9 @@ class BackpackUser extends User
     {
         return $this->belongsToMany(Unidade::class, 'unidadesusers', 'user_id', 'unidade_id');
     }
+
+    public function ugPrimariaRelation()
+    {
+        return $this->belongsTo(Unidade::class, 'ugprimaria');
+    }
 }

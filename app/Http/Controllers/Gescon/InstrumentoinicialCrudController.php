@@ -175,6 +175,17 @@ class InstrumentoinicialCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'getSubCategoriaHistorico',
+                'label' => 'Subcategoria', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSubCategoriaHistorico', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'getFornecedorHistorico',
                 'label' => 'Fornecedor', // Table column heading
                 'type' => 'model_function',
@@ -354,6 +365,20 @@ class InstrumentoinicialCrudController extends CrudController
 //                ],
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select2_from_ajax: 1-n relationship
+                'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
+                'label' => "Subcategoria", // Table column heading
+                'type' => 'select2_from_ajax',
+                'model' => 'App\Models\OrgaoSubcategoria',
+                'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
+                'attribute' => 'descricao', // foreign key attribute that is shown to user
+                'data_source' => url('api/orgaosubcategoria'), // url to controller search function (with /{id} should return model)
+                'placeholder' => 'Selecione...', // placeholder for the select
+                'minimum_input_length' => 0, // minimum characters to type before querying results
+                'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
+                'method'                    => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
+                'tab' => 'Dados Gerais',
             ],
             [
                 'name' => 'numero',
@@ -562,6 +587,7 @@ class InstrumentoinicialCrudController extends CrudController
         $this->crud->removeColumn('novo_num_parcelas');
         $this->crud->removeColumn('novo_valor_parcela');
         $this->crud->removeColumn('data_inicio_novo_valor');
+        $this->crud->removeColumn('subcategoria');
 
 
         return $content;

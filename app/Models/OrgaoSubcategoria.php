@@ -7,13 +7,13 @@ use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratoarquivo extends Model
+class OrgaoSubcategoria extends Model
 {
     use CrudTrait;
     use LogsActivity;
     protected static $logFillable = true;
-    protected static $logName = 'contrato_arquivos';
-    use SoftDeletes;
+    protected static $logName = 'orgaosubcategorias';
+//    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -21,21 +21,15 @@ class Contratoarquivo extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contrato_arquivos';
+    protected $table = 'orgaosubcategorias';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'contrato_id',
-        'tipo',
-        'processo',
-        'sequencial_documento',
+        'orgao_id',
+        'categoria_id',
         'descricao',
-        'arquivos',
-    ];
-
-    protected $casts = [
-        'arquivos' => 'array'
+        'situacao'
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -45,29 +39,41 @@ class Contratoarquivo extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function getContrato()
+    public function getOrgao()
     {
-        if($this->contrato_id){
-            $contrato = Contrato::find($this->contrato_id);
-            return $contrato->numero;
-        }else{
-            return '';
-        }
+        $orgao = Orgao::find($this->orgao_id);
+
+        return $orgao->codigo . ' - ' . $orgao->nome;
     }
-    public function getTipo()
+    public function getCategoria()
     {
-        if($this->tipo){
-            $tipo = Codigoitem::find($this->tipo);
-            return $tipo->descricao;
-        }else{
-            return '';
-        }
+        $codigoitem = Codigoitem::find($this->categoria_id);
+
+        return $codigoitem->descricao;
     }
+
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function orgao()
+    {
+        $this->belongsTo(Orgao::class, 'orgao_id');
+    }
+
+    public function categoria()
+    {
+        $this->belongsTo(Codigoitem::class, 'categoria_id');
+    }
+
+    public function contratos()
+    {
+        $this->hasMany(Contrato::class, 'subcategoria_id');
+    }
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -86,13 +92,4 @@ class Contratoarquivo extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-    public function setArquivosAttribute($value)
-    {
-        $attribute_name = "arquivos";
-        $disk = "local";
-        $contrato = Contrato::find($this->contrato_id);
-        $destination_path = "contrato/".$contrato->id."_".str_replace('/','_',$contrato->numero);
-
-        $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
-    }
 }

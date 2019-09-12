@@ -2,33 +2,39 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Catmatseritem;
+use App\Models\OrgaoSubcategoria;
+use App\Models\Unidade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use function foo\func;
 
-class CatmatseritemController extends Controller
+class OrgaosubcategoriaController extends Controller
 {
     public function index(Request $request)
     {
         $search_term = $request->input('q');
         $form = collect($request->input('form'))->pluck('value', 'name');
 
-        $options = Catmatseritem::query();
+        $options = OrgaoSubcategoria::query();
 
         // if no category has been selected, show no options
-        if (!$form['grupo_id']) {
+        if (!$form['categoria_id']) {
             return [];
         }
 
+
+        $unidade = Unidade::find(session()->get('user_ug_id'));
+
+
         // if a category has been selected, only show articles in that category
-        if ($form['grupo_id']) {
-            $options = $options->where('grupo_id', $form['grupo_id'])
+        if ($form['categoria_id']) {
+            $options = $options->where('orgao_id', $unidade->orgao->id)
+                ->where('categoria_id', $form['categoria_id'])
                 ->orderBy('descricao');
         }
 
         if ($search_term) {
-            $results = $options->Where('descricao', 'LIKE', '%' . strtoupper($search_term) . '%')
-                ->orWhere('codigo_siasg', 'LIKE', '%' . strtoupper($search_term) . '%')
+            $results = $options->where('descricao', 'LIKE', '%' . strtoupper($search_term) . '%')
                 ->orderBy('descricao')
                 ->paginate(10);
         } else {
@@ -40,6 +46,6 @@ class CatmatseritemController extends Controller
 
     public function show($id)
     {
-        return Catmatseritem::find($id);
+        return OrgaoSubcategoria::find($id);
     }
 }

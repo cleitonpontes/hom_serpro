@@ -59,6 +59,8 @@ class ContratoarquivoCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
+        $num_processo = $contrato->processo;
+
         $con = $contrato->where('id', '=', $contrato_id)
             ->pluck('numero', 'id')
             ->toArray();
@@ -67,7 +69,7 @@ class ContratoarquivoCrudController extends CrudController
             $query->where('descricao', '=', 'Tipo Arquivos Contrato');
         })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
-        $campos = $this->Campos($con, $tipos);
+        $campos = $this->Campos($con, $tipos, $num_processo);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in ContratoarquivoRequest
@@ -115,6 +117,26 @@ class ContratoarquivoCrudController extends CrudController
 //                },
             ],
             [
+                'name' => 'processo',
+                'label' => 'Processo',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'sequencial_documento',
+                'label' => 'Nº SEI / Chave Acesso Sapiens',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'descricao',
                 'label' => 'Descrição', // Table column heading
                 'type' => 'text',
@@ -147,7 +169,7 @@ class ContratoarquivoCrudController extends CrudController
         return $colunas;
     }
 
-    public function Campos($con, $tipos)
+    public function Campos($con, $tipos, $num_processo)
     {
 
         $campos = [
@@ -168,6 +190,20 @@ class ContratoarquivoCrudController extends CrudController
                 'allows_null' => true,
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'processo',
+                'label' => 'Número Processo',
+                'type' => 'numprocesso',
+                'default' => $num_processo
+            ],
+            [   // Number
+                'name' => 'sequencial_documento',
+                'label' => 'Nº SEI / Chave Acesso Sapiens',
+                'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "minusculo(this)"
+                ]
             ],
             [   // Number
                 'name' => 'descricao',

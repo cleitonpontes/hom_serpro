@@ -51,6 +51,11 @@
         z.value = v;
     }
 
+    function minusculo(z){
+        v = z.value.toLowerCase();
+        z.value = v;
+    }
+
     function mascaraCNPJ(element) {
         $(element).mask("99.999.999/9999-99");
     }

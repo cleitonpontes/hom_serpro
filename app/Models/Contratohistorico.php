@@ -13,7 +13,7 @@ class Contratohistorico extends Model
     use LogsActivity;
     protected static $logFillable = true;
     protected static $logName = 'contrato_historico';
-    use SoftDeletes;
+//    use SoftDeletes;
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -31,6 +31,7 @@ class Contratohistorico extends Model
         'unidade_id',
         'tipo_id',
         'categoria_id',
+        'subcategoria_id',
         'receita_despesa',
         'processo',
         'objeto',
@@ -126,9 +127,17 @@ class Contratohistorico extends Model
         $categoria = Codigoitem::find($this->categoria_id);
 
         return $categoria->descricao;
-
     }
 
+    public function getSubCategoriaHistorico()
+    {
+        if($this->subcategoria_id){
+            $subcategoria = OrgaoSubcategoria::find($this->subcategoria_id);
+            return $subcategoria->descricao;
+        }else{
+            return '';
+        }
+    }
 
     public function formatVlrParcelaHistorico()
     {
@@ -274,6 +283,15 @@ class Contratohistorico extends Model
 
     }
 
+    public function getSubCategoria()
+    {
+        if($this->subcategoria_id){
+            $subcategoria = OrgaoSubcategoria::find($this->subcategoria_id);
+            return $subcategoria->descricao;
+        }else{
+            return '';
+        }
+    }
 
     public function formatVlrParcela()
     {
@@ -326,6 +344,11 @@ class Contratohistorico extends Model
     public function modalidade()
     {
         return $this->belongsTo(Codigoitem::class, 'modalidade_id');
+    }
+
+    public function orgaosubcategoria()
+    {
+        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
     }
 
     /*

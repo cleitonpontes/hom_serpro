@@ -113,6 +113,11 @@ class ContratoterceirizadoCrudController extends CrudController
 //                },
             ],
             [
+                'name'  => 'descricao_complementar',
+                'label' => 'Descrição Complementar',
+                'type'  => 'text',
+            ],
+            [
                 'name'  => 'jornada',
                 'label' => 'Jornada',
                 'type'  => 'number',
@@ -253,6 +258,15 @@ class ContratoterceirizadoCrudController extends CrudController
                 'tab' => 'Dados Funcionais',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'descricao_complementar',
+                'label' => 'Descrição Complementar',
+                'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
+                'tab' => 'Dados Funcionais',
             ],
             [
                 'name' => 'jornada',

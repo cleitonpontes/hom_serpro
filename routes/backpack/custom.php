@@ -31,6 +31,8 @@ Route::group([
             Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
             Route::get('catmatseritem', 'CatmatseritemController@index');
             Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
+            Route::get('orgaosubcategoria', 'OrgaosubcategoriaController@index');
+            Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
         });
 
 // if not otherwise configured, setup the dashboard routes
@@ -89,6 +91,10 @@ Route::group([
 
             Route::group(['prefix' => 'unidade/{unidade_id}'], function () {
                 CRUD::resource('configuracao', 'UnidadeconfiguracaoCrudController');
+            });
+
+            Route::group(['prefix' => 'orgao/{orgao_id}'], function () {
+                CRUD::resource('subcategorias', 'OrgaoSubcategoriaCrudController');
             });
 
         });

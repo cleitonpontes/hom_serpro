@@ -129,6 +129,18 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+
+            [
+                'name' => 'getSubCategoria',
+                'label' => 'Subcategoria', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSubCategoria', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
             [
                 'name' => 'getFornecedor',
                 'label' => 'Fornecedor', // Table column heading

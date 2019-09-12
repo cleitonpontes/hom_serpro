@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ContratoarquivoRequest extends FormRequest
+class OrgaoSubcategoriaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,16 +25,12 @@ class ContratoarquivoRequest extends FormRequest
      */
     public function rules()
     {
-
-        $rules = [
-            'contrato_id' => 'required',
-            'tipo' => 'required',
-            'processo' => 'required',
-            'arquivos.*' => 'required|mimetypes:application/pdf',
+        return [
+             'orgao_id' => 'required',
+             'categoria_id' => 'required',
+             'descricao' => 'required|min:3|max:255',
+             'situacao' => 'required',
         ];
-
-
-        return $rules;
     }
 
     /**
@@ -57,7 +53,11 @@ class ContratoarquivoRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'orgao_id.required' => 'O campo "Órgão" é obrigatório!',
+            'categoria_id.required' => 'O campo "Categoria" é obrigatório!',
+            'descricao.required' => 'O campo "Subcategoria" é obrigatório!',
+            'descricao.max' => 'O campo "Subcategoria" deve ser no máximo 255 caracteres!',
+            'descricao.min' => 'O campo "Subcategoria" deve ser no mínimo 3 caracteres!',
         ];
     }
 }
