@@ -40,6 +40,7 @@ class ContratohistoricoCrudController extends CrudController
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->orderBy('data_assinatura', 'asc');
         $this->crud->enableExportButtons();
+        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
@@ -91,10 +92,11 @@ class ContratohistoricoCrudController extends CrudController
                 'type' => 'text',
                 'limit' => 1000,
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'priority' => 3,
             ],
             [
                 'name' => 'numero',

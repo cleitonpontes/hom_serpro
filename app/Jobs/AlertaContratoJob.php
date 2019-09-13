@@ -99,8 +99,7 @@ class AlertaContratoJob implements ShouldQueue
 
     }
 
-    public
-    function extratoMensal()
+    public function extratoMensal()
     {
         $dia = date('d');
 
