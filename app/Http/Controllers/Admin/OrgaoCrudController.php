@@ -22,7 +22,7 @@ class OrgaoCrudController extends CrudController
     public function setup()
     {
 
-        if (!backpack_user()->hasRole('Administrador') or  backpack_user()->hasRole('Administrador Órgão')) {
+        if (backpack_user()->hasRole('Administrador') or backpack_user()->hasRole('Administrador Órgão')) {
             /*
             |--------------------------------------------------------------------------
             | CrudPanel Basic Information
