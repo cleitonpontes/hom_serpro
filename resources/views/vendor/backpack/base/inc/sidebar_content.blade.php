@@ -96,18 +96,23 @@
                             <li><a href="{{ backpack_url('/admin/orgaosuperior') }}"><i class="fa fa-building"></i>
                                     <span>Órgão Superior</span></a>
                             </li>
+                        @endif
+                        @if(backpack_user()->hasRole('Administrador') or backpack_user()->hasRole('Administrador Órgão'))
                             <li><a href="{{ backpack_url('/admin/orgao') }}"><i class="fa fa-building"></i>
                                     <span>Órgão</span></a>
                             </li>
+                        @endif
+                        @if(backpack_user()->hasRole('Administrador') or backpack_user()->hasRole('Administrador Órgão') or backpack_user()->hasRole('Administrador Unidade'))
                             <li><a href="{{ backpack_url('/admin/unidade') }}"><i class="fa fa-building"></i>
                                     <span>Unidade</span></a>
                             </li>
                         @endif
-                        @if(backpack_user()->hasRole('Administrador Unidade'))
-                            <li><a href="{{ backpack_url('/admin/administradorunidade') }}"><i class="fa fa-building"></i>
-                                    <span>Unidade Admin UG</span></a>
-                            </li>
-                        @endif
+{{--                        @if(backpack_user()->hasRole('Administrador Unidade'))--}}
+{{--                            <li><a href="{{ backpack_url('/admin/administradorunidade') }}"><i--}}
+{{--                                        class="fa fa-building"></i>--}}
+{{--                                    <span>Unidade Admin UG</span></a>--}}
+{{--                            </li>--}}
+{{--                        @endif--}}
                     </ul>
                 </li>
             @endif

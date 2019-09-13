@@ -283,10 +283,17 @@ class UsuarioUnidadeCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        $usuario = BackpackUser::where('cpf', '=', $request->input('cpf'))->first();
+
+        if ($usuario->hasRole('Administrador Órgão') or $usuario->hasRole('Administrador') or $usuario->hasRole('Administrador Unidade')) {
+            \Alert::error('Sem permissão para alterar este Usuário!')->flash();
+            return redirect()->back();
+        }else{
+            // your additional operations before save here
+            $redirect_location = parent::updateCrud($request);
+            // your additional operations after save here
+            // use $this->data['entry'] or $this->crud->entry
+            return $redirect_location;
+        }
     }
 }

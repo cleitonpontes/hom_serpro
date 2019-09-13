@@ -22,51 +22,52 @@ class OrgaoCrudController extends CrudController
     public function setup()
     {
 
-        if(!backpack_user()->hasRole('Administrador')){
-            abort('403', config('app.erro_permissao'));
-        }
-        /*
-        |--------------------------------------------------------------------------
-        | CrudPanel Basic Information
-        |--------------------------------------------------------------------------
-        */
-        $this->crud->setModel('App\Models\Orgao');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/orgao');
-        $this->crud->setEntityNameStrings('Órgão', 'Órgãos');
-        $this->crud->addButtonFromView('line', 'moreorgao', 'moreorgao', 'end');
+        if (!backpack_user()->hasRole('Administrador') or  backpack_user()->hasRole('Administrador Órgão')) {
+            /*
+            |--------------------------------------------------------------------------
+            | CrudPanel Basic Information
+            |--------------------------------------------------------------------------
+            */
+            $this->crud->setModel('App\Models\Orgao');
+            $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/orgao');
+            $this->crud->setEntityNameStrings('Órgão', 'Órgãos');
+            $this->crud->addButtonFromView('line', 'moreorgao', 'moreorgao', 'end');
 
 //        $this->crud->addClause('select', 'orgaos.*');
 //        $this->crud->addClause('join', 'orgaossuperiores', 'orgaossuperiores.id', '=', 'orgaos.orgaosuperior_id');
 
-        $this->crud->enableExportButtons();
-        $this->crud->denyAccess('create');
-        $this->crud->denyAccess('update');
-        $this->crud->denyAccess('delete');
-        $this->crud->allowAccess('show');
+            $this->crud->enableExportButtons();
+            $this->crud->denyAccess('create');
+            $this->crud->denyAccess('update');
+            $this->crud->denyAccess('delete');
+            $this->crud->allowAccess('show');
 
-        (backpack_user()->can('orgao_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('orgao_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('orgao_deletar')) ? $this->crud->allowAccess('delete') : null;
+            (backpack_user()->can('orgao_inserir')) ? $this->crud->allowAccess('create') : null;
+            (backpack_user()->can('orgao_editar')) ? $this->crud->allowAccess('update') : null;
+            (backpack_user()->can('orgao_deletar')) ? $this->crud->allowAccess('delete') : null;
 
-        /*
-        |--------------------------------------------------------------------------
-        | CrudPanel Configuration
-        |--------------------------------------------------------------------------
-        */
+            /*
+            |--------------------------------------------------------------------------
+            | CrudPanel Configuration
+            |--------------------------------------------------------------------------
+            */
 
-        // TODO: remove setFromDb() and manually define Fields and Columns
+            // TODO: remove setFromDb() and manually define Fields and Columns
 //        $this->crud->setFromDb();
-        $colunas = $this->Colunas();
-        $this->crud->addColumns($colunas);
+            $colunas = $this->Colunas();
+            $this->crud->addColumns($colunas);
 
-        $orgaossuperiores = OrgaoSuperior::where('situacao','=', true)->pluck('nome', 'id')->toArray();
+            $orgaossuperiores = OrgaoSuperior::where('situacao', '=', true)->pluck('nome', 'id')->toArray();
 
-        $campos = $this->Campos($orgaossuperiores);
-        $this->crud->addFields($campos);
+            $campos = $this->Campos($orgaossuperiores);
+            $this->crud->addFields($campos);
 
-        // add asterisk for fields that are required in OrgaoRequest
-        $this->crud->setRequiredFields(StoreRequest::class, 'create');
-        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+            // add asterisk for fields that are required in OrgaoRequest
+            $this->crud->setRequiredFields(StoreRequest::class, 'create');
+            $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+        } else {
+            abort('403', config('app.erro_permissao'));
+        }
     }
 
     public function Colunas()
@@ -221,6 +222,7 @@ class OrgaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
