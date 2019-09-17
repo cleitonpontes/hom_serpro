@@ -58,7 +58,7 @@ class ApostilamentoCrudController extends CrudController
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
-        $this->crud->disableResponsiveTable();
+//        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
