@@ -119,6 +119,7 @@ Route::group([
                 CRUD::resource('aditivos', 'AditivoCrudController');
                 CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
                 CRUD::resource('itens', 'ContratoitemCrudController');
+                CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
