@@ -212,7 +212,7 @@ class ContratoprepostoCrudController extends CrudController
                 'label' => 'E-mail',
                 'type' => 'email',
                 'attributes' => [
-                    'onkeyup' => "minuscula(this)"
+                    'onkeyup' => "minusculo(this)"
                 ],
                 'tab' => 'Dados Preposto',
             ],
