@@ -145,6 +145,7 @@ class ContratoController extends Controller
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = [
+                'id' => $contrato->id,
                 'receita_despesa' => ($contrato->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
                 'numero' => $contrato->numero,
                 'contratante' => [
@@ -200,6 +201,7 @@ class ContratoController extends Controller
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = [
+                'id' => $contrato->id,
                 'receita_despesa' => ($contrato->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
                 'numero' => $contrato->numero,
                 'contratante' => [
@@ -255,6 +257,7 @@ class ContratoController extends Controller
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = [
+                'id' => $contrato->id,
                 'receita_despesa' => ($contrato->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
                 'numero' => $contrato->numero,
                 'contratante' => [
