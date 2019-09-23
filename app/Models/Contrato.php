@@ -51,6 +51,7 @@ class Contrato extends Model
         'valor_acumulado',
         'situacao_siasg',
         'situacao',
+        'unidades_requisitantes',
     ];
 
 

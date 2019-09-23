@@ -119,7 +119,16 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
-
+            [
+                'name' => 'unidades_requisitantes',
+                'label' => 'Unidades Requisitantes',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
             [
                 'name' => 'getCategoria',
                 'label' => 'Categoria', // Table column heading

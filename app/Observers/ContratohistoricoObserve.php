@@ -117,6 +117,7 @@ class ContratohistoricoObserve
                 unset($arrayhistorico['novo_num_parcelas']);
                 unset($arrayhistorico['novo_valor_parcela']);
                 unset($arrayhistorico['data_inicio_novo_valor']);
+                unset($arrayhistorico['unidades_requisitantes']);
 
             }
             unset($arrayhistorico['id']);

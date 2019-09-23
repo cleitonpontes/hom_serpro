@@ -153,6 +153,16 @@ class InstrumentoinicialCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'unidades_requisitantes',
+                'label' => 'Unidades Requisitantes',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'getTipoHistorico',
                 'label' => 'Tipo', // Table column heading
                 'type' => 'model_function',
@@ -414,6 +424,12 @@ class InstrumentoinicialCrudController extends CrudController
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'unidades_requisitantes',
+                'label' => 'Unidades Requisitantes',
+                'type' => 'text',
+                'tab' => 'Dados Gerais',
             ],
             [ // select_from_array
                 'name' => 'situacao',
