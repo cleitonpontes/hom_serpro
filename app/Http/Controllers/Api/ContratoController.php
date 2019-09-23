@@ -148,22 +148,14 @@ class ContratoController extends Controller
                 'id' => $contrato->id,
                 'receita_despesa' => ($contrato->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
                 'numero' => $contrato->numero,
-                'contratante' => [
-                    'orgao' => [
-                        'codigo' => $contrato->unidade->orgao->codigo,
-                        'nome' => $contrato->unidade->orgao->nome,
-                        'unidade_gestora' => [
-                            'codigo' => $contrato->unidade->codigo,
-                            'nome_resumido' => $contrato->unidade->nomeresumido,
-                            'nome' => $contrato->unidade->nome,
-                        ],
-                    ],
-                ],
-                'fornecedor' => [
-                    'tipo' => $contrato->fornecedor->tipo_fornecedor,
-                    'cnpj_cpf_idgener' => $contrato->fornecedor->cpf_cnpj_idgener,
-                    'nome' => $contrato->fornecedor->nome,
-                ],
+                'orgao_codigo' => $contrato->unidade->orgao->codigo,
+                'orgao_nome' => $contrato->unidade->orgao->nome,
+                'unidade_codigo' => $contrato->unidade->codigo,
+                'unidade_nome_resumido' => $contrato->unidade->nomeresumido,
+                'unidade_nome' => $contrato->unidade->nome,
+                'fornecedor_tipo' => $contrato->fornecedor->tipo_fornecedor,
+                'fonecedor_cnpj_cpf_idgener' => $contrato->fornecedor->cpf_cnpj_idgener,
+                'fornecedor_nome' => $contrato->fornecedor->nome,
                 'tipo' => $contrato->tipo->descricao,
                 'categoria' => $contrato->categoria->descricao,
                 'processo' => $contrato->processo,
@@ -180,11 +172,10 @@ class ContratoController extends Controller
                 'num_parcelas' => $contrato->num_parcelas,
                 'valor_parcela' => number_format($contrato->valor_parcela, 2, ',', '.'),
                 'valor_acumulado' => number_format($contrato->valor_acumulado, 2, ',', '.'),
-                'links' => [
-                    'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
-                    'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
-                    'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
-                ]
+                'link_historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
+                'link_empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
+                'link_cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
+
             ];
 
         }
