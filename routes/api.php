@@ -25,7 +25,9 @@ Route::group([
     Route::group([
         'prefix' => 'contrato',
     ], function (){
+        Route::get('/', 'ContratoController@contratoAtivoAll');
         Route::get('/ug/{unidade_codigo}', 'ContratoController@contratoAtivoPorUg');
+        Route::get('/orgao/{orgao}', 'ContratoController@contratoAtivoPorOrgao');
         Route::get('/{contrato_id}/historico', 'ContratoController@historicoPorContratoId');
         Route::get('/{contrato_id}/empenhos', 'ContratoController@empenhosPorContratoId');
         Route::get('/{contrato_id}/cronograma', 'ContratoController@cronogramaPorContratoId');
