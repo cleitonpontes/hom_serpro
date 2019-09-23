@@ -331,7 +331,12 @@ class ContratoController extends Controller
 
     private function buscaContratos()
     {
-        $contratos = Contrato::where('situacao', true)
+        $contratos = Contrato::whereHas('unidade', function ($q) {
+            $q->whereHas('orgao', function($o) {
+                $o->where('situacao',true);
+            });
+        })
+            ->where('situacao', true)
             ->orderBy('id')
             ->get();
 
