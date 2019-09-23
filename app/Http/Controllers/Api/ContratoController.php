@@ -306,7 +306,11 @@ class ContratoController extends Controller
     private function buscaContratosPorUg(string $unidade)
     {
         $contratos = Contrato::whereHas('unidade', function ($q) use ($unidade) {
-            $q->where('codigo', $unidade);
+            $q->whereHas('orgao', function ($o) {
+                $o->where('situacao', true);
+            })
+                ->where('codigo', $unidade)
+                ->where('situacao', true);
         })
             ->where('situacao', true)
             ->orderBy('id')
@@ -318,8 +322,9 @@ class ContratoController extends Controller
     private function buscaContratosPorOrgao(string $orgao)
     {
         $contratos = Contrato::whereHas('unidade', function ($q) use ($orgao) {
-            $q->whereHas('orgao', function($o) use($orgao){
-                $o->where('codigo',$orgao);
+            $q->whereHas('orgao', function ($o) use ($orgao) {
+                $o->where('codigo', $orgao)
+                    ->where('situacao', true);
             });
         })
             ->where('situacao', true)
@@ -332,8 +337,8 @@ class ContratoController extends Controller
     private function buscaContratos()
     {
         $contratos = Contrato::whereHas('unidade', function ($q) {
-            $q->whereHas('orgao', function($o) {
-                $o->where('situacao',true);
+            $q->whereHas('orgao', function ($o) {
+                $o->where('situacao', true);
             });
         })
             ->where('situacao', true)
