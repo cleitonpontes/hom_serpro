@@ -2,16 +2,18 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
-## [5.0.001] Próxima - Previsão: 31/07/2019
+## [5.0.000] Lançamento Oficial - Previsão: 01/10/2019
 
 ### Implementação
 - CRUD para alteração do Instrumento Inicial para correção de erros digitação;
+- CRUD para cadastramento de Prepostos do Contrato;
+- CRUD para cadastramento dos Itens do Contrato;
 - Data Início e Data Fim para Responsáveis de Contratos;
 - Cronograma de Desembolso Financeiro do Contrato;
 - Todas as funcionalidades do Sistema Conta Versão 4.1.11 (Framework Scriptcase);
 
 ### Descontinuada
-- Nenhuma
+- Módulo TED
 
 ### Bug
 - Correção do cálculo do Valor Acumulado atualizado por meio do Cronograma (bug da versão 4.1.11).
@@ -21,14 +23,7 @@ Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 - Nenhuma
 
 ### Segurança
-- Nenhuma
+- Alteração tipo de criptocrafia da senha do usuário
+- Novo Framework - Laravel 5.7
 
------------
 
-## [5.0.000] - 15/03/2019 - Versão de Sistema em Desenvolvimento
-
-### Implementação - em Andamento
-- Algumas as funcionalidades do Sistema Conta Versão 4.1.11 (Framework Scriptcase);
-
-### Bug
-- Nenhuma.
