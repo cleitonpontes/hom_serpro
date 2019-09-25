@@ -8,6 +8,7 @@ use App\Models\Apropriacao;
 //use App\Models\Permission;
 //use App\Models\Role;
 //use App\Models\Unidade;
+use App\Models\Contrato;
 use App\Models\Empenho;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -82,14 +83,34 @@ class ExportController extends Controller
 //            });
 //        })->export($type);
 //    }
-    
+
+    public function downloadListaTodosContratos(Request $request, $type)
+    {
+        $filtro = null;
+
+        if ($request->input()) {
+            $filtro = $request->input();
+        }
+
+        $modelo = new Contrato();
+        $dados = $modelo->buscaListaTodosContratos($filtro);
+
+        $data = $dados->toArray();
+
+        return Excel::create('todos_contratos_'. date('YmdHis'), function ($excel) use ($data) {
+            $excel->sheet('lista', function ($sheet) use ($data) {
+                $sheet->fromArray($data);
+            });
+        })->export($type);
+    }
+
     public function downloadapropriacao(Request $request, $type)
     {
         $modelo = new Apropriacao();
         $apropriacao = $modelo->retornaListagem();
-        
+
         $data = $apropriacao->toArray();
-        
+
         return Excel::create('apropriacao_'. date('YmdHis'), function ($excel) use ($data) {
             $excel->sheet('lista', function ($sheet) use ($data) {
                 $sheet->fromArray($data);
@@ -123,5 +144,5 @@ class ExportController extends Controller
             });
         })->export($type);
     }
-    
+
 }

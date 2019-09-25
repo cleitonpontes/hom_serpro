@@ -55,6 +55,7 @@ class RelContratoController extends Controller
         return view('backpack::mod.relatorios.relatorio',
             [
                 'data' => $this->data,
+                'filtro' => $filtro,
                 'dataTable' => $html
             ]);
     }

@@ -82,9 +82,11 @@ Route::group([
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
                 ->name('apropriacao.download');
+
             Route::get('downloadexecucaoporempenho/{type}', 'ExportController@downloadExecucaoPorEmpenho')
                 ->name('execucaoporempenho.download');
-            Route::get('downloadrelatoriolistatodoscontratos/{type}', 'ExportController@downloadExecucaoPorEmpenho')
+
+            Route::get('downloadlistatodoscontratos/{type}', 'ExportController@downloadListaTodosContratos')
                 ->name('listatodoscontratos.download');
 
             Route::group(['prefix' => 'codigo/{codigo_id}'], function () {
