@@ -64,6 +64,116 @@ class Contrato extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function buscaListaContratosUg($filtro)
+    {
+
+        $unidade_user = Unidade::find(session()->get('user_ug_id'));
+
+        $lista = $this->select([
+            DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
+            DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
+            DB::raw('CASE 
+                                WHEN receita_despesa = \'D\'  
+                                THEN \'Despesa\'  
+                                ELSE \'Receita\'
+                           END as receita_despesa'),
+            'unidades_requisitantes',
+            'numero',
+            DB::raw('"F"."cpf_cnpj_idgener" as fornecedor_codigo'),
+            DB::raw('"F"."nome" as fornecedor_nome'),
+            'T.descricao as tipo',
+            'C.descricao as categoria',
+            'S.descricao as subcategoria',
+            'processo',
+            'objeto',
+            'info_complementar',
+            'M.descricao as modalidade',
+            'licitacao_numero',
+            'data_assinatura',
+            'data_publicacao',
+            'vigencia_inicio',
+            'vigencia_fim',
+            'valor_inicial',
+            'valor_global',
+            'num_parcelas',
+            'valor_parcela',
+            'valor_acumulado',
+            DB::raw('CASE 
+                                WHEN contratos.situacao = \'t\'  
+                                THEN \'Ativo\'  
+                                ELSE \'Inativo\'
+                           END as situacao'),
+            'unidades_requisitantes',
+        ]);
+
+        $lista->leftjoin('orgaosubcategorias as S', 'S.id', '=', 'contratos.subcategoria_id');
+        $lista->leftjoin('codigoitens as M', 'M.id', '=', 'contratos.modalidade_id');
+        $lista->leftjoin('codigoitens as C', 'C.id', '=', 'contratos.categoria_id');
+        $lista->leftjoin('codigoitens as T', 'T.id', '=', 'contratos.tipo_id');
+        $lista->leftjoin('fornecedores as F', 'F.id', '=', 'contratos.fornecedor_id');
+        $lista->leftjoin('unidades as U', 'U.id', '=', 'contratos.unidade_id');
+        $lista->leftjoin('orgaos as O', 'O.id', '=', 'U.orgao_id');
+
+        $lista->where('U.id',$unidade_user->id);
+
+        return $lista->get();
+    }
+
+    public function buscaListaContratosOrgao($filtro)
+    {
+
+        $unidade_user = Unidade::find(session()->get('user_ug_id'));
+
+        $lista = $this->select([
+            DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
+            DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
+            DB::raw('CASE 
+                                WHEN receita_despesa = \'D\'  
+                                THEN \'Despesa\'  
+                                ELSE \'Receita\'
+                           END as receita_despesa'),
+            'unidades_requisitantes',
+            'numero',
+            DB::raw('"F"."cpf_cnpj_idgener" as fornecedor_codigo'),
+            DB::raw('"F"."nome" as fornecedor_nome'),
+            'T.descricao as tipo',
+            'C.descricao as categoria',
+            'S.descricao as subcategoria',
+            'processo',
+            'objeto',
+            'info_complementar',
+            'M.descricao as modalidade',
+            'licitacao_numero',
+            'data_assinatura',
+            'data_publicacao',
+            'vigencia_inicio',
+            'vigencia_fim',
+            'valor_inicial',
+            'valor_global',
+            'num_parcelas',
+            'valor_parcela',
+            'valor_acumulado',
+            DB::raw('CASE 
+                                WHEN contratos.situacao = \'t\'  
+                                THEN \'Ativo\'  
+                                ELSE \'Inativo\'
+                           END as situacao'),
+            'unidades_requisitantes',
+        ]);
+
+        $lista->leftjoin('orgaosubcategorias as S', 'S.id', '=', 'contratos.subcategoria_id');
+        $lista->leftjoin('codigoitens as M', 'M.id', '=', 'contratos.modalidade_id');
+        $lista->leftjoin('codigoitens as C', 'C.id', '=', 'contratos.categoria_id');
+        $lista->leftjoin('codigoitens as T', 'T.id', '=', 'contratos.tipo_id');
+        $lista->leftjoin('fornecedores as F', 'F.id', '=', 'contratos.fornecedor_id');
+        $lista->leftjoin('unidades as U', 'U.id', '=', 'contratos.unidade_id');
+        $lista->leftjoin('orgaos as O', 'O.id', '=', 'U.orgao_id');
+
+        $lista->where('O.id',$unidade_user->orgao->id);
+
+        return $lista->get();
+    }
+
     public function buscaListaTodosContratos($filtro)
     {
 

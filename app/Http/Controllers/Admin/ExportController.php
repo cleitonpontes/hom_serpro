@@ -104,6 +104,46 @@ class ExportController extends Controller
         })->export($type);
     }
 
+    public function downloadListaContratosOrgao(Request $request, $type)
+    {
+        $filtro = null;
+
+        if ($request->input()) {
+            $filtro = $request->input();
+        }
+
+        $modelo = new Contrato();
+        $dados = $modelo->buscaListaContratosOrgao($filtro);
+
+        $data = $dados->toArray();
+
+        return Excel::create('contratos_orgao_'. date('YmdHis'), function ($excel) use ($data) {
+            $excel->sheet('lista', function ($sheet) use ($data) {
+                $sheet->fromArray($data);
+            });
+        })->export($type);
+    }
+
+    public function downloadListaContratosUg(Request $request, $type)
+    {
+        $filtro = null;
+
+        if ($request->input()) {
+            $filtro = $request->input();
+        }
+
+        $modelo = new Contrato();
+        $dados = $modelo->buscaListaContratosUg($filtro);
+
+        $data = $dados->toArray();
+
+        return Excel::create('contratos_orgao_'. date('YmdHis'), function ($excel) use ($data) {
+            $excel->sheet('lista', function ($sheet) use ($data) {
+                $sheet->fromArray($data);
+            });
+        })->export($type);
+    }
+
     public function downloadapropriacao(Request $request, $type)
     {
         $modelo = new Apropriacao();

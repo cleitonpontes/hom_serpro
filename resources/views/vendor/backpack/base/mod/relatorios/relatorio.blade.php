@@ -31,10 +31,10 @@
                         </div>
                         <div class="box-body">
                             <div class="box-tools">
-                                {!!
-                                Button::primary('<i class="fa fa-search"></i> Filtrar')
-                                        ->asLinkTo(route($data['filtro_route']))
-                                !!}
+{{--                                {!!--}}
+{{--                                Button::primary('<i class="fa fa-search"></i> Filtrar')--}}
+{{--                                        ->asLinkTo(route($data['filtro_route']))--}}
+{{--                                !!}--}}
                                 <div class="btn-group">
                                     {!! DropdownButton::normal('<i class="fa fa-gear"></i> Exportação')->withContents([
                                         ['url' => route($data['download_route'],['type' => 'xlsx']), 'label' => '<i class="fa fa-file-excel-o"></i> xlsx '],

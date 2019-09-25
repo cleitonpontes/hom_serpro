@@ -60,6 +60,86 @@ class RelContratoController extends Controller
             ]);
     }
 
+    public function listaContratosOrgao(Request $request)
+    {
+        $this->data['title'] = "Lista Contratos do Órgão";
+        $this->data['download_route'] = "listacontratosorgao.download";
+        $this->data['filtro_route'] = "filtro.listacontratosorgao";
+
+        $filtro = null;
+
+        if ($request->input()) {
+            $filtro = $request->input();
+        }
+
+        $model = new Contrato();
+        $dados = $model->buscaListaContratosOrgao($filtro);
+
+
+        //datatables
+        if ($request->ajax()) {
+            $grid = DataTables::of($dados);
+            $grid->editColumn('data_assinatura', '{!! implode(\'/\',array_reverse(explode(\'-\',$data_assinatura))) !!}');
+            $grid->editColumn('data_publicacao', '{!! implode(\'/\',array_reverse(explode(\'-\',$data_publicacao))) !!}');
+            $grid->editColumn('vigencia_inicio', '{!! implode(\'/\',array_reverse(explode(\'-\',$vigencia_inicio))) !!}');
+            $grid->editColumn('vigencia_fim', '{!! implode(\'/\',array_reverse(explode(\'-\',$vigencia_fim))) !!}');
+            $grid->editColumn('valor_inicial', '{!! number_format($valor_inicial,2,\',\', \'.\') !!}');
+            $grid->editColumn('valor_global', '{!! number_format($valor_global,2,\',\', \'.\') !!}');
+            $grid->editColumn('valor_parcela', '{!! number_format($valor_parcela,2,\',\', \'.\') !!}');
+            $grid->editColumn('valor_acumulado', '{!! number_format($valor_acumulado,2,\',\', \'.\') !!}');
+            return $grid->make(true);
+        }
+
+        $html = $this->retornaGrid();
+
+        return view('backpack::mod.relatorios.relatorio',
+            [
+                'data' => $this->data,
+                'filtro' => $filtro,
+                'dataTable' => $html
+            ]);
+    }
+
+    public function listaContratosUg(Request $request)
+    {
+        $this->data['title'] = "Lista Contratos da UG";
+        $this->data['download_route'] = "listacontratosug.download";
+        $this->data['filtro_route'] = "filtro.listacontratosug";
+
+        $filtro = null;
+
+        if ($request->input()) {
+            $filtro = $request->input();
+        }
+
+        $model = new Contrato();
+        $dados = $model->buscaListaContratosUg($filtro);
+
+
+        //datatables
+        if ($request->ajax()) {
+            $grid = DataTables::of($dados);
+            $grid->editColumn('data_assinatura', '{!! implode(\'/\',array_reverse(explode(\'-\',$data_assinatura))) !!}');
+            $grid->editColumn('data_publicacao', '{!! implode(\'/\',array_reverse(explode(\'-\',$data_publicacao))) !!}');
+            $grid->editColumn('vigencia_inicio', '{!! implode(\'/\',array_reverse(explode(\'-\',$vigencia_inicio))) !!}');
+            $grid->editColumn('vigencia_fim', '{!! implode(\'/\',array_reverse(explode(\'-\',$vigencia_fim))) !!}');
+            $grid->editColumn('valor_inicial', '{!! number_format($valor_inicial,2,\',\', \'.\') !!}');
+            $grid->editColumn('valor_global', '{!! number_format($valor_global,2,\',\', \'.\') !!}');
+            $grid->editColumn('valor_parcela', '{!! number_format($valor_parcela,2,\',\', \'.\') !!}');
+            $grid->editColumn('valor_acumulado', '{!! number_format($valor_acumulado,2,\',\', \'.\') !!}');
+            return $grid->make(true);
+        }
+
+        $html = $this->retornaGrid();
+
+        return view('backpack::mod.relatorios.relatorio',
+            [
+                'data' => $this->data,
+                'filtro' => $filtro,
+                'dataTable' => $html
+            ]);
+    }
+
     public function filtroListaTodosContratos(Request $request)
     {
         $this->data['title'] = "Filtro - Lista Todos Contratos";

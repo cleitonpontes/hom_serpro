@@ -89,6 +89,12 @@ Route::group([
             Route::get('downloadlistatodoscontratos/{type}', 'ExportController@downloadListaTodosContratos')
                 ->name('listatodoscontratos.download');
 
+            Route::get('downloadlistacontratosorgao/{type}', 'ExportController@downloadListaContratosOrgao')
+                ->name('listacontratosorgao.download');
+
+            Route::get('downloadlistacontratosug/{type}', 'ExportController@downloadListaContratosUg')
+                ->name('listacontratosug.download');
+
             Route::group(['prefix' => 'codigo/{codigo_id}'], function () {
                 CRUD::resource('codigoitem', 'CodigoitemCrudController');
             });
@@ -161,6 +167,12 @@ Route::group([
         ], function () {
             Route::get('listatodoscontratos', 'RelContratoController@listaTodosContratos')->name('relatorio.listatodoscontratos');
             Route::get('filtrolistatodoscontratos', 'RelContratoController@filtroListaTodosContratos')->name('filtro.listatodoscontratos');
+
+            Route::get('listacontratosorgao', 'RelContratoController@listaContratosOrgao')->name('relatorio.listacontratosorgao');
+//            Route::get('filtrolistacontratosorgao', 'RelContratoController@filtroListaContratosOrgao')->name('filtro.listacontratosorgao');
+
+            Route::get('listacontratosug', 'RelContratoController@listaContratosUg')->name('relatorio.listacontratosug');
+//            Route::get('filtrolistacontratosug', 'RelContratoController@filtroListaContratosUg')->name('filtro.listacontratosug');
         });
 
     });
