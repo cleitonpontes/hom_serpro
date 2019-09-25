@@ -79,11 +79,13 @@ Route::group([
             CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
             CRUD::resource('comunica', 'ComunicaCrudController');
 
-            // Exporatções
+            // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
                 ->name('apropriacao.download');
             Route::get('downloadexecucaoporempenho/{type}', 'ExportController@downloadExecucaoPorEmpenho')
                 ->name('execucaoporempenho.download');
+            Route::get('downloadrelatoriolistatodoscontratos/{type}', 'ExportController@downloadExecucaoPorEmpenho')
+                ->name('listatodoscontratos.download');
 
             Route::group(['prefix' => 'codigo/{codigo_id}'], function () {
                 CRUD::resource('codigoitem', 'CodigoitemCrudController');
@@ -155,7 +157,8 @@ Route::group([
             'prefix' => 'relatorio',
             'namespace' => 'Relatorio',
         ], function () {
-            Route::get('listacontrato', 'RelContratoController@index')->name('relatorio.listacontrato');
+            Route::get('listatodoscontratos', 'RelContratoController@listaTodosContratos')->name('relatorio.listatodoscontratos');
+            Route::get('filtrolistatodoscontratos', 'RelContratoController@filtroListaTodosContratos')->name('filtro.listatodoscontratos');
         });
 
     });

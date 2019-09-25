@@ -3,7 +3,7 @@
 @section('header')
     <section class="content-header">
         <h1>
-            Relatório - {{ $data['title'] }}
+            {{ $data['title'] }}
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>
@@ -19,28 +19,30 @@
         <div class="col-md-12">
             <div class="row">
                 <section class="col-lg-12 connectedSortable ui-sortable">
-                    <div class="box box-solid box-warning">
+                    <div class="box box-solid box-primary">
                         <div class="box-header with-border">
                             <i class="fa fa-search"></i>
-                            <h3 class="box-title">Filtro - {{ $data['title'] }}</h3>
+                            <h3 class="box-title">Filtro</h3>
 
                             <div class="box-tools pull-right">
-                                {{--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>--}}
-                                {{--</button>--}}
-                                {{--<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>--}}
+                                <a href="{{route($data['relatorio_route'])}}" class="btn btn-box-tool" title="Voltar">
+                                    <i class="fa fa-times"></i>
+                                </a>
                             </div>
                         </div>
                         <div class="box-body">
                             <fieldset class="form-group">
-                                <div class="col-md-6">
-                                    {!! form_row($form->tipo_contrato) !!}
-                                </div>
-                                <div class="col-md-6">
-                                    {!! form_row($form->numero) !!}
-                                </div>
-                                <div class="col-md-12">
-                                    {!! form_end($form) !!}
-                                </div>
+                                {!! form($form) !!}
+{{--                                {!! form_start($form) !!}--}}
+{{--                                <div class="col-md-6">--}}
+{{--                                    {!! form_row($form->tipo_contrato) !!}--}}
+{{--                                </div>--}}
+{{--                                <div class="col-md-6">--}}
+{{--                                    {!! form_row($form->numero) !!}--}}
+{{--                                </div>--}}
+{{--                                <div class="col-md-12">--}}
+{{--                                    {!! form_end($form) !!}--}}
+{{--                                </div>--}}
                             </fieldset>
                         </div>
 
