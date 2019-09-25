@@ -137,7 +137,7 @@ class ExportController extends Controller
 
         $data = $dados->toArray();
 
-        return Excel::create('contratos_orgao_'. date('YmdHis'), function ($excel) use ($data) {
+        return Excel::create('contratos_ug_'. date('YmdHis'), function ($excel) use ($data) {
             $excel->sheet('lista', function ($sheet) use ($data) {
                 $sheet->fromArray($data);
             });
