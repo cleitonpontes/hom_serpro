@@ -33,16 +33,16 @@
                         <div class="box-body">
                             <fieldset class="form-group">
                                 {!! form($form) !!}
-{{--                                {!! form_start($form) !!}--}}
-{{--                                <div class="col-md-6">--}}
-{{--                                    {!! form_row($form->tipo_contrato) !!}--}}
-{{--                                </div>--}}
-{{--                                <div class="col-md-6">--}}
-{{--                                    {!! form_row($form->numero) !!}--}}
-{{--                                </div>--}}
-{{--                                <div class="col-md-12">--}}
-{{--                                    {!! form_end($form) !!}--}}
-{{--                                </div>--}}
+                                {{--                                {!! form_start($form) !!}--}}
+                                {{--                                <div class="col-md-6">--}}
+                                {{--                                    {!! form_row($form->tipo_contrato) !!}--}}
+                                {{--                                </div>--}}
+                                {{--                                <div class="col-md-6">--}}
+                                {{--                                    {!! form_row($form->numero) !!}--}}
+                                {{--                                </div>--}}
+                                {{--                                <div class="col-md-12">--}}
+                                {{--                                    {!! form_end($form) !!}--}}
+                                {{--                                </div>--}}
                             </fieldset>
                         </div>
 
@@ -79,6 +79,13 @@
 
         });
 
+        $(document).ready(function () {
+            $('#orgao_id').select2();
+            $('#unidade_id').select2();
+            $('#fornecedor_id').select2();
+        });
+
+        $('#processo').mask('99999.999999/9999-99');
     </script>
 @endpush
 

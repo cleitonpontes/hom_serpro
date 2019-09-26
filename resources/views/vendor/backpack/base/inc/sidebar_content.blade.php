@@ -12,6 +12,8 @@
                 {{--<span>Financeiro</span></a></li>--}}
                 <li><a href="{{ backpack_url('/painel/orcamentario') }}"><i class="fa fa-money"></i>
                         <span>Orçamentário</span></a></li>
+                <li><a href="https://app.powerbi.com/view?r=eyJrIjoiYzQxMmQwZjgtMGJkOC00OGY4LTk2MmItMWVjMGU5NmNiMTBhIiwidCI6IjRkNzlkMzdhLTFlNGUtNGEzOS05ZmRlLWYxNjMxY2I2MDdkNCJ9" target="_blank"><i class="fa fa-money"></i>
+                        <span>Contratos</span></a></li>
             </ul>
         </li>
     </ul>

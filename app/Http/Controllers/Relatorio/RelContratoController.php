@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Relatorio;
 
 use App\Forms\FiltroRelatorioContratosForm;
+use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Empenho;
+use App\Models\Fornecedor;
+use App\Models\Orgao;
+use App\Models\Unidade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
 
@@ -28,7 +33,9 @@ class RelContratoController extends Controller
 
         $filtro = null;
 
-        if ($request->input()) {
+//        dd($request->query());
+
+        if ($request->query()) {
             $filtro = $request->input();
         }
 
@@ -145,11 +152,54 @@ class RelContratoController extends Controller
         $this->data['title'] = "Filtro - Lista Todos Contratos";
         $this->data['relatorio_route'] = "relatorio.listatodoscontratos";
 
-        $form = \FormBuilder::create(FiltroRelatorioContratosForm::class, [
-            'method' => 'GET',
-            'model' => ($request->input()) ? $request->input() : '',
-            'url' => route('relatorio.listatodoscontratos'),
-        ]);
+        $orgaos = Orgao::select(DB::raw("CONCAT(codigo,' - ',nome) AS nome"), 'id')
+            ->where('situacao',true)
+            ->orderBy('codigo', 'asc')
+            ->pluck('nome', 'id')
+            ->toArray();
+
+        $unidades = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
+            ->where('situacao',true)
+            ->orderBy('codigo', 'asc')
+            ->pluck('nome', 'id')
+            ->toArray();
+
+        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
+            ->orderBy('nome', 'asc')
+            ->pluck('nome', 'id')
+            ->toArray();
+
+        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Termo Aditivo')
+            ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->orderBy('descricao')
+            ->pluck('descricao', 'id')
+            ->toArray();
+
+        $categorias = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Categoria Contrato');
+        })
+            ->orderBy('descricao')
+            ->pluck('descricao', 'id')
+            ->toArray();
+
+
+        $form = \FormBuilder::create(FiltroRelatorioContratosForm::class,
+            [
+                'method' => 'GET',
+                'model' => ($request->input()) ? $request->input() : '',
+                'url' => route('relatorio.listatodoscontratos'),
+            ],
+            [
+                'orgaos' => $orgaos,
+                'unidades' => $unidades,
+                'fornecedores' => $fornecedores,
+                'tipos' => $tipos,
+                'categorias' => $categorias,
+            ]
+        );
 
         if ($request->input()) {
             $data = $form->getFieldValues();
