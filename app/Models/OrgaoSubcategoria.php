@@ -13,7 +13,7 @@ class OrgaoSubcategoria extends Model
     use LogsActivity;
     protected static $logFillable = true;
     protected static $logName = 'orgaosubcategorias';
-//    use SoftDeletes;
+    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
