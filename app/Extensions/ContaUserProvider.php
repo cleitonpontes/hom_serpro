@@ -157,7 +157,7 @@ class ContaUserProvider implements UserProvider
 
             $GK = new guardiankey($GKconfig);
             $GKRet        = $GK->checkaccess($user->cpf,$user->email,($valid_credentials)? 0 : 1 );
-            $GKJSONReturn = @json_decode($GKRet);
+            $GKJSONReturn = json_decode($GKRet);
             if ($GKJSONReturn->response == 'BLOCK' ) {
                return false;
             }
