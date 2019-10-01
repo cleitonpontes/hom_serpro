@@ -31,7 +31,7 @@ class ContratoarquivoRequest extends FormRequest
             'tipo' => 'required',
             'processo' => 'required',
             'descricao' => 'max:255',
-            'arquivos.*' => 'required|mimetypes:application/pdf',
+            'arquivos.*' => 'mimetypes:application/pdf',
         ];
 
 
