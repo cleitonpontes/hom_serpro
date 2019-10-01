@@ -60,11 +60,15 @@ class MigracaoempenhoJob implements ShouldQueue
                 $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                     ->first();
 
+//                $empenho = Empenho::where('numero', '=', $d['numero'])
+//                    ->where('unidade_id', '=', $unidade->id)
+//                    ->where('fornecedor_id', '=', $credor->id)
+//                    ->where('planointerno_id', '=', $pi->id)
+//                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
+//                    ->first();
+
                 $empenho = Empenho::where('numero', '=', $d['numero'])
                     ->where('unidade_id', '=', $unidade->id)
-                    ->where('fornecedor_id', '=', $credor->id)
-                    ->where('planointerno_id', '=', $pi->id)
-                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
                     ->first();
 
                 if (!$empenho) {
@@ -75,6 +79,11 @@ class MigracaoempenhoJob implements ShouldQueue
                         'planointerno_id' => $pi->id,
                         'naturezadespesa_id' => $naturezadespesa->id
                     ]);
+                }else{
+                    $empenho->fornecedor_id = $credor->id;
+                    $empenho->planointerno_id = $pi->id;
+                    $empenho->naturezadespesa_id = $naturezadespesa->id;
+                    $empenho->save();
                 }
 
                 foreach ($d['itens'] as $item) {
