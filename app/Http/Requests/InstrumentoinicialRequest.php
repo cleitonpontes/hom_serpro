@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
 
 class InstrumentoinicialRequest extends FormRequest
@@ -46,7 +47,13 @@ class InstrumentoinicialRequest extends FormRequest
             'processo' => 'required',
             'objeto' => 'required',
             'modalidade_id' => 'required',
-            'licitacao_numero' => 'required',
+            'licitacao_numero' => Rule::requiredIf(function () {
+                if($this->modalidade_id == '75'){
+                    return false;
+                }
+
+                return true;
+            }),
             'data_assinatura' => 'required|date',
             'vigencia_inicio' => 'required|date',
             'vigencia_fim' => 'required|date',
