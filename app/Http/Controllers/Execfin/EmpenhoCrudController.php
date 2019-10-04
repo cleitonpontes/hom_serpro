@@ -48,8 +48,8 @@ class EmpenhoCrudController extends CrudController
         (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
             'atualizasaldosempenhos', 'end') : null;
 //
-//        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
-//            'migrarempenho', 'end') : null;
+        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
+            'migrarempenho', 'end') : null;
 
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
