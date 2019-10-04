@@ -32,12 +32,13 @@ class ContratoRequest extends FormRequest
         $data_limite = date('d/m/Y', strtotime('+50 year'));
 
         return [
-            'numero' => [
-                'required',
-                (new Unique('contratos','numero'))
-                    ->ignore($id)
-                    ->where('unidade_id',$unidade_id)
-            ],
+//            'numero' => [
+//                'required',
+//                (new Unique('contratos','numero'))
+//                    ->ignore($id)
+//                    ->where('unidade_id',$unidade_id)
+//            ],
+            'numero' => 'required',
             'fornecedor_id' => 'required',
             'tipo_id' => 'required',
             'categoria_id' => 'required',

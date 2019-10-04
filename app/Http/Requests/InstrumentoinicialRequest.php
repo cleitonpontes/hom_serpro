@@ -33,13 +33,14 @@ class InstrumentoinicialRequest extends FormRequest
         $data_limite = date('d/m/Y', strtotime('+50 year'));
 
         return [
-            'numero' => [
-                'required',
-                (new Unique('contratohistorico','numero'))
-                    ->ignore($id)
-                    ->where('unidade_id',$unidade_id)
-                    ->where('tipo_id',$tipo_id)
-            ],
+//            'numero' => [
+//                'required',
+//                (new Unique('contratohistorico','numero'))
+//                    ->ignore($id)
+//                    ->where('unidade_id',$unidade_id)
+//                    ->where('tipo_id',$tipo_id)
+//            ],
+            'numero' => 'required',
             'fornecedor_id' => 'required',
             'tipo_id' => 'required',
             'categoria_id' => 'required',
@@ -49,7 +50,7 @@ class InstrumentoinicialRequest extends FormRequest
             'objeto' => 'required',
             'modalidade_id' => 'required',
             'licitacao_numero' => Rule::requiredIf(function () {
-                if($this->modalidade_id == '75'){
+                if ($this->modalidade_id == '75') {
                     return false;
                 }
 
