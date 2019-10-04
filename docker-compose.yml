@@ -10,7 +10,7 @@ volumes:
 services:
   # Postgres (9.6)
   postgres:
-    image: ambientum/postgres:9.6
+    image: postgres:9.6
     container_name: conta-postgres
     volumes:
       - conta-postgres-data:/var/lib/postgresql/data
@@ -23,7 +23,7 @@ services:
 
   # PHP (with Caddy)
   app:
-    image: ambientum/php:7.1-caddy
+    image: ambientum/php:7.1-nginx
     container_name: conta-app
     volumes:
       - .:/var/www/app

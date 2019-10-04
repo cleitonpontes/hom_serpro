@@ -14,6 +14,12 @@ class DadotipocontratoCodigoitemTable extends Migration
      */
     public function up()
     {
+
+        if(!Codigoitem::find(1)){
+            $seed = new CodigoItemSeeder();
+            $seed->run();
+        }
+
         Codigoitem::create([
             'codigo_id' => 12,
             'descres' => '99',

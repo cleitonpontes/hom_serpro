@@ -28,6 +28,11 @@ class InsertRolesTable extends Migration
         $role->givePermissionTo('usuarioorgao_editar');
         $role->givePermissionTo('usuariounidade_inserir');
         $role->givePermissionTo('usuariounidade_editar');
+
+        if(!Permission::where('name','usuario_inserir')->first()){
+            $seed = new RolesSeeder();
+            $seed->run();
+        }
         $role->givePermissionTo('contrato_inserir');
         $role->givePermissionTo('contrato_editar');
         $role->givePermissionTo('contrato_deletar');
