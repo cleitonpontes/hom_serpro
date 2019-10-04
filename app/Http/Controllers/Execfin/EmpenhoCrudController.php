@@ -45,11 +45,11 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
-        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
-            'atualizasaldosempenhos', 'end') : null;
-//
-        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
-            'migrarempenho', 'end') : null;
+//        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
+//            'atualizasaldosempenhos', 'end') : null;
+
+//        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
+//            'migrarempenho', 'end') : null;
 
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
