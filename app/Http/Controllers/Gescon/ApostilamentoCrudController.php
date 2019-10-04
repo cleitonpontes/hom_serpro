@@ -391,6 +391,15 @@ class ApostilamentoCrudController extends CrudController
                 'type' => 'date',
                 'tab' => 'Retroativo',
             ],
+            [ // select_from_array
+                'name' => 'retroativo_soma_subtrai',
+                'label' => "Soma ou Subtrai?",
+                'type' => 'radio',
+                'options' => [1 => 'Soma', 0 => 'Subtrai'],
+                'default'    => 1,
+                'inline'      => true,
+                'tab' => 'Retroativo',
+            ],
             [   // Number
                 'name' => 'retroativo_valor',
                 'label' => 'Valor Retroativo',
@@ -423,8 +432,17 @@ class ApostilamentoCrudController extends CrudController
         $request->request->set('valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($novo_valor_global), 2, '.', ''));
 
+        $soma_subtrai = $request->input('retroativo_soma_subtrai');
+
         $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
-        $request->request->set('retroativo_valor', number_format(floatval($retroativo_valor), 2, '.', ''));
+
+        if($soma_subtrai == '0'){
+            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
+        }else{
+            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
+        }
+
+        $request->request->set('retroativo_valor', $retroativo_valor);
 
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -446,8 +464,17 @@ class ApostilamentoCrudController extends CrudController
         $request->request->set('valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($novo_valor_global), 2, '.', ''));
 
+        $soma_subtrai = $request->input('retroativo_soma_subtrai');
+
         $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
-        $request->request->set('retroativo_valor', number_format(floatval($retroativo_valor), 2, '.', ''));
+
+        if($soma_subtrai == '0'){
+            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
+        }else{
+            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
+        }
+
+        $request->request->set('retroativo_valor', $retroativo_valor);
 
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);

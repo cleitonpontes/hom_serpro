@@ -245,6 +245,14 @@ class ContratocronogramaCrudController extends CrudController
                 'label' => "Vencimento",
                 'type' => 'date',
             ],
+            [ // select_from_array
+                'name' => 'soma_subtrai',
+                'label' => "Soma ou Subtrai?",
+                'type' => 'radio',
+                'options' => [1 => 'Soma', 0 => 'Subtrai'],
+                'default'    => 1,
+                'inline'      => true,
+            ],
             [   // Number
                 'name' => 'valor',
                 'label' => 'Valor',

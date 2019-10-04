@@ -132,6 +132,7 @@ class ContratohistoricoObserve
             unset($arrayhistorico['retroativo_anoref_ate']);
             unset($arrayhistorico['retroativo_vencimento']);
             unset($arrayhistorico['retroativo_valor']);
+            unset($arrayhistorico['retroativo_soma_subtrai']);
 
             $array = array_filter($arrayhistorico, function ($a) {
                 return trim($a) !== "";

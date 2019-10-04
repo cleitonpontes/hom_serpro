@@ -51,6 +51,7 @@ class Contratocronograma extends Model
         'vencimento',
         'valor',
         'retroativo',
+        'soma_subtrai',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -154,6 +155,7 @@ class Contratocronograma extends Model
                     'anoref' => date('Y', strtotime($ref)),
                     'vencimento' => $vencimento,
                     'valor' => $v,
+                    'soma_subtrai' => ($v < 0) ? false : true,
                 ];
             } else {
                 $dados[] = [
@@ -164,6 +166,7 @@ class Contratocronograma extends Model
                     'anoref' => date('Y', strtotime($ref)),
                     'vencimento' => $vencimento,
                     'valor' => $valor,
+                    'soma_subtrai' => ($valor < 0) ? false : true,
                 ];
             }
         }
@@ -174,6 +177,7 @@ class Contratocronograma extends Model
             $ret_anoref_de = $contratohistorico->retroativo_anoref_de;
             $ret_mesref_ate = $contratohistorico->retroativo_mesref_ate;
             $ret_anoref_ate = $contratohistorico->retroativo_anoref_ate;
+            $ret_soma_subtrai = $contratohistorico->retroativo_soma_subtrai;
 
 
             if ($ret_mesref_de == $ret_mesref_ate AND $ret_anoref_de == $ret_anoref_ate) {
@@ -186,6 +190,7 @@ class Contratocronograma extends Model
                     'vencimento' => $contratohistorico->retroativo_vencimento,
                     'valor' => number_format($contratohistorico->retroativo_valor, 2, '.', ''),
                     'retroativo' => true,
+                    'soma_subtrai' => $ret_soma_subtrai,
                 ];
             } else {
                 $mesrefde = new \DateTime($ret_anoref_de . '-' . $ret_mesref_de . '-01');
@@ -218,6 +223,7 @@ class Contratocronograma extends Model
                         'vencimento' => $contratohistorico->retroativo_vencimento,
                         'valor' => number_format($valor_ret, 2, '.', ''),
                         'retroativo' => true,
+                        'soma_subtrai' => $ret_soma_subtrai,
                     ];
 
                 }

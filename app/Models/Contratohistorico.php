@@ -59,6 +59,7 @@ class Contratohistorico extends Model
         'retroativo_anoref_ate',
         'retroativo_vencimento',
         'retroativo_valor',
+        'retroativo_soma_subtrai',
         'unidades_requisitantes',
     ];
     // protected $hidden = [];
