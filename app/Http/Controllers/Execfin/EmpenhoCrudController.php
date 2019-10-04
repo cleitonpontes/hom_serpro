@@ -48,8 +48,8 @@ class EmpenhoCrudController extends CrudController
 //        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
 //            'atualizasaldosempenhos', 'end') : null;
 //
-//        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
-//            'migrarempenho', 'end') : null;
+        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
+            'migrarempenho', 'end') : null;
 
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
@@ -388,14 +388,14 @@ class EmpenhoCrudController extends CrudController
         return $content;
     }
 
-    public function migracaoEmpenho()
-    {
-        MigracaoempenhoJob::dispatch();
-
-        \Alert::success('Migração de Empenhos em Andamento!')->flash();
-
-        return redirect('/execfin/empenho');
-    }
+//    public function migracaoEmpenho()
+//    {
+//        MigracaoempenhoJob::dispatch();
+//
+//        \Alert::success('Migração de Empenhos em Andamento!')->flash();
+//
+//        return redirect('/execfin/empenho');
+//    }
 
     public function atualizaSaldosEmpenhos()
     {
@@ -464,7 +464,8 @@ class EmpenhoCrudController extends CrudController
         $empenhodetalhado,
         $contas_contabeis,
         $user
-    ) {
+    )
+    {
 
         $dado = [];
         foreach ($contas_contabeis as $item => $valor) {
@@ -484,7 +485,7 @@ class EmpenhoCrudController extends CrudController
                 $contacontabil1,
                 $contacorrente);
 
-            if ($retorno!=null) {
+            if ($retorno != null) {
                 $saldoAtual = $retorno['saldo'];
                 $dado[$item] = $saldoAtual;
             } else {
@@ -506,7 +507,6 @@ class EmpenhoCrudController extends CrudController
 //                $user);
 
 
-
 //            if ($retorno->resultado[0] == 'SUCESSO') {
 //                if (isset($retorno->resultado[4])) {
 //                    $saldoAtual = (float)$retorno->resultado[4];
@@ -520,4 +520,118 @@ class EmpenhoCrudController extends CrudController
         $empenhodetalhado->push();
     }
 
+    public function migracaoEmpenho()
+    {
+        $unidades = Unidade::where('tipo', 'E')
+            ->where('situacao', true)
+            ->get();
+
+        $ano = date('Y');
+
+        foreach ($unidades as $unidade) {
+            $migracao_url = config('migracao.api_sta');
+            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+                true);
+
+            foreach ($dados as $d) {
+
+                $credor = $this->buscaFornecedor($d);
+
+                if ($d['picodigo']) {
+                    $pi = $this->buscaPi($d);
+                }
+
+                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
+                    ->first();
+
+//                $empenho = Empenho::where('numero', '=', $d['numero'])
+//                    ->where('unidade_id', '=', $unidade->id)
+//                    ->where('fornecedor_id', '=', $credor->id)
+//                    ->where('planointerno_id', '=', $pi->id)
+//                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
+//                    ->first();
+
+                $empenho = Empenho::where('numero', '=', trim($d['numero']))
+                    ->where('unidade_id', '=', $unidade->id)
+                    ->first();
+
+                if (!$empenho) {
+                    $empenho = Empenho::create([
+                        'numero' => trim($d['numero']),
+                        'unidade_id' => $unidade->id,
+                        'fornecedor_id' => $credor->id,
+                        'planointerno_id' => $pi->id,
+                        'naturezadespesa_id' => $naturezadespesa->id
+                    ]);
+                } else {
+                    $empenho->fornecedor_id = $credor->id;
+                    $empenho->planointerno_id = $pi->id;
+                    $empenho->naturezadespesa_id = $naturezadespesa->id;
+                    $empenho->save();
+                }
+
+                foreach ($d['itens'] as $item) {
+
+                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                        ->where('naturezadespesa_id', $naturezadespesa->id)
+                        ->first();
+
+                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                        ->first();
+
+                    if (!$empenhodetalhado) {
+                        $empenhodetalhado = Empenhodetalhado::create([
+                            'empenho_id' => $empenho->id,
+                            'naturezasubitem_id' => $naturezasubitem->id
+                        ]);
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    public function buscaFornecedor($credor)
+    {
+
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
+            ->first();
+
+        if (!$fornecedor) {
+            $tipo = 'JURIDICA';
+            if (strlen($credor['cpfcnpjugidgener']) == 14) {
+                $tipo = 'FISICA';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
+                $tipo = 'IDGENERICO';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+                $tipo = 'UG';
+            };
+
+            $fornecedor = Fornecedor::create([
+                'tipo_fornecedor' => $tipo,
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
+                'nome' => strtoupper($credor['nome'])
+            ]);
+        }
+        return $fornecedor;
+    }
+
+    public function buscaPi($pi)
+    {
+
+        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
+            ->first();
+
+        if (!$planointerno) {
+
+            $planointerno = Planointerno::create([
+                'codigo' => $pi['picodigo'],
+                'descricao' => strtoupper($pi['pidescricao']),
+                'situacao' => true
+            ]);
+        }
+        return $planointerno;
+    }
 }
