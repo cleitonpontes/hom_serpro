@@ -67,13 +67,13 @@ class MigracaoempenhoJob implements ShouldQueue
 //                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
 //                    ->first();
 
-                $empenho = Empenho::where('numero', '=', $d['numero'])
+                $empenho = Empenho::where('numero', '=', trim($d['numero']))
                     ->where('unidade_id', '=', $unidade->id)
                     ->first();
 
                 if (!$empenho) {
                     $empenho = Empenho::create([
-                        'numero' => $d['numero'],
+                        'numero' => trim($d['numero']),
                         'unidade_id' => $unidade->id,
                         'fornecedor_id' => $credor->id,
                         'planointerno_id' => $pi->id,
