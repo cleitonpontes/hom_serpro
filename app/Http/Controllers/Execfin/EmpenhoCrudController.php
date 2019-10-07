@@ -416,10 +416,10 @@ class EmpenhoCrudController extends CrudController
             MigracaoempenhoJob::dispatch($unidade);
         }
 
-//        $migracao = new MigracaoempenhoJob();
-//        $migracao->executaMigracao();
-        \Alert::success('Migração de Empenhos em Andamento!')->flash();
-        return redirect('/execfin/empenho');
+        if(backpack_user()){
+            \Alert::success('Migração de Empenhos em Andamento!')->flash();
+            return redirect('/execfin/empenho');
+        }
     }
 
     public function atualizaSaldosEmpenhos()
