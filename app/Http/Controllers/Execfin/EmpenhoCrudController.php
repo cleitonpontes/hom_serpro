@@ -389,23 +389,6 @@ class EmpenhoCrudController extends CrudController
         return $content;
     }
 
-//    public function migracaoEmpenho()
-//    {
-//        MigracaoempenhoJob::dispatch();
-//
-//        \Alert::success('Migração de Empenhos em Andamento!')->flash();
-//
-//        return redirect('/execfin/empenho');
-//    }
-
-    public function executaAtualizaSaldosEmpenhos()
-    {
-        $migracao = new MigracaoempenhoJob();
-        $migracao->atualizaSaldosEmpenhos();
-        \Alert::success('Atualização de Empenhos em Andamento!')->flash();
-        return redirect('/execfin/empenho');
-    }
-
     public function executaMigracaoEmpenho()
     {
         $unidades = Unidade::where('tipo', 'E')
@@ -422,7 +405,7 @@ class EmpenhoCrudController extends CrudController
         }
     }
 
-    public function atualizaSaldosEmpenhos()
+    public function executaAtualizaSaldosEmpenhos()
     {
         $empenhos = Empenho::all();
 
@@ -459,7 +442,8 @@ class EmpenhoCrudController extends CrudController
                     $contacorrente,
                     $mes,
                     $empenhodetalhe,
-                    $contas_contabeis
+                    $contas_contabeis,
+                    backpack_user()
                 )->onQueue('atualizasaldone');
 
 //                $this->teste($ug,
@@ -473,9 +457,11 @@ class EmpenhoCrudController extends CrudController
             }
         }
 
-//        \Alert::success('Atualização de saldos de Empenhos em Andamento!')->flash();
 
-        return redirect('/execfin/empenho');
+        if(backpack_user()){
+            \Alert::success('Atualização de Empenhos em Andamento!')->flash();
+            return redirect('/execfin/empenho');
+        }
 
 
     }
