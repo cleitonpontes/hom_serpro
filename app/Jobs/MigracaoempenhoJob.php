@@ -36,11 +36,8 @@ class MigracaoempenhoJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle($ug_id)
+    public function handle(Unidade $unidade)
     {
-
-        $unidade = Unidade::find($ug_id);
-
         $ano = date('Y');
 
         $migracao_url = config('migracao.api_sta');
@@ -111,7 +108,7 @@ class MigracaoempenhoJob implements ShouldQueue
             ->get();
 
         foreach ($unidades as $unidade) {
-            MigracaoempenhoJob::dispatch($unidade->id);
+            MigracaoempenhoJob::dispatch($unidade);
         }
 
     }
