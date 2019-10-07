@@ -21,16 +21,16 @@ class MigracaoempenhoJob implements ShouldQueue
 
     public $timeout = 7200;
 
-    protected $unidade;
+    protected $ug_id;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Unidade $unidade)
+    public function __construct(string $ug_id)
     {
-        $this->unidade = $unidade;
+        $this->ug_id = $ug_id;
     }
 
     /**
@@ -40,10 +40,12 @@ class MigracaoempenhoJob implements ShouldQueue
      */
     public function handle()
     {
+        $unidade = Unidade::find($this->ug_id);
+
         $ano = date('Y');
 
         $migracao_url = config('migracao.api_sta');
-        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $this->unidade->codigo),
+        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
             true);
 
         foreach ($dados as $d) {
@@ -65,13 +67,13 @@ class MigracaoempenhoJob implements ShouldQueue
 //                    ->first();
 
             $empenho = Empenho::where('numero', '=', trim($d['numero']))
-                ->where('unidade_id', '=', $this->unidade->id)
+                ->where('unidade_id', '=', $unidade->id)
                 ->first();
 
             if (!$empenho) {
                 $empenho = Empenho::create([
                     'numero' => trim($d['numero']),
-                    'unidade_id' => $this->unidade->id,
+                    'unidade_id' => $unidade->id,
                     'fornecedor_id' => $credor->id,
                     'planointerno_id' => $pi->id,
                     'naturezadespesa_id' => $naturezadespesa->id

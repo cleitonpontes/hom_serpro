@@ -413,7 +413,7 @@ class EmpenhoCrudController extends CrudController
             ->get();
 
         foreach ($unidades as $unidade) {
-            MigracaoempenhoJob::dispatch($unidade);
+            MigracaoempenhoJob::dispatch($unidade->id);
         }
 
         if(backpack_user()){
