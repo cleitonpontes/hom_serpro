@@ -408,8 +408,16 @@ class EmpenhoCrudController extends CrudController
 
     public function executaMigracaoEmpenho()
     {
-        $migracao = new MigracaoempenhoJob();
-        $migracao->executaMigracao();
+        $unidades = Unidade::where('tipo', 'E')
+            ->where('situacao', true)
+            ->get();
+
+        foreach ($unidades as $unidade) {
+            MigracaoempenhoJob::dispatch($unidade);
+        }
+
+//        $migracao = new MigracaoempenhoJob();
+//        $migracao->executaMigracao();
         \Alert::success('Migração de Empenhos em Andamento!')->flash();
         return redirect('/execfin/empenho');
     }
