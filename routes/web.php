@@ -26,6 +26,7 @@ Route::group(
         'prefix' => config('backpack.base.route_prefix'),
     ],
     function () {
+
         // if not otherwise configured, setup the auth routes
         if (config('backpack.base.setup_auth_routes')) {
             // Authentication Routes...
@@ -77,6 +78,8 @@ Route::group(
                 'Auth\MyAccountController@getChangePasswordForm')->name('alterar.senha');
             Route::post('alterar-senha', 'Auth\MyAccountController@postChangePasswordForm');
         }
+
+
 
         // Módulo Folha de Pagamento
         Route::group([

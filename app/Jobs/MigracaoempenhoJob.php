@@ -36,29 +36,24 @@ class MigracaoempenhoJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(Unidade $unidade)
     {
-        $unidades = Unidade::where('tipo', 'E')
-            ->where('situacao', true)
-            ->get();
-
         $ano = date('Y');
 
-        foreach ($unidades as $unidade) {
-            $migracao_url = config('migracao.api_sta');
-            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
-                true);
+        $migracao_url = config('migracao.api_sta');
+        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+            true);
 
-            foreach ($dados as $d) {
+        foreach ($dados as $d) {
 
-                $credor = $this->buscaFornecedor($d);
+            $credor = $this->buscaFornecedor($d);
 
-                if ($d['picodigo']) {
-                    $pi = $this->buscaPi($d);
-                }
+            if ($d['picodigo']) {
+                $pi = $this->buscaPi($d);
+            }
 
-                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
-                    ->first();
+            $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
+                ->first();
 
 //                $empenho = Empenho::where('numero', '=', $d['numero'])
 //                    ->where('unidade_id', '=', $unidade->id)
@@ -67,47 +62,53 @@ class MigracaoempenhoJob implements ShouldQueue
 //                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
 //                    ->first();
 
-                $empenho = Empenho::where('numero', '=', trim($d['numero']))
-                    ->where('unidade_id', '=', $unidade->id)
+            $empenho = Empenho::where('numero', '=', trim($d['numero']))
+                ->where('unidade_id', '=', $unidade->id)
+                ->first();
+
+            if (!$empenho) {
+                $empenho = Empenho::create([
+                    'numero' => trim($d['numero']),
+                    'unidade_id' => $unidade->id,
+                    'fornecedor_id' => $credor->id,
+                    'planointerno_id' => $pi->id,
+                    'naturezadespesa_id' => $naturezadespesa->id
+                ]);
+            } else {
+                $empenho->fornecedor_id = $credor->id;
+                $empenho->planointerno_id = $pi->id;
+                $empenho->naturezadespesa_id = $naturezadespesa->id;
+                $empenho->save();
+            }
+
+            foreach ($d['itens'] as $item) {
+
+                $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                    ->where('naturezadespesa_id', $naturezadespesa->id)
                     ->first();
 
-                if (!$empenho) {
-                    $empenho = Empenho::create([
-                        'numero' => trim($d['numero']),
-                        'unidade_id' => $unidade->id,
-                        'fornecedor_id' => $credor->id,
-                        'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezadespesa->id
+                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                    ->first();
+
+                if (!$empenhodetalhado) {
+                    $empenhodetalhado = Empenhodetalhado::create([
+                        'empenho_id' => $empenho->id,
+                        'naturezasubitem_id' => $naturezasubitem->id
                     ]);
-                }else{
-                    $empenho->fornecedor_id = $credor->id;
-                    $empenho->planointerno_id = $pi->id;
-                    $empenho->naturezadespesa_id = $naturezadespesa->id;
-                    $empenho->save();
                 }
-
-                foreach ($d['itens'] as $item) {
-
-                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
-                        ->where('naturezadespesa_id', $naturezadespesa->id)
-                        ->first();
-
-                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                        ->first();
-
-                    if (!$empenhodetalhado) {
-                        $empenhodetalhado = Empenhodetalhado::create([
-                            'empenho_id' => $empenho->id,
-                            'naturezasubitem_id' => $naturezasubitem->id
-                        ]);
-                    }
-                }
-
             }
-            //dispara atualização de saldo do empenho por aqui.
-//            $retorno = $this->atualizaSaldosEmpenhos($unidade->id);
+        }
+    }
 
+    public function executaMigracao()
+    {
+        $unidades = Unidade::where('tipo', 'E')
+            ->where('situacao', true)
+            ->get();
+
+        foreach ($unidades as $unidade) {
+            MigracaoempenhoJob::dispatch($unidade);
         }
 
     }

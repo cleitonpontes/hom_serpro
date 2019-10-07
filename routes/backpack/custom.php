@@ -153,8 +153,8 @@ Route::group([
             CRUD::resource('rhsituacao', 'RhsituacaoCrudController');
             CRUD::resource('rhrubrica', 'RhrubricaCrudController');
 
-//            Route::get('/migracaoempenhos', 'EmpenhoCrudController@migracaoEmpenho');
-//            Route::get('/atualizasaldosempenhos', 'EmpenhoCrudController@atualizaSaldosEmpenhos');
+            Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaMigracaoEmpenho');
+            Route::get('/atualizasaldosempenhos', 'EmpenhoCrudController@executaAtualizaSaldosEmpenhos');
 
             Route::group(['prefix' => 'empenho/{empenho_id}'], function () {
                 CRUD::resource('empenhodetalhado', 'EmpenhodetalhadoCrudController');

@@ -45,11 +45,12 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
-//        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
-//            'atualizasaldosempenhos', 'end') : null;
+        (backpack_user()->can('migracao_empenhos')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
+            'migrarempenho', 'end') : null;
 
-//        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
-//            'migrarempenho', 'end') : null;
+        (backpack_user()->can('atualizacao_saldos_empenhos')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
+            'atualizasaldosempenhos', 'end') : null;
+
 
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
@@ -396,6 +397,22 @@ class EmpenhoCrudController extends CrudController
 //
 //        return redirect('/execfin/empenho');
 //    }
+
+    public function executaAtualizaSaldosEmpenhos()
+    {
+        $migracao = new MigracaoempenhoJob();
+        $migracao->atualizaSaldosEmpenhos();
+        \Alert::success('Atualização de Empenhos em Andamento!')->flash();
+        return redirect('/execfin/empenho');
+    }
+
+    public function executaMigracaoEmpenho()
+    {
+        $migracao = new MigracaoempenhoJob();
+        $migracao->executaMigracao();
+        \Alert::success('Migração de Empenhos em Andamento!')->flash();
+        return redirect('/execfin/empenho');
+    }
 
     public function atualizaSaldosEmpenhos()
     {
