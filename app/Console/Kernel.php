@@ -29,14 +29,11 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call('App\Jobs\MigracaoempenhoJob@executaMigracao')->dailyAt('08:40');
-//        $schedule->call('App\Jobs\MigracaoempenhoJob@executaMigracao')->everyFiveMinutes();
-//        $schedule->job(new MigracaoempenhoJob)->dailyAt('08:40');
-//        $schedule->job(new MigracaoempenhoJob)->everyFiveMinutes();
-        $schedule->call('App\Jobs\MigracaoempenhoJob@atualizaSaldosEmpenhos')->dailyAt('08:50');
-//        $schedule->call('App\Jobs\MigracaoempenhoJob@atualizaSaldosEmpenhos')->everyFiveMinutes();
+        $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaMigracaoEmpenho')->dailyAt('08:40');
+
+        $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaAtualizaSaldosEmpenhos')->dailyAt('08:50');
+
         $schedule->job(new AlertaContratoJob)->dailyAt('08:00');
-//        $schedule->job(new AlertaContratoJob)->everyMinute();
     }
 
     /**
