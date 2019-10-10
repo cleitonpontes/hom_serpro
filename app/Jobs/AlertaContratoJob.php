@@ -137,7 +137,7 @@ class AlertaContratoJob implements ShouldQueue
                     })
                         ->orderBy('vigencia_fim', 'DESC')
                         ->get();
-                    $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['textobase']);
+                    $dados_email['texto'] = utf8_encode(str_replace('!!nomeresponsavel!!', $user->name, $dados_email['textobase']));
                     $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contratos_user));
                 }
             }
