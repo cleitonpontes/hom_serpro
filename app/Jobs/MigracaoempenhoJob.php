@@ -127,7 +127,7 @@ class MigracaoempenhoJob implements ShouldQueue
                 'nome' => strtoupper($credor['nome'])
             ]);
         }else{
-            if($fornecedor->nome <> strtoupper($credor['nome'])){
+            if($fornecedor->nome != strtoupper($credor['nome'])){
                 $fornecedor->nome = strtoupper($credor['nome']);
                 $fornecedor->save();
             }
@@ -149,7 +149,7 @@ class MigracaoempenhoJob implements ShouldQueue
                 'situacao' => true
             ]);
         }else{
-            if($planointerno->descricao <> strtoupper($pi['pidescricao'])){
+            if($planointerno->descricao != strtoupper($pi['pidescricao'])){
                 $planointerno->descricao = strtoupper($pi['pidescricao']);
                 $planointerno->save();
             }
