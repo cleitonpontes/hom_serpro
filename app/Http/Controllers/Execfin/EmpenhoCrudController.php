@@ -396,8 +396,8 @@ class EmpenhoCrudController extends CrudController
             ->get();
 
         foreach ($unidades as $unidade) {
-//            MigracaoempenhoJob::dispatch($unidade->id);
-            $this->migracaoEmpenho($unidade->id);
+            MigracaoempenhoJob::dispatch($unidade->id);
+//            $this->migracaoEmpenho($unidade->id);
         }
 
         if (backpack_user()) {
@@ -546,8 +546,6 @@ class EmpenhoCrudController extends CrudController
 
         $dados = $this->buscaDadosUrl($url);
 
-        dd($dados);
-
         foreach ($dados as $d) {
 
             $credor = $this->buscaFornecedor($d);
@@ -660,20 +658,6 @@ class EmpenhoCrudController extends CrudController
     public function buscaDadosUrl($url)
     {
 
-//        $ch = curl_init();
-//        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
-//        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
-//        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//        curl_setopt($ch, CURLOPT_URL,$url);
-//        $result=curl_exec($ch);
-
-//        curl_close($ch);
-//
-//        var_dump(json_decode($result, true));
-//
-//        dd($result);
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_TIMEOUT, 90);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
@@ -684,8 +668,7 @@ class EmpenhoCrudController extends CrudController
 
         curl_close($ch);
 
-        dd(json_decode($data, true));
-        return $data;
+        return json_decode($data, true);
 
     }
 }

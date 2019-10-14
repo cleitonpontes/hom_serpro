@@ -45,8 +45,11 @@ class MigracaoempenhoJob implements ShouldQueue
         $ano = date('Y');
 
         $migracao_url = config('migracao.api_sta');
-        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
-            true);
+        $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
+        //        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+//            true);
+
+        $dados = $this->buscaDadosUrl($url);
 
         foreach ($dados as $d) {
 
@@ -156,5 +159,21 @@ class MigracaoempenhoJob implements ShouldQueue
         return $planointerno;
     }
 
+    public function buscaDadosUrl($url)
+    {
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        dd(curl_exec($ch));
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode($data, true);
+
+    }
 
 }
