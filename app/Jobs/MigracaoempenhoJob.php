@@ -130,9 +130,9 @@ class MigracaoempenhoJob implements ShouldQueue
                 'nome' => strtoupper($credor['nome'])
             ]);
 
-        } else {
-            $fornecedor->nome = strtoupper($credor['nome']);
-            $fornecedor = $fornecedor->save();
+        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
+            $fornecedor->nome = strtoupper(trim($credor['nome']));
+            $fornecedor->save();
         }
 
         return $fornecedor;

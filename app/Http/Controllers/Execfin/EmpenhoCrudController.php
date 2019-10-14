@@ -629,9 +629,6 @@ class EmpenhoCrudController extends CrudController
         } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
             $fornecedor->nome = strtoupper(trim($credor['nome']));
             $fornecedor->save();
-
-            
-            dd($fornecedor);
         }
 
         return $fornecedor;
