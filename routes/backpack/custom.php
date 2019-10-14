@@ -107,6 +107,8 @@ Route::group([
                 CRUD::resource('subcategorias', 'OrgaoSubcategoriaCrudController');
             });
 
+            Route::get('/rotinaalertamensal', 'UnidadeCrudController@executaRotinaAlertaMensal');
+
         });
 
         Route::group([

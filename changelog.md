@@ -2,7 +2,14 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
-## [5.0.000] Lançamento Oficial - Previsão: 01/10/2019
+## [5.0.001]- 14/10/2019
+
+### Bug
+- Correção de falha ao atualizar fornecedor por meio da Rotina de Migração dos Empenhos.
+- Correção de falha ao atualizar plano interno por meio da Rotina de Migração dos Empenhos.
+
+
+## [5.0.000] Lançamento Oficial - 10/10/2019
 
 ### Implementação
 - Painel Contratos por Órgão;

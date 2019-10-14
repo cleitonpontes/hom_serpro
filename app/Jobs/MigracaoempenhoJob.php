@@ -126,7 +126,13 @@ class MigracaoempenhoJob implements ShouldQueue
                 'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
                 'nome' => strtoupper($credor['nome'])
             ]);
+        }else{
+            if($fornecedor->nome <> strtoupper($credor['nome'])){
+                $fornecedor->nome = strtoupper($credor['nome']);
+                $fornecedor->save();
+            }
         }
+
         return $fornecedor;
     }
 
@@ -137,12 +143,16 @@ class MigracaoempenhoJob implements ShouldQueue
             ->first();
 
         if (!$planointerno) {
-
             $planointerno = Planointerno::create([
                 'codigo' => $pi['picodigo'],
                 'descricao' => strtoupper($pi['pidescricao']),
                 'situacao' => true
             ]);
+        }else{
+            if($planointerno->descricao <> strtoupper($pi['pidescricao'])){
+                $planointerno->descricao = strtoupper($pi['pidescricao']);
+                $planointerno->save();
+            }
         }
         return $planointerno;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Jobs\AlertaContratoJob;
 use App\Models\Orgao;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
@@ -42,6 +43,9 @@ class UnidadeCrudController extends CrudController
             (backpack_user()->can('unidade_inserir')) ? $this->crud->allowAccess('create') : null;
             (backpack_user()->can('unidade_editar')) ? $this->crud->allowAccess('update') : null;
             (backpack_user()->can('unidade_deletar')) ? $this->crud->allowAccess('delete') : null;
+
+            (backpack_user()->can('executa_rotina_alerta_mensal')) ? $this->crud->addButtonFromView('top', 'rotinaalertamensal',
+                'rotinaalertamensal', 'end') : null;
 
             /*
             |--------------------------------------------------------------------------
@@ -345,5 +349,16 @@ class UnidadeCrudController extends CrudController
         $this->crud->removeColumn('tipo');
 
         return $content;
+    }
+
+    public function executaRotinaAlertaMensal()
+    {
+        $alerta = new AlertaContratoJob();
+        $alerta->extratoMensal();
+
+        if (backpack_user()) {
+            \Alert::success('Alerta Mensal executado com Sucesso!')->flash();
+            return redirect('/admin/unidade');
+        }
     }
 }
