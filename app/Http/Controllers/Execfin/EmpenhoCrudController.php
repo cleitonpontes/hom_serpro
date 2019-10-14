@@ -396,10 +396,11 @@ class EmpenhoCrudController extends CrudController
             ->get();
 
         foreach ($unidades as $unidade) {
-            MigracaoempenhoJob::dispatch($unidade->id);
+//            MigracaoempenhoJob::dispatch($unidade->id);
+            $this->migracaoEmpenho($unidade->id);
         }
 
-        if(backpack_user()){
+        if (backpack_user()) {
             \Alert::success('Migração de Empenhos em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
@@ -458,7 +459,7 @@ class EmpenhoCrudController extends CrudController
         }
 
 
-        if(backpack_user()){
+        if (backpack_user()) {
             \Alert::success('Atualização de Empenhos em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
@@ -531,29 +532,32 @@ class EmpenhoCrudController extends CrudController
         $empenhodetalhado->push();
     }
 
-    public function migracaoEmpenho()
+    public function migracaoEmpenho($ug_id)
     {
-        $unidades = Unidade::where('tipo', 'E')
-            ->where('situacao', true)
-            ->get();
+        $unidade = Unidade::find($ug_id);
 
         $ano = date('Y');
 
-        foreach ($unidades as $unidade) {
-            $migracao_url = config('migracao.api_sta');
-            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
-                true);
+        $migracao_url = config('migracao.api_sta');
+        $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
 
-            foreach ($dados as $d) {
+//        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+//            true);
 
-                $credor = $this->buscaFornecedor($d);
+        $dados = $this->buscaDadosUrl($url);
 
-                if ($d['picodigo']) {
-                    $pi = $this->buscaPi($d);
-                }
+        dd($dados);
 
-                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
-                    ->first();
+        foreach ($dados as $d) {
+
+            $credor = $this->buscaFornecedor($d);
+
+            if ($d['picodigo']) {
+                $pi = $this->buscaPi($d);
+            }
+
+            $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
+                ->first();
 
 //                $empenho = Empenho::where('numero', '=', $d['numero'])
 //                    ->where('unidade_id', '=', $unidade->id)
@@ -562,43 +566,41 @@ class EmpenhoCrudController extends CrudController
 //                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
 //                    ->first();
 
-                $empenho = Empenho::where('numero', '=', trim($d['numero']))
-                    ->where('unidade_id', '=', $unidade->id)
+            $empenho = Empenho::where('numero', '=', trim($d['numero']))
+                ->where('unidade_id', '=', $unidade->id)
+                ->first();
+
+            if (!$empenho) {
+                $empenho = Empenho::create([
+                    'numero' => trim($d['numero']),
+                    'unidade_id' => $unidade->id,
+                    'fornecedor_id' => $credor->id,
+                    'planointerno_id' => $pi->id,
+                    'naturezadespesa_id' => $naturezadespesa->id
+                ]);
+            } else {
+                $empenho->fornecedor_id = $credor->id;
+                $empenho->planointerno_id = $pi->id;
+                $empenho->naturezadespesa_id = $naturezadespesa->id;
+                $empenho->save();
+            }
+
+            foreach ($d['itens'] as $item) {
+
+                $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                    ->where('naturezadespesa_id', $naturezadespesa->id)
                     ->first();
 
-                if (!$empenho) {
-                    $empenho = Empenho::create([
-                        'numero' => trim($d['numero']),
-                        'unidade_id' => $unidade->id,
-                        'fornecedor_id' => $credor->id,
-                        'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezadespesa->id
+                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                    ->first();
+
+                if (!$empenhodetalhado) {
+                    $empenhodetalhado = Empenhodetalhado::create([
+                        'empenho_id' => $empenho->id,
+                        'naturezasubitem_id' => $naturezasubitem->id
                     ]);
-                } else {
-                    $empenho->fornecedor_id = $credor->id;
-                    $empenho->planointerno_id = $pi->id;
-                    $empenho->naturezadespesa_id = $naturezadespesa->id;
-                    $empenho->save();
                 }
-
-                foreach ($d['itens'] as $item) {
-
-                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
-                        ->where('naturezadespesa_id', $naturezadespesa->id)
-                        ->first();
-
-                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                        ->first();
-
-                    if (!$empenhodetalhado) {
-                        $empenhodetalhado = Empenhodetalhado::create([
-                            'empenho_id' => $empenho->id,
-                            'naturezasubitem_id' => $naturezasubitem->id
-                        ]);
-                    }
-                }
-
             }
         }
 
@@ -653,5 +655,37 @@ class EmpenhoCrudController extends CrudController
             }
         }
         return $planointerno;
+    }
+
+    public function buscaDadosUrl($url)
+    {
+
+//        $ch = curl_init();
+//        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
+//        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+//        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//        curl_setopt($ch, CURLOPT_URL,$url);
+//        $result=curl_exec($ch);
+
+//        curl_close($ch);
+//
+//        var_dump(json_decode($result, true));
+//
+//        dd($result);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL,$url);
+        dd(curl_exec($ch));
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        dd(json_decode($data, true));
+        return $data;
+
     }
 }
