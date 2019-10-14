@@ -396,8 +396,8 @@ class EmpenhoCrudController extends CrudController
             ->get();
 
         foreach ($unidades as $unidade) {
-            MigracaoempenhoJob::dispatch($unidade->id);
-//            $this->migracaoEmpenho($unidade->id);
+//            MigracaoempenhoJob::dispatch($unidade->id);
+            $this->migracaoEmpenho($unidade->id);
         }
 
         if (backpack_user()) {
@@ -623,11 +623,12 @@ class EmpenhoCrudController extends CrudController
             $fornecedor = Fornecedor::create([
                 'tipo_fornecedor' => $tipo,
                 'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
-                'nome' => strtoupper($credor['nome'])
+                'nome' => strtoupper(trim($credor['nome']))
             ]);
 
-        } elseif ($fornecedor->nome != strtoupper($credor['nome'])) {
-            $fornecedor->nome = strtoupper($credor['nome']);
+        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
+            dd($fornecedor->nome, strtoupper(trim($credor['nome'])));
+            $fornecedor->nome = strtoupper(trim($credor['nome']));
             $fornecedor->save();
         }
 
