@@ -4,6 +4,8 @@ namespace App\Http;
 
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\UgprimariaMiddleware;
+use App\Jobs\MigracaoempenhoJob;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -82,4 +84,6 @@ class Kernel extends HttpKernel
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
         \Illuminate\Auth\Middleware\Authorize::class,
     ];
+
+
 }

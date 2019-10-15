@@ -40,6 +40,7 @@ class ContratohistoricoCrudController extends CrudController
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->orderBy('data_assinatura', 'asc');
         $this->crud->enableExportButtons();
+        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
@@ -91,10 +92,11 @@ class ContratohistoricoCrudController extends CrudController
                 'type' => 'text',
                 'limit' => 1000,
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'priority' => 3,
             ],
             [
                 'name' => 'numero',
@@ -117,12 +119,33 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
-
+            [
+                'name' => 'unidades_requisitantes',
+                'label' => 'Unidades Requisitantes',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
             [
                 'name' => 'getCategoria',
                 'label' => 'Categoria', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getCategoria', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+
+            [
+                'name' => 'getSubCategoria',
+                'label' => 'Subcategoria', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSubCategoria', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big

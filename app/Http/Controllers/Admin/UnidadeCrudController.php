@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Jobs\AlertaContratoJob;
 use App\Models\Orgao;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
@@ -22,47 +23,55 @@ class UnidadeCrudController extends CrudController
      */
     public function setup()
     {
-        if(!backpack_user()->hasRole('Administrador')){
-            abort('403', config('app.erro_permissao'));
-        }
-        /*
-        |--------------------------------------------------------------------------
-        | CrudPanel Basic Information
-        |--------------------------------------------------------------------------
-        */
-        $this->crud->setModel('App\Models\Unidade');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/unidade');
-        $this->crud->setEntityNameStrings('Unidade', 'Unidades');
-        $this->crud->enableExportButtons();
-        $this->crud->denyAccess('create');
-        $this->crud->denyAccess('update');
-        $this->crud->denyAccess('delete');
-        $this->crud->allowAccess('show');
+        if (backpack_user()->hasRole('Administrador') or backpack_user()->hasRole('Administrador Órgão') or backpack_user()->hasRole('Administrador Unidade')) {
 
-        (backpack_user()->can('unidade_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('unidade_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('unidade_deletar')) ? $this->crud->allowAccess('delete') : null;
+            /*
+            |--------------------------------------------------------------------------
+            | CrudPanel Basic Information
+            |--------------------------------------------------------------------------
+            */
+            $this->crud->setModel('App\Models\Unidade');
+            $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/unidade');
+            $this->crud->setEntityNameStrings('Unidade', 'Unidades');
+            $this->crud->enableExportButtons();
+            $this->crud->addButtonFromView('line', 'moreunidade', 'moreunidade', 'end');
+            $this->crud->denyAccess('create');
+            $this->crud->denyAccess('update');
+            $this->crud->denyAccess('delete');
+            $this->crud->allowAccess('show');
 
-        /*
-        |--------------------------------------------------------------------------
-        | CrudPanel Configuration
-        |--------------------------------------------------------------------------
-        */
+            (backpack_user()->can('unidade_inserir')) ? $this->crud->allowAccess('create') : null;
+            (backpack_user()->can('unidade_editar')) ? $this->crud->allowAccess('update') : null;
+            (backpack_user()->can('unidade_deletar')) ? $this->crud->allowAccess('delete') : null;
 
-        // TODO: remove setFromDb() and manually define Fields and Columns
+            (backpack_user()->can('executa_rotina_alerta_mensal')) ? $this->crud->addButtonFromView('top', 'rotinaalertamensal',
+                'rotinaalertamensal', 'end') : null;
+
+            /*
+            |--------------------------------------------------------------------------
+            | CrudPanel Configuration
+            |--------------------------------------------------------------------------
+            */
+
+            // TODO: remove setFromDb() and manually define Fields and Columns
 //        $this->crud->setFromDb();
 
-        $colunas = $this->Colunas();
-        $this->crud->addColumns($colunas);
+            $colunas = $this->Colunas();
+            $this->crud->addColumns($colunas);
 
-        $orgaos = Orgao::where('situacao','=', true)->pluck('nome', 'id')->toArray();
+            $orgaos = Orgao::where('situacao', '=', true)->pluck('nome', 'id')->toArray();
 
-        $campos = $this->Campos($orgaos);
-        $this->crud->addFields($campos);
+            $campos = $this->Campos($orgaos);
+            $this->crud->addFields($campos);
 
-        // add asterisk for fields that are required in UnidadeRequest
-        $this->crud->setRequiredFields(StoreRequest::class, 'create');
-        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+            // add asterisk for fields that are required in UnidadeRequest
+            $this->crud->setRequiredFields(StoreRequest::class, 'create');
+            $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+
+        } else {
+            abort('403', config('app.erro_permissao'));
+        }
+
     }
 
     public function Colunas()
@@ -295,7 +304,7 @@ class UnidadeCrudController extends CrudController
                     'C' => 'Controle',
                     'E' => 'Executora',
                     'S' => 'Setorial Contábil',
-                    ],
+                ],
                 'allows_null' => true,
                 'default' => 'E',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
@@ -340,5 +349,16 @@ class UnidadeCrudController extends CrudController
         $this->crud->removeColumn('tipo');
 
         return $content;
+    }
+
+    public function executaRotinaAlertaMensal()
+    {
+        $alerta = new AlertaContratoJob();
+        $alerta->extratoMensal();
+
+        if (backpack_user()) {
+            \Alert::success('Alerta Mensal executado com Sucesso!')->flash();
+            return redirect('/admin/unidade');
+        }
     }
 }

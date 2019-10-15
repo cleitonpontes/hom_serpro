@@ -30,9 +30,7 @@ class ContratohistoricoObserve
             ->get();
 
         $this->contratocronograma->inserirCronogramaFromHistorico($contratohistorico);
-
         $this->atualizaContrato($historico);
-
         $this->createEventCalendar($contratohistorico);
 
     }
@@ -49,10 +47,8 @@ class ContratohistoricoObserve
             ->orderBy('data_assinatura')
             ->get();
 
-        $this->contratocronograma->atualizaCronogramaFromHistorico($contratohistorico);
-
+        $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
-
         $this->createEventCalendar($contratohistorico);
 
     }
@@ -65,7 +61,14 @@ class ContratohistoricoObserve
      */
     public function deleted(Contratohistorico $contratohistorico)
     {
+
+        $historico = Contratohistorico::where('contrato_id', '=', $contratohistorico->contrato_id)
+            ->orderBy('data_assinatura')
+            ->get();
+
         $contratohistorico->cronograma()->delete();
+        $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
+        $this->atualizaContrato($historico);
     }
 
     /**
@@ -114,6 +117,7 @@ class ContratohistoricoObserve
                 unset($arrayhistorico['novo_num_parcelas']);
                 unset($arrayhistorico['novo_valor_parcela']);
                 unset($arrayhistorico['data_inicio_novo_valor']);
+                unset($arrayhistorico['unidades_requisitantes']);
 
             }
             unset($arrayhistorico['id']);
@@ -128,6 +132,7 @@ class ContratohistoricoObserve
             unset($arrayhistorico['retroativo_anoref_ate']);
             unset($arrayhistorico['retroativo_vencimento']);
             unset($arrayhistorico['retroativo_valor']);
+            unset($arrayhistorico['retroativo_soma_subtrai']);
 
             $array = array_filter($arrayhistorico, function ($a) {
                 return trim($a) !== "";

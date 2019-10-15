@@ -28,6 +28,8 @@ class Contratoarquivo extends Model
     protected $fillable = [
         'contrato_id',
         'tipo',
+        'processo',
+        'sequencial_documento',
         'descricao',
         'arquivos',
     ];

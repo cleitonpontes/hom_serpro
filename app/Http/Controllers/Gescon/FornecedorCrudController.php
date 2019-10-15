@@ -34,7 +34,7 @@ class FornecedorCrudController extends CrudController
 
         (backpack_user()->can('fornecedor_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('fornecedor_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('fornecedor_deletar')) ? $this->crud->allowAccess('delete') : null;
+//        (backpack_user()->can('fornecedor_deletar')) ? $this->crud->allowAccess('delete') : null;
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration

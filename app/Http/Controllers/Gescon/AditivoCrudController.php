@@ -49,9 +49,11 @@ class AditivoCrudController extends CrudController
         $this->crud->addClause('select', 'contratohistorico.*');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addClause('where', 'tipo_id', '=', $tps->id);
+        $this->crud->orderBy('data_assinatura', 'asc');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
+//        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
@@ -111,9 +113,9 @@ class AditivoCrudController extends CrudController
                 'name' => 'observacao',
                 'label' => 'Observação',
                 'type' => 'text',
-                'limit' => 1000,
+//                'limit' => 1000,
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
@@ -461,6 +463,15 @@ class AditivoCrudController extends CrudController
                 'type' => 'date',
                 'tab' => 'Retroativo',
             ],
+            [ // select_from_array
+                'name' => 'retroativo_soma_subtrai',
+                'label' => "Soma ou Subtrai?",
+                'type' => 'radio',
+                'options' => [1 => 'Soma', 0 => 'Subtrai'],
+                'default'    => 1,
+                'inline'      => true,
+                'tab' => 'Retroativo',
+            ],
             [   // Number
                 'name' => 'retroativo_valor',
                 'label' => 'Valor Retroativo',
@@ -488,8 +499,18 @@ class AditivoCrudController extends CrudController
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
 
+        $soma_subtrai = $request->input('retroativo_soma_subtrai');
+
         $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
-        $request->request->set('retroativo_valor', number_format(floatval($retroativo_valor), 2, '.', ''));
+
+        if($soma_subtrai == '0'){
+            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
+        }else{
+            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
+        }
+
+        $request->request->set('retroativo_valor', $retroativo_valor);
+
 
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -505,8 +526,17 @@ class AditivoCrudController extends CrudController
         $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
 
+        $soma_subtrai = $request->input('retroativo_soma_subtrai');
+
         $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
-        $request->request->set('retroativo_valor', number_format(floatval($retroativo_valor), 2, '.', ''));
+
+        if($soma_subtrai == '0'){
+            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
+        }else{
+            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
+        }
+
+        $request->request->set('retroativo_valor', $retroativo_valor);
 
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);

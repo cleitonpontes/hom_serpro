@@ -6,11 +6,11 @@
     @if(isset($field['prefix']) || isset($field['suffix'])) <div class="input-group"> @endif
         @if(isset($field['prefix'])) <div class="input-group-addon">{!! $field['prefix'] !!}</div> @endif
         <input
-                type="text"
-                name="{{ $field['name'] }}"
-                id="{{ $field['name'] }}"
-                value="{{ old($field['name']) ?? $field['value'] ?? $field['default'] ?? '' }}"
-                @include('crud::inc.field_attributes')
+            type="text"
+            name="{{ $field['name'] }}"
+            id="{{ $field['name'] }}"
+            value="{{ old($field['name']) ?? $field['value'] ?? $field['default'] ?? '' }}"
+            @include('crud::inc.field_attributes')
         >
         @if(isset($field['suffix'])) <div class="input-group-addon">{!! $field['suffix'] !!}</div> @endif
         @if(isset($field['prefix']) || isset($field['suffix'])) </div> @endif
@@ -23,7 +23,29 @@
 
 @push('crud_fields_scripts')
     <script type="text/javascript">
-        $('#{{ $field['name'] }}').mask('9999/9999');
+        $(window).on('load', function () {
+            var value = $("#tipo_contrato option:selected").text();
+
+            if (value == 'Empenho') {
+                mascaraEmpenho('#{{ $field['name'] }}');
+            }else{
+                mascaraContrato('#{{ $field['name'] }}');
+            }
+
+        });
+
+        $(document).on('change', '#tipo_contrato', function () {
+
+            var value = $("#tipo_contrato option:selected").text();
+
+            if (value == 'Empenho') {
+                mascaraEmpenho('#{{ $field['name'] }}');
+            }else{
+                mascaraContrato('#{{ $field['name'] }}');
+            }
+
+        });
+
     </script>
 @endpush
 

@@ -38,7 +38,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'conta',
         ],
 
         'api' => [
@@ -68,6 +68,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
 //            'model' => App\User::class,
+            'model' => App\Models\BackpackUser::class,
+        ],
+        'conta' => [
+            'driver' => 'conta',
             'model' => App\Models\BackpackUser::class,
         ],
 

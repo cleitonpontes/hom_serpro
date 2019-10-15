@@ -72,7 +72,9 @@ class AdminController extends Controller
             ->join('contratos', function ($join) {
                 $join->on('codigoitens.id', '=', 'contratos.categoria_id');
             })
-            ->orderBy('codigo_id', 'asc')->pluck('descricao')->toArray();
+            ->where('contratos.unidade_id',session()->get('user_ug_id'))
+            ->orderBy('codigoitens.id', 'asc')->pluck('descricao')->toArray();
+
 
         $cat = array_unique($categoria_contrato);
 
@@ -84,6 +86,7 @@ class AdminController extends Controller
         $contrato = DB::table('contratos')
             ->select(DB::raw('categoria_id, count(categoria_id)'))
             ->where('situacao', '=', true)
+            ->where('unidade_id',session()->get('user_ug_id'))
             ->orderBy('categoria_id', 'asc')
             ->groupBy('categoria_id')
             ->pluck('count')->toArray();
@@ -99,17 +102,28 @@ class AdminController extends Controller
                     'borderColor' => $colors,
                     'data' => $contrato,
                 ]
-            ])
-            ->options([
-                'plugins' => [
-                    'colorschemes' => [
-                        'scheme' => 'brewer.PiYG6',
-                    ]
-                ]
             ]);
 
+        $dados_contratos = [];
+        if(session()->get('user_ug_id')){
+            $contratos = new Contrato();
+            $dados_contratos['novos']  = $contratos->buscaContratosNovosPorUg(session()->get('user_ug_id'));
+            $dados_contratos['atualizados']  = $contratos->buscaContratosAtualizadosPorUg(session()->get('user_ug_id'));
+            $dados_contratos['vencidos']  = $contratos->buscaContratosVencidosPorUg(session()->get('user_ug_id'));
 
-        return view('backpack::dashboard', ['calendar' => $calendar, 'data' => $this->data, 'chartjs' => $chartjs]);
+        }else{
+            $dados_contratos['novos'] = '0';
+            $dados_contratos['atualizados'] = '0';
+            $dados_contratos['vencidos'] = '0';
+        }
+
+
+        return view('backpack::dashboard', [
+            'calendar' => $calendar,
+            'data' => $this->data,
+            'chartjs' => $chartjs,
+            'html' => $dados_contratos
+        ]);
     }
 
 
@@ -300,4 +314,11 @@ class AdminController extends Controller
         $notificacao->update(['read_at' => now()]);
         return view('backpack::mensagem',['notificacao' => $notificacao]);
     }
+
+    public function phpInfo(){
+
+//        phpinfo();
+
+    }
+
 }

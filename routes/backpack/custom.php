@@ -31,6 +31,8 @@ Route::group([
             Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
             Route::get('catmatseritem', 'CatmatseritemController@index');
             Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
+            Route::get('orgaosubcategoria', 'OrgaosubcategoriaController@index');
+            Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
         });
 
 // if not otherwise configured, setup the dashboard routes
@@ -47,9 +49,16 @@ Route::group([
         Route::get('/mensagens', 'AdminController@listaMensagens');
         Route::get('/mensagem/{id}', 'AdminController@lerMensagem');
 
+//        Route::get('/admin/phpinfo', 'AdminController@phpInfo');
 
 
-
+        Route::group([
+            'prefix' => 'painel',
+            'namespace' => 'Painel'
+        ], function (){
+            Route::get('financeiro', 'FinanceiroController@index')->name('painel.financeiro');
+            Route::get('orcamentario', 'OrcamentarioController@index')->name('painel.orcamentario');
+        });
 
         Route::group([
             'prefix' => 'admin',
@@ -57,9 +66,12 @@ Route::group([
         ], function () {
             CRUD::resource('activitylog', 'ActivitylogCrudController');
             CRUD::resource('usuario', 'UsuarioCrudController');
+            CRUD::resource('usuarioorgao', 'UsuarioOrgaoCrudController');
+            CRUD::resource('usuariounidade', 'UsuarioUnidadeCrudController');
             CRUD::resource('orgaosuperior', 'OrgaoSuperiorCrudController');
             CRUD::resource('orgao', 'OrgaoCrudController');
             CRUD::resource('unidade', 'UnidadeCrudController');
+            CRUD::resource('administradorunidade', 'UnidadeAdministradorUnidadeCrudController');
             CRUD::resource('codigo', 'CodigoCrudController');
             CRUD::resource('sfcertificado', 'SfcertificadoCrudController');
             CRUD::resource('justificativafatura', 'JustificativafaturaCrudController');
@@ -67,13 +79,36 @@ Route::group([
             CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
             CRUD::resource('comunica', 'ComunicaCrudController');
 
-            // Download apropriação
+            // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
                 ->name('apropriacao.download');
+
+            Route::get('downloadexecucaoporempenho/{type}', 'ExportController@downloadExecucaoPorEmpenho')
+                ->name('execucaoporempenho.download');
+
+            Route::get('downloadlistatodoscontratos/{type}', 'ExportController@downloadListaTodosContratos')
+                ->name('listatodoscontratos.download');
+
+            Route::get('downloadlistacontratosorgao/{type}', 'ExportController@downloadListaContratosOrgao')
+                ->name('listacontratosorgao.download');
+
+            Route::get('downloadlistacontratosug/{type}', 'ExportController@downloadListaContratosUg')
+                ->name('listacontratosug.download');
 
             Route::group(['prefix' => 'codigo/{codigo_id}'], function () {
                 CRUD::resource('codigoitem', 'CodigoitemCrudController');
             });
+
+            Route::group(['prefix' => 'unidade/{unidade_id}'], function () {
+                CRUD::resource('configuracao', 'UnidadeconfiguracaoCrudController');
+            });
+
+            Route::group(['prefix' => 'orgao/{orgao_id}'], function () {
+                CRUD::resource('subcategorias', 'OrgaoSubcategoriaCrudController');
+            });
+
+            Route::get('/rotinaalertamensal', 'UnidadeCrudController@executaRotinaAlertaMensal');
+
         });
 
         Route::group([
@@ -96,6 +131,7 @@ Route::group([
                 CRUD::resource('aditivos', 'AditivoCrudController');
                 CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
                 CRUD::resource('itens', 'ContratoitemCrudController');
+                CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
@@ -104,6 +140,8 @@ Route::group([
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
                 CRUD::resource('faturas', 'ContratofaturaCrudController');
             });
+
+//            Route::get('/notificausers', 'ContratoCrudController@notificaUsers');
 
         });
 
@@ -117,11 +155,26 @@ Route::group([
             CRUD::resource('rhsituacao', 'RhsituacaoCrudController');
             CRUD::resource('rhrubrica', 'RhrubricaCrudController');
 
-            Route::get('/migracaoempenhos', 'EmpenhoCrudController@migracaoEmpenho');
+            Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaMigracaoEmpenho');
+            Route::get('/atualizasaldosempenhos', 'EmpenhoCrudController@executaAtualizaSaldosEmpenhos');
 
             Route::group(['prefix' => 'empenho/{empenho_id}'], function () {
                 CRUD::resource('empenhodetalhado', 'EmpenhodetalhadoCrudController');
             });
+        });
+
+        Route::group([
+            'prefix' => 'relatorio',
+            'namespace' => 'Relatorio',
+        ], function () {
+            Route::get('listatodoscontratos', 'RelContratoController@listaTodosContratos')->name('relatorio.listatodoscontratos');
+            Route::get('filtrolistatodoscontratos', 'RelContratoController@filtroListaTodosContratos')->name('filtro.listatodoscontratos');
+
+            Route::get('listacontratosorgao', 'RelContratoController@listaContratosOrgao')->name('relatorio.listacontratosorgao');
+//            Route::get('filtrolistacontratosorgao', 'RelContratoController@filtroListaContratosOrgao')->name('filtro.listacontratosorgao');
+
+            Route::get('listacontratosug', 'RelContratoController@listaContratosUg')->name('relatorio.listacontratosug');
+//            Route::get('filtrolistacontratosug', 'RelContratoController@filtroListaContratosUg')->name('filtro.listacontratosug');
         });
 
     });

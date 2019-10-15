@@ -26,7 +26,10 @@ class SfcertificadoRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+             'certificado' => 'required',
+             'chaveprivada' => 'required',
+             'vencimento' => 'required',
+             'senhacertificado' => 'required',
         ];
     }
 

@@ -19,16 +19,18 @@ class MigracaoempenhoJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 1500;
+    public $timeout = 7200;
+
+    protected $ug_id;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(string $ug_id)
     {
-        //
+        $this->ug_id = $ug_id;
     }
 
     /**
@@ -38,68 +40,72 @@ class MigracaoempenhoJob implements ShouldQueue
      */
     public function handle()
     {
-
-        $unidades = Unidade::where('tipo', 'E')
-            ->get();
+        $unidade = Unidade::find($this->ug_id);
 
         $ano = date('Y');
 
-        foreach ($unidades as $unidade) {
-            $migracao_url = config('migracao.api_sta');
-            $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
-                true);
+        $migracao_url = config('migracao.api_sta');
+        $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
+        //        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+//            true);
 
-            foreach ($dados as $d) {
+        $dados = $this->buscaDadosUrl($url);
 
-                $credor = $this->buscaFornecedor($d);
+        foreach ($dados as $d) {
 
-                if ($d['picodigo']) {
-                    $pi = $this->buscaPi($d);
-                }
+            $credor = $this->buscaFornecedor($d);
 
-                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
-                    ->first();
-
-                $empenho = Empenho::where('numero', '=', $d['numero'])
-                    ->where('unidade_id', '=', $unidade->id)
-                    ->where('fornecedor_id', '=', $credor->id)
-                    ->where('planointerno_id', '=', $pi->id)
-                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
-                    ->first();
-
-                if (!$empenho) {
-                    $empenho = Empenho::create([
-                        'numero' => $d['numero'],
-                        'unidade_id' => $unidade->id,
-                        'fornecedor_id' => $credor->id,
-                        'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezadespesa->id
-                    ]);
-                }
-
-                foreach ($d['itens'] as $item) {
-
-                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
-                        ->where('naturezadespesa_id', $naturezadespesa->id)
-                        ->first();
-
-                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                        ->first();
-
-                    if (!$empenhodetalhado) {
-                        $empenhodetalhado = Empenhodetalhado::create([
-                            'empenho_id' => $empenho->id,
-                            'naturezasubitem_id' => $naturezasubitem->id
-                        ]);
-                    }
-                }
-
+            if ($d['picodigo']) {
+                $pi = $this->buscaPi($d);
             }
 
+            $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
+                ->first();
+
+//                $empenho = Empenho::where('numero', '=', $d['numero'])
+//                    ->where('unidade_id', '=', $unidade->id)
+//                    ->where('fornecedor_id', '=', $credor->id)
+//                    ->where('planointerno_id', '=', $pi->id)
+//                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
+//                    ->first();
+
+            $empenho = Empenho::where('numero', '=', trim($d['numero']))
+                ->where('unidade_id', '=', $unidade->id)
+                ->first();
+
+            if (!$empenho) {
+                $empenho = Empenho::create([
+                    'numero' => trim($d['numero']),
+                    'unidade_id' => $unidade->id,
+                    'fornecedor_id' => $credor->id,
+                    'planointerno_id' => $pi->id,
+                    'naturezadespesa_id' => $naturezadespesa->id
+                ]);
+            } else {
+                $empenho->fornecedor_id = $credor->id;
+                $empenho->planointerno_id = $pi->id;
+                $empenho->naturezadespesa_id = $naturezadespesa->id;
+                $empenho->save();
+            }
+
+            foreach ($d['itens'] as $item) {
+
+                $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                    ->where('naturezadespesa_id', $naturezadespesa->id)
+                    ->first();
+
+                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                    ->first();
+
+                if (!$empenhodetalhado) {
+                    $empenhodetalhado = Empenhodetalhado::create([
+                        'empenho_id' => $empenho->id,
+                        'naturezasubitem_id' => $naturezasubitem->id
+                    ]);
+                }
+            }
         }
-
-
     }
 
     public function buscaFornecedor($credor)
@@ -123,7 +129,12 @@ class MigracaoempenhoJob implements ShouldQueue
                 'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
                 'nome' => strtoupper($credor['nome'])
             ]);
+
+        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
+            $fornecedor->nome = strtoupper(trim($credor['nome']));
+            $fornecedor->save();
         }
+
         return $fornecedor;
     }
 
@@ -134,13 +145,34 @@ class MigracaoempenhoJob implements ShouldQueue
             ->first();
 
         if (!$planointerno) {
-
             $planointerno = Planointerno::create([
                 'codigo' => $pi['picodigo'],
                 'descricao' => strtoupper($pi['pidescricao']),
                 'situacao' => true
             ]);
+        } else {
+            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
+                $planointerno->descricao = strtoupper($pi['pidescricao']);
+                $planointerno->save();
+            }
         }
         return $planointerno;
     }
+
+    public function buscaDadosUrl($url)
+    {
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode($data, true);
+
+    }
+
 }

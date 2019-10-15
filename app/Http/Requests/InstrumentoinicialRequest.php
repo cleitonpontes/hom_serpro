@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
 
 class InstrumentoinicialRequest extends FormRequest
@@ -29,15 +30,17 @@ class InstrumentoinicialRequest extends FormRequest
         $id = $this->id ?? "NULL";
         $unidade_id = $this->unidade_id ?? "NULL";
         $tipo_id = $this->tipo_id ?? "NULL";
+        $data_limite = date('d/m/Y', strtotime('+50 year'));
 
         return [
-            'numero' => [
-                'required',
-                (new Unique('contratohistorico','numero'))
-                    ->ignore($id)
-                    ->where('unidade_id',$unidade_id)
-                    ->where('tipo_id',$tipo_id)
-            ],
+//            'numero' => [
+//                'required',
+//                (new Unique('contratohistorico','numero'))
+//                    ->ignore($id)
+//                    ->where('unidade_id',$unidade_id)
+//                    ->where('tipo_id',$tipo_id)
+//            ],
+            'numero' => 'required',
             'fornecedor_id' => 'required',
             'tipo_id' => 'required',
             'categoria_id' => 'required',
@@ -46,10 +49,17 @@ class InstrumentoinicialRequest extends FormRequest
             'processo' => 'required',
             'objeto' => 'required',
             'modalidade_id' => 'required',
-            'licitacao_numero' => 'required',
-            'data_assinatura' => 'required|date',
-            'vigencia_inicio' => 'required|date',
-            'vigencia_fim' => 'required|date',
+            'licitacao_numero' => Rule::requiredIf(function () {
+                if ($this->modalidade_id == '75') {
+                    return false;
+                }
+
+                return true;
+            }),
+            'data_assinatura' => 'required|date|before_or_equal:vigencia_inicio',
+            'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',
+//            'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$data_limite}",
+            'vigencia_fim' => "required|date|after:vigencia_inicio",
             'valor_global' => 'required',
             'num_parcelas' => 'required',
             'valor_parcela' => 'required',

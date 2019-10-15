@@ -61,9 +61,7 @@ class Unidade extends Model
 
     public function orgao()
     {
-
         return $this->belongsTo(Orgao::class, 'orgao_id');
-
     }
 
     public function users()
@@ -74,6 +72,12 @@ class Unidade extends Model
     public function contratos(){
 
         return $this->hasMany(Contrato::class, 'unidade_id');
+
+    }
+
+    public function configuracao(){
+
+        return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
 
     }
 

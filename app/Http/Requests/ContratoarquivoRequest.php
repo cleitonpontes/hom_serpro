@@ -25,10 +25,15 @@ class ContratoarquivoRequest extends FormRequest
      */
     public function rules()
     {
+
+        $arquivos = ($this->arquivos) ? 'mimetypes:application/pdf' : "NULL";
+
         $rules = [
             'contrato_id' => 'required',
             'tipo' => 'required',
-            'arquivos.*' => 'required|mimetypes:application/pdf',
+            'processo' => 'required',
+            'descricao' => 'max:255',
+            'arquivos.*' => $arquivos,
         ];
 
 

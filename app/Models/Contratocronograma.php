@@ -51,6 +51,7 @@ class Contratocronograma extends Model
         'vencimento',
         'valor',
         'retroativo',
+        'soma_subtrai',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -81,15 +82,18 @@ class Contratocronograma extends Model
      * @param Contratohistorico $contratohistorico
      * @return $this|string
      */
-    public function atualizaCronogramaFromHistorico(Contratohistorico $contratohistorico)
+    public function atualizaCronogramaFromHistorico($historico)
     {
-        if (!$contratohistorico->num_parcelas AND !$contratohistorico->vigencia_inicio AND !$contratohistorico->valor_parcela) {
-            return '';
-        }
 
-        $contratohistorico->cronograma()->delete();
-        $dados = $this->montaCronograma($contratohistorico);
-        $this->inserirDadosEmMassa($dados);
+        foreach ($historico as $contratohistorico) {
+            if (!$contratohistorico->num_parcelas AND !$contratohistorico->vigencia_inicio AND !$contratohistorico->valor_parcela) {
+                return '';
+            }
+
+            $contratohistorico->cronograma()->delete();
+            $dados = $this->montaCronograma($contratohistorico);
+            $this->inserirDadosEmMassa($dados);
+        }
 
         return $this;
 
@@ -103,20 +107,25 @@ class Contratocronograma extends Model
     {
         if ($contratohistorico->data_inicio_novo_valor) {
             $data = date_create($contratohistorico->data_inicio_novo_valor);
-
             $mesinicio = new \DateTime($contratohistorico->data_inicio_novo_valor);
             $mesfim = new \DateTime($contratohistorico->vigencia_fim);
             $interval = $mesinicio->diff($mesfim);
             if ($interval->y != 0) {
-                $t = ($interval->y * 12) + $interval->m + 1;
+                $t = ($interval->y * 12) + $interval->m;
             } else {
-                $t = $interval->m + 1;
+                $t = $interval->m;
+            }
+
+            if($interval->d > 0)
+            {
+                $t = $t + 1;
             }
 
         } else {
             $data = date_create($contratohistorico->vigencia_inicio);
             $t = $contratohistorico->num_parcelas;
         }
+
         $mesref = date_format($data, 'Y-m');
         $mesrefnew = $mesref . "-01";
 
@@ -146,6 +155,7 @@ class Contratocronograma extends Model
                     'anoref' => date('Y', strtotime($ref)),
                     'vencimento' => $vencimento,
                     'valor' => $v,
+                    'soma_subtrai' => ($v < 0) ? false : true,
                 ];
             } else {
                 $dados[] = [
@@ -156,6 +166,7 @@ class Contratocronograma extends Model
                     'anoref' => date('Y', strtotime($ref)),
                     'vencimento' => $vencimento,
                     'valor' => $valor,
+                    'soma_subtrai' => ($valor < 0) ? false : true,
                 ];
             }
         }
@@ -166,6 +177,7 @@ class Contratocronograma extends Model
             $ret_anoref_de = $contratohistorico->retroativo_anoref_de;
             $ret_mesref_ate = $contratohistorico->retroativo_mesref_ate;
             $ret_anoref_ate = $contratohistorico->retroativo_anoref_ate;
+            $ret_soma_subtrai = $contratohistorico->retroativo_soma_subtrai;
 
 
             if ($ret_mesref_de == $ret_mesref_ate AND $ret_anoref_de == $ret_anoref_ate) {
@@ -176,8 +188,9 @@ class Contratocronograma extends Model
                     'mesref' => $ret_mesref_de,
                     'anoref' => $ret_anoref_de,
                     'vencimento' => $contratohistorico->retroativo_vencimento,
-                    'valor' => $contratohistorico->retroativo_valor,
+                    'valor' => number_format($contratohistorico->retroativo_valor, 2, '.', ''),
                     'retroativo' => true,
+                    'soma_subtrai' => $ret_soma_subtrai,
                 ];
             } else {
                 $mesrefde = new \DateTime($ret_anoref_de . '-' . $ret_mesref_de . '-01');
@@ -189,7 +202,7 @@ class Contratocronograma extends Model
                     $meses = $intervalo->m + 1;
                 }
 
-                $valor_ret = number_format($contratohistorico->retroativo_valor / $meses, 2);
+                $valor_ret = number_format($contratohistorico->retroativo_valor / $meses, 2, '.', '');
 
                 for ($j = 1; $j <= $meses; $j++) {
                     $dtformat = $ret_anoref_de . '-' . $ret_mesref_de . '-01';
@@ -208,8 +221,9 @@ class Contratocronograma extends Model
                         'mesref' => date('m', strtotime($ref1)),
                         'anoref' => date('Y', strtotime($ref1)),
                         'vencimento' => $contratohistorico->retroativo_vencimento,
-                        'valor' => $valor_ret,
+                        'valor' => number_format($valor_ret, 2, '.', ''),
                         'retroativo' => true,
+                        'soma_subtrai' => $ret_soma_subtrai,
                     ];
 
                 }
@@ -309,6 +323,34 @@ class Contratocronograma extends Model
 
     }
 
+    public function buscaCronogramasPorUg(int $ug)
+    {
+        $cronogramas = $this->whereHas('contrato', function ($contrato) use ($ug) {
+            $contrato->whereHas('unidade', function ($unidade) use ($ug){
+               $unidade->where('codigo',$ug);
+            });
+        });
+
+        $cronogramas->leftjoin('contratos', 'contratos.id', '=', 'contratocronograma.contrato_id');
+        $cronogramas->leftjoin('unidades', 'unidades.id', '=', 'contratos.unidade_id');
+
+        $cronogramas->orderBy('unidade');
+        $cronogramas->orderBy('anoref');
+        $cronogramas->orderBy('mesref');
+
+        $cronogramas->groupBy('unidade');
+        $cronogramas->groupBy('mesref');
+        $cronogramas->groupBy('anoref');
+
+        $cronogramas->select([
+            DB::raw('unidades.codigo || \' - \' || unidades.nomeresumido AS unidade'),
+            DB::raw('contratocronograma.mesref || \'/\' || contratocronograma.anoref  AS mesref'),
+            DB::raw('sum(valor) AS valor'),
+        ]);
+
+        return $cronogramas->get()->toArray();
+    }
+
     /**
      * @return string
      */
@@ -325,11 +367,22 @@ class Contratocronograma extends Model
     {
         return 'R$ ' . number_format($this->valor, 2, ',', '.');
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
+    public function contrato()
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
+    public function contratohistorico()
+    {
+        return $this->belongsTo(Contratohistorico::class, 'contratohistorico_id');
+    }
 
     /*
     |--------------------------------------------------------------------------

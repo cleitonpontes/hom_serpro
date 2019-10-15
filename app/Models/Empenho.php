@@ -188,6 +188,60 @@ class Empenho extends Model
         return $dados;
     }
 
+    public function retornaDadosEmpenhosGroupUgArray()
+    {
+
+        $unidade = Unidade::find(session()->get('user_ug_id'));
+
+        $valores_empenhos = Empenho::whereHas('unidade', function ($q) use ($unidade) {
+            $q->whereHas('orgao', function ($o) use ($unidade){
+               $o->where('id',$unidade->orgao_id);
+            });
+            $q->where('situacao', '=', true);
+        });
+        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
+            $q->where('codigo', 'LIKE', '33%');
+        });
+        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
+        $valores_empenhos->orderBy('nome');
+        $valores_empenhos->groupBy('unidades.codigo');
+        $valores_empenhos->groupBy('unidades.nomeresumido');
+        $valores_empenhos->select([
+            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
+            DB::raw('sum(empenhos.empenhado) as empenhado'),
+            DB::raw("sum(empenhos.aliquidar) as aliquidar"),
+            DB::raw("sum(empenhos.liquidado) as liquidado"),
+            DB::raw("sum(empenhos.pago) as pago")
+        ]);
+
+        return $valores_empenhos->get()->toArray();
+
+    }
+
+    public function retornaDadosEmpenhosSumArray()
+    {
+
+        $valores_empenhos = Empenho::whereHas('unidade', function ($q) {
+            $q->where('situacao', '=', true);
+        });
+        $valores_empenhos->whereHas('naturezadespesa', function ($q) {
+            $q->where('codigo', 'LIKE', '33%');
+        });
+        $valores_empenhos->leftjoin('unidades', 'empenhos.unidade_id', '=', 'unidades.id');
+        $valores_empenhos->select([
+//            DB::raw("unidades.codigo ||' - '||unidades.nomeresumido as nome"),
+            DB::raw('sum(empenhos.empenhado) as empenhado'),
+            DB::raw("sum(empenhos.aliquidar) as aliquidar"),
+            DB::raw("sum(empenhos.liquidado) as liquidado"),
+            DB::raw("sum(empenhos.pago) as pago")
+        ]);
+
+        return $valores_empenhos->get()->toArray();
+
+    }
+
+
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -201,6 +255,16 @@ class Empenho extends Model
     public function fornecedor()
     {
         return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
+    public function naturezadespesa()
+    {
+        return $this->belongsTo(Naturezadespesa::class, 'naturezadespesa_id');
+    }
+
+    public function planointerno()
+    {
+        return $this->belongsTo(Planointerno::class, 'planointerno_id');
     }
 
     /*

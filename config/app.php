@@ -2,6 +2,51 @@
 
 return [
 
+    //contas contábeis empenhodetalhado
+    'contas_contabeis_empenhodetalhado_exercicioatual' => [
+        'empaliquidar' => '622920101', // 6.2.2.9.2.01.01 = EMPENHOS A LIQUIDAR
+        'empemliquidacao' => '622920102', // 6.2.2.9.2.01.02 = EMPENHOS EM LIQUIDACAO
+        'empliquidado' => '622920103', // 6.2.2.9.2.01.03 = EMPENHOS LIQUIDADOS A PAGAR
+        'emppago' => '622920104', // 6.2.2.9.2.01.04 = EMPENHOS PAGOS
+        'empaliqrpnp' => '622920105', // 6.2.2.9.2.01.05 = EMPENHOS A LIQUIDAR INSCRITOS EM RPNP
+        'empemliqrpnp' => '622920106', // 6.2.2.9.2.01.06 = EMPENHOS EM LIQUIDACAO INSCRITOS EM RPNP
+        'emprpp' => '622920107', // 6.2.2.9.2.01.07 = EMPENHOS LIQUIDADOS A PAGAR INSCRITO EM RPP
+    ],
+
+    'contas_contabeis_empenhodetalhado_exercicioanterior' => [
+        'rpnpaliquidinsc' => '531110100', // 5.3.1.1.1.01.00 = RP NAO PROCESSADOS A LIQUIDAR INSCRITOS
+        'rpnpemliquidinsc' => '531110200', // 5.3.1.1.1.02.00 = RP NAO PROCESSADOS EM LIQUIDACAO INSCRITOS
+        'reinscrpnpaliquidbloq' => '531210000', // 5.3.1.2.1.00.00 = REINSCRICAO RPNP A LIQUIDAR/BLOQUEADOS
+        'reinscrpnpemliquid' => '531220000', // 5.3.1.2.2.00.00 = REINSCRICAO RP NAO PROCESSADO EM LIQUIDACAO
+        'rpnprestab' => '531300000', // 5.3.1.3.0.00.00 = RP NAO PROCESSADOS RESTABELECIDOS
+        'rpnpaliquidtransfdeb' => '531610000', // 5.3.1.6.1.00.00 = RPNP A LIQUIDAR RECEBIDO POR TRANSFERENCIA
+        'rpnpaliquidemliquidtransfdeb' => '531620000', // 5.3.1.6.2.00.00 = RPNP A LIQ EM LIQ RECEBIDO POR TRANSFERENCIA
+        'rpnpliquidapgtransfdeb' => '531630000', // 5.3.1.6.3.00.00 = RPNP LIQ A PAGAR RECEBIDOS POR TRANSFERENCIA
+        'rpnpbloqtransfdeb' => '531640000', // 5.3.1.6.4.00.00 = RPNP BLOQUEADOS RECEBIDOS POR TRANSFERENCIA
+        'rppinsc' => '532100000', // 5.3.2.1.0.00.00 = RP PROCESSADOS - INSCRITOS
+        'rppexecant' => '532200000', // 5.3.2.2.0.00.00 = RP PROCESSADOS - EXERCICIOS ANTERIORES
+        'rpptrasf' => '532600000', // 5.3.2.6.0.00.00 = RP PROCESSADOS RECEBIDOS POR TRANSFERENCIA
+        'rpnpaliquidar' => '631100000', // 6.3.1.1.0.00.00 = RP NAO PROCESSADOS A LIQUIDAR
+        'rpnpaliquidaremliquidacao' => '631200000', // 6.3.1.2.0.00.00 = RP NAO PROCESSADOS A LIQUIDAR EM LIQUIDACAO
+        'rpnpliquidado' => '631300000', // 6.3.1.3.0.00.00 = RP NAO PROCESSADOS LIQUIDADOS A PAGAR
+        'rpnppago' => '631400000', // 6.3.1.4.0.00.00 = RP NAO PROCESSADOS PAGO
+        'rpnpaliquidarbloq' => '631510000', // 6.3.1.5.1.00.00 = RPNP A LIQUIDAR BLOQUEADOS POR DECRETO
+        'rpnpaliquidaremliquidbloq' => '631520000', // 6.3.1.5.2.00.00 = RPNP A LIQUIDAR EM LIQUIDACAO BLOQUEADO -DEC
+        'rpnpaliquidtransfcred' => '631610000', // 6.3.1.6.1.00.00 = RPNP A LIQUIDAR TRANSFERIDO
+        'rpnpaliquidemliquidtransfcred' => '631620000', // 6.3.1.6.2.00.00 = RPNP A LIQUIDAR EM LIQUIDACAO TRANSFERIDO
+        'rpnpliquidapgtransfcred' => '631630000', // 6.3.1.6.3.00.00 = RPNP LIQUIDADOS A PAGAR TRANSFERIDOS
+        'rpnpbloqtransfcred' => '631640000', // 6.3.1.6.4.00.00 = RPNP BLOQUEADOS TRANSFERIDOS
+        'rpnpcancelado' => '631910000', // 6.3.1.9.1.00.00 = CANCELAMENTOS POR INSUFICIENCIA DE RECURSOS
+        'rpnpoutrocancelamento' => '631980000', // 6.3.1.9.8.00.00 = OUTROS CANCELAMENTOS DE RPNP
+        'rpnpemliqoutrocancelamento' => '631990000', // 6.3.1.9.9.00.00 = OUTROS CANCELAMENTOS DE RPNP EM LIQUIDACAO
+        'rppliquidado' => '632100000', // 6.3.2.1.0.00.00 = RP PROCESSADOS A PAGAR
+        'rpppago' => '632200000', // 6.3.2.2.0.00.00 = RP PROCESSADOS PAGOS
+        'rpptransffusao' => '632600000', // 6.3.2.6.0.00.00 = RPP TRANSFERIDOS POR FUSAO/CISAO/EXTINCAO
+        'rppcancelado' => '632910100', // 6.3.2.9.1.01.00 = CANCELAMENTO DE RP PROCESSADOS - NE
+        'ajusterpexecant' => '632910200', // 6.3.2.9.1.02.00 =  AJUSTE DE CONTROLE RP DE EXERC ANTERIORES
+    ],
+
+
     //Apropriação Folha de Pagamento
     'conta_contabil' => 622920101,
     'situacao_pco' => 'PCO',

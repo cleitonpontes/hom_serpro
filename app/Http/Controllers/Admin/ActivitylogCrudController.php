@@ -7,6 +7,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ActivitylogRequest as StoreRequest;
 use App\Http\Requests\ActivitylogRequest as UpdateRequest;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class ActivitylogCrudController
@@ -30,14 +31,15 @@ class ActivitylogCrudController extends CrudController
         $this->crud->setModel('App\Models\Activitylog');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/activitylog');
         $this->crud->setEntityNameStrings('activity_log', 'activity_logs');
+        $this->crud->orderBy('id', 'desc');
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
         $this->crud->enableExportButtons();
 
-//        $this->crud->addClause('join', 'users', 'users.id', '=', 'activity_log.causer_id');
 //        $this->crud->addClause('select', 'activity_log.*');
+//        $this->crud->addClause('join', 'users', 'users.id', '=', 'activity_log.causer_id');
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -51,7 +53,7 @@ class ActivitylogCrudController extends CrudController
                 'label' => 'Id',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
@@ -117,7 +119,8 @@ class ActivitylogCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
 //                'searchLogic'   => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('users.name', 'like', "%$searchTerm%");
+//                    $query->orWhere('users.name', 'like', "%".strtoupper($searchTerm)."%");
+//                    $query->orWhere('users.cpf', 'like', "%".strtoupper($searchTerm)."%");
 //                },
             ],
             [

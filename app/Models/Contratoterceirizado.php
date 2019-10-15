@@ -29,6 +29,7 @@ class Contratoterceirizado extends Model
         'cpf',
         'nome',
         'funcao_id',
+        'descricao_complementar',
         'jornada',
         'unidade',
         'salario',

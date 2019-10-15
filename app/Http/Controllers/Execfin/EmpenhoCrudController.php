@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoempenhoJob;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
@@ -10,6 +11,8 @@ use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
 use App\Models\Unidade;
+use App\STA\ConsultaApiSta;
+use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -42,8 +45,13 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
 
-        (backpack_user()->can('empenho_inserir')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
+        (backpack_user()->can('migracao_empenhos')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
             'migrarempenho', 'end') : null;
+
+        (backpack_user()->can('atualizacao_saldos_empenhos')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
+            'atualizasaldosempenhos', 'end') : null;
+
+
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
         $this->crud->enableExportButtons();
@@ -381,13 +389,285 @@ class EmpenhoCrudController extends CrudController
         return $content;
     }
 
-    public function migracaoEmpenho()
+    public function executaMigracaoEmpenho()
     {
-        MigracaoempenhoJob::dispatch();
+        $unidades = Unidade::where('tipo', 'E')
+            ->where('situacao', true)
+            ->get();
 
-        \Alert::success('Migração de Empenhos em Andamento!')->flash();
+        foreach ($unidades as $unidade) {
+            MigracaoempenhoJob::dispatch($unidade->id);
+//            $this->migracaoEmpenho($unidade->id);
+        }
 
-        return redirect('/execfin/empenho');
+        if (backpack_user()) {
+            \Alert::success('Migração de Empenhos em Andamento!')->flash();
+            return redirect('/execfin/empenho');
+        }
     }
 
+    public function executaAtualizaSaldosEmpenhos()
+    {
+        $empenhos = Empenho::all();
+
+        $amb = 'PROD';
+        $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
+        $ano = date('Y'); //$registro['ano'];
+        $mes = $meses[(int)date('m')];//$meses[(int) $registro['mes']];
+
+        foreach ($empenhos as $empenho) {
+
+            $anoEmpenho = substr($empenho->numero, 0, 4);
+
+            if ($anoEmpenho == $ano) {
+                $contas_contabeis = config('app.contas_contabeis_empenhodetalhado_exercicioatual');
+            } else {
+                $contas_contabeis = config('app.contas_contabeis_empenhodetalhado_exercicioanterior');
+            }
+
+            $ug = $empenho->unidade->codigo;
+
+            $empenhodetalhes = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                ->get();
+
+
+            foreach ($empenhodetalhes as $empenhodetalhe) {
+
+                $contacorrente = 'N' . $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
+                        STR_PAD_LEFT);
+
+                AtualizasaldosmpenhosJobs::dispatch(
+                    $ug,
+                    $amb,
+                    $ano,
+                    $contacorrente,
+                    $mes,
+                    $empenhodetalhe,
+                    $contas_contabeis,
+                    backpack_user()
+                )->onQueue('atualizasaldone');
+
+//                $this->teste($ug,
+//                    $amb,
+//                    $ano,
+//                    $contacorrente,
+//                    $mes,
+//                    $empenhodetalhe,
+//                    $contas_contabeis,
+//                    backpack_user());
+            }
+        }
+
+
+        if (backpack_user()) {
+            \Alert::success('Atualização de Empenhos em Andamento!')->flash();
+            return redirect('/execfin/empenho');
+        }
+
+
+    }
+
+    public function teste(
+        $ug,
+        $amb,
+        $ano,
+        $contacorrente,
+        $mes,
+        $empenhodetalhado,
+        $contas_contabeis,
+        $user
+    )
+    {
+
+        $dado = [];
+        foreach ($contas_contabeis as $item => $valor) {
+
+            $contacontabil1 = $valor;
+            $saldoAtual = 0;
+
+            $unidade = Unidade::where('codigo', $ug)
+                ->first();
+            $gestao = $unidade->gestao;
+
+            $saldocontabilSta = new ConsultaApiSta();
+            $retorno = null;
+            $retorno = $saldocontabilSta->saldocontabilUgGestaoContacontabilContacorrente(
+                $ug,
+                $gestao,
+                $contacontabil1,
+                $contacorrente);
+
+            if ($retorno != null) {
+                $saldoAtual = $retorno['saldo'];
+                $dado[$item] = $saldoAtual;
+            } else {
+                $dado[$item] = $saldoAtual;
+            }
+
+
+//            $execsiafi = new Execsiafi();
+//
+//            $retorno = null;
+//            $retorno = $execsiafi->conrazaoUser(
+//                $ug,
+//                $amb,
+//                $ano,
+//                $ug,
+//                $contacontabil1,
+//                $contacorrente,
+//                $mes,
+//                $user);
+
+
+//            if ($retorno->resultado[0] == 'SUCESSO') {
+//                if (isset($retorno->resultado[4])) {
+//                    $saldoAtual = (float)$retorno->resultado[4];
+//                }
+//                $dado[$item] = $saldoAtual;
+//            }
+
+        }
+
+        $empenhodetalhado->fill($dado);
+        $empenhodetalhado->push();
+    }
+
+    public function migracaoEmpenho($ug_id)
+    {
+        $unidade = Unidade::find($ug_id);
+
+        $ano = date('Y');
+
+        $migracao_url = config('migracao.api_sta');
+        $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
+
+//        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+//            true);
+
+        $dados = $this->buscaDadosUrl($url);
+
+        foreach ($dados as $d) {
+
+            $credor = $this->buscaFornecedor($d);
+
+            if ($d['picodigo']) {
+                $pi = $this->buscaPi($d);
+            }
+
+            $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
+                ->first();
+
+//                $empenho = Empenho::where('numero', '=', $d['numero'])
+//                    ->where('unidade_id', '=', $unidade->id)
+//                    ->where('fornecedor_id', '=', $credor->id)
+//                    ->where('planointerno_id', '=', $pi->id)
+//                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
+//                    ->first();
+
+            $empenho = Empenho::where('numero', '=', trim($d['numero']))
+                ->where('unidade_id', '=', $unidade->id)
+                ->first();
+
+            if (!$empenho) {
+                $empenho = Empenho::create([
+                    'numero' => trim($d['numero']),
+                    'unidade_id' => $unidade->id,
+                    'fornecedor_id' => $credor->id,
+                    'planointerno_id' => $pi->id,
+                    'naturezadespesa_id' => $naturezadespesa->id
+                ]);
+            } else {
+                $empenho->fornecedor_id = $credor->id;
+                $empenho->planointerno_id = $pi->id;
+                $empenho->naturezadespesa_id = $naturezadespesa->id;
+                $empenho->save();
+            }
+
+            foreach ($d['itens'] as $item) {
+
+                $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                    ->where('naturezadespesa_id', $naturezadespesa->id)
+                    ->first();
+
+                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                    ->first();
+
+                if (!$empenhodetalhado) {
+                    $empenhodetalhado = Empenhodetalhado::create([
+                        'empenho_id' => $empenho->id,
+                        'naturezasubitem_id' => $naturezasubitem->id
+                    ]);
+                }
+            }
+        }
+
+    }
+
+    public function buscaFornecedor($credor)
+    {
+
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
+            ->first();
+
+        if (!$fornecedor) {
+            $tipo = 'JURIDICA';
+            if (strlen($credor['cpfcnpjugidgener']) == 14) {
+                $tipo = 'FISICA';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
+                $tipo = 'IDGENERICO';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+                $tipo = 'UG';
+            };
+
+            $fornecedor = Fornecedor::create([
+                'tipo_fornecedor' => $tipo,
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
+                'nome' => strtoupper(trim($credor['nome']))
+            ]);
+
+        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
+            $fornecedor->nome = strtoupper(trim($credor['nome']));
+            $fornecedor->save();
+        }
+
+        return $fornecedor;
+    }
+
+    public function buscaPi($pi)
+    {
+
+        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
+            ->first();
+
+        if (!$planointerno) {
+            $planointerno = Planointerno::create([
+                'codigo' => $pi['picodigo'],
+                'descricao' => strtoupper($pi['pidescricao']),
+                'situacao' => true
+            ]);
+        } else {
+            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
+                $planointerno->descricao = strtoupper($pi['pidescricao']);
+                $planointerno->save();
+            }
+        }
+        return $planointerno;
+    }
+
+    public function buscaDadosUrl($url)
+    {
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL,$url);
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode($data, true);
+
+    }
 }

@@ -33,6 +33,10 @@
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
+
 <!-- BackPack Base CSS -->
 <link rel="stylesheet" href="{{ asset('vendor/backpack/base/backpack.base.css') }}?v=3">
 @if (config('backpack.base.overlays') && count(config('backpack.base.overlays')))

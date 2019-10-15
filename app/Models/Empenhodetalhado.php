@@ -30,18 +30,36 @@ class Empenhodetalhado extends Model
         'empaliqrpnp',
         'empemliqrpnp',
         'emprpp',
+        'rpnpaliquidinsc',
+        'rpnpemliquidinsc',
+        'reinscrpnpaliquidbloq',
+        'reinscrpnpemliquid',
+        'rpnprestab',
+        'rpnpaliquidtransfdeb',
+        'rpnpaliquidemliquidtransfdeb',
+        'rpnpliquidapgtransfdeb',
+        'rpnpbloqtransfdeb',
+        'rppinsc',
+        'rppexecant',
+        'rpptrasf',
         'rpnpaliquidar',
         'rpnpaliquidaremliquidacao',
         'rpnpliquidado',
         'rpnppago',
         'rpnpaliquidarbloq',
         'rpnpaliquidaremliquidbloq',
+        'rpnpaliquidtransfcred',
+        'rpnpaliquidemliquidtransfcred',
+        'rpnpliquidapgtransfcred',
+        'rpnpbloqtransfcred',
         'rpnpcancelado',
         'rpnpoutrocancelamento',
         'rpnpemliqoutrocancelamento',
         'rppliquidado',
         'rpppago',
+        'rpptransffusao',
         'rppcancelado',
+        'ajusterpexecant',
     ];
 
     /*
@@ -49,6 +67,11 @@ class Empenhodetalhado extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getTableColumns()
+    {
+        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    }
+
     public function getEmpenho()
     {
         $empenho = Empenho::find($this->empenho_id);
@@ -164,12 +187,16 @@ class Empenhodetalhado extends Model
     {
         return 'R$ ' . number_format($this->rppcancelado, 2, ',', '.');
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
+    public function naturezasubitem()
+    {
+        return $this->belongsTo(Naturezasubitem::class, 'naturezasubitem_id');
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

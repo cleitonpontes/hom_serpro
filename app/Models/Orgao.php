@@ -41,9 +41,7 @@ class Orgao extends Model
 
     public function unidades()
     {
-
         return $this->hasMany(Unidade::class, 'orgao_id');
-
     }
 
 

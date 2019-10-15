@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Jobs\AlertaContratoJob;
 use App\Models\Codigoitem;
+use App\Models\Contrato;
 use App\Models\Contratohistorico;
 use App\Models\Fornecedor;
+use App\Models\Unidade;
+use App\Notifications\RotinaAlertaContratoNotification;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
+use Backpack\CRUD\CrudPanel;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Class ContratoCrudController
  * @package App\Http\Controllers\Admin
- * @property-read CrudPanel $crud
+ * @property-read CrudPanell $crud
  */
 class ContratoCrudController extends CrudController
 {
@@ -40,6 +45,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratos.*');
 
+//        $this->crud->addButtonFromView('top', 'notificausers', 'notificausers', 'end');
 
         /*
         |--------------------------------------------------------------------------
@@ -49,6 +55,7 @@ class ContratoCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
+//        $this->crud->disableResponsiveTable();
 
         $this->crud->addButtonFromView('line', 'extratocontrato', 'extratocontrato', 'beginning');
         $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
@@ -140,10 +147,21 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'unidades_requisitantes',
+                'label' => 'Unidades Requisitantes',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'getTipo',
                 'label' => 'Tipo', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getTipo', // the method in your Model
+
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -162,6 +180,17 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'getSubCategoria',
+                'label' => 'Subcategoria', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSubCategoria', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'getFornecedor',
                 'label' => 'Fornecedor', // Table column heading
                 'type' => 'model_function',
@@ -173,8 +202,8 @@ class ContratoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
+                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
+                    $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
                 },
             ],
             [
@@ -315,6 +344,9 @@ class ContratoCrudController extends CrudController
                 'label' => "Tipo",
                 'type' => 'select2_from_array',
                 'options' => $tipos,
+                'attributes' => [
+                    'id' => 'tipo_contrato',
+                ],
                 'allows_null' => true,
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
@@ -327,11 +359,20 @@ class ContratoCrudController extends CrudController
                 'options' => $categorias,
                 'allows_null' => true,
                 'tab' => 'Dados Gerais',
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-//                'default' => 'one',
-            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select2_from_ajax: 1-n relationship
+                'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
+                'label' => "Subcategoria", // Table column heading
+                'type' => 'select2_from_ajax',
+                'model' => 'App\Models\OrgaoSubcategoria',
+                'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
+                'attribute' => 'descricao', // foreign key attribute that is shown to user
+                'data_source' => url('api/orgaosubcategoria'), // url to controller search function (with /{id} should return model)
+                'placeholder' => 'Selecione...', // placeholder for the select
+                'minimum_input_length' => 0, // minimum characters to type before querying results
+                'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
+                'method'                    => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
+                'tab' => 'Dados Gerais',
             ],
             [
                 'name' => 'numero',
@@ -357,6 +398,12 @@ class ContratoCrudController extends CrudController
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'unidades_requisitantes',
+                'label' => 'Unidades Requisitantes',
+                'type' => 'text',
+                'tab' => 'Dados Gerais',
             ],
             [ // select_from_array
                 'name' => 'situacao',
@@ -426,7 +473,7 @@ class ContratoCrudController extends CrudController
             [
                 'name' => 'licitacao_numero',
                 'label' => 'Número Licitação',
-                'type' => 'numcontrato',
+                'type' => 'numlicitacao',
                 'tab' => 'Dados Contrato',
             ],
             [   // Date
@@ -455,7 +502,7 @@ class ContratoCrudController extends CrudController
             ],
             [   // Number
                 'name' => 'num_parcelas',
-                'label' => 'Núm. Percelas',
+                'label' => 'Núm. Parcelas',
                 'type' => 'number',
                 // optionals
                 'attributes' => [
@@ -536,6 +583,7 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('valor_acumulado');
         $this->crud->removeColumn('situacao_siasg');
         $this->crud->removeColumn('receita_despesa');
+        $this->crud->removeColumn('subcategoria_id');
 
 
         return $content;
@@ -543,13 +591,25 @@ class ContratoCrudController extends CrudController
 
     public function extratoPdf()
     {
-        $pdf = new Pdf("P","mm","A4");
-        $pdf->SetTitle("Extrato Contrato",1);
+        $pdf = new Pdf("P", "mm", "A4");
+        $pdf->SetTitle("Extrato Contrato", 1);
         $pdf->AliasNbPages();
         $pdf->AddPage();
         $pdf->SetFont('Courier', 'B', 18);
         $pdf->Cell(50, 25, 'Hello World!');
-        $pdf->Output('D','download.pdf');
+        $pdf->Output('D', 'download.pdf');
 
     }
+
+    public function notificaUsers()
+    {
+
+        $alerta_mensal = new AlertaContratoJob();
+//        $alerta_mensal->emailDiario();
+//        $alerta_mensal->extratoMensal();
+
+        return redirect()->back();
+    }
+
+
 }

@@ -66,44 +66,57 @@ class Execsiafi
                 'local_cert' => $crtkey,
                 'local_pk' => $key,
                 'verify_peer' => false,
+                'passphrase' => base64_decode($certificado->senhacertificado)
             ]
         ]);
+
+
 
         $client = new \SoapClient($wsdl, [
             'trace' => 1,
             'stream_context' => $context,
         ]);
 
-        $client->__setSoapHeaders(array($this->wssecurity($user, $pass), $this->cabecalho($ug, $sf_id)));
+
+        $cabecalho = $this->cabecalho($ug, $sf_id, $wsdl);
+
+        $client->__setSoapHeaders(array($this->wssecurity($user, $pass), $cabecalho));
+
 
         return $client;
 
     }
 
-    protected function cabecalho($ug, $sf_id)
+    protected function cabecalho($ug, $sf_id, $wsdl)
     {
 
-        $nonce = SfNonce::select()->orderBy('id', 'desc')->first();
+        if($wsdl == 'CONSULTA'){
+            $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug></ns1:cabecalhoSIAFI>';
+            $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+                'Security',
+                new \SoapVar($xml, XSD_ANYXML),
+                true
+            );
+        }else{
+            $nonce = SfNonce::select()->orderBy('id', 'desc')->first();
+            $nonce_id = $nonce->id + 1;
+            $data = [
+                'sf_id' => $sf_id,
+                'tipo' => $ug . "_" . $nonce_id . "_" . $sf_id,
+            ];
+            if ($sf_id == '') {
+                unset($data['sf_id']);
+            }
+            SfNonce::create($data);
 
-        $nonce_id = $nonce->id + 1;
-
-        $data = [
-            'sf_id' => $sf_id,
-            'tipo' => $ug . "_" . $nonce_id . "_" . $sf_id,
-        ];
-
-        if ($sf_id == '') {
-            unset($data['sf_id']);
+            $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug><bilhetador><nonce>' . $nonce_id . '</nonce></bilhetador></ns1:cabecalhoSIAFI>';
+            $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+                'Security',
+                new \SoapVar($xml, XSD_ANYXML),
+                true
+            );
         }
 
-        SfNonce::create($data);
-
-        $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug><bilhetador><nonce>' . $nonce_id . '</nonce></bilhetador></ns1:cabecalhoSIAFI>';
-        $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
-            'Security',
-            new \SoapVar($xml, XSD_ANYXML),
-            true
-        );
 
         return $header;
 
@@ -210,6 +223,33 @@ class Execsiafi
 
             \Alert::error('Cadastre sua Senha SIAFI em "Meus Dados"!')->flash();
 
+        }
+
+        $client = $this->conexao_xml($cpf, $senha, $ug_user, '', $amb, $ano, 'CONSULTA');
+
+        $parms = new \stdClass;
+        $parms->tabConsultarSaldo = [
+            'codUG' => $ug,
+            'contaContabil' => $contacontabil,
+            'contaCorrente' => $contacorrente,
+            'mesRefSaldo' => $mesref
+        ];
+
+        $retorno = $this->submit($client, $parms, 'CONRAZAO');
+
+        return $this->trataretorno($retorno);
+
+
+    }
+
+    public function conrazaoUser($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref, $user)
+    {
+
+        $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
+        $senha = '';
+
+        if($user->senhasiafi){
+            $senha = base64_decode($user->senhasiafi);
         }
 
         $client = $this->conexao_xml($cpf, $senha, $ug_user, '', $amb, $ano, 'CONSULTA');
@@ -532,57 +572,60 @@ class Execsiafi
 
         $resultado = [];
 
-        foreach ($xml->soapHeader as $var2) {
+        if(isset($xml->soapHeader)){
+            foreach ($xml->soapHeader as $var2) {
 
-            foreach ($var2->ns2EfetivacaoOperacao as $var3) {
+                foreach ($var2->ns2EfetivacaoOperacao as $var3) {
 
-                $this->resultado[0] = $var3->resultado;
+                    $this->resultado[0] = $var3->resultado;
 
-                if ($this->resultado[0] == 'SUCESSO') {
+                    if ($this->resultado[0] == 'SUCESSO') {
 
-                    foreach ($xml->soapBody as $var4) {
+                        foreach ($xml->soapBody as $var4) {
 
-                        if (isset($var4->ns3cprDHCadastrarDocumentoHabilResponse)) {
+                            if (isset($var4->ns3cprDHCadastrarDocumentoHabilResponse)) {
 
-                            foreach ($var4->ns3cprDHCadastrarDocumentoHabilResponse as $var5) {
+                                foreach ($var4->ns3cprDHCadastrarDocumentoHabilResponse as $var5) {
 
-                                foreach ($var5->CprDhResposta as $var6) {
+                                    foreach ($var5->CprDhResposta as $var6) {
 
-                                    $this->resultado[1] = $var6->numDH;
-                                    $this->resultado[2] = $var6->numNs;
+                                        $this->resultado[1] = $var6->numDH;
+                                        $this->resultado[2] = $var6->numNs;
 
-                                }
-
-                            }
-
-                        }
-
-                        if (isset($var4->ns3cprDHAlterarDHIncluirItensResponse)) {
-
-                            foreach ($var4->ns3cprDHAlterarDHIncluirItensResponse as $var5) {
-
-                                foreach ($var5->cprDhResposta as $var6) {
-
-                                    $this->resultado[1] = $var6->numDH;
-                                    $this->resultado[2] = $var6->numNs;
+                                    }
 
                                 }
 
                             }
 
-                        }
+                            if (isset($var4->ns3cprDHAlterarDHIncluirItensResponse)) {
 
-                        if (isset($var4->ns3tabConsultarSaldoContabilResponse)) {
+                                foreach ($var4->ns3cprDHAlterarDHIncluirItensResponse as $var5) {
 
-                            foreach ($var4->ns3tabConsultarSaldoContabilResponse as $var5) {
+                                    foreach ($var5->cprDhResposta as $var6) {
 
-                                foreach ($var5->saldoContabilInfo as $var6) {
+                                        $this->resultado[1] = $var6->numDH;
+                                        $this->resultado[2] = $var6->numNs;
 
-                                    $this->resultado[1] = $var6->codUG;
-                                    $this->resultado[2] = $var6->contaContabil;
-                                    $this->resultado[3] = $var6->contaCorrente;
-                                    $this->resultado[4] = $var6->vlrSaldo;
-                                    $this->resultado[5] = $var6->tipoSaldo;
+                                    }
+
+                                }
+
+                            }
+
+                            if (isset($var4->ns3tabConsultarSaldoContabilResponse)) {
+
+                                foreach ($var4->ns3tabConsultarSaldoContabilResponse as $var5) {
+
+                                    foreach ($var5->saldoContabilInfo as $var6) {
+
+                                        $this->resultado[1] = $var6->codUG;
+                                        $this->resultado[2] = $var6->contaContabil;
+                                        $this->resultado[3] = $var6->contaCorrente;
+                                        $this->resultado[4] = $var6->vlrSaldo;
+                                        $this->resultado[5] = $var6->tipoSaldo;
+
+                                    }
 
                                 }
 
@@ -592,51 +635,26 @@ class Execsiafi
 
                     }
 
-                }
+                    if ($this->resultado[0] == 'FALHA') {
 
-                if ($this->resultado[0] == 'FALHA') {
+                        foreach ($xml->soapBody as $var4) {
 
-                    foreach ($xml->soapBody as $var4) {
+                            if (isset($var4->ns3cprDHCadastrarDocumentoHabilResponse)) {
 
-                        if (isset($var4->ns3cprDHCadastrarDocumentoHabilResponse)) {
+                                foreach ($var4->ns3cprDHCadastrarDocumentoHabilResponse as $var5) {
 
-                            foreach ($var4->ns3cprDHCadastrarDocumentoHabilResponse as $var5) {
+                                    foreach ($var5->CprDhResposta as $var6) {
 
-                                foreach ($var5->CprDhResposta as $var6) {
+                                        if (isset($var6->mensagem)) {
 
-                                    if (isset($var6->mensagem)) {
+                                            $this->resultado[1] = '';
 
-                                        $this->resultado[1] = '';
+                                            foreach ($var6->mensagem as $var7) {
 
-                                        foreach ($var6->mensagem as $var7) {
+                                                $this->resultado[1] .= " | " . str_replace('"', '',
+                                                        str_replace("'", "", trim($var7->txtMsg)));
 
-                                            $this->resultado[1] .= " | " . str_replace('"', '',
-                                                    str_replace("'", "", trim($var7->txtMsg)));
-
-                                        }
-
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                        if (isset($var4->ns3cprDHAlterarDHIncluirItensResponse)) {
-
-                            foreach ($var4->ns3cprDHAlterarDHIncluirItensResponse as $var5) {
-
-                                foreach ($var5->cprDhResposta as $var6) {
-
-                                    if (isset($var6->mensagem)) {
-
-                                        $this->resultado[1] = '';
-
-                                        foreach ($var6->mensagem as $var7) {
-
-                                            $this->resultado[1] .= " | " . str_replace('"', '',
-                                                    str_replace("'", "", trim($var7->txtMsg)));
+                                            }
 
                                         }
 
@@ -646,15 +664,40 @@ class Execsiafi
 
                             }
 
-                        }
+                            if (isset($var4->ns3cprDHAlterarDHIncluirItensResponse)) {
 
-                        if (isset($var4->soapFault)) {
+                                foreach ($var4->ns3cprDHAlterarDHIncluirItensResponse as $var5) {
 
-                            foreach ($var4->soapFault as $var5) {
+                                    foreach ($var5->cprDhResposta as $var6) {
 
-                                $this->resultado[1] = 0;
-                                $this->resultado[2] = " | " . str_replace('"', '',
-                                        str_replace("'", "", $var5->faultcode . " - " . $var5->faultstring));
+                                        if (isset($var6->mensagem)) {
+
+                                            $this->resultado[1] = '';
+
+                                            foreach ($var6->mensagem as $var7) {
+
+                                                $this->resultado[1] .= " | " . str_replace('"', '',
+                                                        str_replace("'", "", trim($var7->txtMsg)));
+
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                            if (isset($var4->soapFault)) {
+
+                                foreach ($var4->soapFault as $var5) {
+
+                                    $this->resultado[1] = 0;
+                                    $this->resultado[2] = " | " . str_replace('"', '',
+                                            str_replace("'", "", $var5->faultcode . " - " . $var5->faultstring));
+
+                                }
 
                             }
 
@@ -665,8 +708,8 @@ class Execsiafi
                 }
 
             }
-
         }
+
 
         return $this;
     }
