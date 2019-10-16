@@ -8,6 +8,9 @@ use Illuminate\Validation\Rules\Unique;
 
 class AditivoRequest extends FormRequest
 {
+
+    protected $data_limite;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,7 +32,7 @@ class AditivoRequest extends FormRequest
         $id = $this->id ?? "NULL";
         $contrato_id = $this->contrato_id ?? "NULL";
         $tipo_id = $this->tipo_id ?? "NULL";
-        $data_limite = date('d/m/Y', strtotime('+50 year'));
+        $this->data_limite = date('Y-m-d', strtotime('+50 year'));
 
         return [
             'numero' => [
@@ -46,8 +49,7 @@ class AditivoRequest extends FormRequest
             'data_assinatura' => 'required|date',
             'data_publicacao' => 'required|date',
             'vigencia_inicio' => 'required|date|before:vigencia_fim',
-//            'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$data_limite}",
-            'vigencia_fim' => "required|date|after:vigencia_inicio",
+            'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limite}",
             'valor_global' => 'required',
             'num_parcelas' => 'required',
             'valor_parcela' => 'required',
@@ -81,8 +83,10 @@ class AditivoRequest extends FormRequest
      */
     public function messages()
     {
+        $data_limite = implode('/',array_reverse(explode('-',$this->data_limite)));
+
         return [
-            //
+            'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
         ];
     }
 }
