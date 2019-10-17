@@ -34,5 +34,5 @@ class InsertAppVersion50002 extends Migration
             'patch' => 2
         ])->forceDelete();
     }
-    }
+    
 }
