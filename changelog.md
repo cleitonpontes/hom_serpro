@@ -2,6 +2,12 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.002]- 17/10/2019
+
+### Bug
+- Correção de erro do campo Informações Complementares da Fatura, com limitação a 255 caracteres.
+
+
 ## [5.0.001]- 14/10/2019
 
 ### Bug
