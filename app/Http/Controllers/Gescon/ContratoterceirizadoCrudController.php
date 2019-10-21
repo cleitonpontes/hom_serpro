@@ -55,6 +55,7 @@ class ContratoterceirizadoCrudController extends CrudController
 
         if ($conresp) {
             $this->crud->AllowAccess('create');
+            $this->crud->AllowAccess('delete');
             $this->crud->AllowAccess('update');
         }
 
