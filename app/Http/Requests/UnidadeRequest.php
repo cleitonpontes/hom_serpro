@@ -33,7 +33,7 @@ class UnidadeRequest extends FormRequest
             'gestao' => "required|max:5|min:5",
             'codigosiasg' => "required|max:6|min:6|unique:unidades,codigosiasg,{$id}",
             'nome' => "required|max:255",
-            'nomeresumido' => "required|max:10",
+            'nomeresumido' => "required|max:15",
             'tipo' => 'required',
             'situacao' => 'required',
         ];

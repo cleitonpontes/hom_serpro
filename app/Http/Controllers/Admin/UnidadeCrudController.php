@@ -278,7 +278,7 @@ class UnidadeCrudController extends CrudController
                 'type' => 'text',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)",
-                    'maxlength' => "10"
+                    'maxlength' => "15"
                 ]
 //                'allows_null' => false,
 //                'default' => 'one',
