@@ -55,7 +55,7 @@ class MigracaoempenhoJob implements ShouldQueue
 
             $credor = $this->buscaFornecedor($d);
 
-            $pi=[];
+            $pi=null;
             if ($d['picodigo']) {
                 $pi = $this->buscaPi($d);
             }
@@ -79,12 +79,12 @@ class MigracaoempenhoJob implements ShouldQueue
                     'numero' => trim($d['numero']),
                     'unidade_id' => $unidade->id,
                     'fornecedor_id' => $credor->id,
-                    'planointerno_id' => ($pi->id) ? $pi->id : null,
+                    'planointerno_id' => ($pi==null) ? $pi : $pi->id,
                     'naturezadespesa_id' => $naturezadespesa->id
                 ]);
             } else {
                 $empenho->fornecedor_id = $credor->id;
-                $empenho->planointerno_id = ($pi->id) ? $pi->id : null;
+                $empenho->planointerno_id = ($pi==null) ? $pi : $pi->id;
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
                 $empenho->save();
             }
