@@ -145,11 +145,13 @@ class MigracaoempenhoJob implements ShouldQueue
             ->first();
 
         if (!$planointerno) {
-            $planointerno = Planointerno::create([
-                'codigo' => $pi['picodigo'],
-                'descricao' => strtoupper($pi['pidescricao']),
-                'situacao' => true
-            ]);
+            if($pi['picodigo'] != ''){
+                $planointerno = Planointerno::create([
+                    'codigo' => $pi['picodigo'],
+                    'descricao' => strtoupper($pi['pidescricao']),
+                    'situacao' => true
+                ]);
+            }
         } else {
             if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
                 $planointerno->descricao = strtoupper($pi['pidescricao']);
