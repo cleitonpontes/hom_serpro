@@ -59,6 +59,12 @@ class MigracaoempenhoJob implements ShouldQueue
                 $pi = $this->buscaPi($d);
             }
 
+            if(isset($pi->id)){
+                $pi_id = $pi->id;
+            }else{
+                $pi_id = null;
+            }
+
             $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                 ->first();
 
@@ -78,12 +84,12 @@ class MigracaoempenhoJob implements ShouldQueue
                     'numero' => trim($d['numero']),
                     'unidade_id' => $unidade->id,
                     'fornecedor_id' => $credor->id,
-                    'planointerno_id' => (isset($pi)) ? $pi->id : 'NULL',
+                    'planointerno_id' => $pi_id,
                     'naturezadespesa_id' => $naturezadespesa->id
                 ]);
             } else {
                 $empenho->fornecedor_id = $credor->id;
-                $empenho->planointerno_id = (isset($pi)) ? $pi->id : 'NULL';
+                $empenho->planointerno_id = $pi_id;
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
                 $empenho->save();
             }
