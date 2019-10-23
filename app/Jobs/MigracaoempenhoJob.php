@@ -55,15 +55,19 @@ class MigracaoempenhoJob implements ShouldQueue
 
             $credor = $this->buscaFornecedor($d);
 
-
-            if ($d['picodigo'] != "") {
+            if ($d['picodigo']) {
                 $pi = $this->buscaPi($d);
-            }else{
-                $pi = null;
             }
 
             $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                 ->first();
+
+//                $empenho = Empenho::where('numero', '=', $d['numero'])
+//                    ->where('unidade_id', '=', $unidade->id)
+//                    ->where('fornecedor_id', '=', $credor->id)
+//                    ->where('planointerno_id', '=', $pi->id)
+//                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
+//                    ->first();
 
             $empenho = Empenho::where('numero', '=', trim($d['numero']))
                 ->where('unidade_id', '=', $unidade->id)
@@ -74,12 +78,12 @@ class MigracaoempenhoJob implements ShouldQueue
                     'numero' => trim($d['numero']),
                     'unidade_id' => $unidade->id,
                     'fornecedor_id' => $credor->id,
-                    'planointerno_id' => ($pi != null) ? $pi->id : null,
+                    'planointerno_id' => $pi->id ?? null,
                     'naturezadespesa_id' => $naturezadespesa->id
                 ]);
             } else {
                 $empenho->fornecedor_id = $credor->id;
-                $empenho->planointerno_id = ($pi != null) ? $pi->id : null;
+                $empenho->planointerno_id = $pi->id ?? null;
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
                 $empenho->save();
             }
