@@ -78,12 +78,12 @@ class MigracaoempenhoJob implements ShouldQueue
                     'numero' => trim($d['numero']),
                     'unidade_id' => $unidade->id,
                     'fornecedor_id' => $credor->id,
-                    'planointerno_id' => ($pi) ? $pi->id : 'NULL',
+                    'planointerno_id' => (isset($pi)) ? $pi->id : 'NULL',
                     'naturezadespesa_id' => $naturezadespesa->id
                 ]);
             } else {
                 $empenho->fornecedor_id = $credor->id;
-                $empenho->planointerno_id = ($pi) ? $pi->id : 'NULL';
+                $empenho->planointerno_id = (isset($pi)) ? $pi->id : 'NULL';
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
                 $empenho->save();
             }
