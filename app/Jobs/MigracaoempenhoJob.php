@@ -55,6 +55,7 @@ class MigracaoempenhoJob implements ShouldQueue
 
             $credor = $this->buscaFornecedor($d);
 
+            $pi=[];
             if ($d['picodigo']) {
                 $pi = $this->buscaPi($d);
             }
