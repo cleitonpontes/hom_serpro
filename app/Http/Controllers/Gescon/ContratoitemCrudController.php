@@ -232,27 +232,27 @@ class ContratoitemCrudController extends CrudController
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
-            [ // select2_from_ajax: 1-n relationship
-                'name' => 'grupo_id',
-                // the column that contains the ID of that connected entity
-                'label' => "Grupo",
-                // Table column heading
-                'type' => 'select2_from_ajax',
-                'entity' => 'grupo',
-                // the method that defines the relationship in your Model
-                'attribute' => 'descricao',
-                // foreign key attribute that is shown to user
-//                'process_results_template' => 'gescon.process_results', // foreign key attribute that is shown to user
-                'data_source' => url('api/catmatsergrupo'),
-                // url to controller search function (with /{id} should return model)
-                'placeholder' => 'Selecione o Grupo',
-                // placeholder for the select
-                'minimum_input_length' => 0,
-                // minimum characters to type before querying results
-                'dependencies' => ['tipo_id'],
-                // when a dependency changes, this select2 is reset to null
-                // ‘method'                    => ‘GET’, // optional - HTTP method to use for the AJAX call (GET, POST)
-            ],
+//            [ // select2_from_ajax: 1-n relationship
+//                'name' => 'grupo_id',
+//                // the column that contains the ID of that connected entity
+//                'label' => "Grupo",
+//                // Table column heading
+//                'type' => 'select2_from_ajax',
+//                'entity' => 'grupo',
+//                // the method that defines the relationship in your Model
+//                'attribute' => 'descricao',
+//                // foreign key attribute that is shown to user
+////                'process_results_template' => 'gescon.process_results', // foreign key attribute that is shown to user
+//                'data_source' => url('api/catmatsergrupo'),
+//                // url to controller search function (with /{id} should return model)
+//                'placeholder' => 'Selecione o Grupo',
+//                // placeholder for the select
+//                'minimum_input_length' => 0,
+//                // minimum characters to type before querying results
+//                'dependencies' => ['tipo_id'],
+//                // when a dependency changes, this select2 is reset to null
+//                // ‘method'                    => ‘GET’, // optional - HTTP method to use for the AJAX call (GET, POST)
+//            ],
             [ // select2_from_ajax: 1-n relationship
                 'name' => 'catmatseritem_id',
                 // the column that contains the ID of that connected entity
@@ -271,7 +271,7 @@ class ContratoitemCrudController extends CrudController
                 // placeholder for the select
                 'minimum_input_length' => 0,
                 // minimum characters to type before querying results
-                'dependencies' => ['grupo_id'],
+                'dependencies' => ['tipo_id'],
                 // when a dependency changes, this select2 is reset to null
                 // ‘method'                    => ‘GET’, // optional - HTTP method to use for the AJAX call (GET, POST)
             ],
