@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -328,6 +329,10 @@ class ContratoitemCrudController extends CrudController
         $request->request->set('valortotal', number_format(floatval($valortotal), 2, '.', ''));
 
 
+        $catmatiten_id = $request->input('catmatseritem_id');
+        $item = Catmatseritem::find($catmatiten_id);
+        $request->request->set('grupo_id', $item->grupo_id);
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -343,6 +348,10 @@ class ContratoitemCrudController extends CrudController
 
         $valortotal = str_replace(',', '.', str_replace('.', '', $request->input('valortotal')));
         $request->request->set('valortotal', number_format(floatval($valortotal), 2, '.', ''));
+
+        $catmatiten_id = $request->input('catmatseritem_id');
+        $item = Catmatseritem::find($catmatiten_id);
+        $request->request->set('grupo_id', $item->grupo_id);
 
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);

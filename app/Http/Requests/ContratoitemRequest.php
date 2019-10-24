@@ -27,7 +27,6 @@ class ContratoitemRequest extends FormRequest
     {
         return [
             'tipo_id' => 'required',
-            'grupo_id' => 'required',
             'catmatseritem_id' => 'required',
             'quantidade' => 'required',
             'valorunitario' => 'required',
