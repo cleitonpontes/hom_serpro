@@ -2,6 +2,14 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.003]- 24/10/2019
+
+### Bug  
+- Correção de erro da migração de empenhos sem informação de Plano Interno.
+
+### Melhoria  
+- Simplificação da inserção dos Itens de Contratos, com a retirada do Grupo.
+
 ## [5.0.002]- 17/10/2019
 
 ### Bug
