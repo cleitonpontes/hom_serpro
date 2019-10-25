@@ -120,6 +120,12 @@ class ContratohistoricoObserve
                 unset($arrayhistorico['unidades_requisitantes']);
 
             }
+
+            if($tipo->descricao == 'Termo de Apostilamento'){
+                unset($arrayhistorico['vigencia_inicio']);
+                unset($arrayhistorico['vigencia_fim']);
+            }
+
             unset($arrayhistorico['id']);
             unset($arrayhistorico['contrato_id']);
             unset($arrayhistorico['observacao']);
