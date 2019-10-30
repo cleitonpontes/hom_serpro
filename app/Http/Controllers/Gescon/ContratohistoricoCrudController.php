@@ -256,6 +256,16 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'data_inicio_novo_valor',
+                'label' => 'Dt. Início Novo Valor',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'vigencia_inicio',
                 'label' => 'Vig. Início',
                 'type' => 'date',

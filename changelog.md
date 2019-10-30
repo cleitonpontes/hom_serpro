@@ -6,6 +6,7 @@ Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
 ### Melhoria  
 - Disponibilização do campo "Novo Número de Parcelas" para edição no Apostilamento do Contrato.
+- Disponibilização do campo "Data início novo valor" na consulta do Histórico do Contrato.
 
 ## [5.0.003]- 24/10/2019
 
