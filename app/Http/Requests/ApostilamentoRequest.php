@@ -43,6 +43,7 @@ class ApostilamentoRequest extends FormRequest
             'unidade_id' => 'required',
             'data_assinatura' => 'required|date',
             'data_inicio_novo_valor' => 'required|date|after_or_equal:data_assinatura',
+            'novo_num_parcelas' => 'required',
             'novo_valor_parcela' => 'required',
             'novo_valor_global' => 'required',
             'observacao' => 'required',

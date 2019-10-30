@@ -301,9 +301,22 @@ class ApostilamentoCrudController extends CrudController
                 'tab' => 'Dados Apostilamento',
             ],
             [   // Number
+                'name' => 'novo_valor_global',
+                'label' => 'Novo Valor Global',
+                'type' => 'money',
+                // optionals
+                'attributes' => [
+                    'id' => 'novo_valor_global',
+                ], // allow decimals
+                'prefix' => "R$",
+                'default' => number_format($contrato->valor_global, 2, ',', '.'),
+                'tab' => 'Dados Apostilamento',
+                // 'suffix' => ".00",
+            ],
+            [   // Number
                 'name' => 'novo_num_parcelas',
                 'label' => 'Novo Núm. Percelas',
-                'type' => 'hidden',
+                'type' => 'number',
                 // optionals
 //                'attributes' => [
 //                    "step" => "any",
@@ -311,7 +324,7 @@ class ApostilamentoCrudController extends CrudController
 //                ], // allow decimals
                 'default' => $contrato->num_parcelas,
 //                'prefix' => "R$",
-//                'tab' => 'Dados Apostilamento',
+                'tab' => 'Dados Apostilamento',
                 // 'suffix' => ".00",
             ],
             [   // Number
@@ -327,19 +340,7 @@ class ApostilamentoCrudController extends CrudController
                 'tab' => 'Dados Apostilamento',
                 // 'suffix' => ".00",
             ],
-            [   // Number
-                'name' => 'novo_valor_global',
-                'label' => 'Novo Valor Global',
-                'type' => 'money',
-                // optionals
-                'attributes' => [
-                    'id' => 'novo_valor_global',
-                ], // allow decimals
-                'prefix' => "R$",
-                'default' => number_format($contrato->valor_global, 2, ',', '.'),
-                'tab' => 'Dados Apostilamento',
-                // 'suffix' => ".00",
-            ],
+
 
 
             [ // select_from_array
