@@ -315,7 +315,7 @@ class ApostilamentoCrudController extends CrudController
             ],
             [   // Number
                 'name' => 'novo_num_parcelas',
-                'label' => 'Novo Núm. Percelas',
+                'label' => 'Novo Núm. Parcelas',
                 'type' => 'number',
                 // optionals
 //                'attributes' => [
