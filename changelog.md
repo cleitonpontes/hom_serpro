@@ -2,6 +2,11 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.004]- 30/10/2019
+
+### Melhoria  
+- Disponibilização do campo "Novo Número de Parcelas" para edição no Apostilamento do Contrato.
+
 ## [5.0.003]- 24/10/2019
 
 ### Bug  
