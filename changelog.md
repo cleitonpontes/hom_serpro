@@ -2,6 +2,11 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.005]- 31/10/2019
+
+### Melhoria  
+- Poder Inativar um contrato por meio da Alteração do Instrumento Inicial.
+
 ## [5.0.004]- 30/10/2019
 
 ### Melhoria  

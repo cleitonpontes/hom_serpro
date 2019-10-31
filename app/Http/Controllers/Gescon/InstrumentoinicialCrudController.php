@@ -314,6 +314,18 @@ class InstrumentoinicialCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+            [
+                'name' => 'situacao',
+                'label' => 'Situação',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
         ];
 
         return $colunas;

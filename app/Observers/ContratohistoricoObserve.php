@@ -118,6 +118,7 @@ class ContratohistoricoObserve
                 unset($arrayhistorico['novo_valor_parcela']);
                 unset($arrayhistorico['data_inicio_novo_valor']);
                 unset($arrayhistorico['unidades_requisitantes']);
+                unset($arrayhistorico['situacao']);
 
             }
 
@@ -140,9 +141,14 @@ class ContratohistoricoObserve
             unset($arrayhistorico['retroativo_valor']);
             unset($arrayhistorico['retroativo_soma_subtrai']);
 
+
             $array = array_filter($arrayhistorico, function ($a) {
                 return trim($a) !== "";
             });
+
+            if(isset($arrayhistorico['situacao'])){
+                $array['situacao'] = $arrayhistorico['situacao'];
+            }
 
             $contrato = new Contrato();
             $contrato->atualizaContratoFromHistorico($contrato_id, $array);
