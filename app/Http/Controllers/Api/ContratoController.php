@@ -46,7 +46,7 @@ class ContratoController extends Controller
             $empenhos_array[] = [
                 'contrato_id' => $e->contrato->id,
                 'numero' => $e->empenho->numero ?? '',
-                'credor' => $e->empenho->fornecedor->cpf_cnpj_idgener . ' - ' . $e->empenho->fornecedor->nome ?? '',
+                'credor' => $e->fornecedor->cpf_cnpj_idgener . ' - ' . $e->fornecedor->nome ?? '',
                 'planointerno' => $e->empenho->planointerno->codigo . ' - ' . $e->empenho->planointerno->descricao ?? '',
                 'naturezadespesa' => $e->empenho->naturezadespesa->codigo . ' - ' . $e->empenho->naturezadespesa->descricao,
                 'empenhado' => number_format($e->empenho->empenhado, 2, ',', '.'),

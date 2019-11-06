@@ -171,6 +171,11 @@ class Contratoempenho extends Model
     {
         return $this->belongsTo(Empenho::class, 'empenho_id');
     }
+
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES
