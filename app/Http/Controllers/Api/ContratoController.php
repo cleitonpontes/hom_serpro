@@ -47,7 +47,7 @@ class ContratoController extends Controller
                 'contrato_id' => $e->contrato->id,
                 'numero' => $e->empenho->numero ?? '',
                 'credor' => $e->fornecedor->cpf_cnpj_idgener . ' - ' . $e->fornecedor->nome ?? '',
-                'planointerno' => $e->empenho->planointerno->codigo . ' - ' . $e->empenho->planointerno->descricao ?? '',
+//                'planointerno' => $e->empenho->planointerno->codigo . ' - ' . $e->empenho->planointerno->descricao ?? '',
                 'naturezadespesa' => $e->empenho->naturezadespesa->codigo . ' - ' . $e->empenho->naturezadespesa->descricao,
                 'empenhado' => number_format($e->empenho->empenhado, 2, ',', '.'),
                 'aliquidar' => number_format($e->empenho->aliquidar, 2, ',', '.'),
