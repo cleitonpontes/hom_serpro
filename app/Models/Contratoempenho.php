@@ -40,11 +40,12 @@ class Contratoempenho extends Model
     */
     public function buscaTodosEmpenhosContratosAtivos()
     {
-        $empenhos = $this->whereHas('contrato', function ($contrato) {
-            $contrato->where('situacao',true);
+        $empenhos = $this->whereHas('contrato', function ($c) {
+            $c->where('situacao',true);
         })->get();
 
         return $empenhos;
+
     }
 
     public function getContrato()
