@@ -6,6 +6,7 @@ use App\Models\Contrato;
 use App\Models\Contratocronograma;
 use App\Models\Contratoempenho;
 use App\Models\Contratohistorico;
+use App\Models\Empenho;
 use App\Models\Fornecedor;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -33,6 +34,34 @@ class ContratoController extends Controller
         }
 
         return json_encode($cronograma_array);
+
+    }
+
+    public function empenhosPorContratos(){
+        $empenhos_array = [];
+        $emp = new Contratoempenho();
+        $empenhos = $emp->buscaTodosEmpenhosContratosAtivos();
+
+        foreach ($empenhos as $e) {
+            $empenhos_array[] = [
+                'contrato_id' => $e->contrato->id,
+                'numero' => $e->empenho->numero,
+                'credor' => $e->empenho->fornecedor->cpf_cnpj_idgener . ' - ' . $e->empenho->fornecedor->nome ?? '',
+                'planointerno' => $e->empenho->planointerno->codigo . ' - ' . $e->empenho->planointerno->descricao ?? '',
+                'naturezadespesa' => $e->empenho->naturezadespesa->codigo . ' - ' . $e->empenho->naturezadespesa->descricao,
+                'empenhado' => number_format($e->empenho->empenhado, 2, ',', '.'),
+                'aliquidar' => number_format($e->empenho->aliquidar, 2, ',', '.'),
+                'liquidado' => number_format($e->empenho->liquidado, 2, ',', '.'),
+                'pago' => number_format($e->empenho->pago, 2, ',', '.'),
+                'rpinscrito' => number_format($e->empenho->rpinscrito, 2, ',', '.'),
+                'rpaliquidar' => number_format($e->empenho->rpaliquidar, 2, ',', '.'),
+                'rpliquidado' => number_format($e->empenho->rpliquidado, 2, ',', '.'),
+                'rppago' => number_format($e->empenho->rppago, 2, ',', '.'),
+
+            ];
+        }
+
+        return json_encode($empenhos_array);
 
     }
 

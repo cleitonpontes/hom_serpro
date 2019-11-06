@@ -49,6 +49,27 @@ class Empenho extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function buscaEmpenhosPorAnoUg(int $ano, int $unidade)
+    {
+        $empenhos = Empenho::whereHas('unidade', function ($q) use ($unidade){
+            $q->where('codigo',$unidade);
+        })
+            ->where('numero', 'LIKE', $ano . 'NE%')
+            ->get();
+
+        return $empenhos;
+    }
+
+    public function buscaEmpenhosPorUg(int $unidade)
+    {
+        $empenhos = Empenho::whereHas('unidade', function ($q) use ($unidade){
+            $q->where('codigo',$unidade);
+        })
+            ->get();
+
+        return $empenhos;
+    }
+
     public function getFornecedor()
     {
         $fornecedor = Fornecedor::find($this->fornecedor_id);
