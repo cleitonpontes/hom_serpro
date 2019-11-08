@@ -39,13 +39,15 @@ class ContratoController extends Controller
 
     public function empenhosPorContratos(){
         $empenhos_array = [];
-        $empenhos = $this->buscaTodosEmpenhosContratosAtivos();
+        $emp = new Contratoempenho;
+        $empenhos = $emp->buscaTodosEmpenhosContratosAtivos();
 
         foreach ($empenhos as $e) {
+            dd($empenhos,$e,$e->contrato->id);
             $empenhos_array[] = [
                 'contrato_id' => $e->contrato->id,
                 'numero' => $e->empenho->numero,
-                'credor' => $e->fornecedor->cpf_cnpj_idgener . ' - ' . $e->fornecedor->nome,
+                'credor' => $e->fornecedor->cpf_cnpj_idgener . ' - ' . $e->fornecedor->nome ?? '',
                 'planointerno' => $e->empenho->planointerno->codigo . ' - ' . $e->empenho->planointerno->descricao ?? '',
                 'naturezadespesa' => $e->empenho->naturezadespesa->codigo . ' - ' . $e->empenho->naturezadespesa->descricao,
                 'empenhado' => number_format($e->empenho->empenhado, 2, ',', '.'),
@@ -61,16 +63,6 @@ class ContratoController extends Controller
         }
 
         return json_encode($empenhos_array);
-
-    }
-
-    public function buscaTodosEmpenhosContratosAtivos()
-    {
-        $empenhos = Contratoempenho::whereHas('contrato', function ($c) {
-            $c->where('situacao',true);
-        })->get();
-
-        return $empenhos;
 
     }
 
