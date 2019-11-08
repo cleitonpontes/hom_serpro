@@ -39,11 +39,10 @@ class ContratoController extends Controller
 
     public function empenhosPorContratos(){
         $empenhos_array = [];
-        $emp = new Contratoempenho;
+        $emp = new Contratoempenho();
         $empenhos = $emp->buscaTodosEmpenhosContratosAtivos();
 
         foreach ($empenhos as $e) {
-            dd($e->empenho);
             $empenhos_array[] = [
                 'contrato_id' => $e->contrato->id,
                 'numero' => $e->empenho->numero,
