@@ -43,7 +43,7 @@ class ContratoController extends Controller
         $empenhos = $emp->buscaTodosEmpenhosContratosAtivos();
 
         foreach ($empenhos as $e) {
-            dd($empenhos,$e,$e->contrato->id,$e->empenho->numero,$e->fornecedor->cpf_cnpj_idgener . ' - ' . $e->fornecedor->nome);
+            dd($e->empenho->numero,$e->fornecedor->cpf_cnpj_idgener);
             $empenhos_array[] = [
                 'contrato_id' => $e->contrato->id,
                 'numero' => $e->empenho->numero,
