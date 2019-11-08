@@ -39,16 +39,15 @@ class ContratoController extends Controller
 
     public function empenhosPorContratos(){
         $empenhos_array = [];
-        $emp = new Contratoempenho();
-        $empenhos = $emp->buscaTodosEmpenhosContratosAtivos();
+        $empenhos = $this->buscaTodosEmpenhosContratosAtivos();
 
         foreach ($empenhos as $e) {
             $empenhos_array[] = [
                 'contrato_id' => $e->contrato->id,
-                'numero' => $e->empenho->numero ?? '',
-                'credor' => $e->fornecedor->cpf_cnpj_idgener . ' - ' . $e->fornecedor->nome ?? '',
-//                'planointerno' => $e->empenho->planointerno->codigo . ' - ' . $e->empenho->planointerno->descricao ?? '',
-//                'naturezadespesa' => $e->empenho->naturezadespesa->codigo . ' - ' . $e->empenho->naturezadespesa->descricao,
+                'numero' => $e->empenho->numero,
+                'credor' => $e->fornecedor->cpf_cnpj_idgener . ' - ' . $e->fornecedor->nome,
+                'planointerno' => $e->empenho->planointerno->codigo . ' - ' . $e->empenho->planointerno->descricao ?? '',
+                'naturezadespesa' => $e->empenho->naturezadespesa->codigo . ' - ' . $e->empenho->naturezadespesa->descricao,
                 'empenhado' => number_format($e->empenho->empenhado, 2, ',', '.'),
                 'aliquidar' => number_format($e->empenho->aliquidar, 2, ',', '.'),
                 'liquidado' => number_format($e->empenho->liquidado, 2, ',', '.'),
@@ -62,6 +61,16 @@ class ContratoController extends Controller
         }
 
         return json_encode($empenhos_array);
+
+    }
+
+    public function buscaTodosEmpenhosContratosAtivos()
+    {
+        $empenhos = Contratoempenho::whereHas('contrato', function ($c) {
+            $c->where('situacao',true);
+        })->get();
+
+        return $empenhos;
 
     }
 
