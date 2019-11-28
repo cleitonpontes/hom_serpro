@@ -40,16 +40,16 @@ class Passo2Controller extends BaseController
         $modeloSituacoes = new Situacoes();
         $situacoes = $modeloSituacoes->retornaListagemComoArray();
         session(['identificacao.situacao.situacoes' => $situacoes]);
-        
+
         if ($request->ajax()) {
             $grid = DataTables::of($importacoes);
-            
+
             $grid->addColumn('situacao', function ($importacao) {
                 // Apenas para registros não atualizados anteriormente!
                 if ($importacao->situacao_original == null) {
                     $dados = $this->retornaSituacaoVpd($importacao);
-
-                    if (count($dados) > 0) {
+                    $pkCount = (is_array($dados) ? count($dados) : 0);
+                    if ($pkCount > 0) {
                         // Se ainda não gravou...
                         $situacao = $dados['situacao'];
                         $vpd = $dados['vpd'];
@@ -104,7 +104,7 @@ class Passo2Controller extends BaseController
 
         // Verifica se já pode passar para o próximo passo
         $qtde = $modelo->retornaQtdeRegistroComSituacaoInformada($apid);
-        
+
         return ($qtde == 0);
     }
 
@@ -117,7 +117,7 @@ class Passo2Controller extends BaseController
     {
         return config('mensagens.apropriacao-situacao-pendencias');
     }
-    
+
     /**
      * Monta $html com definições do Grid
      *
@@ -126,7 +126,7 @@ class Passo2Controller extends BaseController
     private function retornaGrid()
     {
         $html = $this->htmlBuilder;
-        
+
         $html->addColumn([
             'data' => 'natureza',
             'name' => 'natureza',
@@ -172,7 +172,7 @@ class Passo2Controller extends BaseController
             'visible' => false,
             'title' => 'ND Completa'
         ]);
-        
+
         $html->parameters([
             'processing' => true,
             'serverSide' => true,
@@ -186,10 +186,10 @@ class Passo2Controller extends BaseController
                 'url' => asset('/json/pt_br.json')
             ]
         ]);
-        
+
         return $html;
     }
-    
+
     /**
      * Retorna Situação e VPD, conforme registro da importação
      *
@@ -201,7 +201,7 @@ class Passo2Controller extends BaseController
         $achados = $this->retornaAchados($importacao);
 
         // Quantidade de situações por registro
-        $qtdeAchados = count($achados);
+        $qtdeAchados = (is_array($achados) ? count($achados) : 0);
 
         $dados = array();
         foreach ($achados as $achado) {
@@ -226,7 +226,7 @@ class Passo2Controller extends BaseController
         $achados = $this->retornaAchados($importacao);
 
         // Quantidade de situações por registro
-        $qtdeAchados = count($achados);
+        $qtdeAchados = (is_array($achados) ? count($achados) : 0);
 
         // Monta parte das string para montagem da exibição do campo
         $formId = $importacao->apropriacao_id . '_' . $importacao->id;
@@ -265,7 +265,7 @@ class Passo2Controller extends BaseController
 
         return $campo;
     }
-    
+
     /**
      * Retorna html das ações disponíveis
      *
@@ -276,27 +276,27 @@ class Passo2Controller extends BaseController
     private function retornaVpds($importacao)
     {
         $achados = $this->retornaAchados($importacao);
-        
+
         // Quantidade de situações por registro
-        $qtdeAchados = count($achados);
-        
+        $qtdeAchados = (is_array($achados) ? count($achados) : 0);
+
         // Monta parte das string para montagem da exibição do campo
         $vpdParte = '';
-        
+
         foreach ($achados as $achado) {
             $vpd = $achado['vpd'];
             $vpdParte .= "$vpd <br />";
         }
-        
+
         $campo = '';
         $campo .= '<div class="btn-group">';
         $campo .= '<!-- ' . $qtdeAchados . ' -->';
         $campo .= $vpdParte;
         $campo .= '</div>';
-        
+
         return $campo;
     }
-    
+
     /**
      * Atualiza registro importado com suas respectivas Situação e VPD
      *
@@ -310,15 +310,15 @@ class Passo2Controller extends BaseController
     {
         $modelo = new Apropriacaoimportacao();
         $registro = $modelo::find($id);
-        
+
         $registro->situacao = $situacao;
         $registro->vpd = $vpd;
-        
+
         if (!$forcaUpdate) {
             $registro->situacao_original = $situacao;
             $registro->vpd_original = $vpd;
         }
-        
+
         $registro->save();
     }
 

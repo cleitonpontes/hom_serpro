@@ -110,7 +110,9 @@ class ApropriacaoController extends BaseController
         $apropriacoes = $modeloApropriacao->retornaDadosRelatorio($apid);
 
         // Verificação de presença dos dados
-        if (count($apropriacoes) != 1) {
+        $pkCount = (is_array($apropriacoes) ? count($apropriacoes) : 0);
+
+        if ($pkCount != 1) {
             $msg = config('mensagens.apropriacao-relatorio-erro-ident');
             $this->exibeMensagemAlerta($msg);
 
@@ -133,8 +135,9 @@ class ApropriacaoController extends BaseController
         $modeloPco = new SfPco();
         $pcos = $modeloPco->retornaDadosRelatorioApropriacao($apid);
 
+        $pkCount = (is_array($pcos) ? count($pcos) : 0);
         // Verifica se já passou pelo passo 6
-        if (count($pcos) <= 0) {
+        if ($pkCount <= 0) {
             $msg = config('mensagens.apropriacao-relatorio-erro-pco');
             $this->exibeMensagemAlerta($msg);
 

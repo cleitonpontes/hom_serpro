@@ -156,8 +156,8 @@ class Empenho extends Model
     {
         // Dados de todos os empenhos - em memória
         $empenhos = session('empenho.fonte.conta');
-
-        if (count($empenhos) == 0) {
+        $pkCount = (is_array($empenhos) ? count($empenhos) : 0);
+        if ($pkCount == 0) {
             // Se não houver dados na session, busca os dados no banco
             $empenhos = $this->retornaEmpenhosFonteConta($conta);
             session(['empenho.fonte.conta' => $empenhos]);
