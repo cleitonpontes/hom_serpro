@@ -2,7 +2,10 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
-## [5.0.006]- 31/10/2019
+## [5.0.006]- 03/12/2019
+
+### Implementação  
+- Implementação do Extrato do Contrato com dados Básicos do mesmo.
 
 ### Segurança
 - Atualização do código para permitir versão PHP 7.3.
