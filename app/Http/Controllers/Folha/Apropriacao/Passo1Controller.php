@@ -151,7 +151,7 @@ class Passo1Controller extends BaseController
     private function validaQuantidadeArquivos($arquivos)
     {
         // Verifica quantidade de arquivos a importar antes de demais validações
-        $qtdeArquivos = count($arquivos);
+        $qtdeArquivos = (is_array($arquivos) ? count($arquivos) : 0);
 
         if ($qtdeArquivos < 1 || $qtdeArquivos > 3) {
             return config('mensagens.import-ddp-qtde-arquivos');
@@ -209,7 +209,7 @@ class Passo1Controller extends BaseController
         $nomeDosArquivos = substr($nomeDosArquivos, 0, - 2);
 
         $dados = array();
-        
+
         $dados['competencia'] = $competenciaUnica;
         $dados['ug'] = $ug;
         $dados['nivel'] = $niveis;
@@ -386,7 +386,8 @@ class Passo1Controller extends BaseController
         $valida = true;
 
         // Preparação para as validações adicionais
-        $qtdeCampos = count(config('importacao.ddp-campos'));
+
+        $qtdeCampos = (is_array(config('importacao.ddp-campos')) ? count(config('importacao.ddp-campos')) : 0);
         $campoCategoria = config('importacao.ddp-campo-categoria');
         $campoValor = config('importacao.ddp-campo-valor');
         $campoDescricao = config('importacao.ddp-campo-descricao');
@@ -396,8 +397,9 @@ class Passo1Controller extends BaseController
         $rodape = array();
 
         foreach ($conteudo as $id => $linha) {
+            $pkCount = (is_array($linha) ? count($linha) : 0);
             // Valida a quantidade de campos, por linha
-            $qtdeColunas = count($linha) - 1; // -1, para desconsiderar o array['linha']
+            $qtdeColunas = $pkCount - 1; // -1, para desconsiderar o array['linha']
             $qtdeColunaValido = ($qtdeColunas == $qtdeCampos);
             $valida = ($qtdeColunaValido == false) ? false : $valida;
 
@@ -473,20 +475,20 @@ class Passo1Controller extends BaseController
         $bruto = (string) isset($rodape['bruto']) ? $rodape['bruto'] : 0;
         $desconto = (string) isset($rodape['desconto']) ? $rodape['desconto'] : 0;
         $liquido = (string) isset($rodape['liquido']) ? $rodape['liquido'] : 0;
-        
+
         $total1 = isset($totais[1]) ? $totais[1] : 0;
         $total2 = isset($totais[2]) ? $totais[2] : 0;
         $total3 = isset($totais[3]) ? $totais[3] : 0;
         $total4 = isset($totais[4]) ? $totais[4] : 0;
-        
+
         // TODO: Nesse momento, não se utilizam os totais 6 nem 7
         // $total6 = isset($totais[6]) ? $totais[6] : 0;
         // $total7 = isset($totais[7]) ? $totais[7] : 0;
-        
+
         $calculadoBruto = (string) ($total1 + $total4);
         $calculadoDesconto = (string) ($total2 + $total3);
         $calculadoLiquido = (string) ($bruto - $desconto);
-        
+
         // Confere valor Bruto...
         if ($calculadoBruto != $bruto) {
             $descErro = config('mensagens.import-ddp-rodape-bruto-nao-confere');
@@ -513,7 +515,7 @@ class Passo1Controller extends BaseController
 
         session(['validacao.valor.bruto' => $bruto]);
         session(['validacao.valor.liquido' => $liquido]);
-        
+
         return $valida;
     }
 
@@ -531,7 +533,7 @@ class Passo1Controller extends BaseController
         $dados = array_column($conteudo, $campoCompetencia);
 
         // Verifica competências distintas
-        $qtdeEncontrada = count(array_unique($dados));
+        $qtdeEncontrada = (is_array(array_unique($dados)) ? count(array_unique($dados)) : 0);
 
         if ($qtdeEncontrada == 1) {
             $competenciaUnica = $dados[0];
@@ -664,7 +666,7 @@ class Passo1Controller extends BaseController
         if (! in_array($nivel, $niveis)) {
             return false;
         }
-        
+
         if ($nivel != 'T') {
             // Não grava registro, se o nível for 'T', meramente de total
             $this->gravaNivelEmMemoria($nivel);
@@ -803,11 +805,11 @@ class Passo1Controller extends BaseController
 
         if (! in_array($nivel, $niveis)) {
             $nivelNovo = str_split($nivel, 1);
-            
+
             $niveis = array_merge($niveis, $nivelNovo);
             array_multisort($niveis, SORT_ASC);
         }
-        
+
         session(['validacao.nivel' => $niveis]);
     }
 
