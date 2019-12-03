@@ -2,6 +2,11 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.006]- 31/10/2019
+
+### Segurança
+- Atualização do código para permitir versão PHP 7.3.
+
 ## [5.0.005]- 31/10/2019
 
 ### Melhoria  
