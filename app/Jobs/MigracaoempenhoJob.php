@@ -169,8 +169,8 @@ class MigracaoempenhoJob implements ShouldQueue
     {
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1500);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1500);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
         $data = curl_exec($ch);
