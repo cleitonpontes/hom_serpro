@@ -2,6 +2,11 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.007]- 12/12/2019
+
+### Bug  
+- Correção de erro da migração de empenhos Timeout do CURl.
+
 ## [5.0.006]- 03/12/2019
 
 ### Implementação  
