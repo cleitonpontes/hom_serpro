@@ -163,10 +163,10 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
-                },
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
+//                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
+//                },
             ],
             [
                 'name' => 'processo',
