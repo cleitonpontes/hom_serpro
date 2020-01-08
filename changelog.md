@@ -2,6 +2,11 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.008]- 08/01/2020
+
+### Bug  
+- Correção de erro na inclusão de Ocorrências do Tipo Conclusivas.
+
 ## [5.0.007]- 12/12/2019
 
 ### Bug  

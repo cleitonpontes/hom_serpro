@@ -33,6 +33,8 @@ Route::group([
             Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
             Route::get('orgaosubcategoria', 'OrgaosubcategoriaController@index');
             Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
+            Route::get('ocorrenciaconcluida', 'OcorrenciaconcluidaController@index');
+            Route::get('ocorrenciaconcluida/{id}', 'OcorrenciaconcluidaController@show');
         });
 
 // if not otherwise configured, setup the dashboard routes

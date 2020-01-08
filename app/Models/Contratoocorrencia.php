@@ -22,8 +22,9 @@ class Contratoocorrencia extends Model
     */
 
     protected $table = 'contratoocorrencias';
+
     // protected $primaryKey = 'id';
-    // public $timestamps = false;
+    public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
         'numero',
@@ -79,6 +80,16 @@ class Contratoocorrencia extends Model
         if($this->novasituacao){
             $situacao = Codigoitem::find($this->novasituacao);
             return $situacao->descricao;
+        }else{
+            return '';
+        }
+    }
+
+    public function getNumeroOcorrencia()
+    {
+        if($this->numeroocorrencia){
+            $ocorrencianumero = Contratoocorrencia::find($this->numeroocorrencia);
+            return $ocorrencianumero->numero;
         }else{
             return '';
         }
