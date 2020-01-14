@@ -90,7 +90,7 @@ class Contratocronograma extends Model
                 return '';
             }
 
-            $contratohistorico->cronograma()->delete();
+//            $contratohistorico->cronograma()->delete();
             $dados = $this->montaCronograma($contratohistorico);
             $this->inserirDadosEmMassa($dados);
         }
