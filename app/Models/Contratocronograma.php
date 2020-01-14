@@ -143,12 +143,12 @@ class Contratocronograma extends Model
                 ->where('retroativo', '=', 'f')
                 ->get();
 
-            $valor = number_format($contratohistorico->valor_parcela,'.','');
+            $valor = number_format($contratohistorico->valor_parcela,2,'.','');
 
             if ($buscacron and ($contratohistorico->tipo_id == 65 or $contratohistorico->tipo_id == 68)) {
                 $v = $valor;
                 foreach ($buscacron as $b) {
-                    $v = number_format($v,'.', '') - number_format($b->valor,'.','');
+                    $v = number_format($v,2,'.', '') - number_format($b->valor,2,'.','');
                 }
                 $dados[] = [
                     'contrato_id' => $contratohistorico->contrato_id,
@@ -157,7 +157,7 @@ class Contratocronograma extends Model
                     'mesref' => date('m', strtotime($ref)),
                     'anoref' => date('Y', strtotime($ref)),
                     'vencimento' => $vencimento,
-                    'valor' => number_format($v,'.', ''),
+                    'valor' => number_format($v,2,'.', ''),
                     'soma_subtrai' => ($v < 0) ? false : true,
                 ];
             } else {
