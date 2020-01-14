@@ -2,6 +2,14 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.9]- 14/01/2020
+
+### Bug  
+- Correção de erro ao montar Cronograma Contrato.
+
+### Melhoria  
+- Atualização do formato do formato de versionamentos.
+
 ## [5.0.008]- 08/01/2020
 
 ### Bug  

@@ -105,6 +105,7 @@ class Contratocronograma extends Model
      */
     private function montaCronograma(Contratohistorico $contratohistorico)
     {
+
         if ($contratohistorico->data_inicio_novo_valor) {
             $data = date_create($contratohistorico->data_inicio_novo_valor);
             $mesinicio = new \DateTime($contratohistorico->data_inicio_novo_valor);
@@ -126,8 +127,10 @@ class Contratocronograma extends Model
             $t = $contratohistorico->num_parcelas;
         }
 
+
         $mesref = date_format($data, 'Y-m');
         $mesrefnew = $mesref . "-01";
+
 
         $dados = [];
         for ($i = 1; $i <= $t; $i++) {
@@ -142,10 +145,10 @@ class Contratocronograma extends Model
 
             $valor = $contratohistorico->valor_parcela;
 
-            if ($buscacron) {
+            if ($buscacron and ($contratohistorico->tipo_id == 65 or $contratohistorico->tipo_id == 68)) {
                 $v = $valor;
                 foreach ($buscacron as $b) {
-                    $v = $valor - $b->valor;
+                    $v = $v - $b->valor;
                 }
                 $dados[] = [
                     'contrato_id' => $contratohistorico->contrato_id,
