@@ -2,6 +2,11 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.10]- 15/01/2020
+
+### Bug  
+- Correção de erro de codificação UTF-8 nas rotinas de Alertas.
+
 ## [5.0.9]- 14/01/2020
 
 ### Bug  
