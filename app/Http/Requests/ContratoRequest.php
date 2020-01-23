@@ -31,7 +31,11 @@ class ContratoRequest extends FormRequest
     {
         $id = $this->id ?? "NULL";
         $unidade_id = $this->unidade_id ?? "NULL";
-        $this->data_limite = date('Y-m-d', strtotime('+50 year'));
+        $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
+        $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
+
+        $data_publicacao = ($this->data_publicacao) ? "date|after:{$this->data_limiteinicio}|after_or_equal:data_assinatura" : "" ;
+
 
         return [
 //            'numero' => [
@@ -56,9 +60,10 @@ class ContratoRequest extends FormRequest
 
                 return true;
             }),
-            'data_assinatura' => 'required|date|before_or_equal:vigencia_inicio',
+            'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:vigencia_inicio",
+            'data_publicacao' => $data_publicacao,
             'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',
-            'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limite}",
+            'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
             'valor_global' => 'required',
             'num_parcelas' => 'required',
             'valor_parcela' => 'required',

@@ -2,6 +2,11 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.11]- 23/01/2020
+
+### Bug  
+- Criação da Validação das Data de Assinatura e Publicação do Cadastro do Contrato.
+
 ## [5.0.10]- 15/01/2020
 
 ### Bug  
