@@ -1,6 +1,6 @@
 # Changelog
 
-Todas as alterações do Sistema Conta serão documentadas neste arquivo.
+Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
 ## [5.0.12]- 29/01/2020
 
