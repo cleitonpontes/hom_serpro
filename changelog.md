@@ -2,6 +2,11 @@
 
 Todas as alterações do Sistema Conta serão documentadas neste arquivo.
 
+## [5.0.12]- 29/01/2020
+
+### Adequação Logo 
+- Mudança da Logomarca do Sistema para Comprasnet contratos.
+
 ## [5.0.11]- 23/01/2020
 
 ### Bug  
