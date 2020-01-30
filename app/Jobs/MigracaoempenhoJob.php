@@ -42,8 +42,7 @@ class MigracaoempenhoJob implements ShouldQueue
     {
         $unidade = Unidade::find($this->ug_id);
 
-//        $ano = date('Y');
-        $ano = '2019';
+        $ano = date('Y');
 
         $migracao_url = config('migracao.api_sta');
         $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
