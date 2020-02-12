@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Execfin\EmpenhoCrudController;
+use App\Models\OrgaoSuperior;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 
@@ -20,7 +22,7 @@ class OrgaoSuperiorCrudController extends CrudController
     public function setup()
     {
 
-        if(!backpack_user()->hasRole('Administrador')){
+        if (!backpack_user()->hasRole('Administrador')) {
             abort('403', config('app.erro_permissao'));
         }
         /*
@@ -36,6 +38,9 @@ class OrgaoSuperiorCrudController extends CrudController
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
+
+        (backpack_user()->hasRole('Administrador')) ? $this->crud->addButtonFromView('top', 'atualizaorgaosuperior',
+            'atualizaorgaosuperior', 'end') : null;
 
         (backpack_user()->can('orgaosuperior_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('orgaosuperior_editar')) ? $this->crud->allowAccess('update') : null;
@@ -172,4 +177,41 @@ class OrgaoSuperiorCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
+    public function executaAtualizacaoCadastroOrgaoSuperior()
+    {
+        if (!backpack_user()->hasRole('Administrador')) {
+            abort('403', config('app.erro_permissao'));
+        }
+
+        $url = config('migracao.api_sta'). '/api/estrutura/orgaossuperiores';
+
+        $funcao = new EmpenhoCrudController;
+
+        $dados = $funcao->buscaDadosUrl($url);
+
+        foreach ($dados as $dado) {
+            $orgao_superior = OrgaoSuperior::where('codigo',$dado['codigo'])
+                ->first();
+
+            if(!isset($orgao_superior->codigo)){
+                $novo = new OrgaoSuperior();
+                $novo->codigo = $dado['codigo'];
+                $novo->nome = $dado['nome'];
+                $novo->situacao = true;
+                $novo->save();
+            }else{
+                if($orgao_superior->nome != $dado['nome']){
+                    $orgao_superior->nome = $dado['nome'];
+                    $orgao_superior->save();
+                }
+            }
+        }
+
+        return redirect('admin/orgaosuperior');
+
+    }
+
+
+
 }

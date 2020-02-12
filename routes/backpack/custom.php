@@ -111,6 +111,10 @@ Route::group([
 
             Route::get('/rotinaalertamensal', 'UnidadeCrudController@executaRotinaAlertaMensal');
 
+            Route::get('/atualizaorgaosuperior', 'OrgaoSuperiorCrudController@executaAtualizacaoCadastroOrgaoSuperior');
+            Route::get('/atualizaorgao', 'OrgaoCrudController@executaAtualizacaoCadastroOrgao');
+            Route::get('/atualizaunidade', 'UnidadeCrudController@executaAtualizacaoCadastroUnidade');
+
         });
 
         Route::group([

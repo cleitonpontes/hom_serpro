@@ -2,6 +2,14 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.13]- 12/02/2020
+
+### Implementação  
+- Importação de Todos os Órgãos Superiores, Órgãos e Unidades.
+
+### Melhoria  
+- Disponibilização dos campos "Subcategoria" e "Unidades Requisitantes" na API de Contratos por Unidade e Órgão.
+
 ## [5.0.12]- 29/01/2020
 
 ### Adequação Logo 

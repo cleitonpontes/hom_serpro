@@ -72,9 +72,9 @@ class Contrato extends Model
         $lista = $this->select([
             DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
             DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
-            DB::raw('CASE 
-                                WHEN receita_despesa = \'D\'  
-                                THEN \'Despesa\'  
+            DB::raw('CASE
+                                WHEN receita_despesa = \'D\'
+                                THEN \'Despesa\'
                                 ELSE \'Receita\'
                            END as receita_despesa'),
             'unidades_requisitantes',
@@ -98,9 +98,9 @@ class Contrato extends Model
             'num_parcelas',
             'valor_parcela',
             'valor_acumulado',
-            DB::raw('CASE 
-                                WHEN contratos.situacao = \'t\'  
-                                THEN \'Ativo\'  
+            DB::raw('CASE
+                                WHEN contratos.situacao = \'t\'
+                                THEN \'Ativo\'
                                 ELSE \'Inativo\'
                            END as situacao'),
             'unidades_requisitantes',
@@ -127,9 +127,9 @@ class Contrato extends Model
         $lista = $this->select([
             DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
             DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
-            DB::raw('CASE 
-                                WHEN receita_despesa = \'D\'  
-                                THEN \'Despesa\'  
+            DB::raw('CASE
+                                WHEN receita_despesa = \'D\'
+                                THEN \'Despesa\'
                                 ELSE \'Receita\'
                            END as receita_despesa'),
             'unidades_requisitantes',
@@ -153,9 +153,9 @@ class Contrato extends Model
             'num_parcelas',
             'valor_parcela',
             'valor_acumulado',
-            DB::raw('CASE 
-                                WHEN contratos.situacao = \'t\'  
-                                THEN \'Ativo\'  
+            DB::raw('CASE
+                                WHEN contratos.situacao = \'t\'
+                                THEN \'Ativo\'
                                 ELSE \'Inativo\'
                            END as situacao'),
             'unidades_requisitantes',
@@ -180,9 +180,9 @@ class Contrato extends Model
         $lista = $this->select([
             DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
             DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
-            DB::raw('CASE 
-                                WHEN receita_despesa = \'D\'  
-                                THEN \'Despesa\'  
+            DB::raw('CASE
+                                WHEN receita_despesa = \'D\'
+                                THEN \'Despesa\'
                                 ELSE \'Receita\'
                            END as receita_despesa'),
             'unidades_requisitantes',
@@ -206,9 +206,9 @@ class Contrato extends Model
             'num_parcelas',
             'valor_parcela',
             'valor_acumulado',
-            DB::raw('CASE 
-                                WHEN contratos.situacao = \'t\'  
-                                THEN \'Ativo\'  
+            DB::raw('CASE
+                                WHEN contratos.situacao = \'t\'
+                                THEN \'Ativo\'
                                 ELSE \'Inativo\'
                            END as situacao'),
             'unidades_requisitantes',
