@@ -267,19 +267,24 @@ class OrgaoCrudController extends CrudController
                     ->first();
 
                 if(isset($orgao_superior->id)){
-                    $novo = new Orgao();
-                    $novo->orgaosuperior_id = $orgao_superior->id;
-                    $novo->codigo = $dado['codigo'];
-                    $novo->codigosiasg = $dado['codigo'];
-                    $novo->nome = $dado['nome'];
-                    $novo->situacao = true;
-                    $novo->save();
+                        $novo = new Orgao();
+                        $novo->orgaosuperior_id = $orgao_superior->id;
+                        $novo->codigo = $dado['codigo'];
+                        $novo->codigosiasg = $dado['codigo'];
+                        $novo->nome = $dado['nome'];
+                        $novo->situacao = true;
+                        $novo->save();
                 }
 
             }else{
-                if($orgao->nome != $dado['nome']){
-                    $orgao->nome = $dado['nome'];
-                    $orgao->save();
+                if($orgao->nome != $dado['nome'] or $orgao->orgaosuperior->codigo != $dado['orgao_superior']){
+                    $orgao_superior = OrgaoSuperior::where('codigo',$dado['orgao_superior'])
+                        ->first();
+                    if(isset($orgao_superior->id)) {
+                        $orgao->orgaosuperior_id = $orgao_superior->id;
+                        $orgao->nome = $dado['nome'];
+                        $orgao->save();
+                    }
                 }
             }
         }
