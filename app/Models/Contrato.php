@@ -460,7 +460,7 @@ class Contrato extends Model
 
     public function orgaosubcategoria()
     {
-        $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
+        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
     }
 
     /*
