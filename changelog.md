@@ -2,6 +2,12 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.14]- 13/02/2020
+
+### Implementação  
+- Ambiente público Transparência para disponibilização de Dados do Sistema.
+- Consulta de Contratos Pública.
+
 ## [5.0.13]- 12/02/2020
 
 ### Implementação  
