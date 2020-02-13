@@ -2,7 +2,7 @@
     {{-- Header --}}
     @slot('header')
         @component('mail::header', ['url' => config('app.url')])
-            <img src="{{ env('APP_URL') }}/img/logo_mail.png" width="130px" alt="Sistema Conta" data-auto-embed>
+            <img src="{{ env('APP_URL') }}/img/logo_mail.png" width="130px" alt="Comprasnet Contratos" data-auto-embed>
         @endcomponent
     @endslot
 

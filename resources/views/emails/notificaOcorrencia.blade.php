@@ -1,7 +1,7 @@
 @component('mail::message')
 # Notificação Ocorrência
 
-Foi registrado uma Ocorrência por um Usuário do Sistema Conta - Gestão de Contratos, com as seguintes informações:
+Foi registrado uma Ocorrência por um Usuário do Comprasnet - Gestão de Contratos, com as seguintes informações:
 
 * Órgão: **{{ $dadosocorrencia['orgao'] }}**
 * Unidade: **{{ $dadosocorrencia['unidade'] }}**

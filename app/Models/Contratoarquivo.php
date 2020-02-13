@@ -54,6 +54,7 @@ class Contratoarquivo extends Model
             return '';
         }
     }
+
     public function getTipo()
     {
         if($this->tipo){
@@ -68,6 +69,12 @@ class Contratoarquivo extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function codigoItem()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo');
+    }
+
+
 
     /*
     |--------------------------------------------------------------------------

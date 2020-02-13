@@ -47,11 +47,11 @@ class PasswordUserNotification extends Notification
         return (new MailMessage)
             ->subject(config('app.name') . ' - Senha de Usuário')
             ->greeting("Olá {$this->dados['nome']}!")
-            ->line('Você foi cadastrado no Sistema Conta - Gestão de Contratos. Seus dados de acesso são:')
+            ->line('Você foi cadastrado no Comprasnet Contratos - Gestão de Contratos. Seus dados de acesso são:')
             ->line('Usuário: '.$this->dados['cpf'])
             ->line('Senha: '.$this->dados['senha'])
             ->line('Para acessar o sistema, clique no botão abaixo.')
-            ->action('Acessar Sistema Conta', $url)
+            ->action('Acessar Comprasnet Contratos', $url)
             ->line('Quaisquer dúvidas, procure o setor de contratos que atende sua Unidade!');
     }
 

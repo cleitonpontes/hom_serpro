@@ -12,17 +12,17 @@ return [
     */
 
     // Project name. Shown in the breadcrumbs and a few other places.
-    'project_name' => 'Sistema Conta',
+    'project_name' => 'Comprasnet Contratos',
 
     // Menu logos
     'logo_lg'   => '<img src="/img/conta_lg.png" alt="{!! env(\'APP_NAME\') !!}" height="40" width="40">&nbsp;<img src="/img/conta_nome.png" alt="{!! env(\'APP_NAME\') !!}" height="40">',
     'logo_mini' => '<img src="/img/conta_lg.png" alt="{!! env(\'APP_NAME\') !!}" height="40" width="40">',
 
     // Developer or company name. Shown in footer.
-    'developer_name' => 'Sistema Conta',
+    'developer_name' => 'Comprasnet Contratos',
 
     // Developer website. Link in footer.
-    'developer_link' => 'http://sc.agu.gov.br',
+    'developer_link' => 'https://gitlab.com/sistema-conta/sc',
 
     // Show powered by Laravel Backpack in the footer?
     'show_powered_by' => true,
