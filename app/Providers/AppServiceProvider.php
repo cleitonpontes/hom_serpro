@@ -12,6 +12,7 @@ use App\Models\SfPadrao;
 use App\Observers\CatmatseratualizacaoObserver;
 use App\Observers\ComunicaObserver;
 use App\Observers\ContratocronogramaObserve;
+use App\Observers\ContratohistoricoitemObserver;
 use App\Observers\ContratohistoricoObserve;
 use App\Observers\ContratoitemObserver;
 use App\Observers\ContratoObserve;

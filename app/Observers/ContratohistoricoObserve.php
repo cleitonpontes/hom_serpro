@@ -33,6 +33,8 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
+
+
     }
 
     /**

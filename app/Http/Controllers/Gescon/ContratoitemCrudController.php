@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Contratoitem;
+use App\Models\Saldohistoricoitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -46,7 +48,7 @@ class ContratoitemCrudController extends CrudController
         $this->crud->allowAccess('show');
 
         (backpack_user()->can('contratoitem_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('contratoitem_editar')) ? $this->crud->allowAccess('update') : null;
+//        (backpack_user()->can('contratoitem_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('contratoitem_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
@@ -333,6 +335,18 @@ class ContratoitemCrudController extends CrudController
         $item = Catmatseritem::find($catmatiten_id);
         $request->request->set('grupo_id', $item->grupo_id);
 
+        $contrato_id = $request->input('contrato_id');
+        $contrato = Contrato::find($contrato_id);
+        $soma_cadastrados = Contratoitem::where('contrato_id',$contrato_id)->sum('valortotal') ?? 0;
+        $vlr_total = number_format(floatval($valortotal), 2, '.', '');
+
+        if(($soma_cadastrados+$vlr_total) > $contrato->valor_global){
+
+            \Alert::error('O "Valor Total" Extrapola o "Valor Global" do Contrato!')->flash();
+
+            return redirect()->back();
+        }
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -375,4 +389,24 @@ class ContratoitemCrudController extends CrudController
 
         return $content;
     }
+
+    public function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+        $this->crud->setOperation('delete');
+
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+
+        $count = $this->verificaSaldoHistoricoItens($id);
+
+        return $this->crud->delete($id);
+    }
+
+    private function verificaSaldoHistoricoItens($id)
+    {
+        return Saldohistoricoitem::where('contratoitem_id',$id)->count();;
+    }
+
+
 }

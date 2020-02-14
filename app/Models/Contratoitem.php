@@ -119,6 +119,8 @@ class Contratoitem extends Model
     {
         return $this->belongsTo(Catmatseritem::class, 'catmatseritem_id');
     }
+
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

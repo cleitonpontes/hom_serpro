@@ -314,9 +314,7 @@ class Contratohistorico extends Model
     */
     public function cronograma()
     {
-
         return $this->hasMany(Contratocronograma::class, 'contratohistorico_id');
-
     }
 
     public function contrato()
@@ -352,6 +350,11 @@ class Contratohistorico extends Model
     public function orgaosubcategoria()
     {
         return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
+    }
+
+    public function saldosItens()
+    {
+        return $this->morphMany(Saldohistoricoitem::class, 'saldoable');
     }
 
     /*
