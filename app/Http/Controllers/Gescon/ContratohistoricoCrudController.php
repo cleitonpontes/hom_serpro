@@ -38,9 +38,10 @@ class ContratohistoricoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Histórico do Contrato', 'Histórico - Contrato');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
+        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
         $this->crud->orderBy('data_assinatura', 'asc');
         $this->crud->enableExportButtons();
-        $this->crud->disableResponsiveTable();
+//        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');

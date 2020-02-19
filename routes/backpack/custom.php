@@ -141,6 +141,11 @@ Route::group([
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
+            Route::group(['prefix' => 'contratohistorico/{contratohistorico_id}'], function () {
+                CRUD::resource('itens', 'SaldohistoricoitemCrudController');
+            });
+
+
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
