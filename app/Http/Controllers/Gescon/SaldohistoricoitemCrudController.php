@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Models\Codigoitem;
 use App\Models\Contratohistorico;
+use App\Models\Contratoitem;
+use App\Models\Saldohistoricoitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -28,6 +31,8 @@ class SaldohistoricoitemCrudController extends CrudController
             abort('403', config('app.erro_permissao'));
         }
 
+        session(['saldohistoricoitens_contratohistorico_id' => $contratohistorico->id]);
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -39,7 +44,16 @@ class SaldohistoricoitemCrudController extends CrudController
         $this->crud->addClause('where', 'saldoable_type', '=', 'App\Models\Contratohistorico');
         $this->crud->addClause('where', 'saldoable_id', '=', $contratohistorico_id);
 
+
+        (backpack_user()->can('saldohistoricoitens_carregaritens')) ? $this->crud->addButtonFromView('top', 'carregaritens',
+            'carregaritens', 'end') : null;
+
         $this->crud->addButtonFromView('top', 'voltar', 'voltar', 'end');
+
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
 
         (backpack_user()->can('saldohistoricoitens_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('saldohistoricoitens_editar')) ? $this->crud->allowAccess('update') : null;
@@ -179,7 +193,6 @@ class SaldohistoricoitemCrudController extends CrudController
     }
 
 
-
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
@@ -197,4 +210,73 @@ class SaldohistoricoitemCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
+    public function carregarItens(int $contratohistorico_id)
+    {
+        $contratohistorico = Contratohistorico::find($contratohistorico_id);
+
+        $contratoitens = Contratoitem::where('contrato_id', $contratohistorico->contrato_id)
+            ->get();
+
+        $tiposaldo = $this->buscaTipoSaldo($contratohistorico);
+
+
+        if (!count($contratoitens)) {
+            \Alert::error('Esse contrato não possui itens!')->flash();
+            return redirect('/gescon/contratohistorico/' . $contratohistorico->id . '/itens');
+        }
+
+        foreach ($contratoitens as $contratoitem) {
+
+            $saldohistoricoitem = $this->buscaSaldoHistoricoItem($contratohistorico,$contratoitem,$tiposaldo);
+
+            if(!isset($saldohistoricoitem->id)){
+                $saldohistoricoitem = $contratohistorico->saldosItens()->create([
+                    'contratoitem_id' => $contratoitem->id,
+                    'tiposaldo_id' => $tiposaldo->id,
+                    'quantidade' => $contratoitem->quantidade,
+                    'valorunitario' => $contratoitem->valorunitario,
+                    'valortotal' => $contratoitem->valortotal
+                ]);
+            }
+
+        }
+
+        \Alert::success('Itens carregados com Sucesso!')->flash();
+
+        return redirect('/gescon/contratohistorico/' . $contratohistorico->id . '/itens');
+
+    }
+
+    private function buscaSaldoHistoricoItem(Contratohistorico $contratohistorico, Contratoitem $contratoitem, Codigoitem $codigoitem)
+    {
+        $saldohistoricoitem = $contratohistorico->saldosItens()->where([
+            'contratoitem_id' => $contratoitem->id,
+            'tiposaldo_id' => $codigoitem->id
+        ])
+            ->first();
+
+        return $saldohistoricoitem;
+    }
+
+    private function buscaTipoSaldo(Contratohistorico $contratohistorico)
+    {
+        if ($contratohistorico->tipo->descricao == 'Termo Aditivo' or $contratohistorico->tipo->descricao == 'Termo de Apostilamento') {
+            $codigoitem = Codigoitem::whereHas('codigo', function ($query) {
+                $query->where('descricao', 'Tipo Saldo Itens');
+            })
+                ->where('descricao', 'Saldo Alteracao Contrato Historico')
+                ->first();
+        } else {
+            $codigoitem = Codigoitem::whereHas('codigo', function ($query) {
+                $query->where('descricao', 'Tipo Saldo Itens');
+            })
+                ->where('descricao', 'Saldo Inicial Contrato Historico')
+                ->first();
+        }
+
+        return $codigoitem;
+    }
+
+
 }
