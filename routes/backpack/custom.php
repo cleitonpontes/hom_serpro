@@ -145,7 +145,7 @@ Route::group([
                 CRUD::resource('itens', 'SaldohistoricoitemCrudController');
             });
 
-            Route::get('/saldohistoricoitens/carregaritens/{contratohistorico_id}', 'SaldohistoricoitemCrudController@carregarItens');
+            Route::get('/saldohistoricoitens/carregaritens/{tipo}/{contratohistorico_id}', 'SaldohistoricoitemCrudController@carregarItens');
 
 
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {

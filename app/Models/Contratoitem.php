@@ -43,12 +43,30 @@ class Contratoitem extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
+    public function atualizaSaldoContratoItem(Saldohistoricoitem $saldohistoricoitem)
+    {
+
+        $saldoitens = Saldohistoricoitem::where('contratoitem_id', $saldohistoricoitem->contratoitem_id)
+            ->orderBy('created_at','ASC')
+            ->get();
+
+        foreach ($saldoitens as $saldoitem){
+            $contratoitem = Contratoitem::find($saldoitem->contratoitem_id);
+            $contratoitem->quantidade = $saldoitem->quantidade;
+            $contratoitem->valorunitario = $saldoitem->valorunitario;
+            $contratoitem->valortotal = $saldoitem->valortotal;
+            $contratoitem->save();
+        }
+
+    }
+
     public function getContrato()
     {
-        if($this->contrato_id){
+        if ($this->contrato_id) {
             $contrato = Contrato::find($this->contrato_id);
             return $contrato->numero;
-        }else{
+        } else {
             return '';
         }
     }
@@ -69,7 +87,7 @@ class Contratoitem extends Model
         if ($this->catmatseritem_id) {
             $item = Catmatseritem::find($this->catmatseritem_id);
 
-            return $item->codigo_siasg .' - '. $item->descricao;
+            return $item->codigo_siasg . ' - ' . $item->descricao;
         } else {
             return '';
         }
@@ -95,6 +113,7 @@ class Contratoitem extends Model
     {
         return 'R$ ' . number_format($this->valortotal, 2, ',', '.');
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

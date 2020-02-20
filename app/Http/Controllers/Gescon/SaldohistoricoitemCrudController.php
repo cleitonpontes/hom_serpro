@@ -211,12 +211,29 @@ class SaldohistoricoitemCrudController extends CrudController
         return $redirect_location;
     }
 
-    public function carregarItens(int $contratohistorico_id)
+    public function carregarItens(string $tipo, int $contratohistorico_id)
     {
         $contratohistorico = Contratohistorico::find($contratohistorico_id);
 
-        $contratoitens = Contratoitem::where('contrato_id', $contratohistorico->contrato_id)
-            ->get();
+
+        if ($tipo == 'inicial') {
+
+            $contratohistorico1 = Contratohistorico::whereHas('tipo', function ($query) {
+                $query->where('descricao', '<>', 'Termo Aditivo')
+                    ->where('descricao', '<>', 'Termo de Apostilamento');
+            })
+                ->where('contrato_id', $contratohistorico->contrato_id)
+                ->first();
+
+            $contratoitens = $this->buscaSaldoInicial($contratohistorico1);
+
+        } else {
+
+            $contratoitens = $this->buscaSaldoAtual($contratohistorico);
+
+            $contratoitens = Contratoitem::where('contrato_id', $contratohistorico->contrato_id)
+                ->get();
+        }
 
         $tiposaldo = $this->buscaTipoSaldo($contratohistorico);
 
@@ -228,15 +245,19 @@ class SaldohistoricoitemCrudController extends CrudController
 
         foreach ($contratoitens as $contratoitem) {
 
-            $saldohistoricoitem = $this->buscaSaldoHistoricoItem($contratohistorico,$contratoitem,$tiposaldo);
+            if(is_object($contratoitem)){
+                $contratoitem = $contratoitem->toArray();
+            }
 
-            if(!isset($saldohistoricoitem->id)){
+            $saldohistoricoitem = $this->buscaSaldoHistoricoItem($contratohistorico, $contratoitem, $tiposaldo);
+
+            if (!isset($saldohistoricoitem->id)) {
                 $saldohistoricoitem = $contratohistorico->saldosItens()->create([
-                    'contratoitem_id' => $contratoitem->id,
+                    'contratoitem_id' => ($tipo == 'inicial') ? $contratoitem['contratoitem_id'] : $contratoitem['id'],
                     'tiposaldo_id' => $tiposaldo->id,
-                    'quantidade' => $contratoitem->quantidade,
-                    'valorunitario' => $contratoitem->valorunitario,
-                    'valortotal' => $contratoitem->valortotal
+                    'quantidade' => $contratoitem['quantidade'],
+                    'valorunitario' => $contratoitem['valorunitario'],
+                    'valortotal' => $contratoitem['valortotal']
                 ]);
             }
 
@@ -248,10 +269,10 @@ class SaldohistoricoitemCrudController extends CrudController
 
     }
 
-    private function buscaSaldoHistoricoItem(Contratohistorico $contratohistorico, Contratoitem $contratoitem, Codigoitem $codigoitem)
+    private function buscaSaldoHistoricoItem(Contratohistorico $contratohistorico, array $contratoitem, Codigoitem $codigoitem)
     {
         $saldohistoricoitem = $contratohistorico->saldosItens()->where([
-            'contratoitem_id' => $contratoitem->id,
+            'contratoitem_id' => $contratoitem['id'],
             'tiposaldo_id' => $codigoitem->id
         ])
             ->first();
@@ -276,6 +297,21 @@ class SaldohistoricoitemCrudController extends CrudController
         }
 
         return $codigoitem;
+    }
+
+    private function buscaSaldoInicial(Contratohistorico $contratohistorico)
+    {
+        $saldoinicial = $contratohistorico->saldosItens->toArray();
+
+        return $saldoinicial;
+    }
+
+    private function buscaSaldoAtual(Contratohistorico $contratohistorico)
+    {
+        $contratoitens = Contratoitem::where('contrato_id', $contratohistorico->contrato_id)
+            ->get();
+
+        return $contratoitens->toArray();
     }
 
 

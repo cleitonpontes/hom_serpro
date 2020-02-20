@@ -1,4 +1,15 @@
-<a href="/gescon/saldohistoricoitens/carregaritens/{{session()->get('saldohistoricoitens_contratohistorico_id')}}"
-   class="btn btn-default ladda-button" data-style="zoom-in" title="Carregar Itens">
-    <span class="ladda-label"><i class="fa fa-cloud-download"></i></span>
-</a>
+<div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle"
+            data-toggle="dropdown" title="Carregar Itens"><i class="fa fa-download"></i>
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+        <li>
+            <a href="/gescon/saldohistoricoitens/carregaritens/atual/{{session()->get('saldohistoricoitens_contratohistorico_id')}}">&nbsp;&nbsp;&nbsp;<i
+                    class="fa fa-angle-right"></i>Valor Atual</a></li>
+        <li>
+            <a href="/gescon/saldohistoricoitens/carregaritens/inicial/{{session()->get('saldohistoricoitens_contratohistorico_id')}}">&nbsp;&nbsp;&nbsp;<i
+                    class="fa fa-angle-right"></i>Valor Inicial</a></li>
+    </ul>
+</div>
