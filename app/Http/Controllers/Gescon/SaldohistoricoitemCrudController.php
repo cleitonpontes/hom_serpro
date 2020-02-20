@@ -69,6 +69,17 @@ class SaldohistoricoitemCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
+
+        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo CATMAT e CATSER');
+        })
+            ->pluck('descricao', 'id')
+            ->toArray();
+
+        $campos = $this->Campos($contrato_id, $tipos);
+        $this->crud->addFields($campos);
+
+
         // add asterisk for fields that are required in SaldohistoricoitemRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
