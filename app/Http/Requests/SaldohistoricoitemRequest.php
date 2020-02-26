@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Unique;
 
 class SaldohistoricoitemRequest extends FormRequest
 {
@@ -25,8 +26,23 @@ class SaldohistoricoitemRequest extends FormRequest
      */
     public function rules()
     {
+
+        $id = $this->id ?? "NULL";
+        $saldoable_type = $this->saldoable_type ?? "NULL";
+        $saldoable_id = $this->saldoable_id ?? "NULL";
+
         return [
-            // 'name' => 'required|min:5|max:255'
+            'contratoitem_id' => [
+                'required',
+                (new Unique('saldohistoricoitens','contratoitem_id'))
+                    ->ignore($id)
+                    ->where('saldoable_type',$saldoable_type)
+                    ->where('saldoable_id',$saldoable_id)
+                ->whereNull('deleted_at')
+            ],
+            'quantidade' => 'required',
+            'valorunitario' => 'required',
+            'valortotal' => 'required',
         ];
     }
 
@@ -38,7 +54,10 @@ class SaldohistoricoitemRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'contratoitem_id' => 'Item',
+            'quantidade' => 'Quantidade',
+            'valorunitario' => 'Valor Unitário',
+            'valortotal' => 'Valor Total',
         ];
     }
 
@@ -50,7 +69,7 @@ class SaldohistoricoitemRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'contratoitem_id.unique' => 'Este Item já está cadastrado para este Contrato Histórico!',
         ];
     }
 }

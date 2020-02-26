@@ -20,6 +20,8 @@ class Saldohistoricoitem extends Model
 
 
     protected $fillable = [
+        'saldoable_type',
+        'saldoable_id',
         'contratoitem_id',
         'tiposaldo_id',
         'quantidade',

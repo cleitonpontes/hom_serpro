@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Models\Codigoitem;
+use App\Models\Contrato;
 use App\Models\Contratohistorico;
 use App\Models\Contratoitem;
 use App\Models\Saldohistoricoitem;
@@ -13,6 +14,8 @@ use App\Http\Requests\SaldohistoricoitemRequest as StoreRequest;
 use App\Http\Requests\SaldohistoricoitemRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use function foo\func;
 
 /**
  * Class SaldohistoricoitemCrudController
@@ -70,13 +73,14 @@ class SaldohistoricoitemCrudController extends CrudController
         $this->crud->addColumns($colunas);
 
 
-        $tipos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo CATMAT e CATSER');
-        })
-            ->pluck('descricao', 'id')
+        $itens = DB::table('contratoitens')
+            ->leftJoin('catmatseritens', 'contratoitens.catmatseritem_id', '=', 'catmatseritens.id')
+            ->where('contrato_id', $contratohistorico->contrato->id)
+            ->select(DB::raw("CONCAT(catmatseritens.codigo_siasg,' - ',catmatseritens.descricao) AS nome"), 'contratoitens.id AS num')
+            ->pluck('nome', 'num')
             ->toArray();
 
-        $campos = $this->Campos($contrato_id, $tipos);
+        $campos = $this->Campos($contratohistorico->contrato->id, $itens);
         $this->crud->addFields($campos);
 
 
@@ -84,6 +88,67 @@ class SaldohistoricoitemCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
+
+    public function Campos($contratohistorico_id, $itens)
+    {
+
+        $campos = [
+            [   // Hidden
+                'name' => 'saldoable_type',
+                'type' => 'hidden',
+                'default' => 'App\Models\Contratohistorico',
+            ],
+            [   // Hidden
+                'name' => 'saldoable_id',
+                'type' => 'hidden',
+                'default' => $contratohistorico_id,
+            ],
+            [
+                // select_from_array
+                'name' => 'contratoitem_id',
+                'label' => "Item",
+                'type' => 'select_from_array',
+                'options' => $itens,
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [   // Number
+                'name' => 'quantidade',
+                'label' => 'Quantidade',
+                'type' => 'number',
+                // optionals
+//                'attributes' => [
+//                    'id' => 'valorunitario',
+//                ], // allow decimals
+//                'prefix' => "R$",
+            ],
+            [   // Number
+                'name' => 'valorunitario',
+                'label' => 'Valor Unitário',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'valorunitario',
+                ], // allow decimals
+                'prefix' => "R$",
+            ],
+            [   // Number
+                'name' => 'valortotal',
+                'label' => 'Valor Total',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'valortotal',
+                ], // allow decimals
+                'prefix' => "R$",
+            ],
+
+        ];
+
+        return $campos;
+    }
+
 
     public function Colunas()
     {
@@ -206,6 +271,29 @@ class SaldohistoricoitemCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        $valorunitario = str_replace(',', '.', str_replace('.', '', $request->input('valorunitario')));
+        $request->request->set('valorunitario', number_format(floatval($valorunitario), 2, '.', ''));
+
+        $valortotal = str_replace(',', '.', str_replace('.', '', $request->input('valortotal')));
+        $request->request->set('valortotal', number_format(floatval($valortotal), 2, '.', ''));
+
+        $saldoable_id = $request->input('saldoable_id');
+        $saldoable_type = $request->input('saldoable_type');
+
+
+        $contratohistorico = Contratohistorico::find($saldoable_id);
+        $soma_cadastrados = Saldohistoricoitem::where('saldoable_id',$contratohistorico->id)
+                ->where('saldoable_type',$saldoable_type)
+                ->sum('valortotal') ?? 0;
+        $vlr_total = number_format(floatval($valortotal), 2, '.', '');
+
+        if(($soma_cadastrados+$vlr_total) > $contratohistorico->valor_global){
+
+            \Alert::error('O "Valor Total" Extrapola o "Valor Global" do Contrato Histórico!')->flash();
+
+            return redirect()->back();
+        }
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -215,6 +303,29 @@ class SaldohistoricoitemCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $valorunitario = str_replace(',', '.', str_replace('.', '', $request->input('valorunitario')));
+        $request->request->set('valorunitario', number_format(floatval($valorunitario), 2, '.', ''));
+
+        $valortotal = str_replace(',', '.', str_replace('.', '', $request->input('valortotal')));
+        $request->request->set('valortotal', number_format(floatval($valortotal), 2, '.', ''));
+
+        $saldoable_id = $request->input('saldoable_id');
+        $saldoable_type = $request->input('saldoable_type');
+
+
+        $contratohistorico = Contratohistorico::find($saldoable_id);
+        $soma_cadastrados = Saldohistoricoitem::where('saldoable_id',$contratohistorico->id)
+                ->where('saldoable_type',$saldoable_type)
+                ->sum('valortotal') ?? 0;
+        $vlr_total = number_format(floatval($valortotal), 2, '.', '');
+
+        if(($soma_cadastrados+$vlr_total) > $contratohistorico->valor_global){
+
+            \Alert::error('O "Valor Total" Extrapola o "Valor Global" do Contrato Histórico!')->flash();
+
+            return redirect()->back();
+        }
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -256,7 +367,7 @@ class SaldohistoricoitemCrudController extends CrudController
 
         foreach ($contratoitens as $contratoitem) {
 
-            if(is_object($contratoitem)){
+            if (is_object($contratoitem)) {
                 $contratoitem = $contratoitem->toArray();
             }
 
