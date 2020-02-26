@@ -2,6 +2,14 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.15]- 26/02/2020
+
+### Implementação  
+- Tabela de controle de Saldo de Itens (saldohistoricoitens).
+
+### Bug  
+- Correção de erro na API de Contratos ao relacionar Empenhos sem Plano Interno.
+
 ## [5.0.14]- 13/02/2020
 
 ### Implementação  
