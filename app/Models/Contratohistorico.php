@@ -61,6 +61,7 @@ class Contratohistorico extends Model
         'retroativo_valor',
         'retroativo_soma_subtrai',
         'unidades_requisitantes',
+        'situacao',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -70,6 +71,15 @@ class Contratohistorico extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function inserirContratohistoricoMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
+
     public function getFornecedorHistorico()
     {
         $fornecedor = Fornecedor::find($this->fornecedor_id);
@@ -313,9 +323,7 @@ class Contratohistorico extends Model
     */
     public function cronograma()
     {
-
         return $this->hasMany(Contratocronograma::class, 'contratohistorico_id');
-
     }
 
     public function contrato()
@@ -351,6 +359,11 @@ class Contratohistorico extends Model
     public function orgaosubcategoria()
     {
         return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
+    }
+
+    public function saldosItens()
+    {
+        return $this->morphMany(Saldohistoricoitem::class, 'saldoable');
     }
 
     /*

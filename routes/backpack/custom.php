@@ -33,6 +33,8 @@ Route::group([
             Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
             Route::get('orgaosubcategoria', 'OrgaosubcategoriaController@index');
             Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
+            Route::get('ocorrenciaconcluida', 'OcorrenciaconcluidaController@index');
+            Route::get('ocorrenciaconcluida/{id}', 'OcorrenciaconcluidaController@show');
         });
 
 // if not otherwise configured, setup the dashboard routes
@@ -42,7 +44,7 @@ Route::group([
             Route::get('/dashboard', 'AdminController@redirect')->name('backpack');
         }
 
-        Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+
         Route::get('/storage/comunica/anexos/{file}', 'DownloadsController@anexoscomunica');
 
 
@@ -105,9 +107,16 @@ Route::group([
 
             Route::group(['prefix' => 'orgao/{orgao_id}'], function () {
                 CRUD::resource('subcategorias', 'OrgaoSubcategoriaCrudController');
+                CRUD::resource('configuracao', 'OrgaoconfiguracaoCrudController');
             });
 
+            Route::get('migracaoconta/{orgaoconfiguracao_id}', 'MigracaoSistemaContaController@index');
+
             Route::get('/rotinaalertamensal', 'UnidadeCrudController@executaRotinaAlertaMensal');
+
+            Route::get('/atualizaorgaosuperior', 'OrgaoSuperiorCrudController@executaAtualizacaoCadastroOrgaoSuperior');
+            Route::get('/atualizaorgao', 'OrgaoCrudController@executaAtualizacaoCadastroOrgao');
+            Route::get('/atualizaunidade', 'UnidadeCrudController@executaAtualizacaoCadastroUnidade');
 
         });
 
@@ -134,6 +143,13 @@ Route::group([
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
+
+            Route::group(['prefix' => 'contratohistorico/{contratohistorico_id}'], function () {
+                CRUD::resource('itens', 'SaldohistoricoitemCrudController');
+            });
+
+            Route::get('/saldohistoricoitens/carregaritens/{tipo}/{contratohistorico_id}', 'SaldohistoricoitemCrudController@carregarItens');
+
 
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');

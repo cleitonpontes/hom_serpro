@@ -57,7 +57,7 @@ class ComunicaNotification extends Notification
         $mensagem = new MailMessage;
         $mensagem->subject($this->comunica->assunto);
         $mensagem->greeting('Prezado(a) '.$this->user->name.',');
-        $mensagem->line('Segue mensagem Comunica - Sistema Conta:');
+        $mensagem->line('Segue mensagem Comunica - Comprasnet Contratos:');
         $mensagem->line('"'.$texto->getText().'"');
         $mensagem->action('Ler mensagens',url('/mensagens'));
         if($this->comunica->anexos){

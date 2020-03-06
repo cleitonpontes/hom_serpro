@@ -47,6 +47,14 @@ class Contratoterceirizado extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function inserirContratoterceirizadoMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
     public function getContrato()
     {
         if($this->contrato_id){

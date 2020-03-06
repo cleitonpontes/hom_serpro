@@ -68,120 +68,9 @@ class ContratoocorrenciaCrudController extends CrudController
 
         $this->crud->orderBy('numero', 'asc');
 
-        // TODO: remove setFromDb() and manually define Fields and Columns
-        $this->crud->addColumns([
-            [
-                'name' => 'numero',
-                'label' => 'Número',
-                'type' => 'text',
-            ],
-            [
-                'name' => 'getContrato',
-                'label' => 'Número Contrato', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getContrato', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
-            ],
-            [
-                'name' => 'getUser',
-                'label' => 'Usuário', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getUser', // the method in your Model
-                'orderable' => true,
-                'limit' => 255,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
-            ],
-            [
-                'name' => 'data',
-                'label' => 'Data',
-                'type' => 'date',
-            ],
-            [
-                'name' => 'ocorrencia',
-                'label' => 'Ocorrência',
-                'type' => 'textarea',
-                'limit' => 9999,
-            ],
-            [
-                'name' => 'notificapreposto',
-                'label' => 'Notifica Preposto',
-                'type' => 'boolean',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                // optionally override the Yes/No texts
-                'options' => [0 => 'Não', 1 => 'Sim']
-            ],
-            [
-                'name' => 'emailpreposto',
-                'label' => 'E-mail Preposto',
-                'type' => 'text',
-            ],
-            [
-                'name' => 'numeroocorrencia',
-                'label' => 'Ocorrência Alterada',
-                'type' => 'text',
-            ],
-            [
-                'name' => 'getNovaSituacao',
-                'label' => 'Nova Situação', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getNovaSituacao', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
-            ],
-            [
-                'name' => 'getSituacao',
-                'label' => 'Situação', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getSituacao', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
-            ],
-        ]);
+        $colunas = $this->Colunas();
+        $this->crud->addColumns($colunas);
+
 
 
         $con = $contrato->where('id', '=', $contrato_id)
@@ -205,8 +94,7 @@ class ContratoocorrenciaCrudController extends CrudController
             ->toArray();
 
         $numocorrencia = Contratoocorrencia::where('contrato_id', '=', $contrato_id)
-            ->where('situacao', '=', 128)
-            ->orWhere('situacao', '=', 130)
+            ->whereIn('situacao',  [128,130])
             ->orderBy('numero')
             ->pluck('numero', 'id')
             ->toArray();
@@ -379,9 +267,145 @@ class ContratoocorrenciaCrudController extends CrudController
 
         $this->crud->removeColumn('contrato_id');
         $this->crud->removeColumn('user_id');
+        $this->crud->removeColumn('numeroocorrencia');
         $this->crud->removeColumn('novasituacao');
         $this->crud->removeColumn('situacao');
 
         return $content;
     }
+
+    public function Colunas()
+    {
+        $colunas = [
+            [
+                'name' => 'numero',
+                'label' => 'Número',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'getContrato',
+                'label' => 'Número Contrato', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getContrato', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
+//                },
+            ],
+            [
+                'name' => 'getUser',
+                'label' => 'Usuário', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getUser', // the method in your Model
+                'orderable' => true,
+                'limit' => 255,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
+//                },
+            ],
+            [
+                'name' => 'data',
+                'label' => 'Data',
+                'type' => 'date',
+            ],
+            [
+                'name' => 'ocorrencia',
+                'label' => 'Ocorrência',
+                'type' => 'textarea',
+                'limit' => 9999,
+            ],
+            [
+                'name' => 'notificapreposto',
+                'label' => 'Notifica Preposto',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+                'options' => [0 => 'Não', 1 => 'Sim']
+            ],
+            [
+                'name' => 'emailpreposto',
+                'label' => 'E-mail Preposto',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'getNumeroOcorrencia',
+                'label' => 'Ocorrência Alterada', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getNumeroOcorrencia', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
+//                },
+            ],
+            [
+                'name' => 'getNovaSituacao',
+                'label' => 'Nova Situação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getNovaSituacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
+//                },
+            ],
+            [
+                'name' => 'getSituacao',
+                'label' => 'Situação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSituacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
+//                },
+            ]
+        ];
+
+        return $colunas;
+    }
+
+
+
 }

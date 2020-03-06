@@ -25,8 +25,8 @@ class ContratohistoricoObserve
      */
     public function created(Contratohistorico $contratohistorico)
     {
-        $historico = Contratohistorico::where('contrato_id', '=', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura')
+        $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
+            ->orderBy('data_assinatura','ASC')
             ->get();
 
         $this->contratocronograma->inserirCronogramaFromHistorico($contratohistorico);
@@ -43,9 +43,12 @@ class ContratohistoricoObserve
      */
     public function updated(Contratohistorico $contratohistorico)
     {
-        $historico = Contratohistorico::where('contrato_id', '=', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura')
+        $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
+            ->orderBy('data_assinatura','ASC')
             ->get();
+
+        $cronograma = Contratocronograma::where('contrato_id',$contratohistorico->contrato_id)
+            ->delete();
 
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
@@ -63,10 +66,13 @@ class ContratohistoricoObserve
     {
 
         $historico = Contratohistorico::where('contrato_id', '=', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura')
+            ->orderBy('data_assinatura','ASC')
             ->get();
 
-        $contratohistorico->cronograma()->delete();
+        $cronograma = Contratocronograma::where('contrato_id',$contratohistorico->contrato_id)
+            ->delete();
+
+//        $contratohistorico->cronograma()->delete();
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
     }
@@ -118,8 +124,15 @@ class ContratohistoricoObserve
                 unset($arrayhistorico['novo_valor_parcela']);
                 unset($arrayhistorico['data_inicio_novo_valor']);
                 unset($arrayhistorico['unidades_requisitantes']);
+                unset($arrayhistorico['situacao']);
 
             }
+
+            if($tipo->descricao == 'Termo de Apostilamento'){
+                unset($arrayhistorico['vigencia_inicio']);
+                unset($arrayhistorico['vigencia_fim']);
+            }
+
             unset($arrayhistorico['id']);
             unset($arrayhistorico['contrato_id']);
             unset($arrayhistorico['observacao']);
@@ -134,9 +147,14 @@ class ContratohistoricoObserve
             unset($arrayhistorico['retroativo_valor']);
             unset($arrayhistorico['retroativo_soma_subtrai']);
 
+
             $array = array_filter($arrayhistorico, function ($a) {
                 return trim($a) !== "";
             });
+
+            if(isset($arrayhistorico['situacao'])){
+                $array['situacao'] = $arrayhistorico['situacao'];
+            }
 
             $contrato = new Contrato();
             $contrato->atualizaContratoFromHistorico($contrato_id, $array);

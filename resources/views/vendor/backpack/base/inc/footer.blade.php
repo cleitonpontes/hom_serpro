@@ -3,7 +3,7 @@
         $version = \App\Models\AppVersion::all()->last();
     @endphp
     <div class="pull-right hidden-xs">
-        v. {{ $version->major . '.' . $version->minor . '.' . str_pad($version->patch, 3, "0", STR_PAD_LEFT) }}
+        v. {{ $version->major . '.' . $version->minor . '.' . $version->patch }}
         {{--{{ trans('backpack::base.powered_by') }} <a target="_blank" href="http://backpackforlaravel.com?ref=panel_footer_link">Backpack for Laravel</a>--}}
     </div>
 @endif

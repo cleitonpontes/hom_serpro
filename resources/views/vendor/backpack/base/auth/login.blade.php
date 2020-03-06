@@ -6,8 +6,8 @@
             {{--<h3 class="text-center m-b-20">{{ trans('backpack::base.login') }}</h3>--}}
             <div class="login-logo">
                 <a href="{{ url('/inicio') }}">
-                    <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>" width="150px"
-                         alt="{!! env('APP_NAME') !!}"><br><h5>{{ trans('backpack::base.login') }}</h5></a>
+                    <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>" width="200px"
+                         alt="{!! env('APP_NAME') !!}"></a>
             </div>
             <div class="box">
                 <div class="box-body">
@@ -70,6 +70,9 @@
                             href="{{ route('backpack.auth.password.reset') }}">{{ trans('backpack::base.forgot_your_password') }}</a>
                 </div>
             @endif
+            <div class="text-center m-t-10"><a
+                    href="/transparencia">Transparência</a>
+            </div>
             @if (config('backpack.base.registration_open'))
                 <div class="text-center m-t-10"><a
                             href="{{ route('backpack.auth.register') }}">{{ trans('backpack::base.register') }}</a>

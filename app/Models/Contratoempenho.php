@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use function foo\func;
 
 class Contratoempenho extends Model
 {
@@ -22,7 +23,7 @@ class Contratoempenho extends Model
 
     protected $table = 'contratoempenhos';
     // protected $primaryKey = 'id';
-     public $timestamps = false;
+    public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
@@ -37,12 +38,22 @@ class Contratoempenho extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function buscaTodosEmpenhosContratosAtivos()
+    {
+        $empenhos = $this->whereHas('contrato', function ($c) {
+            $c->where('situacao', true);
+        })->get();
+
+        return $empenhos;
+
+    }
+
     public function getContrato()
     {
-        if($this->contrato_id){
+        if ($this->contrato_id) {
             $contrato = Contrato::find($this->contrato_id);
             return $contrato->numero;
-        }else{
+        } else {
             return '';
         }
     }
@@ -61,17 +72,14 @@ class Contratoempenho extends Model
 
     }
 
-    public function empenho()
-    {
-        return $this->belongsTo(Empenho::class, 'empenho_id');
-    }
+
 
     public function formatVlrEmpenhado()
     {
-        if($this->empenho_id){
+        if ($this->empenho_id) {
             $empenho = Empenhos::find($this->empenho_id);
             return 'R$ ' . number_format($empenho->empenhado, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
 
@@ -79,10 +87,10 @@ class Contratoempenho extends Model
 
     public function formatVlraLiquidar()
     {
-        if($this->empenho_id){
+        if ($this->empenho_id) {
             $empenho = Empenhos::find($this->empenho_id);
             return 'R$ ' . number_format($empenho->aliquidar, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
 
@@ -90,60 +98,60 @@ class Contratoempenho extends Model
 
     public function formatVlrLiquidado()
     {
-        if($this->empenho_id){
+        if ($this->empenho_id) {
             $empenho = Empenhos::find($this->empenho_id);
             return 'R$ ' . number_format($empenho->liquidado, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
     }
 
     public function formatVlrPago()
     {
-        if($this->empenho_id){
+        if ($this->empenho_id) {
             $empenho = Empenhos::find($this->empenho_id);
             return 'R$ ' . number_format($empenho->pago, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
     }
 
     public function formatVlrRpInscrito()
     {
-        if($this->empenho_id){
+        if ($this->empenho_id) {
             $empenho = Empenhos::find($this->empenho_id);
             return 'R$ ' . number_format($empenho->rpinscrito, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
     }
 
     public function formatVlrRpaLiquidar()
     {
-        if($this->empenho_id){
+        if ($this->empenho_id) {
             $empenho = Empenhos::find($this->empenho_id);
             return 'R$ ' . number_format($empenho->rpaliquidar, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
     }
 
     public function formatVlrRpLiquidado()
     {
-        if($this->empenho_id){
+        if ($this->empenho_id) {
             $empenho = Empenhos::find($this->empenho_id);
             return 'R$ ' . number_format($empenho->rpliquidado, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
     }
 
     public function formatVlrRpPago()
     {
-        if($this->empenho_id){
+        if ($this->empenho_id) {
             $empenho = Empenhos::find($this->empenho_id);
             return 'R$ ' . number_format($empenho->rppago, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
     }
@@ -154,7 +162,20 @@ class Contratoempenho extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function contrato()
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
 
+    public function empenho()
+    {
+        return $this->belongsTo(Empenho::class, 'empenho_id');
+    }
+
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

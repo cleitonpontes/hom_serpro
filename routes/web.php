@@ -19,6 +19,16 @@ Route::get('/home', function () {
     return redirect('/inicio');
 });
 
+Route::group([
+    'prefix' => 'transparencia',
+    'namespace' => 'Transparencia',
+], function () {
+    Route::get('/', 'IndexController@index');
+    CRUD::resource('/contratos', 'ConsultaContratosCrudController');
+});
+
+Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+
 
 Route::group(
     [

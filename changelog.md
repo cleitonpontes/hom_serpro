@@ -1,6 +1,94 @@
 # Changelog
 
-Todas as alterações do Sistema Conta serão documentadas neste arquivo.
+Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
+
+## [5.0.15]- 26/02/2020
+
+### Implementação  
+- Tabela de controle de Saldo de Itens (saldohistoricoitens).
+
+### Bug  
+- Correção de erro na API de Contratos ao relacionar Empenhos sem Plano Interno.
+
+## [5.0.14]- 13/02/2020
+
+### Implementação  
+- Ambiente público Transparência para disponibilização de Dados do Sistema.
+- Consulta de Contratos Pública.
+
+## [5.0.13]- 12/02/2020
+
+### Implementação  
+- Importação de Todos os Órgãos Superiores, Órgãos e Unidades.
+
+### Melhoria  
+- Disponibilização dos campos "Subcategoria" e "Unidades Requisitantes" na API de Contratos por Unidade e Órgão.
+
+## [5.0.12]- 29/01/2020
+
+### Adequação Logo 
+- Mudança da Logomarca do Sistema para Comprasnet contratos.
+
+## [5.0.11]- 23/01/2020
+
+### Bug  
+- Criação da Validação das Data de Assinatura e Publicação do Cadastro do Contrato.
+
+## [5.0.10]- 15/01/2020
+
+### Bug  
+- Correção de erro de codificação UTF-8 nas rotinas de Alertas.
+
+## [5.0.9]- 14/01/2020
+
+### Bug  
+- Correção de erro ao montar Cronograma Contrato.
+
+### Melhoria  
+- Atualização do formato do formato de versionamentos.
+
+## [5.0.008]- 08/01/2020
+
+### Bug  
+- Correção de erro na inclusão de Ocorrências do Tipo Conclusivas.
+
+## [5.0.007]- 12/12/2019
+
+### Bug  
+- Correção de erro da migração de empenhos Timeout do CURl.
+
+## [5.0.006]- 03/12/2019
+
+### Implementação  
+- Implementação do Extrato do Contrato com dados Básicos do mesmo.
+
+### Segurança
+- Atualização do código para permitir versão PHP 7.3.
+
+## [5.0.005]- 31/10/2019
+
+### Melhoria  
+- Poder Inativar um contrato por meio da Alteração do Instrumento Inicial.
+
+## [5.0.004]- 30/10/2019
+
+### Melhoria  
+- Disponibilização do campo "Novo Número de Parcelas" para edição no Apostilamento do Contrato.
+- Disponibilização do campo "Data início novo valor" na consulta do Histórico do Contrato.
+
+## [5.0.003]- 24/10/2019
+
+### Bug  
+- Correção de erro da migração de empenhos sem informação de Plano Interno.
+
+### Melhoria  
+- Simplificação da inserção dos Itens de Contratos, com a retirada do Grupo.
+
+## [5.0.002]- 17/10/2019
+
+### Bug
+- Correção de erro do campo Informações Complementares da Fatura, com limitação a 255 caracteres.
+
 
 ## [5.0.001]- 14/10/2019
 

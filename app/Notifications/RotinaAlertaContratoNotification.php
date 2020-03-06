@@ -47,7 +47,7 @@ class RotinaAlertaContratoNotification extends Notification
     public function toMail($notifiable)
     {
         $converter = new HtmlConverter();
-        $texto_email = $converter->convert($this->texto_html);
+        $texto_email = mb_convert_encoding($converter->convert($this->texto_html),'UTF-8','UTF-8');
 
 
         $contratos = [];
@@ -153,7 +153,7 @@ class RotinaAlertaContratoNotification extends Notification
 
         return [
             'assunto' => 'Rotina de Alerta - ' . $this->dado_email['nomerotina'],
-            'mensagem' => $this->texto_html . $html,
+            'mensagem' => mb_convert_encoding($this->texto_html . $html,'UTF-8','UTF-8'),
             'anexos' => '',
         ];
     }

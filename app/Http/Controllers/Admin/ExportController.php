@@ -95,7 +95,27 @@ class ExportController extends Controller
         $modelo = new Contrato();
         $dados = $modelo->buscaListaTodosContratos($filtro);
 
-        $data = $dados->toArray();
+        $dados = $dados->toArray();
+
+        $data = [];
+        foreach ($dados as $dado){
+            $valores_replace=[
+                'data_assinatura' => implode('/',array_reverse(explode('-',$dado['data_assinatura']))),
+                'data_publicacao' => implode('/',array_reverse(explode('-',$dado['data_publicacao']))),
+                'vigencia_inicio' => implode('/',array_reverse(explode('-',$dado['vigencia_inicio']))),
+                'vigencia_fim' => implode('/',array_reverse(explode('-',$dado['vigencia_fim']))),
+                'valor_inicial' => number_format($dado['valor_inicial'],2,',','.'),
+                'valor_global' => number_format($dado['valor_global'],2,',','.'),
+                'num_parcelas' => number_format($dado['num_parcelas'],0),
+                'valor_parcela' => number_format($dado['valor_parcela'],2,',','.'),
+                'valor_acumulado' => number_format($dado['valor_acumulado'],2,',','.'),
+                'situacao' => $dado['situacao'],
+            ];
+
+
+            $data[]=array_replace($dado,$valores_replace);
+
+        }
 
         return Excel::create('todos_contratos_'. date('YmdHis'), function ($excel) use ($data) {
             $excel->sheet('lista', function ($sheet) use ($data) {
@@ -115,7 +135,27 @@ class ExportController extends Controller
         $modelo = new Contrato();
         $dados = $modelo->buscaListaContratosOrgao($filtro);
 
-        $data = $dados->toArray();
+        $dados = $dados->toArray();
+
+        $data = [];
+        foreach ($dados as $dado){
+            $valores_replace=[
+                'data_assinatura' => implode('/',array_reverse(explode('-',$dado['data_assinatura']))),
+                'data_publicacao' => implode('/',array_reverse(explode('-',$dado['data_publicacao']))),
+                'vigencia_inicio' => implode('/',array_reverse(explode('-',$dado['vigencia_inicio']))),
+                'vigencia_fim' => implode('/',array_reverse(explode('-',$dado['vigencia_fim']))),
+                'valor_inicial' => number_format($dado['valor_inicial'],2,',','.'),
+                'valor_global' => number_format($dado['valor_global'],2,',','.'),
+                'num_parcelas' => number_format($dado['num_parcelas'],0),
+                'valor_parcela' => number_format($dado['valor_parcela'],2,',','.'),
+                'valor_acumulado' => number_format($dado['valor_acumulado'],2,',','.'),
+                'situacao' => $dado['situacao'],
+            ];
+
+
+            $data[]=array_replace($dado,$valores_replace);
+
+        }
 
         return Excel::create('contratos_orgao_'. date('YmdHis'), function ($excel) use ($data) {
             $excel->sheet('lista', function ($sheet) use ($data) {
@@ -135,7 +175,27 @@ class ExportController extends Controller
         $modelo = new Contrato();
         $dados = $modelo->buscaListaContratosUg($filtro);
 
-        $data = $dados->toArray();
+        $dados = $dados->toArray();
+
+        $data = [];
+        foreach ($dados as $dado){
+            $valores_replace=[
+                'data_assinatura' => implode('/',array_reverse(explode('-',$dado['data_assinatura']))),
+                'data_publicacao' => implode('/',array_reverse(explode('-',$dado['data_publicacao']))),
+                'vigencia_inicio' => implode('/',array_reverse(explode('-',$dado['vigencia_inicio']))),
+                'vigencia_fim' => implode('/',array_reverse(explode('-',$dado['vigencia_fim']))),
+                'valor_inicial' => number_format($dado['valor_inicial'],2,',','.'),
+                'valor_global' => number_format($dado['valor_global'],2,',','.'),
+                'num_parcelas' => number_format($dado['num_parcelas'],0),
+                'valor_parcela' => number_format($dado['valor_parcela'],2,',','.'),
+                'valor_acumulado' => number_format($dado['valor_acumulado'],2,',','.'),
+                'situacao' => $dado['situacao'],
+            ];
+
+
+            $data[]=array_replace($dado,$valores_replace);
+
+        }
 
         return Excel::create('contratos_ug_'. date('YmdHis'), function ($excel) use ($data) {
             $excel->sheet('lista', function ($sheet) use ($data) {

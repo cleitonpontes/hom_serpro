@@ -57,6 +57,7 @@ class ApostilamentoCrudController extends CrudController
         $this->crud->orderBy('data_assinatura', 'asc');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
+        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
         $this->crud->enableExportButtons();
 //        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
@@ -301,9 +302,22 @@ class ApostilamentoCrudController extends CrudController
                 'tab' => 'Dados Apostilamento',
             ],
             [   // Number
+                'name' => 'novo_valor_global',
+                'label' => 'Novo Valor Global',
+                'type' => 'money',
+                // optionals
+                'attributes' => [
+                    'id' => 'novo_valor_global',
+                ], // allow decimals
+                'prefix' => "R$",
+                'default' => number_format($contrato->valor_global, 2, ',', '.'),
+                'tab' => 'Dados Apostilamento',
+                // 'suffix' => ".00",
+            ],
+            [   // Number
                 'name' => 'novo_num_parcelas',
-                'label' => 'Novo Núm. Percelas',
-                'type' => 'hidden',
+                'label' => 'Novo Núm. Parcelas',
+                'type' => 'number',
                 // optionals
 //                'attributes' => [
 //                    "step" => "any",
@@ -311,7 +325,7 @@ class ApostilamentoCrudController extends CrudController
 //                ], // allow decimals
                 'default' => $contrato->num_parcelas,
 //                'prefix' => "R$",
-//                'tab' => 'Dados Apostilamento',
+                'tab' => 'Dados Apostilamento',
                 // 'suffix' => ".00",
             ],
             [   // Number
@@ -327,19 +341,7 @@ class ApostilamentoCrudController extends CrudController
                 'tab' => 'Dados Apostilamento',
                 // 'suffix' => ".00",
             ],
-            [   // Number
-                'name' => 'novo_valor_global',
-                'label' => 'Novo Valor Global',
-                'type' => 'money',
-                // optionals
-                'attributes' => [
-                    'id' => 'novo_valor_global',
-                ], // allow decimals
-                'prefix' => "R$",
-                'default' => number_format($contrato->valor_global, 2, ',', '.'),
-                'tab' => 'Dados Apostilamento',
-                // 'suffix' => ".00",
-            ],
+
 
 
             [ // select_from_array

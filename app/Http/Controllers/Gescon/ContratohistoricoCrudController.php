@@ -38,9 +38,10 @@ class ContratohistoricoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Histórico do Contrato', 'Histórico - Contrato');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
+        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
         $this->crud->orderBy('data_assinatura', 'asc');
         $this->crud->enableExportButtons();
-        $this->crud->disableResponsiveTable();
+//        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
@@ -163,10 +164,10 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
-                },
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
+//                    $query->orWhere('fornecedores.nome', 'like', "%$searchTerm%");
+//                },
             ],
             [
                 'name' => 'processo',
@@ -248,6 +249,16 @@ class ContratohistoricoCrudController extends CrudController
             [
                 'name' => 'data_publicacao',
                 'label' => 'Data Publicação',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'data_inicio_novo_valor',
+                'label' => 'Dt. Início Novo Valor',
                 'type' => 'date',
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text

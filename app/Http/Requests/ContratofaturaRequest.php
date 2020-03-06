@@ -38,6 +38,7 @@ class ContratofaturaRequest extends FormRequest
             'repactuacao' => 'required',
             'mesref' => 'required',
             'anoref' => 'required',
+            'infcomplementar' => 'max:255',
         ];
     }
 

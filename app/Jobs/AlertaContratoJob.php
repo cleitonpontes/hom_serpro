@@ -62,7 +62,7 @@ class AlertaContratoJob implements ShouldQueue
 
             }
 
-            $dados_email['textobase'] = $unidade_diario->configuracao->email_diario_texto;
+            $dados_email['textobase'] = mb_convert_encoding($unidade_diario->configuracao->email_diario_texto,'UTF-8','UTF-8');
 
             $dados_email['telefones'] = ($unidade_diario->configuracao->telefone2) ? $unidade_diario->configuracao->telefone1 . ' / ' . $unidade_diario->configuracao->telefone2 : $unidade_diario->configuracao->telefone1;
             $dados_email['copiados']['user1'] = $unidade_diario->configuracao->user1;
@@ -115,7 +115,7 @@ class AlertaContratoJob implements ShouldQueue
         foreach ($unidades_mensal as $unidade_mensal) {
             if ($unidade_mensal->configuracao->email_mensal_dia == $dia) {
                 $contratos_mensal = $unidade_mensal->contratos()->get();
-                $dados_email['textobase'] = $unidade_mensal->configuracao->email_mensal_texto;
+                $dados_email['textobase'] = mb_convert_encoding($unidade_mensal->configuracao->email_mensal_texto,'UTF-8','UTF-8');
                 $dados_email['nomerotina'] = 'Extrato Mensal';
                 $dados_email['telefones'] = ($unidade_mensal->configuracao->telefone2) ? $unidade_mensal->configuracao->telefone1 . ' / ' . $unidade_mensal->configuracao->telefone2 : $unidade_mensal->configuracao->telefone1;
 

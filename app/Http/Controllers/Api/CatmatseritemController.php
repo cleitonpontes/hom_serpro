@@ -16,13 +16,15 @@ class CatmatseritemController extends Controller
         $options = Catmatseritem::query();
 
         // if no category has been selected, show no options
-        if (!$form['grupo_id']) {
+        if (!$form['tipo_id']) {
             return [];
         }
 
         // if a category has been selected, only show articles in that category
-        if ($form['grupo_id']) {
-            $options = $options->where('grupo_id', $form['grupo_id'])
+        if ($form['tipo_id']) {
+            $options = $options->whereHas('catmatsergrupo', function ($query) use ($form){
+                $query->where('tipo_id', $form['tipo_id']);
+            })
                 ->orderBy('descricao');
         }
 

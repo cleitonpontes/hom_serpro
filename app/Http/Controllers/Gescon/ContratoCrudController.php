@@ -371,7 +371,7 @@ class ContratoCrudController extends CrudController
                 'placeholder' => 'Selecione...', // placeholder for the select
                 'minimum_input_length' => 0, // minimum characters to type before querying results
                 'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
-                'method'                    => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
+                'method' => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
                 'tab' => 'Dados Gerais',
             ],
             [
@@ -589,16 +589,335 @@ class ContratoCrudController extends CrudController
         return $content;
     }
 
-    public function extratoPdf()
+    public function extratoPdf(int $contrato_id)
     {
+        $contrato = Contrato::find($contrato_id);
+
         $pdf = new Pdf("P", "mm", "A4");
         $pdf->SetTitle("Extrato Contrato", 1);
         $pdf->AliasNbPages();
         $pdf->AddPage();
-        $pdf->SetFont('Courier', 'B', 18);
-        $pdf->Cell(50, 25, 'Hello World!');
-        $pdf->Output('D', 'download.pdf');
 
+        //Dados Contratos
+        $pdf->SetY("28");
+        $pdf->SetFont('Arial', 'BIU', 10);
+        $pdf->Cell(0, 5, utf8_decode("Dados do Contrato") . ' - Contrato num.: ' . utf8_decode($contrato->numero) . ' - UG: ' . utf8_decode($contrato->unidade->codigo . " - " . $contrato->unidade->nomeresumido), 0, 0, 'C');
+
+        $pdf->SetY("35");
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(28, 5, utf8_decode("Número Contrato: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(20, 5, utf8_decode($contrato->numero), 0, 0, 'L');
+
+        $pdf->SetY("40");
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(33, 5, utf8_decode("CNPJ/CPF/ID Genérico: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(30, 5, utf8_decode($contrato->fornecedor->cpf_cnpj_idgener), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(18, 5, utf8_decode("Fornecedor: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(20, 5, utf8_decode($contrato->fornecedor->nome), 0, 0, 'L');
+
+        $pdf->SetY("45");
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(22, 5, utf8_decode("Processo Núm.: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(35, 5, utf8_decode($contrato->processo), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(18, 5, utf8_decode("UG Recurso: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(20, 5, utf8_decode($contrato->unidade->codigo . " - " . $contrato->unidade->nome), 0, 0, 'L');
+
+        $pdf->SetY("50");
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(23, 5, utf8_decode("Data Assinatura: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(40, 5, utf8_decode(implode("/", array_reverse(explode("-", $contrato->data_assinatura)))), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(23, 5, utf8_decode("Tipo do Contrato: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(20, 5, utf8_decode($contrato->tipo->descricao), 0, 0, 'L');
+
+        $pdf->SetY("55");
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(23, 5, utf8_decode("Tipo Licitação: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(40, 5, utf8_decode($contrato->modalidade->descricao), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(25, 5, utf8_decode("Número Licitação: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(20, 5, utf8_decode($contrato->licitacao_numero), 0, 0, 'L');
+
+        $pdf->SetY("60");
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(30, 5, utf8_decode("Data Vigência Início: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(33, 5, utf8_decode(implode("/", array_reverse(explode("-", $contrato->vigencia_inicio)))), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(30, 5, utf8_decode("Data Vigência Fim: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(33, 5, utf8_decode(implode("/", array_reverse(explode("-", $contrato->vigencia_fim)))), 0, 0, 'L');
+
+        $pdf->SetY("65");
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(17, 5, utf8_decode("Valor Global: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(30, 5, utf8_decode(number_format($contrato->valor_global, 2, ',', '.')), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(21, 5, utf8_decode("Núm. Parcelas: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(10, 5, utf8_decode(number_format($contrato->num_parcelas, 0, '', '.')), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(18, 5, utf8_decode("Valor Parcial: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(25, 5, utf8_decode(number_format($contrato->valor_parcela, 2, ',', '.')), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(24, 5, utf8_decode("Valor Acumulado: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(30, 5, utf8_decode(number_format($contrato->valor_acumulado, 2, ',', '.')), 0, 0, 'L');
+
+        $pdf->SetY("70");
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(0, 5, utf8_decode("Objeto: "), 0, 0, 'L');
+        $pdf->SetY("75");
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(0, 5, utf8_decode($contrato->objeto), 0, 'J');
+
+        //numero de caracteres fonte 9 por linha 100
+        $pdf->SetY($this->calculaLinhasMultiCell(strlen($contrato->objeto), '75'));
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(0, 5, utf8_decode("Informação Complementar: "), 0, 0, 'L');
+        $pdf->SetY($this->calculaLinhasMultiCell(strlen($contrato->objeto), '75') + 5);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->MultiCell(0, 5, utf8_decode($contrato->info_complementar), 0, 'J');
+
+
+        //responsaveis do contrato
+        //Responsáveis
+        $pdf->AddPage();
+        $pdf->SetY("28");
+        $pdf->SetFont('Arial', 'BIU', 10);
+        $pdf->Cell(0, 5, utf8_decode("Responsáveis") . ' - Contrato num.: ' . utf8_decode($contrato->numero) . ' - UG: ' . utf8_decode($contrato->unidade->codigo . " - " . $contrato->unidade->nomeresumido), 0, 0, 'C');
+
+        //busca responsaveis por situacao
+        $responsaveis_ativos = $contrato->responsaveis()->where('situacao', true)->get();
+        $responsaveis_inativos = $contrato->responsaveis()->where('situacao', false)->get();
+
+        //ativos
+        $pdf->SetY("35");
+        $pdf->SetFont('Arial', 'BU', 10);
+        $pdf->Cell(28, 5, utf8_decode("Ativos"), 0, 0, 'L');
+
+        $row_resp = 35 + 5;
+
+        foreach ($responsaveis_ativos as $ativo) {
+            if ($row_resp >= 260) {
+                $row_resp = 35;
+                $pdf->AddPage();
+            }
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("CPF / Nome: "), 'T', 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(100, 5, utf8_decode($ativo->user->cpf . ' - ' . $ativo->user->name), 'T', 0, 'L');
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Função: "), 'T', 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0, 5, utf8_decode($ativo->funcao->descricao), 'T', 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Portaria: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(20, 5, utf8_decode($ativo->portaria), 0, 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Unidade: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0, 5, utf8_decode(($ativo->instalacao_id) ? $ativo->instalacao->nome : ''), 0, 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Data Início: "), "B", 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(50, 5, utf8_decode(implode("/", array_reverse(explode("-", $ativo->data_inicio)))), 'B', 0, 'L');
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Data Fim: "), "B", 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0, 5, utf8_decode(implode("/", array_reverse(explode("-", $ativo->data_fim)))), 'B', 0, 'L');
+
+            $row_resp = $row_resp + 5;
+        }
+
+        //inativos
+        $row_resp = $row_resp + 5;
+        $pdf->SetY($row_resp);
+        $pdf->SetFont('Arial', 'BU', 10);
+        $pdf->Cell(28, 5, utf8_decode("Inativos"), 0, 0, 'L');
+        $row_resp = $row_resp + 5;
+        foreach ($responsaveis_inativos as $inativo) {
+            if ($row_resp >= 260) {
+                $row_resp = 35;
+                $pdf->AddPage();
+            }
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("CPF / Nome: "), 'T', 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(100, 5, utf8_decode($inativo->user->cpf . ' - ' . $inativo->user->name), 'T', 0, 'L');
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Função: "), 'T', 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0, 5, utf8_decode($inativo->funcao->descricao), 'T', 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Portaria: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(20, 5, utf8_decode($inativo->portaria), 0, 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Unidade: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0, 5, utf8_decode(($inativo->instalacao_id) ? $inativo->instalacao->nome : ''), 0, 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Data Início: "), "B", 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(50, 5, utf8_decode(implode("/", array_reverse(explode("-", $inativo->data_inicio)))), 'B', 0, 'L');
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(18, 5, utf8_decode("Data Fim: "), "B", 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0, 5, utf8_decode(implode("/", array_reverse(explode("-", $inativo->data_fim)))), 'B', 0, 'L');
+
+            $row_resp = $row_resp + 5;
+        }
+
+        //execuçao orcamentaria e financeira - empenhos
+        $pdf->AddPage();
+        $pdf->SetY("28");
+        $pdf->SetFont('Arial', 'BIU', 10);
+        $pdf->Cell(0, 5, utf8_decode("Execução Orçamentária e Financeira") . ' - Contrato num.: ' . utf8_decode($contrato->numero) . ' - UG: ' . utf8_decode($contrato->unidade->codigo . " - " . $contrato->unidade->nomeresumido), 0, 0, 'C');
+
+        $pdf->SetY("35");
+        $pdf->SetFont('Arial', 'BU', 10);
+        $pdf->Cell(28, 5, utf8_decode("Empenhos"), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(0, 5, utf8_decode("R$"), 0, 0, 'R');
+
+        $empenhos = $contrato->empenhos()->get();
+
+        $pdf->SetY(40);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(21, 5, utf8_decode("Número"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Empenhado"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("A Liquidar"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Liquidado"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Pago"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("RP Inscr."), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("RP A Liq."), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("RP Liquidado"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("RP Pago"), 1, 0, 'C');
+
+        $t_empenhado = 0;
+        $t_aliquidar = 0;
+        $t_liquidado = 0;
+        $t_pago = 0;
+        $t_rpinscrito = 0;
+        $t_rpaliquidar = 0;
+        $t_rpliquidado = 0;
+        $t_rppago = 0;
+
+        $row_resp = 40 + 5;
+
+        foreach ($empenhos as $empenho) {
+
+            if ($row_resp >= 260) {
+                $row_resp = 35;
+                $pdf->AddPage();
+                $pdf->SetY($row_resp);
+                $pdf->SetFont('Arial', 'B', 7);
+                $pdf->Cell(21, 5, utf8_decode("Número"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Empenhado"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("A Liquidar"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Liquidado"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Pago"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("RP Inscr."), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("RP A Liq."), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("RP Liquidado"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("RP Pago"), 1, 0, 'C');
+                $row_resp += 5;
+            }
+
+            $t_empenhado += $empenho->empenho->empenhado;
+            $t_aliquidar += $empenho->empenho->aliquidar;
+            $t_liquidado += $empenho->empenho->liquidado;
+            $t_pago += $empenho->empenho->pago;
+            $t_rpinscrito += $empenho->empenho->rpinscrito;
+            $t_rpaliquidar += $empenho->empenho->rpaliquidar;
+            $t_rpliquidado += $empenho->empenho->rpliquidado;
+            $t_rppago += $empenho->empenho->rppago;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 7);
+            $pdf->Cell(21, 5, utf8_decode($empenho->empenho->numero), 1, 0, 'L');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->empenhado,2,',',".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->aliquidar,2,',',".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->liquidado,2,',',".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->pago,2,',',".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpinscrito,2,',',".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpaliquidar,2,',',".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpliquidado,2,',',".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rppago,2,',',".")), 1, 0, 'R');
+
+            $row_resp += 5;
+
+        }
+
+        $pdf->SetY($row_resp);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(21, 5, utf8_decode("Total"), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_empenhado,2,',',".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_aliquidar,2,',',".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_liquidado,2,',',".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_pago,2,',',".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpinscrito,2,',',".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpaliquidar,2,',',".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpliquidado,2,',',".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_rppago,2,',',".")), 1, 0, 'R');
+
+        $nome_arquivo = str_replace('/', '', $contrato->numero) . ' - ' . str_replace(' ', '_', $contrato->fornecedor->nome) . '.pdf';
+
+        $pdf->Output('D', $nome_arquivo);
+
+    }
+
+    private function calculaLinhasMultiCell($qtdcaracter, $ultimamedida)
+    {
+        $div = $qtdcaracter / 100;
+        $ndiv = explode('.', $div);
+        $linha = $ndiv[0] + 2;
+        $tam = $linha * 5;
+        $tamanho = $ultimamedida + $tam;
+        return $tamanho;
     }
 
     public function notificaUsers()

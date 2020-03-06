@@ -43,7 +43,8 @@ class EmpenhoController extends Controller
     public function empenhosPorAnoUg(int $ano, int $unidade)
     {
         $empenhos_array = [];
-        $empenhos = $this->buscaEmpenhosPorAnoUg($ano, $unidade);
+        $emp = new Empenho();
+        $empenhos = $emp->buscaEmpenhosPorAnoUg($ano, $unidade);
 
         foreach ($empenhos as $empenho) {
             $empenhos_array[] = [
@@ -68,7 +69,8 @@ class EmpenhoController extends Controller
     public function empenhosPorUg(int $unidade)
     {
         $empenhos_array = [];
-        $empenhos = $this->buscaEmpenhosPorUg($unidade);
+        $emp = new Empenho();
+        $empenhos = $emp->buscaEmpenhosPorUg($unidade);
 
         foreach ($empenhos as $empenho) {
             $empenhos_array[] = [
@@ -90,25 +92,5 @@ class EmpenhoController extends Controller
         return json_encode($empenhos_array);
     }
 
-    private function buscaEmpenhosPorAnoUg(int $ano, int $unidade)
-    {
-        $empenhos = Empenho::whereHas('unidade', function ($q) use ($unidade){
-            $q->where('codigo',$unidade);
-        })
-            ->where('numero', 'LIKE', $ano . 'NE%')
-            ->get();
-
-        return $empenhos;
-    }
-
-    private function buscaEmpenhosPorUg(int $unidade)
-    {
-        $empenhos = Empenho::whereHas('unidade', function ($q) use ($unidade){
-            $q->where('codigo',$unidade);
-        })
-            ->get();
-
-        return $empenhos;
-    }
 
 }

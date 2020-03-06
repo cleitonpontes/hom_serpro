@@ -101,13 +101,47 @@
 			var dateRangeInput = $('#daterangepicker-{{ str_slug($filter->name) }}').daterangepicker({
 				timePicker: false,
 		        ranges: {
-		            'Today': [moment().startOf('day'), moment().endOf('day')],
-		            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-		            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-		            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-		            'This Month': [moment().startOf('month'), moment().endOf('month')],
-		            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+		            'Hoje': [moment().startOf('day'), moment().endOf('day')],
+		            'Ontem': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+		            'Últ. 7 Dias': [moment().subtract(6, 'days'), moment()],
+		            'Últ. 30 Dias': [moment().subtract(29, 'days'), moment()],
+		            'Neste Mês': [moment().startOf('month'), moment().endOf('month')],
+		            'Últ. Mês': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
 		        },
+                "locale": {
+                    "format": "DD/MM/YYYY",
+                    "separator": " - ",
+                    "applyLabel": "Aplicar",
+                    "cancelLabel": "Cancelar",
+                    "fromLabel": "De",
+                    "toLabel": "Até",
+                    "customRangeLabel": "Customizar",
+                    "weekLabel": "S",
+                    "daysOfWeek": [
+                        "Dom",
+                        "Seg",
+                        "Ter",
+                        "Qua",
+                        "Qui",
+                        "Sex",
+                        "Sab"
+                    ],
+                    "monthNames": [
+                        "Janeiro",
+                        "Fevereiro",
+                        "Março",
+                        "Abril",
+                        "Maio",
+                        "Junho",
+                        "Julho",
+                        "Agosto",
+                        "Setembro",
+                        "Outubro",
+                        "Novembro",
+                        "Dezembro"
+                    ],
+                    "firstDay": 1
+                },
 				@if ($filter->currentValue)
 		        startDate: moment("{{ $start_date }}"),
 		        endDate: moment("{{ $end_date }}"),

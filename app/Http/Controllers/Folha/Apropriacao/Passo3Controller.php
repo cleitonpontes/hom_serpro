@@ -36,27 +36,27 @@ class Passo3Controller extends BaseController
         // $modelo = new Apropriacaonotaempenho();
         $modelo = new Apropriacaosituacao();
         $dados = $modelo->retornaListagemPasso3($apid);
-        
+
         if ($request->ajax()) {
             $grid = DataTables::of($dados);
 
             $grid->editColumn('valor_agrupado', '{!! number_format(floatval($valor_agrupado), 2, ",", ".") !!}');
             $grid->addColumn('empenho', function ($linha) use ($apid) {
                 $id = $linha->id;
-                
+
                 // Empenhos disponíveis
                 return $this->mostraEmpenhos($id);
             })
             ->addColumn('fonte', function ($linha) {
                 $id = $linha->id;
-                
+
                 // Fontes disponíveis
                 return $this->mostraFontes($id);
             })
             ->addColumn('valor', function ($linha) use ($apid, $dados) {
                 $id = $linha->id;
                 $valorTotal = $linha->valor_agrupado;
-                
+
                 // Valores a ratear
                 return $this->mostraValores($id, $valorTotal);
             });
@@ -70,7 +70,7 @@ class Passo3Controller extends BaseController
 
         return view('backpack::mod.folha.apropriacao.passo3', compact('html'));
     }
-    
+
     /**
      * Atualiza valor rateado por empenho
      *
@@ -84,14 +84,14 @@ class Passo3Controller extends BaseController
         if ($valorRateado != '') {
             $valor = str_replace(',', '.', str_replace('.', '', $valorRateado));
         }
-        
+
         $modelo = new Apropriacaonotaempenho();
-        
+
         $registro = $modelo->find($id);
         $registro->valor_rateado = $valor;
         $registro->save();
     }
-    
+
     /**
      * Verifica se pode ou não avançar ao próximo passo
      *
@@ -102,13 +102,13 @@ class Passo3Controller extends BaseController
     {
         $apid = $request->apid;
         $modelo = new Apropriacaonotaempenho();
-        
+
         // Verifica se já pode passar para o próximo passo
         $qtde = $modelo->retornaQtdeRegistrosInvalidos($apid);
-        
+
         return ($qtde == 0);
     }
-    
+
     /**
      * Retorna mensagem no caso de erro ao avançar
      *
@@ -118,7 +118,7 @@ class Passo3Controller extends BaseController
     {
         return config('mensagens.apropriacao-empenho-pendencias');
     }
-    
+
     /**
      * Monta $html com definições do Grid
      *
@@ -127,7 +127,7 @@ class Passo3Controller extends BaseController
     private function retornaGrid()
     {
         $html = $this->htmlBuilder;
-        
+
         $html->addColumn([
             'data' => 'situacao',
             'name' => 'situacao',
@@ -183,7 +183,7 @@ class Passo3Controller extends BaseController
             'visible' => false,
             'title' => 'ND Completa'
         ]);
-        
+
         $html->parameters([
             'processing' => true,
             'serverSide' => true,
@@ -197,13 +197,13 @@ class Passo3Controller extends BaseController
                 'url' => asset('/json/pt_br.json')
             ]
         ]);
-        
+
         return $html;
     }
-    
+
     /**
      * Retorna html para apresentação do campo Empenho no grid
-     * 
+     *
      * @param number $id
      * @return string
      */
@@ -211,31 +211,31 @@ class Passo3Controller extends BaseController
     {
         $modeloNe = new Apropriacaonotaempenho();
         $empenhosPorConta = $modeloNe->retornaEmpenhosPorId($id);
-        
+
         $empenhos = '';
         foreach ($empenhosPorConta as $ne) {
             $empenhos .= $ne['empenho'] . '<br />';
         }
-        
+
         if ($empenhos == '') {
             $qtdeEmpenhosNulos = session('identificacao.empenho.qtde.nulos', 0);
-            
+
             $empenhos .= '<a href=';
             $empenhos .= route('crud.empenho.index');
             $empenhos .= '>';
             $empenhos .= 'Cadastrar NE';
             $empenhos .= '</a>';
-            
+
             $qtdeEmpenhosNulos++;
             session(['identificacao.empenho.qtde.nulos' => $qtdeEmpenhosNulos]);
         }
-        
+
         return $empenhos;
     }
-    
+
     /**
      * Retorna html para apresentação do campo Fonte no grid
-     * 
+     *
      * @param number $id
      * @return string
      */
@@ -243,18 +243,18 @@ class Passo3Controller extends BaseController
     {
         $modeloNe = new Apropriacaonotaempenho();
         $empenhosPorConta = $modeloNe->retornaEmpenhosPorId($id);
-        
+
         $empenhos = '';
         foreach ($empenhosPorConta as $ne) {
             $empenhos .= $ne['fonte'] . '<br />';
         }
-        
+
         return $empenhos;
     }
-    
+
     /**
      * Retorna html para apresentação do campo Valor a ratear no grid
-     * 
+     *
      * @param number $idSituacao
      * @param number  $valorTotal
      * @return string
@@ -263,16 +263,16 @@ class Passo3Controller extends BaseController
     {
         $modeloNe = new Apropriacaonotaempenho();
         $empenhosPorConta = $modeloNe->retornaEmpenhosPorId($idSituacao);
-        $qtdeEmpenhos = count($empenhosPorConta);
-        
+        $qtdeEmpenhos = (is_array($empenhosPorConta) ? count($empenhosPorConta) : 0);
+
         $campos = '';
         $valores = '';
-        
+
         foreach ($empenhosPorConta as $empenho) {
             $campoId = $empenho['id'];
             $campoValor = $empenho['valor_rateado'];
             $valorFormatado = $this->retornaValorFormatado($campoValor);
-            
+
             $campos .= '';
             $campos .= "<input ";
             $campos .= "type='text' ";
@@ -282,16 +282,16 @@ class Passo3Controller extends BaseController
             $campos .= "value='$valorFormatado'";
             $campos .= '>';
             $campos .= '<br />';
-            
+
             $valores .= $valorFormatado;
             $valores .= '<br />';
         }
-        
+
         $retorno = '';
         $retorno .= '<div class="btn-group">';
         $retorno .= '<!-- ' . $qtdeEmpenhos . ' -->';
         $retorno .= '<!-- ' . $valorTotal . ' -->';
-        
+
         if ($qtdeEmpenhos > 1) {
             $retorno .= "<form id='frm_$idSituacao'>";
             $retorno .= substr($campos, 0, - 6);
@@ -299,9 +299,9 @@ class Passo3Controller extends BaseController
         } else {
             $retorno .= substr($valores, 0, - 6);
         }
-        
+
         $retorno .= '</div>';
-        
+
         return $retorno;
     }
 }

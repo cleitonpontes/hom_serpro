@@ -55,8 +55,14 @@ class MigracaoempenhoJob implements ShouldQueue
 
             $credor = $this->buscaFornecedor($d);
 
-            if ($d['picodigo']) {
+            if ($d['picodigo']!="") {
                 $pi = $this->buscaPi($d);
+            }
+
+            if(isset($pi->id)){
+                $pi_id = $pi->id;
+            }else{
+                $pi_id = null;
             }
 
             $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
@@ -78,12 +84,12 @@ class MigracaoempenhoJob implements ShouldQueue
                     'numero' => trim($d['numero']),
                     'unidade_id' => $unidade->id,
                     'fornecedor_id' => $credor->id,
-                    'planointerno_id' => $pi->id,
+                    'planointerno_id' => $pi_id,
                     'naturezadespesa_id' => $naturezadespesa->id
                 ]);
             } else {
                 $empenho->fornecedor_id = $credor->id;
-                $empenho->planointerno_id = $pi->id;
+                $empenho->planointerno_id = $pi_id;
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
                 $empenho->save();
             }
@@ -163,8 +169,8 @@ class MigracaoempenhoJob implements ShouldQueue
     {
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1500);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1500);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
         $data = curl_exec($ch);

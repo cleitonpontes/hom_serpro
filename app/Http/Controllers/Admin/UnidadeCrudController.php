@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Execfin\EmpenhoCrudController;
 use App\Jobs\AlertaContratoJob;
 use App\Models\Orgao;
+use App\Models\OrgaoSuperior;
+use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 
@@ -39,6 +42,9 @@ class UnidadeCrudController extends CrudController
             $this->crud->denyAccess('update');
             $this->crud->denyAccess('delete');
             $this->crud->allowAccess('show');
+
+            (backpack_user()->hasRole('Administrador')) ? $this->crud->addButtonFromView('top', 'atualizaunidade',
+                'atualizaunidade', 'end') : null;
 
             (backpack_user()->can('unidade_inserir')) ? $this->crud->allowAccess('create') : null;
             (backpack_user()->can('unidade_editar')) ? $this->crud->allowAccess('update') : null;
@@ -278,7 +284,7 @@ class UnidadeCrudController extends CrudController
                 'type' => 'text',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)",
-                    'maxlength' => "10"
+                    'maxlength' => "19"
                 ]
 //                'allows_null' => false,
 //                'default' => 'one',
@@ -361,4 +367,60 @@ class UnidadeCrudController extends CrudController
             return redirect('/admin/unidade');
         }
     }
+
+    public function executaAtualizacaoCadastroUnidade()
+    {
+        if (!backpack_user()->hasRole('Administrador')) {
+            abort('403', config('app.erro_permissao'));
+        }
+
+        $url = config('migracao.api_sta'). '/api/estrutura/unidades';
+
+        $funcao = new EmpenhoCrudController;
+
+        $dados = $funcao->buscaDadosUrl($url);
+
+        foreach ($dados as $dado) {
+
+            $unidade = Unidade::where('codigo',$dado['codigo'])
+                ->first();
+
+            if(!isset($unidade->codigo)){
+
+                $orgao = Orgao::where('codigo',$dado['orgao'])
+                    ->first();
+
+                if(isset($orgao->id)){
+                    $novo = new Unidade();
+                    $novo->orgao_id = $orgao->id;
+                    $novo->codigo = $dado['codigo'];
+                    $novo->gestao = $dado['gestao'];
+                    $novo->codigosiasg = ($dado['funcao'] == 'Executora') ? $dado['codigo'] : '';
+                    $novo->nome = $dado['nome'];
+                    $novo->nomeresumido = $dado['nomeresumido'];
+                    $novo->tipo = ($dado['funcao'] == 'Executora') ? 'E' : 'C';
+                    $novo->situacao = true;
+                    $novo->save();
+                }
+
+            }else{
+                if($unidade->nome != $dado['nome'] or $unidade->nomeresumido != $dado['nomeresumido'] or $unidade->orgao->codigo != $dado['orgao']){
+
+                    $orgao = Orgao::where('codigo',$dado['orgao'])
+                        ->first();
+
+                    if(isset($orgao->id)) {
+                        $unidade->orgao_id = $orgao->id;
+                        $unidade->nome = $dado['nome'];
+                        $unidade->nomeresumido = $dado['nomeresumido'];
+                        $unidade->save();
+                    }
+
+                }
+            }
+        }
+
+        return redirect('admin/unidade');
+    }
+
 }

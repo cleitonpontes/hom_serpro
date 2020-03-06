@@ -73,9 +73,9 @@ class Execsiafi
 
 
         $client = new \SoapClient($wsdl, [
-            'trace' => 1,
-            'stream_context' => $context,
-        ]);
+        'trace' => 1,
+        'stream_context' => $context,
+    ]);
 
 
         $cabecalho = $this->cabecalho($ug, $sf_id, $wsdl);

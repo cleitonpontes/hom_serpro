@@ -4,7 +4,7 @@
     <section class="content-header">
         <h1>
             Início
-            <small>Sistema Conta</small>
+            <small>Comprasnet Contratos</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>

@@ -4,16 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratoitemsaldo extends Model
+class Orgaoconfiguracao extends Model
 {
     use CrudTrait;
     use LogsActivity;
     protected static $logFillable = true;
-    protected static $logName = 'contratoitemsaldos';
-    use SoftDeletes;
+    protected static $logName = 'orgaoconfiguracao';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,15 +19,15 @@ class Contratoitemsaldo extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contratoitemsaldos';
+    protected $table = 'orgaoconfiguracao';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'contratoitem_id',
-        'contratoitem_quantidade',
-        'contratoitem_valor_unitario',
-        'contratoitem_valor_total',
+        'orgao_id',
+        'padrao_processo_marcara',
+        'api_migracao_conta_url',
+        'api_migracao_conta_token',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -39,17 +37,18 @@ class Contratoitemsaldo extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getOrgao()
+    {
+        $orgao = Orgao::find($this->orgao_id);
+
+        return $orgao->codigo . ' - ' . $orgao->nome;
+    }
 
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
-    public function contratoitem()
-    {
-        return $this->belongsTo(Contratoitem::class, 'contratoitem_id');
-    }
 
     /*
     |--------------------------------------------------------------------------
