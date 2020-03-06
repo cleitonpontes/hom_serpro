@@ -108,7 +108,7 @@ class AdminController extends Controller
         if (session()->get('user_ug_id')) {
 
             $unidade = Unidade::find(session()->get('user_ug_id'));
-            if($unidade->orgao->configuracao->padrao_processo_marcara){
+            if(isset($unidade->orgao->configuracao->padrao_processo_marcara)){
                 session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
             }
 
