@@ -50,16 +50,16 @@ class MigracaoSistemaContaController extends Controller
         $i = 0;
         foreach ($dados as $dado) {
 
-            $ndados = $base->buscaDadosUrl($dado);
-
-            foreach ($ndados as $ndado){
-                $contrato = new MigracaoSistemaConta();
-                $retorno = $contrato->trataDadosMigracaoConta($ndado);
-            }
-
-            ($i==10) ? dd($retorno) : null;
-            $i++;
-//            MigracaoSistemaContaJob::dispatch($dado)->onQueue('migracaosistemaconta');
+//            $ndados = $base->buscaDadosUrl($dado);
+//
+//            foreach ($ndados as $ndado){
+//                $contrato = new MigracaoSistemaConta();
+//                $retorno = $contrato->trataDadosMigracaoConta($ndado);
+//            }
+//
+//            ($i==10) ? dd($retorno) : null;
+//            $i++;
+            MigracaoSistemaContaJob::dispatch($dado)->onQueue('migracaosistemaconta');
         }
 
         $retorno = true;
