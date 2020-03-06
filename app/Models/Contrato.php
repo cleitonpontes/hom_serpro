@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\AdminController;
+use Faker\ORM\Spot\EntityPopulator;
 use Illuminate\Support\Facades\DB;
 use function foo\func;
 use Illuminate\Database\Eloquent\Model;
@@ -64,6 +66,7 @@ class Contrato extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function buscaListaContratosUg($filtro)
     {
 
@@ -114,7 +117,7 @@ class Contrato extends Model
         $lista->leftjoin('unidades as U', 'U.id', '=', 'contratos.unidade_id');
         $lista->leftjoin('orgaos as O', 'O.id', '=', 'U.orgao_id');
 
-        $lista->where('U.id',$unidade_user->id);
+        $lista->where('U.id', $unidade_user->id);
 
         return $lista->get();
     }
@@ -169,7 +172,7 @@ class Contrato extends Model
         $lista->leftjoin('unidades as U', 'U.id', '=', 'contratos.unidade_id');
         $lista->leftjoin('orgaos as O', 'O.id', '=', 'U.orgao_id');
 
-        $lista->where('O.id',$unidade_user->orgao->id);
+        $lista->where('O.id', $unidade_user->orgao->id);
 
         return $lista->get();
     }

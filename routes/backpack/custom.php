@@ -107,7 +107,10 @@ Route::group([
 
             Route::group(['prefix' => 'orgao/{orgao_id}'], function () {
                 CRUD::resource('subcategorias', 'OrgaoSubcategoriaCrudController');
+                CRUD::resource('configuracao', 'OrgaoconfiguracaoCrudController');
             });
+
+            Route::get('migracaoconta/{orgaoconfiguracao_id}', 'MigracaoSistemaContaController@index');
 
             Route::get('/rotinaalertamensal', 'UnidadeCrudController@executaRotinaAlertaMensal');
 

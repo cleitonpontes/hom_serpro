@@ -100,4 +100,5 @@ class BackpackUser extends User
     {
         return $this->belongsTo(Unidade::class, 'ugprimaria');
     }
+
 }

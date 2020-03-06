@@ -5,6 +5,9 @@
         <span class="sr-only">Toggle Dropdown</span>
     </button>
     <ul class="dropdown-menu dropdown-menu-right">
+        @if((backpack_user()->hasRole('Administrador')))
+        <li><a href="/admin/orgao/{{$entry->getKey()}}/configuracao">&nbsp;&nbsp;&nbsp;<i class="fa fa-indent"></i>Configuração</a></li>
+        @endif
         <li><a href="/admin/orgao/{{$entry->getKey()}}/subcategorias">&nbsp;&nbsp;&nbsp;<i class="fa fa-indent"></i>Subcategorias</a></li>
     </ul>
 </div>
