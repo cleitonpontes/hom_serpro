@@ -22,7 +22,7 @@ class MigracaoSistemaContaController extends Controller
             return redirect()->back();
         }
 
-        if ($orgaoconfiguracao->api_migracao_conta_url and $orgaoconfiguracao->api_migracao_conta_token) {
+        if (isset($orgaoconfiguracao->api_migracao_conta_url) and isset($orgaoconfiguracao->api_migracao_conta_token)) {
             $retorno = $this->executaMigracao($orgaoconfiguracao);
         }
 
