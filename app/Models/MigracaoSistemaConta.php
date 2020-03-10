@@ -159,8 +159,10 @@ class MigracaoSistemaConta extends Model
 
             //responsaveis
             $dados_responsaveis = [];
-            foreach ($dado['responsaveis'] as $item) {
-                $dados_responsaveis[] = $base->buscaDadosUrlMigracao($item);
+            if(count($dados_responsaveis)){
+                foreach ($dado['responsaveis'] as $item) {
+                    $dados_responsaveis[] = $base->buscaDadosUrlMigracao($item);
+                }
             }
 
             if (count($dados_responsaveis)) {
@@ -189,7 +191,9 @@ class MigracaoSistemaConta extends Model
                     }
 
                     if ($usuario->ugprimaria != $con->unidade_id) {
-                        $usuario->unidades()->attach($con->unidade_id);
+                        if(!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()){
+                            $usuario->unidades()->attach($con->unidade_id);
+                        }
                     }
 
                     $responsavel['contrato_id'] = $con->id;
@@ -239,7 +243,8 @@ class MigracaoSistemaConta extends Model
                             ->first();
                     }
 
-                    $usuario = BackpackUser::where('cpf', $cpf_user)->first();
+                    $usuario = BackpackUser::where('cpf', $cpf_user)
+                        ->first();
 
                     if (!isset($usuario->id)) {
                         $array_user = [
@@ -254,7 +259,9 @@ class MigracaoSistemaConta extends Model
                     }
 
                     if ($usuario->ugprimaria != $con->unidade_id) {
-                        $usuario->unidades()->associate($con->unidade_id);
+                        if(!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()){
+                            $usuario->unidades()->attach($con->unidade_id);
+                        }
                     }
 
                     $ocorrencia['numero'] = $dados_ocorrencia['oco_num'];
