@@ -74,7 +74,7 @@ class MigracaoSistemaConta extends Model
 
         $dados_historico = [];
         foreach ($dado['historico'] as $item) {
-            $dados_historico[] = $base->buscaDadosUrl($item);
+            $dados_historico[] = $base->buscaDadosUrlMigracao($item);
         }
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
@@ -160,7 +160,7 @@ class MigracaoSistemaConta extends Model
             //responsaveis
             $dados_responsaveis = [];
             foreach ($dado['responsaveis'] as $item) {
-                $dados_responsaveis[] = $base->buscaDadosUrl($item);
+                $dados_responsaveis[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_responsaveis)) {
@@ -189,7 +189,7 @@ class MigracaoSistemaConta extends Model
                     }
 
                     if ($usuario->ugprimaria != $con->unidade_id) {
-                        $usuario->unidades()->associate($con->unidade_id);
+                        $usuario->unidades()->attach($con->unidade_id);
                     }
 
                     $responsavel['contrato_id'] = $con->id;
@@ -210,13 +210,13 @@ class MigracaoSistemaConta extends Model
             //ocorrencias
             $dados_ocorrencias = [];
             foreach ($dado['ocorrencias'] as $item) {
-                $dados_ocorrencias[] = $base->buscaDadosUrl($item);
+                $dados_ocorrencias[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_ocorrencias)) {
                 foreach ($dados_ocorrencias as $dados_ocorrencia) {
 
-                    $url_user = $base->buscaDadosUrl($dados_ocorrencia['oco_fiscal']);
+                    $url_user = $base->buscaDadosUrlMigracao($dados_ocorrencia['oco_fiscal']);
 
                     $cpf_user = $base->formataCnpjCpfTipo(str_pad($url_user['login'], 11, "0", STR_PAD_LEFT), 'FISICA');
 
@@ -278,7 +278,7 @@ class MigracaoSistemaConta extends Model
             // terceirizados
             $dados_terceirizados = [];
             foreach ($dado['terceirizados'] as $item) {
-                $dados_terceirizados[] = $base->buscaDadosUrl($item);
+                $dados_terceirizados[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_terceirizados)) {
@@ -321,7 +321,7 @@ class MigracaoSistemaConta extends Model
             // empenhos
             $dados_empenhos = [];
             foreach ($dado['empenhos'] as $item) {
-                $dados_empenhos[] = $base->buscaDadosUrl($item);
+                $dados_empenhos[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_empenhos)) {
@@ -335,7 +335,7 @@ class MigracaoSistemaConta extends Model
             // faturas
             $dados_faturas = [];
             foreach ($dado['faturas'] as $item) {
-                $dados_faturas[] = $base->buscaDadosUrl($item);
+                $dados_faturas[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_faturas)) {
