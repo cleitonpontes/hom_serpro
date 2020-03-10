@@ -159,7 +159,7 @@ class MigracaoSistemaConta extends Model
 
             //responsaveis
             $dados_responsaveis = [];
-            if(count($dados_responsaveis)){
+            if(count($dado['responsaveis'])){
                 foreach ($dado['responsaveis'] as $item) {
                     $dados_responsaveis[] = $base->buscaDadosUrlMigracao($item);
                 }
@@ -191,7 +191,7 @@ class MigracaoSistemaConta extends Model
                     }
 
                     if ($usuario->ugprimaria != $con->unidade_id) {
-                        if(!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()){
+                        if (!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()) {
                             $usuario->unidades()->attach($con->unidade_id);
                         }
                     }
@@ -259,7 +259,7 @@ class MigracaoSistemaConta extends Model
                     }
 
                     if ($usuario->ugprimaria != $con->unidade_id) {
-                        if(!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()){
+                        if (!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()) {
                             $usuario->unidades()->attach($con->unidade_id);
                         }
                     }
@@ -351,9 +351,6 @@ class MigracaoSistemaConta extends Model
 
                 }
             }
-
-
-
 
 
         }
