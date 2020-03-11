@@ -79,9 +79,7 @@ class MigracaoSistemaConta extends Model
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
             if ($dado_historico['his_tipo'] == 'Contrato Inicial') {
-
                 //contrato inicial
-
                 $contrato['fornecedor_id'] = $this->buscaFornecedor($dado_historico['his_cnpj'], $dado_historico['his_fornnome']);
                 $contrato['data_assinatura'] = $dado_historico['his_data'];
                 $contrato['data_publicacao'] = $dado_historico['his_data'];
@@ -92,8 +90,9 @@ class MigracaoSistemaConta extends Model
                 $contrato['num_parcelas'] = $dado_historico['his_parcelas'];
                 $contrato['valor_parcela'] = $dado_historico['his_vlrparcial'];
                 $contrato['valor_acumulado'] = $dado_historico['his_vlrglobal'];
-                $contrato_inserido = $this->inserirContratoMigracaoConta($contrato);
 
+                $cont = new Contrato();
+                $contrato_inserido = $cont->inserirContratoMigracaoConta($contrato);
             } else {
                 if (isset($contrato_inserido->id)) {
 
@@ -431,14 +430,6 @@ class MigracaoSistemaConta extends Model
         }
 
         return $fornecedor->id;
-    }
-
-    public function inserirContratoMigracaoConta(array $dados)
-    {
-        $this->fill($dados);
-        $this->save();
-
-        return $this;
     }
 
 
