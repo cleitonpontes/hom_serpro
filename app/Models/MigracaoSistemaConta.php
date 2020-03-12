@@ -158,7 +158,7 @@ class MigracaoSistemaConta extends Model
 
             //responsaveis
             $dados_responsaveis = [];
-            if(count($dado['responsaveis'])){
+            if (count($dado['responsaveis'])) {
                 foreach ($dado['responsaveis'] as $item) {
                     $dados_responsaveis[] = $base->buscaDadosUrlMigracao($item);
                 }
@@ -332,8 +332,7 @@ class MigracaoSistemaConta extends Model
 
             if (count($dados_empenhos)) {
                 foreach ($dados_empenhos as $dados_empenho) {
-
-
+                    $contratoempenho_inserido = $this->inserirEmpenho($dados_empenho, $con);
                 }
             }
 
@@ -346,16 +345,116 @@ class MigracaoSistemaConta extends Model
 
             if (count($dados_faturas)) {
                 foreach ($dados_faturas as $dados_fatura) {
-
-
+                    $contratofatura_inserido = $this->inserirFatura($dados_fatura, $con);
                 }
             }
-
 
         }
 
 
         return $retorno;
+    }
+
+    private function inserirFatura($dados_fatura, $con)
+    {
+        $base = new AdminController();
+        $tipolistafatura_id = $this->buscaTipoListaFatura($dados_fatura['fat_tli_id']);
+        $justificativafatura_id = null;
+        if($dados_fatura['fat_jus_id'] != ""){
+            $justificativafatura_id = $this->buscaJustificativaFatura($dados_fatura['fat_jus_id']);
+        }
+
+
+        if($dados_fatura['fat_processo'] != ''){
+            $processo = $base->formataProcesso($dados_fatura['fat_processo']);
+        }else{
+            $processo = '99999.999999/9999-99';
+        }
+
+
+        $fatura['contrato_id'] = $con->id;
+        $fatura['tipolistafatura_id'] = $tipolistafatura_id;
+        $fatura['justificativafatura_id'] = $justificativafatura_id;
+        $fatura['numero'] = $dados_fatura['fat_num'];
+        $fatura['emissao'] = $dados_fatura['fat_dtemissao'];
+        $fatura['prazo'] = $dados_fatura['fat_prazo'];
+        $fatura['vencimento'] = $dados_fatura['fat_dtvenc'];
+        $fatura['valor'] = $dados_fatura['fat_valor'];
+        $fatura['juros'] = 0;
+        $fatura['multa'] = 0;
+        $fatura['glosa'] = 0;
+        $fatura['valorliquido'] = $dados_fatura['fat_valor'];
+        $fatura['processo'] = $processo;
+        $fatura['protocolo'] = $dados_fatura['fat_ateste'];
+        $fatura['ateste'] = $dados_fatura['fat_ateste'];
+        $fatura['repactuacao'] = false;
+        $fatura['infcomplementar'] = $dados_fatura['fat_infocomp'];
+        $fatura['mesref'] = ($dados_fatura['fat_mesref'] != '') ? $dados_fatura['fat_mesref'] : '99';
+        $fatura['anoref'] = ($dados_fatura['fat_anoref'] != '') ? $dados_fatura['fat_anoref'] : '9999';
+        $fatura['situacao'] = $dados_fatura['fat_situacao'];
+
+        $fat = new Contratofatura();
+        $contratosfatura_inserida = $fat->inserirContratoFaturaMigracaoConta($fatura);
+
+        return $contratosfatura_inserida;
+
+    }
+
+    private function inserirEmpenho($dados_empenho, $con)
+    {
+        $emp_nomcredor = explode(' - ', $dados_empenho['emp_nomcredor']);
+        $empenho_fornecedor_id = $this->buscaFornecedor($emp_nomcredor[0], $emp_nomcredor[1]);
+        $emp_pi = explode(' - ', $dados_empenho['emp_pi']);
+        $emp_natdesp = explode(' - ', $dados_empenho['emp_natdesp']);
+
+        $desc_pi = (isset($emp_pi[2])) ? $emp_pi[1] . ' - ' . $emp_pi[2] : $emp_pi[1];
+        $desc_nd = (isset($emp_natdesp[2])) ? $emp_natdesp[1] . ' - ' . $emp_natdesp[2] : $emp_natdesp[1];
+
+        $planointerno_id = $this->buscaPlanoInterno($emp_pi[0], $desc_pi);
+        $naturezadespesa_id = $this->buscaNaturezaDespesa($emp_natdesp[0], $desc_nd);
+
+        $empenho['numero'] = $dados_empenho['emp_num'];
+        $empenho['unidade_id'] = $con->unidade_id;
+        $empenho['fornecedor_id'] = $empenho_fornecedor_id;
+        $empenho['planointerno_id'] = $planointerno_id;
+        $empenho['naturezadespesa_id'] = $naturezadespesa_id;
+        $empenho['empenhado'] = $dados_empenho['emp_empenhado'];
+        $empenho['aliquidar'] = $dados_empenho['emp_aliquidar'];
+        $empenho['liquidado'] = $dados_empenho['emp_liquidado'];
+        $empenho['pago'] = $dados_empenho['emp_pago'];
+        $empenho['rpinscrito'] = $dados_empenho['emp_rpinscrito'];
+        $empenho['rpaliquidar'] = $dados_empenho['emp_rpaliquidar'];
+        $empenho['rpliquidado'] = $dados_empenho['emp_rpliquidado'];
+        $empenho['rppago'] = $dados_empenho['emp_rppago'];
+
+
+        $empenho_inserido = $this->buscaEmpenho($empenho);
+
+        $array_con_emp = [
+            'contrato_id' => $con->id,
+            'fornecedor_id' => $empenho_fornecedor_id,
+            'empenho_id' => $empenho_inserido->id,
+        ];
+
+        $con_emp = new Contratoempenho();
+        $contratoempenho_inserido = $con_emp->inserirContratoEmpenhoMigracaoConta($array_con_emp);
+
+        return $contratoempenho_inserido;
+
+    }
+
+    private function buscaEmpenho($dado)
+    {
+        $empenho = Empenho::where('numero', $dado['numero'])
+            ->where('unidade_id', $dado['unidade_id'])
+            ->first();
+
+        if (!isset($empenho->id)) {
+            $emp = new Empenho();
+            $empenho = $emp->inserirEmpenhoMigracaoConta($dado);
+        }
+
+        return $empenho;
     }
 
     private function inserirUsuario(array $dados)
@@ -382,6 +481,58 @@ class MigracaoSistemaConta extends Model
         }
 
         return $modalidade->id;
+    }
+
+    private function buscaTipoListaFatura($dado)
+    {
+        $tipolista = Tipolistafatura::where('nome', $dado)->first();
+
+        if(!isset($tipolista->id)){
+            return 5;
+        }
+
+        return $tipolista->id;
+    }
+
+    private function buscaJustificativaFatura($dado)
+    {
+        $justificativa = Justificativafatura::where('nome', $dado)->first();
+
+        if(!isset($justificativa->id)){
+            return 7;
+        }
+
+        return $justificativa->id;
+    }
+
+    private function buscaPlanoInterno($codigo, $descricao)
+    {
+        $planointerno = Planointerno::where('codigo', $codigo)->first();
+
+        if (!isset($planointerno->id)) {
+            $planointerno = Planointerno::create([
+                'codigo' => $codigo,
+                'descricao' => $descricao,
+                'situacao' => true,
+            ]);
+        }
+
+        return $planointerno->id;
+    }
+
+    private function buscaNaturezaDespesa($codigo, $descricao)
+    {
+        $naturezadespesa = Naturezadespesa::where('codigo', $codigo)->first();
+
+        if (!isset($naturezadespesa->id)) {
+            $naturezadespesa = Naturezadespesa::create([
+                'codigo' => $codigo,
+                'descricao' => $descricao,
+                'situacao' => true,
+            ]);
+        }
+
+        return $naturezadespesa->id;
     }
 
     private function buscaFuncaoResponsavel($dado)

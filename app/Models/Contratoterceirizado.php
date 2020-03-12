@@ -73,6 +73,40 @@ class Contratoterceirizado extends Model
             return '';
         }
     }
+
+    public function getOrgao()
+    {
+        $orgao = Orgao::whereHas('unidades', function ($query) {
+            $query->where('id', '=', $this->contrato->unidade_id);
+        })->first();
+
+        return $orgao->codigo . ' - ' . $orgao->nome;
+    }
+
+    public function getUnidade()
+    {
+        $unidade = Unidade::find($this->contrato->unidade_id);
+
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+    }
+
+    public function getFornecedor()
+    {
+        $fornecedor = Fornecedor::find($this->contrato->fornecedor_id);
+
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+    }
+
+    public function getCpf()
+    {
+        $cpf = '***' . substr($this->cpf,3,9).'**';
+        return $cpf;
+    }
+    public function getNome()
+    {
+        $nome = $this->nome;
+        return $nome;
+    }
     public function getEscolaridade()
     {
         if($this->escolaridade_id){
