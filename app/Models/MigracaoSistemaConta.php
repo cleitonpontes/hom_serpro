@@ -323,7 +323,6 @@ class MigracaoSistemaConta extends Model
                 }
             }
 
-
             // empenhos
             $dados_empenhos = [];
             foreach ($dado['empenhos'] as $item) {
@@ -336,8 +335,6 @@ class MigracaoSistemaConta extends Model
                 }
             }
 
-
-            // faturas
             $dados_faturas = [];
             foreach ($dado['faturas'] as $item) {
                 $dados_faturas[] = $base->buscaDadosUrlMigracao($item);
@@ -350,8 +347,6 @@ class MigracaoSistemaConta extends Model
             }
 
         }
-
-
         return $retorno;
     }
 
