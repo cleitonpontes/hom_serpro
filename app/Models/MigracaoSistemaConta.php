@@ -21,36 +21,12 @@ class MigracaoSistemaConta extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contratos';
+    protected $table = 'migracaosistemaconta';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'numero',
-        'fornecedor_id',
-        'unidade_id',
-        'tipo_id',
-        'categoria_id',
-        'subcategoria_id',
-        'processo',
-        'objeto',
-        'info_complementar',
-        'receita_despesa',
-        'fundamento_legal',
-        'modalidade_id',
-        'licitacao_numero',
-        'data_assinatura',
-        'data_publicacao',
-        'vigencia_inicio',
-        'vigencia_fim',
-        'valor_inicial',
-        'valor_global',
-        'num_parcelas',
-        'valor_parcela',
-        'valor_acumulado',
-        'situacao_siasg',
-        'situacao',
-        'unidades_requisitantes',
+        'orgao_id',
     ];
 
     public function trataDadosMigracaoConta(array $dado)
@@ -98,7 +74,7 @@ class MigracaoSistemaConta extends Model
 
                     //historico
 
-                    $con = $this->find($contrato_inserido->id);
+                    $con = Contrato::find($contrato_inserido->id);
 
                     $ano_historico = explode('-', $dado_historico['his_data']);
 
@@ -154,7 +130,8 @@ class MigracaoSistemaConta extends Model
         }
 
         if (isset($contrato_inserido->id)) {
-            $con = $this->find($contrato_inserido->id);
+
+            $con = Contrato::find($contrato_inserido->id);
 
             //responsaveis
             $dados_responsaveis = [];
@@ -469,7 +446,8 @@ class MigracaoSistemaConta extends Model
 
     private function buscaModalidade($dado)
     {
-        $modalidade = $this->modalidade()->where('descricao', $dado)->first();
+        $contrato = new Contrato();
+        $modalidade = $contrato->modalidade()->where('descricao', $dado)->first();
 
         if (!isset($modalidade->id)) {
             return 75;
@@ -579,101 +557,16 @@ class MigracaoSistemaConta extends Model
     }
 
 
-    public function historico()
+
+
+    public function orgao()
     {
 
-        return $this->hasMany(Contratohistorico::class, 'contrato_id');
-
-    }
-
-    public function cronograma()
-    {
-
-        return $this->hasMany(Contratocronograma::class, 'contrato_id');
+        return $this->belongsTo(Orgao::class, 'orgao_id');
 
     }
 
 
-    public function responsaveis()
-    {
-
-        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
-
-    }
-
-    public function garantias()
-    {
-
-        return $this->hasMany(Contratogarantia::class, 'contrato_id');
-
-    }
-
-    public function arquivos()
-    {
-
-        return $this->hasMany(Contratoarquivo::class, 'contrato_id');
-
-    }
-
-    public function empenhos()
-    {
-
-        return $this->hasMany(Contratoempenho::class, 'contrato_id');
-
-    }
-
-    public function faturas()
-    {
-
-        return $this->hasMany(Contratofatura::class, 'contrato_id');
-
-    }
-
-    public function ocorrencias()
-    {
-
-        return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
-
-    }
-
-    public function terceirizados()
-    {
-
-        return $this->hasMany(Contratoterceirizado::class, 'contrato_id');
-
-    }
-
-    public function unidade()
-    {
-
-        return $this->belongsTo(Unidade::class, 'unidade_id');
-
-    }
-
-    public function fornecedor()
-    {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
-    }
-
-    public function tipo()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_id');
-    }
-
-    public function categoria()
-    {
-        return $this->belongsTo(Codigoitem::class, 'categoria_id');
-    }
-
-    public function modalidade()
-    {
-        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
-    }
-
-    public function orgaosubcategoria()
-    {
-        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
-    }
 
 
 }

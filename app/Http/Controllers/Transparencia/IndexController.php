@@ -11,7 +11,6 @@ use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Orgao;
 use App\Models\Unidade;
-use http\Url;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use MaddHatter\LaravelFullcalendar\Calendar;
@@ -29,8 +28,32 @@ class IndexController extends Controller
     {
         $this->data['title'] = "Área Consulta Pública";//trans('backpack::base.dashboard'); // set the page title
 
+        $orgaos_array = Orgao::select(DB::raw("CONCAT(codigo,' - ',nome) AS nome"), 'codigo')
+            ->where('situacao',true)
+            ->whereHas('unidades', function ($u){
+                $u->whereHas('contratos', function ($c){
+                    $c->where('situacao',true);
+                });
+            })
+            ->orderBy('codigo', 'asc')
+            ->pluck('nome', 'codigo')
+            ->toArray();
 
-        return view('backpack::consultapublica',['data' => $this->data]);
+        $unidades_array = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'codigo')
+            ->where('situacao',true)
+            ->whereHas('contratos', function ($c){
+                $c->where('situacao',true);
+            })
+            ->orderBy('codigo', 'asc')
+            ->pluck('nome', 'codigo')
+            ->toArray();
+
+        $contratos = Contrato::where('situacao',true)->get();
+
+
+        return view('backpack::consultapublica',[
+            'data' => $this->data,
+        ]);
     }
 
 }

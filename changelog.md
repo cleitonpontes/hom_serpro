@@ -2,6 +2,20 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.16]- 14/03/2020
+
+### Implementação  
+- Tabela de controle de Migração Sistema Conta;
+- Scripts de Migração do Sistema Conta 4.-, integrado com Api-Migra;
+- Configuração de Órgão com formato de Processo Administrativo;
+- Lista Faturas no Ambiente Transparência;
+- Lista Terceirizados no Ambiente Transparência.
+
+### Melhoria
+- No campo Processo para busca de formato conforme configuração Órgão.
+- Inclsão de Fornecedor no Filtro da Lista Contratos no Ambiente Transparência.
+- Desempenho dos combobox de UG Primaria e Secundária para busca via AJAX no cadastro de Usuários.
+
 ## [5.0.15]- 26/02/2020
 
 ### Implementação  

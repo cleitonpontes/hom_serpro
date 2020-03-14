@@ -17,6 +17,14 @@ class MigracaoSistemaContaController extends Controller
     {
         $orgaoconfiguracao = Orgaoconfiguracao::find($orgaoconfiguracao_id);
 
+        $migracao = MigracaoSistemaConta::where('orgao_id',$orgaoconfiguracao->orgao_id)
+            ->first();
+
+        if(isset($migracao->id)){
+            \Alert::warning('Esse órgão já realizou migração!')->flash();
+            return redirect()->back();
+        }
+
         if (!isset($orgaoconfiguracao->id)) {
             \Alert::error('Configuração Inválida!')->flash();
             return redirect()->back();
@@ -62,6 +70,12 @@ class MigracaoSistemaContaController extends Controller
         }
 
         $retorno = true;
+
+        if($retorno){
+            $migracao = MigracaoSistemaConta::create([
+                'orgao_id' => $orgaoconfiguracao->orgao_id,
+            ]);
+        }
 
         return $retorno;
     }
