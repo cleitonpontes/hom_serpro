@@ -56,48 +56,109 @@ class Contratofatura extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function getContrato()
+    public function inserirContratoFaturaMigracaoConta(array $dados)
     {
-        if($this->contrato_id){
-            $contrato = Contrato::find($this->contrato_id);
-            return $contrato->numero;
-        }else{
-            return '';
-        }
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
     }
-    public function getTipoListaFatura()
+
+    public function getOrgao()
     {
-        if($this->tipolistafatura_id){
-            $tipolistafatura = Tipolistafatura::find($this->tipolistafatura_id);
-            return $tipolistafatura->nome;
-        }else{
-            return '';
-        }
+        $orgao = Orgao::whereHas('unidades', function ($query) {
+            $query->where('id', '=', $this->contrato->unidade_id);
+        })->first();
+
+        return $orgao->codigo . ' - ' . $orgao->nome;
     }
-    public function getJustificativaFatura()
+
+    public function getUnidade()
+    {
+        $unidade = Unidade::find($this->contrato->unidade_id);
+
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+    }
+
+    public function getTipoLista()
+    {
+        $tipolista = Tipolistafatura::find($this->tipolistafatura_id);
+
+        return $tipolista->nome;
+    }
+
+    public function getProcesso()
+    {
+        return $this->processo;
+    }
+
+    public function getNumero()
+    {
+        return $this->numero;
+    }
+
+    public function getJustificativa()
     {
         if($this->justificativafatura_id){
-            $justificativafatura = Justificativafatura::find($this->justificativafatura_id);
-            return $justificativafatura->nome . ": " . $justificativafatura->descricao;
-        }else{
+            $justificativa = Justificativafatura::find($this->justificativafatura_id);
+            return $justificativa->nome;
+        }
+
+        return '';
+    }
+
+    public function getFornecedor()
+    {
+        $fornecedor = Fornecedor::find($this->contrato->fornecedor_id);
+
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+    }
+
+    public function getContrato()
+    {
+        if ($this->contrato_id) {
+            $contrato = Contrato::find($this->contrato_id);
+            return $contrato->numero;
+        } else {
             return '';
         }
     }
+
+    public function getTipoListaFatura()
+    {
+        if ($this->tipolistafatura_id) {
+            $tipolistafatura = Tipolistafatura::find($this->tipolistafatura_id);
+            return $tipolistafatura->nome;
+        } else {
+            return '';
+        }
+    }
+
+    public function getJustificativaFatura()
+    {
+        if ($this->justificativafatura_id) {
+            $justificativafatura = Justificativafatura::find($this->justificativafatura_id);
+            return $justificativafatura->nome . ": " . $justificativafatura->descricao;
+        } else {
+            return '';
+        }
+    }
+
     public function getSfpadrao()
     {
-        if($this->sfpadrao_id){
+        if ($this->sfpadrao_id) {
             $sfpadrao = SfPadrao::find($this->sfpadrao_id);
             return $sfpadrao->anodh . $sfpadrao->codtipodh . str_pad($sfpadrao->numdh, 6, "0", STR_PAD_LEFT);
-        }else{
+        } else {
             return '';
         }
     }
 
     public function formatValor()
     {
-        if($this->valor){
+        if ($this->valor) {
             return 'R$ ' . number_format($this->valor, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
 
@@ -105,9 +166,9 @@ class Contratofatura extends Model
 
     public function formatJuros()
     {
-        if($this->juros){
+        if ($this->juros) {
             return 'R$ ' . number_format($this->juros, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
 
@@ -115,9 +176,9 @@ class Contratofatura extends Model
 
     public function formatMulta()
     {
-        if($this->multa){
+        if ($this->multa) {
             return 'R$ ' . number_format($this->multa, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
 
@@ -125,9 +186,9 @@ class Contratofatura extends Model
 
     public function formatGlosa()
     {
-        if($this->glosa){
+        if ($this->glosa) {
             return '(R$ ' . number_format($this->glosa, 2, ',', '.') . ')';
-        }else{
+        } else {
             return '';
         }
 
@@ -135,13 +196,14 @@ class Contratofatura extends Model
 
     public function formatValorLiquido()
     {
-        if($this->valorliquido){
+        if ($this->valorliquido) {
             return 'R$ ' . number_format($this->valorliquido, 2, ',', '.');
-        }else{
+        } else {
             return '';
         }
 
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -150,6 +212,11 @@ class Contratofatura extends Model
     public function empenhos()
     {
         return $this->belongsToMany(Empenho::class, 'contratofatura_empenhos', 'contratofatura_id', 'empenho_id');
+    }
+
+    public function contrato()
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
     }
     /*
     |--------------------------------------------------------------------------

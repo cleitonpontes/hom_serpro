@@ -4,16 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Fornecedor extends Model
+class Orgaoconfiguracao extends Model
 {
     use CrudTrait;
     use LogsActivity;
     protected static $logFillable = true;
-    protected static $logName = 'fornecedor';
-    use SoftDeletes;
+    protected static $logName = 'orgaoconfiguracao';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,17 +19,16 @@ class Fornecedor extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'fornecedores';
+    protected $table = 'orgaoconfiguracao';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'tipo_fornecedor',
-        'cpf_cnpj_idgener',
-        'nome',
+        'orgao_id',
+        'padrao_processo_marcara',
+        'api_migracao_conta_url',
+        'api_migracao_conta_token',
     ];
-
-
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -40,37 +37,19 @@ class Fornecedor extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function getTipo()
+    public function getOrgao()
     {
-        switch ($this->tipo_fornecedor) {
-            case 'FISICA':
-                return 'Pessoa Física';
-                break;
-            case 'JURIDICA':
-                return 'Pessoa Jurídica';
-                break;
-            case 'UG':
-                return 'UG Siafi';
-                break;
-            case 'IDGENERICO':
-                return 'ID Genérico';
-                break;
-        }
+        $orgao = Orgao::find($this->orgao_id);
+
+        return $orgao->codigo . ' - ' . $orgao->nome;
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function empenhos()
-    {
-        return $this->hasMany(Empenhos::class);
-    }
 
-    public function contratos()
-    {
-        return $this->hasMany(Contrato::class);
-    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

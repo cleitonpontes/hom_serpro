@@ -27,6 +27,8 @@ Route::group([
             //busca empenhos via ajax
             Route::get('empenho', 'EmpenhoController@index');
             Route::get('empenho/{id}', 'EmpenhoController@show');
+            Route::get('unidade', 'UnidadeController@index');
+            Route::get('unidade/{id}', 'UnidadeController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
             Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
             Route::get('catmatseritem', 'CatmatseritemController@index');
@@ -107,7 +109,10 @@ Route::group([
 
             Route::group(['prefix' => 'orgao/{orgao_id}'], function () {
                 CRUD::resource('subcategorias', 'OrgaoSubcategoriaCrudController');
+                CRUD::resource('configuracao', 'OrgaoconfiguracaoCrudController');
             });
+
+            Route::get('migracaoconta/{orgaoconfiguracao_id}', 'MigracaoSistemaContaController@index');
 
             Route::get('/rotinaalertamensal', 'UnidadeCrudController@executaRotinaAlertaMensal');
 

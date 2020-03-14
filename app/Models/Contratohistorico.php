@@ -71,6 +71,15 @@ class Contratohistorico extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function inserirContratohistoricoMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
+
     public function getFornecedorHistorico()
     {
         $fornecedor = Fornecedor::find($this->fornecedor_id);

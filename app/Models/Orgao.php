@@ -44,5 +44,9 @@ class Orgao extends Model
         return $this->hasMany(Unidade::class, 'orgao_id');
     }
 
+    public function configuracao()
+    {
+        return $this->hasOne(Orgaoconfiguracao::class, 'orgao_id');
+    }
 
 }

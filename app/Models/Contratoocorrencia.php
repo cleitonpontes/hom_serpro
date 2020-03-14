@@ -46,6 +46,14 @@ class Contratoocorrencia extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function inserirContratoocorrenciaMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
     public function getContrato()
     {
         if($this->contrato_id){

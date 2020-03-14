@@ -23,19 +23,19 @@
             <li><a href="{{ backpack_url('/transparencia/contratos/?orgao='.request()->input('orgao')) }}"><i
                         class="fa fa-table"></i>
                     <span> Contratos</span></a></li>
-{{--            <li><a href="{{ backpack_url('/transparencia/faturas/?orgao='.request()->input('orgao')) }}"><i--}}
-{{--                        class="fa fa-table"></i>--}}
-{{--                    <span> Faturas</span></a></li>--}}
-{{--            <li><a href="{{ backpack_url('/transparencia/terceirizados/?orgao='.request()->input('orgao')) }}"><i--}}
-{{--                        class="fa fa-table"></i>--}}
-{{--                    <span> Terceirizados</span></a></li>--}}
+            <li><a href="{{ backpack_url('/transparencia/faturas/?orgao='.request()->input('orgao')) }}"><i
+                        class="fa fa-table"></i>
+                    <span> Faturas</span></a></li>
+            <li><a href="{{ backpack_url('/transparencia/terceirizados/?orgao='.request()->input('orgao')) }}"><i
+                        class="fa fa-table"></i>
+                    <span> Terceirizados</span></a></li>
         @else
             <li><a href="{{ backpack_url('/transparencia/contratos') }}"><i class="fa fa-table"></i>
                     <span> Contratos</span></a></li>
-{{--            <li><a href="{{ backpack_url('/transparencia/faturas') }}"><i class="fa fa-table"></i>--}}
-{{--                    <span> Faturas</span></a></li>--}}
-{{--            <li><a href="{{ backpack_url('/transparencia/terceirizados') }}"><i class="fa fa-table"></i>--}}
-{{--                    <span> Terceirizados</span></a></li>--}}
+            <li><a href="{{ backpack_url('/transparencia/faturas') }}"><i class="fa fa-table"></i>
+                    <span> Faturas</span></a></li>
+            <li><a href="{{ backpack_url('/transparencia/terceirizados') }}"><i class="fa fa-table"></i>
+                    <span> Terceirizados</span></a></li>
         @endif
     </ul>
 </li>

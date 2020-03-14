@@ -38,6 +38,15 @@ class Contratoempenho extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
+    public function inserirContratoEmpenhoMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
     public function buscaTodosEmpenhosContratosAtivos()
     {
         $empenhos = $this->whereHas('contrato', function ($c) {

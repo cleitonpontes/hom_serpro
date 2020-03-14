@@ -52,6 +52,7 @@
     @push('crud_fields_scripts')
     <!-- include select2 js-->
     <script src="{{ asset('vendor/adminlte/bower_components/select2/dist/js/select2.min.js') }}"></script>
+    <script src="{{ asset('vendor/adminlte/bower_components/select2/dist/js/i18n/pt-BR.js') }}"></script>
     @endpush
 
 @endif
@@ -68,6 +69,7 @@
             {
                 $(obj).select2({
                     theme: 'bootstrap',
+                    language: 'pt-BR',
                     multiple: true,
                     placeholder: "{{ $field['placeholder'] }}",
                     minimumInputLength: "{{ $field['minimum_input_length'] }}",

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Execfin\EmpenhoCrudController;
 use App\Jobs\AlertaContratoJob;
 use App\Models\Orgao;
@@ -376,9 +377,9 @@ class UnidadeCrudController extends CrudController
 
         $url = config('migracao.api_sta'). '/api/estrutura/unidades';
 
-        $funcao = new EmpenhoCrudController;
+        $funcao = new AdminController();
 
-        $dados = $funcao->buscaDadosUrl($url);
+        $dados = $funcao->buscaDadosUrlMigracao($url);
 
         foreach ($dados as $dado) {
 

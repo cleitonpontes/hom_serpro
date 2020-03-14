@@ -49,6 +49,14 @@ class Empenho extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function inserirEmpenhoMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
     public function buscaEmpenhosPorAnoUg(int $ano, int $unidade)
     {
         $empenhos = Empenho::whereHas('unidade', function ($q) use ($unidade){
