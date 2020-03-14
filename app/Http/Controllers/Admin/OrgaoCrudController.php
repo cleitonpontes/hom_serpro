@@ -255,7 +255,7 @@ class OrgaoCrudController extends CrudController
 
         $funcao = new AdminController();
 
-        $dados = $funcao->buscaDadosUrl($url);
+        $dados = $funcao->buscaDadosUrlMigracao($url);
 
         foreach ($dados as $dado) {
 
