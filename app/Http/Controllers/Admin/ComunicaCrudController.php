@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Unidade;
+use App\Repositories\Comunica as Repo;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -19,6 +20,7 @@ use Spatie\Permission\Models\Role;
  */
 class ComunicaCrudController extends CrudController
 {
+
     public function setup()
     {
         /*
@@ -38,6 +40,7 @@ class ComunicaCrudController extends CrudController
         (backpack_user()->can('comunica_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('comunica_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('comunica_deletar')) ? $this->crud->allowAccess('delete') : null;
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -48,7 +51,7 @@ class ComunicaCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-        $unidades = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
+        $unidades = Unidade::select(DB::raw("CONCAT(codigo, ' - ', nomeresumido) AS nome"), 'id')
             ->orderBy('codigo', 'asc')
             ->pluck('nome', 'id')
             ->toArray();
@@ -56,7 +59,9 @@ class ComunicaCrudController extends CrudController
         $grupos = Role::pluck('name', 'id')
             ->toArray();
 
-        $campos = $this->Campos($unidades, $grupos);
+        $idOrgao = $this->retornaOrgaoPorUnidade(backpack_user()->ugprimaria);
+
+        $campos = $this->Campos($unidades, $grupos, $idOrgao);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in ComunicaRequest
@@ -64,9 +69,25 @@ class ComunicaCrudController extends CrudController
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
+    /**
+     * Retorna array de colunas a serem exibidas no grid de listagem
+     *
+     * @return array
+     */
     public function Colunas()
     {
         $colunas = [
+            [
+                'name' => 'getOrgao',
+                'label' => 'Órgão',
+                'type' => 'model_function',
+                'function_name' => 'getOrgao',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
+            ],
             [
                 'name' => 'getUnidade',
                 'label' => 'Unidade Gestora', // Table column heading
@@ -100,7 +121,6 @@ class ComunicaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
-
             [
                 'name' => 'getMensagem',
                 'label' => 'Mensagem', // Table column heading
@@ -145,18 +165,21 @@ class ComunicaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-            ],
-
-
+            ]
         ];
 
         return $colunas;
-
     }
 
-    public function Campos($unidades, $grupos)
+    /**
+     * Retorna array dos campos para exibição no form
+     *
+     * @param array $unidades
+     * @param array $grupos
+     * @return array
+     */
+    public function Campos($unidades = [], $grupos = [], $idOrgao = null)
     {
-
         $campos = [
             [ // select_from_array
                 'name' => 'unidade_id',
@@ -205,10 +228,20 @@ class ComunicaCrudController extends CrudController
                 'name' => 'situacao',
                 'label' => "Situação",
                 'type' => 'select_from_array',
-                'options' => ['E' => 'Enviado', 'I' => 'Inacabado', 'P' => 'Pronta para Envio'],
+                'options' => $this->retornaSituacoesComunica(),
                 'allows_null' => true,
             ],
-
+            [
+                'name' => 'orgao_id',
+                'label' => "Órgão",
+                'type' => 'hidden',
+                'value' => $idOrgao,
+                'placeholder' => "Todos",
+                'allows_null' => true,
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-6'
+                ]
+            ]
         ];
 
         return $campos;
@@ -245,4 +278,30 @@ class ComunicaCrudController extends CrudController
 
         return $content;
     }
+
+    /**
+     * Retorna array com todas as situações da comunicação
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaSituacoesComunica()
+    {
+        $repo = new Repo();
+        return $repo->getSituacoes();
+    }
+
+    /**
+     * asdasds
+     *
+     * @param $idUnidade
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaOrgaoPorUnidade($idUnidade)
+    {
+        $repo = new Repo();
+        return $repo->retornaOrgaoPorUnidade($idUnidade);
+    }
+
 }

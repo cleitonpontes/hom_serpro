@@ -21,36 +21,12 @@ class MigracaoSistemaConta extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contratos';
+    protected $table = 'migracaosistemaconta';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'numero',
-        'fornecedor_id',
-        'unidade_id',
-        'tipo_id',
-        'categoria_id',
-        'subcategoria_id',
-        'processo',
-        'objeto',
-        'info_complementar',
-        'receita_despesa',
-        'fundamento_legal',
-        'modalidade_id',
-        'licitacao_numero',
-        'data_assinatura',
-        'data_publicacao',
-        'vigencia_inicio',
-        'vigencia_fim',
-        'valor_inicial',
-        'valor_global',
-        'num_parcelas',
-        'valor_parcela',
-        'valor_acumulado',
-        'situacao_siasg',
-        'situacao',
-        'unidades_requisitantes',
+        'orgao_id',
     ];
 
     public function trataDadosMigracaoConta(array $dado)
@@ -74,14 +50,12 @@ class MigracaoSistemaConta extends Model
 
         $dados_historico = [];
         foreach ($dado['historico'] as $item) {
-            $dados_historico[] = $base->buscaDadosUrl($item);
+            $dados_historico[] = $base->buscaDadosUrlMigracao($item);
         }
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
             if ($dado_historico['his_tipo'] == 'Contrato Inicial') {
-
                 //contrato inicial
-
                 $contrato['fornecedor_id'] = $this->buscaFornecedor($dado_historico['his_cnpj'], $dado_historico['his_fornnome']);
                 $contrato['data_assinatura'] = $dado_historico['his_data'];
                 $contrato['data_publicacao'] = $dado_historico['his_data'];
@@ -92,14 +66,15 @@ class MigracaoSistemaConta extends Model
                 $contrato['num_parcelas'] = $dado_historico['his_parcelas'];
                 $contrato['valor_parcela'] = $dado_historico['his_vlrparcial'];
                 $contrato['valor_acumulado'] = $dado_historico['his_vlrglobal'];
-                $contrato_inserido = $this->inserirContratoMigracaoConta($contrato);
 
+                $cont = new Contrato();
+                $contrato_inserido = $cont->inserirContratoMigracaoConta($contrato);
             } else {
                 if (isset($contrato_inserido->id)) {
 
                     //historico
 
-                    $con = $this->find($contrato_inserido->id);
+                    $con = Contrato::find($contrato_inserido->id);
 
                     $ano_historico = explode('-', $dado_historico['his_data']);
 
@@ -155,12 +130,15 @@ class MigracaoSistemaConta extends Model
         }
 
         if (isset($contrato_inserido->id)) {
-            $con = $this->find($contrato_inserido->id);
+
+            $con = Contrato::find($contrato_inserido->id);
 
             //responsaveis
             $dados_responsaveis = [];
-            foreach ($dado['responsaveis'] as $item) {
-                $dados_responsaveis[] = $base->buscaDadosUrl($item);
+            if (count($dado['responsaveis'])) {
+                foreach ($dado['responsaveis'] as $item) {
+                    $dados_responsaveis[] = $base->buscaDadosUrlMigracao($item);
+                }
             }
 
             if (count($dados_responsaveis)) {
@@ -189,7 +167,9 @@ class MigracaoSistemaConta extends Model
                     }
 
                     if ($usuario->ugprimaria != $con->unidade_id) {
-                        $usuario->unidades()->associate($con->unidade_id);
+                        if (!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()) {
+                            $usuario->unidades()->attach($con->unidade_id);
+                        }
                     }
 
                     $responsavel['contrato_id'] = $con->id;
@@ -210,13 +190,13 @@ class MigracaoSistemaConta extends Model
             //ocorrencias
             $dados_ocorrencias = [];
             foreach ($dado['ocorrencias'] as $item) {
-                $dados_ocorrencias[] = $base->buscaDadosUrl($item);
+                $dados_ocorrencias[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_ocorrencias)) {
                 foreach ($dados_ocorrencias as $dados_ocorrencia) {
 
-                    $url_user = $base->buscaDadosUrl($dados_ocorrencia['oco_fiscal']);
+                    $url_user = $base->buscaDadosUrlMigracao($dados_ocorrencia['oco_fiscal']);
 
                     $cpf_user = $base->formataCnpjCpfTipo(str_pad($url_user['login'], 11, "0", STR_PAD_LEFT), 'FISICA');
 
@@ -239,7 +219,8 @@ class MigracaoSistemaConta extends Model
                             ->first();
                     }
 
-                    $usuario = BackpackUser::where('cpf', $cpf_user)->first();
+                    $usuario = BackpackUser::where('cpf', $cpf_user)
+                        ->first();
 
                     if (!isset($usuario->id)) {
                         $array_user = [
@@ -254,7 +235,9 @@ class MigracaoSistemaConta extends Model
                     }
 
                     if ($usuario->ugprimaria != $con->unidade_id) {
-                        $usuario->unidades()->associate($con->unidade_id);
+                        if (!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()) {
+                            $usuario->unidades()->attach($con->unidade_id);
+                        }
                     }
 
                     $ocorrencia['numero'] = $dados_ocorrencia['oco_num'];
@@ -278,7 +261,7 @@ class MigracaoSistemaConta extends Model
             // terceirizados
             $dados_terceirizados = [];
             foreach ($dado['terceirizados'] as $item) {
-                $dados_terceirizados[] = $base->buscaDadosUrl($item);
+                $dados_terceirizados[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_terceirizados)) {
@@ -317,42 +300,133 @@ class MigracaoSistemaConta extends Model
                 }
             }
 
-
             // empenhos
             $dados_empenhos = [];
             foreach ($dado['empenhos'] as $item) {
-                $dados_empenhos[] = $base->buscaDadosUrl($item);
+                $dados_empenhos[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_empenhos)) {
                 foreach ($dados_empenhos as $dados_empenho) {
-
-
+                    $contratoempenho_inserido = $this->inserirEmpenho($dados_empenho, $con);
                 }
             }
 
-
-            // faturas
             $dados_faturas = [];
             foreach ($dado['faturas'] as $item) {
-                $dados_faturas[] = $base->buscaDadosUrl($item);
+                $dados_faturas[] = $base->buscaDadosUrlMigracao($item);
             }
 
             if (count($dados_faturas)) {
                 foreach ($dados_faturas as $dados_fatura) {
-
-
+                    $contratofatura_inserido = $this->inserirFatura($dados_fatura, $con);
                 }
             }
 
+        }
+        return $retorno;
+    }
 
-
-
-
+    private function inserirFatura($dados_fatura, $con)
+    {
+        $base = new AdminController();
+        $tipolistafatura_id = $this->buscaTipoListaFatura($dados_fatura['fat_tli_id']);
+        $justificativafatura_id = null;
+        if($dados_fatura['fat_jus_id'] != ""){
+            $justificativafatura_id = $this->buscaJustificativaFatura($dados_fatura['fat_jus_id']);
         }
 
 
-        return $retorno;
+        if($dados_fatura['fat_processo'] != ''){
+            $processo = $base->formataProcesso($dados_fatura['fat_processo']);
+        }else{
+            $processo = '99999.999999/9999-99';
+        }
+
+
+        $fatura['contrato_id'] = $con->id;
+        $fatura['tipolistafatura_id'] = $tipolistafatura_id;
+        $fatura['justificativafatura_id'] = $justificativafatura_id;
+        $fatura['numero'] = $dados_fatura['fat_num'];
+        $fatura['emissao'] = $dados_fatura['fat_dtemissao'];
+        $fatura['prazo'] = $dados_fatura['fat_prazo'];
+        $fatura['vencimento'] = $dados_fatura['fat_dtvenc'];
+        $fatura['valor'] = $dados_fatura['fat_valor'];
+        $fatura['juros'] = 0;
+        $fatura['multa'] = 0;
+        $fatura['glosa'] = 0;
+        $fatura['valorliquido'] = $dados_fatura['fat_valor'];
+        $fatura['processo'] = $processo;
+        $fatura['protocolo'] = $dados_fatura['fat_ateste'];
+        $fatura['ateste'] = $dados_fatura['fat_ateste'];
+        $fatura['repactuacao'] = false;
+        $fatura['infcomplementar'] = $dados_fatura['fat_infocomp'];
+        $fatura['mesref'] = ($dados_fatura['fat_mesref'] != '') ? $dados_fatura['fat_mesref'] : '99';
+        $fatura['anoref'] = ($dados_fatura['fat_anoref'] != '') ? $dados_fatura['fat_anoref'] : '9999';
+        $fatura['situacao'] = $dados_fatura['fat_situacao'];
+
+        $fat = new Contratofatura();
+        $contratosfatura_inserida = $fat->inserirContratoFaturaMigracaoConta($fatura);
+
+        return $contratosfatura_inserida;
+
+    }
+
+    private function inserirEmpenho($dados_empenho, $con)
+    {
+        $emp_nomcredor = explode(' - ', $dados_empenho['emp_nomcredor']);
+        $empenho_fornecedor_id = $this->buscaFornecedor($emp_nomcredor[0], $emp_nomcredor[1]);
+        $emp_pi = explode(' - ', $dados_empenho['emp_pi']);
+        $emp_natdesp = explode(' - ', $dados_empenho['emp_natdesp']);
+
+        $desc_pi = (isset($emp_pi[2])) ? $emp_pi[1] . ' - ' . $emp_pi[2] : $emp_pi[1];
+        $desc_nd = (isset($emp_natdesp[2])) ? $emp_natdesp[1] . ' - ' . $emp_natdesp[2] : $emp_natdesp[1];
+
+        $planointerno_id = $this->buscaPlanoInterno($emp_pi[0], $desc_pi);
+        $naturezadespesa_id = $this->buscaNaturezaDespesa($emp_natdesp[0], $desc_nd);
+
+        $empenho['numero'] = $dados_empenho['emp_num'];
+        $empenho['unidade_id'] = $con->unidade_id;
+        $empenho['fornecedor_id'] = $empenho_fornecedor_id;
+        $empenho['planointerno_id'] = $planointerno_id;
+        $empenho['naturezadespesa_id'] = $naturezadespesa_id;
+        $empenho['empenhado'] = $dados_empenho['emp_empenhado'];
+        $empenho['aliquidar'] = $dados_empenho['emp_aliquidar'];
+        $empenho['liquidado'] = $dados_empenho['emp_liquidado'];
+        $empenho['pago'] = $dados_empenho['emp_pago'];
+        $empenho['rpinscrito'] = $dados_empenho['emp_rpinscrito'];
+        $empenho['rpaliquidar'] = $dados_empenho['emp_rpaliquidar'];
+        $empenho['rpliquidado'] = $dados_empenho['emp_rpliquidado'];
+        $empenho['rppago'] = $dados_empenho['emp_rppago'];
+
+
+        $empenho_inserido = $this->buscaEmpenho($empenho);
+
+        $array_con_emp = [
+            'contrato_id' => $con->id,
+            'fornecedor_id' => $empenho_fornecedor_id,
+            'empenho_id' => $empenho_inserido->id,
+        ];
+
+        $con_emp = new Contratoempenho();
+        $contratoempenho_inserido = $con_emp->inserirContratoEmpenhoMigracaoConta($array_con_emp);
+
+        return $contratoempenho_inserido;
+
+    }
+
+    private function buscaEmpenho($dado)
+    {
+        $empenho = Empenho::where('numero', $dado['numero'])
+            ->where('unidade_id', $dado['unidade_id'])
+            ->first();
+
+        if (!isset($empenho->id)) {
+            $emp = new Empenho();
+            $empenho = $emp->inserirEmpenhoMigracaoConta($dado);
+        }
+
+        return $empenho;
     }
 
     private function inserirUsuario(array $dados)
@@ -372,13 +446,66 @@ class MigracaoSistemaConta extends Model
 
     private function buscaModalidade($dado)
     {
-        $modalidade = $this->modalidade()->where('descricao', $dado)->first();
+        $contrato = new Contrato();
+        $modalidade = $contrato->modalidade()->where('descricao', $dado)->first();
 
         if (!isset($modalidade->id)) {
             return 75;
         }
 
         return $modalidade->id;
+    }
+
+    private function buscaTipoListaFatura($dado)
+    {
+        $tipolista = Tipolistafatura::where('nome', $dado)->first();
+
+        if(!isset($tipolista->id)){
+            return 5;
+        }
+
+        return $tipolista->id;
+    }
+
+    private function buscaJustificativaFatura($dado)
+    {
+        $justificativa = Justificativafatura::where('nome', $dado)->first();
+
+        if(!isset($justificativa->id)){
+            return 7;
+        }
+
+        return $justificativa->id;
+    }
+
+    private function buscaPlanoInterno($codigo, $descricao)
+    {
+        $planointerno = Planointerno::where('codigo', $codigo)->first();
+
+        if (!isset($planointerno->id)) {
+            $planointerno = Planointerno::create([
+                'codigo' => $codigo,
+                'descricao' => $descricao,
+                'situacao' => true,
+            ]);
+        }
+
+        return $planointerno->id;
+    }
+
+    private function buscaNaturezaDespesa($codigo, $descricao)
+    {
+        $naturezadespesa = Naturezadespesa::where('codigo', $codigo)->first();
+
+        if (!isset($naturezadespesa->id)) {
+            $naturezadespesa = Naturezadespesa::create([
+                'codigo' => $codigo,
+                'descricao' => $descricao,
+                'situacao' => true,
+            ]);
+        }
+
+        return $naturezadespesa->id;
     }
 
     private function buscaFuncaoResponsavel($dado)
@@ -429,110 +556,17 @@ class MigracaoSistemaConta extends Model
         return $fornecedor->id;
     }
 
-    public function inserirContratoMigracaoConta(array $dados)
-    {
-        $this->fill($dados);
-        $this->save();
-
-        return $this;
-    }
 
 
-    public function historico()
+
+    public function orgao()
     {
 
-        return $this->hasMany(Contratohistorico::class, 'contrato_id');
-
-    }
-
-    public function cronograma()
-    {
-
-        return $this->hasMany(Contratocronograma::class, 'contrato_id');
+        return $this->belongsTo(Orgao::class, 'orgao_id');
 
     }
 
 
-    public function responsaveis()
-    {
-
-        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
-
-    }
-
-    public function garantias()
-    {
-
-        return $this->hasMany(Contratogarantia::class, 'contrato_id');
-
-    }
-
-    public function arquivos()
-    {
-
-        return $this->hasMany(Contratoarquivo::class, 'contrato_id');
-
-    }
-
-    public function empenhos()
-    {
-
-        return $this->hasMany(Contratoempenho::class, 'contrato_id');
-
-    }
-
-    public function faturas()
-    {
-
-        return $this->hasMany(Contratofatura::class, 'contrato_id');
-
-    }
-
-    public function ocorrencias()
-    {
-
-        return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
-
-    }
-
-    public function terceirizados()
-    {
-
-        return $this->hasMany(Contratoterceirizado::class, 'contrato_id');
-
-    }
-
-    public function unidade()
-    {
-
-        return $this->belongsTo(Unidade::class, 'unidade_id');
-
-    }
-
-    public function fornecedor()
-    {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
-    }
-
-    public function tipo()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_id');
-    }
-
-    public function categoria()
-    {
-        return $this->belongsTo(Codigoitem::class, 'categoria_id');
-    }
-
-    public function modalidade()
-    {
-        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
-    }
-
-    public function orgaosubcategoria()
-    {
-        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
-    }
 
 
 }

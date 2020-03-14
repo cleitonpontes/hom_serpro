@@ -67,6 +67,14 @@ class Contrato extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function inserirContratoMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
     public function buscaListaContratosUg($filtro)
     {
 

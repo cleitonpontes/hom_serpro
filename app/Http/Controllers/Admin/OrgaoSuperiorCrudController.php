@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Execfin\EmpenhoCrudController;
 use App\Models\OrgaoSuperior;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -186,9 +187,9 @@ class OrgaoSuperiorCrudController extends CrudController
 
         $url = config('migracao.api_sta'). '/api/estrutura/orgaossuperiores';
 
-        $funcao = new EmpenhoCrudController;
+        $funcao = new AdminController();
 
-        $dados = $funcao->buscaDadosUrl($url);
+        $dados = $funcao->buscaDadosUrlMigracao($url);
 
         foreach ($dados as $dado) {
             $orgao_superior = OrgaoSuperior::where('codigo',$dado['codigo'])

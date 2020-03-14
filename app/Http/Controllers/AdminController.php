@@ -12,6 +12,7 @@ use App\Models\Unidade;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use MaddHatter\LaravelFullcalendar\Calendar;
+use phpDocumentor\Reflection\File;
 
 class AdminController extends Controller
 {
@@ -108,7 +109,7 @@ class AdminController extends Controller
         if (session()->get('user_ug_id')) {
 
             $unidade = Unidade::find(session()->get('user_ug_id'));
-            if($unidade->orgao->configuracao->padrao_processo_marcara){
+            if(isset($unidade->orgao->configuracao->padrao_processo_marcara)){
                 session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
             }
 
@@ -333,8 +334,8 @@ class AdminController extends Controller
     {
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 900);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 900);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
         $data = curl_exec($ch);
@@ -342,6 +343,13 @@ class AdminController extends Controller
         curl_close($ch);
 
         return json_decode($data, true);
+
+    }
+
+    public function buscaDadosUrlMigracao($url)
+    {
+
+        return json_decode(file_get_contents($url), true);
 
     }
 

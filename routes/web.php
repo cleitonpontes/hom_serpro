@@ -25,6 +25,8 @@ Route::group([
 ], function () {
     Route::get('/', 'IndexController@index');
     CRUD::resource('/contratos', 'ConsultaContratosCrudController');
+    CRUD::resource('/faturas', 'ConsultaFaturasCrudController');
+    CRUD::resource('/terceirizados', 'ConsultaTerceirizadosCrudController');
 });
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');

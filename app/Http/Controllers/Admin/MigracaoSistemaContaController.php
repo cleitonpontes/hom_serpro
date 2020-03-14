@@ -17,12 +17,20 @@ class MigracaoSistemaContaController extends Controller
     {
         $orgaoconfiguracao = Orgaoconfiguracao::find($orgaoconfiguracao_id);
 
+        $migracao = MigracaoSistemaConta::where('orgao_id',$orgaoconfiguracao->orgao_id)
+            ->first();
+
+        if(isset($migracao->id)){
+            \Alert::warning('Esse órgão já realizou migração!')->flash();
+            return redirect()->back();
+        }
+
         if (!isset($orgaoconfiguracao->id)) {
             \Alert::error('Configuração Inválida!')->flash();
             return redirect()->back();
         }
 
-        if ($orgaoconfiguracao->api_migracao_conta_url and $orgaoconfiguracao->api_migracao_conta_token) {
+        if (isset($orgaoconfiguracao->api_migracao_conta_url) and isset($orgaoconfiguracao->api_migracao_conta_token)) {
             $retorno = $this->executaMigracao($orgaoconfiguracao);
         }
 
@@ -41,28 +49,33 @@ class MigracaoSistemaContaController extends Controller
 
         $url = $this->montaUrl($orgaoconfiguracao, 'contratos');
         $base = new AdminController();
-        $dados = $base->buscaDadosUrl($url);
+        $dados = $base->buscaDadosUrlMigracao($url);
 
         if ($dados == []) {
             return $retorno;
         }
 
-        $i = 0;
+//        $i = 0;
         foreach ($dados as $dado) {
 
-//            $ndados = $base->buscaDadosUrl($dado);
-//
-//            foreach ($ndados as $ndado){
+//            $ndados = $base->buscaDadosUrlMigracao($dado);
+//            foreach ($ndados as $ndado) {
 //                $contrato = new MigracaoSistemaConta();
 //                $retorno = $contrato->trataDadosMigracaoConta($ndado);
 //            }
-//
-//            ($i==10) ? dd($retorno) : null;
+//            ($i == 10) ? dd($retorno) : null;
 //            $i++;
+
             MigracaoSistemaContaJob::dispatch($dado)->onQueue('migracaosistemaconta');
         }
 
         $retorno = true;
+
+        if($retorno){
+            $migracao = MigracaoSistemaConta::create([
+                'orgao_id' => $orgaoconfiguracao->orgao_id,
+            ]);
+        }
 
         return $retorno;
     }

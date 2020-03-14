@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Execfin\EmpenhoCrudController;
 use App\Models\Orgao;
 use Backpack\CRUD\CrudPanel;
@@ -252,9 +253,9 @@ class OrgaoCrudController extends CrudController
 
         $url = config('migracao.api_sta'). '/api/estrutura/orgaos';
 
-        $funcao = new EmpenhoCrudController;
+        $funcao = new AdminController();
 
-        $dados = $funcao->buscaDadosUrl($url);
+        $dados = $funcao->buscaDadosUrlMigracao($url);
 
         foreach ($dados as $dado) {
 
