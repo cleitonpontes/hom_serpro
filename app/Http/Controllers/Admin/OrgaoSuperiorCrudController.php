@@ -189,7 +189,7 @@ class OrgaoSuperiorCrudController extends CrudController
 
         $funcao = new AdminController();
 
-        $dados = $funcao->buscaDadosUrlMigracao($url);
+        $dados = $funcao->buscaDadosUrl($url);
 
         foreach ($dados as $dado) {
             $orgao_superior = OrgaoSuperior::where('codigo',$dado['codigo'])
