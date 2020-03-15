@@ -177,31 +177,7 @@
     {{--    </div>--}}
 @endsection
 @push('after_scripts')
-
     <script type="text/javascript">
-        $(window).on('load', function () {
-            var value = $("#tipo_contrato option:selected").text();
-
-            if (value == 'Empenho') {
-                mascaraEmpenho('#numero');
-            } else {
-                mascaraContrato('#numero');
-            }
-
-        });
-
-        $(document).on('change', '#tipo_contrato', function () {
-
-            var value = $("#tipo_contrato option:selected").text();
-
-            if (value == 'Empenho') {
-                mascaraEmpenho('#numero');
-            } else {
-                mascaraContrato('#numero');
-            }
-
-        });
-
         $(document).ready(function () {
 
             $("#orgao").each(function (i, obj) {
