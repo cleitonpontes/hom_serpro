@@ -13,7 +13,6 @@
     </section>
 @endsection
 
-
 @section('content')
     <div class="row">
         <div class="col-md-12">
@@ -187,8 +186,9 @@
                     $(obj).select2({
                         theme: 'bootstrap',
                         language: 'pt-BR',
-                        multiple: true,
+                        // multiple: true,
                         placeholder: "Selecione",
+                        allowClear: true,
                         // minimumInputLength: "2",
                         ajax: {
                             url: "/api/transparenciaorgaos",
@@ -222,7 +222,7 @@
                     $(obj).select2({
                         theme: 'bootstrap',
                         language: 'pt-BR',
-                        multiple: true,
+                        // multiple: true,
                         placeholder: "Selecione",
                         // minimumInputLength: "2",
                         ajax: {
@@ -259,7 +259,7 @@
                     $(obj).select2({
                         theme: 'bootstrap',
                         language: 'pt-BR',
-                        multiple: true,
+                        // multiple: true,
                         placeholder: "Selecione",
                         // minimumInputLength: "2",
                         ajax: {
@@ -283,7 +283,7 @@
                                 };
                             },
                             cache: true
-                        },
+                        }
                     });
                 }
             });
@@ -295,7 +295,7 @@
                     $(obj).select2({
                         theme: 'bootstrap',
                         language: 'pt-BR',
-                        multiple: true,
+                        // multiple: true,
                         placeholder: "Selecione",
                         // minimumInputLength: "2",
                         ajax: {

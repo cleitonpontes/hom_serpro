@@ -18,8 +18,9 @@ class TransparenciaIndexForm extends Form
                 'label' => 'Órgão',
 //                'rules' => "required",
                 'attr' => [
-                    'class' => 'form-control select2'
+                    'class' => 'form-control select2',
                 ],
+
 //                'choices' => $orgaos,
 //                'empty_value' => 'Todos',
             ])

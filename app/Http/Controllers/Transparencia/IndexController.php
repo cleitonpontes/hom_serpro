@@ -41,12 +41,6 @@ class IndexController extends Controller
                 'model' => ($request->input()) ? $request->input() : '',
                 'url' => route('transparencia.index'),
             ]
-//            [
-//                'orgaos' => $orgaos_array,
-//                'unidades' => $unidades_array,
-//                'fornecedores' => $fornecedores_array,
-//                'contratos' => $contratos,
-//            ]
         );
 
         if ($request->input()) {
