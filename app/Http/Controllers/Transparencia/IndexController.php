@@ -47,7 +47,9 @@ class IndexController extends Controller
             $data = $form->getFieldValues();
         }
 
-
+        if ($request->query()) {
+            $filtro = $request->input();
+        }
 
         return view('backpack::consultapublica',[
             'data' => $this->data,

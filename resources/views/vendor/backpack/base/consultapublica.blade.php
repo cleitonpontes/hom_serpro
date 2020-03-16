@@ -178,6 +178,24 @@
 @push('after_scripts')
     <script type="text/javascript">
         $(document).ready(function () {
+            @php
+                if (request()->query()) {
+                    $campos = request()->input();
+                    foreach ($campos as $key => $value){
+                        if($key == 'orgao'){
+                            $orgao = \App\Models\Orgao::select(\Illuminate\Support\Facades\DB::raw("CONCAT(codigo,' - ',nome) AS nome"), 'codigo')
+                                ->where('codigo', $value)
+                                ->pluck('nome', 'codigo')
+                                ->toArray();
+                        }
+                    }
+            }
+            @endphp
+            @foreach($orgao as $key => $value)
+                var newOption = new Option('{{$value}}', '{{$key}}', false, false);
+                $('#orgao').append(newOption).trigger('change');
+            @endforeach
+
 
             $("#orgao").each(function (i, obj) {
                 var form = $(obj).closest('form');

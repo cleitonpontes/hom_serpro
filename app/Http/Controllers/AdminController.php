@@ -109,16 +109,14 @@ class AdminController extends Controller
         if (session()->get('user_ug_id')) {
 
             $unidade = Unidade::find(session()->get('user_ug_id'));
+
             if(isset($unidade->orgao->configuracao->padrao_processo_marcara)){
                 session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
             }
-
-
             $contratos = new Contrato();
             $dados_contratos['novos'] = $contratos->buscaContratosNovosPorUg(session()->get('user_ug_id'));
             $dados_contratos['atualizados'] = $contratos->buscaContratosAtualizadosPorUg(session()->get('user_ug_id'));
             $dados_contratos['vencidos'] = $contratos->buscaContratosVencidosPorUg(session()->get('user_ug_id'));
-
         } else {
             $dados_contratos['novos'] = '0';
             $dados_contratos['atualizados'] = '0';
