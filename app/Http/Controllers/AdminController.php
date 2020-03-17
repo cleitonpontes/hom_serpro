@@ -110,7 +110,7 @@ class AdminController extends Controller
 
             $unidade = Unidade::find(session()->get('user_ug_id'));
 
-            if(isset($unidade->orgao->configuracao->padrao_processo_marcara)){
+            if (isset($unidade->orgao->configuracao->padrao_processo_marcara)) {
                 session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
             }
             $contratos = new Contrato();
@@ -398,6 +398,25 @@ class AdminController extends Controller
         $retorno = $d[0] . '.' . $d[1] . '/' . $d[2] . '-' . $d[3];
 
         return $retorno;
+    }
+
+    public function colors(int $quantidade)
+    {
+        $colors = [];
+        for ($i = 0; $i < $quantidade; $i++) {
+            $r = number_format(rand(0, 255), 0, '', '');
+            $g = number_format(rand(0, 255), 0, '', '');
+            $b = number_format(rand(0, 255), 0, '', '');
+
+            $colors[] = "rgba(" . $r . "," . $g . "," . $b . ", 0.5)";
+        }
+
+        return $colors;
+    }
+
+    public function retornaDataMaisQtdTipo(string $qtd, string $tipo, string $data)
+    {
+        return date('Y-m-d', strtotime("+" . $qtd . " " . $tipo, strtotime($data)));
     }
 
 }
