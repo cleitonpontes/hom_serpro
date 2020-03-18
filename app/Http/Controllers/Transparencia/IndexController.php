@@ -217,7 +217,7 @@ class IndexController extends Controller
         $anos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $anos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $anos->where('contratos.situacao', '=', true);
-        $anos->orderBy('ano', 'asc');
+        $anos->orderBy('ano', 'desc');
         if (isset($filtro['orgao'])) {
             $anos->where('orgaos.codigo', $filtro['orgao']);
         }
@@ -239,7 +239,7 @@ class IndexController extends Controller
         $contratos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $contratos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $contratos->where('contratos.situacao', '=', true);
-        $contratos->orderBy('ano', 'asc');
+        $contratos->orderBy('ano', 'desc');
         $contratos->groupBy('ano');
         if (isset($filtro['orgao'])) {
             $contratos->where('orgaos.codigo', $filtro['orgao']);
