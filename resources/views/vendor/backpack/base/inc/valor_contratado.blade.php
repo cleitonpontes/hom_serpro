@@ -5,6 +5,6 @@
         <h3 class="box-title">Valor Contratado</h3>
     </div>
     <div class="box-body" align="center">
-        <p style="font-size: xx-large"><b>R$ {{ number_format(($data['totalcontratado_numero']) ?? '102.25',2,',','.') }}</b></p>
+        <p style="font-size: xx-large"><b>R$ {{ number_format(($data['totalcontratado_numero']) ?? '0',2,',','.') }}</b></p>
     </div>
 </div>

@@ -2,7 +2,7 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
-## [5.0.17]- xx/03/2020
+## [5.0.17]- 18/03/2020
 
 ### Implementação  
 - Dashboard tela inicial do ambiente Transparência;
