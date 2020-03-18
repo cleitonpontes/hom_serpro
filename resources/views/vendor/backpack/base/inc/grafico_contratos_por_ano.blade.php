@@ -5,6 +5,6 @@
         <h3 class="box-title">Por Ano</h3>
     </div>
     <div class="box-body">
-        <p>Gráfico</p>
+        {!! $graficocontratosporano->render() !!}
     </div>
 </div>

@@ -5,6 +5,6 @@
         <h3 class="box-title">Cronograma mensal</h3>
     </div>
     <div class="box-body">
-        <p>Gráfico</p>
+        {!! $graficocontratoscronograma->render() !!}
     </div>
 </div>
