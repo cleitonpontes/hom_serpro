@@ -212,7 +212,7 @@ class IndexController extends Controller
         $base = new AdminController();
 
         $anos = DB::table('contratos');
-        $anos->select(DB::raw('DISTINCT right(contratos.numero, 4) as ano'));
+        $anos->select(DB::raw('DISTINCT extract(year from contratos.data_assinatura) as ano'));
         $anos->join('unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $anos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $anos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
@@ -234,7 +234,7 @@ class IndexController extends Controller
 
 
         $contratos = DB::table('contratos');
-        $contratos->select(DB::raw('right(contratos.numero, 4) as ano, count(contratos.numero)'));
+        $contratos->select(DB::raw('extract(year from contratos.data_assinatura) as ano, count(contratos.numero)'));
         $contratos->join('unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $contratos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $contratos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
