@@ -65,8 +65,37 @@ class ComunicaObserver
         //
     }
 
+    /**
+     * Dispara notificação para os usuários correspondentes, conforme $comunica
+     *
+     * @param Comunica $comunica
+     */
     public function disparaNotificacao(Comunica $comunica)
     {
+
+        $situacao = $comunica->situacao;
+        $orgao = $comunica->orgao();
+        $unidade = $comunica->unidade();
+
+        dd($situacao, $orgao, $unidade);
+
+        if ($comunica->situacao != 'P') {
+            return false;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         if ($comunica->situacao == 'P') {
 
             $users = BackpackUser::all();
@@ -96,4 +125,5 @@ class ComunicaObserver
             $comunica->save();
         }
     }
+
 }
