@@ -118,6 +118,7 @@ class IndexController extends Controller
         $referencias->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $referencias->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $referencias->where('contratos.situacao', '=', true);
+        $referencias->where('contratocronograma.deleted_at', '=', null );
         $referencias->groupBy(['anoref', 'mesref']);
         $referencias->orderBy('anoref', 'asc');
         $referencias->orderBy('mesref', 'asc');
@@ -143,6 +144,7 @@ class IndexController extends Controller
         $valores->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $valores->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $valores->where('contratos.situacao', '=', true);
+        $valores->where('contratocronograma.deleted_at', '=', null );
         $valores->groupBy(['anoref', 'mesref']);
         $valores->orderBy('anoref', 'asc');
         $valores->orderBy('mesref', 'asc');
