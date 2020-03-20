@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\BackpackUser;
 use App\Models\Comunica;
 use App\Notifications\ComunicaNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Models\Role;
 
 class ComunicaObserver
@@ -73,57 +74,57 @@ class ComunicaObserver
     public function disparaNotificacao(Comunica $comunica)
     {
 
-        $situacao = $comunica->situacao;
-        $orgao = $comunica->orgao();
-        $unidade = $comunica->unidade();
-
-        dd($situacao, $orgao, $unidade);
-
-        if ($comunica->situacao != 'P') {
-            return false;
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         if ($comunica->situacao == 'P') {
+            $usuarios = BackpackUser::with('unidade');
 
-            $users = BackpackUser::all();
-            if ($comunica->unidade_id) {
-                $ug = $comunica->unidade_id;
-                $users->where('ugprimaria', $comunica->unidade_id)
-                    ->orWhereHas('unidades', function ($q) use ($ug) {
-                        $q->where('id', '=', $ug);
-                    })
-                    ->get();
+            $orgao = $comunica->orgao_id;
+            if (!is_null($orgao) && $orgao != '') {
+                $usuarios->whereHas('unidade', function (Builder $query) use ($orgao) {
+                    $query->where('orgao_id', $orgao);
+                });
             }
 
-            if ($comunica->role_id) {
-                $role = Role::find($comunica->role_id);
+            $unidade = $comunica->unidade_id;
+            if (!is_null($unidade) && $unidade != '') {
+                $usuarios->where('ugprimaria', $unidade);
             }
+
+            $users = $usuarios->get();
 
             foreach ($users as $user) {
-                if ($comunica->role_id) {
-                    if ($user->hasRole($role->name)) {
-                        $user->notify(new ComunicaNotification($comunica,$user));
-                    }
-                } else {
-                    $user->notify(new ComunicaNotification($comunica,$user));
+                $notifica = $this->deveNotificarUsuario($user, $comunica->role_id);
+
+                if ($notifica) {
+                    $user->notify(new ComunicaNotification($comunica, $user));
                 }
             }
+
             $comunica->situacao = 'E';
             $comunica->save();
         }
+    }
+
+    /**
+     * Efetua validação para notificar ou não dado usuário
+     *
+     * @param BackpackUser $user
+     * @param int $perfil
+     * @return bool
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function deveNotificarUsuario(BackpackUser $user, $perfil = null)
+    {
+        $notifica = true;
+
+        if ($perfil) {
+            $role = Role::find($perfil);
+
+            if (!$user->hasRole($role->name)) {
+                $notifica = false;
+            }
+        }
+
+        return $notifica;
     }
 
 }

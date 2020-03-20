@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\BackpackUser;
 use App\Models\Comunica;
 use App\Models\Orgao;
 use App\Models\Unidade;
@@ -13,6 +14,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\ComunicaRequest as StoreRequest;
 use App\Http\Requests\ComunicaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
@@ -72,7 +74,6 @@ class ComunicaCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here

@@ -20,10 +20,8 @@ class BackpackUser extends User
     use LogsActivity;
     use SoftDeletes;
 
-
     protected static $logFillable = true;
     protected static $logName = 'usuario';
-
 
     protected $fillable = [
         'cpf',
@@ -33,7 +31,6 @@ class BackpackUser extends User
         'password',
         'senhasiafi'
     ];
-
 
     protected $table = 'users';
 
@@ -59,14 +56,15 @@ class BackpackUser extends User
         return $this->email;
     }
 
-    public function havePermissionUg($id){
+    public function havePermissionUg($id)
+    {
 
-        $ugprimaria = $this->where('ugprimaria','=',$id)->where('id','=',$this->id)->first();
+        $ugprimaria = $this->where('ugprimaria', '=', $id)->where('id', '=', $this->id)->first();
         $ugsecundaria = $this->whereHas('unidades', function ($query) use ($id) {
             $query->where('unidade_id', '=', $id);
-        })->where('id','=',$this->id)->first();
+        })->where('id', '=', $this->id)->first();
 
-        if($ugprimaria or $ugsecundaria) {
+        if ($ugprimaria or $ugsecundaria) {
             return true;
         }
         return false;
@@ -81,23 +79,46 @@ class BackpackUser extends User
 
     public function getUGPrimaria()
     {
-        if($this->ugprimaria){
+        $retorno = '-';
+
+        if ($this->ugprimaria) {
             $unidade = Unidade::find($this->ugprimaria);
-            return $unidade->codigo . ' - ' . $unidade->nomeresumido;
-        }else{
-            return '-';
+            $retorno = $unidade->codigo . ' - ' . $unidade->nomeresumido;
         }
 
-
+        return $retorno;
     }
 
+    /**
+     * Retorna, segundo relacionamento, único registro da tabela Unidades
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function unidade()
+    {
+        return $this->hasOne(Unidade::class, 'id', 'ugprimaria');
+    }
+
+    /**
+     * Retorna, segundo relacionamento, todos os registros em UnidadesUsers
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function unidades()
     {
         return $this->belongsToMany(Unidade::class, 'unidadesusers', 'user_id', 'unidade_id');
     }
 
+    /**
+     * Retorna, segundo relacionamento, único registro da tabela Unidades
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @todo Rever nomenclatura deste método. Se for o caso, prefira o método $this->unidade()
+     */
     public function ugPrimariaRelation()
     {
         return $this->belongsTo(Unidade::class, 'ugprimaria');
     }
+
 }
