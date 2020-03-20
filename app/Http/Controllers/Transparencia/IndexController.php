@@ -38,6 +38,8 @@ class IndexController extends Controller
      */
     public function index(Request $request)
     {
+        $base = new AdminController();
+
         $this->data['title'] = "Área Consulta Pública";//trans('backpack::base.dashboard'); // set the page title
         $filtro = [];
 
@@ -57,13 +59,37 @@ class IndexController extends Controller
         $this->data['totalcontratado_numero'] = $this->calculaTotalContratado($filtro);
         $graficoCategoriaContratos = $this->geraGraficoCategoriaContratos($filtro);
         $graficoContratosPorAno = $this->geraGraficoContratosPorAno($filtro);
-        $graficoContratosCronograma = $this->geraGraficoContratosCronograma($filtro);
 
-        $base = new AdminController();
-        $dt30 = $base->retornaDataMaisQtdTipo('30', 'days', date('Y-m-d'));
-        $dt60 = $base->retornaDataMaisQtdTipo('60', 'days', date('Y-m-d'));
-        $dt90 = $base->retornaDataMaisQtdTipo('90', 'days', date('Y-m-d'));
-        $dt180 = $base->retornaDataMaisQtdTipo('180', 'days', date('Y-m-d'));
+        $datas_anoref['inicio_cronograma'] = $base->retornaDataMaisOuMenosQtdTipoFormato('Y','-','2', 'years', date('Y-m-d'));
+        $datas_anoref['fim_cronograma'] = $base->retornaDataMaisOuMenosQtdTipoFormato('Y','+','2', 'years', date('Y-m-d'));
+        $graficoContratosCronograma = $this->geraGraficoContratosCronograma($filtro,$datas_anoref);
+
+
+        $dt30 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','30', 'days', date('Y-m-d'));
+        $dt60 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','60', 'days', date('Y-m-d'));
+        $dt90 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','90', 'days', date('Y-m-d'));
+        $dt180 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','180', 'days', date('Y-m-d'));
+        $dt999 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','99', 'years', date('Y-m-d'));
+        $dt000 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','-','99', 'years', date('Y-m-d'));
+
+
+        $url_datas['dt30'] = '{"from":"'.$dt000.'","to":"'.$dt30.'"}';
+        $url_datas['dt3060'] = '{"from":"'.$dt30.'","to":"'.$dt60.'"}';
+        $url_datas['dt6090'] = '{"from":"'.$dt60.'","to":"'.$dt90.'"}';
+        $url_datas['dt90180'] = '{"from":"'.$dt90.'","to":"'.$dt180.'"}';
+        $url_datas['dt180'] = '{"from":"'.$dt180.'","to":"'.$dt999.'"}';
+
+        $url_filtro = '';
+        if (isset($filtro['orgao'])) {
+            $url_filtro .= 'orgao='.strval($filtro['orgao']).'&';
+        }
+        if (isset($filtro['unidade'])) {
+            $url_filtro .= 'unidade='.strval($filtro['unidade']).'&';
+        }
+        if (isset($filtro['fornecedor'])) {
+            $url_filtro .= 'fornecedor='.strval($filtro['fornecedor']).'&';
+        }
+
 
         $this->data['contratos_total_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_TOTAL,
             $filtro);
@@ -103,13 +129,21 @@ class IndexController extends Controller
             'form' => $form,
             'graficocategoriacontratos' => $graficoCategoriaContratos,
             'graficocontratosporano' => $graficoContratosPorAno,
-            'graficocontratoscronograma' => $graficoContratosCronograma
+            'graficocontratoscronograma' => $graficoContratosCronograma,
+            'anoref' => $datas_anoref,
+            'url_filtro' => $url_filtro,
+            'url_datas' => $url_datas
+
         ]);
     }
 
-    private function geraGraficoContratosCronograma(array $filtro = null)
+    private function geraGraficoContratosCronograma(array $filtro = null, array $datas = null)
     {
         $base = new AdminController();
+        $anoref=[];
+        for($datas['inicio_cronograma'];$datas['inicio_cronograma'] <= $datas['fim_cronograma'];$datas['inicio_cronograma']++){
+            $anoref[] =  strval($datas['inicio_cronograma']);
+        }
 
         $referencias = DB::table('contratocronograma');
         $referencias->select(DB::raw('CONCAT(contratocronograma.mesref,\'/\',contratocronograma.anoref) AS referencia'));
@@ -119,6 +153,7 @@ class IndexController extends Controller
         $referencias->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $referencias->where('contratos.situacao', '=', true);
         $referencias->where('contratocronograma.deleted_at', '=', null );
+        $referencias->whereIn('contratocronograma.anoref',$anoref);
         $referencias->groupBy(['anoref', 'mesref']);
         $referencias->orderBy('anoref', 'asc');
         $referencias->orderBy('mesref', 'asc');
@@ -145,6 +180,7 @@ class IndexController extends Controller
         $valores->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $valores->where('contratos.situacao', '=', true);
         $valores->where('contratocronograma.deleted_at', '=', null );
+        $valores->whereIn('contratocronograma.anoref', $anoref);
         $valores->groupBy(['anoref', 'mesref']);
         $valores->orderBy('anoref', 'asc');
         $valores->orderBy('mesref', 'asc');
@@ -167,7 +203,7 @@ class IndexController extends Controller
         $chartjs = app()->chartjs
             ->name('contratosCronograma')
             ->type('bar')
-            ->size(['width' => 650, 'height' => 150])
+            ->size(['width' => 650, 'height' => 200])
             ->labels($refs)
             ->datasets([
                 [

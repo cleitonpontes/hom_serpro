@@ -414,9 +414,9 @@ class AdminController extends Controller
         return $colors;
     }
 
-    public function retornaDataMaisQtdTipo(string $qtd, string $tipo, string $data)
+    public function retornaDataMaisOuMenosQtdTipoFormato(string $formato, string $sinal, string $qtd, string $tipo, string $data)
     {
-        return date('Y-m-d', strtotime("+" . $qtd . " " . $tipo, strtotime($data)));
+        return date($formato, strtotime($sinal . $qtd . " " . $tipo, strtotime($data)));
     }
 
 }
