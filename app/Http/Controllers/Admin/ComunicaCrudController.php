@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\BackpackUser;
+use App\Models\Comunica;
+use App\Models\Orgao;
 use App\Models\Unidade;
 use App\Repositories\Comunica as Repo;
+use App\Repositories\Unidade as RepoUnidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ComunicaRequest as StoreRequest;
 use App\Http\Requests\ComunicaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
@@ -23,6 +28,7 @@ class ComunicaCrudController extends CrudController
 
     public function setup()
     {
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -48,25 +54,47 @@ class ComunicaCrudController extends CrudController
         */
 
         // TODO: remove setFromDb() and manually define Fields and Columns
-        $colunas = $this->Colunas();
-        $this->crud->addColumns($colunas);
-
-        $unidades = Unidade::select(DB::raw("CONCAT(codigo, ' - ', nomeresumido) AS nome"), 'id')
-            ->orderBy('codigo', 'asc')
-            ->pluck('nome', 'id')
-            ->toArray();
-
-        $grupos = Role::pluck('name', 'id')
-            ->toArray();
-
-        $idOrgao = $this->retornaOrgaoPorUnidade(backpack_user()->ugprimaria);
-
-        $campos = $this->Campos($unidades, $grupos, $idOrgao);
-        $this->crud->addFields($campos);
+        $this->crud->addColumns($this->Colunas());
+        $this->crud->addFields($this->Campos());
 
         // add asterisk for fields that are required in ComunicaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+    }
+
+    public function store(StoreRequest $request)
+    {
+
+        // your additional operations before save here
+        $redirect_location = parent::storeCrud($request);
+        // your additional operations after save here
+        // use $this->data['entry'] or $this->crud->entry
+        return $redirect_location;
+    }
+
+    public function update(UpdateRequest $request)
+    {
+        // your additional operations before save here
+        $redirect_location = parent::updateCrud($request);
+        // your additional operations after save here
+        // use $this->data['entry'] or $this->crud->entry
+        return $redirect_location;
+    }
+
+    public function show($id)
+    {
+
+        $content = parent::show($id);
+
+        $this->crud->removeColumns([
+            'orgao_id',
+            'unidade_id',
+            'role_id',
+            'mensagem',
+            'situacao',
+        ]);
+
+        return $content;
     }
 
     /**
@@ -76,7 +104,8 @@ class ComunicaCrudController extends CrudController
      */
     public function Colunas()
     {
-        $colunas = [
+
+        return [
             [
                 'name' => 'getOrgao',
                 'label' => 'Órgão',
@@ -168,115 +197,96 @@ class ComunicaCrudController extends CrudController
             ]
         ];
 
-        return $colunas;
     }
 
     /**
      * Retorna array dos campos para exibição no form
      *
-     * @param array $unidades
-     * @param array $grupos
      * @return array
      */
-    public function Campos($unidades = [], $grupos = [], $idOrgao = null)
+    public function Campos()
     {
-        $campos = [
-            [ // select_from_array
-                'name' => 'unidade_id',
-                'label' => "Unidade",
+
+        $repo = new Repo();
+        $repoUnidade = new RepoUnidade();
+
+        $grupos = Role::pluck('name', 'id')->toArray();
+        $orgaos = Orgao::orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
+        $unidades = $repoUnidade->getUnidadesParaComboPorPerfil(session('user_orgao_id'), session('user_ug_id'), $repo->getOrgao(), $repo->getUnidade());
+
+        $campos = array();
+
+        if (backpack_user()->hasRole('Administrador')) {
+            $campos[] = [
+                'name' => 'orgao_id',
+                'label' => "Órgão",
                 'type' => 'select2_from_array',
-                'options' => $unidades,
-                'placeholder' => "Todas",
-                'allows_null' => true,
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-6'
-                ],
-            ],
-            [ // select_from_array
-                'name' => 'role_id',
-                'label' => "Grupos",
-                'type' => 'select2_from_array',
-                'options' => $grupos,
+                'options' => $orgaos,
                 'placeholder' => "Todos",
-                'allows_null' => true,
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-6'
-                ],
-            ],
-            [ // select_from_array
-                'name' => 'assunto',
-                'label' => "Assunto",
-                'type' => 'text',
-                'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
-                ]
-            ],
-            [ // select_from_array
-                'name' => 'mensagem',
-                'label' => "Mensagem",
-                'type' => 'ckeditor',
-            ],
-            [   // Upload
-                'name' => 'anexos',
-                'label' => 'Anexos',
-                'type' => 'upload_multiple',
-                'upload' => true,
-                'disk' => 'local'
-                // if you store files in the /public folder, please ommit this; if you store them in /storage or S3, please specify it;
-            ],
-            [ // select_from_array
-                'name' => 'situacao',
-                'label' => "Situação",
-                'type' => 'select_from_array',
-                'options' => $this->retornaSituacoesComunica(),
-                'allows_null' => true,
-            ],
-            [
+                'allows_null' => true
+            ];
+        }
+
+        if (backpack_user()->hasRole('Administrador Órgão')) {
+            $campos[] = [
                 'name' => 'orgao_id',
                 'label' => "Órgão",
                 'type' => 'hidden',
-                'value' => $idOrgao,
-                'placeholder' => "Todos",
-                'allows_null' => true,
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-6'
-                ]
+                'value' => session('user_orgao_id'),
+                'allows_null' => true
+            ];
+        }
+
+        $campos[] = [
+            'name' => 'unidade_id',
+            'label' => "Unidade",
+            'type' => 'select2_from_array',
+            'options' => $unidades,
+            'placeholder' => "Todas",
+            'allows_null' => true
+        ];
+
+        $campos[] = [
+            'name' => 'role_id',
+            'label' => "Grupos",
+            'type' => 'select2_from_array',
+            'options' => $grupos,
+            'placeholder' => "Todos",
+            'allows_null' => true
+        ];
+
+        $campos[] = [
+            'name' => 'assunto',
+            'label' => "Assunto",
+            'type' => 'text',
+            'attributes' => [
+                'onkeyup' => "maiuscula(this)"
             ]
         ];
 
+        $campos[] = [
+            'name' => 'mensagem',
+            'label' => "Mensagem",
+            'type' => 'ckeditor'
+        ];
+
+        $campos[] = [
+            'name' => 'anexos',
+            'label' => 'Anexos',
+            'type' => 'upload_multiple',
+            'upload' => true,
+            'disk' => 'local'
+        ];
+
+        $campos[] = [ // select_from_array
+            'name' => 'situacao',
+            'label' => "Situação",
+            'type' => 'select_from_array',
+            'options' => $this->retornaSituacoesComunica(),
+            'allows_null' => true
+        ];
+
         return $campos;
-    }
-
-    public function store(StoreRequest $request)
-    {
-        // your additional operations before save here
-        $redirect_location = parent::storeCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
-    }
-
-    public function update(UpdateRequest $request)
-    {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
-    }
-
-    public function show($id)
-    {
-        $content = parent::show($id);
-
-        $this->crud->removeColumns([
-            'unidade_id',
-            'role_id',
-            'mensagem',
-            'situacao',
-        ]);
-
-        return $content;
     }
 
     /**
@@ -287,12 +297,13 @@ class ComunicaCrudController extends CrudController
      */
     private function retornaSituacoesComunica()
     {
+
         $repo = new Repo();
         return $repo->getSituacoes();
     }
 
     /**
-     * asdasds
+     * Retorna Orgão conforme $idUnidade
      *
      * @param $idUnidade
      * @return string
@@ -300,6 +311,7 @@ class ComunicaCrudController extends CrudController
      */
     private function retornaOrgaoPorUnidade($idUnidade)
     {
+
         $repo = new Repo();
         return $repo->retornaOrgaoPorUnidade($idUnidade);
     }
