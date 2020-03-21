@@ -52,7 +52,7 @@ return [
     'actions'                   => 'Ações',
     'preview'                   => 'Visualizar',
     'delete'                    => 'Excluir',
-    'admin'                     => 'Sistema Conta',
+    'admin'                     => 'Comprasnet Contratos',
     'details_row'               => 'Esta são os detalhes do registro. Faça as modificações necessárias.',
     'details_row_loading_error' => 'Ocorreu um erro durante o carregamento dos detalhes. Por favor, tente novamente.',
 

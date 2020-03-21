@@ -31,7 +31,7 @@ class ContratoarquivoRequest extends FormRequest
         $rules = [
             'contrato_id' => 'required',
             'tipo' => 'required',
-            'processo' => 'required',
+            'processo' => 'required|max:255',
             'descricao' => 'max:255',
             'arquivos.*' => $arquivos,
         ];

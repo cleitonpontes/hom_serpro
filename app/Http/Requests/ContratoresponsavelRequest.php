@@ -31,6 +31,7 @@ class ContratoresponsavelRequest extends FormRequest
             'funcao_id' => 'required',
             'portaria' => 'required|max:255',
             'data_inicio' => 'required',
+            'data_fim' => "required_if:situacao,0",
             'situacao' => 'required',
         ];
     }

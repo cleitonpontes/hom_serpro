@@ -19,6 +19,18 @@ Route::get('/home', function () {
     return redirect('/inicio');
 });
 
+Route::group([
+    'prefix' => 'transparencia',
+    'namespace' => 'Transparencia',
+], function () {
+    Route::get('/', 'IndexController@index')->name('transparencia.index');
+    CRUD::resource('/contratos', 'ConsultaContratosCrudController')->name('transparencia.consulta.contratos');
+    CRUD::resource('/faturas', 'ConsultaFaturasCrudController')->name('transparencia.consulta.faturas');
+    CRUD::resource('/terceirizados', 'ConsultaTerceirizadosCrudController')->name('transparencia.consulta.terceirizados');
+});
+
+Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+
 
 Route::group(
     [

@@ -90,7 +90,7 @@ class Contratocronograma extends Model
                 return '';
             }
 
-            $contratohistorico->cronograma()->delete();
+//            $contratohistorico->cronograma()->delete();
             $dados = $this->montaCronograma($contratohistorico);
             $this->inserirDadosEmMassa($dados);
         }
@@ -105,6 +105,7 @@ class Contratocronograma extends Model
      */
     private function montaCronograma(Contratohistorico $contratohistorico)
     {
+
         if ($contratohistorico->data_inicio_novo_valor) {
             $data = date_create($contratohistorico->data_inicio_novo_valor);
             $mesinicio = new \DateTime($contratohistorico->data_inicio_novo_valor);
@@ -126,8 +127,10 @@ class Contratocronograma extends Model
             $t = $contratohistorico->num_parcelas;
         }
 
+
         $mesref = date_format($data, 'Y-m');
         $mesrefnew = $mesref . "-01";
+
 
         $dados = [];
         for ($i = 1; $i <= $t; $i++) {
@@ -140,12 +143,12 @@ class Contratocronograma extends Model
                 ->where('retroativo', '=', 'f')
                 ->get();
 
-            $valor = $contratohistorico->valor_parcela;
+            $valor = number_format($contratohistorico->valor_parcela,2,'.','');
 
-            if ($buscacron) {
+            if ($buscacron and ($contratohistorico->tipo_id == 65 or $contratohistorico->tipo_id == 68)) {
                 $v = $valor;
                 foreach ($buscacron as $b) {
-                    $v = $valor - $b->valor;
+                    $v = number_format($v,2,'.', '') - number_format($b->valor,2,'.','');
                 }
                 $dados[] = [
                     'contrato_id' => $contratohistorico->contrato_id,
@@ -154,7 +157,7 @@ class Contratocronograma extends Model
                     'mesref' => date('m', strtotime($ref)),
                     'anoref' => date('Y', strtotime($ref)),
                     'vencimento' => $vencimento,
-                    'valor' => $v,
+                    'valor' => number_format($v,2,'.', ''),
                     'soma_subtrai' => ($v < 0) ? false : true,
                 ];
             } else {

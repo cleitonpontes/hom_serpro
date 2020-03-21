@@ -24,7 +24,6 @@ class ContratoObserve
                 'observacao' => 'CELEBRAÇÃO DO CONTRATO: ' . $con->numero . ' DE ACORDO COM PROCESSO NÚMERO: ' . $con->processo,
             ]);
 
-
     }
 
     /**

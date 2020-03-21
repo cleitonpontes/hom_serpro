@@ -1,6 +1,102 @@
 # Changelog
 
-Todas as alterações do Sistema Conta serão documentadas neste arquivo.
+Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
+
+## [5.0.18]- 20/03/2020
+
+### Implementação  
+- Links para consulta de contratos no Dashboard ambiente Transparência;
+
+### Bug  
+- Correção de erro no Gráfico Cronograma do Ambiente Transparência.
+
+## [5.0.17]- 18/03/2020
+
+### Implementação  
+- Dashboard tela inicial do ambiente Transparência;
+
+### Melhoria
+- Melhoria na escrita do código do Painel de Orçamento.
+
+### Bug  
+- Correção de erro no JOB de atualização do Saldo de Empenhos.
+
+## [5.0.16]- 14/03/2020
+
+### Implementação  
+- Tabela de controle de Migração Sistema Conta;
+- Scripts de Migração do Sistema Conta 4.-, integrado com Api-Migra;
+- Configuração de Órgão com formato de Processo Administrativo;
+- Lista Faturas no Ambiente Transparência;
+- Lista Terceirizados no Ambiente Transparência.
+
+### Melhoria
+- No campo Processo para busca de formato conforme configuração Órgão.
+- Inclsão de Fornecedor no Filtro da Lista Contratos no Ambiente Transparência.
+- Desempenho dos combobox de UG Primaria e Secundária para busca via AJAX no cadastro de Usuários.
+
+## [5.0.15]- 26/02/2020
+
+### Implementação  
+- Tabela de controle de Saldo de Itens (saldohistoricoitens).
+
+### Bug  
+- Correção de erro na API de Contratos ao relacionar Empenhos sem Plano Interno.
+
+## [5.0.14]- 13/02/2020
+
+### Implementação  
+- Ambiente público Transparência para disponibilização de Dados do Sistema.
+- Consulta de Contratos Pública.
+
+## [5.0.13]- 12/02/2020
+
+### Implementação  
+- Importação de Todos os Órgãos Superiores, Órgãos e Unidades.
+
+### Melhoria  
+- Disponibilização dos campos "Subcategoria" e "Unidades Requisitantes" na API de Contratos por Unidade e Órgão.
+
+## [5.0.12]- 29/01/2020
+
+### Adequação Logo 
+- Mudança da Logomarca do Sistema para Comprasnet contratos.
+
+## [5.0.11]- 23/01/2020
+
+### Bug  
+- Criação da Validação das Data de Assinatura e Publicação do Cadastro do Contrato.
+
+## [5.0.10]- 15/01/2020
+
+### Bug  
+- Correção de erro de codificação UTF-8 nas rotinas de Alertas.
+
+## [5.0.9]- 14/01/2020
+
+### Bug  
+- Correção de erro ao montar Cronograma Contrato.
+
+### Melhoria  
+- Atualização do formato do formato de versionamentos.
+
+## [5.0.008]- 08/01/2020
+
+### Bug  
+- Correção de erro na inclusão de Ocorrências do Tipo Conclusivas.
+
+## [5.0.007]- 12/12/2019
+
+### Bug  
+- Correção de erro da migração de empenhos Timeout do CURl.
+
+## [5.0.006]- 03/12/2019
+
+### Implementação  
+- Implementação do Extrato do Contrato com dados Básicos do mesmo.
+
+### Segurança
+- Atualização do código para permitir versão PHP 7.3.
 
 ## [5.0.005]- 31/10/2019
 

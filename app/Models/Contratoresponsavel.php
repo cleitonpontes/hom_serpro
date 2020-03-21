@@ -43,6 +43,14 @@ class Contratoresponsavel extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function inserirContratoresponsavelMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
     public function getContrato()
     {
         if($this->contrato_id){

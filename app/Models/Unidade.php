@@ -29,9 +29,19 @@ class Unidade extends Model
         'situacao'
     ];
 
+
+    public function buscaUnidadeExecutoraPorCodigo($codigo)
+    {
+        $unidade = $this->where('codigo', $codigo)
+            ->where('tipo', 'E')
+            ->first();
+
+        return $unidade->id;
+    }
+
     public function getOrgao()
     {
-        if($this->orgao_id){
+        if ($this->orgao_id) {
             $orgao = Orgao::find($this->orgao_id);
             return $orgao->codigo . " - " . $orgao->nome;
         }
@@ -42,15 +52,15 @@ class Unidade extends Model
     public function getTipo()
     {
 
-        if($this->tipo == 'E'){
+        if ($this->tipo == 'E') {
             $tipo = "Executora";
         }
 
-        if($this->tipo == 'C'){
+        if ($this->tipo == 'C') {
             $tipo = "Controle";
         }
 
-        if($this->tipo == 'S'){
+        if ($this->tipo == 'S') {
             $tipo = "Setorial Contábil";
         }
 
@@ -69,13 +79,15 @@ class Unidade extends Model
         return $this->belongsToMany(BackpackUser::class, 'unidadesusers', 'unidade_id', 'user_id');
     }
 
-    public function contratos(){
+    public function contratos()
+    {
 
         return $this->hasMany(Contrato::class, 'unidade_id');
 
     }
 
-    public function configuracao(){
+    public function configuracao()
+    {
 
         return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
 

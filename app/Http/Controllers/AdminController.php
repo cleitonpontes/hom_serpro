@@ -12,6 +12,7 @@ use App\Models\Unidade;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use MaddHatter\LaravelFullcalendar\Calendar;
+use phpDocumentor\Reflection\File;
 
 class AdminController extends Controller
 {
@@ -72,7 +73,7 @@ class AdminController extends Controller
             ->join('contratos', function ($join) {
                 $join->on('codigoitens.id', '=', 'contratos.categoria_id');
             })
-            ->where('contratos.unidade_id',session()->get('user_ug_id'))
+            ->where('contratos.unidade_id', session()->get('user_ug_id'))
             ->orderBy('codigoitens.id', 'asc')->pluck('descricao')->toArray();
 
 
@@ -86,7 +87,7 @@ class AdminController extends Controller
         $contrato = DB::table('contratos')
             ->select(DB::raw('categoria_id, count(categoria_id)'))
             ->where('situacao', '=', true)
-            ->where('unidade_id',session()->get('user_ug_id'))
+            ->where('unidade_id', session()->get('user_ug_id'))
             ->orderBy('categoria_id', 'asc')
             ->groupBy('categoria_id')
             ->pluck('count')->toArray();
@@ -105,13 +106,18 @@ class AdminController extends Controller
             ]);
 
         $dados_contratos = [];
-        if(session()->get('user_ug_id')){
-            $contratos = new Contrato();
-            $dados_contratos['novos']  = $contratos->buscaContratosNovosPorUg(session()->get('user_ug_id'));
-            $dados_contratos['atualizados']  = $contratos->buscaContratosAtualizadosPorUg(session()->get('user_ug_id'));
-            $dados_contratos['vencidos']  = $contratos->buscaContratosVencidosPorUg(session()->get('user_ug_id'));
+        if (session()->get('user_ug_id')) {
 
-        }else{
+            $unidade = Unidade::find(session()->get('user_ug_id'));
+
+            if (isset($unidade->orgao->configuracao->padrao_processo_marcara)) {
+                session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
+            }
+            $contratos = new Contrato();
+            $dados_contratos['novos'] = $contratos->buscaContratosNovosPorUg(session()->get('user_ug_id'));
+            $dados_contratos['atualizados'] = $contratos->buscaContratosAtualizadosPorUg(session()->get('user_ug_id'));
+            $dados_contratos['vencidos'] = $contratos->buscaContratosVencidosPorUg(session()->get('user_ug_id'));
+        } else {
             $dados_contratos['novos'] = '0';
             $dados_contratos['atualizados'] = '0';
             $dados_contratos['vencidos'] = '0';
@@ -305,20 +311,112 @@ class AdminController extends Controller
     {
         $mensagens = backpack_user()->notifications()->paginate(10);
 
-        return view('backpack::mensagens',['mensagens' => $mensagens]);
+        return view('backpack::mensagens', ['mensagens' => $mensagens]);
     }
 
     public function lerMensagem($id)
     {
         $notificacao = backpack_user()->notifications()->find($id);
         $notificacao->update(['read_at' => now()]);
-        return view('backpack::mensagem',['notificacao' => $notificacao]);
+        return view('backpack::mensagem', ['notificacao' => $notificacao]);
     }
 
-    public function phpInfo(){
+    public function phpInfo()
+    {
 
 //        phpinfo();
 
+    }
+
+    public function buscaDadosUrl($url)
+    {
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 900);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 900);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode($data, true);
+
+    }
+
+    public function buscaDadosUrlMigracao($url)
+    {
+
+        return json_decode(file_get_contents($url), true);
+
+    }
+
+    public function formataCnpjCpfTipo($dado, $tipo)
+    {
+        $retorno = $dado;
+
+        if ($tipo == 'JURIDICA') {
+            $d[0] = substr($dado, 0, 2);
+            $d[1] = substr($dado, 2, 3);
+            $d[2] = substr($dado, 5, 3);
+            $d[3] = substr($dado, 8, 4);
+            $d[4] = substr($dado, 12, 2);
+
+            $retorno = $d[0] . '.' . $d[1] . '.' . $d[2] . '/' . $d[3] . '-' . $d[4];
+
+        }
+
+        if ($tipo == 'FISICA') {
+            $d[0] = substr($dado, 0, 3);
+            $d[1] = substr($dado, 3, 3);
+            $d[2] = substr($dado, 6, 3);
+            $d[3] = substr($dado, 9, 2);
+
+            $retorno = $d[0] . '.' . $d[1] . '.' . $d[2] . '-' . $d[3];
+        }
+
+        return $retorno;
+    }
+
+    public function formataContrato($dado)
+    {
+        $d[0] = substr($dado, 0, 4);
+        $d[1] = substr($dado, 4, 4);
+
+        $retorno = $d[0] . '/' . $d[1];
+
+        return $retorno;
+    }
+
+    public function formataProcesso($dado)
+    {
+        $d[0] = substr($dado, 0, 5);
+        $d[1] = substr($dado, 5, 6);
+        $d[2] = substr($dado, 11, 4);
+        $d[3] = substr($dado, 15, 2);
+
+        $retorno = $d[0] . '.' . $d[1] . '/' . $d[2] . '-' . $d[3];
+
+        return $retorno;
+    }
+
+    public function colors(int $quantidade)
+    {
+        $colors = [];
+        for ($i = 0; $i < $quantidade; $i++) {
+            $r = number_format(rand(0, 255), 0, '', '');
+            $g = number_format(rand(0, 255), 0, '', '');
+            $b = number_format(rand(0, 255), 0, '', '');
+
+            $colors[] = "rgba(" . $r . "," . $g . "," . $b . ", 0.5)";
+        }
+
+        return $colors;
+    }
+
+    public function retornaDataMaisOuMenosQtdTipoFormato(string $formato, string $sinal, string $qtd, string $tipo, string $data)
+    {
+        return date($formato, strtotime($sinal . $qtd . " " . $tipo, strtotime($data)));
     }
 
 }

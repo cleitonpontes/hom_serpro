@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\AdminController;
+use Faker\ORM\Spot\EntityPopulator;
 use Illuminate\Support\Facades\DB;
 use function foo\func;
 use Illuminate\Database\Eloquent\Model;
@@ -64,6 +66,15 @@ class Contrato extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
+    public function inserirContratoMigracaoConta(array $dados)
+    {
+        $this->fill($dados);
+        $this->save();
+
+        return $this;
+    }
+
     public function buscaListaContratosUg($filtro)
     {
 
@@ -72,9 +83,9 @@ class Contrato extends Model
         $lista = $this->select([
             DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
             DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
-            DB::raw('CASE 
-                                WHEN receita_despesa = \'D\'  
-                                THEN \'Despesa\'  
+            DB::raw('CASE
+                                WHEN receita_despesa = \'D\'
+                                THEN \'Despesa\'
                                 ELSE \'Receita\'
                            END as receita_despesa'),
             'unidades_requisitantes',
@@ -98,9 +109,9 @@ class Contrato extends Model
             'num_parcelas',
             'valor_parcela',
             'valor_acumulado',
-            DB::raw('CASE 
-                                WHEN contratos.situacao = \'t\'  
-                                THEN \'Ativo\'  
+            DB::raw('CASE
+                                WHEN contratos.situacao = \'t\'
+                                THEN \'Ativo\'
                                 ELSE \'Inativo\'
                            END as situacao'),
             'unidades_requisitantes',
@@ -114,7 +125,7 @@ class Contrato extends Model
         $lista->leftjoin('unidades as U', 'U.id', '=', 'contratos.unidade_id');
         $lista->leftjoin('orgaos as O', 'O.id', '=', 'U.orgao_id');
 
-        $lista->where('U.id',$unidade_user->id);
+        $lista->where('U.id', $unidade_user->id);
 
         return $lista->get();
     }
@@ -127,9 +138,9 @@ class Contrato extends Model
         $lista = $this->select([
             DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
             DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
-            DB::raw('CASE 
-                                WHEN receita_despesa = \'D\'  
-                                THEN \'Despesa\'  
+            DB::raw('CASE
+                                WHEN receita_despesa = \'D\'
+                                THEN \'Despesa\'
                                 ELSE \'Receita\'
                            END as receita_despesa'),
             'unidades_requisitantes',
@@ -153,9 +164,9 @@ class Contrato extends Model
             'num_parcelas',
             'valor_parcela',
             'valor_acumulado',
-            DB::raw('CASE 
-                                WHEN contratos.situacao = \'t\'  
-                                THEN \'Ativo\'  
+            DB::raw('CASE
+                                WHEN contratos.situacao = \'t\'
+                                THEN \'Ativo\'
                                 ELSE \'Inativo\'
                            END as situacao'),
             'unidades_requisitantes',
@@ -169,7 +180,7 @@ class Contrato extends Model
         $lista->leftjoin('unidades as U', 'U.id', '=', 'contratos.unidade_id');
         $lista->leftjoin('orgaos as O', 'O.id', '=', 'U.orgao_id');
 
-        $lista->where('O.id',$unidade_user->orgao->id);
+        $lista->where('O.id', $unidade_user->orgao->id);
 
         return $lista->get();
     }
@@ -180,9 +191,9 @@ class Contrato extends Model
         $lista = $this->select([
             DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
             DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
-            DB::raw('CASE 
-                                WHEN receita_despesa = \'D\'  
-                                THEN \'Despesa\'  
+            DB::raw('CASE
+                                WHEN receita_despesa = \'D\'
+                                THEN \'Despesa\'
                                 ELSE \'Receita\'
                            END as receita_despesa'),
             'unidades_requisitantes',
@@ -206,9 +217,9 @@ class Contrato extends Model
             'num_parcelas',
             'valor_parcela',
             'valor_acumulado',
-            DB::raw('CASE 
-                                WHEN contratos.situacao = \'t\'  
-                                THEN \'Ativo\'  
+            DB::raw('CASE
+                                WHEN contratos.situacao = \'t\'
+                                THEN \'Ativo\'
                                 ELSE \'Inativo\'
                            END as situacao'),
             'unidades_requisitantes',
@@ -460,7 +471,7 @@ class Contrato extends Model
 
     public function orgaosubcategoria()
     {
-        $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
+        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
     }
 
     /*

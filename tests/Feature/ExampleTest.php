@@ -16,6 +16,10 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        // Ok or Redirect
+        $validResponsesStatus = [200, 302];
+        $status = $response->getStatusCode();
+
+        $this->assertTrue(in_array($status, $validResponsesStatus));
     }
 }

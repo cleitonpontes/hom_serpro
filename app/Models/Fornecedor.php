@@ -66,6 +66,11 @@ class Fornecedor extends Model
     {
         return $this->hasMany(Empenhos::class);
     }
+
+    public function contratos()
+    {
+        return $this->hasMany(Contrato::class);
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

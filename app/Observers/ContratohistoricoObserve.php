@@ -25,8 +25,8 @@ class ContratohistoricoObserve
      */
     public function created(Contratohistorico $contratohistorico)
     {
-        $historico = Contratohistorico::where('contrato_id', '=', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura')
+        $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
+            ->orderBy('data_assinatura','ASC')
             ->get();
 
         $this->contratocronograma->inserirCronogramaFromHistorico($contratohistorico);
@@ -43,9 +43,12 @@ class ContratohistoricoObserve
      */
     public function updated(Contratohistorico $contratohistorico)
     {
-        $historico = Contratohistorico::where('contrato_id', '=', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura')
+        $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
+            ->orderBy('data_assinatura','ASC')
             ->get();
+
+        $cronograma = Contratocronograma::where('contrato_id',$contratohistorico->contrato_id)
+            ->delete();
 
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
@@ -63,10 +66,13 @@ class ContratohistoricoObserve
     {
 
         $historico = Contratohistorico::where('contrato_id', '=', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura')
+            ->orderBy('data_assinatura','ASC')
             ->get();
 
-        $contratohistorico->cronograma()->delete();
+        $cronograma = Contratocronograma::where('contrato_id',$contratohistorico->contrato_id)
+            ->delete();
+
+//        $contratohistorico->cronograma()->delete();
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
     }

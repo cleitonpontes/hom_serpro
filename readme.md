@@ -1,5 +1,6 @@
 ![Logo](public/img/logo_mail.png)
-## SISTEMA CONTA - Gestão Administrativa para Órgãos Públicos
+## COMPRASNET CONTRATOS - Gestão Administrativa para Órgãos Públicos
+O Sistema Conta agora é COMPRASNET Contratos.  
 Sistema de Gestão Administrativa e de Contratos para Órgãos Públicos.
 
 ## Tecnologia Utilizada

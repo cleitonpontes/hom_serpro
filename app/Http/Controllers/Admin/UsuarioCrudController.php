@@ -110,12 +110,12 @@ class UsuarioCrudController extends CrudController
         | CrudPanel Fields
         |--------------------------------------------------------------------------
         */
-        $ugs = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
-            ->where('tipo', '=', 'E')
-            ->where('situacao', '=', true)
-            ->orderBy('codigo', 'asc')
-            ->pluck('nome', 'id')
-            ->toArray();
+//        $ugs = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
+//            ->where('tipo', '=', 'E')
+//            ->where('situacao', '=', true)
+//            ->orderBy('codigo', 'asc')
+//            ->pluck('nome', 'id')
+//            ->toArray();
 
         $this->crud->addFields([
             [
@@ -145,41 +145,59 @@ class UsuarioCrudController extends CrudController
                 'type' => 'email',
                 'tab' => 'Dados Pessoais',
             ],
-            [ // select2_from_array
-                'name' => 'ugprimaria',
-                'label' => 'UG Primária',
-                'type' => 'select2_from_array',
-                'options' => $ugs,
-                'allows_null' => true,
-                'tab' => 'Outros',
-                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [ // select2_from_array
-                'name' => 'ugprimaria',
-                'label' => 'UG Primária',
-                'type' => 'select2_from_array',
-                'options' => $ugs,
-                'allows_null' => true,
-                'tab' => 'Outros',
-                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [       // Select2Multiple = n-n relationship (with pivot table)
-                'label' => 'UG´s Secundárias',
-                'type' => 'select2_multiple',
-                'name' => 'unidades', // the method that defines the relationship in your Model
-                'entity' => 'unidades', // the method that defines the relationship in your Model
-                'attribute' => 'codigo', // foreign key attribute that is shown to user
-                'attribute2' => 'nomeresumido', // foreign key attribute that is shown to user
-                'attribute_separator' => ' - ', // foreign key attribute that is shown to user
+            [
+                // 1-n relationship
+                'label' => "UG Primária", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'ugprimaria', // the column that contains the ID of that connected entity
+                'entity' => 'ugPrimariaRelation', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
                 'model' => "App\Models\Unidade", // foreign key model
-                'allows_null' => true,
-                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
-                'select_all' => true,
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a Unidade", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
                 'tab' => 'Outros',
-                'options' => (function ($query) {
-                    return $query->orderBy('codigo', 'ASC')->where('tipo', '=', 'E')->get();
-                }),
             ],
+            [
+                // n-n relationship
+                'label' => "UG´s Secundárias", // Table column heading
+                'type' => "select2_from_ajax_multiple",
+                'name' => 'unidades', // the column that contains the ID of that connected entity
+                'entity' => 'unidades', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
+                'model' => "App\Models\Unidade", // foreign key model
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a(s) Unidade(s)", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+                'tab' => 'Outros',
+                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+            ],
+//            [ // select2_from_array
+//                'name' => 'ugprimaria',
+//                'label' => 'UG Primária',
+//                'type' => 'select2_from_array',
+//                'options' => $ugs,
+//                'allows_null' => true,
+//                'tab' => 'Outros',
+//                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
+//            ],
+//            [       // Select2Multiple = n-n relationship (with pivot table)
+//                'label' => 'UG´s Secundárias',
+//                'type' => 'select2_multiple',
+//                'name' => 'unidades', // the method that defines the relationship in your Model
+//                'entity' => 'unidades', // the method that defines the relationship in your Model
+//                'attribute' => 'codigo', // foreign key attribute that is shown to user
+//                'attribute2' => 'nomeresumido', // foreign key attribute that is shown to user
+//                'attribute_separator' => ' - ', // foreign key attribute that is shown to user
+//                'model' => "App\Models\Unidade", // foreign key model
+//                'allows_null' => true,
+//                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+//                'select_all' => true,
+//                'tab' => 'Outros',
+//                'options' => (function ($query) {
+//                    return $query->orderBy('codigo', 'ASC')->where('tipo', '=', 'E')->get();
+//                }),
+//            ],
             [       // Select2Multiple = n-n relationship (with pivot table)
                 'label' => 'Grupos de Usuário',
                 'type' => 'select2_multiple',

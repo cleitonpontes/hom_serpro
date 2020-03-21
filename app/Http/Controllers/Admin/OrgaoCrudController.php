@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Execfin\EmpenhoCrudController;
+use App\Models\Orgao;
 use Backpack\CRUD\CrudPanel;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,6 +44,9 @@ class OrgaoCrudController extends CrudController
             $this->crud->denyAccess('update');
             $this->crud->denyAccess('delete');
             $this->crud->allowAccess('show');
+
+            (backpack_user()->hasRole('Administrador')) ? $this->crud->addButtonFromView('top', 'atualizaorgao',
+                'atualizaorgao', 'end') : null;
 
             (backpack_user()->can('orgao_inserir')) ? $this->crud->allowAccess('create') : null;
             (backpack_user()->can('orgao_editar')) ? $this->crud->allowAccess('update') : null;
@@ -238,4 +244,53 @@ class OrgaoCrudController extends CrudController
 
         return $content;
     }
+
+    public function executaAtualizacaoCadastroOrgao()
+    {
+        if (!backpack_user()->hasRole('Administrador')) {
+            abort('403', config('app.erro_permissao'));
+        }
+
+        $url = config('migracao.api_sta'). '/api/estrutura/orgaos';
+
+        $funcao = new AdminController();
+
+        $dados = $funcao->buscaDadosUrlMigracao($url);
+
+        foreach ($dados as $dado) {
+
+            $orgao = Orgao::where('codigo',$dado['codigo'])
+                ->first();
+
+            if(!isset($orgao->codigo)){
+
+                $orgao_superior = OrgaoSuperior::where('codigo',$dado['orgao_superior'])
+                    ->first();
+
+                if(isset($orgao_superior->id)){
+                        $novo = new Orgao();
+                        $novo->orgaosuperior_id = $orgao_superior->id;
+                        $novo->codigo = $dado['codigo'];
+                        $novo->codigosiasg = $dado['codigo'];
+                        $novo->nome = $dado['nome'];
+                        $novo->situacao = true;
+                        $novo->save();
+                }
+
+            }else{
+                if($orgao->nome != $dado['nome'] or $orgao->orgaosuperior->codigo != $dado['orgao_superior']){
+                    $orgao_superior = OrgaoSuperior::where('codigo',$dado['orgao_superior'])
+                        ->first();
+                    if(isset($orgao_superior->id)) {
+                        $orgao->orgaosuperior_id = $orgao_superior->id;
+                        $orgao->nome = $dado['nome'];
+                        $orgao->save();
+                    }
+                }
+            }
+        }
+
+        return redirect('admin/orgao');
+    }
+
 }
