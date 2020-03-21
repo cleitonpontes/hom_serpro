@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Painel;
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Controller;
 use App\Models\BackpackUser;
 use App\Models\Empenho;
@@ -155,7 +156,8 @@ class OrcamentarioController extends Controller
             $pago[] = $v['pago'];
         }
 
-        $colors = $this->colors(4);
+        $base = new AdminController();
+        $colors = $base->colors(4);
 
         $chartjs = app()->chartjs
             ->name('pieChartTest')
@@ -192,7 +194,7 @@ class OrcamentarioController extends Controller
                 xAxes: [{
                     gridLines: {
                         display:true
-                    }  
+                    }
                 }]
             },
             tooltips: {
@@ -216,18 +218,5 @@ class OrcamentarioController extends Controller
         return $chartjs;
     }
 
-    public function colors(int $quantidade)
-    {
-        $colors = [];
-        for ($i = 0; $i < $quantidade; $i++) {
-            $r = number_format(rand(0, 255), 0, '', '');
-            $g = number_format(rand(0, 255), 0, '', '');
-            $b = number_format(rand(0, 255), 0, '', '');
-
-            $colors[] = "rgba(" . $r . "," . $g . "," . $b . ", 0.5)";
-        }
-
-        return $colors;
-    }
 
 }

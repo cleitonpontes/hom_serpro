@@ -2,6 +2,25 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.18]- 20/03/2020
+
+### Implementação  
+- Links para consulta de contratos no Dashboard ambiente Transparência;
+
+### Bug  
+- Correção de erro no Gráfico Cronograma do Ambiente Transparência.
+
+## [5.0.17]- 18/03/2020
+
+### Implementação  
+- Dashboard tela inicial do ambiente Transparência;
+
+### Melhoria
+- Melhoria na escrita do código do Painel de Orçamento.
+
+### Bug  
+- Correção de erro no JOB de atualização do Saldo de Empenhos.
+
 ## [5.0.16]- 14/03/2020
 
 ### Implementação  

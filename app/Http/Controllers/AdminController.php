@@ -109,16 +109,14 @@ class AdminController extends Controller
         if (session()->get('user_ug_id')) {
 
             $unidade = Unidade::find(session()->get('user_ug_id'));
-            if(isset($unidade->orgao->configuracao->padrao_processo_marcara)){
+
+            if (isset($unidade->orgao->configuracao->padrao_processo_marcara)) {
                 session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
             }
-
-
             $contratos = new Contrato();
             $dados_contratos['novos'] = $contratos->buscaContratosNovosPorUg(session()->get('user_ug_id'));
             $dados_contratos['atualizados'] = $contratos->buscaContratosAtualizadosPorUg(session()->get('user_ug_id'));
             $dados_contratos['vencidos'] = $contratos->buscaContratosVencidosPorUg(session()->get('user_ug_id'));
-
         } else {
             $dados_contratos['novos'] = '0';
             $dados_contratos['atualizados'] = '0';
@@ -400,6 +398,25 @@ class AdminController extends Controller
         $retorno = $d[0] . '.' . $d[1] . '/' . $d[2] . '-' . $d[3];
 
         return $retorno;
+    }
+
+    public function colors(int $quantidade)
+    {
+        $colors = [];
+        for ($i = 0; $i < $quantidade; $i++) {
+            $r = number_format(rand(0, 255), 0, '', '');
+            $g = number_format(rand(0, 255), 0, '', '');
+            $b = number_format(rand(0, 255), 0, '', '');
+
+            $colors[] = "rgba(" . $r . "," . $g . "," . $b . ", 0.5)";
+        }
+
+        return $colors;
+    }
+
+    public function retornaDataMaisOuMenosQtdTipoFormato(string $formato, string $sinal, string $qtd, string $tipo, string $data)
+    {
+        return date($formato, strtotime($sinal . $qtd . " " . $tipo, strtotime($data)));
     }
 
 }

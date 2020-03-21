@@ -4,6 +4,8 @@
 namespace App\STA;
 
 
+use App\Http\Controllers\AdminController;
+
 class ConsultaApiSta
 {
     protected $host_sta;
@@ -20,8 +22,9 @@ class ConsultaApiSta
         string $contacontabil,
         string $contacorrente
     ) {
-        $dados = json_decode(file_get_contents($this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil . '/contacorrente/' . $contacorrente),
-            true);
+        $base = new AdminController();
+        $url = $this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil . '/contacorrente/' . $contacorrente;
+        $dados = $base->buscaDadosUrl($url);
 
         $retorno = null;
 
@@ -37,8 +40,9 @@ class ConsultaApiSta
 
     public function saldocontabilUgGestaoContacontabil(string $ug, string $gestao, string $contacontabil)
     {
-        $dados = json_decode(file_get_contents($this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil),
-            true);
+        $base = new AdminController();
+        $url = $this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil;
+        $dados = $base->buscaDadosUrl($url);
 
         $retorno = [];
         foreach ($dados as $dado) {
@@ -54,8 +58,9 @@ class ConsultaApiSta
 
     public function saldocontabilUgGestao(string $ug, string $gestao)
     {
-        $dados = json_decode(file_get_contents($this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao),
-            true);
+        $base = new AdminController();
+        $url = $this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao;
+        $dados = $base->buscaDadosUrl($url);
 
         $retorno = [];
         foreach ($dados as $dado) {
