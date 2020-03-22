@@ -1,6 +1,6 @@
 <div class="info-box bg-green-gradient">
-    <a class="bg-none" href="/transparencia/contratos/?{{ $url_filtro }}"
-       style="color: inherit;">
+    <a href="/transparencia/contratos/?{{ $url_filtro }}"
+       style="color: inherit;" title="Consultar Total Contratos">
         <span class="info-box-icon"><i class="ion ion-ios-list-outline"></i></span>
     </a>
 
@@ -19,8 +19,8 @@
 </div>
 <div class="info-box bg-red-gradient">
 
-    <a class="bg-none" href="/transparencia/contratos/?{{ $url_filtro }}vigencia_fim={{ $url_datas['dt30'] }}"
-       style="color: inherit;">
+    <a href="/transparencia/contratos/?{{ $url_filtro }}vigencia_fim={{ $url_datas['dt30'] }}"
+       style="color: inherit;" title="Consultar Vencem (-30 dias)">
         <span class="info-box-icon">
             <i class="ion ion-ios-copy-outline"></i>
         </span>
@@ -42,7 +42,7 @@
 </div>
 <div class="info-box bg-orange-active">
     <a href="/transparencia/contratos/?{{ $url_filtro }}vigencia_fim={{ $url_datas['dt3060'] }}"
-       style="color: inherit;">
+       style="color: inherit;" title="Consultar Vencem (60 a 60 dias)">
         <span class="info-box-icon"><i class="ion ion-ios-copy-outline"></i></span>
     </a>
 
@@ -61,7 +61,7 @@
 </div>
 <div class="info-box bg-yellow-gradient">
     <a href="/transparencia/contratos/?{{ $url_filtro }}vigencia_fim={{ $url_datas['dt6090'] }}"
-       style="color: inherit;">
+       style="color: inherit;" title="Consultar Vencem (60 a 90 dias)">
         <span class="info-box-icon"><i class="ion-ios-copy-outline"></i></span>
     </a>
 
@@ -80,7 +80,7 @@
 </div>
 <div class="info-box bg-aqua-gradient">
     <a href="/transparencia/contratos/?{{ $url_filtro }}vigencia_fim={{ $url_datas['dt90180'] }}"
-       style="color: inherit;">
+       style="color: inherit;" title="Consultar Vencem (90 a 180 dias)">
         <span class="info-box-icon"><i class="ion ion-ios-copy-outline"></i></span>
     </a>
 
@@ -98,7 +98,7 @@
     </div>
 </div>
 <div class="info-box bg-blue-gradient">
-    <a href="/transparencia/contratos/?{{ $url_filtro }}vigencia_fim={{ $url_datas['dt180'] }}" style="color: inherit;">
+    <a href="/transparencia/contratos/?{{ $url_filtro }}vigencia_fim={{ $url_datas['dt180'] }}" style="color: inherit;" title="Consultar Vencem (+180 dias)">
         <span class="info-box-icon"><i class="ion ion-ios-copy-outline"></i></span>
     </a>
 
