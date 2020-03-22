@@ -128,6 +128,7 @@ Route::group([
         ], function () {
 
             CRUD::resource('contrato', 'ContratoCrudController');
+            CRUD::resource('subrogacao', 'SubrogacaoCrudController');
             CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
 

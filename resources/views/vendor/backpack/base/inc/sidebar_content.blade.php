@@ -63,6 +63,9 @@
                 <li><a href="{{ backpack_url('/gescon/fornecedor') }}"><i class="fa fa-users"></i>
                         <span>Fornecedores</span></a>
                 </li>
+                <li><a href="{{ backpack_url('/gescon/subrogacao') }}"><i class="fa fa-copy"></i>
+                        <span>Sub-rogações</span></a>
+                </li>
             </ul>
         </li>
         <li><a href="{{ backpack_url('/gescon/meus-contratos') }}"><i class="fa fa-file-text-o"></i> <span>Meus Contratos</span></a>

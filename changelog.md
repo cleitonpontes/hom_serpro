@@ -2,6 +2,11 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.19]- 22/03/2020
+
+### Implementação  
+- Funcionalidade de Sub-rogação de Contratos;
+
 ## [5.0.18]- 20/03/2020
 
 ### Implementação  
