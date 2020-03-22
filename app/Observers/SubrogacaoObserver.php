@@ -25,7 +25,7 @@ class SubrogacaoObserver
         $contrato->unidade_id = $unidadedestino;
         $contrato->save();
 
-        $historicos = $contrato->historico();
+        $historicos = $contrato->historico()->get();
         foreach ($historicos as $historico){
             $historico->unidade_id = $unidadedestino;
             $historico->save();
