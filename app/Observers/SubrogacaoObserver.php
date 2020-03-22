@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Contrato;
 use App\Models\Contratohistorico;
 use App\Models\Subrogacao;
+use Illuminate\Support\Facades\DB;
 
 class SubrogacaoObserver
 {
@@ -25,11 +26,9 @@ class SubrogacaoObserver
         $contrato->unidade_id = $unidadedestino;
         $contrato->save();
 
-        $historicos = $contrato->historico()->get();
-        foreach ($historicos as $historico){
-            $historico->unidade_id = $unidadedestino;
-            $historico->save();
-        }
+        $sql = "UPDATE contratohistorico SET unidade_id='$unidadedestino' WHERE contrato_id='$contrato->id'";
+        $historico = DB::update($sql);
+
     }
 
 
