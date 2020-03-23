@@ -251,6 +251,7 @@ class ComunicaCrudController extends CrudController
             'placeholder' => "Selecione...",
             'minimum_input_length' => 2
         ];
+        */
 
         $campos[] = [
             'name' => 'role_id',
