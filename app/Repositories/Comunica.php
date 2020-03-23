@@ -93,7 +93,7 @@ class Comunica extends Base
      */
     public function getSituacao($sit = '')
     {
-        return getSituacaoComunica($sit);
+        return $this->getSituacaoComunica($sit);
     }
 
     /**
