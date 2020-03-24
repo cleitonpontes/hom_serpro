@@ -7,6 +7,7 @@ use App\Models\Comunica;
 use App\Models\Orgao;
 use App\Models\Unidade;
 use App\Repositories\Comunica as Repo;
+use App\Repositories\OrgaoSuperior as RepoOrgaoSuperior;
 use App\Repositories\Unidade as RepoUnidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -208,10 +209,11 @@ class ComunicaCrudController extends CrudController
     {
 
         $repo = new Repo();
+        $repoOrgaosuperior = new RepoOrgaoSuperior();
         $repoUnidade = new RepoUnidade();
 
         $grupos = Role::pluck('name', 'id')->toArray();
-        $orgaos = Orgao::orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
+        $orgaos = $repoOrgaosuperior->getOrgaosParaCombo();
         $unidades = $repoUnidade->getUnidadesParaComboPorPerfil(session('user_orgao_id'), session('user_ug_id'), $repo->getOrgao(), $repo->getUnidade());
 
         $campos = array();
@@ -238,13 +240,18 @@ class ComunicaCrudController extends CrudController
         }
 
         $campos[] = [
-            'name' => 'unidade_id',
             'label' => "Unidade",
-            'type' => 'select2_from_array',
-            'options' => $unidades,
-            'placeholder' => "Todas",
-            'allows_null' => true
+            'type' => "select2_from_ajax",
+            'name' => 'unidade_id',
+            'model' => "App\Models\Unidade",
+            'attribute' => "codigo",
+            'entity' => 'unidade',
+            'process_results_template' => 'gescon.process_results_unidade_codigo_descricao',
+            'data_source' => url("api/unidade"),
+            'placeholder' => "Selecione...",
+            'minimum_input_length' => 2
         ];
+        */
 
         $campos[] = [
             'name' => 'role_id',
