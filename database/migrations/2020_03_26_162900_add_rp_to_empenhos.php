@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddOrgaoToComunica extends Migration
+class AddRpToEmpenhos extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,8 @@ class AddOrgaoToComunica extends Migration
      */
     public function up()
     {
-        Schema::table('comunica', function (Blueprint $table) {
-            $table->integer('orgao_id')->nullable()->default('')->after('id');;
-
-            $table->foreign('orgao_id')->references('id')->on('orgaos')->onDelete('cascade');
+        Schema::table('empenhos', function (Blueprint $table) {
+            $table->boolean('rp')->nullable()->default(0);
         });
     }
 
@@ -27,8 +25,8 @@ class AddOrgaoToComunica extends Migration
      */
     public function down()
     {
-        Schema::table('comunica', function (Blueprint $table) {
-            $table->dropColumn(['orgao_id']);
+        Schema::table('empenhos', function (Blueprint $table) {
+            $table->dropColumn(['rp']);
         });
     }
 }
