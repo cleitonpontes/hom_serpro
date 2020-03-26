@@ -2,6 +2,14 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.20]- 26/03/2020
+
+### Implementação  
+- Inclusão do Nome da Unidade Gestora nos formulários da Sub-Rogação;
+
+### Bug  
+- Correção de Resetar Copiados nos Alertas Diários.
+
 ## [5.0.19]- 22/03/2020
 
 ### Implementação  
