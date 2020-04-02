@@ -16,14 +16,15 @@ class ConsultaApiSta
         backpack_auth()->check();
     }
 
-    public function saldocontabilUgGestaoContacontabilContacorrente(
+    public function saldocontabilAnoUgGestaoContacontabilContacorrente(
+        string $ano,
         string $ug,
         string $gestao,
         string $contacontabil,
         string $contacorrente
     ) {
         $base = new AdminController();
-        $url = $this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil . '/contacorrente/' . $contacorrente;
+        $url = $this->host_sta . '/api/saldocontabil/ano/' . $ano . '/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil . '/contacorrente/' . $contacorrente;
         $dados = $base->buscaDadosUrl($url);
 
         $retorno = null;
@@ -38,10 +39,10 @@ class ConsultaApiSta
         return $retorno;
     }
 
-    public function saldocontabilUgGestaoContacontabil(string $ug, string $gestao, string $contacontabil)
+    public function saldocontabilAnoUgGestaoContacontabil(string $ano, string $ug, string $gestao, string $contacontabil)
     {
         $base = new AdminController();
-        $url = $this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil;
+        $url = $this->host_sta . '/api/saldocontabil/ano/' . $ano . '/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil;
         $dados = $base->buscaDadosUrl($url);
 
         $retorno = [];
@@ -56,10 +57,10 @@ class ConsultaApiSta
         return $retorno;
     }
 
-    public function saldocontabilUgGestao(string $ug, string $gestao)
+    public function saldocontabilAnoUgGestao(string $ano, string $ug, string $gestao)
     {
         $base = new AdminController();
-        $url = $this->host_sta . '/api/saldocontabil/ug/' . $ug . '/gestao/' . $gestao;
+        $url = $this->host_sta . '/api/saldocontabil/ano/' . $ano . '/ug/' . $ug . '/gestao/' . $gestao;
         $dados = $base->buscaDadosUrl($url);
 
         $retorno = [];
