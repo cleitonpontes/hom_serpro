@@ -53,6 +53,7 @@ class AlertaContratoJob implements ShouldQueue
 
             $prazos = explode(';', $unidade_diario->configuracao->email_diario_periodicidade);
             $contratos = [];
+            $dados_email = [];
             $data_vencimento = [];
             foreach ($prazos as $prazo) {
                 $data_vencimento[$prazo] = date('Y-m-d', strtotime("+" . $prazo . " days", strtotime(date('Y-m-d'))));

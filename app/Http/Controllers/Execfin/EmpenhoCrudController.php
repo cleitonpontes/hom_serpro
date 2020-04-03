@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use App\Http\Controllers\AdminController;
 use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoempenhoJob;
 use App\Models\Empenho;
@@ -408,7 +409,11 @@ class EmpenhoCrudController extends CrudController
 
     public function executaAtualizaSaldosEmpenhos()
     {
-        $empenhos = Empenho::all();
+        $base = new AdminController();
+        $ano = $base->retornaDataMaisOuMenosQtdTipoFormato('Y','-', '5', 'Days', date('Y-m-d'));
+
+        $empenhos = Empenho::where('left(numero,4)',$ano)
+            ->get();
 
         $amb = 'PROD';
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
@@ -417,6 +422,7 @@ class EmpenhoCrudController extends CrudController
 
         foreach ($empenhos as $empenho) {
 
+            $contas_contabeis = [];
             $anoEmpenho = substr($empenho->numero, 0, 4);
 
             if ($anoEmpenho == $ano) {

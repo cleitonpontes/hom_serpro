@@ -28,10 +28,15 @@
                 {{ $field['placeholder'] }}
             </option>
             @endif
-
-            <option value="{{ $item->getKey() }}" selected>
-                {{ $item->{$field['attribute']} }}
-            </option>
+                @if($field['attribute2'])
+                <option value="{{ $item->getKey() }}" selected>
+                    {{ $item->{$field['attribute']} .' - '. $item->{$field['attribute2']} }}
+                </option>
+                @else
+                    <option value="{{ $item->getKey() }}" selected>
+                        {{ $item->{$field['attribute']} }}
+                    </option>
+                @endif
             @endif
         @endif
     </select>
@@ -112,7 +117,7 @@
 
                             var result = {
                                 results: $.map(data.data, function (item) {
-                                    textField = "{{ $field['attribute'] }}";
+                                    textField = "{{$field['attribute']}}";
                                     return {
                                         text: item[textField],
                                         id: item["{{ $connected_entity_key_name }}"]

@@ -2,6 +2,23 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.21]- xx/04/2020
+
+### Implementação  
+- Adequação da Migração de Empenhos;
+- Adequação da Atualização dos Saldos de Empenhos;
+- Inclusão da Migração de Restos a Pagar com atualização de saldos;
+- Inclusão da descrição complementar nos campos de Select com AJAX;
+- Criação de API para retornar Órgãos com Contratos Cadastrados.
+
+## [5.0.20]- 26/03/2020
+
+### Implementação  
+- Inclusão do Nome da Unidade Gestora nos formulários da Sub-Rogação;
+
+### Bug  
+- Correção de Resetar Copiados nos Alertas Diários.
+
 ## [5.0.19]- 22/03/2020
 
 ### Implementação  
