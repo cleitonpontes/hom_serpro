@@ -58,8 +58,6 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
     public function handle()
     {
         $dado = [];
-        $base = new AdminController();
-        $ano = $base->retornaDataMaisOuMenosQtdTipoFormato('Y','-', '5', 'Days', date('Y-m-d'));
 
         foreach ($this->contas_contabeis as $item => $valor) {
 
@@ -73,7 +71,7 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
             $saldocontabilSta = new ConsultaApiSta();
             $retorno = null;
             $retorno = $saldocontabilSta->saldocontabilAnoUgGestaoContacontabilContacorrente(
-                $ano,
+                $this->ano,
                 $this->ug,
                 $gestao,
                 $contacontabil1,
