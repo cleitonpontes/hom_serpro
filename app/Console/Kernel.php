@@ -29,11 +29,19 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaMigracaoEmpenho')->dailyAt('08:40');
+        $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaMigracaoEmpenho')
+            ->weekdays()
+            ->timezone('America/Sao_Paulo')
+            ->at('08:40');
 
-        $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaAtualizaSaldosEmpenhos')->dailyAt('08:50');
+        $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaAtualizaSaldosEmpenhos')
+            ->weekdays()
+            ->timezone('America/Sao_Paulo')
+            ->at('08:50');
 
-        $schedule->job(new AlertaContratoJob)->dailyAt('08:00');
+        $schedule->job(new AlertaContratoJob)
+            ->timezone('America/Sao_Paulo')
+            ->dailyAt('08:00');
 
     }
 
