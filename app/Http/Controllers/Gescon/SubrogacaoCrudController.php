@@ -168,7 +168,8 @@ class SubrogacaoCrudController extends CrudController
                 'name' => 'unidadedestino_id', // the column that contains the ID of that connected entity
                 'entity' => 'unidadeDestino', // the method that defines the relationship in your Model
                 'attribute' => "codigo", // foreign key attribute that is shown to user
-                'process_results_template' => 'gescon.process_results_subrogacao',
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
                 'model' => "App\Models\Unidade", // foreign key model
                 'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
                 'placeholder' => "Selecione a Unidade", // placeholder for the select

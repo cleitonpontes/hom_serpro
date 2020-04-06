@@ -152,6 +152,8 @@ class UsuarioCrudController extends CrudController
                 'name' => 'ugprimaria', // the column that contains the ID of that connected entity
                 'entity' => 'ugPrimariaRelation', // the method that defines the relationship in your Model
                 'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
                 'model' => "App\Models\Unidade", // foreign key model
                 'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
                 'placeholder' => "Selecione a Unidade", // placeholder for the select
@@ -165,6 +167,8 @@ class UsuarioCrudController extends CrudController
                 'name' => 'unidades', // the column that contains the ID of that connected entity
                 'entity' => 'unidades', // the method that defines the relationship in your Model
                 'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_multiple_unidade',
                 'model' => "App\Models\Unidade", // foreign key model
                 'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
                 'placeholder' => "Selecione a(s) Unidade(s)", // placeholder for the select

@@ -52,7 +52,7 @@ class ApiTransparenciaController extends Controller
                     ->whereHas('orgao', function ($o) use ($orgao) {
                         $o->where('codigo', $orgao);
                     })
-                    ->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orWhere('codigo', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orderBy('codigo', 'ASC')
                     ->paginate(50);
@@ -100,7 +100,7 @@ class ApiTransparenciaController extends Controller
                         $u->where('codigo', $unidade);
                     })->where('situacao', true);
                 })
-                    ->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orWhere('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orderBy('nome')
                     ->paginate(50);
@@ -108,7 +108,7 @@ class ApiTransparenciaController extends Controller
                 $results = Fornecedor::whereHas('contratos', function ($c) {
                     $c->where('situacao', true);
                 })
-                    ->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orWhere('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orderBy('nome')
                     ->paginate(50);
@@ -143,20 +143,14 @@ class ApiTransparenciaController extends Controller
         if (!empty($search_term)) {
             if (!empty($fornecedor)) {
                 $results = Contrato::whereHas('fornecedor', function ($f) use ($fornecedor, $search_term) {
-                    $f->where('cpf_cnpj_idgener', $fornecedor)
-                        ->where('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%')
-                        ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%');
+                    $f->where('cpf_cnpj_idgener', $fornecedor);
                 })
                     ->where('situacao', true)
                     ->orWhere('numero', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orderBy('numero')
                     ->paginate(50);
             } else {
-                $results = Contrato::whereHas('fornecedor', function ($f) use ($search_term) {
-                    $f->where('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%')
-                        ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%');
-                })
-                    ->where('situacao', true)
+                $results = Contrato::where('situacao', true)
                     ->orWhere('numero', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orderBy('numero')
                     ->paginate(50);

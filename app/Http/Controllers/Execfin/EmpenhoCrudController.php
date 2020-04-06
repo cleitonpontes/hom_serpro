@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use App\Http\Controllers\AdminController;
 use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoempenhoJob;
 use App\Models\Empenho;
@@ -391,7 +392,10 @@ class EmpenhoCrudController extends CrudController
 
     public function executaMigracaoEmpenho()
     {
-        $unidades = Unidade::where('tipo', 'E')
+        $unidades = Unidade::whereHas('contratos', function ($c) {
+            $c->where('situacao', true);
+        })
+            ->where('tipo', 'E')
             ->where('situacao', true)
             ->get();
 
@@ -408,15 +412,21 @@ class EmpenhoCrudController extends CrudController
 
     public function executaAtualizaSaldosEmpenhos()
     {
-        $empenhos = Empenho::all();
+        $base = new AdminController();
+        $ano = $base->retornaDataMaisOuMenosQtdTipoFormato('Y', '-', '5', 'Days', date('Y-m-d'));
+
+        $empenhos = Empenho::where(DB::raw('left(numero,4)'), $ano)
+            ->orWhere('rp', true)
+            ->orderBy('numero')
+            ->get();
 
         $amb = 'PROD';
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
-        $ano = date('Y'); //$registro['ano'];
         $mes = $meses[(int)date('m')];//$meses[(int) $registro['mes']];
 
         foreach ($empenhos as $empenho) {
 
+            $contas_contabeis = [];
             $anoEmpenho = substr($empenho->numero, 0, 4);
 
             if ($anoEmpenho == $ano) {
@@ -433,7 +443,7 @@ class EmpenhoCrudController extends CrudController
 
             foreach ($empenhodetalhes as $empenhodetalhe) {
 
-                $contacorrente = 'N' . $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
+                $contacorrente = $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
                         STR_PAD_LEFT);
 
                 AtualizasaldosmpenhosJobs::dispatch(
@@ -491,7 +501,8 @@ class EmpenhoCrudController extends CrudController
 
             $saldocontabilSta = new ConsultaApiSta();
             $retorno = null;
-            $retorno = $saldocontabilSta->saldocontabilUgGestaoContacontabilContacorrente(
+            $retorno = $saldocontabilSta->saldocontabilAnoUgGestaoContacontabilContacorrente(
+                $ano,
                 $ug,
                 $gestao,
                 $contacontabil1,
@@ -662,7 +673,7 @@ class EmpenhoCrudController extends CrudController
         curl_setopt($ch, CURLOPT_TIMEOUT, 90);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_URL, $url);
         $data = curl_exec($ch);
 
         curl_close($ch);

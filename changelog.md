@@ -2,6 +2,23 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.21]- 06/04/2020
+
+### Implementação  
+- Adequação da Migração de Empenhos;
+- Adequação da Atualização dos Saldos de Empenhos;
+- Inclusão da Migração de Restos a Pagar com atualização de saldos;
+- Inclusão da descrição complementar nos campos de Select com AJAX;
+- Criação de API para retornar Órgãos com Contratos Cadastrados;
+- Criação do campo rp na tabela de empenhos;
+- Criação do campo orgao_id na tabela comunica;
+- Incluir campo Órgão na listagem de comunicações;
+- Incluir combo Órgão, vísivel mediante perfil;
+- Alteração no combo unidades para pesquisa ajax (autocomplete) por melhoria de performance;
+- Alteração no ComunicaObserver que passar a enviar mensagens filtrando por órgão, unidade ou perfil informados;
+- Documentação PHPDoc nas classes e métodos afetados;
+- Minor changes para uso de constantes,
+
 ## [5.0.20]- 26/03/2020
 
 ### Implementação  
