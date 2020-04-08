@@ -30,10 +30,23 @@ class EmailOcorrencia extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.notificaOcorrencia')
+        $anexos = $this->dadosocorrencia['arquivos'];
+
+        $mensagem = $this->markdown('emails.notificaOcorrencia')
             ->subject(config('app.name') . ' - Notificação de Ocorrência')
             ->with([
                 'dadosocorrencia' => $this->dadosocorrencia,
             ]);
+
+        $mensagem->attach(env('APP_PATH')."public/robots.txt");
+
+        if($anexos){
+            foreach ($anexos as $anexo){
+                $mensagem->attach(env('APP_PATH')."storage/app/".$anexo);
+            }
+        }
+
+        return $mensagem;
+
     }
 }
