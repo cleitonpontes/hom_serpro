@@ -2,6 +2,11 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.22]- 09/04/2020
+
+### Bug
+- Correção da visualização do campo Órgão no formulário Comunica. 
+
 ## [5.0.21]- 06/04/2020
 
 ### Implementação  
