@@ -227,9 +227,7 @@ class ComunicaCrudController extends CrudController
                 'placeholder' => "Todos",
                 'allows_null' => true
             ];
-        }
-
-        if (backpack_user()->hasRole('Administrador Órgão')) {
+        } else {
             $campos[] = [
                 'name' => 'orgao_id',
                 'label' => "Órgão",
