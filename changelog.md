@@ -2,7 +2,7 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
-## [5.0.23]- xx/04/2020
+## [5.0.23]- 13/04/2020
 
 ### Bug
 - Correção de erro na edição dos Empenhos vinculados aos contratos.
