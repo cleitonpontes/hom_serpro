@@ -2,6 +2,11 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.24]- 14/04/2020
+
+### Bug
+- Correção de erro do atributo2 no formulário select2_from_ajax.
+
 ## [5.0.23]- 13/04/2020
 
 ### Bug
