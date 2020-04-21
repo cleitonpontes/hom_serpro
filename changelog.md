@@ -2,6 +2,12 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.25]- 21/04/2020
+
+### Implementação
+- Disponibiliação da funcionalidade de excluir Fatura para os Responáveis de contrtatos;
+- Criação de API para retornar Unidades com Contratos Cadastrados.
+
 ## [5.0.24]- 14/04/2020
 
 ### Bug

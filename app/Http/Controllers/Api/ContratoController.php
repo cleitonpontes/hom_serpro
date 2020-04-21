@@ -9,6 +9,7 @@ use App\Models\Contratohistorico;
 use App\Models\Empenho;
 use App\Models\Fornecedor;
 use App\Models\Orgao;
+use App\Models\Unidade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use function foo\func;
@@ -18,6 +19,11 @@ class ContratoController extends Controller
     public function orgaosComContratosAtivos()
     {
         return json_encode($this->buscaOrgaosComContratosAtivos());
+    }
+
+    public function unidadesComContratosAtivos()
+    {
+        return json_encode($this->buscaUnidadesComContratosAtivos());
     }
 
     public function cronogramaPorContratoId(int $contrato_id)
@@ -153,13 +159,24 @@ class ContratoController extends Controller
     {
         $orgaos = Orgao::select('codigo')
             ->whereHas('unidades', function ($u) {
-                $u->whereHas('contratos', function ($c){
-                    $c->where('situacao',true);
+                $u->whereHas('contratos', function ($c) {
+                    $c->where('situacao', true);
                 });
             })
             ->orderBy('codigo');
 
         return $orgaos->get();
+    }
+
+    private function buscaUnidadesComContratosAtivos()
+    {
+        $unidades = Unidade::select('codigo')
+            ->whereHas('contratos', function ($c) {
+                $c->where('situacao', true);
+            })
+            ->orderBy('codigo');
+
+        return $unidades->get();
     }
 
     private function buscaCronogramasPorContratoId(int $contrato_id)
