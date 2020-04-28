@@ -515,9 +515,4 @@ class IndexController extends Controller
 
     }
 
-    private function returnoGridContratosSemEmpenho()
-    {
-        return 'GRID Contratos {returnoGridContratosSemEmpenho}';
-    }
-
 }
