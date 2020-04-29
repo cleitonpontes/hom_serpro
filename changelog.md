@@ -2,6 +2,28 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.25]- 21/04/2020
+
+### Implementação
+- Disponibiliação da funcionalidade de excluir Fatura para os Responáveis de contrtatos;
+- Criação de API para retornar Unidades com Contratos Cadastrados.
+
+## [5.0.24]- 14/04/2020
+
+### Bug
+- Correção de erro do atributo2 no formulário select2_from_ajax.
+
+## [5.0.23]- 13/04/2020
+
+### Bug
+- Correção de erro na edição dos Empenhos vinculados aos contratos.
+- Correção dos órgãos no formulário do Comunica. 
+
+## [5.0.22]- 09/04/2020
+
+### Bug
+- Correção da visualização do campo Órgão no formulário Comunica. 
+
 ## [5.0.21]- 06/04/2020
 
 ### Implementação  

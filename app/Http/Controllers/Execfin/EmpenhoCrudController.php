@@ -416,9 +416,9 @@ class EmpenhoCrudController extends CrudController
         $ano = $base->retornaDataMaisOuMenosQtdTipoFormato('Y', '-', '5', 'Days', date('Y-m-d'));
 
         $empenhos = Empenho::where(DB::raw('left(numero,4)'), $ano)
-            ->orWhere('rp', true)
-            ->orderBy('numero')
-            ->get();
+        ->orWhere('rp', true)
+        ->orderBy('numero')
+        ->get();
 
         $amb = 'PROD';
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');

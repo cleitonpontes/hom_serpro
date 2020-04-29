@@ -19,7 +19,7 @@ class OrgaoSuperior extends Base
         $query = \App\Models\OrgaoSuperior::select(DB::raw("CONCAT(codigo, ' - ', nome) AS nome"), 'id');
         $query->orderBy('codigo', 'asc');
 
-        if (backpack_user()->hasRole('Administrador Órgão') && $orgao != 'Todos') {
+        if (!backpack_user()->hasPermissionTo('orgaosuperior_inserir')) {
             $query->where('id', $orgao);
         }
 
