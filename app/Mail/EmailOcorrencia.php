@@ -38,7 +38,6 @@ class EmailOcorrencia extends Mailable
                 'dadosocorrencia' => $this->dadosocorrencia,
             ]);
 
-        $mensagem->attach(env('APP_PATH')."public/robots.txt");
 
         if($anexos){
             foreach ($anexos as $anexo){
