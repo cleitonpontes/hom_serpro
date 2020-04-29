@@ -37,6 +37,11 @@ class Contratoocorrencia extends Model
         'numeroocorrencia',
         'novasituacao',
         'situacao',
+        'arquivos',
+    ];
+
+    protected $casts = [
+        'arquivos' => 'array'
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -102,6 +107,15 @@ class Contratoocorrencia extends Model
             return '';
         }
     }
+
+    public function getArquivos()
+    {
+        if($this->arquivos){
+            return $this->arquivos;
+        }else{
+            return '';
+        }
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -143,4 +157,14 @@ class Contratoocorrencia extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+    public function setArquivosAttribute($value)
+    {
+
+        $attribute_name = "arquivos";
+        $disk = "local";
+        $contrato = Contrato::find($this->contrato_id);
+        $destination_path = "ocorrencia/".$contrato->id."_".str_replace('/','_',$contrato->numero);
+
+        $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
+    }
 }
