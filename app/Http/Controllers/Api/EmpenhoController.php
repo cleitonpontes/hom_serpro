@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Models\Contratoempenho;
 use App\Models\Empenho;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class EmpenhoController extends Controller
 {
@@ -92,5 +93,27 @@ class EmpenhoController extends Controller
         return json_encode($empenhos_array);
     }
 
+    /**
+     * Grava registro em contratoempenho, conforme $empenho, $fornecedor e $contrato
+     *
+     * @param $empenho
+     * @param $fornecedor
+     * @param $contrato
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function gravaContratoEmpenho($empenho, $fornecedor, $contrato)
+    {
+        $modelo = new Contratoempenho();
+
+        $modelo->empenho_id = $empenho;
+        $modelo->fornecedor_id = $fornecedor;
+        $modelo->contrato_id = $contrato;
+
+        $retorno = $modelo->save();
+
+        // return json_encode([$retorno]);
+        return json_encode([true]);
+    }
 
 }
