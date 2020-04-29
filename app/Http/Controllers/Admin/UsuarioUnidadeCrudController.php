@@ -42,7 +42,7 @@ class UsuarioUnidadeCrudController extends CrudController
             $q->where('unidade_id', $unidade_user->id);
         });
         $this->crud->addClause('orwhere', 'ugprimaria', '=', $unidade_user->id);
-
+        $this->crud->addClause('select', 'users.*');
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -59,7 +59,6 @@ class UsuarioUnidadeCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        // TODO: remove setFromDb() and manually define Fields and Columns
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 

@@ -59,6 +59,7 @@ class ContratofaturaCrudController extends CrudController
         if ($conresp) {
             $this->crud->AllowAccess('create');
             $this->crud->AllowAccess('update');
+            $this->crud->AllowAccess('delete');
         }
 
         /*

@@ -28,7 +28,7 @@
                 {{ $field['placeholder'] }}
             </option>
             @endif
-                @if($field['attribute2'])
+                @if(isset($field['attribute2']))
                 <option value="{{ $item->getKey() }}" selected>
                     {{ $item->{$field['attribute']} .' - '. $item->{$field['attribute2']} }}
                 </option>
