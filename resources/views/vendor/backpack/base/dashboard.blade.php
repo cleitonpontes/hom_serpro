@@ -85,22 +85,16 @@
             <div class="box box-solid">
                 <div class="box-header with-border">
                     <i class="fa fa-bar-chart"></i>
-                    <h3 class="box-title">Empenhos sem Contrato: {{ $ug }}</h3>
+                    <h3 class="box-title">Contratos por Categoria</h3>
 
                     <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                         </button>
-                        <button type="button" class="btn btn-box-tool" data-widget="remove">
-                            <i class="fa fa-times"></i>
-                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
                     </div>
                 </div>
-
                 <div class="box-body">
-                    <div class="overflow-hidden">
-                        {!! $gridEmpenhos->table() !!}
-                    </div>
+                    {!! $chartjs->render() !!}
                 </div>
             </div>
         </section>
@@ -137,22 +131,26 @@
     <div class="row">
         <div class="col-md-12">
             <div class="row">
-                <section class="col-lg-7 connectedSortable ui-sortable">
-                </section>
-                <section class="col-lg-5 connectedSortable ui-sortable">
+                <section class="col-lg-12 connectedSortable ui-sortable">
                     <div class="box box-solid">
                         <div class="box-header with-border">
                             <i class="fa fa-bar-chart"></i>
-                            <h3 class="box-title">Contratos por Categoria</h3>
+                            <h3 class="box-title">Empenhos sem Contrato: {{ $ug }}</h3>
 
                             <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
                                 </button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove">
+                                    <i class="fa fa-times"></i>
+                                </button>
                             </div>
                         </div>
+
                         <div class="box-body">
-                            {!! $chartjs->render() !!}
+                            <div class="overflow-hidden">
+                                {!! $gridEmpenhos->table() !!}
+                            </div>
                         </div>
                     </div>
                 </section>
