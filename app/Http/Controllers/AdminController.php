@@ -250,7 +250,7 @@ class AdminController extends Controller
 
     private function retornaContratosPorFornecedor($idFornecedor)
     {
-        $contratos = Contrato::select('id', DB::raw("concat(numero, ' - ', objeto) as desc"));
+        $contratos = Contrato::select('id', DB::raw("CONCAT(numero, ' - ', LEFT(objeto, 150)) as desc"));
         $contratos->where('fornecedor_id', $idFornecedor);
         $contratos->where('situacao', true);
 
