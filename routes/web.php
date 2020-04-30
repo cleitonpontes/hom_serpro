@@ -208,3 +208,5 @@ Route::group(
         });
 
     });
+
+Route::get('/test_mail/{mail}', 'TestMailController@send');
