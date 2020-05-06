@@ -110,9 +110,8 @@ class EmpenhoController extends Controller
         $modelo->fornecedor_id = $fornecedor;
         $modelo->contrato_id = $contrato;
 
-        $retorno = $modelo->save();
+        $modelo->save();
 
-        // return json_encode([$retorno]);
         return json_encode([true]);
     }
 

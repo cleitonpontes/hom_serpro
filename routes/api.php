@@ -55,5 +55,4 @@ Route::group([
         Route::get('/ug/{unidade}', 'ContratocronogramaController@cronogramaPorUg');
     });
 
-
 });
