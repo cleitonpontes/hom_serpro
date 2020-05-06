@@ -14,7 +14,7 @@ class AddOrgaoToComunica extends Migration
     public function up()
     {
         Schema::table('comunica', function (Blueprint $table) {
-            $table->integer('orgao_id')->nullable()->default('')->after('id');;
+            $table->integer('orgao_id')->nullable()->after('id');;
 
             $table->foreign('orgao_id')->references('id')->on('orgaos')->onDelete('cascade');
         });

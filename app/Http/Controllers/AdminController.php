@@ -26,9 +26,8 @@ class AdminController extends Controller
     /**
      * Create a new controller instance.
      */
-    public function __construct(Builder $htmlBuilder)
+    public function __construct()
     {
-        $this->htmlBuilder = $htmlBuilder;
         $this->middleware(backpack_middleware());
     }
 
@@ -37,10 +36,14 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, Builder $htmlBuilder)
     {
+        // Configurações iniciais
+        $this->htmlBuilder = $htmlBuilder;
         $this->data['title'] = "Início"; //trans('backpack::base.dashboard'); // set the page title
+        $ug = session('user_ug');
 
+        // Calendário
         $events = $this->getEvents();
 
         $calendar = \Calendar::addEvents($events)->setOptions([
@@ -48,6 +51,7 @@ class AdminController extends Controller
 //            'aspectRatio' => 2.5,
         ])->setCallbacks([]);
 
+        // Gráfico Contratos por Categoria
         $colors = $this->getColors();
 
         $categorias = $this->retornaCategorias();
@@ -55,40 +59,30 @@ class AdminController extends Controller
 
         $chartjs = $this->retornaGrafico($colors, $categorias, $contrato);
 
+        // Empenhos sem Contrato
         $dadosContratos = $this->retornaDadosContratos();
 
         // Monta GRID Empenhos sem Contrato
         if ($request->ajax()) {
             $dt = DataTables::of($this->retornaDadosEmpenhosSemContratos());
 
-            $dt->addColumn('contratos', function ($registro) {
+            $dt->addColumn('contratos', function ($registro) use ($ug) {
                 $idEmpenho = $registro['id'];
                 $idFornecedor = $registro['fornecedor_id'];
-                $opcoes = $this->retornaContratosPorFornecedor($idFornecedor);
+                $opcoes = $this->retornaContratosPorFornecedor($ug, $idFornecedor);
 
-                $campoSelect = "";
-                $campoSelect .= "<select ";
-                $campoSelect .= "id='$idEmpenho' ";
-                $campoSelect .= "style='width: 155px;' ";
-                $campoSelect .= ">";
-                $campoSelect .= "<option value=''>Selecione o contrato</option>";
+                $podeVincularContrato = backpack_user()->hasPermissionTo('contratoempenho_inserir');
 
-                foreach ($opcoes as $idContrato => $desc) {
-                    $campoSelect .= "<option value='$idContrato'>$desc</option>";
+                $botaoConfirma = '';
+                $campoSelect = $this->retornaHtmlCampoSelect($idEmpenho, $opcoes);
+
+                if ($podeVincularContrato) {
+                    $botaoConfirma = $this->retornaHtmlBotaoConfirma($idEmpenho, $idFornecedor);
                 }
-
-                $campoSelect .= "</select>";
-
-                $botaoConfirma = "";
-                $botaoConfirma .= "<i ";
-                $botaoConfirma .= "class='contrato fa fa-tags text-green' ";
-                $botaoConfirma .= "data-ne='$idEmpenho' ";
-                $botaoConfirma .= "data-fornecedor='$idFornecedor' ";
-                $botaoConfirma .= ">";
-                $botaoConfirma .= "</i>";
 
                 return $campoSelect . ' ' . $botaoConfirma;
             });
+            $dt->editColumn('valor', '{!! number_format(floatval($valor), 2, ",", ".") !!}');
 
             $dt->rawColumns(['contratos']);
             $dt->setRowId('linha_id');
@@ -102,7 +96,7 @@ class AdminController extends Controller
             'data' => $this->data,
             'chartjs' => $chartjs,
             'html' => $dadosContratos,
-            'ug' => session('user_ug'),
+            'ug' => $ug,
             'gridEmpenhos' => $gridEmpenhos
         ]);
     }
@@ -248,11 +242,16 @@ class AdminController extends Controller
         return $dadosContratos;
     }
 
-    private function retornaContratosPorFornecedor($idFornecedor)
+    private function retornaContratosPorFornecedor($ug, $idFornecedor)
     {
-        $contratos = Contrato::select('id', DB::raw("CONCAT(numero, ' - ', LEFT(objeto, 150)) as desc"));
-        $contratos->where('fornecedor_id', $idFornecedor);
-        $contratos->where('situacao', true);
+        $contratos = Contrato::join('unidades as U', 'U.id', '=', 'contratos.unidade_id');
+        $contratos->select(
+            'contratos.id',
+            DB::raw("CONCAT(contratos.numero, ' - ', LEFT(contratos.objeto, 150)) as desc")
+        );
+        $contratos->where('U.codigosiasg', $ug);
+        $contratos->where('contratos.fornecedor_id', $idFornecedor);
+        $contratos->where('contratos.situacao', true);
 
         return $contratos->pluck('desc', 'id')->toArray();
     }
@@ -577,6 +576,38 @@ class AdminController extends Controller
         ]);
 
         return $html;
+    }
+
+    private function retornaHtmlCampoSelect($idEmpenho, $opcoes)
+    {
+        $campoSelect = "";
+        $campoSelect .= "<select ";
+        $campoSelect .= "id='$idEmpenho' ";
+        $campoSelect .= "style='width: 155px;' ";
+        $campoSelect .= ">";
+        $campoSelect .= "<option value=''>Selecione o contrato</option>";
+
+        foreach ($opcoes as $idContrato => $desc) {
+            $campoSelect .= "<option value='$idContrato'>$desc</option>";
+        }
+
+        $campoSelect .= "</select>";
+
+        return $campoSelect;
+    }
+
+    private function retornaHtmlBotaoConfirma($idEmpenho, $idFornecedor)
+    {
+        $botaoConfirma = "";
+        $botaoConfirma .= "<i ";
+        $botaoConfirma .= "class='contrato fa fa-tags text-green' ";
+        $botaoConfirma .= "style='margin-left: 5px' ";
+        $botaoConfirma .= "data-ne='$idEmpenho' ";
+        $botaoConfirma .= "data-fornecedor='$idFornecedor' ";
+        $botaoConfirma .= ">";
+        $botaoConfirma .= "</i>";
+
+        return $botaoConfirma;
     }
 
 }
