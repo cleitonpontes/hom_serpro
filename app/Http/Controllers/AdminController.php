@@ -602,6 +602,7 @@ class AdminController extends Controller
         $botaoConfirma .= "<i ";
         $botaoConfirma .= "class='contrato fa fa-tags text-green' ";
         $botaoConfirma .= "style='margin-left: 5px' ";
+        $botaoConfirma .= "title='Salvar' ";
         $botaoConfirma .= "data-ne='$idEmpenho' ";
         $botaoConfirma .= "data-fornecedor='$idFornecedor' ";
         $botaoConfirma .= ">";
