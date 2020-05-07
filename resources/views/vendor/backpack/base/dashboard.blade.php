@@ -183,6 +183,32 @@
             </div>
         </div>
     </div>
+
+    <!-- #Modal -->
+    <div class="modal fade semPermissaoVinculoContrato" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title ">
+                        Empenhos sem Contrato: {{ $ug }}
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Usuário não tem permissão para vincular Contrato ao Empenho.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default alert-error" data-dismiss="modal">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('after_scripts')
@@ -212,8 +238,8 @@
                 success: function(retorno) {
                     $(linha).remove();
                 },
-                error: function(e) {
-                    // alert('Erro...');
+                error: function(xhr, ajaxOptions, thrownError) {
+                    $('.semPermissaoVinculoContrato').modal('show');
                 }
             });
         });
