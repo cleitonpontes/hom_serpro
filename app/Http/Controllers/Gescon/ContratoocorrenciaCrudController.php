@@ -223,10 +223,7 @@ class ContratoocorrenciaCrudController extends CrudController
         if ($request->input('notificapreposto')) {
             $dadosOcorrencia = $this->getDadosOcorrencia($id = $this->crud->entry->id);
 
-            Mail::to($dadosOcorrencia['emailpreposto'])
-                ->send(new EmailOcorrencia($dadosOcorrencia));
-
-//            OcorrenciaMailJob::dispatch($dadosOcorrencia);
+            OcorrenciaMailJob::dispatch($dadosOcorrencia);
         }
 
 
