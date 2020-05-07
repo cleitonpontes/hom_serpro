@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Gescon;
 
 use App\Models\Contrato;
 use App\Models\Fornecedor;
+use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -138,12 +139,14 @@ class SubrogacaoCrudController extends CrudController
             ->where('situacao',true)
             ->orderBy('contratos.numero', 'asc')->pluck('nome', 'id')->toArray();
 
+        $ug = Unidade::find(session()->get('user_ug_id'));
+
         return [
             [ // select_from_array
                 'name' => 'unidadeorigem_id',
                 'label' => "Unidade Origem",
                 'type' => 'select2_from_array',
-                'options' => [session()->get('user_ug_id') => session()->get('user_ug')],
+                'options' => [$ug->id => $ug->codigo.' - '.$ug->nomeresumido],
                 'allows_null' => false,
 //                'attributes' => [
 //                    'disabled' => 'disabled',
@@ -165,6 +168,8 @@ class SubrogacaoCrudController extends CrudController
                 'name' => 'unidadedestino_id', // the column that contains the ID of that connected entity
                 'entity' => 'unidadeDestino', // the method that defines the relationship in your Model
                 'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
                 'model' => "App\Models\Unidade", // foreign key model
                 'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
                 'placeholder' => "Selecione a Unidade", // placeholder for the select

@@ -44,13 +44,14 @@ class UsuarioOrgaoCrudController extends CrudController
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuarioorgao');
         $this->crud->setEntityNameStrings('Usuário Órgão: ' . $orgao->codigo, 'Usuários Órgão: ' . $orgao->codigo);
+
         $this->crud->addClause('whereHas', 'unidades', function ($q) use ($unidades_orgao) {
             $q->whereIn('unidade_id', $unidades_orgao);
         });
         foreach ($unidades_orgao as $item) {
             $this->crud->addClause('orwhere', 'ugprimaria', '=', $item);
         }
-
+        $this->crud->addClause('select', 'users.*');
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');

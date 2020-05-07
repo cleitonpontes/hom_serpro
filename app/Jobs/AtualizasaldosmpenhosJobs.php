@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Controller;
 use App\Models\BackpackUser;
 use App\Models\Empenhodetalhado;
 use App\Models\Unidade;
@@ -56,6 +58,7 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
     public function handle()
     {
         $dado = [];
+
         foreach ($this->contas_contabeis as $item => $valor) {
 
             $contacontabil1 = $valor;
@@ -67,7 +70,8 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
 
             $saldocontabilSta = new ConsultaApiSta();
             $retorno = null;
-            $retorno = $saldocontabilSta->saldocontabilUgGestaoContacontabilContacorrente(
+            $retorno = $saldocontabilSta->saldocontabilAnoUgGestaoContacontabilContacorrente(
+                $this->ano,
                 $this->ug,
                 $gestao,
                 $contacontabil1,

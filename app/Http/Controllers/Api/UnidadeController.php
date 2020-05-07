@@ -16,7 +16,8 @@ class UnidadeController extends Controller
         if ($search_term)
         {
             $results = Unidade::where('codigo', 'LIKE', '%'.strtoupper($search_term).'%')
-                ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                ->orWhere('nome', 'LIKE', '%'.strtoupper($search_term).'%')
+                ->orWhere('nomeresumido', 'LIKE', '%'.strtoupper($search_term).'%')
                 ->paginate(10);
         }
         else

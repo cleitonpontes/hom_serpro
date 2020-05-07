@@ -2,6 +2,53 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.25]- 21/04/2020
+
+### Implementação
+- Disponibiliação da funcionalidade de excluir Fatura para os Responáveis de contrtatos;
+- Criação de API para retornar Unidades com Contratos Cadastrados.
+
+## [5.0.24]- 14/04/2020
+
+### Bug
+- Correção de erro do atributo2 no formulário select2_from_ajax.
+
+## [5.0.23]- 13/04/2020
+
+### Bug
+- Correção de erro na edição dos Empenhos vinculados aos contratos.
+- Correção dos órgãos no formulário do Comunica. 
+
+## [5.0.22]- 09/04/2020
+
+### Bug
+- Correção da visualização do campo Órgão no formulário Comunica. 
+
+## [5.0.21]- 06/04/2020
+
+### Implementação  
+- Adequação da Migração de Empenhos;
+- Adequação da Atualização dos Saldos de Empenhos;
+- Inclusão da Migração de Restos a Pagar com atualização de saldos;
+- Inclusão da descrição complementar nos campos de Select com AJAX;
+- Criação de API para retornar Órgãos com Contratos Cadastrados;
+- Criação do campo rp na tabela de empenhos;
+- Criação do campo orgao_id na tabela comunica;
+- Incluir campo Órgão na listagem de comunicações;
+- Incluir combo Órgão, vísivel mediante perfil;
+- Alteração no combo unidades para pesquisa ajax (autocomplete) por melhoria de performance;
+- Alteração no ComunicaObserver que passar a enviar mensagens filtrando por órgão, unidade ou perfil informados;
+- Documentação PHPDoc nas classes e métodos afetados;
+- Minor changes para uso de constantes,
+
+## [5.0.20]- 26/03/2020
+
+### Implementação  
+- Inclusão do Nome da Unidade Gestora nos formulários da Sub-Rogação;
+
+### Bug  
+- Correção de Resetar Copiados nos Alertas Diários.
+
 ## [5.0.19]- 22/03/2020
 
 ### Implementação  

@@ -68,18 +68,11 @@ class MigracaoempenhoJob implements ShouldQueue
             $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                 ->first();
 
-//                $empenho = Empenho::where('numero', '=', $d['numero'])
-//                    ->where('unidade_id', '=', $unidade->id)
-//                    ->where('fornecedor_id', '=', $credor->id)
-//                    ->where('planointerno_id', '=', $pi->id)
-//                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
-//                    ->first();
-
             $empenho = Empenho::where('numero', '=', trim($d['numero']))
                 ->where('unidade_id', '=', $unidade->id)
                 ->first();
 
-            if (!$empenho) {
+            if (!isset($empenho->id)) {
                 $empenho = Empenho::create([
                     'numero' => trim($d['numero']),
                     'unidade_id' => $unidade->id,
@@ -104,7 +97,7 @@ class MigracaoempenhoJob implements ShouldQueue
                     ->where('naturezasubitem_id', '=', $naturezasubitem->id)
                     ->first();
 
-                if (!$empenhodetalhado) {
+                if (!isset($empenhodetalhado)) {
                     $empenhodetalhado = Empenhodetalhado::create([
                         'empenho_id' => $empenho->id,
                         'naturezasubitem_id' => $naturezasubitem->id

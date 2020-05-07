@@ -39,6 +39,8 @@ Route::group([
         Route::get('/{contrato_id}/empenhos', 'ContratoController@empenhosPorContratoId');
         Route::get('/empenhos', 'ContratoController@empenhosPorContratos');
         Route::get('/{contrato_id}/cronograma', 'ContratoController@cronogramaPorContratoId');
+        Route::get('/orgaos', 'ContratoController@orgaosComContratosAtivos');
+        Route::get('/unidades', 'ContratoController@unidadesComContratosAtivos');
     });
 
     Route::group([
