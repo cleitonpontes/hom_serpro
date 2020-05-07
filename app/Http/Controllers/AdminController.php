@@ -600,9 +600,10 @@ class AdminController extends Controller
     {
         $botaoConfirma = "";
         $botaoConfirma .= "<a ";
-        $botaoConfirma .= "href='' ";
-        $botaoConfirma .= "class='btn btn-xs btn-default' ";
+        $botaoConfirma .= "class='contrato btn btn-xs btn-default' ";
         $botaoConfirma .= "style='margin-left: 5px;' ";
+        $botaoConfirma .= "data-ne='$idEmpenho' ";
+        $botaoConfirma .= "data-fornecedor='$idFornecedor' ";
         $botaoConfirma .= "title='Vincular contrato ao empenho' ";
         $botaoConfirma .= ">";
         $botaoConfirma .= "<i class='fa fa-tags'></i>";
