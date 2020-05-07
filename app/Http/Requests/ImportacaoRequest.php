@@ -32,6 +32,7 @@ class ImportacaoRequest extends FormRequest
             'tipo_id' => 'required',
             'unidade_id' => 'required',
             'contrato_id' => 'required',
+            'situacao_id' => 'required',
             'delimitador' => 'required|max:1' ,
             'arquivos.*' => 'required',
         ];
@@ -45,7 +46,13 @@ class ImportacaoRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'nome_arquivo' => 'Nome do Arquivo',
+            'tipo_id' => 'Tipo',
+            'unidade_id' => 'Unidade Gestora',
+            'contrato_id' => 'Contrato',
+            'delimitador' => 'Delimitador' ,
+            'arquivos.*' => 'Arquivos',
+            'situacao_id' => 'Situação',
         ];
     }
 
@@ -57,7 +64,8 @@ class ImportacaoRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'delimitador.max' => "O campo :attribute não pode ser superior a 1 caractere.",
+
         ];
     }
 }
