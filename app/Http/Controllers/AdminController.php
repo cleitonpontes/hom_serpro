@@ -599,14 +599,15 @@ class AdminController extends Controller
     private function retornaHtmlBotaoConfirma($idEmpenho, $idFornecedor)
     {
         $botaoConfirma = "";
-        $botaoConfirma .= "<i ";
-        $botaoConfirma .= "class='contrato fa fa-tags text-green' ";
-        $botaoConfirma .= "style='margin-left: 5px' ";
-        $botaoConfirma .= "title='Salvar' ";
+        $botaoConfirma .= "<a ";
+        $botaoConfirma .= "class='contrato btn btn-xs btn-default' ";
+        $botaoConfirma .= "style='margin-left: 5px;' ";
         $botaoConfirma .= "data-ne='$idEmpenho' ";
         $botaoConfirma .= "data-fornecedor='$idFornecedor' ";
+        $botaoConfirma .= "title='Vincular contrato ao empenho' ";
         $botaoConfirma .= ">";
-        $botaoConfirma .= "</i>";
+        $botaoConfirma .= "<i class='fa fa-tags'></i>";
+        $botaoConfirma .= "</a>";
 
         return $botaoConfirma;
     }
