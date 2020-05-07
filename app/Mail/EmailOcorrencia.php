@@ -38,11 +38,11 @@ class EmailOcorrencia extends Mailable
                 'dadosocorrencia' => $this->dadosocorrencia,
             ]);
 
+        $path = env('APP_PATH')."storage/app/";
 
         if(count($anexos)){
             foreach ($anexos as $anexo){
-                dd(env('APP_PATH')."storage/app/".$anexo);
-                $mensagem->attach(env('APP_PATH')."storage/app/".$anexo);
+                $mensagem->attach($path.$anexo);
             }
         }
 
