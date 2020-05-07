@@ -39,8 +39,9 @@ class EmailOcorrencia extends Mailable
             ]);
 
 
-        if($anexos){
+        if(count($anexos)){
             foreach ($anexos as $anexo){
+                dd(env('APP_PATH')."storage/app/".$anexo);
                 $mensagem->attach(env('APP_PATH')."storage/app/".$anexo);
             }
         }
