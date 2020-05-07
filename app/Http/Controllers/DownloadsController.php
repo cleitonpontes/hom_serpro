@@ -37,8 +37,7 @@ class DownloadsController extends Controller
 
     public function anexosocorrencia($path,$file)
     {
-
-        if (! file_exists(env('APP_PATH')."storage/app/".$path."/".$file)) {
+        if (! file_exists(env('APP_PATH')."storage/app/ocorrencia/".$path."/".$file)) {
 
             return redirect()
                 ->back()
@@ -46,7 +45,7 @@ class DownloadsController extends Controller
                 ->withInput();
         }
 
-        return Storage::download($path."/".$file);
+        return Storage::download('ocorrencia/'.$path."/".$file);
     }
 
     public function declaration($file)
