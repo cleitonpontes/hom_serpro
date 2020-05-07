@@ -46,4 +46,17 @@ class DownloadsController extends Controller
 
         return Storage::download('declaration/'.$file);
     }
+
+    public function importacao($path,$file)
+    {
+        if (! file_exists(env('APP_PATH')."storage/app/importacao/".$path."/".$file)) {
+
+            return redirect()
+                ->back()
+                ->with('error', 'Arquivo não existe!')
+                ->withInput();
+        }
+
+        return Storage::download('importacao/'.$path."/".$file);
+    }
 }

@@ -50,6 +50,9 @@ Route::group([
         Route::get('/storage/comunica/anexos/{file}', 'DownloadsController@anexoscomunica');
 
 
+        Route::get('/storage/importacao/{path}/{file}', 'DownloadsController@importacao');
+
+
         Route::get('/mensagens', 'AdminController@listaMensagens');
         Route::get('/mensagem/{id}', 'AdminController@lerMensagem');
 
