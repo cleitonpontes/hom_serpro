@@ -35,6 +35,20 @@ class DownloadsController extends Controller
         return Storage::download('comunica/anexos/'.$file);
     }
 
+    public function anexosocorrencia($path,$file)
+    {
+
+        if (! file_exists(env('APP_PATH')."storage/app/".$path."/".$file)) {
+
+            return redirect()
+                ->back()
+                ->with('error', 'Arquivo não existe!')
+                ->withInput();
+        }
+
+        return Storage::download($path."/".$file);
+    }
+
     public function declaration($file)
     {
         if (! file_exists(env('APP_PATH')."storage/app/declaration/".$file)) {
