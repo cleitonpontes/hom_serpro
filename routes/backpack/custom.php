@@ -39,24 +39,20 @@ Route::group([
             Route::get('ocorrenciaconcluida/{id}', 'OcorrenciaconcluidaController@show');
         });
 
-// if not otherwise configured, setup the dashboard routes
+        // if not otherwise configured, setup the dashboard routes
         if (config('backpack.base.setup_dashboard_routes')) {
             Route::get('inicio', 'AdminController@index')->name('backpack.inicio');
             Route::get('/', 'AdminController@redirect')->name('backpack');
             Route::get('/dashboard', 'AdminController@redirect')->name('backpack');
         }
 
-
         Route::get('/storage/comunica/anexos/{file}', 'DownloadsController@anexoscomunica');
-
         Route::get('/storage/ocorrencia/{path}/{file}', 'DownloadsController@anexosocorrencia');
-
 
         Route::get('/mensagens', 'AdminController@listaMensagens');
         Route::get('/mensagem/{id}', 'AdminController@lerMensagem');
 
 //        Route::get('/admin/phpinfo', 'AdminController@phpInfo');
-
 
         Route::group([
             'prefix' => 'painel',
@@ -149,12 +145,15 @@ Route::group([
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
+            Route::group(['prefix' => 'consulta/'], function() {
+                CRUD::resource('ocorrencias', 'ConsultaocorrenciaCrudController');
+            });
+
             Route::group(['prefix' => 'contratohistorico/{contratohistorico_id}'], function () {
                 CRUD::resource('itens', 'SaldohistoricoitemCrudController');
             });
 
             Route::get('/saldohistoricoitens/carregaritens/{tipo}/{contratohistorico_id}', 'SaldohistoricoitemCrudController@carregarItens');
-
 
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
@@ -163,7 +162,6 @@ Route::group([
             });
 
 //            Route::get('/notificausers', 'ContratoCrudController@notificaUsers');
-
         });
 
         Route::group([
