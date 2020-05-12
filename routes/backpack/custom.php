@@ -182,6 +182,7 @@ Route::group([
 
             Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaMigracaoEmpenho');
             Route::get('/atualizasaldosempenhos', 'EmpenhoCrudController@executaAtualizaSaldosEmpenhos');
+            Route::get('/atualizanaturezadespesas', 'EmpenhoCrudController@executaAtualizacaoNd');
 
             Route::group(['prefix' => 'empenho/{empenho_id}'], function () {
                 CRUD::resource('empenhodetalhado', 'EmpenhodetalhadoCrudController');

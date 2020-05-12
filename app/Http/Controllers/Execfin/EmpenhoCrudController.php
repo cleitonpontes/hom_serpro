@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Execfin;
 
 use App\Http\Controllers\AdminController;
+use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoempenhoJob;
 use App\Models\Empenho;
@@ -410,15 +411,46 @@ class EmpenhoCrudController extends CrudController
         }
     }
 
+    public function executaAtualizacaoNd()
+    {
+//        $this->NdAtualizacao();
+        AtualizaNaturezaDespesasJob::dispatch();
+
+        if (backpack_user()) {
+            \Alert::success('Atualização de ND em Andamento!')->flash();
+            return redirect('/execfin/empenho');
+        }
+    }
+
+    public function NdAtualizacao()
+    {
+        $migracao_url = config('migracao.api_sta');
+        $url = $migracao_url . '/api/estrutura/naturezadespesas';
+
+        $base = new AdminController();
+        $dados = $base->buscaDadosUrlMigracao($url);
+
+        foreach ($dados as $dado) {
+            $nd = new Naturezadespesa();
+            $busca_nd = $nd->buscaNaturezaDespesa($dado);
+
+            $subitem = new Naturezasubitem();
+            $busca_si = $subitem->buscaNaturezaSubitem($dado, $busca_nd);
+        }
+
+        return 'Atualização realizada com sucesso!';
+
+    }
+
     public function executaAtualizaSaldosEmpenhos()
     {
         $base = new AdminController();
         $ano = $base->retornaDataMaisOuMenosQtdTipoFormato('Y', '-', '5', 'Days', date('Y-m-d'));
 
         $empenhos = Empenho::where(DB::raw('left(numero,4)'), $ano)
-        ->orWhere('rp', true)
-        ->orderBy('numero')
-        ->get();
+            ->orWhere('rp', true)
+            ->orderBy('numero')
+            ->get();
 
         $amb = 'PROD';
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');

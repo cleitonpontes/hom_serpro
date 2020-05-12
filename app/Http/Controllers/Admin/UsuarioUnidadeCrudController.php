@@ -11,6 +11,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\UsuarioUnidadeRequest as StoreRequest;
 use App\Http\Requests\UsuarioUnidadeRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -38,11 +39,18 @@ class UsuarioUnidadeCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuariounidade');
         $this->crud->setEntityNameStrings('Usuário Unidade: ' . $unidade_user->codigo,
             'Usuários Unidade: ' . $unidade_user->codigo);
+
         $this->crud->addClause('whereHas', 'unidades', function ($q) use ($unidade_user) {
             $q->where('unidade_id', $unidade_user->id);
         });
-        $this->crud->addClause('orwhere', 'ugprimaria', '=', $unidade_user->id);
+
+        $this->crud->addClause('orWhere', 'ugprimaria', '=', $unidade_user->id);
+
+//        dd($this->crud->query);
+
         $this->crud->addClause('select', 'users.*');
+
+
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -87,16 +95,25 @@ class UsuarioUnidadeCrudController extends CrudController
                 'name' => 'cpf',
                 'label' => 'CPF',
                 'type' => 'text',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('users.cpf', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+                },
             ],
             [
                 'name' => 'name',
                 'label' => 'Nome',
                 'type' => 'text',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('users.name', 'like', "%" . strtoupper($searchTerm) . "%");
+                },
             ],
             [
                 'name' => 'email',
                 'label' => 'E-mail',
                 'type' => 'email',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('users.email', 'like', "%" . utf8_encode(utf8_decode(strtolower($searchTerm))) . "%");
+                },
             ],
             [
                 'name' => 'getUGPrimaria',
@@ -104,12 +121,9 @@ class UsuarioUnidadeCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'getUGPrimaria', // the method in your Model
                 'orderable' => true,
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('unidades.codigo', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+//                    $query->orWhere('unidades.nomeresumido', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
 //                },
             ],
             [ // n-n relationship (with pivot table)

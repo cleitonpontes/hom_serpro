@@ -19,6 +19,29 @@ class Naturezasubitem extends Model
 
     protected $table = 'naturezasubitem';
 
+
+    public function buscaNaturezaSubitem(array $dado, Naturezadespesa $naturezadespesa)
+    {
+        $subitem = $this->whereHas('naturezadespesa', function ($nd) use ($naturezadespesa){
+            $nd->where('codigo',$naturezadespesa->codigo);
+        })
+            ->where('codigo',$dado['codigo_subitem'])
+            ->first();
+
+        if(!isset($subitem->id)){
+            $subitem = new Naturezasubitem();
+            $subitem->naturezadespesa_id = $naturezadespesa->id;
+            $subitem->codigo = $dado['codigo_subitem'];
+            $subitem->descricao = $dado['descricao_subitem'];
+            $subitem->situacao = true;
+            $subitem->save();
+        }else{
+            $subitem->descricao = $dado['descricao_subitem'];
+            $subitem->save();
+        }
+        return $subitem;
+    }
+
     public function naturezadespesa()
     {
         return $this->belongsTo(Naturezadespesa::class, 'naturezadespesa_id');

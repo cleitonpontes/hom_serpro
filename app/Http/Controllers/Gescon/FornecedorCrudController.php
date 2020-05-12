@@ -8,6 +8,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\FornecedorRequest as StoreRequest;
 use App\Http\Requests\FornecedorRequest as UpdateRequest;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class FornecedorCrudController
@@ -65,6 +66,9 @@ class FornecedorCrudController extends CrudController
             'limit' => 1000,
             'label' => 'Nome / Razão Social',
             'type'  => 'text',
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('nome', 'like', "%" . strtoupper($searchTerm) . "%");
+            },
         ]);
 
         $tipo_fornecedor = Codigoitem::whereHas('codigo', function ($q){
