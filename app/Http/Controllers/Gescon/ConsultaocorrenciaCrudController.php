@@ -2,18 +2,31 @@
 
 namespace App\Http\Controllers\Gescon;
 
-// use App\Models\ContratoocorrenciaConsulta;
+use App\Models\BackpackUser;
+use App\Models\Codigoitem;
+use App\Models\Contrato;
+use App\Models\Fornecedor;
+use App\Models\Situacoes;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class ConsultaocorrenciaCrudController
  * @package App\Http\Controllers\Gescon
  * @property-read CrudPanel $crud
+ * @author Anderson Sathler <asathler@gmail.com>
  */
 class ConsultaocorrenciaCrudController extends CrudController
 {
+    /**
+     * Configurações iniciais do Backpack
+     *
+     * @throws \Exception
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function setup()
     {
         /*
@@ -21,16 +34,17 @@ class ConsultaocorrenciaCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel('App\Models\ContratoocorrenciaConsulta');
+        $this->crud->setModel('App\Models\Contratoocorrencia');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/consulta/ocorrencias');
         $this->crud->setEntityNameStrings('Ocorrência', 'Ocorrências');
         $this->crud->setHeading('Consulta Ocorrências por Contrato');
         $this->crud->enableExportButtons();
 
+        $this->crud->allowAccess('show');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
-        $this->crud->removeAllButtons();
+        // $this->crud->removeAllButtons();
 
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratoocorrencias.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
@@ -40,7 +54,6 @@ class ConsultaocorrenciaCrudController extends CrudController
         $this->crud->addClause('join', 'codigoitens as codigoitensnova', 'codigoitensnova.id', '=', 'contratoocorrencias.novasituacao');
         $this->crud->addClause('select',
             [
-                'contratoocorrencias.*',
                 'contratos.id',
                 'contratos.numero',
                 'contratos.fornecedor_id',
@@ -56,12 +69,13 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'users.name',
                 'unidades.codigosiasg',
                 'codigoitens.id',
-                'codigoitens.descricao'
+                'codigoitens.descricao',
+                'contratoocorrencias.*'
             ]
         );
 
         // Apenas ocorrências da unidade atual
-        $this->crud->addClause('where', 'unidades.codigosiasg', '=', '110161');
+        $this->crud->addClause('where', 'unidades.codigosiasg', '=', session('user_ug'));
 
         /*
         |--------------------------------------------------------------------------
@@ -70,131 +84,535 @@ class ConsultaocorrenciaCrudController extends CrudController
         */
 
         $this->crud->addColumns($this->retornaColunas());
+        $this->adicionaFiltros();
     }
 
+    /**
+     * Action para exibição de um único registro
+     *
+     * @param int $id
+     * @return \Backpack\CRUD\app\Http\Controllers\Operations\Response
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumns([
+            'id',
+            'contrato.unidade.codigosiasg',
+            'unidade.codigosiasg',
+            'codigosiasg'
+        ]);
+
+        return $content;
+    }
+
+    /**
+     * Retorna colunas a serem exibidas bem como suas definições
+     *
+     * @return array[]
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function retornaColunas()
     {
         $colunas = [
             [
-                'name' => 'id',
-                'label' => '#',
-                'type' => 'number',
-                'orderable' => false,
-                'visibleInTable' => false,
-                'visibleInModal' => false,
-                'visibleInExport' => false,
-                'visibleInShow' => false
-            ],
-            [
-                'name' => 'contrato.unidade.codigosiasg',
-                'label' => 'UG',
-                'orderable' => false,
-                'visibleInTable' => false,
-                'visibleInModal' => false,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
                 'name' => 'contrato.numero',
                 'label' => 'Número Contrato',
-                'type' => 'string'
+                'type' => 'string',
+                'priority' => 1,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'getFornecedor',
                 'label' => 'Fornecedor',
                 'type' => 'model_function',
                 'function_name' => 'getFornecedor',
-                'limit' => 100
+                'priority' => 2,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
+                    $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+                }
             ],
             [
                 'name' => 'contrato.objeto',
                 'label' => 'Objeto',
-                'limit' => 150
+                'limit' => 150,
+                'priority' => 3,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'getVigenciaInicio',
                 'label' => 'Vig. Início',
                 'type' => 'model_function',
-                'function_name' => 'getVigenciaInicio'
+                'function_name' => 'getVigenciaInicio',
+                'priority' => 6,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'getVigenciaFim',
                 'label' => 'Vig. Fim',
                 'type' => 'model_function',
-                'function_name' => 'getVigenciaFim'
+                'function_name' => 'getVigenciaFim',
+                'priority' => 5,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
-                'name' => 'getvalorGlobal',
+                'name' => 'getValorGlobal',
                 'label' => 'Valor Global',
                 'type' => 'model_function',
                 'function_name' => 'getvalorGlobal',
-                'prefix' => 'R$ '
+                'prefix' => 'R$ ',
+                'priority' => 4,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'contrato.num_parcelas',
-                'label' => 'Núm. Parcelas'
+                'label' => 'Núm. Parcelas',
+                'priority' => 8,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'getValorParcela',
                 'label' => 'Valor Parcela',
                 'type' => 'model_function',
                 'function_name' => 'getValorParcela',
-                'prefix' => 'R$ '
+                'prefix' => 'R$ ',
+                'priority' => 7,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
-                'name' => 'getUsuario',
-                'label' => 'Usuário',
-                'type' => 'model_function',
-                'function_name' => 'getUsuario'
+                'name' => 'numero',
+                'label' => 'Núm. Ocorrência',
+                'priority' => 9,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
+            ],
+            [
+                'name' => 'ocorrencia',
+                'label' => 'Descrição',
+                'limit' => 50000,
+                'priority' => 10,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'data',
                 'label' => 'Data',
                 'type' => 'date',
-                'format' => 'd/m/Y'
+                'format' => 'd/m/Y',
+                'priority' => 11,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
-                'name' => 'ocorrencia',
-                'label' => 'Descrição',
-                'limit' => 200
+                'name' => 'getUsuario',
+                'label' => 'Usuário',
+                'type' => 'model_function',
+                'function_name' => 'getUsuario',
+                'priority' => 12,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'notificapreposto',
                 'label' => 'Notifica Preposto',
                 'type' => 'boolean',
-                'options' => [0 => 'Não', 1 => 'Sim']
+                'options' => [
+                    0 => 'Não',
+                    1 => 'Sim'
+                ],
+                'priority' => 13,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'emailpreposto',
                 'label' => 'E-mail Preposto',
                 'type' => 'email',
-                'limit' => 100
+                'limit' => 10000,
+                'priority' => 14,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'numeroocorrencia',
                 'label' => 'Ocorrência Alterada',
-                'type' => 'number'
+                'type' => 'number',
+                'priority' => 15,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'getSituacao',
                 'label' => 'Situação',
                 'type' => 'model_function',
-                'function_name' => 'getSituacao'
+                'function_name' => 'getSituacaoConsulta',
+                'priority' => 16,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
                 'name' => 'getSituacaoNova',
                 'label' => 'Nova Situação',
                 'type' => 'model_function',
-                'function_name' => 'getSituacaoNova'
+                'function_name' => 'getSituacaoNovaConsulta',
+                'priority' => 17,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
             ],
             [
-                'name' => 'getArquivos',
+                'name' => 'arquivos',
                 'label' => 'Arquivos',
-                'type' => 'model_function',
-                'function_name' => 'getArquivos'
+                'type' => 'arquivos_ico',
+                'disk' => 'local',
+                'priority' => 18,
+                'orderable' => false,
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
+            ],
+            [
+                'name' => 'contrato.unidade.codigosiasg',
+                'label' => 'UG',
+                'priority' => 99,
+                'orderable' => false,
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => true,
+                'visibleInShow' => false
+            ],
+            [
+                'name' => 'id',
+                'label' => '#',
+                'type' => 'number',
+                'priority' => 100,
+                'orderable' => false,
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => false,
+                'visibleInShow' => false
             ]
         ];
 
         return $colunas;
     }
+
+    /**
+     * Adiciona todos os filtros desejados para esta funcionalidade
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltros()
+    {
+        $this->adicionaFiltroNumeroOcorrencia();
+        $this->adicionaFiltroNumeroContrato();
+        $this->adicionaFiltroFornecedor();
+        $this->adicionaFiltroUsuario();
+        $this->adicionaFiltroVigenciaInicio();
+        $this->adicionaFiltroVigenciaFim();
+        $this->adicionaFiltroSituacao();
+    }
+
+    /**
+     * Adiciona o filtro ao campo Número da Ocorrência
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroNumeroOcorrencia()
+    {
+        $campo = [
+            'name' => 'numero',
+            'type' => 'text',
+            'label' => 'Núm. Ocorrência'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $this->crud->addClause('where', 'contratoocorrencias.numero', $value);
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Número do Contrato
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroNumeroContrato()
+    {
+        $campo = [
+            'name' => 'contrato',
+            'type' => 'select2',
+            'label' => 'Núm. Contrato'
+        ];
+
+        $contratos = $this->retornaContratos();
+
+        $this->crud->addFilter(
+            $campo,
+            $contratos,
+            function ($value) {
+                $this->crud->addClause('where', 'contratos.numero', $value);
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Fornecedor
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroFornecedor()
+    {
+        $campo = [
+            'name' => 'cpf_cnpj',
+            'type' => 'select2',
+            'label' => 'Fornecedor'
+        ];
+
+        $fornecedores = $this->retornaFornecedores();
+
+        $this->crud->addFilter(
+            $campo,
+            $fornecedores,
+            function ($value) {
+                $this->crud->addClause('where', 'fornecedores.cpf_cnpj_idgener', $value);
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Usuário
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroUsuario()
+    {
+        $campo = [
+            'name' => 'usuario',
+            'type' => 'select2',
+            'label' => 'Usuário'
+        ];
+
+        $usuarios = $this->retornaUsuarios();
+
+        $this->crud->addFilter(
+            $campo,
+            $usuarios,
+            function ($value) {
+                $this->crud->addClause('where', 'users.cpf', $value);
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Data de Início da Vigência
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroVigenciaInicio()
+    {
+        $campo = [
+            'name' => 'vig_ini',
+            'type' => 'date_range',
+            'label' => 'Vig. Início'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $dates = json_decode($value);
+                $this->crud->addClause('where', 'contratos.vigencia_inicio', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratos.vigencia_inicio', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Data de Fim da Vigência
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroVigenciaFim()
+    {
+        $campo = [
+            'name' => 'vig_fim',
+            'type' => 'date_range',
+            'label' => 'Vig. Fim'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $dates = json_decode($value);
+                $this->crud->addClause('where', 'contratos.vigencia_fim', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratos.vigencia_fim', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Situação
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroSituacao()
+    {
+        $campo = [
+            'name' => 'situacao',
+            'type' => 'select2',
+            'label' => 'Situação'
+        ];
+
+        $situacoes = $this->retornaSituacoes();
+
+        $this->crud->addFilter(
+            $campo,
+            $situacoes,
+            function ($value) {
+                $this->crud->addClause('where', 'contratoocorrencias.situacao', $value);
+            }
+        );
+    }
+
+    /**
+     * Retorna dados dos Contratos para exibição no controle de filtro
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaContratos()
+    {
+        $dados = Contrato::select(
+            DB::raw("CONCAT(numero, ' - ', objeto) AS descricao"), 'numero'
+        );
+
+        $dados->where('situacao', true);
+        $dados->whereHas('unidade', function ($u) {
+            $u->where('codigosiasg', session('user_ug'));
+        });
+        $dados->orderBy('id'); // 'data_publicacao'
+
+        return $dados->pluck('descricao', 'numero')->toArray();
+    }
+
+    /**
+     * Retorna dados de Fornecedores para exibição no controle de filtro
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaFornecedores()
+    {
+        $dados = Fornecedor::select(
+            DB::raw("CONCAT(cpf_cnpj_idgener, ' - ', nome) AS descricao"), 'cpf_cnpj_idgener'
+        );
+
+        $dados->whereHas('contratos', function ($c) {
+            $c->where('situacao', true);
+        });
+
+        return $dados->pluck('descricao', 'cpf_cnpj_idgener')->toArray();
+    }
+
+    /**
+     * Retorna dados de Usuários para exibição no controle de filtro
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaUsuarios()
+    {
+        $dados = BackpackUser::select(
+            DB::raw("CONCAT(cpf, ' - ', name) AS descricao"), 'cpf'
+        );
+
+        $dados->join('contratoocorrencias as o', 'o.user_id', '=', 'users.id');
+
+        return $dados->pluck('descricao', 'cpf')->toArray();
+    }
+
+    /**
+     * Retorna dados de Situações para exibição no controle de filtro
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaSituacoes()
+    {
+        $dados = Codigoitem::select('descricao', 'id');
+
+        $dados->where('codigo_id', Codigoitem::CODIGO_SITUACAO);
+        $dados->orderBy('descricao');
+
+        return $dados->pluck('descricao', 'id')->toArray();
+    }
+
 }
