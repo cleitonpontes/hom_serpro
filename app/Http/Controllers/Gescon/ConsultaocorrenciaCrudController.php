@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Models\BackpackUser;
+use App\Models\Codigo;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Fornecedor;
-use App\Models\Situacoes;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -609,7 +608,7 @@ class ConsultaocorrenciaCrudController extends CrudController
     {
         $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->where('codigo_id', Codigoitem::CODIGO_SITUACAO);
+        $dados->where('codigo_id', Codigo::CODIGO_SITUACAO_OCORRENCIA);
         $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();
