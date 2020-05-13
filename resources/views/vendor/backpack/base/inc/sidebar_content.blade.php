@@ -68,6 +68,21 @@
                 </li>
             </ul>
         </li>
+        <li class="treeview">
+            <a href="#">
+                <i class='fa fa-files-o'></i>
+                <span>Consultas</span>
+                <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu">
+                <li>
+                    <a href="{{ backpack_url('/gescon/consulta/ocorrencias') }}">
+                        <i class="fa fa-check-square-o"></i>
+                        <span>Ocorrências</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
         <li><a href="{{ backpack_url('/gescon/meus-contratos') }}"><i class="fa fa-file-text-o"></i> <span>Meus Contratos</span></a>
         </li>
     </ul>
