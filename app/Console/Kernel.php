@@ -29,6 +29,11 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
+        $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaAtualizacaoNd')
+            ->weekdays()
+            ->timezone('America/Sao_Paulo')
+            ->at('08:30');
+
         $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaMigracaoEmpenho')
             ->weekdays()
             ->timezone('America/Sao_Paulo')
@@ -38,6 +43,8 @@ class Kernel extends ConsoleKernel
             ->weekdays()
             ->timezone('America/Sao_Paulo')
             ->at('08:50');
+
+
 
         $schedule->job(new AlertaContratoJob)
             ->timezone('America/Sao_Paulo')

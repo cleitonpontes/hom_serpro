@@ -188,6 +188,8 @@
                         </li>
                         <li><a href="{{ backpack_url('/admin/tipolistafatura') }}"><i class="fa fa-list"></i> <span>Tipo Lista Fatura</span></a>
                         </li>
+                        <li><a href="{{ backpack_url('/admin/importacao') }}"><i class="fa fa-files-o"></i> <span>Importações</span></a>
+                        </li>
                     </ul>
                 </li>
                 <li class="treeview">

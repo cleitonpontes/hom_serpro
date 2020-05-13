@@ -49,6 +49,10 @@ Route::group([
         Route::get('/storage/comunica/anexos/{file}', 'DownloadsController@anexoscomunica');
         Route::get('/storage/ocorrencia/{path}/{file}', 'DownloadsController@anexosocorrencia');
 
+
+        Route::get('/storage/importacao/{path}/{file}', 'DownloadsController@importacao');
+
+
         Route::get('/mensagens', 'AdminController@listaMensagens');
         Route::get('/mensagem/{id}', 'AdminController@lerMensagem');
 
@@ -80,6 +84,7 @@ Route::group([
             CRUD::resource('tipolistafatura', 'TipolistafaturaCrudController');
             CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
             CRUD::resource('comunica', 'ComunicaCrudController');
+            CRUD::resource('importacao', 'ImportacaoCrudController');
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
@@ -176,6 +181,7 @@ Route::group([
 
             Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaMigracaoEmpenho');
             Route::get('/atualizasaldosempenhos', 'EmpenhoCrudController@executaAtualizaSaldosEmpenhos');
+            Route::get('/atualizanaturezadespesas', 'EmpenhoCrudController@executaAtualizacaoNd');
 
             Route::group(['prefix' => 'empenho/{empenho_id}'], function () {
                 CRUD::resource('empenhodetalhado', 'EmpenhodetalhadoCrudController');
