@@ -219,7 +219,7 @@ class Contratoocorrencia extends Model
     public function getSituacaoNovaConsulta()
     {
         $descricao = '';
-        
+
         if (isset($this->ocorSituacaoNova->descricao)) {
             $descricao = $this->ocorSituacaoNova->descricao;
         }
