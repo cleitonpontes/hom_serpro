@@ -249,7 +249,7 @@ class AdminController extends Controller
             'contratos.id',
             DB::raw("CONCAT(contratos.numero, ' - ', LEFT(contratos.objeto, 150)) as desc")
         );
-        $contratos->where('U.codigosiasg', $ug);
+        $contratos->where('U.codigo', $ug);
         $contratos->where('contratos.fornecedor_id', $idFornecedor);
         $contratos->where('contratos.situacao', true);
 

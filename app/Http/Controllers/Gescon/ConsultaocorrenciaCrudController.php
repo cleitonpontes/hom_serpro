@@ -66,7 +66,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'fornecedores.nome',
                 'users.cpf',
                 'users.name',
-                'unidades.codigosiasg',
+                'unidades.codigo',
                 'codigoitens.id',
                 'codigoitens.descricao',
                 'contratoocorrencias.*'
@@ -74,7 +74,7 @@ class ConsultaocorrenciaCrudController extends CrudController
         );
 
         // Apenas ocorrências da unidade atual
-        $this->crud->addClause('where', 'unidades.codigosiasg', '=', session('user_ug'));
+        $this->crud->addClause('where', 'unidades.codigo', '=', session('user_ug'));
 
         /*
         |--------------------------------------------------------------------------
@@ -99,9 +99,9 @@ class ConsultaocorrenciaCrudController extends CrudController
 
         $this->crud->removeColumns([
             'id',
-            'contrato.unidade.codigosiasg',
-            'unidade.codigosiasg',
-            'codigosiasg'
+            'contrato.unidade.codigo',
+            'unidade.codigo',
+            'codigo'
         ]);
 
         return $content;
@@ -334,7 +334,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contrato.unidade.codigosiasg',
+                'name' => 'contrato.unidade.codigo',
                 'label' => 'UG',
                 'priority' => 99,
                 'orderable' => false,
@@ -555,7 +555,7 @@ class ConsultaocorrenciaCrudController extends CrudController
 
         $dados->where('situacao', true);
         $dados->whereHas('unidade', function ($u) {
-            $u->where('codigosiasg', session('user_ug'));
+            $u->where('codigo', session('user_ug'));
         });
         $dados->orderBy('id'); // 'data_publicacao'
 
