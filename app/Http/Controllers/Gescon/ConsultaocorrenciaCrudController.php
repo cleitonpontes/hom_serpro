@@ -50,7 +50,7 @@ class ConsultaocorrenciaCrudController extends CrudController
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'users', 'users.id', '=', 'contratoocorrencias.user_id');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'contratoocorrencias.situacao');
-        $this->crud->addClause('join', 'codigoitens as codigoitensnova', 'codigoitensnova.id', '=', 'contratoocorrencias.novasituacao');
+        $this->crud->addClause('leftJoin', 'codigoitens as codigoitensnova', 'codigoitensnova.id', '=', 'contratoocorrencias.novasituacao');
         $this->crud->addClause('select',
             [
                 'contratos.id',
@@ -66,7 +66,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'fornecedores.nome',
                 'users.cpf',
                 'users.name',
-                'unidades.codigosiasg',
+                'unidades.codigo',
                 'codigoitens.id',
                 'codigoitens.descricao',
                 'contratoocorrencias.*'
@@ -74,7 +74,9 @@ class ConsultaocorrenciaCrudController extends CrudController
         );
 
         // Apenas ocorrências da unidade atual
-        $this->crud->addClause('where', 'unidades.codigosiasg', '=', session('user_ug'));
+        $this->crud->addClause('where', 'unidades.codigo', '=', session('user_ug'));
+
+        // dd($this->crud->query->toSql());
 
         /*
         |--------------------------------------------------------------------------
@@ -99,9 +101,9 @@ class ConsultaocorrenciaCrudController extends CrudController
 
         $this->crud->removeColumns([
             'id',
-            'contrato.unidade.codigosiasg',
-            'unidade.codigosiasg',
-            'codigosiasg'
+            'contrato.unidade.codigo',
+            'unidade.codigo',
+            'codigo'
         ]);
 
         return $content;
@@ -310,10 +312,11 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'getSituacaoNova',
+                'name' => 'codigoitensnova.descricao',
                 'label' => 'Nova Situação',
-                'type' => 'model_function',
-                'function_name' => 'getSituacaoNovaConsulta',
+                'type' => 'text',
+                // 'type' => 'model_function',
+                // 'function_name' => 'getSituacaoNovaConsulta',
                 'priority' => 17,
                 'orderable' => true,
                 'visibleInTable' => true,
@@ -334,7 +337,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contrato.unidade.codigosiasg',
+                'name' => 'contrato.unidade.codigo',
                 'label' => 'UG',
                 'priority' => 99,
                 'orderable' => false,
@@ -555,7 +558,7 @@ class ConsultaocorrenciaCrudController extends CrudController
 
         $dados->where('situacao', true);
         $dados->whereHas('unidade', function ($u) {
-            $u->where('codigosiasg', session('user_ug'));
+            $u->where('codigo', session('user_ug'));
         });
         $dados->orderBy('id'); // 'data_publicacao'
 
