@@ -217,7 +217,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'numero',
+                'name' => 'contratoocorrencias.numero',
                 'label' => 'Núm. Ocorrência',
                 'priority' => 9,
                 'orderable' => true,
@@ -227,7 +227,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'ocorrencia',
+                'name' => 'contratoocorrencias.ocorrencia',
                 'label' => 'Descrição',
                 'limit' => 50000,
                 'priority' => 10,
@@ -238,7 +238,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'data',
+                'name' => 'contratoocorrencias.data',
                 'label' => 'Data',
                 'type' => 'date',
                 'format' => 'd/m/Y',
@@ -262,7 +262,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'notificapreposto',
+                'name' => 'contratoocorrencias.notificapreposto',
                 'label' => 'Notifica Preposto',
                 'type' => 'boolean',
                 'options' => [
@@ -277,7 +277,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'emailpreposto',
+                'name' => 'contratoocorrencias.emailpreposto',
                 'label' => 'E-mail Preposto',
                 'type' => 'email',
                 'limit' => 10000,
@@ -289,7 +289,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'numeroocorrencia',
+                'name' => 'contratoocorrencias.numeroocorrencia',
                 'label' => 'Ocorrência Alterada',
                 'type' => 'number',
                 'priority' => 15,
@@ -325,7 +325,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'arquivos',
+                'name' => 'contratoocorrencias.arquivos',
                 'label' => 'Arquivos',
                 'type' => 'arquivos_ico',
                 'disk' => 'local',
@@ -347,7 +347,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => false
             ],
             [
-                'name' => 'id',
+                'name' => 'contratoocorrencias.id',
                 'label' => '#',
                 'type' => 'number',
                 'priority' => 100,
