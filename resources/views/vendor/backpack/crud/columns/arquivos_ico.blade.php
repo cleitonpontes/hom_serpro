@@ -1,19 +1,4 @@
 @php
-    function retornaArquivoNome($arquivo)
-    {
-        $partes = explode('/', $arquivo);
-        $nome = array_pop($partes);
-
-        return $nome;
-    }
-
-    function retornaArquivoCaminho($arquivo)
-    {
-        $caminho = asset(\Storage::disk('local')->url($arquivo));
-
-        return $caminho;
-    }
-
     $arquivos = $entry->{$column['name']};
 @endphp
 
@@ -22,11 +7,16 @@
         - <!-- Não há arquivos -->
     @else
         @foreach($arquivos as $arquivo)
+            @php
+                $nome = array_pop(explode('/', $arquivo));
+                $caminho = asset(\Storage::disk('local')->url($arquivo));
+            @endphp
+
             <span>
                 <a target='_blank'
-                   href='{{ retornaArquivoCaminho($arquivo) }}'
-                   alt='{{ retornaArquivoNome($arquivo) }}'
-                   title='{{ retornaArquivoNome($arquivo) }}'
+                   href='{{ $caminho }}'
+                   alt='{{ $nome }}'
+                   title='{{ $nome }}'
                 >
                     <i class='fa fa-3x fa-file-pdf-o'></i> &nbsp;
                 </a>
