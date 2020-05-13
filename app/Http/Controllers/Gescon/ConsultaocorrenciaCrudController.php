@@ -609,7 +609,7 @@ class ConsultaocorrenciaCrudController extends CrudController
     {
         $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->where('codigo_id', Codigoitem::CODIGO_SITUACAO);
+        $dados->where('codigo_id', Codigoitem::CODIGO_SITUACAO_OCORRENCIA);
         $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();
