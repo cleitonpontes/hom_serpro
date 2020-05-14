@@ -248,7 +248,11 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('users.cpf', 'like', "%" . strtoupper($searchTerm) . "%");
+                    $query->orWhere('users.name', 'like', "%" . strtoupper($searchTerm) . "%");
+                }
             ],
             [
                 'name' => 'ocorrencia',

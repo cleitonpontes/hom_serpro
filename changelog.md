@@ -2,7 +2,7 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
-## [5.0.26]- 12/05/2020
+## [5.0.26]- 14/05/2020
 
 ### Implementação
 - Correlação de Empenhos sem Contratos na Tela Inicial;
