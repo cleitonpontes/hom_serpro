@@ -8,7 +8,8 @@
     @else
         @foreach($arquivos as $arquivo)
             @php
-                $nome = array_pop(explode('/', $arquivo));
+                $partes = explode('/', $arquivo);
+                $nome = array_pop($partes);
                 $caminho = asset(\Storage::disk('local')->url($arquivo));
             @endphp
 

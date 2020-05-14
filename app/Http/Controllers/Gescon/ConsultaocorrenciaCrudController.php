@@ -76,8 +76,6 @@ class ConsultaocorrenciaCrudController extends CrudController
         // Apenas ocorrências da unidade atual
         $this->crud->addClause('where', 'unidades.codigo', '=', session('user_ug'));
 
-        // dd($this->crud->query->toSql());
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -100,10 +98,10 @@ class ConsultaocorrenciaCrudController extends CrudController
         $content = parent::show($id);
 
         $this->crud->removeColumns([
-            'id',
-            'contrato.unidade.codigo',
-            'unidade.codigo',
-            'codigo'
+            'contrato_id',
+            'user_id',
+            'situacao',
+            'novasituacao'
         ]);
 
         return $content;
@@ -151,7 +149,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'limit' => 150,
                 'priority' => 3,
                 'orderable' => true,
-                'visibleInTable' => true,
+                'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true
@@ -163,7 +161,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'function_name' => 'getVigenciaInicio',
                 'priority' => 6,
                 'orderable' => true,
-                'visibleInTable' => true,
+                'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true
@@ -175,7 +173,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'function_name' => 'getVigenciaFim',
                 'priority' => 5,
                 'orderable' => true,
-                'visibleInTable' => true,
+                'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true
@@ -188,7 +186,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'prefix' => 'R$ ',
                 'priority' => 4,
                 'orderable' => true,
-                'visibleInTable' => true,
+                'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true
@@ -198,7 +196,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'label' => 'Núm. Parcelas',
                 'priority' => 8,
                 'orderable' => true,
-                'visibleInTable' => true,
+                'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true
@@ -211,13 +209,13 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'prefix' => 'R$ ',
                 'priority' => 7,
                 'orderable' => true,
-                'visibleInTable' => true,
+                'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contratoocorrencias.numero',
+                'name' => 'numero',
                 'label' => 'Núm. Ocorrência',
                 'priority' => 9,
                 'orderable' => true,
@@ -227,7 +225,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contratoocorrencias.ocorrencia',
+                'name' => 'ocorrencia',
                 'label' => 'Descrição',
                 'limit' => 50000,
                 'priority' => 10,
@@ -238,7 +236,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contratoocorrencias.data',
+                'name' => 'data',
                 'label' => 'Data',
                 'type' => 'date',
                 'format' => 'd/m/Y',
@@ -262,7 +260,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contratoocorrencias.notificapreposto',
+                'name' => 'notificapreposto',
                 'label' => 'Notifica Preposto',
                 'type' => 'boolean',
                 'options' => [
@@ -277,7 +275,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contratoocorrencias.emailpreposto',
+                'name' => 'emailpreposto',
                 'label' => 'E-mail Preposto',
                 'type' => 'email',
                 'limit' => 10000,
@@ -289,7 +287,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contratoocorrencias.numeroocorrencia',
+                'name' => 'numeroocorrencia',
                 'label' => 'Ocorrência Alterada',
                 'type' => 'number',
                 'priority' => 15,
@@ -300,7 +298,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'getSituacao',
+                'name' => 'getSituacaoConsulta',
                 'label' => 'Situação',
                 'type' => 'model_function',
                 'function_name' => 'getSituacaoConsulta',
@@ -312,11 +310,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'codigoitensnova.descricao',
+                'name' => 'getSituacaoNovaConsulta',
                 'label' => 'Nova Situação',
-                'type' => 'text',
-                // 'type' => 'model_function',
-                // 'function_name' => 'getSituacaoNovaConsulta',
+                'type' => 'model_function',
+                'function_name' => 'getSituacaoNovaConsulta',
                 'priority' => 17,
                 'orderable' => true,
                 'visibleInTable' => true,
@@ -325,7 +322,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'contratoocorrencias.arquivos',
+                'name' => 'arquivos',
                 'label' => 'Arquivos',
                 'type' => 'arquivos_ico',
                 'disk' => 'local',
@@ -347,7 +344,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => false
             ],
             [
-                'name' => 'contratoocorrencias.id',
+                'name' => 'id',
                 'label' => '#',
                 'type' => 'number',
                 'priority' => 100,
