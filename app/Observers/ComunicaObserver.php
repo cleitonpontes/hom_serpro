@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\NotificaUsuarioComunicaJob;
 use App\Models\BackpackUser;
 use App\Models\Comunica;
 use App\Notifications\ComunicaNotification;
@@ -95,7 +96,8 @@ class ComunicaObserver
                 $notifica = $this->deveNotificarUsuario($user, $comunica->role_id);
 
                 if ($notifica) {
-                    $user->notify(new ComunicaNotification($comunica, $user));
+                    NotificaUsuarioComunicaJob::dispatch($comunica, $user);
+//                    $user->notify(new ComunicaNotification($comunica, $user));
                 }
             }
 
