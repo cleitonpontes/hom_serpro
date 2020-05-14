@@ -225,17 +225,6 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'ocorrencia',
-                'label' => 'Descrição',
-                'limit' => 50000,
-                'priority' => 10,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
                 'name' => 'data',
                 'label' => 'Data',
                 'type' => 'date',
@@ -253,6 +242,17 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'getUsuario',
                 'priority' => 12,
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true
+            ],
+            [
+                'name' => 'ocorrencia',
+                'label' => 'Descrição',
+                'limit' => 50000,
+                'priority' => 10,
                 'orderable' => true,
                 'visibleInTable' => true,
                 'visibleInModal' => true,
@@ -550,7 +550,7 @@ class ConsultaocorrenciaCrudController extends CrudController
     private function retornaContratos()
     {
         $dados = Contrato::select(
-            DB::raw("CONCAT(numero, ' - ', objeto) AS descricao"), 'numero'
+            DB::raw("LEFT(CONCAT(numero, ' - ', objeto), 80) AS descricao"), 'numero'
         );
 
         $dados->where('situacao', true);
