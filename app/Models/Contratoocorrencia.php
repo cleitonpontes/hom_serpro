@@ -108,6 +108,17 @@ class Contratoocorrencia extends Model
         }
     }
 
+    public function getNumero()
+    {
+        $numero = '';
+
+        if ($this->numero) {
+            $numero = $this->numero;
+        }
+
+        return $numero;
+    }
+
     public function getNumeroOcorrencia()
     {
         if ($this->numeroocorrencia) {

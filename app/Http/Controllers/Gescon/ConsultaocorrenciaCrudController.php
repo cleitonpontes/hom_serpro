@@ -215,8 +215,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'numero',
+                'name' => 'getNumero',
                 'label' => 'Núm. Ocorrência',
+                'type' => 'model_function',
+                'function_name' => 'getNumero',
                 'priority' => 9,
                 'orderable' => true,
                 'visibleInTable' => true,
