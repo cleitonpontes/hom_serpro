@@ -13,6 +13,11 @@ return [
         'emprpp' => '622920107', // 6.2.2.9.2.01.07 = EMPENHOS LIQUIDADOS A PAGAR INSCRITO EM RPP
     ],
 
+    'modalidades_sem_exigencia' => [
+        'Inexigibilidade',
+        'Não se Aplica'
+    ],
+
     'contas_contabeis_empenhodetalhado_exercicioanterior' => [
         'rpnpaliquidinsc' => '531110100', // 5.3.1.1.1.01.00 = RP NAO PROCESSADOS A LIQUIDAR INSCRITOS
         'rpnpemliquidinsc' => '531110200', // 5.3.1.1.1.02.00 = RP NAO PROCESSADOS EM LIQUIDACAO INSCRITOS

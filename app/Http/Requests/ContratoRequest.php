@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Models\Codigoitem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -54,10 +55,10 @@ class ContratoRequest extends FormRequest
             'objeto' => 'required',
             'modalidade_id' => 'required',
             'licitacao_numero' => Rule::requiredIf(function () {
-                if($this->modalidade_id == '75'){
+                $modalidade = Codigoitem::find($this->modalidade_id);
+                if(in_array($modalidade->descricao,config('app.modalidades_sem_exigencia'))){
                     return false;
                 }
-
                 return true;
             }),
             'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:vigencia_inicio",

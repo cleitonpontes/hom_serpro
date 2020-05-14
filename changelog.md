@@ -2,12 +2,14 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
-## [5.0.26]- 12/05/2020
+## [5.0.26]- 14/05/2020
 
 ### Implementação
 - Correlação de Empenhos sem Contratos na Tela Inicial;
 - CRUD de upload para importação de arquivos Terceirizados (falta backend);
-- Rotina de Atualização de Natureza de Despesas (Issue #33). 
+- Rotina de Atualização de Natureza de Despesas (Issue #33); 
+- Opção "Não se Aplica" para modalidade de Licitação;
+- Novos tipos de Contratos. 
 
 ### Bug
 - Correção da busca de Fornecedores não case sensitive;

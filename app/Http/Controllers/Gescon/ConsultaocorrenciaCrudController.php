@@ -215,8 +215,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInShow' => true
             ],
             [
-                'name' => 'numero',
+                'name' => 'getNumero',
                 'label' => 'Núm. Ocorrência',
+                'type' => 'model_function',
+                'function_name' => 'getNumero',
                 'priority' => 9,
                 'orderable' => true,
                 'visibleInTable' => true,
@@ -246,7 +248,11 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('users.cpf', 'like', "%" . strtoupper($searchTerm) . "%");
+                    $query->orWhere('users.name', 'like', "%" . strtoupper($searchTerm) . "%");
+                }
             ],
             [
                 'name' => 'ocorrencia',
