@@ -9,14 +9,19 @@ use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Unidade;
+use App\Repositories\Empenho;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use MaddHatter\LaravelFullcalendar\Calendar;
 use phpDocumentor\Reflection\File;
+use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Html\Builder;
 
 class AdminController extends Controller
 {
     protected $data = []; // the information we send to the view
+    protected $htmlBuilder = null;
 
     /**
      * Create a new controller instance.
@@ -31,10 +36,14 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, Builder $htmlBuilder)
     {
-        $this->data['title'] = "Início";//trans('backpack::base.dashboard'); // set the page title
+        // Configurações iniciais
+        $this->htmlBuilder = $htmlBuilder;
+        $this->data['title'] = "Início"; //trans('backpack::base.dashboard'); // set the page title
+        $ug = session('user_ug');
 
+        // Calendário
         $events = $this->getEvents();
 
         $calendar = \Calendar::addEvents($events)->setOptions([
@@ -42,96 +51,66 @@ class AdminController extends Controller
 //            'aspectRatio' => 2.5,
         ])->setCallbacks([]);
 
-        $colors = [
-            '#1f77b4',
-            '#aec7e8',
-            '#ff7f0e',
-            '#ffbb78',
-            '#2ca02c',
-            '#98df8a',
-            '#d62728',
-            '#ff9896',
-            '#9467bd',
-            '#c5b0d5',
-            '#8c564b',
-            '#c49c94',
-            '#e377c2',
-            '#f7b6d2',
-            '#7f7f7f',
-            '#c7c7c7',
-            '#bcbd22',
-            '#dbdb8d',
-            '#17becf',
-            '#9edae5'
-        ];
+        // Gráfico Contratos por Categoria
+        $colors = $this->getColors();
 
-//        shuffle($colors);
+        $categorias = $this->retornaCategorias();
+        $contrato = $this->retornaContrato();
 
-        $categoria_contrato = Codigoitem::whereHas('codigo', function ($q) {
-            $q->where('descricao', '=', 'Categoria Contrato');
-        })
-            ->join('contratos', function ($join) {
-                $join->on('codigoitens.id', '=', 'contratos.categoria_id');
-            })
-            ->where('contratos.unidade_id', session()->get('user_ug_id'))
-            ->orderBy('codigoitens.id', 'asc')->pluck('descricao')->toArray();
+        $chartjs = $this->retornaGrafico($colors, $categorias, $contrato);
 
+        // Empenhos sem Contrato
+        $dadosContratos = $this->retornaDadosContratos();
 
-        $cat = array_unique($categoria_contrato);
+        // Monta GRID Empenhos sem Contrato
+        if ($request->ajax()) {
+            $dt = DataTables::of($this->retornaDadosEmpenhosSemContratos());
 
-        $categorias = [];
-        foreach ($cat as $c) {
-            $categorias[] = $c;
+            $dt->addColumn('contratos', function ($registro) use ($ug) {
+                $idEmpenho = $registro['id'];
+                $idFornecedor = $registro['fornecedor_id'];
+                $opcoes = $this->retornaContratosPorFornecedor($ug, $idFornecedor);
+
+                $podeVincularContrato = backpack_user()->hasPermissionTo('contratoempenho_inserir');
+
+                $botaoConfirma = '';
+                $campoSelect = $this->retornaHtmlCampoSelect($idEmpenho, $opcoes);
+
+                if ($podeVincularContrato) {
+                    $botaoConfirma = $this->retornaHtmlBotaoConfirma($idEmpenho, $idFornecedor);
+                }
+
+                return $campoSelect . ' ' . $botaoConfirma;
+            });
+            $dt->editColumn('valor', '{!! number_format(floatval($valor), 2, ",", ".") !!}');
+
+            $dt->rawColumns(['contratos']);
+            $dt->setRowId('linha_id');
+
+            return $dt->make(true);
         }
-
-        $contrato = DB::table('contratos')
-            ->select(DB::raw('categoria_id, count(categoria_id)'))
-            ->where('situacao', '=', true)
-            ->where('unidade_id', session()->get('user_ug_id'))
-            ->orderBy('categoria_id', 'asc')
-            ->groupBy('categoria_id')
-            ->pluck('count')->toArray();
-
-        $chartjs = app()->chartjs
-            ->name('pieChartTest')
-            ->type('doughnut')
-            ->size(['width' => 400, 'height' => 200])
-            ->labels($categorias)
-            ->datasets([
-                [
-                    'backgroundColor' => $colors,
-                    'borderColor' => $colors,
-                    'data' => $contrato,
-                ]
-            ]);
-
-        $dados_contratos = [];
-        if (session()->get('user_ug_id')) {
-
-            $unidade = Unidade::find(session()->get('user_ug_id'));
-
-            if (isset($unidade->orgao->configuracao->padrao_processo_marcara)) {
-                session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
-            }
-            $contratos = new Contrato();
-            $dados_contratos['novos'] = $contratos->buscaContratosNovosPorUg(session()->get('user_ug_id'));
-            $dados_contratos['atualizados'] = $contratos->buscaContratosAtualizadosPorUg(session()->get('user_ug_id'));
-            $dados_contratos['vencidos'] = $contratos->buscaContratosVencidosPorUg(session()->get('user_ug_id'));
-        } else {
-            $dados_contratos['novos'] = '0';
-            $dados_contratos['atualizados'] = '0';
-            $dados_contratos['vencidos'] = '0';
-        }
-
+        $gridEmpenhos = $this->montaGridCampos();
 
         return view('backpack::dashboard', [
             'calendar' => $calendar,
             'data' => $this->data,
             'chartjs' => $chartjs,
-            'html' => $dados_contratos
+            'html' => $dadosContratos,
+            'ug' => $ug,
+            'gridEmpenhos' => $gridEmpenhos
         ]);
     }
 
+    /**
+     * Redirect to the dashboard.
+     *
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
+    public function redirect()
+    {
+        // The '/admin' route is not to be used as a page, because it breaks the menu's active state.
+        return redirect(backpack_url('inicio'));
+    }
 
     protected function getEvents()
     {
@@ -156,25 +135,135 @@ class AdminController extends Controller
         return $events;
     }
 
+    private function getColors($shuffle = false)
+    {
+        $colors = [
+            '#1f77b4',
+            '#aec7e8',
+            '#ff7f0e',
+            '#ffbb78',
+            '#2ca02c',
+            '#98df8a',
+            '#d62728',
+            '#ff9896',
+            '#9467bd',
+            '#c5b0d5',
+            '#8c564b',
+            '#c49c94',
+            '#e377c2',
+            '#f7b6d2',
+            '#7f7f7f',
+            '#c7c7c7',
+            '#bcbd22',
+            '#dbdb8d',
+            '#17becf',
+            '#9edae5'
+        ];
+
+        if ($shuffle) {
+            $colors = shuffle($colors);
+        }
+
+        return $colors;
+    }
+
+    private function retornaCategorias()
+    {
+        $categoriasContrato = $this->retornaCategoriasContrato();
+        $cats = array_unique($categoriasContrato);
+
+        $categorias = [];
+        foreach ($cats as $c) {
+            $categorias[] = $c;
+        }
+
+        return $categorias;
+    }
+
+    private function retornaCategoriasContrato()
+    {
+        return Codigoitem::whereHas('codigo', function ($q) {
+            $q->where('descricao', '=', 'Categoria Contrato');
+        })
+            ->join('contratos', function ($join) {
+                $join->on('codigoitens.id', '=', 'contratos.categoria_id');
+            })
+            ->where('contratos.unidade_id', session()->get('user_ug_id'))
+            ->orderBy('codigoitens.id', 'asc')->pluck('descricao')->toArray();
+    }
+
+    private function retornaContrato()
+    {
+        return DB::table('contratos')
+            ->select(DB::raw('categoria_id, count(categoria_id)'))
+            ->where('situacao', '=', true)
+            ->where('unidade_id', session()->get('user_ug_id'))
+            ->orderBy('categoria_id', 'asc')
+            ->groupBy('categoria_id')
+            ->pluck('count')->toArray();
+    }
+
+    private function retornaGrafico($colors, $categorias, $contrato)
+    {
+        return app()->chartjs
+            ->name('pieChartTest')
+            ->type('doughnut')
+            ->size(['width' => 400, 'height' => 200])
+            ->labels($categorias)
+            ->datasets([
+                [
+                    'backgroundColor' => $colors,
+                    'borderColor' => $colors,
+                    'data' => $contrato
+                ]
+            ]);
+    }
+
+    private function retornaDadosContratos()
+    {
+        $dadosContratos['novos'] = '0';
+        $dadosContratos['atualizados'] = '0';
+        $dadosContratos['vencidos'] = '0';
+
+        if (session()->get('user_ug_id')) {
+            $unidade = Unidade::find(session()->get('user_ug_id'));
+
+            if (isset($unidade->orgao->configuracao->padrao_processo_marcara)) {
+                session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
+            }
+
+            $contratos = new Contrato();
+
+            $dadosContratos['novos'] = $contratos->buscaContratosNovosPorUg(session()->get('user_ug_id'));
+            $dadosContratos['atualizados'] = $contratos->buscaContratosAtualizadosPorUg(session()->get('user_ug_id'));
+            $dadosContratos['vencidos'] = $contratos->buscaContratosVencidosPorUg(session()->get('user_ug_id'));
+        }
+
+        return $dadosContratos;
+    }
+
+    private function retornaContratosPorFornecedor($ug, $idFornecedor)
+    {
+        $contratos = Contrato::join('unidades as U', 'U.id', '=', 'contratos.unidade_id');
+        $contratos->select(
+            'contratos.id',
+            DB::raw("CONCAT(contratos.numero, ' - ', LEFT(contratos.objeto, 150)) as desc")
+        );
+        $contratos->where('U.codigo', $ug);
+        $contratos->where('contratos.fornecedor_id', $idFornecedor);
+        $contratos->where('contratos.situacao', true);
+
+        return $contratos->pluck('desc', 'id')->toArray();
+    }
+
+
     protected function getCalendarEvents()
     {
-
         $eventsCollections = CalendarEvent::all();
         if (session()->get('user_ug_id')) {
             $eventsCollections = $eventsCollections->where('unidade_id', session()->get('user_ug_id'));
         }
         return $eventsCollections;
-    }
-
-    /**
-     * Redirect to the dashboard.
-     *
-     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
-     */
-    public function redirect()
-    {
-        // The '/admin' route is not to be used as a page, because it breaks the menu's active state.
-        return redirect(backpack_url('inicio'));
     }
 
     public function meusdados()
@@ -187,7 +276,6 @@ class AdminController extends Controller
             $ug = Unidade::find($user->ugprimaria)->pluck('codigo', 'id')->toArray();
         }
 
-
         $form = \FormBuilder::create(MeusdadosForm::class, [
             'url' => route('inicio.meusdados.atualiza'),
             'method' => 'PUT',
@@ -199,7 +287,6 @@ class AdminController extends Controller
         ]);
 
         return view('backpack::base.auth.account.meusdados', compact('form'));
-
     }
 
     public function meusdadosatualiza()
@@ -227,9 +314,7 @@ class AdminController extends Controller
 //        \toast()->success('Seus Dados foram atualizados!', 'Sucesso');
 
         return redirect()->route('inicio.meusdados');
-
     }
-
 
     public function mudarUg()
     {
@@ -242,14 +327,11 @@ class AdminController extends Controller
 //            'model' => $user,
         ]);
 
-
         return view('backpack::base.auth.account.mudarug', compact('form'));
-
     }
 
     public function buscaUg()
     {
-
         $ug = [];
 
         $ugprimaria = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
@@ -271,7 +353,6 @@ class AdminController extends Controller
         asort($ug);
 
         return $ug;
-
     }
 
     public function mudaUg()
@@ -304,7 +385,6 @@ class AdminController extends Controller
         \Alert::success('Unidade alterada com sucesso!')->flash();
 
         return redirect()->to('/inicio');
-
     }
 
     public function listaMensagens()
@@ -323,14 +403,11 @@ class AdminController extends Controller
 
     public function phpInfo()
     {
-
 //        phpinfo();
-
     }
 
     public function buscaDadosUrl($url)
     {
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_TIMEOUT, 900);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 900);
@@ -341,14 +418,11 @@ class AdminController extends Controller
         curl_close($ch);
 
         return json_decode($data, true);
-
     }
 
     public function buscaDadosUrlMigracao($url)
     {
-
         return json_decode(file_get_contents($url), true);
-
     }
 
     public function formataCnpjCpfTipo($dado, $tipo)
@@ -417,6 +491,125 @@ class AdminController extends Controller
     public function retornaDataMaisOuMenosQtdTipoFormato(string $formato, string $sinal, string $qtd, string $tipo, string $data)
     {
         return date($formato, strtotime($sinal . $qtd . " " . $tipo, strtotime($data)));
+    }
+
+    private function retornaDadosEmpenhosSemContratos()
+    {
+        $repo = new Empenho();
+        return $repo->retornaEmpenhosSemContratoAnoAtual();
+    }
+
+    private function retornaCampos($dados)
+    {
+        $dado = [];
+
+        if (is_array($dados)) {
+            if (isset($dados[0])) {
+                $dado = $dados[0];
+            }
+        }
+
+        return array_keys($dado);
+    }
+
+    /**
+     * Monta $html com definições do Grid
+     *
+     * @return \Yajra\DataTables\Html\Builder
+     */
+    private function montaGridCampos()
+    {
+        $html = ($this->htmlBuilder === null) ? Builder::class : $this->htmlBuilder;
+
+        $html->setTableId('empenhosSemContratosTable');
+        $html->addTableClass('box table-striped table-hover');
+        $html->addTableClass('display responsive');
+        $html->addTableClass('nowrap m-t-0 collapsed has-hidden-columns');
+        $html->parameters(['order' => [0, 'desc']]);
+
+        $html->addColumn([
+            'data' => 'criacao',
+            'name' => 'criacao',
+            'title' => 'Criação',
+            'orderable' => true,
+            'visible' => false
+        ]);
+        $html->addColumn([
+            'data' => 'empenho',
+            'name' => 'empenho',
+            'title' => 'Empenho',
+            'orderable' => true
+        ]);
+        $html->addColumn([
+            'data' => 'fornecedor',
+            'name' => 'fornecedor',
+            'title' => 'Fornecedor',
+            'orderable' => true
+        ]);
+        $html->addColumn([
+            'data' => 'valor',
+            'name' => 'valor',
+            'title' => 'Valor (R$)',
+            'class' => 'text-right',
+            'orderable' => true
+        ]);
+        $html->addColumn([
+            'data' => 'contratos',
+            'name' => 'contratos',
+            'title' => 'Contratos',
+            'class' => 'text-right',
+            'orderable' => false
+        ]);
+
+        $html->parameters([
+            'processing' => true,
+            'serverSide' => true,
+            'responsive' => true,
+            'info' => true,
+            'autoWidth' => false,
+            'bAutoWidth' => false,
+            'paging' => true,
+            'lengthChange' => true,
+            'language' => [
+                'url' => asset('/json/pt_br.json')
+            ]
+        ]);
+
+        return $html;
+    }
+
+    private function retornaHtmlCampoSelect($idEmpenho, $opcoes)
+    {
+        $campoSelect = "";
+        $campoSelect .= "<select ";
+        $campoSelect .= "id='$idEmpenho' ";
+        $campoSelect .= "style='width: 155px;' ";
+        $campoSelect .= ">";
+        $campoSelect .= "<option value=''>Selecione o contrato</option>";
+
+        foreach ($opcoes as $idContrato => $desc) {
+            $campoSelect .= "<option value='$idContrato'>$desc</option>";
+        }
+
+        $campoSelect .= "</select>";
+
+        return $campoSelect;
+    }
+
+    private function retornaHtmlBotaoConfirma($idEmpenho, $idFornecedor)
+    {
+        $botaoConfirma = "";
+        $botaoConfirma .= "<a ";
+        $botaoConfirma .= "class='contrato btn btn-xs btn-default' ";
+        $botaoConfirma .= "style='margin-left: 5px;' ";
+        $botaoConfirma .= "data-ne='$idEmpenho' ";
+        $botaoConfirma .= "data-fornecedor='$idFornecedor' ";
+        $botaoConfirma .= "title='Vincular contrato ao empenho' ";
+        $botaoConfirma .= ">";
+        $botaoConfirma .= "<i class='fa fa-tags'></i>";
+        $botaoConfirma .= "</a>";
+
+        return $botaoConfirma;
     }
 
 }

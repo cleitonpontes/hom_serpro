@@ -25,6 +25,7 @@ class ContratoocorrenciaRequest extends FormRequest
      */
     public function rules()
     {
+        $arquivos = (($this->arquivos[0])) ? 'mimetypes:application/pdf' : "";
         $novasituacao = '';
         $numeroocorrencia = '';
         $emailpreposto = '';
@@ -45,6 +46,7 @@ class ContratoocorrenciaRequest extends FormRequest
              'data' => 'required|date',
              'ocorrencia' => 'required|min:20',
              'emailpreposto' => "{$emailpreposto}",
+             'arquivos.*' => $arquivos,
         ];
     }
 

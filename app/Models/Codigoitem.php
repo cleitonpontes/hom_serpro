@@ -11,9 +11,11 @@ class Codigoitem extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'codigoitens';
-    use SoftDeletes;
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -43,6 +45,7 @@ class Codigoitem extends Model
     {
         return $this->belongsTo(Codigo::class, 'codigo_id');
     }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -60,4 +63,5 @@ class Codigoitem extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }

@@ -203,8 +203,6 @@ Route::group(
                 ->name('apropriacao.siafi.dochabil')
                 ->middleware('permission:folha_apropriacao_passo');
 
-
-
         });
 
     });

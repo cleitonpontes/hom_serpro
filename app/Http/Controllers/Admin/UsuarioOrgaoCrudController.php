@@ -12,6 +12,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\UsuarioOrgaoRequest as StoreRequest;
 use App\Http\Requests\UsuarioOrgaoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
 use function foo\func;
 use Illuminate\Support\Facades\DB;
 
@@ -44,14 +45,17 @@ class UsuarioOrgaoCrudController extends CrudController
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuarioorgao');
         $this->crud->setEntityNameStrings('Usuário Órgão: ' . $orgao->codigo, 'Usuários Órgão: ' . $orgao->codigo);
-
-        $this->crud->addClause('whereHas', 'unidades', function ($q) use ($unidades_orgao) {
-            $q->whereIn('unidade_id', $unidades_orgao);
-        });
-        foreach ($unidades_orgao as $item) {
-            $this->crud->addClause('orwhere', 'ugprimaria', '=', $item);
-        }
+        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         $this->crud->addClause('select', 'users.*');
+        $this->crud->addClause('whereHas', 'unidade', function ($u) use ($unidades_orgao) {
+            $u->whereHas('users', function ($t) use($unidades_orgao){
+                $t->whereIn('unidade_id', $unidades_orgao);
+            });
+            $u->orWhereIn('id', $unidades_orgao);
+        });
+
+
+
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -68,10 +72,8 @@ class UsuarioOrgaoCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        // TODO: remove setFromDb() and manually define Fields and Columns
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
-
 
         $ugs = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
             ->where('tipo', '=', 'E')
@@ -97,16 +99,25 @@ class UsuarioOrgaoCrudController extends CrudController
                 'name' => 'cpf',
                 'label' => 'CPF',
                 'type' => 'text',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('users.cpf', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+                },
             ],
             [
                 'name' => 'name',
                 'label' => 'Nome',
                 'type' => 'text',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('users.name', 'like', "%" . strtoupper($searchTerm) . "%");
+                },
             ],
             [
                 'name' => 'email',
                 'label' => 'E-mail',
                 'type' => 'email',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('users.email', 'like', "%" . utf8_encode(utf8_decode(strtolower($searchTerm))) . "%");
+                },
             ],
             [
                 'name' => 'getUGPrimaria',
@@ -114,13 +125,10 @@ class UsuarioOrgaoCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'getUGPrimaria', // the method in your Model
                 'orderable' => true,
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('unidades.codigo', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+                    $query->orWhere('unidades.nomeresumido', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+                },
             ],
             [ // n-n relationship (with pivot table)
                 'label' => trans('backpack::permissionmanager.roles'), // Table column heading

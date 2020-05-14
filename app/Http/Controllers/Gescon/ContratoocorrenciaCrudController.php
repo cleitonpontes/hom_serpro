@@ -167,6 +167,13 @@ class ContratoocorrenciaCrudController extends CrudController
                 'label' => 'E-mail Preposto',
                 'type' => 'email'
             ],
+            [
+                'name' => 'arquivos',
+                'label' => 'Arquivos',
+                'type' => 'upload_multiple',
+                'upload' => true,
+                'disk' => 'local'
+            ],
 
         ]);
 
@@ -215,6 +222,7 @@ class ContratoocorrenciaCrudController extends CrudController
 
         if ($request->input('notificapreposto')) {
             $dadosOcorrencia = $this->getDadosOcorrencia($id = $this->crud->entry->id);
+
             OcorrenciaMailJob::dispatch($dadosOcorrencia);
         }
 
@@ -234,8 +242,7 @@ class ContratoocorrenciaCrudController extends CrudController
         $fornecedor = $contrato->getFornecedor();
         $usuario = $ocorrencia->getUser();
         $situacao = $ocorrencia->getSituacao();
-
-
+        $arquivos = $ocorrencia->getArquivos();
 
         $dadosOcorrencia = [
             'orgao' => $orgao,
@@ -246,7 +253,8 @@ class ContratoocorrenciaCrudController extends CrudController
             'emailpreposto' => $ocorrencia->emailpreposto,
             'data' => $ocorrencia->data,
             'textoocorrencia' => $ocorrencia->ocorrencia,
-            'situacao' => $situacao
+            'situacao' => $situacao,
+            'arquivos' => $arquivos
         ];
 
         return $dadosOcorrencia;
@@ -400,6 +408,19 @@ class ContratoocorrenciaCrudController extends CrudController
 //                            ->orWhereDate('depart_at', '=', date($searchTerm));
 //                    });
 //                },
+            ],
+            [
+                'name' => 'arquivos',
+                'label' => 'Arquivos',
+                'type' => 'upload_multiple',
+                'disk' => 'local',
+                'upload' => true,
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
             ]
         ];
 
