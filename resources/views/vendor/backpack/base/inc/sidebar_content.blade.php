@@ -76,6 +76,12 @@
             </a>
             <ul class="treeview-menu">
                 <li>
+                    <a href="{{ backpack_url('/gescon/consulta/faturas') }}">
+                        <i class="fa fa-list-ul"></i>
+                        <span>Faturas</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ backpack_url('/gescon/consulta/ocorrencias') }}">
                         <i class="fa fa-check-square-o"></i>
                         <span>Ocorrências</span>

@@ -3,22 +3,24 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Models\BackpackUser;
-use App\Models\Codigo;
-use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Fornecedor;
+/*
+use App\Models\Codigo;
+use App\Models\Codigoitem;
+*/
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Class ConsultaocorrenciaCrudController
+ * Class ConsultafaturaCrudController
  * @package App\Http\Controllers\Gescon
  * @property-read CrudPanel $crud
  * @author Anderson Sathler <asathler@gmail.com>
  */
-class ConsultaocorrenciaCrudController extends CrudController
+class ConsultafaturaCrudController extends CrudController
 {
     /**
      * Configurações iniciais do Backpack
@@ -33,20 +35,24 @@ class ConsultaocorrenciaCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel('App\Models\Contratoocorrencia');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/consulta/ocorrencias');
-        $this->crud->setEntityNameStrings('Ocorrência', 'Ocorrências');
-        $this->crud->setHeading('Consulta Ocorrências por Contrato');
+        // $this->crud->setModel('App\Models\Contratoocorrencia');
+        $this->crud->setModel('App\Models\Contratofatura');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/consulta/faturas');
+        $this->crud->setEntityNameStrings('Fatura', 'Faturas');
+        $this->crud->setHeading('Consulta Faturas por Contrato');
         $this->crud->enableExportButtons();
 
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
+
+        (backpack_user()->can('contratofatura_editar')) ? $this->crud->allowAccess('update') : null;
         // $this->crud->removeAllButtons();
 
-        $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratoocorrencias.contrato_id');
+        $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratofaturas.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
+        /*
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'users', 'users.id', '=', 'contratoocorrencias.user_id');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'contratoocorrencias.situacao');
@@ -72,6 +78,7 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'contratoocorrencias.*'
             ]
         );
+        */
 
         // Apenas ocorrências da unidade atual
         $this->crud->addClause('where', 'unidades.codigo', '=', session('user_ug'));
@@ -379,7 +386,7 @@ class ConsultaocorrenciaCrudController extends CrudController
         $this->adicionaFiltroUsuario();
         $this->adicionaFiltroVigenciaInicio();
         $this->adicionaFiltroVigenciaFim();
-        $this->adicionaFiltroSituacao();
+        // $this->adicionaFiltroSituacao();
     }
 
     /**
@@ -615,7 +622,7 @@ class ConsultaocorrenciaCrudController extends CrudController
     {
         $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->where('codigo_id', Codigo::CODIGO_SITUACAO_OCORRENCIA);
+        // $dados->where('codigo_id', Codigo::CODIGO_SITUACAO_OCORRENCIA);
         $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();

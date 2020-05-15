@@ -11,9 +11,10 @@ class Contratofatura extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'contratofaturas';
-    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -23,8 +24,9 @@ class Contratofatura extends Model
 
     protected $table = 'contratofaturas';
     // protected $primaryKey = 'id';
-    // public $timestamps = false;
     // protected $guarded = ['id'];
+    // protected $hidden = [];
+    // protected $dates = [];
     protected $fillable = [
         'contrato_id',
         'tipolistafatura_id',
@@ -48,14 +50,14 @@ class Contratofatura extends Model
         'anoref',
         'situacao'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
+    // public $timestamps = false;
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function inserirContratoFaturaMigracaoConta(array $dados)
     {
         $this->fill($dados);
@@ -209,6 +211,7 @@ class Contratofatura extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
     public function empenhos()
     {
         return $this->belongsToMany(Empenho::class, 'contratofatura_empenhos', 'contratofatura_id', 'empenho_id');
@@ -218,6 +221,7 @@ class Contratofatura extends Model
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
     }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -235,4 +239,5 @@ class Contratofatura extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }
