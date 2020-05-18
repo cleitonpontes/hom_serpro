@@ -54,7 +54,7 @@ class ConsultafaturaCrudController extends CrudController
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         /*
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
-        $this->crud->addClause('join', 'users', 'users.id', '=', 'contratoocorrencias.user_id');
+        $this->crud->addClause('join', 'users', 'users.id', '=', 'contratofatura.user_id');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'contratoocorrencias.situacao');
         $this->crud->addClause('leftJoin', 'codigoitens as codigoitensnova', 'codigoitensnova.id', '=', 'contratoocorrencias.novasituacao');
         $this->crud->addClause('select',
@@ -222,6 +222,15 @@ class ConsultafaturaCrudController extends CrudController
                 'visibleInExport' => true,
                 'visibleInShow' => true
             ],
+
+            // Fatura
+            [
+                'name' => '',
+                'label' => '',
+                'type' => ''
+            ],
+
+            /*
             [
                 'name' => 'getNumero',
                 'label' => 'Núm. Ocorrência',
@@ -368,6 +377,7 @@ class ConsultafaturaCrudController extends CrudController
                 'visibleInExport' => false,
                 'visibleInShow' => false
             ]
+            */
         ];
 
         return $colunas;
@@ -380,6 +390,7 @@ class ConsultafaturaCrudController extends CrudController
      */
     public function adicionaFiltros()
     {
+        /*
         $this->adicionaFiltroNumeroOcorrencia();
         $this->adicionaFiltroNumeroContrato();
         $this->adicionaFiltroFornecedor();
@@ -387,6 +398,7 @@ class ConsultafaturaCrudController extends CrudController
         $this->adicionaFiltroVigenciaInicio();
         $this->adicionaFiltroVigenciaFim();
         // $this->adicionaFiltroSituacao();
+        */
     }
 
     /**

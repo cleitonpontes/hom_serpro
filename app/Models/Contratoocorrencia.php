@@ -12,6 +12,7 @@ class Contratoocorrencia extends Model
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
+    use Formatador;
 
     /*
     |--------------------------------------------------------------------------
@@ -310,50 +311,12 @@ class Contratoocorrencia extends Model
 
     public function setArquivosAttribute($value)
     {
-
         $attribute_name = "arquivos";
         $disk = "local";
         $contrato = Contrato::find($this->contrato_id);
         $destination_path = "ocorrencia/" . $contrato->id . "_" . str_replace('/', '_', $contrato->numero);
 
         $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
-    }
-
-    /**
-     * Retorna $campo data formatado no padrão pt-Br: dd/mm/yyyy
-     *
-     * @param $campo
-     * @return string
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function retornaDataAPartirDeCampo($campo)
-    {
-        try {
-            $data = \DateTime::createFromFormat('Y-m-d', $campo);
-            $retorno = $data->format('d/m/Y');
-        } catch (\Exception $e) {
-            $retorno = '';
-        }
-
-        return $retorno;
-    }
-
-    /**
-     * Retorna $campo numérico formatado no padrão pt-Br: 0.000,00
-     *
-     * @param $campo
-     * @return string
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function retornaCampoFormatadoComoNumero($campo)
-    {
-        try {
-            $retorno = number_format($campo, 2, ',', '.');
-        } catch (\Exception $e) {
-            $retorno = '';
-        }
-
-        return $retorno;
     }
 
 }

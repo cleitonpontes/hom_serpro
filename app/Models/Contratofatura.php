@@ -12,6 +12,7 @@ class Contratofatura extends Model
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
+    use Formatador;
 
     protected static $logFillable = true;
     protected static $logName = 'contratofaturas';
@@ -206,6 +207,50 @@ class Contratofatura extends Model
 
     }
 
+    /**
+     * Retorna a Data de Início da Vigência
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getVigenciaInicio()
+    {
+        return $this->retornaDataAPartirDeCampo($this->contrato->vigencia_inicio);
+    }
+
+    /**
+     * Retorna a Data de Término da Vigência
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getVigenciaFim()
+    {
+        return $this->retornaDataAPartirDeCampo($this->contrato->vigencia_fim);
+    }
+
+    /**
+     * Retorna o valor global, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getValorGlobal()
+    {
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_global);
+    }
+
+    /**
+     * Retorna o valor da parcela, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getValorParcela()
+    {
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_parcela);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -221,6 +266,13 @@ class Contratofatura extends Model
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
     }
+
+    /*
+    public function usuario()
+    {
+        return $this->belongsTo(BackpackUser::class, 'user_id');
+    }
+    */
 
     /*
     |--------------------------------------------------------------------------
