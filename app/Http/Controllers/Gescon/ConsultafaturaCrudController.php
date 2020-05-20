@@ -52,6 +52,10 @@ class ConsultafaturaCrudController extends CrudController
 
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratofaturas.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
+        $this->crud->addClause('select', [
+            'contratofaturas.*'
+        ]);
+
         /*
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'users', 'users.id', '=', 'contratofatura.user_id');
@@ -75,7 +79,7 @@ class ConsultafaturaCrudController extends CrudController
                 'unidades.codigo',
                 'codigoitens.id',
                 'codigoitens.descricao',
-                'contratoocorrencias.*'
+                'contratofaturas.*'
             ]
         );
         */
