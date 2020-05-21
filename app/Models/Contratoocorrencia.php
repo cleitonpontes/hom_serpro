@@ -19,6 +19,7 @@ class Contratoocorrencia extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
+
     protected $table = 'contratoocorrencias';
     protected $dateFormat = 'd/m/Y';
     protected static $logFillable = true;

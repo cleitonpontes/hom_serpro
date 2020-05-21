@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Http\Requests\ContratofaturaRequest as UpdateRequest;
 use App\Models\BackpackUser;
 use App\Models\Contrato;
 use App\Models\Fornecedor;
-/*
-use App\Models\Codigo;
-use App\Models\Codigoitem;
-*/
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,7 +32,6 @@ class ConsultafaturaCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-        // $this->crud->setModel('App\Models\Contratoocorrencia');
         $this->crud->setModel('App\Models\Contratofatura');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/consulta/faturas');
         $this->crud->setEntityNameStrings('Fatura', 'Faturas');
@@ -44,14 +40,28 @@ class ConsultafaturaCrudController extends CrudController
 
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('create');
-        $this->crud->denyAccess('update');
+        // $this->crud->denyAccess('update');
+        $this->crud->allowAccess('update');
         $this->crud->denyAccess('delete');
 
         (backpack_user()->can('contratofatura_editar')) ? $this->crud->allowAccess('update') : null;
         // $this->crud->removeAllButtons();
 
-        $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratofaturas.contrato_id');
-        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
+        $this->crud->addClause('join', 'contratos',
+            'contratos.id', '=', 'contratofaturas.contrato_id'
+        );
+        $this->crud->addClause('join', 'fornecedores',
+            'fornecedores.id', '=', 'contratos.fornecedor_id'
+        );
+        $this->crud->addClause('join', 'unidades',
+            'unidades.id', '=', 'contratos.unidade_id'
+        );
+        $this->crud->addClause('join', 'tipolistafatura',
+            'tipolistafatura.id', '=', 'contratofaturas.tipolistafatura_id'
+        );
+        $this->crud->addClause('join', 'justificativafatura',
+            'justificativafatura.id', '=', 'contratofaturas.justificativafatura_id'
+        );
         $this->crud->addClause('select', [
             'contratofaturas.*'
         ]);
@@ -94,6 +104,7 @@ class ConsultafaturaCrudController extends CrudController
         */
 
         $this->crud->addColumns($this->retornaColunas());
+        $this->crud->addFields($this->retornaCampos());
         $this->adicionaFiltros();
     }
 
@@ -110,13 +121,32 @@ class ConsultafaturaCrudController extends CrudController
 
         $this->crud->removeColumns([
             'contrato_id',
-            'user_id',
-            'situacao',
-            'novasituacao',
-            'numero'
+            'tipolistafatura_id',
+            'justificativafatura_id',
+            'valor',
+            'juros',
+            'multa',
+            'glosa',
+            'valorliquido',
         ]);
 
         return $content;
+    }
+
+    public function update(UpdateRequest $request)
+    {
+        // dd($request);
+        $this->crud->removeFields([
+            'contrato_id',
+            'tipolistafatura_id'
+        ]);
+
+        // your additional operations before save here
+        $redirect_location = parent::updateCrud($request);
+
+        // your additional operations after save here
+        // use $this->data['entry'] or $this->crud->entry
+        return $redirect_location;
     }
 
     /**
@@ -127,264 +157,445 @@ class ConsultafaturaCrudController extends CrudController
      */
     public function retornaColunas()
     {
-        $colunas = [
-            [
-                'name' => 'contrato.numero',
-                'label' => 'Número Contrato',
-                'type' => 'string',
-                'priority' => 1,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'getFornecedor',
-                'label' => 'Fornecedor',
-                'type' => 'model_function',
-                'function_name' => 'getFornecedor',
-                'priority' => 2,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
-                    $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-                }
-            ],
-            [
-                'name' => 'contrato.objeto',
-                'label' => 'Objeto',
-                'limit' => 150,
-                'priority' => 3,
-                'orderable' => true,
-                'visibleInTable' => false,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'getVigenciaInicio',
-                'label' => 'Vig. Início',
-                'type' => 'model_function',
-                'function_name' => 'getVigenciaInicio',
-                'priority' => 6,
-                'orderable' => true,
-                'visibleInTable' => false,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'getVigenciaFim',
-                'label' => 'Vig. Fim',
-                'type' => 'model_function',
-                'function_name' => 'getVigenciaFim',
-                'priority' => 5,
-                'orderable' => true,
-                'visibleInTable' => false,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'getValorGlobal',
-                'label' => 'Valor Global',
-                'type' => 'model_function',
-                'function_name' => 'getvalorGlobal',
-                'prefix' => 'R$ ',
-                'priority' => 4,
-                'orderable' => true,
-                'visibleInTable' => false,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'contrato.num_parcelas',
-                'label' => 'Núm. Parcelas',
-                'priority' => 8,
-                'orderable' => true,
-                'visibleInTable' => false,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'getValorParcela',
-                'label' => 'Valor Parcela',
-                'type' => 'model_function',
-                'function_name' => 'getValorParcela',
-                'prefix' => 'R$ ',
-                'priority' => 7,
-                'orderable' => true,
-                'visibleInTable' => false,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
+        $colunas = array();
 
-            // Fatura
-            [
-                'name' => '',
-                'label' => '',
-                'type' => ''
-            ],
+        $colunas[] = [
+            'name' => 'contrato.id',
+            'label' => 'C Id',
+            'type' => 'string',
+            'priority' => 0,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+        $colunas[] = [
+            'name' => 'contrato.fornecedor.id',
+            'label' => 'Fornecedor',
+            'type' => 'string',
+            'priority' => 0,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
 
-            /*
-            [
-                'name' => 'getNumero',
-                'label' => 'Núm. Ocorrência',
-                'type' => 'model_function',
-                'function_name' => 'getNumero',
-                'priority' => 9,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
+
+
+
+        $colunas[] = [
+            'name' => 'contrato.numero',
+            'label' => 'Número Contrato',
+            'type' => 'string',
+            'priority' => 1,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'getFornecedor',
+            'label' => 'Fornecedor',
+            'type' => 'model_function',
+            'function_name' => 'getFornecedor',
+            'priority' => 2,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('fornecedores.cpf_cnpj_idgener',
+                    'ilike', '%' . $searchTerm . '%'
+                );
+                $query->orWhere('fornecedores.nome',
+                    'ilike', '%' . $searchTerm . '%'
+                );
+            }
+        ];
+
+        $colunas[] = [
+            'name' => 'contrato.objeto',
+            'label' => 'Objeto',
+            'limit' => 150,
+            'priority' => 3,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'getVigenciaInicio',
+            'label' => 'Vig. Início',
+            'type' => 'model_function',
+            'function_name' => 'getVigenciaInicio',
+            'priority' => 6,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'getVigenciaFim',
+            'label' => 'Vig. Fim',
+            'type' => 'model_function',
+            'function_name' => 'getVigenciaFim',
+            'priority' => 5,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'getValorGlobal',
+            'label' => 'Valor Global',
+            'type' => 'model_function',
+            'function_name' => 'getvalorGlobal',
+            'prefix' => 'R$ ',
+            'priority' => 4,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'contrato.num_parcelas',
+            'label' => 'Núm. Parcelas',
+            'priority' => 8,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'getValorParcela',
+            'label' => 'Valor Parcela',
+            'type' => 'model_function',
+            'function_name' => 'getValorParcela',
+            'prefix' => 'R$ ',
+            'priority' => 7,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'getTipoListaFatura',
+            'label' => 'Tipo Lista',
+            'type' => 'model_function',
+            'function_name' => 'getTipoListaFatura',
+            'priority' => 9,
+            'limit' => 150,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('tipolistafatura.nome', 'ilike',
+                    '%' . $searchTerm . '%'
+                );
+            }
+        ];
+
+        $colunas[] = [
+            'name' => 'getJustificativa',
+            'label' => 'Justificativa',
+            'type' => 'model_function',
+            'function_name' => 'getJustificativa',
+            'priority' => 10,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('justificativafatura.nome', 'ilike',
+                    '%' . $searchTerm . '%'
+                );
+            }
+        ];
+
+        $colunas[] = [
+            'name' => 'numero',
+            'label' => 'Número',
+            'type' => 'string',
+            'priority' => 11,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'emissao',
+            'label' => 'Dt. Emissão',
+            'type' => 'date',
+            'priority' => 12,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'ateste',
+            'label' => 'Dt. Ateste',
+            'type' => 'date',
+            'priority' => 13,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'vencimento',
+            'label' => 'Dt. Vencimento',
+            'type' => 'date',
+            'priority' => 14,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'prazo',
+            'label' => 'Prazo Pagamento',
+            'type' => 'date',
+            'priority' => 15,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'formatValor',
+            'label' => 'Valor',
+            'type' => 'model_function',
+            'function_name' => 'formatValor',
+            'priority' => 16,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'formatJuros',
+            'label' => 'Juros',
+            'type' => 'model_function',
+            'function_name' => 'formatJuros',
+            'priority' => 17,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'formatMulta',
+            'label' => 'Multa',
+            'type' => 'model_function',
+            'function_name' => 'formatMulta',
+            'priority' => 18,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'formatGlosa',
+            'label' => 'Glosa',
+            'type' => 'model_function',
+            'function_name' => 'formatGlosa',
+            'priority' => 19,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'formatValorLiquido',
+            'label' => 'Vr. Líquido a pagar',
+            'type' => 'model_function',
+            'function_name' => 'formatValorLiquido',
+            'priority' => 20,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'processo',
+            'label' => 'Processo',
+            'type' => 'string',
+            'priority' => 21,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'protocolo',
+            'label' => 'Dt. Protocolo',
+            'type' => 'date',
+            'priority' => 22,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'infcomplementar',
+            'label' => 'Inform. Complementares',
+            'type' => 'string',
+            'priority' => 23,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'repactuacao',
+            'label' => 'Repactuação',
+            'type' => 'boolean',
+            'options' => [
+                0 => 'Não',
+                1 => 'Sim'
             ],
-            [
-                'name' => 'data',
-                'label' => 'Data',
-                'type' => 'date',
-                'format' => 'd/m/Y',
-                'priority' => 11,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'getUsuario',
-                'label' => 'Usuário',
-                'type' => 'model_function',
-                'function_name' => 'getUsuario',
-                'priority' => 12,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('users.cpf', 'like', "%" . strtoupper($searchTerm) . "%");
-                    $query->orWhere('users.name', 'like', "%" . strtoupper($searchTerm) . "%");
-                }
-            ],
-            [
-                'name' => 'ocorrencia',
-                'label' => 'Descrição',
-                'limit' => 50000,
-                'priority' => 10,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'notificapreposto',
-                'label' => 'Notifica Preposto',
-                'type' => 'boolean',
-                'options' => [
-                    0 => 'Não',
-                    1 => 'Sim'
-                ],
-                'priority' => 13,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'emailpreposto',
-                'label' => 'E-mail Preposto',
-                'type' => 'email',
-                'limit' => 10000,
-                'priority' => 14,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'numeroocorrencia',
-                'label' => 'Ocorrência Alterada',
-                'type' => 'number',
-                'priority' => 15,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'getSituacaoConsulta',
-                'label' => 'Situação',
-                'type' => 'model_function',
-                'function_name' => 'getSituacaoConsulta',
-                'priority' => 16,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'getSituacaoNovaConsulta',
-                'label' => 'Nova Situação',
-                'type' => 'model_function',
-                'function_name' => 'getSituacaoNovaConsulta',
-                'priority' => 17,
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'arquivos',
-                'label' => 'Arquivos',
-                'type' => 'arquivos_ico',
-                'disk' => 'local',
-                'priority' => 18,
-                'orderable' => false,
-                'visibleInTable' => false,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
-            ],
-            [
-                'name' => 'contrato.unidade.codigo',
-                'label' => 'UG',
-                'priority' => 99,
-                'orderable' => false,
-                'visibleInTable' => false,
-                'visibleInModal' => false,
-                'visibleInExport' => true,
-                'visibleInShow' => false
-            ],
-            [
-                'name' => 'id',
-                'label' => '#',
-                'type' => 'number',
-                'priority' => 100,
-                'orderable' => false,
-                'visibleInTable' => false,
-                'visibleInModal' => false,
-                'visibleInExport' => false,
-                'visibleInShow' => false
-            ]
-            */
+            'priority' => 24,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'mesref',
+            'label' => 'Mês Ref.',
+            'type' => 'number',
+            'priority' => 25,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'anoref',
+            'label' => 'Ano Ref.',
+            'type' => 'string',
+            'priority' => 26,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+
+        $colunas[] = [
+            'name' => 'situacao',
+            'label' => 'Situação',
+            'type' => 'string',
+            'priority' => 27,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
         ];
 
         return $colunas;
+    }
+
+    /**
+     * Retorna array dos campos para exibição no form
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function retornaCampos()
+    {
+        $campos = array();
+
+        // $con = Contrato::find($contrato_id);
+
+        $campos[] = [
+            'name' => 'situacao',
+            'label' => "Situação",
+            'type' => 'select_from_array',
+            'options' => config('app.situacao_fatura'),
+            'default'    => 'PEN',
+            /*
+            'attributes' => [
+                'readonly'=>'readonly',
+                'style' => 'pointer-events: none;touch-action: none;'
+            ],
+            */
+            'allows_null' => false
+        ];
+
+        /*
+        $campos[] = [
+            'label' => "Empenhos",
+            'type' => 'select2_multiple',
+            'name' => 'empenhos',
+            'entity' => 'empenhos',
+            'attribute' => 'numero',
+            'attribute2' => 'aliquidar',
+            'attribute_separator' => ' - Valor a Liquidar: R$ ',
+            'model' => "App\Models\Empenho",
+            'pivot' => true,
+            'options' => (function ($query) use ($con) {
+                return $query->orderBy('numero', 'ASC')
+                    ->where('unidade_id', session()->get('user_ug_id'))
+                    ->where('fornecedor_id', $con->fornecedor_id)
+                    ->get();
+            })
+        ];
+        */
+
+        return $campos;
     }
 
     /**
@@ -404,6 +615,34 @@ class ConsultafaturaCrudController extends CrudController
         // $this->adicionaFiltroSituacao();
         */
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Adiciona o filtro ao campo Número da Ocorrência

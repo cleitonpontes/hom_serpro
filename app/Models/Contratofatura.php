@@ -14,9 +14,6 @@ class Contratofatura extends Model
     use SoftDeletes;
     use Formatador;
 
-    protected static $logFillable = true;
-    protected static $logName = 'contratofaturas';
-
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -24,10 +21,9 @@ class Contratofatura extends Model
     */
 
     protected $table = 'contratofaturas';
-    // protected $primaryKey = 'id';
-    // protected $guarded = ['id'];
-    // protected $hidden = [];
-    // protected $dates = [];
+    protected static $logFillable = true;
+    protected static $logName = 'contratofaturas';
+
     protected $fillable = [
         'contrato_id',
         'tipolistafatura_id',
@@ -51,7 +47,6 @@ class Contratofatura extends Model
         'anoref',
         'situacao'
     ];
-    // public $timestamps = false;
 
     /*
     |--------------------------------------------------------------------------
@@ -129,12 +124,20 @@ class Contratofatura extends Model
 
     public function getTipoListaFatura()
     {
+        // $this->tipolista vem de:
+        // public function tipolista()
+        // Que, por sua vez, contém $this->belongsTo(...);
+        return $this->tipolista->nome;
+
+        // Faz desnecessário essa busca Class:find(...)
+        /*
         if ($this->tipolistafatura_id) {
             $tipolistafatura = Tipolistafatura::find($this->tipolistafatura_id);
             return $tipolistafatura->nome;
         } else {
             return '';
         }
+        */
     }
 
     public function getJustificativaFatura()
@@ -159,42 +162,24 @@ class Contratofatura extends Model
 
     public function formatValor()
     {
-        if ($this->valor) {
-            return 'R$ ' . number_format($this->valor, 2, ',', '.');
-        } else {
-            return '';
-        }
-
+        return $this->retornaCampoFormatadoComoNumero($this->valor, true);
     }
 
     public function formatJuros()
     {
-        if ($this->juros) {
-            return 'R$ ' . number_format($this->juros, 2, ',', '.');
-        } else {
-            return '';
-        }
-
+        return $this->retornaCampoFormatadoComoNumero($this->juros, true);
     }
 
     public function formatMulta()
     {
-        if ($this->multa) {
-            return 'R$ ' . number_format($this->multa, 2, ',', '.');
-        } else {
-            return '';
-        }
-
+        return $this->retornaCampoFormatadoComoNumero($this->multa, true);
     }
 
     public function formatGlosa()
     {
-        if ($this->glosa) {
-            return '(R$ ' . number_format($this->glosa, 2, ',', '.') . ')';
-        } else {
-            return '';
-        }
+        $numeroFormatado = $this->retornaCampoFormatadoComoNumero($this->glosa);
 
+        return "(R$ $numeroFormatado)";
     }
 
     public function formatValorLiquido()
@@ -206,6 +191,21 @@ class Contratofatura extends Model
         }
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Retorna a Data de Início da Vigência
@@ -265,6 +265,16 @@ class Contratofatura extends Model
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
+    public function tipolista()
+    {
+        return $this->belongsTo(Tipolistafatura::class, 'tipolistafatura_id');
+    }
+
+    public function justificativa()
+    {
+        return $this->belongsTo(Justificativafatura::class, 'justificativafatura_id');
     }
 
     /*
