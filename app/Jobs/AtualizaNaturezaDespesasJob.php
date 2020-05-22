@@ -36,7 +36,7 @@ class AtualizaNaturezaDespesasJob implements ShouldQueue
         $url = $migracao_url . '/api/estrutura/naturezadespesas';
 
         $base = new AdminController();
-        $dados = $base->buscaDadosUrlMigracao($url);
+        $dados = $base->buscaDadosUrl($url);
 
         foreach ($dados as $dado) {
             $nd = new Naturezadespesa();
