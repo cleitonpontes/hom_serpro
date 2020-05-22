@@ -2,6 +2,13 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.27]- xx/05/2020
+
+### Bug
+- Correção da atualização da Natureza Despesas Job;
+- Correção na Migração de Empenhos Registro Duplicado (issue #31);
+
+
 ## [5.0.26]- 14/05/2020
 
 ### Implementação

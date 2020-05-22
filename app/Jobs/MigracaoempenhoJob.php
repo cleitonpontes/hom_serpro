@@ -70,6 +70,7 @@ class MigracaoempenhoJob implements ShouldQueue
 
             $empenho = Empenho::where('numero', '=', trim($d['numero']))
                 ->where('unidade_id', '=', $unidade->id)
+                ->withTrashed()
                 ->first();
 
             if (!isset($empenho->id)) {
@@ -84,6 +85,7 @@ class MigracaoempenhoJob implements ShouldQueue
                 $empenho->fornecedor_id = $credor->id;
                 $empenho->planointerno_id = $pi_id;
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
+                $empenho->deleted_at = null;
                 $empenho->save();
             }
 
