@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -62,6 +62,11 @@ class Contratofatura extends Model
         return $this;
     }
 
+    /**
+     * Retorna o órgão da fatura, exibindo código e nome do mesmo
+     *
+     * @return string
+     */
     public function getOrgao()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
@@ -71,6 +76,11 @@ class Contratofatura extends Model
         return $orgao->codigo . ' - ' . $orgao->nome;
     }
 
+    /**
+     * Retorna a unidade da fatura, exibindo código e nome resumido do mesmo
+     *
+     * @return string
+     */
     public function getUnidade()
     {
         $unidade = Unidade::find($this->contrato->unidade_id);
@@ -78,6 +88,11 @@ class Contratofatura extends Model
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
     }
 
+    /**
+     * Retorna o tipo da lista
+     *
+     * @return string
+     */
     public function getTipoLista()
     {
         $tipolista = Tipolistafatura::find($this->tipolistafatura_id);
@@ -85,16 +100,33 @@ class Contratofatura extends Model
         return $tipolista->nome;
     }
 
+    /**
+     * Retorna o número do processo da fatura
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getProcesso()
     {
         return $this->processo;
     }
 
+    /**
+     * Retorna o número da fatura
+     *
+     * @return int
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getNumero()
     {
         return $this->numero;
     }
 
+    /**
+     * Retorna a justificativa do processo
+     *
+     * @return string
+     */
     public function getJustificativa()
     {
         if($this->justificativafatura_id){
@@ -105,13 +137,11 @@ class Contratofatura extends Model
         return '';
     }
 
-    public function getFornecedor()
-    {
-        $fornecedor = Fornecedor::find($this->contrato->fornecedor_id);
-
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
-    }
-
+    /**
+     * Retorna o contrato da fatura
+     *
+     * @return string
+     */
     public function getContrato()
     {
         if ($this->contrato_id) {
@@ -122,6 +152,25 @@ class Contratofatura extends Model
         }
     }
 
+    /**
+     * Retorna o Fornecedor do contrato, exibindo código e nome do mesmo
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getFornecedor()
+    {
+        $fornecedor = Fornecedor::find($this->contrato->fornecedor_id);
+
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+    }
+
+    /**
+     * Retorna o Tipo de Lista
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getTipoListaFatura()
     {
         // $this->tipolista vem de:
@@ -140,6 +189,11 @@ class Contratofatura extends Model
         */
     }
 
+    /**
+     * Retorna o órgão da fatura, exibindo código e nome do mesmo
+     *
+     * @return string
+     */
     public function getJustificativaFatura()
     {
         if ($this->justificativafatura_id) {
@@ -160,21 +214,45 @@ class Contratofatura extends Model
         }
     }
 
+    /**
+     * Retorna o valor da fatura, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatValor()
     {
         return $this->retornaCampoFormatadoComoNumero($this->valor, true);
     }
 
+    /**
+     * Retorna o valor dos juros, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatJuros()
     {
         return $this->retornaCampoFormatadoComoNumero($this->juros, true);
     }
 
+    /**
+     * Retorna o valor da multa, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatMulta()
     {
         return $this->retornaCampoFormatadoComoNumero($this->multa, true);
     }
 
+    /**
+     * Retorna o valor da glosa, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatGlosa()
     {
         $numeroFormatado = $this->retornaCampoFormatadoComoNumero($this->glosa);
@@ -182,30 +260,30 @@ class Contratofatura extends Model
         return "(R$ $numeroFormatado)";
     }
 
+    /**
+     * Retorna o valor líquido, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatValorLiquido()
     {
-        if ($this->valorliquido) {
-            return 'R$ ' . number_format($this->valorliquido, 2, ',', '.');
-        } else {
-            return '';
-        }
-
+        return $this->retornaCampoFormatadoComoNumero($this->valorliquido, true);
     }
 
+    /**
+     * Retorna a situação, conforme array de situações
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function retornaSituacao()
+    {
+        $situacoes = config('app.situacao_fatura');
+        $situacao = isset($situacoes[$this->situacao]) ? $situacoes[$this->situacao] : '';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return $situacao;
+    }
 
     /**
      * Retorna a Data de Início da Vigência
@@ -276,13 +354,6 @@ class Contratofatura extends Model
     {
         return $this->belongsTo(Justificativafatura::class, 'justificativafatura_id');
     }
-
-    /*
-    public function usuario()
-    {
-        return $this->belongsTo(BackpackUser::class, 'user_id');
-    }
-    */
 
     /*
     |--------------------------------------------------------------------------

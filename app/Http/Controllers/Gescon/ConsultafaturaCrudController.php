@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Gescon;
 
-use App\Http\Requests\ContratofaturaRequest as UpdateRequest;
-use App\Models\BackpackUser;
 use App\Models\Contrato;
+use App\Models\Contratofatura;
 use App\Models\Fornecedor;
+use App\Models\Justificativafatura;
+use App\Models\Tipolistafatura;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -40,8 +42,7 @@ class ConsultafaturaCrudController extends CrudController
 
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('create');
-        // $this->crud->denyAccess('update');
-        $this->crud->allowAccess('update');
+        $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
 
         (backpack_user()->can('contratofatura_editar')) ? $this->crud->allowAccess('update') : null;
@@ -66,34 +67,6 @@ class ConsultafaturaCrudController extends CrudController
             'contratofaturas.*'
         ]);
 
-        /*
-        $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
-        $this->crud->addClause('join', 'users', 'users.id', '=', 'contratofatura.user_id');
-        $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'contratoocorrencias.situacao');
-        $this->crud->addClause('leftJoin', 'codigoitens as codigoitensnova', 'codigoitensnova.id', '=', 'contratoocorrencias.novasituacao');
-        $this->crud->addClause('select',
-            [
-                'contratos.id',
-                'contratos.numero',
-                'contratos.fornecedor_id',
-                'contratos.objeto',
-                'contratos.num_parcelas',
-                'contratos.vigencia_inicio',
-                'contratos.vigencia_fim',
-                'contratos.valor_global',
-                'contratos.valor_parcela',
-                'fornecedores.cpf_cnpj_idgener',
-                'fornecedores.nome',
-                'users.cpf',
-                'users.name',
-                'unidades.codigo',
-                'codigoitens.id',
-                'codigoitens.descricao',
-                'contratofaturas.*'
-            ]
-        );
-        */
-
         // Apenas ocorrências da unidade atual
         $this->crud->addClause('where', 'unidades.codigo', '=', session('user_ug'));
 
@@ -103,8 +76,19 @@ class ConsultafaturaCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
+        $fornecedorId = 0;
+        $fornecedorDesc = '';
+        $faturaId = \Route::current()->parameter('fatura');
+
+        if ($faturaId) {
+            $fatura = Contratofatura::find($faturaId);
+
+            $fornecedorId = $fatura->contrato->fornecedor_id;
+            $fornecedorDesc = $fatura->getFornecedor();
+        }
+
         $this->crud->addColumns($this->retornaColunas());
-        $this->crud->addFields($this->retornaCampos());
+        $this->crud->addFields($this->retornaCampos($fornecedorId, $fornecedorDesc));
         $this->adicionaFiltros();
     }
 
@@ -128,19 +112,14 @@ class ConsultafaturaCrudController extends CrudController
             'multa',
             'glosa',
             'valorliquido',
+            'situacao'
         ]);
 
         return $content;
     }
 
-    public function update(UpdateRequest $request)
+    public function update(Request $request)
     {
-        // dd($request);
-        $this->crud->removeFields([
-            'contrato_id',
-            'tipolistafatura_id'
-        ]);
-
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
 
@@ -158,32 +137,6 @@ class ConsultafaturaCrudController extends CrudController
     public function retornaColunas()
     {
         $colunas = array();
-
-        $colunas[] = [
-            'name' => 'contrato.id',
-            'label' => 'C Id',
-            'type' => 'string',
-            'priority' => 0,
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ];
-        $colunas[] = [
-            'name' => 'contrato.fornecedor.id',
-            'label' => 'Fornecedor',
-            'type' => 'string',
-            'priority' => 0,
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ];
-
-
-
 
         $colunas[] = [
             'name' => 'contrato.numero',
@@ -534,12 +487,13 @@ class ConsultafaturaCrudController extends CrudController
         ];
 
         $colunas[] = [
-            'name' => 'situacao',
+            'name' => 'retornaSituacao',
             'label' => 'Situação',
-            'type' => 'string',
+            'type' => 'model_function',
+            'function_name' => 'retornaSituacao',
             'priority' => 27,
             'orderable' => true,
-            'visibleInTable' => false,
+            'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
@@ -551,14 +505,36 @@ class ConsultafaturaCrudController extends CrudController
     /**
      * Retorna array dos campos para exibição no form
      *
+     * @param int $fornecedorId
+     * @param string $fornecedorDesc
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function retornaCampos()
+    public function retornaCampos($fornecedorId = 0, $fornecedorDesc = '')
     {
         $campos = array();
 
-        // $con = Contrato::find($contrato_id);
+        $campos[] = [
+            'name' => 'num_contrato',
+            'label' => 'Número Contrato',
+            'attributes' => [
+                'readonly'=>'readonly',
+                'style' => 'pointer-events: none;touch-action: none;',
+                'class' => 'form-control mostraCamposRelacionados',
+                'data-campo' => 'numero'
+            ]
+        ];
+
+        $campos[] = [
+            'name' => 'desc_fornecedor',
+            'label' => "Fornecedor",
+            'type' => 'text',
+            'value' => $fornecedorDesc,
+            'attributes' => [
+                'readonly'=>'readonly',
+                'style' => 'pointer-events: none;touch-action: none;',
+            ]
+        ];
 
         $campos[] = [
             'name' => 'situacao',
@@ -566,34 +542,35 @@ class ConsultafaturaCrudController extends CrudController
             'type' => 'select_from_array',
             'options' => config('app.situacao_fatura'),
             'default'    => 'PEN',
-            /*
-            'attributes' => [
-                'readonly'=>'readonly',
-                'style' => 'pointer-events: none;touch-action: none;'
-            ],
-            */
             'allows_null' => false
         ];
 
-        /*
         $campos[] = [
+            'name' => 'empenhos',
             'label' => "Empenhos",
             'type' => 'select2_multiple',
-            'name' => 'empenhos',
+            'model' => "App\Models\Empenho",
             'entity' => 'empenhos',
             'attribute' => 'numero',
             'attribute2' => 'aliquidar',
             'attribute_separator' => ' - Valor a Liquidar: R$ ',
-            'model' => "App\Models\Empenho",
             'pivot' => true,
-            'options' => (function ($query) use ($con) {
+            'options' => (function ($query) use ($fornecedorId) {
                 return $query->orderBy('numero', 'ASC')
                     ->where('unidade_id', session()->get('user_ug_id'))
-                    ->where('fornecedor_id', $con->fornecedor_id)
+                    ->where('fornecedor_id', $fornecedorId)
                     ->get();
             })
         ];
-        */
+
+        $campos[] = [
+            'name' => 'contrato',
+            'label' => 'dados_contrato',
+            'type' => 'hidden',
+            'attributes' => [
+                'id' => 'dados_contrato'
+            ]
+        ];
 
         return $campos;
     }
@@ -605,63 +582,37 @@ class ConsultafaturaCrudController extends CrudController
      */
     public function adicionaFiltros()
     {
-        /*
-        $this->adicionaFiltroNumeroOcorrencia();
+        $this->adicionaFiltroNumeroFatura();
         $this->adicionaFiltroNumeroContrato();
         $this->adicionaFiltroFornecedor();
-        $this->adicionaFiltroUsuario();
-        $this->adicionaFiltroVigenciaInicio();
-        $this->adicionaFiltroVigenciaFim();
-        // $this->adicionaFiltroSituacao();
-        */
+        $this->adicionaFiltroTipoLista();
+        $this->adicionaFiltroJustificativa();
+        $this->adicionaFiltroDataEmissao();
+        $this->adicionaFiltroDataAteste();
+        $this->adicionaFiltroDataVencimento();
+        $this->adicionaFiltroDataPrazoPagamento();
+        $this->adicionaFiltroDataProtocolo();
+        $this->adicionaFiltroSituacao();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
-     * Adiciona o filtro ao campo Número da Ocorrência
+     * Adiciona o filtro ao campo Número da Fatura
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroNumeroOcorrencia()
+    public function adicionaFiltroNumeroFatura()
     {
         $campo = [
             'name' => 'numero',
             'type' => 'text',
-            'label' => 'Núm. Ocorrência'
+            'label' => 'Núm. Fatura'
         ];
 
         $this->crud->addFilter(
             $campo,
             null,
             function ($value) {
-                $this->crud->addClause('where', 'contratoocorrencias.numero', $value);
+                $this->crud->addClause('where', 'contratofaturas.numero', $value);
             }
         );
     }
@@ -715,40 +666,64 @@ class ConsultafaturaCrudController extends CrudController
     }
 
     /**
-     * Adiciona o filtro ao campo Usuário
+     * Adiciona o filtro ao campo Tipo de Lista
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroUsuario()
+    public function adicionaFiltroTipoLista()
     {
         $campo = [
-            'name' => 'usuario',
+            'name' => 'tipo_lista',
             'type' => 'select2',
-            'label' => 'Usuário'
+            'label' => 'Tipo Lista'
         ];
 
-        $usuarios = $this->retornaUsuarios();
+        $tiposLista = $this->retornaTiposLista();
 
         $this->crud->addFilter(
             $campo,
-            $usuarios,
+            $tiposLista,
             function ($value) {
-                $this->crud->addClause('where', 'users.cpf', $value);
+                $this->crud->addClause('where', 'contratofaturas.tipolistafatura_id', $value);
             }
         );
     }
 
     /**
-     * Adiciona o filtro ao campo Data de Início da Vigência
+     * Adiciona o filtro ao campo Justificativa
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroVigenciaInicio()
+    public function adicionaFiltroJustificativa()
     {
         $campo = [
-            'name' => 'vig_ini',
+            'name' => 'justificativa',
+            'type' => 'select2',
+            'label' => 'Justificativa'
+        ];
+
+        $justificativas = $this->retornaJustificativas();
+
+        $this->crud->addFilter(
+            $campo,
+            $justificativas,
+            function ($value) {
+                $this->crud->addClause('where', 'contratofaturas.justificativafatura_id', $value);
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Data de Emissão
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroDataEmissao()
+    {
+        $campo = [
+            'name' => 'dt_emissao',
             'type' => 'date_range',
-            'label' => 'Vig. Início'
+            'label' => 'Dt. Emissão'
         ];
 
         $this->crud->addFilter(
@@ -756,23 +731,23 @@ class ConsultafaturaCrudController extends CrudController
             null,
             function ($value) {
                 $dates = json_decode($value);
-                $this->crud->addClause('where', 'contratos.vigencia_inicio', '>=', $dates->from . ' 00:00:00');
-                $this->crud->addClause('where', 'contratos.vigencia_inicio', '<=', $dates->to . ' 23:59:59');
+                $this->crud->addClause('where', 'contratofaturas.emissao', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratofaturas.emissao', '<=', $dates->to . ' 23:59:59');
             }
         );
     }
 
     /**
-     * Adiciona o filtro ao campo Data de Fim da Vigência
+     * Adiciona o filtro ao campo Data de Ateste
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroVigenciaFim()
+    public function adicionaFiltroDataAteste()
     {
         $campo = [
-            'name' => 'vig_fim',
+            'name' => 'dt_ateste',
             'type' => 'date_range',
-            'label' => 'Vig. Fim'
+            'label' => 'Dt. Ateste'
         ];
 
         $this->crud->addFilter(
@@ -780,8 +755,80 @@ class ConsultafaturaCrudController extends CrudController
             null,
             function ($value) {
                 $dates = json_decode($value);
-                $this->crud->addClause('where', 'contratos.vigencia_fim', '>=', $dates->from . ' 00:00:00');
-                $this->crud->addClause('where', 'contratos.vigencia_fim', '<=', $dates->to . ' 23:59:59');
+                $this->crud->addClause('where', 'contratofaturas.ateste', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratofaturas.ateste', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Data de Vencimento
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroDataVencimento()
+    {
+        $campo = [
+            'name' => 'dt_vencimento',
+            'type' => 'date_range',
+            'label' => 'Dt. Vencimento'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $dates = json_decode($value);
+                $this->crud->addClause('where', 'contratofaturas.vencimento', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratofaturas.vencimento', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Data do Prazo de Pagamento
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroDataPrazoPagamento()
+    {
+        $campo = [
+            'name' => 'dt_prazo',
+            'type' => 'date_range',
+            'label' => 'Prazo Pagamento'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $dates = json_decode($value);
+                $this->crud->addClause('where', 'contratofaturas.prazo', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratofaturas.prazo', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Data do Protocolo
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaFiltroDataProtocolo()
+    {
+        $campo = [
+            'name' => 'dt_protocolo',
+            'type' => 'date_range',
+            'label' => 'Dt. Protocolo'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $dates = json_decode($value);
+                $this->crud->addClause('where', 'contratofaturas.protocolo', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratofaturas.protocolo', '<=', $dates->to . ' 23:59:59');
             }
         );
     }
@@ -799,13 +846,13 @@ class ConsultafaturaCrudController extends CrudController
             'label' => 'Situação'
         ];
 
-        $situacoes = $this->retornaSituacoes();
+        $situacoes = config('app.situacao_fatura');
 
         $this->crud->addFilter(
             $campo,
             $situacoes,
             function ($value) {
-                $this->crud->addClause('where', 'contratoocorrencias.situacao', $value);
+                $this->crud->addClause('where', 'contratofaturas.situacao', $value);
             }
         );
     }
@@ -851,34 +898,27 @@ class ConsultafaturaCrudController extends CrudController
     }
 
     /**
-     * Retorna dados de Usuários para exibição no controle de filtro
+     * Retorna dados de Tipos de Lista para exibição no controle de filtro
      *
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaUsuarios()
+    private function retornaTiposLista()
     {
-        $dados = BackpackUser::select(
-            DB::raw("CONCAT(cpf, ' - ', name) AS descricao"), 'cpf'
-        );
+        $dados = Tipolistafatura::select('nome as descricao', 'id');
 
-        $dados->join('contratoocorrencias as o', 'o.user_id', '=', 'users.id');
-
-        return $dados->pluck('descricao', 'cpf')->toArray();
+        return $dados->pluck('descricao', 'id')->toArray();
     }
 
     /**
-     * Retorna dados de Situações para exibição no controle de filtro
+     * Retorna dados das Justificativas para exibição no controle de filtro
      *
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaSituacoes()
+    private function retornaJustificativas()
     {
-        $dados = Codigoitem::select('descricao', 'id');
-
-        // $dados->where('codigo_id', Codigo::CODIGO_SITUACAO_OCORRENCIA);
-        $dados->orderBy('descricao');
+        $dados = Justificativafatura::select('nome as descricao', 'id');
 
         return $dados->pluck('descricao', 'id')->toArray();
     }
