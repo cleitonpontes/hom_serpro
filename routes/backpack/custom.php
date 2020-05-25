@@ -132,6 +132,7 @@ Route::group([
 
             CRUD::resource('contrato', 'ContratoCrudController');
             CRUD::resource('subrogacao', 'SubrogacaoCrudController');
+            CRUD::resource('despesaacessoria', 'ContratodespesaacessoriaCrudController');
             CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
 

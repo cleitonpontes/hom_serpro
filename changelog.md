@@ -2,9 +2,16 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
-## [5.0.27]- xx/05/2020
+## [5.0.27]- 25/05/2020
+
+### Implementação
+- Consulta e Atualização da Situação das Faturas (Issue #18);
+- Despesas Acessórias do Contrato (Issue #34);
+- Inclusão do Novo Campo Total Despesas Acessórias nas Consultas de Contratos.
 
 ### Bug
+- Alteração de tipo da coluna arquivos em contrato_arquivos (issue #29);
+- Correção de erro na request do Contrato e Instrumento Inicial;
 - Correção da atualização da Natureza Despesas Job;
 - Correção na Migração de Empenhos Registro Duplicado (issue #31);
 

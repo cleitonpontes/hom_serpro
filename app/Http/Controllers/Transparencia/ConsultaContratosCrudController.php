@@ -435,6 +435,17 @@ class ConsultaContratosCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'formatTotalDespesasAcessorias',
+                'label' => 'Total Despesas Acessórias', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatTotalDespesasAcessorias', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'historico',
                 'label' => 'Histórico',
                 'type' => 'contratohistoricotable',
@@ -477,6 +488,7 @@ class ConsultaContratosCrudController extends CrudController
             'valor_global',
             'valor_parcela',
             'valor_acumulado',
+            'total_despesas_acessorias',
             'receita_despesa',
             'subcategoria_id',
             'situacao_siasg',
