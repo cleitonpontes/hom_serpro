@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -11,9 +11,8 @@ class Contratofatura extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    protected static $logFillable = true;
-    protected static $logName = 'contratofaturas';
     use SoftDeletes;
+    use Formatador;
 
     /*
     |--------------------------------------------------------------------------
@@ -22,9 +21,9 @@ class Contratofatura extends Model
     */
 
     protected $table = 'contratofaturas';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
+    protected static $logFillable = true;
+    protected static $logName = 'contratofaturas';
+
     protected $fillable = [
         'contrato_id',
         'tipolistafatura_id',
@@ -48,14 +47,13 @@ class Contratofatura extends Model
         'anoref',
         'situacao'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function inserirContratoFaturaMigracaoConta(array $dados)
     {
         $this->fill($dados);
@@ -64,6 +62,11 @@ class Contratofatura extends Model
         return $this;
     }
 
+    /**
+     * Retorna o órgão da fatura, exibindo código e nome do mesmo
+     *
+     * @return string
+     */
     public function getOrgao()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
@@ -73,6 +76,11 @@ class Contratofatura extends Model
         return $orgao->codigo . ' - ' . $orgao->nome;
     }
 
+    /**
+     * Retorna a unidade da fatura, exibindo código e nome resumido do mesmo
+     *
+     * @return string
+     */
     public function getUnidade()
     {
         $unidade = Unidade::find($this->contrato->unidade_id);
@@ -80,6 +88,11 @@ class Contratofatura extends Model
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
     }
 
+    /**
+     * Retorna o tipo da lista
+     *
+     * @return string
+     */
     public function getTipoLista()
     {
         $tipolista = Tipolistafatura::find($this->tipolistafatura_id);
@@ -87,16 +100,33 @@ class Contratofatura extends Model
         return $tipolista->nome;
     }
 
+    /**
+     * Retorna o número do processo da fatura
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getProcesso()
     {
         return $this->processo;
     }
 
+    /**
+     * Retorna o número da fatura
+     *
+     * @return int
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getNumero()
     {
         return $this->numero;
     }
 
+    /**
+     * Retorna a justificativa do processo
+     *
+     * @return string
+     */
     public function getJustificativa()
     {
         if($this->justificativafatura_id){
@@ -107,13 +137,11 @@ class Contratofatura extends Model
         return '';
     }
 
-    public function getFornecedor()
-    {
-        $fornecedor = Fornecedor::find($this->contrato->fornecedor_id);
-
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
-    }
-
+    /**
+     * Retorna o contrato da fatura
+     *
+     * @return string
+     */
     public function getContrato()
     {
         if ($this->contrato_id) {
@@ -124,16 +152,48 @@ class Contratofatura extends Model
         }
     }
 
+    /**
+     * Retorna o Fornecedor do contrato, exibindo código e nome do mesmo
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getFornecedor()
+    {
+        $fornecedor = Fornecedor::find($this->contrato->fornecedor_id);
+
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+    }
+
+    /**
+     * Retorna o Tipo de Lista
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getTipoListaFatura()
     {
+        // $this->tipolista vem de:
+        // public function tipolista()
+        // Que, por sua vez, contém $this->belongsTo(...);
+        return $this->tipolista->nome;
+
+        // Faz desnecessário essa busca Class:find(...)
+        /*
         if ($this->tipolistafatura_id) {
             $tipolistafatura = Tipolistafatura::find($this->tipolistafatura_id);
             return $tipolistafatura->nome;
         } else {
             return '';
         }
+        */
     }
 
+    /**
+     * Retorna o órgão da fatura, exibindo código e nome do mesmo
+     *
+     * @return string
+     */
     public function getJustificativaFatura()
     {
         if ($this->justificativafatura_id) {
@@ -154,54 +214,119 @@ class Contratofatura extends Model
         }
     }
 
+    /**
+     * Retorna o valor da fatura, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatValor()
     {
-        if ($this->valor) {
-            return 'R$ ' . number_format($this->valor, 2, ',', '.');
-        } else {
-            return '';
-        }
-
+        return $this->retornaCampoFormatadoComoNumero($this->valor, true);
     }
 
+    /**
+     * Retorna o valor dos juros, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatJuros()
     {
-        if ($this->juros) {
-            return 'R$ ' . number_format($this->juros, 2, ',', '.');
-        } else {
-            return '';
-        }
-
+        return $this->retornaCampoFormatadoComoNumero($this->juros, true);
     }
 
+    /**
+     * Retorna o valor da multa, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatMulta()
     {
-        if ($this->multa) {
-            return 'R$ ' . number_format($this->multa, 2, ',', '.');
-        } else {
-            return '';
-        }
-
+        return $this->retornaCampoFormatadoComoNumero($this->multa, true);
     }
 
+    /**
+     * Retorna o valor da glosa, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatGlosa()
     {
-        if ($this->glosa) {
-            return '(R$ ' . number_format($this->glosa, 2, ',', '.') . ')';
-        } else {
-            return '';
-        }
+        $numeroFormatado = $this->retornaCampoFormatadoComoNumero($this->glosa);
 
+        return "(R$ $numeroFormatado)";
     }
 
+    /**
+     * Retorna o valor líquido, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function formatValorLiquido()
     {
-        if ($this->valorliquido) {
-            return 'R$ ' . number_format($this->valorliquido, 2, ',', '.');
-        } else {
-            return '';
-        }
+        return $this->retornaCampoFormatadoComoNumero($this->valorliquido, true);
+    }
 
+    /**
+     * Retorna a situação, conforme array de situações
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function retornaSituacao()
+    {
+        $situacoes = config('app.situacao_fatura');
+        $situacao = isset($situacoes[$this->situacao]) ? $situacoes[$this->situacao] : '';
+
+        return $situacao;
+    }
+
+    /**
+     * Retorna a Data de Início da Vigência
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getVigenciaInicio()
+    {
+        return $this->retornaDataAPartirDeCampo($this->contrato->vigencia_inicio);
+    }
+
+    /**
+     * Retorna a Data de Término da Vigência
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getVigenciaFim()
+    {
+        return $this->retornaDataAPartirDeCampo($this->contrato->vigencia_fim);
+    }
+
+    /**
+     * Retorna o valor global, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getValorGlobal()
+    {
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_global);
+    }
+
+    /**
+     * Retorna o valor da parcela, formatado como moeda em pt-Br
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getValorParcela()
+    {
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_parcela);
     }
 
     /*
@@ -209,6 +334,7 @@ class Contratofatura extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
     public function empenhos()
     {
         return $this->belongsToMany(Empenho::class, 'contratofatura_empenhos', 'contratofatura_id', 'empenho_id');
@@ -218,6 +344,17 @@ class Contratofatura extends Model
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
     }
+
+    public function tipolista()
+    {
+        return $this->belongsTo(Tipolistafatura::class, 'tipolistafatura_id');
+    }
+
+    public function justificativa()
+    {
+        return $this->belongsTo(Justificativafatura::class, 'justificativafatura_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -235,4 +372,5 @@ class Contratofatura extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }

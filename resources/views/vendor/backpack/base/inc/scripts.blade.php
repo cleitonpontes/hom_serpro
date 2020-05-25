@@ -81,6 +81,28 @@
     function mascaraContrato(element) {
         $(element).mask("9999/9999");
     }
+
+    $(document).ready(function() {
+        $('.mostraCamposRelacionados').each(function(i) {
+            campo = $(this).data('campo');
+            dado = retornaDadosContrato(campo);
+
+            $(this).val(dado);
+        });
+    });
+
+    function retornaDadosContrato(campo) {
+        dado = '';
+
+        if($("#dados_contrato").length) {
+            conteudo = $("#dados_contrato").val();
+            dados = jQuery.parseJSON(conteudo);
+
+            dado = dados[campo];
+        }
+
+        return dado;
+    }
 </script>
 
 

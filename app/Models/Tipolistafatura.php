@@ -12,8 +12,6 @@ class Tipolistafatura extends Model
     use CrudTrait;
     use SoftDeletes;
     use LogsActivity;
-    protected static $logFillable = true;
-    protected static $logName = 'tipolistafatura';
 
     /*
     |--------------------------------------------------------------------------
@@ -22,15 +20,13 @@ class Tipolistafatura extends Model
     */
 
     protected $table = 'tipolistafatura';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
+    protected static $logFillable = true;
+    protected static $logName = 'tipolistafatura';
+
     protected $fillable = [
         'nome',
         'situacao'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
@@ -61,4 +57,5 @@ class Tipolistafatura extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }

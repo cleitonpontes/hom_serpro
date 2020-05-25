@@ -101,7 +101,8 @@ class ConsultaocorrenciaCrudController extends CrudController
             'contrato_id',
             'user_id',
             'situacao',
-            'novasituacao'
+            'novasituacao',
+            'numero'
         ]);
 
         return $content;
