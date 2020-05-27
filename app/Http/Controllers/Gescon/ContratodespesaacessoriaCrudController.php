@@ -290,6 +290,7 @@ class ContratodespesaacessoriaCrudController extends CrudController
                 'name' => 'descricao_complementar',
                 'label' => 'Descrição Complementar', // Table column heading
                 'type' => 'test',
+                'limit' => 255,
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
