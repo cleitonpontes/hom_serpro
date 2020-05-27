@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Http\Requests\ConsultacontratofaturaRequest;
 use App\Models\Contrato;
 use App\Models\Contratofatura;
 use App\Models\Fornecedor;
@@ -10,7 +11,6 @@ use App\Models\Tipolistafatura;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -118,7 +118,7 @@ class ConsultafaturaCrudController extends CrudController
         return $content;
     }
 
-    public function update(Request $request)
+    public function update(ConsultacontratofaturaRequest $request)
     {
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
@@ -134,7 +134,7 @@ class ConsultafaturaCrudController extends CrudController
      * @return array[]
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function retornaColunas()
+    private function retornaColunas()
     {
         $colunas = array();
 
@@ -510,8 +510,10 @@ class ConsultafaturaCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function retornaCampos($fornecedorId = 0, $fornecedorDesc = '')
+    private function retornaCampos($fornecedorId = 0, $fornecedorDesc = '')
     {
+        $justificativas = $this->retornaJustificativasCombo();
+
         $campos = array();
 
         $campos[] = [
@@ -527,7 +529,7 @@ class ConsultafaturaCrudController extends CrudController
 
         $campos[] = [
             'name' => 'desc_fornecedor',
-            'label' => "Fornecedor",
+            'label' => 'Fornecedor',
             'type' => 'text',
             'value' => $fornecedorDesc,
             'attributes' => [
@@ -537,8 +539,18 @@ class ConsultafaturaCrudController extends CrudController
         ];
 
         $campos[] = [
+            'name' => 'justificativafatura_id',
+            'label' => 'Justificativa',
+            'type' => 'select_from_array',
+            'options' => $justificativas,
+            'default'    => null,
+            'placeholder'    => '123',
+            'allows_null' => false
+        ];
+
+        $campos[] = [
             'name' => 'situacao',
-            'label' => "Situação",
+            'label' => 'Situação',
             'type' => 'select_from_array',
             'options' => config('app.situacao_fatura'),
             'default'    => 'PEN',
@@ -547,9 +559,9 @@ class ConsultafaturaCrudController extends CrudController
 
         $campos[] = [
             'name' => 'empenhos',
-            'label' => "Empenhos",
+            'label' => 'Empenhos',
             'type' => 'select2_multiple',
-            'model' => "App\Models\Empenho",
+            'model' => 'App\Models\Empenho',
             'entity' => 'empenhos',
             'attribute' => 'numero',
             'attribute2' => 'aliquidar',
@@ -580,7 +592,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltros()
+    private function adicionaFiltros()
     {
         $this->adicionaFiltroNumeroFatura();
         $this->adicionaFiltroNumeroContrato();
@@ -600,7 +612,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroNumeroFatura()
+    private function adicionaFiltroNumeroFatura()
     {
         $campo = [
             'name' => 'numero',
@@ -622,7 +634,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroNumeroContrato()
+    private function adicionaFiltroNumeroContrato()
     {
         $campo = [
             'name' => 'contrato',
@@ -646,7 +658,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroFornecedor()
+    private function adicionaFiltroFornecedor()
     {
         $campo = [
             'name' => 'cpf_cnpj',
@@ -670,7 +682,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroTipoLista()
+    private function adicionaFiltroTipoLista()
     {
         $campo = [
             'name' => 'tipo_lista',
@@ -694,7 +706,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroJustificativa()
+    private function adicionaFiltroJustificativa()
     {
         $campo = [
             'name' => 'justificativa',
@@ -718,7 +730,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroDataEmissao()
+    private function adicionaFiltroDataEmissao()
     {
         $campo = [
             'name' => 'dt_emissao',
@@ -742,7 +754,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroDataAteste()
+    private function adicionaFiltroDataAteste()
     {
         $campo = [
             'name' => 'dt_ateste',
@@ -766,7 +778,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroDataVencimento()
+    private function adicionaFiltroDataVencimento()
     {
         $campo = [
             'name' => 'dt_vencimento',
@@ -790,7 +802,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroDataPrazoPagamento()
+    private function adicionaFiltroDataPrazoPagamento()
     {
         $campo = [
             'name' => 'dt_prazo',
@@ -814,7 +826,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroDataProtocolo()
+    private function adicionaFiltroDataProtocolo()
     {
         $campo = [
             'name' => 'dt_protocolo',
@@ -838,7 +850,7 @@ class ConsultafaturaCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function adicionaFiltroSituacao()
+    private function adicionaFiltroSituacao()
     {
         $campo = [
             'name' => 'situacao',
@@ -918,9 +930,28 @@ class ConsultafaturaCrudController extends CrudController
      */
     private function retornaJustificativas()
     {
-        $dados = Justificativafatura::select('nome as descricao', 'id');
+        $dados = Justificativafatura::select(
+            'id',
+            DB::raw("CONCAT(nome, ' - ', LEFT(descricao, 80)) as descricao")
+        );
 
         return $dados->pluck('descricao', 'id')->toArray();
+    }
+
+    /**
+     * Retorna dados das Justificativas para exibição no combo de edição
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaJustificativasCombo()
+    {
+        $justificativas = $this->retornaJustificativas();
+        $justificativas[''] = 'Selecione a justificativa';
+
+        ksort($justificativas);
+
+        return $justificativas;
     }
 
 }
