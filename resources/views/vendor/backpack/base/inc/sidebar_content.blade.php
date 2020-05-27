@@ -81,6 +81,12 @@
                         <span>Ocorrências</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ backpack_url('/gescon/consulta/cronogramas') }}">
+                        <i class="fa fa-calendar"></i>
+                        <span>Cronogramas</span>
+                    </a>
+                </li>
             </ul>
         </li>
         <li><a href="{{ backpack_url('/gescon/meus-contratos') }}"><i class="fa fa-file-text-o"></i> <span>Meus Contratos</span></a>
