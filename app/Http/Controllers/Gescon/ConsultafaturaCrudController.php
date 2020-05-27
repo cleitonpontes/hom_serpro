@@ -48,19 +48,19 @@ class ConsultafaturaCrudController extends CrudController
         (backpack_user()->can('contratofatura_editar')) ? $this->crud->allowAccess('update') : null;
         // $this->crud->removeAllButtons();
 
-        $this->crud->addClause('join', 'contratos',
+        $this->crud->addClause('leftJoin', 'contratos',
             'contratos.id', '=', 'contratofaturas.contrato_id'
         );
-        $this->crud->addClause('join', 'fornecedores',
+        $this->crud->addClause('leftJoin', 'fornecedores',
             'fornecedores.id', '=', 'contratos.fornecedor_id'
         );
-        $this->crud->addClause('join', 'unidades',
+        $this->crud->addClause('leftJoin', 'unidades',
             'unidades.id', '=', 'contratos.unidade_id'
         );
-        $this->crud->addClause('join', 'tipolistafatura',
+        $this->crud->addClause('leftJoin', 'tipolistafatura',
             'tipolistafatura.id', '=', 'contratofaturas.tipolistafatura_id'
         );
-        $this->crud->addClause('join', 'justificativafatura',
+        $this->crud->addClause('leftJoin', 'justificativafatura',
             'justificativafatura.id', '=', 'contratofaturas.justificativafatura_id'
         );
         $this->crud->addClause('select', [
