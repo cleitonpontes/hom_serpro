@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoempenhoJob;
+use App\Jobs\MigracaoRpJob;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
@@ -402,7 +403,9 @@ class EmpenhoCrudController extends CrudController
 
         foreach ($unidades as $unidade) {
             MigracaoempenhoJob::dispatch($unidade->id);
+            MigracaoRpJob::dispatch($unidade->id);
 //            $this->migracaoEmpenho($unidade->id);
+//            $this->migracaoRp($unidade->id);
         }
 
         if (backpack_user()) {
@@ -575,6 +578,90 @@ class EmpenhoCrudController extends CrudController
         $empenhodetalhado->push();
     }
 
+    public function migracaoRp($ug_id)
+    {
+        $unidade = Unidade::find($ug_id);
+        $rp_antigos = $this->atualizaEmpenhosRpsAntigos($ug_id);
+
+        $ano = date('Y');
+
+        $migracao_url = config('migracao.api_sta');
+        $url = $migracao_url . '/api/rp/ug/' . $unidade->codigo;
+        //        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
+//            true);
+
+
+        $dados = $this->buscaDadosUrl($url);
+
+        foreach ($dados as $d) {
+
+            $credor = $this->buscaFornecedor($d);
+
+            if ($d['picodigo'] != "") {
+                $pi = $this->buscaPi($d);
+            }
+
+            if (isset($pi->id)) {
+                $pi_id = $pi->id;
+            } else {
+                $pi_id = null;
+            }
+
+            $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
+                ->first();
+
+            $empenho = Empenho::where('numero', '=', trim($d['numero']))
+                ->where('unidade_id', '=', $unidade->id)
+                ->withTrashed()
+                ->first();
+
+            if (!isset($empenho->id)) {
+                $empenho = Empenho::create([
+                    'numero' => trim($d['numero']),
+                    'unidade_id' => $unidade->id,
+                    'fornecedor_id' => $credor->id,
+                    'planointerno_id' => $pi_id,
+                    'naturezadespesa_id' => $naturezadespesa->id,
+                    'rp' => 1
+                ]);
+            } else {
+                $empenho->fornecedor_id = $credor->id;
+                $empenho->planointerno_id = $pi_id;
+                $empenho->naturezadespesa_id = $naturezadespesa->id;
+                $empenho->deleted_at = null;
+                $empenho->rp = 1;
+                $empenho->save();
+            }
+
+            foreach ($d['itens'] as $item) {
+
+                $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                    ->where('naturezadespesa_id', $naturezadespesa->id)
+                    ->first();
+
+                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                    ->first();
+
+                if (!isset($empenhodetalhado)) {
+                    $empenhodetalhado = Empenhodetalhado::create([
+                        'empenho_id' => $empenho->id,
+                        'naturezasubitem_id' => $naturezasubitem->id
+                    ]);
+                }
+            }
+        }
+
+    }
+
+    public function atualizaEmpenhosRpsAntigos($unidade_id)
+    {
+        $empenhos = Empenho::where('unidade_id', $unidade_id)
+            ->update(['rp' => false]);
+
+        return $empenhos;
+    }
+
     public function migracaoEmpenho($ug_id)
     {
         $unidade = Unidade::find($ug_id);
@@ -600,12 +687,6 @@ class EmpenhoCrudController extends CrudController
             $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                 ->first();
 
-//                $empenho = Empenho::where('numero', '=', $d['numero'])
-//                    ->where('unidade_id', '=', $unidade->id)
-//                    ->where('fornecedor_id', '=', $credor->id)
-//                    ->where('planointerno_id', '=', $pi->id)
-//                    ->where('naturezadespesa_id', '=', $naturezadespesa->id)
-//                    ->first();
 
             $empenho = Empenho::where('numero', '=', trim($d['numero']))
                 ->where('unidade_id', '=', $unidade->id)
