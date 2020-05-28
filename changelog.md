@@ -6,6 +6,7 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
 ### Implementação
 - Consulta e Atualização da Situação das Faturas (Issue #18);
+- Consulta Contratos Cronograma (Issue #21);
 - Despesas Acessórias do Contrato (Issue #34);
 - Migração dos Restos a Pagar (Issue #11);
 - Inclusão do Novo Campo Total Despesas Acessórias nas Consultas de Contratos.
