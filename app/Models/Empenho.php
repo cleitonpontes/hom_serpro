@@ -40,6 +40,7 @@ class Empenho extends Model
         'rpaliquidar',
         'rpliquidado',
         'rppago',
+        'rp',
     ];
     // protected $hidden = [];
     // protected $dates = [];
