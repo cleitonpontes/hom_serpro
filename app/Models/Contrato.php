@@ -373,6 +373,11 @@ class Contrato extends Model
         return 'R$ ' . number_format($this->valor_acumulado, 2, ',', '.');
     }
 
+    public function formatTotalDespesasAcessorias()
+    {
+        return 'R$ ' . number_format($this->total_despesas_acessorias, 2, ',', '.');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

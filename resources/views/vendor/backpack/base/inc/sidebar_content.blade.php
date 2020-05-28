@@ -60,7 +60,9 @@
             <ul class="treeview-menu">
                 <li><a href="{{ backpack_url('/gescon/contrato') }}"><i class="fa fa-file-text-o"></i>
                         <span>Contratos</span></a></li>
-                <li><a href="{{ backpack_url('/gescon/fornecedor') }}"><i class="fa fa-users"></i>
+                <li><a href="{{ backpack_url('/gescon/despesaacessoria') }}"><i class="fa fa-list"></i>
+                        <span>Despesas Acessórias</span></a>
+                </li><li><a href="{{ backpack_url('/gescon/fornecedor') }}"><i class="fa fa-users"></i>
                         <span>Fornecedores</span></a>
                 </li>
                 <li><a href="{{ backpack_url('/gescon/subrogacao') }}"><i class="fa fa-copy"></i>
@@ -76,9 +78,21 @@
             </a>
             <ul class="treeview-menu">
                 <li>
+                    <a href="{{ backpack_url('/gescon/consulta/faturas') }}">
+                        <i class="fa fa-list-ul"></i>
+                        <span>Faturas</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ backpack_url('/gescon/consulta/ocorrencias') }}">
                         <i class="fa fa-check-square-o"></i>
                         <span>Ocorrências</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ backpack_url('/gescon/consulta/cronogramas') }}">
+                        <i class="fa fa-calendar"></i>
+                        <span>Cronogramas</span>
                     </a>
                 </li>
             </ul>

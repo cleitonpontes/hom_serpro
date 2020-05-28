@@ -268,7 +268,6 @@ class Contratocronograma extends Model
         return $cronograma;
     }
 
-
     /**
      * @return string
      */
@@ -371,6 +370,56 @@ class Contratocronograma extends Model
         return 'R$ ' . number_format($this->valor, 2, ',', '.');
     }
 
+    /**
+     * Retorna o Fornecedor, exibindo código e nome do mesmo
+     *
+     * @return string
+     */
+    public function getFornecedor()
+    {
+        return $this->contrato->fornecedor->cpf_cnpj_idgener . ' - ' . $this->contrato->fornecedor->nome;
+    }
+
+    /**
+     * Retorna a Data de Início da Vigência
+     *
+     * @return string
+     */
+    public function getVigenciaInicio()
+    {
+        return $this->retornaDataAPartirDeCampo($this->contrato->vigencia_inicio);
+    }
+
+    /**
+     * Retorna a Data de Término da Vigência
+     *
+     * @return string
+     */
+    public function getVigenciaFim()
+    {
+        return $this->retornaDataAPartirDeCampo($this->contrato->vigencia_fim);
+    }
+
+    /**
+     * Retorna o valor global, formatado como moeda em pt-Br
+     *
+     * @return string
+     */
+    public function getValorGlobal()
+    {
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_global);
+    }
+
+    /**
+     * Retorna o valor da parcela, formatado como moeda em pt-Br
+     *
+     * @return string
+     */
+    public function getValorParcela()
+    {
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_parcela);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -404,4 +453,39 @@ class Contratocronograma extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Retorna $campo data formatado no padrão pt-Br: dd/mm/yyyy
+     *
+     * @param $campo
+     * @return string
+     */
+    private function retornaDataAPartirDeCampo($campo)
+    {
+        try {
+            $data = \DateTime::createFromFormat('Y-m-d', $campo);
+            $retorno = $data->format('d/m/Y');
+        } catch (\Exception $e) {
+            $retorno = '';
+        }
+
+        return $retorno;
+    }
+
+    /**
+     * Retorna $campo numérico formatado no padrão pt-Br: 0.000,00
+     *
+     * @param $campo
+     * @return string
+     */
+    private function retornaCampoFormatadoComoNumero($campo)
+    {
+        try {
+            $retorno = number_format($campo, 2, ',', '.');
+        } catch (\Exception $e) {
+            $retorno = '';
+        }
+
+        return $retorno;
+    }
 }

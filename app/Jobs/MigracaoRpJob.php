@@ -15,7 +15,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class MigracaoempenhoJob implements ShouldQueue
+class MigracaoRpJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -41,13 +41,15 @@ class MigracaoempenhoJob implements ShouldQueue
     public function handle()
     {
         $unidade = Unidade::find($this->ug_id);
+        $rp_antigos = $this->atualizaEmpenhosRpsAntigos($this->ug_id);
 
         $ano = date('Y');
 
         $migracao_url = config('migracao.api_sta');
-        $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
+        $url = $migracao_url . '/api/rp/ug/' . $unidade->codigo;
         //        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
 //            true);
+
 
         $dados = $this->buscaDadosUrl($url);
 
@@ -55,13 +57,13 @@ class MigracaoempenhoJob implements ShouldQueue
 
             $credor = $this->buscaFornecedor($d);
 
-            if ($d['picodigo']!="") {
+            if ($d['picodigo'] != "") {
                 $pi = $this->buscaPi($d);
             }
 
-            if(isset($pi->id)){
+            if (isset($pi->id)) {
                 $pi_id = $pi->id;
-            }else{
+            } else {
                 $pi_id = null;
             }
 
@@ -79,13 +81,15 @@ class MigracaoempenhoJob implements ShouldQueue
                     'unidade_id' => $unidade->id,
                     'fornecedor_id' => $credor->id,
                     'planointerno_id' => $pi_id,
-                    'naturezadespesa_id' => $naturezadespesa->id
+                    'naturezadespesa_id' => $naturezadespesa->id,
+                    'rp' => 1
                 ]);
             } else {
                 $empenho->fornecedor_id = $credor->id;
                 $empenho->planointerno_id = $pi_id;
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
                 $empenho->deleted_at = null;
+                $empenho->rp = 1;
                 $empenho->save();
             }
 
@@ -107,6 +111,14 @@ class MigracaoempenhoJob implements ShouldQueue
                 }
             }
         }
+    }
+
+    public function atualizaEmpenhosRpsAntigos($unidade_id)
+    {
+        $empenhos = Empenho::where('unidade_id', $unidade_id)
+            ->update(['rp' => false]);
+
+        return $empenhos;
     }
 
     public function buscaFornecedor($credor)

@@ -301,6 +301,17 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'formatTotalDespesasAcessorias',
+                'label' => 'Total Despesas Acessórias', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatTotalDespesasAcessorias', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'situacao',
                 'label' => 'Situação',
                 'type' => 'boolean',
@@ -672,23 +683,29 @@ class ContratoCrudController extends CrudController
         $pdf->Cell(18, 5, utf8_decode("Valor Parcial: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Cell(25, 5, utf8_decode(number_format($contrato->valor_parcela, 2, ',', '.')), 0, 0, 'L');
+
+        $pdf->SetY("70");
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(24, 5, utf8_decode("Valor Acumulado: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Cell(30, 5, utf8_decode(number_format($contrato->valor_acumulado, 2, ',', '.')), 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(33, 5, utf8_decode("Total Desp. Acessórias: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(30, 5, utf8_decode(number_format($contrato->total_despesas_acessorias, 2, ',', '.')), 0, 0, 'L');
 
-        $pdf->SetY("70");
+        $pdf->SetY("75");
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(0, 5, utf8_decode("Objeto: "), 0, 0, 'L');
-        $pdf->SetY("75");
+        $pdf->SetY("80");
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->MultiCell(0, 5, utf8_decode($contrato->objeto), 0, 'J');
 
         //numero de caracteres fonte 9 por linha 100
-        $pdf->SetY($this->calculaLinhasMultiCell(strlen($contrato->objeto), '75'));
+        $pdf->SetY($this->calculaLinhasMultiCell(strlen($contrato->objeto), '80'));
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(0, 5, utf8_decode("Informação Complementar: "), 0, 0, 'L');
-        $pdf->SetY($this->calculaLinhasMultiCell(strlen($contrato->objeto), '75') + 5);
+        $pdf->SetY($this->calculaLinhasMultiCell(strlen($contrato->objeto), '80') + 5);
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->MultiCell(0, 5, utf8_decode($contrato->info_complementar), 0, 'J');
 

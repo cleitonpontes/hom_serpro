@@ -6,6 +6,7 @@ use App\Models\Catmatseratualizacao;
 use App\Models\Comunica;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
+use App\Models\Contratodespesaacessoria;
 use App\Models\Contratohistorico;
 use App\Models\Contratoitem;
 use App\Models\Saldohistoricoitem;
@@ -14,6 +15,7 @@ use App\Models\Subrogacao;
 use App\Observers\CatmatseratualizacaoObserver;
 use App\Observers\ComunicaObserver;
 use App\Observers\ContratocronogramaObserve;
+use App\Observers\ContratodespesaacessoriaObserver;
 use App\Observers\ContratohistoricoitemObserver;
 use App\Observers\ContratohistoricoObserve;
 use App\Observers\ContratoitemObserver;
@@ -54,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
         Comunica::observe(ComunicaObserver::class);
         SfPadrao::observe(SfpadraoObserver::class);
         Subrogacao::observe(SubrogacaoObserver::class);
+        Contratodespesaacessoria::observe(ContratodespesaacessoriaObserver::class);
 
     }
 

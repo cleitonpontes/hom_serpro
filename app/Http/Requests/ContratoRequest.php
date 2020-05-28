@@ -56,8 +56,10 @@ class ContratoRequest extends FormRequest
             'modalidade_id' => 'required',
             'licitacao_numero' => Rule::requiredIf(function () {
                 $modalidade = Codigoitem::find($this->modalidade_id);
-                if(in_array($modalidade->descricao,config('app.modalidades_sem_exigencia'))){
-                    return false;
+                if(isset($modalidade->descricao)){
+                    if(in_array($modalidade->descricao,config('app.modalidades_sem_exigencia'))){
+                        return false;
+                    }
                 }
                 return true;
             }),
