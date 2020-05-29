@@ -828,6 +828,61 @@ class ContratoCrudController extends CrudController
             $row_resp = $row_resp + 5;
         }
 
+        //Histórico de Contrato
+        $row_resp = $row_resp + 5;
+        $pdf->SetY($row_resp);
+        $pdf->SetFont('Arial', 'BU', 10);
+        $pdf->Cell(0, 5, utf8_decode("Histórico"));
+
+        $row_resp = $row_resp + 5;
+
+        $pdf->SetY($row_resp);
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(21, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Número"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Tipo"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Data Início"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Data Fim"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Valor Global"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Parcelas"), 1, 0, 'C');
+        $pdf->Cell(21, 5, utf8_decode("Valor Parcela"), 1, 0, 'C');
+
+        $row_resp = $row_resp + 5;
+        $historico = $contrato->historico()->get();
+
+        foreach ($historico as $registro) {
+
+            if ($row_resp >= 260) {
+                $row_resp = 35;
+                $pdf->AddPage();
+                $pdf->SetY($row_resp);
+                $pdf->SetFont('Arial', 'B', 7);
+                $pdf->Cell(21, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Número"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Tipo"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Data Início"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Data Fim"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Valor Global"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Parcelas"), 1, 0, 'C');
+                $pdf->Cell(21, 5, utf8_decode("Valor Parcela"), 1, 0, 'C');
+                $row_resp += 5;
+            }
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 7);
+            $pdf->Cell(21, 5, implode('/',array_reverse(explode('-',$registro->data_assinatura))), 1, 0, 'L');
+            $pdf->Cell(21, 5, $registro->numero, 1, 0, 'R');
+            $pdf->Cell(21, 5, $registro->tipo()->first()->descricao, 1, 0, 'R');
+            $pdf->Cell(21, 5, implode('/',array_reverse(explode('-',$registro->vigencia_inicio))), 1, 0, 'R');
+            $pdf->Cell(21, 5, implode('/',array_reverse(explode('-',$registro->vigencia_fim))), 1, 0, 'R');
+            $pdf->Cell(21, 5, number_format($registro->valor_global,2,',',"."), 1, 0, 'R');
+            $pdf->Cell(21, 5, $registro->num_parcelas, 1, 0, 'R');
+            $pdf->Cell(21, 5, number_format($registro->valor_parcela,2,',',"."), 1, 0, 'R');
+
+            $row_resp += 5;
+
+        }
+
         //execuçao orcamentaria e financeira - empenhos
         $pdf->AddPage();
         $pdf->SetY("28");
