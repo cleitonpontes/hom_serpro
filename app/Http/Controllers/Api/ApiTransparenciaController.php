@@ -44,48 +44,58 @@ class ApiTransparenciaController extends Controller
         $orgao = $request->input('orgao');
         $search_term = $request->input('q');
 
+        //caso exista busca
         if (!empty($search_term)) {
-            if (!empty($orgao)) {
-                $results = Unidade::whereHas('contratos', function ($c) {
+
+            //caso exista orgao
+            if ($orgao) {
+                return Unidade::whereHas('contratos', function ($c) {
                     $c->where('situacao', true);
                 })
-                    ->whereHas('orgao', function ($o) use ($orgao) {
-                        $o->where('codigo', $orgao);
+                    ->where(function ($query) use ($search_term) {
+                        $query->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                            ->orWhere('codigo', 'LIKE', '%' . strtoupper($search_term) . '%');
                     })
-                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
-                    ->orWhere('codigo', 'LIKE', '%' . strtoupper($search_term) . '%')
-                    ->orderBy('codigo', 'ASC')
-                    ->paginate(50);
-            } else {
-                $results = Unidade::whereHas('contratos', function ($c) {
-                    $c->where('situacao', true);
-                })
-                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
-                    ->orWhere('codigo', 'LIKE', '%' . strtoupper($search_term) . '%')
                     ->orderBy('codigo', 'ASC')
                     ->paginate(50);
             }
 
-        } else {
-            if ($orgao) {
-                $results = Unidade::whereHas('contratos', function ($c) {
-                    $c->where('situacao', true);
+            //caso nao exista orgao
+            return Unidade::whereHas('contratos', function ($c) {
+                $c->where('situacao', true);
+            })
+                ->whereHas('orgao', function ($o) use ($orgao) {
+                    $o->where('codigo', $orgao);
                 })
-                    ->whereHas('orgao', function ($o) use ($orgao) {
-                        $o->where('codigo', $orgao);
-                    })
-                    ->orderBy('codigo', 'ASC')
-                    ->paginate(50);
-            } else {
-                $results = Unidade::whereHas('contratos', function ($c) {
-                    $c->where('situacao', true);
+                ->where(function ($query) use ($search_term) {
+                    $query->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                        ->orWhere('codigo', 'LIKE', '%' . strtoupper($search_term) . '%');
                 })
-                    ->orderBy('codigo', 'ASC')
-                    ->paginate(50);
-            }
+                ->orderBy('codigo', 'ASC')
+                ->paginate(50);
         }
 
-        return $results;
+        //caso nao exista busca
+
+        //caso haja orgao
+        if ($orgao) {
+            return Unidade::whereHas('contratos', function ($c) {
+                $c->where('situacao', true);
+            })
+                ->whereHas('orgao', function ($o) use ($orgao) {
+                    $o->where('codigo', $orgao);
+                })
+                ->orderBy('codigo', 'ASC')
+                ->paginate(50);
+        }
+
+        //caso não haja orgao
+        return Unidade::whereHas('contratos', function ($c) {
+            $c->where('situacao', true);
+        })
+            ->orderBy('codigo', 'ASC')
+            ->paginate(50);
+
     }
 
     public function fornecedores(Request $request)
@@ -93,46 +103,59 @@ class ApiTransparenciaController extends Controller
         $unidade = $request->input('unidade');
         $search_term = $request->input('q');
 
+        //caso exista busca
         if (!empty($search_term)) {
-            if (!empty($unidade)) {
-                $results = Fornecedor::whereHas('contratos', function ($c) use ($unidade) {
+
+            //caso exista unidade
+            if ($unidade) {
+                return Fornecedor::whereHas('contratos', function ($c) use ($unidade) {
                     $c->whereHas('unidade', function ($u) use ($unidade) {
                         $u->where('codigo', $unidade);
                     })->where('situacao', true);
                 })
-                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
-                    ->orWhere('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%')
-                    ->orderBy('nome')
-                    ->paginate(50);
-            } else {
-                $results = Fornecedor::whereHas('contratos', function ($c) {
-                    $c->where('situacao', true);
-                })
-                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
-                    ->orWhere('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%')
-                    ->orderBy('nome')
-                    ->paginate(50);
-            }
-        } else {
-            if ($unidade) {
-                $results = Fornecedor::whereHas('contratos', function ($c) use ($unidade) {
-                    $c->whereHas('unidade', function ($u) use ($unidade) {
-                        $u->where('codigo', $unidade);
+                    ->where(function ($query) use ($search_term) {
+                        $query->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                            ->orWhere('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%');
                     })
-                        ->where('situacao', true);
-                })
-                    ->orderBy('nome')
-                    ->paginate(50);
-            } else {
-                $results = Fornecedor::whereHas('contratos', function ($c) {
-                    $c->where('situacao', true);
-                })
                     ->orderBy('nome')
                     ->paginate(50);
             }
+
+            //caso não exista unidade
+            return Fornecedor::whereHas('contratos', function ($c) {
+                $c->where('situacao', true);
+            })
+                ->where(function ($query) use ($search_term) {
+                    $query->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                        ->orWhere('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%');
+                })
+                ->orderBy('nome')
+                ->paginate(50);
+
+        }
+        //caso nao exista busca
+
+        //caso exista unidade
+
+        if ($unidade) {
+
+            return Fornecedor::whereHas('contratos', function ($c) use ($unidade) {
+                $c->whereHas('unidade', function ($u) use ($unidade) {
+                    $u->where('codigo', $unidade);
+                })
+                    ->where('situacao', true);
+            })
+                ->orderBy('nome')
+                ->paginate(50);
         }
 
-        return $results;
+        //caso não exista unidade
+        return Fornecedor::whereHas('contratos', function ($c) {
+            $c->where('situacao', true);
+        })
+            ->orderBy('nome')
+            ->paginate(50);
+
     }
 
     public function contratos(Request $request)
