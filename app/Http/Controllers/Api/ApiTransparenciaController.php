@@ -52,6 +52,9 @@ class ApiTransparenciaController extends Controller
                 return Unidade::whereHas('contratos', function ($c) {
                     $c->where('situacao', true);
                 })
+                    ->whereHas('orgao', function ($o) use ($orgao) {
+                        $o->where('codigo', $orgao);
+                    })
                     ->where(function ($query) use ($search_term) {
                         $query->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
                             ->orWhere('codigo', 'LIKE', '%' . strtoupper($search_term) . '%');
@@ -64,9 +67,6 @@ class ApiTransparenciaController extends Controller
             return Unidade::whereHas('contratos', function ($c) {
                 $c->where('situacao', true);
             })
-                ->whereHas('orgao', function ($o) use ($orgao) {
-                    $o->where('codigo', $orgao);
-                })
                 ->where(function ($query) use ($search_term) {
                     $query->where('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
                         ->orWhere('codigo', 'LIKE', '%' . strtoupper($search_term) . '%');
