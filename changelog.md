@@ -6,7 +6,10 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
 ### Implementação
 - Inclusão do Histórico do Contrato no Extrato PDF (Issue #27);
+- API para relacionar contratos Inativos por Órgão e Unidade (Issue #48);
 
+### Bug
+- Correção combo filtro do Transparência Tela Inicial (issue #26);
 
 ## [5.0.27]- 28/05/2020
 
