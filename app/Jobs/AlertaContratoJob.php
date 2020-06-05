@@ -36,69 +36,66 @@ class AlertaContratoJob implements ShouldQueue
     {
         $this->extratoMensal();
         $this->emailDiario();
-
     }
 
     public function emailDiario()
     {
+        $unidades = $this->retornaUnidadesQueEnviamEmail();
 
-        $unidades_diario = Unidade::whereHas('configuracao', function ($c) {
-            $c->where('email_diario', true);
-        })
-            ->where('situacao', true)
-            ->where('tipo', 'E')
-            ->get();
+        foreach($unidades as $unidade) {
+            // Retorna prazos para envio do email diário
+            $prazos = explode(';', $unidade->configuracao->email_diario_periodicidade);
 
-        foreach ($unidades_diario as $unidade_diario) {
+            $vencimentos = [];
 
-            $prazos = explode(';', $unidade_diario->configuracao->email_diario_periodicidade);
-            $contratos = [];
-            $dados_email = [];
-            $data_vencimento = [];
-            foreach ($prazos as $prazo) {
-                $data_vencimento[$prazo] = date('Y-m-d', strtotime("+" . $prazo . " days", strtotime(date('Y-m-d'))));
-                $contratos[$prazo] = $unidade_diario->contratos()
-                    ->where('vigencia_fim', $data_vencimento[$prazo])
-                    ->get();
+            $hoje = date('Y-m-d');
+            //
+            // Testes...
+            //
+            $hoje = '2020-06-04'; // 7 contratos [5275, 5347, 5469, 5487, 5691, 5791, 5794]
+            // $hoje = '2020-06-10'; // 4 contratos [5587, 5630, 5713, 5820]
 
+            foreach($prazos as $prazo) {
+                $venc = date('Y-m-d', strtotime('+' . $prazo . ' days', strtotime($hoje)));
+                $vencimentos[$prazo] = $venc;
             }
 
-            $dados_email['textobase'] = mb_convert_encoding($unidade_diario->configuracao->email_diario_texto,'UTF-8','UTF-8');
+            // Retorna contratos da unidade com final da vigência = $vencimentos
+            $contratos = $this->retornaContratosDaUnidade($unidade, $vencimentos);
 
-            $dados_email['telefones'] = ($unidade_diario->configuracao->telefone2) ? $unidade_diario->configuracao->telefone1 . ' / ' . $unidade_diario->configuracao->telefone2 : $unidade_diario->configuracao->telefone1;
-            $dados_email['copiados']['user1'] = $unidade_diario->configuracao->user1;
+            foreach($contratos as $contrato) {
+                $dtAgora = new \DateTime($hoje);
+                $dtFim = new \DateTime($contrato->vigencia_fim);
+                $qtdeDias = $dtFim->diff($dtAgora)->days;
 
-            if ($unidade_diario->configuracao->user2_id) {
-                $dados_email['copiados']['user2'] = $unidade_diario->configuracao->user2;
-            }
-            if ($unidade_diario->configuracao->user3_id) {
-                $dados_email['copiados']['user3'] = $unidade_diario->configuracao->user3;
-            }
-            if ($unidade_diario->configuracao->user4_id) {
-                $dados_email['copiados']['user4'] = $unidade_diario->configuracao->user4;
-            }
+                foreach ($contrato->responsaveis as $responsavel) {
+                    $situacaoUsuario = $responsavel->situacao;
 
-            $users = [];
-            foreach ($contratos as $key => $prazo) {
-                $qtd_dias = $key;
-                foreach ($prazo as $contrato) {
-                    foreach ($contrato->responsaveis as $responsavel) {
-                        if ($responsavel->situacao == true) {
-                            $user = $responsavel->user;
-                            $dados_email['nomerotina'] = 'Contratos à vencer em: ' . $qtd_dias . ' Dias!';
-                            $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name,
-                                $dados_email['textobase']);
-                            $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contrato));
+                    if ($situacaoUsuario == true) {
+                        $nomeUsuario = $responsavel->user->name;
 
-                        }
+                        // Monta dados para envio do email
+                        $dadosEmail = $this->retornaDadosParaEmail($unidade, $qtdeDias, $nomeUsuario);
+
+                        $user = $responsavel->user;
+                        $user->notify(new RotinaAlertaContratoNotification($user, $dadosEmail, $contrato));
                     }
                 }
+
+                // Se tenha user1, user2, user3, user4...
+                // Enviar um email cc para cada (ao invés de uma cópia por responsável
+                // Nesse caso, deve-se remover a parte de Usuários em $this->retornaDadosParaEmail
             }
-
         }
-
-
     }
+
+
+
+
+
+
+
+
 
     public function extratoMensal()
     {
@@ -145,5 +142,76 @@ class AlertaContratoJob implements ShouldQueue
         }
     }
 
+
+
+
+
+
+
+
+
+
+    private function retornaUnidadesQueEnviamEmail()
+    {
+        // Retorna unidades executoras ativas que enviam email
+        $dados = Unidade::whereHas('configuracao', function ($config) {
+            $config->where('email_diario', true);
+        });
+        $dados->where('situacao', true);
+        $dados->where('tipo', 'E');
+
+        return $dados->get();
+    }
+
+    private function retornaContratosDaUnidade($unidade, $vencimentos)
+    {
+        // Retorna contratos da unidade com final da vigência = $vencimentos
+        $dados = $unidade->contratos();
+        $dados->distinct('id');
+        // $dados->select('id', 'numero', 'vigencia_fim');
+        $dados->whereIn('vigencia_fim', $vencimentos);
+
+        return $dados->get();
+    }
+
+    private function retornaDadosParaEmail($unidade, $qtdeDias = 0, $nomeUsuario = '')
+    {
+        // Preparações
+        $rotina = 'Contratos à vencer em: ' . $qtdeDias . ' Dias!';
+
+        $textoDiario = $unidade->configuracao->email_diario_texto;
+        $textoConvertido = mb_convert_encoding($textoDiario, 'UTF-8', 'UTF-8');
+        $texto = str_replace('!!nomeresponsavel!!', $nomeUsuario, $textoConvertido);
+
+        $telefones = $unidade->configuracao->telefone1;
+        $telefones .= ($unidade->configuracao->telefone2) ? ' / ' . $unidade->configuracao->telefone2 : '';
+
+        // Montagem do array
+        $dadosEmail['nomerotina'] = $rotina;
+        $dadosEmail['telefones'] = $telefones;
+        $dadosEmail['texto'] = $texto;
+
+        // Usuários em cópia
+        $user1 = $unidade->configuracao->user1;
+        $user2 = $unidade->configuracao->user2;
+        $user3 = $unidade->configuracao->user3;
+        $user4 = $unidade->configuracao->user4;
+
+        $dadosEmail['copiados']['user1'] = $user1;
+
+        if ($user2) {
+            $dadosEmail['copiados']['user2'] = $user2;
+        }
+
+        if ($user3) {
+            $dadosEmail['copiados']['user3'] = $user3;
+        }
+
+        if ($user4) {
+            $dadosEmail['copiados']['user4'] = $user4;
+        }
+
+        return $dadosEmail;
+    }
 
 }
