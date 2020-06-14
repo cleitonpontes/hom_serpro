@@ -5,14 +5,12 @@ namespace App\Jobs;
 use App\Models\BackpackUser;
 use App\Models\Contrato;
 use App\Models\Unidade;
-use App\Notifications\RotinaAlertaContratoDiarioNotification;
 use App\Notifications\RotinaAlertaContratoNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Notification;
 use function foo\func;
 
 class AlertaContratoJob implements ShouldQueue
@@ -38,6 +36,7 @@ class AlertaContratoJob implements ShouldQueue
     {
         $this->extratoMensal();
         $this->emailDiario();
+
     }
 
     /**
@@ -55,11 +54,18 @@ class AlertaContratoJob implements ShouldQueue
             $hoje = date('Y-m-d');
             $vencimentos = [];
 
-            $prazos = $this->retornaPrazosTratados($unidade->configuracao->email_diario_periodicidade);
+        foreach ($unidades_diario as $unidade_diario) {
 
-            foreach($prazos as $prazo) {
-                $venc = date('Y-m-d', strtotime('+' . $prazo . ' days', strtotime($hoje)));
-                $vencimentos[$prazo] = $venc;
+            $prazos = explode(';', $unidade_diario->configuracao->email_diario_periodicidade);
+            $contratos = [];
+            $dados_email = [];
+            $data_vencimento = [];
+            foreach ($prazos as $prazo) {
+                $data_vencimento[$prazo] = date('Y-m-d', strtotime("+" . $prazo . " days", strtotime(date('Y-m-d'))));
+                $contratos[$prazo] = $unidade_diario->contratos()
+                    ->where('vigencia_fim', $data_vencimento[$prazo])
+                    ->get();
+
             }
             
             $contratos = $this->retornaContratosDaUnidade($unidade, $vencimentos);
