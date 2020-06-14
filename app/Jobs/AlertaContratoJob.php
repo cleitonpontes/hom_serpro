@@ -40,10 +40,17 @@ class AlertaContratoJob implements ShouldQueue
         $this->emailDiario();
     }
 
+    /**
+     * Rotina para envio de email diário às unidades que optam pelo recebimento deste tipo de mensagem, em suas 
+     * configurações, sobre os contratos com antecedência de vencimentos de acordo com as periodicidades escolhidas,
+     * aos usuários responsáveis com cópia à chefia e/ou ordenadores de despesa.   
+     * 
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function emailDiario()
     {
         $unidades = $this->retornaUnidadesQueEnviamEmail();
-
+        
         foreach($unidades as $unidade) {
             $hoje = date('Y-m-d');
             $vencimentos = [];
@@ -54,15 +61,16 @@ class AlertaContratoJob implements ShouldQueue
                 $venc = date('Y-m-d', strtotime('+' . $prazo . ' days', strtotime($hoje)));
                 $vencimentos[$prazo] = $venc;
             }
-
+            
             $contratos = $this->retornaContratosDaUnidade($unidade, $vencimentos);
-
+            
             foreach($contratos as $contrato) {
                 $dtAgora = new \DateTime($hoje);
                 $dtFim = new \DateTime($contrato->vigencia_fim);
                 $qtdeDias = $dtFim->diff($dtAgora)->days;
 
                 $usuarios = $this->retornaUsuariosDaUnidadeEDoContrato($unidade, $contrato);
+                
                 $primeiroUsuario = array_shift($usuarios);
 
                 $dadosEmail = $this->retornaDadosParaEmail($unidade, $qtdeDias, $usuarios);
@@ -70,15 +78,7 @@ class AlertaContratoJob implements ShouldQueue
             }
         }
     }
-
-
-
-
-
-
-
-
-
+    
     public function extratoMensal()
     {
         $dia = date('d');
@@ -123,19 +123,15 @@ class AlertaContratoJob implements ShouldQueue
             }
         }
     }
-
-
-
-
-
-
-
-
-
-
+    
+    /**
+     * Retorna unidades executoras ativas que enviam email
+     * 
+     * @return object @dados
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     private function retornaUnidadesQueEnviamEmail()
     {
-        // Retorna unidades executoras ativas que enviam email
         $dados = Unidade::whereHas('configuracao', function ($config) {
             $config->where('email_diario', true);
         });
@@ -145,9 +141,16 @@ class AlertaContratoJob implements ShouldQueue
         return $dados->get();
     }
 
+    /**
+     * Retorna contratos da @unidade com final da vigência = $vencimentos
+     * 
+     * @param object $unidade
+     * @param array $vencimentos
+     * @return object @dados
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     private function retornaContratosDaUnidade($unidade, $vencimentos)
     {
-        // Retorna contratos da unidade com final da vigência = $vencimentos
         $dados = $unidade->contratos();
         $dados->distinct('id');
         // $dados->select('id', 'numero', 'vigencia_fim');
@@ -156,6 +159,14 @@ class AlertaContratoJob implements ShouldQueue
         return $dados->get();
     }
 
+    /**
+     * Retorna usuários responsáveis do @contrato, bem como, a chefia e ordenadores de despesa da @unidade 
+     * 
+     * @param object $unidade
+     * @param object $contrato
+     * @return array $usuariosUnicos
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     private function retornaUsuariosDaUnidadeEDoContrato($unidade, $contrato)
     {
         $usuarios = [];
@@ -165,7 +176,6 @@ class AlertaContratoJob implements ShouldQueue
 
         foreach ($responsaveis as $responsavel) {
             if ($responsavel->situacao == true) {
-                // $usuarios[] = $responsavel->user->toArray();
                 $usuarios[] = $responsavel->user;
             }
         }
@@ -174,22 +184,18 @@ class AlertaContratoJob implements ShouldQueue
         $config = $unidade->configuracao;
 
         if ($config->user1) {
-            // $usuarios[] = $config->user1->toArray();
             $usuarios[] = $config->user1;
         }
 
         if ($config->user2) {
-            // $usuarios[] = $config->user2->toArray();
             $usuarios[] = $config->user2;
         }
 
         if ($config->user3) {
-            // $usuarios[] = $config->user3->toArray();
             $usuarios[] = $config->user3;
         }
 
         if ($config->user4) {
-            // $usuarios[] = $config->user4->toArray();
             $usuarios[] = $config->user4;
         }
 
@@ -199,6 +205,15 @@ class AlertaContratoJob implements ShouldQueue
         return $usuariosUnicos;
     }
 
+    /**
+     * Retorna dados diversos para montagem de email para envio
+     * 
+     * @param object $unidade
+     * @param number $qtdeDias
+     * @param array $usuarios
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     private function retornaDadosParaEmail($unidade, $qtdeDias = 0, $usuarios)
     {
         // Prepara dados para envio do email
@@ -222,6 +237,13 @@ class AlertaContratoJob implements ShouldQueue
         return $dadosEmail;
     }
 
+    /**
+     * Retorna datas dos prazos de vencimentos conforme periodicidades
+     * 
+     * @param array $periodicidades
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     private function retornaPrazosTratados($periodicidades)
     {
         $separadoresInvalidos = [' ', '-', '_', '.', ',', '/'];
