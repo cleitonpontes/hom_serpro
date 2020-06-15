@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\BackpackUser;
 use App\Models\Contrato;
+use App\Models\Contratoresponsavel;
 use App\Models\Unidade;
 use App\Notifications\RotinaAlertaContratoDiarioNotification;
 use App\Notifications\RotinaAlertaContratoNotification;
@@ -49,7 +50,7 @@ class AlertaContratoJob implements ShouldQueue
      */
     public function emailDiario()
     {
-        $unidades = $this->retornaUnidadesQueEnviamEmail();
+        $unidades = $this->retornaUnidadesQueEnviamEmailDiario();
 
         foreach($unidades as $unidade) {
             $hoje = date('Y-m-d');
@@ -79,49 +80,90 @@ class AlertaContratoJob implements ShouldQueue
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
     public function extratoMensal()
     {
         $dia = date('d');
+        $unidades = $this->retornaUnidadesQueEnviamEmailMensal($dia);
 
-        $dados_email = [];
+        foreach($unidades as $unidade) {
+            $usuariosId = $this->retornaUsuariosResponsaveisUnicosPorContratosDaUnidade($unidade);
+            $contratosTodos = $this->retornaContratosPorUsuariosResponsaveisDaUnidade($usuariosId);
 
-        $unidades_mensal = Unidade::whereHas('configuracao', function ($c) {
-            $c->where('email_mensal', true);
-        })
-            ->where('situacao', true)
-            ->where('tipo', 'E')
-            ->get();
+            foreach($usuariosId as $usuarioId) {
+                $contratos = array_filter($contratosTodos, function($dados) use($usuarioId) {
+                    return $dados['user_id'] == $usuarioId;
+                });
 
-        foreach ($unidades_mensal as $unidade_mensal) {
-            if ($unidade_mensal->configuracao->email_mensal_dia == $dia) {
-                $contratos_mensal = $unidade_mensal->contratos()->get();
-                $dados_email['textobase'] = mb_convert_encoding($unidade_mensal->configuracao->email_mensal_texto,'UTF-8','UTF-8');
-                $dados_email['nomerotina'] = 'Extrato Mensal';
-                $dados_email['telefones'] = ($unidade_mensal->configuracao->telefone2) ? $unidade_mensal->configuracao->telefone1 . ' / ' . $unidade_mensal->configuracao->telefone2 : $unidade_mensal->configuracao->telefone1;
+                $usuario = BackpackUser::find($usuarioId);
+                $usuario->notify('aaa');
 
-                $users = [];
-                foreach ($contratos_mensal as $cm) {
-                    $responsaveis = $cm->responsaveis()->get();
-                    foreach ($responsaveis as $responsavel) {
-                        if ($responsavel->situacao == true) {
-                            $users[] = $responsavel->user;
-                        }
-                    }
-                }
+                dd($contratos, $usuarioId, $usuario->toArray());
 
-                $users = array_unique($users);
 
-                foreach ($users as $user) {
-                    $contratos_user = Contrato::whereHas('responsaveis', function ($r) use ($user) {
-                        $r->where('user_id', $user->id);
-                    })
-                        ->orderBy('vigencia_fim', 'DESC')
-                        ->get();
-                    $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['textobase']);
-                    $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contratos_user));
-                }
+
+                dd($contrato, 'fim');
+
+                dd($contrato, 'fim');
+
+                dd($usuario, $contrato, $contratosTodos);
             }
+
+
+            dd($contratos);
+
+
+
+
+
+
+            $contratos = $this->retornaContratosDaUnidade($unidade);
+
+            foreach ($contratos as $contrato) {
+                $usuarios = $this->retornaUsuariosDaUnidadeEDoContrato($unidade, $contrato);
+
+                $primeiroUsuario = array_shift($usuarios);
+                // $primeiroUsuario->notify(new RotinaAlertaContratoDiarioNotification($dadosEmail, $contrato));
+                dd($usuarios, $primeiroUsuario->toArray(), $contrato->toArray());
+            }
+
+
+
+            dd($unidade->toArray(), $unidade->configuracao->toArray(), $contratos);
         }
+
+
+
+
+
+
+
+
+        /*
+        $dados_email['textobase'] = mb_convert_encoding($unidade_mensal->configuracao->email_mensal_texto,'UTF-8','UTF-8');
+        $dados_email['nomerotina'] = 'Extrato Mensal';
+        $dados_email['telefones'] = ($unidade_mensal->configuracao->telefone2) ? $unidade_mensal->configuracao->telefone1 . ' / ' . $unidade_mensal->configuracao->telefone2 : $unidade_mensal->configuracao->telefone1;
+
+        foreach ($users as $user) {
+            $contratos_user = Contrato::whereHas('responsaveis', function ($r) use ($user) {
+                $r->where('user_id', $user->id);
+            })
+                ->orderBy('vigencia_fim', 'DESC')
+                ->get();
+            $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['textobase']);
+            $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contratos_user));
+        }
+        */
     }
 
     /**
@@ -130,15 +172,34 @@ class AlertaContratoJob implements ShouldQueue
      * @return object @dados
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaUnidadesQueEnviamEmail()
+    private function retornaUnidadesQueEnviamEmailDiario()
     {
-        $dados = Unidade::whereHas('configuracao', function ($config) {
-            $config->where('email_diario', true);
+        $modelo = Unidade::whereHas('configuracao', function ($configuracao) {
+            $configuracao->where('email_diario', true);
         });
-        $dados->where('situacao', true);
-        $dados->where('tipo', 'E');
+        $modelo->where('situacao', true);
+        $modelo->where('tipo', 'E');
 
-        return $dados->get();
+        return $modelo->get();
+    }
+
+    /**
+     * Retorna unidades executoras ativas que enviam email
+     *
+     * @param int $dia
+     * @return object @dados
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaUnidadesQueEnviamEmailMensal($dia)
+    {
+        $modelo = Unidade::whereHas('configuracao', function ($configuracao) use ($dia) {
+            $configuracao->where('email_mensal', true);
+            $configuracao->where('email_mensal_dia', $dia);
+        });
+        $modelo->where('situacao', true);
+        $modelo->where('tipo', 'E');
+
+        return $modelo->get();
     }
 
     /**
@@ -149,14 +210,19 @@ class AlertaContratoJob implements ShouldQueue
      * @return object @dados
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratosDaUnidade($unidade, $vencimentos)
+    private function retornaContratosDaUnidade($unidade, $vencimentos = [])
     {
-        $dados = $unidade->contratos();
-        $dados->distinct('id');
-        // $dados->select('id', 'numero', 'vigencia_fim');
-        $dados->whereIn('vigencia_fim', $vencimentos);
+        $contratos = $unidade->contratos();
+        $contratos->distinct('id');
+        $contratos->orderBy('vigencia_fim', 'DESC');
+        $contratos->where('situacao', true);
+        // $contratos->select('id', 'numero', 'vigencia_fim');
 
-        return $dados->get();
+        if ($vencimentos) {
+            $contratos->whereIn('vigencia_fim', $vencimentos);
+        }
+
+        return $contratos->get();
     }
 
     /**
@@ -203,6 +269,60 @@ class AlertaContratoJob implements ShouldQueue
         $usuariosUnicos = array_unique($usuarios);
 
         return $usuariosUnicos;
+    }
+
+    private function retornaContratosPorUsuariosResponsaveisDaUnidade($usuarios)
+    {
+        // Contratos por usuários
+        $modeloContrato = Contratoresponsavel::select(
+            'user_id',
+            'U.name',
+            'U.email',
+            'contrato_id',
+            'C.numero',
+            'C.processo',
+            'F.cpf_cnpj_idgener',
+            'F.nome',
+            'C.objeto',
+            'C.valor_global',
+            'C.vigencia_inicio',
+            'C.vigencia_fim'
+        );
+
+        $modeloContrato->join('users AS U', 'U.id', '=', 'contratoresponsaveis.user_id');
+        $modeloContrato->join('contratos AS C', 'C.id', '=', 'contratoresponsaveis.contrato_id');
+        $modeloContrato->join('fornecedores AS F', 'F.id', '=', 'C.fornecedor_id');
+
+        $modeloContrato->whereIn('user_id', $usuarios);
+        $modeloContrato->where('contratoresponsaveis.situacao', true);
+        $modeloContrato->where('C.situacao', true);
+
+        $modeloContrato->orderBy('user_id');
+        $modeloContrato->orderBy('C.vigencia_fim', 'desc');
+
+        $modeloContrato->distinct('user_id', 'contrato_id');
+
+        return $modeloContrato->get()->toArray();
+    }
+
+    private function retornaUsuariosResponsaveisUnicosPorContratosDaUnidade($unidade)
+    {
+        // Id da unidade
+        $unidadeId = $unidade->id;
+
+        // Usuários responsáveis únicos...
+        $modeloUsuario = Contratoresponsavel::select('user_id');
+
+        $modeloUsuario->join('users AS U', 'U.id', '=', 'user_id');
+        $modeloUsuario->join('contratos AS C', 'C.id', '=', 'contrato_id');
+
+        $modeloUsuario->where('contratoresponsaveis.situacao', true);
+        $modeloUsuario->where('C.situacao', true);
+        $modeloUsuario->where('C.unidade_id', $unidadeId);
+
+        $modeloUsuario->distinct('user_id');
+
+        return $modeloUsuario->pluck('user_id')->toArray();
     }
 
     /**
