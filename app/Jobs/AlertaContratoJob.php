@@ -5,12 +5,14 @@ namespace App\Jobs;
 use App\Models\BackpackUser;
 use App\Models\Contrato;
 use App\Models\Unidade;
+use App\Notifications\RotinaAlertaContratoDiarioNotification;
 use App\Notifications\RotinaAlertaContratoNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Notification;
 use function foo\func;
 
 class AlertaContratoJob implements ShouldQueue
@@ -36,47 +38,39 @@ class AlertaContratoJob implements ShouldQueue
     {
         $this->extratoMensal();
         $this->emailDiario();
-
     }
 
     /**
-     * Rotina para envio de email diário às unidades que optam pelo recebimento deste tipo de mensagem, em suas 
+     * Rotina para envio de email diário às unidades que optam pelo recebimento deste tipo de mensagem, em suas
      * configurações, sobre os contratos com antecedência de vencimentos de acordo com as periodicidades escolhidas,
-     * aos usuários responsáveis com cópia à chefia e/ou ordenadores de despesa.   
-     * 
+     * aos usuários responsáveis com cópia à chefia e/ou ordenadores de despesa.
+     *
      * @author Anderson Sathler <asathler@gmail.com>
      */
     public function emailDiario()
     {
         $unidades = $this->retornaUnidadesQueEnviamEmail();
-        
+
         foreach($unidades as $unidade) {
             $hoje = date('Y-m-d');
             $vencimentos = [];
 
-        foreach ($unidades_diario as $unidade_diario) {
+            $prazos = $this->retornaPrazosTratados($unidade->configuracao->email_diario_periodicidade);
 
-            $prazos = explode(';', $unidade_diario->configuracao->email_diario_periodicidade);
-            $contratos = [];
-            $dados_email = [];
-            $data_vencimento = [];
-            foreach ($prazos as $prazo) {
-                $data_vencimento[$prazo] = date('Y-m-d', strtotime("+" . $prazo . " days", strtotime(date('Y-m-d'))));
-                $contratos[$prazo] = $unidade_diario->contratos()
-                    ->where('vigencia_fim', $data_vencimento[$prazo])
-                    ->get();
-
+            foreach($prazos as $prazo) {
+                $venc = date('Y-m-d', strtotime('+' . $prazo . ' days', strtotime($hoje)));
+                $vencimentos[$prazo] = $venc;
             }
-            
+
             $contratos = $this->retornaContratosDaUnidade($unidade, $vencimentos);
-            
+
             foreach($contratos as $contrato) {
                 $dtAgora = new \DateTime($hoje);
                 $dtFim = new \DateTime($contrato->vigencia_fim);
                 $qtdeDias = $dtFim->diff($dtAgora)->days;
 
                 $usuarios = $this->retornaUsuariosDaUnidadeEDoContrato($unidade, $contrato);
-                
+
                 $primeiroUsuario = array_shift($usuarios);
 
                 $dadosEmail = $this->retornaDadosParaEmail($unidade, $qtdeDias, $usuarios);
@@ -84,7 +78,7 @@ class AlertaContratoJob implements ShouldQueue
             }
         }
     }
-    
+
     public function extratoMensal()
     {
         $dia = date('d');
@@ -129,10 +123,10 @@ class AlertaContratoJob implements ShouldQueue
             }
         }
     }
-    
+
     /**
      * Retorna unidades executoras ativas que enviam email
-     * 
+     *
      * @return object @dados
      * @author Anderson Sathler <asathler@gmail.com>
      */
@@ -149,7 +143,7 @@ class AlertaContratoJob implements ShouldQueue
 
     /**
      * Retorna contratos da @unidade com final da vigência = $vencimentos
-     * 
+     *
      * @param object $unidade
      * @param array $vencimentos
      * @return object @dados
@@ -166,8 +160,8 @@ class AlertaContratoJob implements ShouldQueue
     }
 
     /**
-     * Retorna usuários responsáveis do @contrato, bem como, a chefia e ordenadores de despesa da @unidade 
-     * 
+     * Retorna usuários responsáveis do @contrato, bem como, a chefia e ordenadores de despesa da @unidade
+     *
      * @param object $unidade
      * @param object $contrato
      * @return array $usuariosUnicos
@@ -213,7 +207,7 @@ class AlertaContratoJob implements ShouldQueue
 
     /**
      * Retorna dados diversos para montagem de email para envio
-     * 
+     *
      * @param object $unidade
      * @param number $qtdeDias
      * @param array $usuarios
@@ -245,7 +239,7 @@ class AlertaContratoJob implements ShouldQueue
 
     /**
      * Retorna datas dos prazos de vencimentos conforme periodicidades
-     * 
+     *
      * @param array $periodicidades
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
