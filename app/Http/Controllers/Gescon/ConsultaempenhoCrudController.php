@@ -127,7 +127,7 @@ class ConsultaempenhoCrudController extends CrudController
                 'name' => 'getFornecedor',
                 'label' => 'Fornecedor',
                 'type' => 'model_function',
-                'function_name' => 'getFornecedor',
+                'function_name' => 'getFornecedorContrato',
                 'priority' => 2,
                 'orderable' => true,
                 'visibleInTable' => true,
@@ -386,7 +386,7 @@ class ConsultaempenhoCrudController extends CrudController
     {
         $campo = [
             'name' => 'contrato',
-            'type' => 'select2',
+            'type' => 'select2_multiple',
             'label' => 'Núm. Contrato'
         ];
 
@@ -396,7 +396,8 @@ class ConsultaempenhoCrudController extends CrudController
             $campo,
             $contratos,
             function ($value) {
-                $this->crud->addClause('where', 'contratos.numero', $value);
+                $this->crud->addClause('whereIn'
+                    , 'contratos.numero', json_decode($value));
             }
         );
     }
@@ -410,7 +411,7 @@ class ConsultaempenhoCrudController extends CrudController
     {
         $campo = [
             'name' => 'fornecedor',
-            'type' => 'select2',
+            'type' => 'select2_multiple',
             'label' => 'Fornecedor'
         ];
 
@@ -420,7 +421,8 @@ class ConsultaempenhoCrudController extends CrudController
             $campo,
             $fornecedores,
             function ($value) {
-                $this->crud->addClause('where', 'fornecedores.cpf_cnpj_idgener', $value);
+                $this->crud->addClause('whereIn'
+                    , 'fornecedores.cpf_cnpj_idgener', json_decode($value));
             }
         );
     }
@@ -434,7 +436,7 @@ class ConsultaempenhoCrudController extends CrudController
     {
         $campo = [
             'name' => 'fornecedor_contrato',
-            'type' => 'select2',
+            'type' => 'select2_multiple',
             'label' => 'Fornecedor Empenho'
         ];
 
@@ -444,7 +446,9 @@ class ConsultaempenhoCrudController extends CrudController
             $campo,
             $fornecedores,
             function ($value) {
-                $this->crud->addClause('where', 'fornecedores_empenhos.cpf_cnpj_idgener', $value);
+                $this->crud->addClause('whereIn'
+                    , 'fornecedores_empenhos.cpf_cnpj_idgener'
+                    , json_decode($value));
             }
         );
     }
@@ -458,7 +462,7 @@ class ConsultaempenhoCrudController extends CrudController
     {
         $campo = [
             'name' => 'plano_interno',
-            'type' => 'select2',
+            'type' => 'select2_multiple',
             'label' => 'Plano Interno'
         ];
 
@@ -468,7 +472,8 @@ class ConsultaempenhoCrudController extends CrudController
             $campo,
             $planos,
             function ($value) {
-                $this->crud->addClause('where', 'planointerno.codigo', $value);
+                $this->crud->addClause('whereIn'
+                    , 'planointerno.codigo', json_decode($value));
             }
         );
     }
@@ -482,17 +487,18 @@ class ConsultaempenhoCrudController extends CrudController
     {
         $campo = [
             'name' => 'natureza_despesa',
-            'type' => 'select2',
+            'type' => 'select2_multiple',
             'label' => 'Natureza Despesa'
         ];
 
-        $planos = $this->retornaNaturezas();
+        $naturezas = $this->retornaNaturezas();
 
         $this->crud->addFilter(
             $campo,
-            $planos,
+            $naturezas,
             function ($value) {
-                $this->crud->addClause('where', 'naturezadespesa.codigo', $value);
+                $this->crud->addClause('whereIn'
+                    , 'naturezadespesa.codigo', json_decode($value));
             }
         );
     }
