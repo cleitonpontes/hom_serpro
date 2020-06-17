@@ -66,104 +66,72 @@ class AlertaContratoJob implements ShouldQueue
             $contratos = $this->retornaContratosDaUnidade($unidade, $vencimentos);
 
             foreach($contratos as $contrato) {
+                $contratoComoArray = [];
                 $dtAgora = new \DateTime($hoje);
-                $dtFim = new \DateTime($contrato->vigencia_fim);
+                $dtFim = new \DateTime($contrato['vigencia_fim']);
                 $qtdeDias = $dtFim->diff($dtAgora)->days;
 
-                $usuarios = $this->retornaUsuariosDaUnidadeEDoContrato($unidade, $contrato);
+                $rotina = 'Contratos à vencer em: ' . $qtdeDias . ' Dias!';
+                $dadosEmail = $this->retornaDadosParaEmail($unidade->configuracao, $rotina);
 
+                $usuarios = $this->retornaUsuariosDaUnidadeEDoContrato($unidade, $contrato);
                 $primeiroUsuario = array_shift($usuarios);
 
-                $dadosEmail = $this->retornaDadosParaEmail($unidade, $qtdeDias, $usuarios);
-                $primeiroUsuario->notify(new RotinaAlertaContratoDiarioNotification($dadosEmail, $contrato));
+                $contratoComoArray[] = $contrato;
+                $notificacao = new RotinaAlertaContratoDiarioNotification($dadosEmail, $contratoComoArray, $usuarios);
+
+                $primeiroUsuario->notify($notificacao);
             }
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Rotina para envio de email mensal às unidades que optam pelo recebimento deste tipo de mensagem, em suas
+     * configurações, sobre os contratos aos usuários responsáveis, bem como novo envio à chefia e/ou ordenadores de
+     * despesa, contendo os instrumentos ativos daquela unidade.
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function extratoMensal()
     {
         $dia = date('d');
         $unidades = $this->retornaUnidadesQueEnviamEmailMensal($dia);
 
         foreach($unidades as $unidade) {
-            $usuariosId = $this->retornaUsuariosResponsaveisUnicosPorContratosDaUnidade($unidade);
-            $contratosTodos = $this->retornaContratosPorUsuariosResponsaveisDaUnidade($usuariosId);
+            $unidadeId = $unidade->id;
+
+            $rotina = 'Extrato Mensal';
+            $dadosEmail = $this->retornaDadosParaEmail($unidade->configuracao, $rotina, 'email_mensal_texto');
+
+            $usuariosDeChefia = $this->retornaUsuariosChefiaDaUnidade($unidade);
+            $chefias = $this->retornaChefiasIds($usuariosDeChefia);
+            $usuariosId = $this->retornaUsuariosResponsaveisUnicosPorContratosDaUnidade($unidadeId, $chefias);
+
+            $contratosResponsavel = $this->retornaContratosPorUsuariosResponsaveisDaUnidade($unidadeId, $usuariosId);
 
             foreach($usuariosId as $usuarioId) {
-                $contratos = array_filter($contratosTodos, function($dados) use($usuarioId) {
-                    return $dados['user_id'] == $usuarioId;
-                });
+                $contratosFiltrados = [];
+                foreach($contratosResponsavel as $contrato) {
+                    if ($contrato->user_id == $usuarioId) {
+                        $contratosFiltrados[] = $contrato;
+                    }
+                }
 
                 $usuario = BackpackUser::find($usuarioId);
-                $usuario->notify('aaa');
+                $notificacao = new RotinaAlertaContratoDiarioNotification($dadosEmail, $contratosFiltrados);
 
-                dd($contratos, $usuarioId, $usuario->toArray());
-
-
-
-                dd($contrato, 'fim');
-
-                dd($contrato, 'fim');
-
-                dd($usuario, $contrato, $contratosTodos);
+                $usuario->notify($notificacao);
             }
 
+            $contratosChefias = $this->retornaContratosTodosDaUnidade($unidadeId);
 
-            dd($contratos);
+            $primeiroChefe = array_shift($usuariosDeChefia);
+            $notificacaoChefia = new RotinaAlertaContratoDiarioNotification(
+                $dadosEmail, $contratosChefias, $usuariosDeChefia
+            );
 
-
-
-
-
-
-            $contratos = $this->retornaContratosDaUnidade($unidade);
-
-            foreach ($contratos as $contrato) {
-                $usuarios = $this->retornaUsuariosDaUnidadeEDoContrato($unidade, $contrato);
-
-                $primeiroUsuario = array_shift($usuarios);
-                // $primeiroUsuario->notify(new RotinaAlertaContratoDiarioNotification($dadosEmail, $contrato));
-                dd($usuarios, $primeiroUsuario->toArray(), $contrato->toArray());
-            }
-
-
-
-            dd($unidade->toArray(), $unidade->configuracao->toArray(), $contratos);
+            $primeiroChefe->notify($notificacaoChefia);
         }
-
-
-
-
-
-
-
-
-        /*
-        $dados_email['textobase'] = mb_convert_encoding($unidade_mensal->configuracao->email_mensal_texto,'UTF-8','UTF-8');
-        $dados_email['nomerotina'] = 'Extrato Mensal';
-        $dados_email['telefones'] = ($unidade_mensal->configuracao->telefone2) ? $unidade_mensal->configuracao->telefone1 . ' / ' . $unidade_mensal->configuracao->telefone2 : $unidade_mensal->configuracao->telefone1;
-
-        foreach ($users as $user) {
-            $contratos_user = Contrato::whereHas('responsaveis', function ($r) use ($user) {
-                $r->where('user_id', $user->id);
-            })
-                ->orderBy('vigencia_fim', 'DESC')
-                ->get();
-            $dados_email['texto'] = str_replace('!!nomeresponsavel!!', $user->name, $dados_email['textobase']);
-            $user->notify(new RotinaAlertaContratoNotification($user, $dados_email, $contratos_user));
-        }
-        */
     }
 
     /**
@@ -203,7 +171,7 @@ class AlertaContratoJob implements ShouldQueue
     }
 
     /**
-     * Retorna contratos da @unidade com final da vigência = $vencimentos
+     * Retorna contratos da @unidade com final da vigência = $vencimentos, se informado
      *
      * @param object $unidade
      * @param array $vencimentos
@@ -271,9 +239,63 @@ class AlertaContratoJob implements ShouldQueue
         return $usuariosUnicos;
     }
 
-    private function retornaContratosPorUsuariosResponsaveisDaUnidade($usuarios)
+    /**
+     * Retorna os contratos dos $usuarios responsáveis da $unidadeId
+     *
+     * @param number $unidadeId
+     * @param array $usuarios
+     * @return mixed
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaContratosPorUsuariosResponsaveisDaUnidade($unidadeId, $usuarios)
     {
-        // Contratos por usuários
+        $modeloContrato = $this->retornaModelContratosDaUnidade($unidadeId);
+
+        $modeloContrato->whereIn('user_id', $usuarios);
+
+        return $modeloContrato->get();
+    }
+
+    /**
+     * Retorna todos os contratos ativos da $unidadeId
+     *
+     * @param $unidadeId
+     * @return mixed
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaContratosTodosDaUnidade($unidadeId)
+    {
+        $modeloContrato = Contrato::select(
+            'contratos.id',
+            'numero',
+            'processo',
+            'F.cpf_cnpj_idgener',
+            'F.nome',
+            'objeto',
+            'valor_global',
+            'vigencia_inicio',
+            'vigencia_fim'
+        );
+
+        $modeloContrato->join('fornecedores AS F', 'F.id', '=', 'fornecedor_id');
+
+        $modeloContrato->where('situacao', true);
+        $modeloContrato->where('unidade_id', $unidadeId);
+
+        $modeloContrato->orderBy('vigencia_fim', 'desc');
+
+        return $modeloContrato->get();
+    }
+
+    /**
+     * Retorna modelo dos contratos ativos da $unidadeId.
+     *
+     * @param $unidadeId
+     * @return mixed
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaModelContratosDaUnidade($unidadeId)
+    {
         $modeloContrato = Contratoresponsavel::select(
             'user_id',
             'U.name',
@@ -293,24 +315,77 @@ class AlertaContratoJob implements ShouldQueue
         $modeloContrato->join('contratos AS C', 'C.id', '=', 'contratoresponsaveis.contrato_id');
         $modeloContrato->join('fornecedores AS F', 'F.id', '=', 'C.fornecedor_id');
 
-        $modeloContrato->whereIn('user_id', $usuarios);
         $modeloContrato->where('contratoresponsaveis.situacao', true);
         $modeloContrato->where('C.situacao', true);
+        $modeloContrato->where('C.unidade_id', $unidadeId);
 
         $modeloContrato->orderBy('user_id');
         $modeloContrato->orderBy('C.vigencia_fim', 'desc');
 
         $modeloContrato->distinct('user_id', 'contrato_id');
 
-        return $modeloContrato->get()->toArray();
+        return $modeloContrato;
     }
 
-    private function retornaUsuariosResponsaveisUnicosPorContratosDaUnidade($unidade)
+    /**
+     * Retorna os usuários de chefia, ordenadores de despesas e seus substitutos
+     *
+     * @param object $unidade
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaUsuariosChefiaDaUnidade($unidade)
     {
-        // Id da unidade
-        $unidadeId = $unidade->id;
+        $usuariosDeChefia = [];
 
-        // Usuários responsáveis únicos...
+        $config = $unidade->configuracao;
+
+        if ($config->user1) {
+            $usuariosDeChefia[] = $config->user1;
+        }
+
+        if ($config->user2) {
+            $usuariosDeChefia[] = $config->user2;
+        }
+
+        if ($config->user3) {
+            $usuariosDeChefia[] = $config->user3;
+        }
+
+        if ($config->user4) {
+            $usuariosDeChefia[] = $config->user4;
+        }
+
+        return $usuariosDeChefia;
+    }
+
+    /**
+     * Retorna array com ids dos usuários de chefia e/ou ordenadores de despesas
+     *
+     * @param object $usuariosDeChefia
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaChefiasIds($usuariosDeChefia)
+    {
+        $chefias = [];
+        foreach($usuariosDeChefia as $chefe) {
+            $chefias[] = $chefe->id;
+        }
+
+        return $chefias;
+    }
+
+    /**
+     * Retorna usuários responsáveis únicos por contrato da $unidadeId
+     *
+     * @param number $unidadeId
+     * @param array $chefias
+     * @return mixed
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaUsuariosResponsaveisUnicosPorContratosDaUnidade($unidadeId, $chefias)
+    {
         $modeloUsuario = Contratoresponsavel::select('user_id');
 
         $modeloUsuario->join('users AS U', 'U.id', '=', 'user_id');
@@ -319,6 +394,7 @@ class AlertaContratoJob implements ShouldQueue
         $modeloUsuario->where('contratoresponsaveis.situacao', true);
         $modeloUsuario->where('C.situacao', true);
         $modeloUsuario->where('C.unidade_id', $unidadeId);
+        $modeloUsuario->whereNotIn('contratoresponsaveis.user_id', $chefias);
 
         $modeloUsuario->distinct('user_id');
 
@@ -328,31 +404,25 @@ class AlertaContratoJob implements ShouldQueue
     /**
      * Retorna dados diversos para montagem de email para envio
      *
-     * @param object $unidade
-     * @param number $qtdeDias
-     * @param array $usuarios
+     * @param object $configuracaoUnidade
+     * @param string $rotina
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaDadosParaEmail($unidade, $qtdeDias = 0, $usuarios)
+    private function retornaDadosParaEmail($configuracaoUnidade, $rotina, $campoTexto = 'email_diario_texto')
     {
         // Prepara dados para envio do email
-        $rotina = 'Contratos à vencer em: ' . $qtdeDias . ' Dias!';
-
-        $textoDiario = $unidade->configuracao->email_diario_texto;
+        $textoDiario = $configuracaoUnidade->$campoTexto;
         $textoConvertido = mb_convert_encoding($textoDiario, 'UTF-8', 'UTF-8');
         $texto = str_replace('!!nomeresponsavel!!', 'Responsável', $textoConvertido);
 
-        $telefones = $unidade->configuracao->telefone1;
-        $telefones .= ($unidade->configuracao->telefone2) ? ' / ' . $unidade->configuracao->telefone2 : '';
+        $telefones = $configuracaoUnidade->telefone1;
+        $telefones .= ($configuracaoUnidade->telefone2) ? ' / ' . $configuracaoUnidade->telefone2 : '';
 
         // Montagem do array
         $dadosEmail['nomerotina'] = $rotina;
         $dadosEmail['telefones'] = $telefones;
         $dadosEmail['texto'] = $texto;
-
-        // Usuários destinatários
-        $dadosEmail['usuarios'] = $usuarios;
 
         return $dadosEmail;
     }

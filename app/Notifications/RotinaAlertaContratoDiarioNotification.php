@@ -19,19 +19,31 @@ class RotinaAlertaContratoDiarioNotification extends Notification
     /**
      * @var array
      */
-    protected $dadosContrato;
+    protected $usuarios;
+
+    /**
+     * @var array Todos os contratos
+     */
+    protected $contratos;
+
+    /**
+     * @var array Único contrato
+     */
+    protected $contrato;
 
     /**
      * Método construtor da classe
      *
      * @param array $dadosEmail
-     * @param mixed $dadosContrato
+     * @param mixed $contratos
+     * @param array $usuarios
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function __construct(array $dadosEmail, $dadosContrato)
+    public function __construct(array $dadosEmail, $contratos, $usuarios = [])
     {
         $this->dadosEmail = $dadosEmail;
-        $this->dadosContrato = $dadosContrato;
+        $this->contratos = $contratos;
+        $this->usuarios = $usuarios;
     }
 
     /**
@@ -42,7 +54,7 @@ class RotinaAlertaContratoDiarioNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
+        return ['database', 'mail'];
     }
 
     /**
@@ -53,16 +65,22 @@ class RotinaAlertaContratoDiarioNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $contratos[] = [
-            'numero' => $this->retornaContratoNumero(),
-            'processo' => $this->retornaContratoProcesso(),
-            'cpf_cnpj_idgener' => $this->retornaContratoFornecedorCnpj(),
-            'nome' => $this->retornaContratoFornecedorNome(),
-            'objeto' => $this->retornaContratoObjeto(),
-            'valor_global' => $this->retornaContratoValorGlobal(),
-            'vigencia_inicio' => $this->retornaContratoVigenciaInicio(),
-            'vigencia_fim' => $this->retornaContratoVigenciaFim()
-        ];
+        $contratosTodos = $this->contratos;
+
+        foreach($contratosTodos as $contrato) {
+            $this->contrato = $contrato;
+
+            $contratosComDadosFormatados[] = [
+                'numero' => $this->retornaContratoNumero(),
+                'processo' => $this->retornaContratoProcesso(),
+                'cpf_cnpj_idgener' => $this->retornaContratoFornecedorCnpj(),
+                'nome' => $this->retornaContratoFornecedorNome(),
+                'objeto' => $this->retornaContratoObjeto(),
+                'valor_global' => $this->retornaContratoValorGlobal(),
+                'vigencia_inicio' => $this->retornaContratoVigenciaInicio(),
+                'vigencia_fim' => $this->retornaContratoVigenciaFim()
+            ];
+        }
 
         $mensagem = new MailMessage();
 
@@ -71,10 +89,10 @@ class RotinaAlertaContratoDiarioNotification extends Notification
             'texto' => $this->retornaEmailTexto(),
             'nomerotina' => $this->retornaEmailRotina(),
             'telefones' => $this->retornaEmailTelefones(),
-            'contratos' => $contratos
+            'contratos' => $contratosComDadosFormatados
         ]);
 
-        foreach ($this->retornaEmailUsuarios() as $usuario) {
+        foreach ($this->usuarios as $usuario) {
             $mensagem->cc($usuario->email);
         }
 
@@ -82,19 +100,73 @@ class RotinaAlertaContratoDiarioNotification extends Notification
     }
 
     /**
-     * Get the database representation of the notification.
+     * Get the default representation of the notification.
      *
      * @param mixed $notifiable
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function toDatabase($notifiable)
+    public function toArray($notifiable)
     {
         return [
             'assunto' => $this->retornaEmailAssunto(),
             'mensagem' => $this->retornaMensagemHtml(),
             'anexos' => $this->retornaEmailAnexo()
         ];
+    }
+
+    /**
+     * Retorna conteúdo html para composição da mensagem a ser enviada
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaMensagemHtml()
+    {
+        $contratos = $this->contratos;
+
+        $dataVigenciaInicioExibicao = $this->retornaContratoVigenciaInicioExibicao();
+        $dataVigenciaFimExibicao = $this->retornaContratoVigenciaFimExibicao();
+
+        $html = '';
+        $html .= $this->retornaEmailTexto();
+        $html .= '<br />';
+        $html .= "<table class='table table-striped table-hover table-bordered table-responsive'>";
+
+        $html .= '<thead>';
+        $html .= '<tr>';
+        $html .= "<td align='center'> Números </td>";
+        $html .= "<td align='center'> Processo </td>";
+        $html .= "<td align='left'> Fornecedor </td>";
+        $html .= "<td align='center'> Objeto </td>";
+        $html .= "<td align='center'> Valor global (R$) </td>";
+        $html .= "<td align='center'> Vig. início </td>";
+        $html .= "<td align='center'> Vig. fim </td>";
+        $html .= '<tr>';
+        $html .= '</thead>';
+
+        $html .= '<tbody>';
+
+        foreach($contratos as $contrato) {
+            $this->contrato = $contrato;
+
+            $html .= '<tr>';
+            $html .= "<td align='center'> " . $this->retornaContratoNumero() . " </td>";
+            $html .= "<td align='center'> " . $this->retornaContratoProcesso() . " </td>";
+            $html .= "<td align='left'> " . $this->retornaContratoFornecedor() . " </td>";
+            $html .= "<td align='justify'> " . $this->retornaContratoObjeto() . " </td>";
+            $html .= "<td align='right'> " . $this->retornaContratoValorGlobalFomatado() . " </td>";
+            $html .= "<td align='center'> " . $dataVigenciaInicioExibicao . " </td>";
+            $html .= "<td align='center'> " . $dataVigenciaFimExibicao . " </td>";
+            $html .= '</tr>';
+        }
+
+        $html .= '</tbody>';
+        $html .= '</table>';
+
+        $htmlEncode = mb_convert_encoding($html, 'UTF-8', 'UTF-8');
+
+        return $htmlEncode;
     }
 
     /**
@@ -144,17 +216,6 @@ class RotinaAlertaContratoDiarioNotification extends Notification
     private function retornaEmailTelefones()
     {
         return $this->retornaEmailCampo('telefones');
-    }
-
-    /**
-     * Retorna array de usuários informados como destinatários do email
-     *
-     * @return array
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function retornaEmailUsuarios()
-    {
-        return $this->retornaEmailCampo('usuarios');
     }
 
     /**
@@ -358,62 +419,14 @@ class RotinaAlertaContratoDiarioNotification extends Notification
             return '';
         }
 
-        $contratoDados = $this->dadosContrato;
-        $campo = isset($contratoDados->$campo1) ? $contratoDados->$campo1 : '';
+        $contrato = $this->contrato;
+        $campo = isset($contrato->$campo1) ? $contrato->$campo1 : '';
 
         if ($campo2 != '') {
-            $campo = isset($contratoDados->$campo1->$campo2) ? $contratoDados->$campo1->$campo2 : '';
+            $campo = isset($contrato->$campo1->$campo2) ? $contrato->$campo1->$campo2 : '';
         }
 
         return $campo;
-    }
-
-    /**
-     * Retorna conteúdo html para composição da mensagem a ser enviada
-     *
-     * @return string
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function retornaMensagemHtml()
-    {
-        $dataVigenciaInicioExibicao = $this->retornaContratoVigenciaInicioExibicao();
-        $dataVigenciaFimExibicao = $this->retornaContratoVigenciaFimExibicao();
-
-        $html = '';
-        $html .= '<br />';
-        $html .= '<table class="table table-striped table-hover table-bordered table-responsive">';
-
-        $html .= '<thead>';
-        $html .= '<tr>';
-        $html .= '<td align="center"> Números </td>';
-        $html .= '<td align="center"> Processo </td>';
-        $html .= '<td align="center"> Fornecedor </td>';
-        $html .= '<td align="center"> Objeto </td>';
-        $html .= '<td align="center"> Valor global (R$) </td>';
-        $html .= '<td align="center"> Vig. início </td>';
-        $html .= '<td align="center"> Vig. fim </td>';
-        $html .= '<tr>';
-        $html .= '</thead>';
-
-        $html .= '<tbody>';
-
-        foreach($contratos as $contrato) {
-            $html .= '<tr>';
-            $html .= '<td align="center"> ' . $this->retornaContratoNumero() . ' </td>';
-            $html .= '<td align="center"> ' . $this->retornaContratoNumero() . ' </td>';
-            $html .= '<td align="center"> ' . $this->retornaContratoFornecedor() . ' </td>';
-            $html .= '<td align="justify"> ' . $this->retornaContratoObjeto() . ' </td>';
-            $html .= '<td align="right"> ' . $this->retornaContratoValorGlobalFomatado() . ' </td>';
-            $html .= '<td align="center"> ' . $dataVigenciaInicioExibicao . ' </td>';
-            $html .= '<td align="center"> ' . $dataVigenciaFimExibicao . ' </td>';
-            $html .= '</tr>';
-        }
-
-        $html .= '</tbody>';
-
-        $html .= '</table>';
-
-        return $html;
     }
 
     /**
