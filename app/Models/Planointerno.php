@@ -22,4 +22,9 @@ class Planointerno extends Model
         'descricao',
         'situacao',
     ];
+
+    public function empenhos()
+    {
+        return $this->hasMany(Empenho::class,'planointerno_id');
+    }
 }
