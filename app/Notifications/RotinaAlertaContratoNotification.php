@@ -7,7 +7,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 use League\HTMLToMarkdown\HtmlConverter;
 
-class RotinaAlertaContratoDiarioNotification extends Notification
+class RotinaAlertaContratoNotification extends Notification
 {
     use Queueable;
 

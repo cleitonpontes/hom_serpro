@@ -6,7 +6,6 @@ use App\Models\BackpackUser;
 use App\Models\Contrato;
 use App\Models\Contratoresponsavel;
 use App\Models\Unidade;
-use App\Notifications\RotinaAlertaContratoDiarioNotification;
 use App\Notifications\RotinaAlertaContratoNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -78,7 +77,7 @@ class AlertaContratoJob implements ShouldQueue
                 $primeiroUsuario = array_shift($usuarios);
 
                 $contratoComoArray[] = $contrato;
-                $notificacao = new RotinaAlertaContratoDiarioNotification($dadosEmail, $contratoComoArray, $usuarios);
+                $notificacao = new RotinaAlertaContratoNotification($dadosEmail, $contratoComoArray, $usuarios);
 
                 $primeiroUsuario->notify($notificacao);
             }
@@ -118,7 +117,7 @@ class AlertaContratoJob implements ShouldQueue
                 }
 
                 $usuario = BackpackUser::find($usuarioId);
-                $notificacao = new RotinaAlertaContratoDiarioNotification($dadosEmail, $contratosFiltrados);
+                $notificacao = new RotinaAlertaContratoNotification($dadosEmail, $contratosFiltrados);
 
                 $usuario->notify($notificacao);
             }
@@ -126,7 +125,7 @@ class AlertaContratoJob implements ShouldQueue
             $contratosChefias = $this->retornaContratosTodosDaUnidade($unidadeId);
 
             $primeiroChefe = array_shift($usuariosDeChefia);
-            $notificacaoChefia = new RotinaAlertaContratoDiarioNotification(
+            $notificacaoChefia = new RotinaAlertaContratoNotification(
                 $dadosEmail, $contratosChefias, $usuariosDeChefia
             );
 
