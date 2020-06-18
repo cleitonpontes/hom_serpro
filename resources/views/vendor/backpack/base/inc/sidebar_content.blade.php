@@ -98,7 +98,7 @@
                 <li>
                     <a href="{{ backpack_url('/gescon/consulta/empenhos') }}">
                         <i class="fa fa-money"></i>
-                        <span>Empenhos</span>
+                        <span>Empenhos X Contratos</span>
                     </a>
                 </li>
             </ul>

@@ -89,6 +89,20 @@ class Contratoempenho extends Model
 
     }
 
+    public function getFornecedorContrato()
+    {
+
+        $contrato = Contrato::find($this->contrato_id);
+
+        if ($contrato->fornecedor_id) {
+            $fornecedor = $contrato->fornecedor()->first();
+            return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+        }
+
+        return '';
+
+    }
+
     public function getEmpenho()
     {
         $empenho = Empenho::find($this->empenho_id);
