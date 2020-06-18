@@ -31,6 +31,7 @@ class ConsultaempenhoCrudController extends CrudController
      */
     public function setup()
     {
+//        dd(session()->all());
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -539,6 +540,7 @@ class ConsultaempenhoCrudController extends CrudController
 
         $dados->whereHas('contratos', function ($c) {
             $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
         });
 
         return $dados->pluck('descricao', 'cpf_cnpj_idgener')->toArray();
@@ -557,6 +559,10 @@ class ConsultaempenhoCrudController extends CrudController
         );
 
         $dados->has('empenhos');
+       $dados->whereHas('contratos', function ($c) {
+            $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
+        });
 
         return $dados->pluck('descricao', 'cpf_cnpj_idgener')->toArray();
     }
@@ -575,6 +581,7 @@ class ConsultaempenhoCrudController extends CrudController
 
         $dados->whereHas('empenhos', function ($c) {
             $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
         });
 
         return $dados->pluck('descricao', 'codigo')->toArray();
@@ -594,6 +601,7 @@ class ConsultaempenhoCrudController extends CrudController
 
         $dados->whereHas('empenhos', function ($c) {
             $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
         });
 
         return $dados->pluck('descricao', 'codigo')->toArray();
