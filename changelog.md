@@ -7,7 +7,7 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 ### Implementação
 - Inclusão do Histórico do Contrato no Extrato PDF (Issue #27);
 - API para relacionar contratos Inativos por Órgão e Unidade (Issue #48);
-- Consulta Empenhos X Contratos (Issue #14);
+- Consulta Empenhos X Contratos (Issue #14).
 
 ### Melhoria
 - Melhorias nos Alertas diário e Mensal (issues #24 e #25).
