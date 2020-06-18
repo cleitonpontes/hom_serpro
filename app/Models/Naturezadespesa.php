@@ -41,9 +41,12 @@ class Naturezadespesa extends Model
 
     public function naturezasubitem()
     {
-
         return $this->hasMany(Naturezasubitem::class, 'naturezasubitem_id');
+    }
 
+    public function empenhos()
+    {
+        return $this->hasMany(Empenho::class,'naturezadespesa_id');
     }
 
 
