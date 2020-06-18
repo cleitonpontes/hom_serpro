@@ -330,15 +330,8 @@ class UsuarioCrudController extends CrudController
 //        $this->authorizePermissions(['administracao_editar_usuario']);
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
-
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        if ($this->crud->entry->situacao == false) {
-            // Também inativa contratosresponsaveis
-            $contratosResponsavel = Contratoresponsavel::where('user_id', $request->usuario);
-            $contratosResponsavel->update(['situacao' => false]);
-        }
-
         return $redirect_location;
     }
 }
