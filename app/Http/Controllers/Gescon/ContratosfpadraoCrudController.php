@@ -91,6 +91,7 @@ class ContratosfpadraoCrudController extends CrudController
 
     public function Colunas()
     {
+
         $colunas = [
             [
                 'name' => 'getContrato',
@@ -104,7 +105,7 @@ class ContratosfpadraoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'descricaopadrao',
+                'name' => 'decricaopadrao',
                 'label' => 'Descrição',
                 'type' => 'text',
                 'orderable' => true,
@@ -198,18 +199,18 @@ class ContratosfpadraoCrudController extends CrudController
                                 'style' => 'pointer-events: none;touch-action: none;',
                             ]
                         ],
+//                        [
+//                            'name' => 'fornecedor',
+//                            'label' => 'Fornecedor',
+//                            'type' => 'text',
+//                            'value' => ($contrato->numero.' | '.$contrato->cpf_cnpj_idgener.' - '.$contrato->nome),
+//                            'attributes' => [
+//                                'readonly'=>'readonly',
+//                                'style' => 'pointer-events: none;touch-action: none;',
+//                            ]
+//                        ],
                         [
-                            'name' => 'fornecedor',
-                            'label' => 'Fornecedor',
-                            'type' => 'text',
-                            'value' => ($contrato->numero.' | '.$contrato->cpf_cnpj_idgener.' - '.$contrato->nome),
-                            'attributes' => [
-                                'readonly'=>'readonly',
-                                'style' => 'pointer-events: none;touch-action: none;',
-                            ]
-                        ],
-                        [
-                            'name' => 'descricaopadrao',
+                            'name' => 'decricaopadrao',
                             'label' => 'Descrição Padrão',
                             'type' => 'ckeditor',
                         ],
