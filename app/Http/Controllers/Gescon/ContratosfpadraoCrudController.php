@@ -229,6 +229,7 @@ class ContratosfpadraoCrudController extends CrudController
                             'attributes' => [
                                 'onkeyup' => "maiuscula(this)",
                                 'required' => true,
+                                'maxlength' => 2
                             ]
                         ],
                         [
