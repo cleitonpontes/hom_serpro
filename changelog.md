@@ -2,11 +2,15 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
-## [5.0.28]- xx/06/2020
+## [5.0.28]- 18/06/2020
 
 ### Implementação
 - Inclusão do Histórico do Contrato no Extrato PDF (Issue #27);
 - API para relacionar contratos Inativos por Órgão e Unidade (Issue #48);
+- Consulta Empenhos X Contratos (Issue #14).
+
+### Melhoria
+- Melhorias nos Alertas diário e Mensal (issues #24 e #25).
 
 ### Bug
 - Correção combo filtro do Transparência Tela Inicial (issue #26);
@@ -58,6 +62,12 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 ### Bug
 - Correção de erro na edição dos Empenhos vinculados aos contratos.
 - Correção dos órgãos no formulário do Comunica. 
+
+## [5.0.23]- 16/04/2020
+
+### Implementação
+- Liberação para Botão para Deletar Faturas.
+>>>>>>> Stashed changes
 
 ## [5.0.22]- 09/04/2020
 
