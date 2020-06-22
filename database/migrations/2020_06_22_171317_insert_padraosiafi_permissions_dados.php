@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class InsertPadraosiafiPermissionsDados extends Migration
 {
@@ -39,10 +41,10 @@ class InsertPadraosiafiPermissionsDados extends Migration
         $role->givePermissionTo('contratosfpadrao_editar');
         $role->givePermissionTo('contratosfpadrao_deletar');
 
-        $role = Role::where(['name' => 'Execução Financeira'])->first();
-        $role->givePermissionTo('contratosfpadrao_inserir');
-        $role->givePermissionTo('contratosfpadrao_editar');
-        $role->givePermissionTo('contratosfpadrao_deletar');
+//        $role = Role::where(['name' => 'Execução Financeira'])->first();
+//        $role->givePermissionTo('contratosfpadrao_inserir');
+//        $role->givePermissionTo('contratosfpadrao_editar');
+//        $role->givePermissionTo('contratosfpadrao_deletar');
     }
 
     /**
@@ -72,10 +74,10 @@ class InsertPadraosiafiPermissionsDados extends Migration
         $role->revokePermissionTo('contratosfpadrao_editar');
         $role->revokePermissionTo('contratosfpadrao_deletar');
 
-        $role = Role::where(['name' => 'Execução Financeira'])->first();
-        $role->revokePermissionTo('contratosfpadrao_inserir');
-        $role->revokePermissionTo('contratosfpadrao_editar');
-        $role->revokePermissionTo('contratosfpadrao_deletar');
+//        $role = Role::where(['name' => 'Execução Financeira'])->first();
+//        $role->revokePermissionTo('contratosfpadrao_inserir');
+//        $role->revokePermissionTo('contratosfpadrao_editar');
+//        $role->revokePermissionTo('contratosfpadrao_deletar');
 
 
         Permission::where(['name' => 'contratosfpadrao_inserir'])->forceDelete();
