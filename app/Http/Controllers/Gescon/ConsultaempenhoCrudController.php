@@ -32,7 +32,6 @@ class ConsultaempenhoCrudController extends CrudController
      */
     public function setup()
     {
-//        dd(session()->all());
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
