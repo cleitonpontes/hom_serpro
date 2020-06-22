@@ -1,4 +1,3 @@
-
 @component('mail::message')
 # Notificação Ocorrência
 
