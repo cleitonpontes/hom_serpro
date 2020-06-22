@@ -39,7 +39,7 @@ class ContratoempenhoCrudController extends CrudController
         $this->crud->setModel('App\Models\Contratoempenho');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id. '/empenhos');
         $this->crud->setEntityNameStrings('Empenho do Contrato', 'Empenhos - Contrato');
-        $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
+        //$this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addClause('select', 'contratoempenhos.*');
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratoempenhos.contrato_id');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratoempenhos.fornecedor_id');

@@ -43,12 +43,13 @@ class Contratosfpadrao extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getContrato()
+    public function getNumeroContrato()
     {
         $contrato = Contrato::find($this->fk);
         return $contrato->numero;
 
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

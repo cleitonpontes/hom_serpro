@@ -10,6 +10,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\ContratosfpadraoRequest as StoreRequest;
 use App\Http\Requests\ContratosfpadraoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -34,15 +35,25 @@ class ContratosfpadraoCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratosfpadrao');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/padrao');
-        $this->crud->setEntityNameStrings('Padrão do Contrato', 'Padrões - Contrato');
-//        $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
-        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-//        $this->crud->enableExportButtons();
-//        $this->crud->denyAccess('create');
-//        $this->crud->denyAccess('update');
-//        $this->crud->denyAccess('delete');
-//        $this->crud->allowAccess('show');
+        $this->crud->setEntityNameStrings('Padrão do Contrato', 'Padrões de Execução SIAFI - Contrato');
+        $this->crud->addClause('join', 'contratos', 'contratos.id','=','sfpadrao.fk');
+        $this->crud->addClause('where', 'sfpadrao.fk', '=', $contrato_id);
+        $this->crud->addClause('where', 'sfpadrao.categoriapadrao', '=', 'EXECFATURAPADRAO');
+        $this->crud->addClause('where', 'sfpadrao.tipo', '=', 'P');
+        $this->crud->addClause('select', 'sfpadrao.*');
 
+
+        $this->crud->enableExportButtons();
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
+
+
+        (backpack_user()->can('contratosfpadrao_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('contratosfpadrao_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('contratosfpadrao_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
         |--------------------------------------------------------------------------
@@ -56,12 +67,12 @@ class ContratosfpadraoCrudController extends CrudController
         $this->crud->addColumns($colunas);
 
 
-        $contrato = Contrato::select(DB::raw('contratos.id,contratos.numero,fornecedores.cpf_cnpj_idgener,fornecedores.nome'))
+        $contratoxfornecedor = Contrato::select(DB::raw('contratos.id,contratos.numero,fornecedores.cpf_cnpj_idgener,fornecedores.nome'))
                                     ->join('fornecedores','fornecedores.id','=','contratos.fornecedor_id')
                                     ->where('contratos.id',$contrato_id)
                                     ->first();
 
-        $campos = $this->Campos($contrato);
+        $campos = $this->Campos($contratoxfornecedor);
         $this->crud->addFields($campos);
 
 
@@ -94,15 +105,18 @@ class ContratosfpadraoCrudController extends CrudController
 
         $colunas = [
             [
-                'name' => 'getContrato',
+                'name' => 'getNumeroContrato',
                 'label' => 'Número Contrato', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getContrato', // the method in your Model
+                'function_name' => 'getNumeroContrato', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratos.numero', 'like', "%" . strtoupper($searchTerm) . "%");
+                },
             ],
             [
                 'name' => 'decricaopadrao',
@@ -165,7 +179,7 @@ class ContratosfpadraoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'situacao',
+                'name' => 'sfpadrao.situacao',
                 'label' => 'Situação',
                 'type' => 'text',
                 'orderable' => true,
@@ -180,14 +194,14 @@ class ContratosfpadraoCrudController extends CrudController
     }
 
 
-    public function Campos($contrato)
+    public function Campos($contratoxfornecedor)
     {
 
         $campos = [
                         [   // Hidden
                             'name' => 'fk',
                             'type' => 'hidden',
-                            'default' => $contrato->id,
+                            'default' => $contratoxfornecedor->id,
                         ],
                         [
                             'name' => 'codugemit',
@@ -203,7 +217,7 @@ class ContratosfpadraoCrudController extends CrudController
                             'name' => 'fornecedor',
                             'label' => 'Fornecedor',
                             'type' => 'text',
-                            'value' => ($contrato->numero.' | '.$contrato->cpf_cnpj_idgener.' - '.$contrato->nome),
+                            'value' => ($contratoxfornecedor->numero.' | '.$contratoxfornecedor->cpf_cnpj_idgener.' - '.$contratoxfornecedor->nome),
                             'attributes' => [
                                 'readonly'=>'readonly',
                                 'style' => 'pointer-events: none;touch-action: none;',
@@ -218,9 +232,6 @@ class ContratosfpadraoCrudController extends CrudController
                             'name' => 'anodh',
                             'label' => 'Ano DH',
                             'type' => 'anoquatrodigitos',
-                            'attributes' => [
-                                'required' => true,
-                            ]
                         ],
                         [
                             'name' => 'codtipodh',
@@ -228,17 +239,12 @@ class ContratosfpadraoCrudController extends CrudController
                             'type' => 'codtipodh',
                             'attributes' => [
                                 'onkeyup' => "maiuscula(this)",
-                                'required' => true,
-                                'maxlength' => 2
                             ]
                         ],
                         [
                             'name' => 'numdh',
                             'label' => 'Número DH',
                             'type' => 'number',
-                            'attributes' => [
-                                            'required' => true,
-                                            ]
                         ],
                         [  // Hidden
                             'name' => 'categoriapadrao',
