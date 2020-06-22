@@ -240,9 +240,10 @@ class ContratoocorrenciaCrudController extends CrudController
         $orgao = $contrato->getOrgao();
         $unidade = $contrato->getUnidade();
         $fornecedor = $contrato->getFornecedor();
-        $usuario = $ocorrencia->getUser();
+        $usuario = $ocorrencia->getUsuarioHidden();
         $situacao = $ocorrencia->getSituacao();
         $arquivos = $ocorrencia->getArquivos();
+        $responsaveis = $contrato->getMailResponsaveis();
 
         $dadosOcorrencia = [
             'orgao' => $orgao,
@@ -254,7 +255,8 @@ class ContratoocorrenciaCrudController extends CrudController
             'data' => $ocorrencia->data,
             'textoocorrencia' => $ocorrencia->ocorrencia,
             'situacao' => $situacao,
-            'arquivos' => $arquivos
+            'arquivos' => $arquivos,
+            'responsaveis' => $responsaveis
         ];
 
         return $dadosOcorrencia;
