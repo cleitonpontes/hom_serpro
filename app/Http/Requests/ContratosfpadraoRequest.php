@@ -31,7 +31,7 @@ class ContratosfpadraoRequest extends FormRequest
             'codugemit' => 'required',
             'anodh' => 'required|max:4',
             'codtipodh' => 'required|max:2',
-            'numdh' => 'required',
+            'numdh' => 'required|number|digits_between:0,999999', //preciso que limite o valor do numero a no minimo 1 máximo 999999
             'tipo' => 'required|max:1',
             'situacao' => 'required|max:1'
         ];
