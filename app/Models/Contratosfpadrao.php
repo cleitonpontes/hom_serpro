@@ -52,6 +52,26 @@ class Contratosfpadrao extends Model
 
     }
 
+    public function getSituacao()
+    {
+        $retorno = '';
+
+        switch ($this->situacao) {
+            case 'P':
+                $retorno = 'Pendente';
+                break;
+            case 'I':
+                $retorno = 'Importado';
+                break;
+            case 'E':
+                $retorno = 'Erro na importação';
+                break;
+        }
+
+        return $retorno;
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

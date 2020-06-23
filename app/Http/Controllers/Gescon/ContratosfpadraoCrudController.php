@@ -179,9 +179,10 @@ class ContratosfpadraoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'sfpadrao.situacao',
-                'label' => 'Situação',
-                'type' => 'text',
+                'name' => 'getSituacao',
+                'label' => 'Situação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSituacao', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -227,6 +228,9 @@ class ContratosfpadraoCrudController extends CrudController
                             'name' => 'decricaopadrao',
                             'label' => 'Descrição Padrão',
                             'type' => 'text',
+                            'attributes' => [
+                                'onkeyup' => "maiuscula(this)",
+                            ]
                         ],
                         [
                             'name' => 'anodh',
