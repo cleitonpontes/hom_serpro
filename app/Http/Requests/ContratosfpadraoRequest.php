@@ -25,13 +25,14 @@ class ContratosfpadraoRequest extends FormRequest
      */
     public function rules()
     {
+
         return [
             'categoriapadrao' => 'required',
             'decricaopadrao' => 'required',
             'codugemit' => 'required',
             'anodh' => 'required|max:4',
             'codtipodh' => 'required|max:2',
-            'numdh' => 'required|numeric|between:1,6|max:999999',
+            'numdh' => 'required|numeric|min:1|max:999999',
             'tipo' => 'required|max:1',
             'situacao' => 'required|max:1'
         ];
@@ -59,7 +60,7 @@ class ContratosfpadraoRequest extends FormRequest
         return [
             'required' => 'O campo :attribute é obrigatório.',
             'max' => 'O campo :attribute não pode ser maior que :max.',
-            'numdh.between' => 'O :attribute deve estar entre 1 e 999999'
+            'min' => 'O :attribute deve maior que 0',
         ];
     }
 }
