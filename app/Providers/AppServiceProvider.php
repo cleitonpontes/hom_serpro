@@ -18,12 +18,11 @@ use App\Observers\CatmatseratualizacaoObserver;
 use App\Observers\ComunicaObserver;
 use App\Observers\ContratocronogramaObserve;
 use App\Observers\ContratodespesaacessoriaObserver;
-use App\Observers\ContratohistoricoitemObserver;
 use App\Observers\ContratohistoricoObserve;
 use App\Observers\ContratoitemObserver;
 use App\Observers\ContratoObserve;
+use App\Observers\ContratosfpadraoObserver;
 use App\Observers\SaldohistoricoitemObserver;
-use App\Observers\SfpadraoObserver;
 use App\Observers\SubrogacaoObserver;
 use App\Observers\UsuarioObserver;
 use Illuminate\Support\Facades\App;
@@ -58,11 +57,9 @@ class AppServiceProvider extends ServiceProvider
         Saldohistoricoitem::observe(SaldohistoricoitemObserver::class);
         Catmatseratualizacao::observe(CatmatseratualizacaoObserver::class);
         Comunica::observe(ComunicaObserver::class);
-        //SfPadrao::observe(SfpadraoObserver::class);
         Contratosfpadrao::observe(ContratosfpadraoObserver::class);
         Subrogacao::observe(SubrogacaoObserver::class);
         Contratodespesaacessoria::observe(ContratodespesaacessoriaObserver::class);
-
     }
 
     /**

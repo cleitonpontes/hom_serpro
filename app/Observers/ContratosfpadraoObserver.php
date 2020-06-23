@@ -2,17 +2,17 @@
 
 namespace App\Observers;
 
-use App\ModelsContratosfpadrao;
+use App\Models\Contratosfpadrao;
 
 class ContratosfpadraoObserver
 {
     /**
      * Handle the models contratosfpadrao "created" event.
      *
-     * @param  \App\ModelsContratosfpadrao  $modelsContratosfpadrao
+     * @param  \App\Models\Contratosfpadrao  $contratosfpadrao
      * @return void
      */
-    public function created(ModelsContratosfpadrao $modelsContratosfpadrao)
+    public function created(Contratosfpadrao $contratosfpadrao)
     {
         //
     }
@@ -20,10 +20,10 @@ class ContratosfpadraoObserver
     /**
      * Handle the models contratosfpadrao "updated" event.
      *
-     * @param  \App\ModelsContratosfpadrao  $modelsContratosfpadrao
+     * @param  \App\Models\Contratosfpadrao  $contratosfpadrao
      * @return void
      */
-    public function updated(ModelsContratosfpadrao $modelsContratosfpadrao)
+    public function updated(Contratosfpadrao $contratosfpadrao)
     {
         //
     }
@@ -31,10 +31,10 @@ class ContratosfpadraoObserver
     /**
      * Handle the models contratosfpadrao "deleted" event.
      *
-     * @param  \App\ModelsContratosfpadrao  $modelsContratosfpadrao
+     * @param  \App\Models\Contratosfpadrao  $contratosfpadrao
      * @return void
      */
-    public function deleted(ModelsContratosfpadrao $modelsContratosfpadrao)
+    public function deleted(Contratosfpadrao $contratosfpadrao)
     {
         //
     }
@@ -42,10 +42,10 @@ class ContratosfpadraoObserver
     /**
      * Handle the models contratosfpadrao "restored" event.
      *
-     * @param  \App\ModelsContratosfpadrao  $modelsContratosfpadrao
+     * @param  \App\Models\Contratosfpadrao  $contratosfpadrao
      * @return void
      */
-    public function restored(ModelsContratosfpadrao $modelsContratosfpadrao)
+    public function restored(Contratosfpadrao $contratosfpadrao)
     {
         //
     }
@@ -53,10 +53,10 @@ class ContratosfpadraoObserver
     /**
      * Handle the models contratosfpadrao "force deleted" event.
      *
-     * @param  \App\ModelsContratosfpadrao  $modelsContratosfpadrao
+     * @param  \App\Models\Contratosfpadrao  $contratosfpadrao
      * @return void
      */
-    public function forceDeleted(ModelsContratosfpadrao $modelsContratosfpadrao)
+    public function forceDeleted(Contratosfpadrao $contratosfpadrao)
     {
         //
     }
