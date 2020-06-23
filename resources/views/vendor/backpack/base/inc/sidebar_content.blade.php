@@ -95,6 +95,12 @@
                         <span>Cronogramas</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ backpack_url('/gescon/consulta/empenhos') }}">
+                        <i class="fa fa-money"></i>
+                        <span>Empenhos X Contratos</span>
+                    </a>
+                </li>
             </ul>
         </li>
         <li><a href="{{ backpack_url('/gescon/meus-contratos') }}"><i class="fa fa-file-text-o"></i> <span>Meus Contratos</span></a>

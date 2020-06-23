@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\BackpackUser;
 use App\Models\Catmatseratualizacao;
 use App\Models\Comunica;
 use App\Models\Contrato;
@@ -24,6 +25,7 @@ use App\Observers\ContratoObserve;
 use App\Observers\SaldohistoricoitemObserver;
 use App\Observers\SfpadraoObserver;
 use App\Observers\SubrogacaoObserver;
+use App\Observers\UsuarioObserver;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
@@ -48,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
             });
         }
 
+        BackpackUser::observe(UsuarioObserver::class);
         Contrato::observe(ContratoObserve::class);
         Contratohistorico::observe(ContratohistoricoObserve::class);
         Contratocronograma::observe(ContratocronogramaObserve::class);

@@ -156,6 +156,7 @@ Route::group([
                 CRUD::resource('ocorrencias', 'ConsultaocorrenciaCrudController');
                 CRUD::resource('faturas', 'ConsultafaturaCrudController');
                 CRUD::resource('cronogramas', 'ConsultacronogramaCrudController');
+                CRUD::resource('empenhos', 'ConsultaempenhoCrudController');
             });
 
             Route::group(['prefix' => 'contratohistorico/{contratohistorico_id}'], function () {
