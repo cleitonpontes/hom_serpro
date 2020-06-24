@@ -22,17 +22,15 @@ class ConsultaContratoBaseCrudController extends CrudController
     /**
      * Estabelece as definições iniciais da ConsultaContratoX...
      *
-     * @example Dentro de setup, chamar o método abaixo $this->defineConfiguracaoPadrao();
-     *          Para adicionar campos específicos, una os arrays de $this->retornaContratoColunas() e
-     *          $this->retornaContratoCampos()
+     * @example Dentro de setup, chamar o método abaixo $this->defineConfiguracaoPadrao()
      * @author Anderson Sathler <asathler@gmail.com>
      */
     protected function defineConfiguracaoPadrao()
     {
         $this->definePrivilegios();
-        $this->retornaContratoFiltros();
 
-        $this->crud->enableExportButtons();
+        $this->aplicaFiltros();
+        $this->adicionaColunasNaListagem();
 
         // As definições abaixo devem ser informadas na Controller de destino.
         // $this->crud->setModel('App\Models\Modelo');
@@ -40,21 +38,8 @@ class ConsultaContratoBaseCrudController extends CrudController
         // $this->crud->setEntityNameStrings('Entidade', 'Entidades');
         // $this->crud->setHeading('Título do cabeçalho');
 
-        $this->crud->addColumns($this->retornaContratoColunas());
         $this->crud->addFields($this->retornaContratoCampos());
-    }
-
-    /**
-     * Nega os privilégios do CRUD
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    protected function definePrivilegios()
-    {
-        $this->crud->denyAccess('create');
-        $this->crud->denyAccess('update');
-        $this->crud->denyAccess('delete');
-        $this->crud->allowAccess('show');
+        $this->crud->enableExportButtons();
     }
 
     /**
@@ -100,35 +85,46 @@ class ConsultaContratoBaseCrudController extends CrudController
     }
 
     /**
+     * Nega os privilégios do CRUD
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    protected function definePrivilegios()
+    {
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
+    }
+
+    /**
      * Adiciona os filtros sobre Contratos
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    protected function retornaContratoFiltros()
+    protected function aplicaFiltros()
     {
-        $this->retornaContratoFiltroNumero();
-        $this->retornaContratoFiltroFornecedor();
+        $this->aplicaFiltroNumero();
+        $this->aplicaFiltroFornecedor();
     }
 
     /**
-     * Retorna colunas a serem exibidas bem como suas definições
+     * Adiciona as colunas sobre contratos a serem exibidas bem como suas definições
      *
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    protected function retornaContratoColunas()
+    protected function adicionaColunasNaListagem()
     {
-        $colunas[] = $this->retornaContratoColunaUnidade();
-        $colunas[] = $this->retornaContratoColunaNumero();
-        $colunas[] = $this->retornaContratoColunaFornecedor();
-        $colunas[] = $this->retornaContratoColunaObjeto();
-        $colunas[] = $this->retornaContratoColunaVigenciaInicio();
-        $colunas[] = $this->retornaContratoColunaVigenciaFim();
-        $colunas[] = $this->retornaContratoColunaValorGlobal();
-        $colunas[] = $this->retornaContratoColunaNumeroParcelas();
-        $colunas[] = $this->retornaContratoColunaValorParcela();
-
-        return $colunas;
+        $this->adicionaColunaUnidade();
+        $this->adicionaColunaNumero();
+        $this->adicionaColunaFornecedor();
+        $this->adicionaColunaObjeto();
+        $this->adicionaColunaVigenciaInicio();
+        $this->adicionaColunaVigenciaFim();
+        $this->adicionaColunaValorGlobal();
+        $this->adicionaColunaNumeroParcelas();
+        $this->adicionaColunaValorParcela();
     }
 
     /**
@@ -147,7 +143,7 @@ class ConsultaContratoBaseCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoFiltroNumero()
+    private function aplicaFiltroNumero()
     {
         $campo = [
             'name' => 'contrato',
@@ -171,7 +167,7 @@ class ConsultaContratoBaseCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoFiltroFornecedor()
+    private function aplicaFiltroFornecedor()
     {
         $campo = [
             'name' => 'cpf_cnpj',
@@ -236,9 +232,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaUnidade()
+    private function adicionaColunaUnidade()
     {
-        return [
+        $this->crud->addColumn([
             'name' => 'getUnidade',
             'label' => 'UG',
             'type' => 'model_function',
@@ -249,7 +245,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ];
+        ]);
     }
 
     /**
@@ -258,9 +254,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaNumero()
+    private function adicionaColunaNumero()
     {
-        return [
+        $this->crud->addColumn([
             'name' => 'contrato.numero',
             'label' => 'Número Contrato',
             'type' => 'string',
@@ -270,7 +266,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ];
+        ]);
     }
 
     /**
@@ -279,9 +275,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaFornecedor()
+    private function adicionaColunaFornecedor()
     {
-        return [
+        $this->crud->addColumn([
             // Método getFornecedor deve estar presente em \App\Models\Contrato
             'name' => 'getFornecedor',
             'label' => 'Fornecedor',
@@ -301,7 +297,7 @@ class ConsultaContratoBaseCrudController extends CrudController
                     'ilike', '%' . $searchTerm . '%'
                 );
             }
-        ];
+        ]);
     }
 
     /**
@@ -310,9 +306,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaObjeto()
+    private function adicionaColunaObjeto()
     {
-        return [
+        $this->crud->addColumn([
             'name' => 'contrato.objeto',
             'label' => 'Objeto',
             'limit' => 150,
@@ -322,7 +318,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ];
+        ]);
     }
 
     /**
@@ -331,9 +327,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaVigenciaInicio()
+    private function adicionaColunaVigenciaInicio()
     {
-        return [
+        $this->crud->addColumn([
             'name' => 'getVigenciaInicio',
             'label' => 'Vig. Início',
             'type' => 'model_function',
@@ -344,7 +340,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ];
+        ]);
     }
 
     /**
@@ -353,9 +349,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaVigenciaFim()
+    private function adicionaColunaVigenciaFim()
     {
-        return [
+        $this->crud->addColumn([
             'name' => 'getVigenciaFim',
             'label' => 'Vig. Fim',
             'type' => 'model_function',
@@ -366,7 +362,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ];
+        ]);
     }
 
     /**
@@ -375,9 +371,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaValorGlobal()
+    private function adicionaColunaValorGlobal()
     {
-        return [
+        $this->crud->addColumn([
             'name' => 'getValorGlobal',
             'label' => 'Valor Global',
             'type' => 'model_function',
@@ -389,7 +385,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ];
+        ]);
     }
 
     /**
@@ -398,9 +394,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaNumeroParcelas()
+    private function adicionaColunaNumeroParcelas()
     {
-        return [
+        $this->crud->addColumn([
             'name' => 'contrato.num_parcelas',
             'label' => 'Núm. Parcelas',
             'priority' => 9,
@@ -409,7 +405,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ];
+        ]);
     }
 
     /**
@@ -418,9 +414,9 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaContratoColunaValorParcela()
+    private function adicionaColunaValorParcela()
     {
-        return [
+        $this->crud->addColumn([
             'name' => 'getValorParcela',
             'label' => 'Valor Parcela',
             'type' => 'model_function',
@@ -432,7 +428,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ];
+        ]);
     }
 
 }

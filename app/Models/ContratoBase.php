@@ -26,14 +26,9 @@ class ContratoBase extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getContratoNumero()
-    {
-        return $this->getContrato();
-    }
-
     public function getContrato()
     {
-        return $this->contrato->numero;
+        return $this->getContrato();
 
         /*
         if ($this->contrato_id) {
@@ -43,6 +38,17 @@ class ContratoBase extends Model
             return '';
         }
         */
+    }
+
+    /**
+     * Retorna o Número do contrato
+     *
+     * @return number
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getContratoNumero()
+    {
+        return $this->contrato->numero;
     }
 
     /**

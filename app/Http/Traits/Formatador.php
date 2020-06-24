@@ -14,6 +14,10 @@ trait Formatador
      */
     public function retornaDataAPartirDeCampo($campo)
     {
+        if (is_null($campo)) {
+            return '';
+        }
+
         try {
             $data = \DateTime::createFromFormat('Y-m-d', $campo);
             $retorno = $data->format('d/m/Y');
