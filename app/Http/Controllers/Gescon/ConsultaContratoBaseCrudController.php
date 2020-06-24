@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Models\Contrato;
-use Backpack\CRUD\CrudPanel;
+use App\Models\Fornecedor;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-// use App\Http\Requests\ContratofaturaRequest as StoreRequest;
-// use App\Http\Requests\ContratofaturaRequest as UpdateRequest;
+use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Classe ConsultaContratoBaseCrudController
@@ -20,11 +20,6 @@ class ConsultaContratoBaseCrudController extends CrudController
 {
 
     /**
-     * @var number
-     */
-    protected $contratoId;
-
-    /**
      * Estabelece as definições iniciais da ConsultaContratoX...
      *
      * @example Dentro de setup, chamar o método abaixo $this->defineConfiguracaoPadrao();
@@ -34,8 +29,7 @@ class ConsultaContratoBaseCrudController extends CrudController
      */
     protected function defineConfiguracaoPadrao()
     {
-        $this->contratoId = retornaContratoId();
-        $this->negaTodosOsPrivilégios();
+        $this->definePrivilegios();
         $this->retornaContratoFiltros();
 
         $this->crud->enableExportButtons();
@@ -55,12 +49,12 @@ class ConsultaContratoBaseCrudController extends CrudController
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    protected function negaTodosOsPrivilégios()
+    protected function definePrivilegios()
     {
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
-        $this->crud->denyAccess('show');
+        $this->crud->allowAccess('show');
     }
 
     /**
@@ -124,6 +118,7 @@ class ConsultaContratoBaseCrudController extends CrudController
      */
     protected function retornaContratoColunas()
     {
+        $colunas[] = $this->retornaContratoColunaUnidade();
         $colunas[] = $this->retornaContratoColunaNumero();
         $colunas[] = $this->retornaContratoColunaFornecedor();
         $colunas[] = $this->retornaContratoColunaObjeto();
@@ -144,7 +139,7 @@ class ConsultaContratoBaseCrudController extends CrudController
      */
     protected function retornaContratoCampos()
     {
-        //
+        return [];
     }
 
     /**
@@ -196,6 +191,68 @@ class ConsultaContratoBaseCrudController extends CrudController
     }
 
     /**
+     * Retorna dados dos Contratos para exibição no controle de filtro
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaContratos()
+    {
+        $dados = Contrato::select(
+            DB::raw("LEFT(CONCAT(numero, ' - ', objeto), 80) AS descricao"), 'numero'
+        );
+
+        $dados->where('situacao', true);
+        $dados->whereHas('unidade', function ($u) {
+            $u->where('codigo', session('user_ug'));
+        });
+        $dados->orderBy('id');
+
+        return $dados->pluck('descricao', 'numero')->toArray();
+    }
+
+    /**
+     * Retorna dados de Fornecedores para exibição no controle de filtro
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaFornecedores()
+    {
+        $dados = Fornecedor::select(
+            DB::raw("CONCAT(cpf_cnpj_idgener, ' - ', nome) AS descricao"), 'cpf_cnpj_idgener'
+        );
+
+        $dados->whereHas('contratos', function ($c) {
+            $c->where('situacao', true);
+        });
+
+        return $dados->pluck('descricao', 'cpf_cnpj_idgener')->toArray();
+    }
+
+    /**
+     * Retorna item de array contendo as definições da coluna Unidade do contrato
+     *
+     * @return array
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function retornaContratoColunaUnidade()
+    {
+        return [
+            'name' => 'getUnidade',
+            'label' => 'UG',
+            'type' => 'model_function',
+            'function_name' => 'getUnidade',
+            'priority' => 1,
+            'orderable' => false,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ];
+    }
+
+    /**
      * Retorna item de array contendo as definições da coluna Número do contrato
      *
      * @return array
@@ -207,7 +264,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'name' => 'contrato.numero',
             'label' => 'Número Contrato',
             'type' => 'string',
-            'priority' => 1,
+            'priority' => 2,
             'orderable' => true,
             'visibleInTable' => true,
             'visibleInModal' => true,
@@ -230,7 +287,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'label' => 'Fornecedor',
             'type' => 'model_function',
             'function_name' => 'getFornecedor',
-            'priority' => 2,
+            'priority' => 3,
             'orderable' => true,
             'visibleInTable' => true,
             'visibleInModal' => true,
@@ -259,7 +316,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'name' => 'contrato.objeto',
             'label' => 'Objeto',
             'limit' => 150,
-            'priority' => 3,
+            'priority' => 4,
             'orderable' => true,
             'visibleInTable' => false,
             'visibleInModal' => true,
@@ -281,7 +338,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'label' => 'Vig. Início',
             'type' => 'model_function',
             'function_name' => 'getVigenciaInicio',
-            'priority' => 6,
+            'priority' => 7,
             'orderable' => true,
             'visibleInTable' => false,
             'visibleInModal' => true,
@@ -303,7 +360,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'label' => 'Vig. Fim',
             'type' => 'model_function',
             'function_name' => 'getVigenciaFim',
-            'priority' => 5,
+            'priority' => 6,
             'orderable' => true,
             'visibleInTable' => false,
             'visibleInModal' => true,
@@ -326,7 +383,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'type' => 'model_function',
             'function_name' => 'getvalorGlobal',
             'prefix' => 'R$ ',
-            'priority' => 4,
+            'priority' => 5,
             'orderable' => true,
             'visibleInTable' => false,
             'visibleInModal' => true,
@@ -346,7 +403,7 @@ class ConsultaContratoBaseCrudController extends CrudController
         return [
             'name' => 'contrato.num_parcelas',
             'label' => 'Núm. Parcelas',
-            'priority' => 8,
+            'priority' => 9,
             'orderable' => true,
             'visibleInTable' => false,
             'visibleInModal' => true,
@@ -369,7 +426,7 @@ class ConsultaContratoBaseCrudController extends CrudController
             'type' => 'model_function',
             'function_name' => 'getValorParcela',
             'prefix' => 'R$ ',
-            'priority' => 7,
+            'priority' => 8,
             'orderable' => true,
             'visibleInTable' => false,
             'visibleInModal' => true,
