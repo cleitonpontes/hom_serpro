@@ -213,6 +213,24 @@ class Contratoocorrencia extends Model
     }
 
     /**
+     * Retorna o usuário da ocorrência, exibindo CPF/CNPJ escondendo alguns caracteres
+     * e nome do mesmo
+     *
+     * @return string
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    public function getUsuarioHidden()
+    {
+        $userNome = $this->usuario->name;
+        $userCpfCnpj = explode('.',$this->usuario->cpf);
+        $userCpfCnpj[0] = "\*\*\*";
+        $userCpfCnpj[2] = substr_replace($userCpfCnpj[2],'\*\*', -2);
+        $userCpfCnpj = implode('.', $userCpfCnpj);
+
+        return $userCpfCnpj . ' - ' . $userNome;
+    }
+
+    /**
      * Retorna a situação da ocorrência
      *
      * @return mixed

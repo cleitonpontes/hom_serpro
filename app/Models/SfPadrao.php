@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Backpack\CRUD\CrudTrait;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class SfPadrao extends Model
 {
 
+    use CrudTrait;
+    use LogsActivity;
     /**
      * Informa que não utilizará os campos create_at e update_at do Laravel
      *
