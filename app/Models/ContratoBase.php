@@ -33,7 +33,7 @@ class ContratoBase extends Model
 
     public function getContrato()
     {
-        return $this->contrato()->numero;
+        return $this->contrato->numero;
 
         /*
         if ($this->contrato_id) {
@@ -53,33 +53,33 @@ class ContratoBase extends Model
      */
     public function getFornecedor()
     {
-        $fornecedorCpfCnpj = $this->contrato()->fornecedor()->cpf_cnpj_idgener;
-        $fornecedorNome = $this->contrato()->fornecedor()->nome;
+        $fornecedorCpfCnpj = $this->contrato->fornecedor->cpf_cnpj_idgener;
+        $fornecedorNome = $this->contrato->fornecedor->nome;
 
         return $fornecedorCpfCnpj . ' - ' . $fornecedorNome;
     }
 
     public function getUnidade()
     {
-        $unidadeCodigo = $this->contrato()->unidade()->codigo;
-        $unidadeNome = $this->contrato()->unidade()->nomeresumido;
+        $unidadeCodigo = $this->contrato->unidade->codigo;
+        $unidadeNome = $this->contrato->unidade->nomeresumido;
 
         return $unidadeCodigo . ' - ' . $unidadeNome;
     }
 
     public function getTipo()
     {
-        return $this->contrato()->tipodescricao;
+        return $this->contrato->tipodescricao;
     }
 
     public function getCategoria()
     {
-        return $this->contrato()->categoria()->descricao;
+        return $this->contrato->categoria->descricao;
     }
 
     public function getModalidade()
     {
-        return $this->contrato()->modalidade()->descricao;
+        return $this->contrato->modalidade->descricao;
     }
 
     /**
@@ -90,7 +90,7 @@ class ContratoBase extends Model
      */
     public function getDataAssinatura()
     {
-        return $this->retornaDataAPartirDeCampo($this->contrato()->data_assinatura);
+        return $this->retornaDataAPartirDeCampo($this->contrato->data_assinatura);
     }
 
     /**
@@ -101,7 +101,7 @@ class ContratoBase extends Model
      */
     public function getDataPublicacao()
     {
-        return $this->retornaDataAPartirDeCampo($this->contrato()->data_publicacao);
+        return $this->retornaDataAPartirDeCampo($this->contrato->data_publicacao);
     }
 
     /**
@@ -112,7 +112,7 @@ class ContratoBase extends Model
      */
     public function getVigenciaInicio()
     {
-        return $this->retornaDataAPartirDeCampo($this->contrato()->vigencia_inicio);
+        return $this->retornaDataAPartirDeCampo($this->contrato->vigencia_inicio);
     }
 
     /**
@@ -123,7 +123,7 @@ class ContratoBase extends Model
      */
     public function getVigenciaFim()
     {
-        return $this->retornaDataAPartirDeCampo($this->contrato()->vigencia_fim);
+        return $this->retornaDataAPartirDeCampo($this->contrato->vigencia_fim);
     }
 
     /**
@@ -134,7 +134,7 @@ class ContratoBase extends Model
      */
     public function getValorInicial()
     {
-        return $this->retornaCampoFormatadoComoNumero($this->contrato()->valor_inicial);
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_inicial);
     }
 
     /**
@@ -145,7 +145,7 @@ class ContratoBase extends Model
      */
     public function getValorGlobal()
     {
-        return $this->retornaCampoFormatadoComoNumero($this->contrato()->valor_global);
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_global);
     }
 
     /**
@@ -156,7 +156,7 @@ class ContratoBase extends Model
      */
     public function getNumeroParcelas()
     {
-        return $this->contrato()->num_parcelas;
+        return $this->contrato->num_parcelas;
     }
 
     /**
@@ -167,7 +167,7 @@ class ContratoBase extends Model
      */
     public function getValorParcela()
     {
-        return $this->retornaCampoFormatadoComoNumero($this->contrato()->valor_parcela);
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_parcela);
     }
 
     /**
@@ -178,7 +178,7 @@ class ContratoBase extends Model
      */
     public function getValorAcumuolado()
     {
-        return $this->retornaCampoFormatadoComoNumero($this->contrato()->valor_acumulado);
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_acumulado);
     }
 
     /**
@@ -192,7 +192,7 @@ class ContratoBase extends Model
         $situacoes[0] = 'Inativo';
         $situacoes[1] = 'Ativo';
 
-        return $situacoes[$this->contrato()->situacao];
+        return $situacoes[$this->contrato->situacao];
     }
 
     public function getReceitaDespesa()
@@ -206,23 +206,18 @@ class ContratoBase extends Model
 
     public function getSubcategoria()
     {
-        return $this->contrato()->orgaosubcategoria()->descricao;
-    }
-
-    public function getSubCategoria()
-    {
-        return $this->getSubcategoria();
+        return $this->contrato->orgaosubcategoria->descricao;
     }
 
     public function getTotalDespesasAcessorias()
     {
-        return $this->retornaCampoFormatadoComoNumero($this->contrato()->total_despesas_acessorias);
+        return $this->retornaCampoFormatadoComoNumero($this->contrato->total_despesas_acessorias);
     }
 
     public function getOrgao()
     {
-        $orgaoCodigo = $this->contrato()->unidade()->orgao()->codigo;
-        $orgaodNome = $this->contrato()->unidade()->orgao()->nome;
+        $orgaoCodigo = $this->contrato->unidade->orgao->codigo;
+        $orgaodNome = $this->contrato->unidade->orgao->nome;
 
         return $orgaoCodigo . ' - ' . $orgaodNome;
     }
