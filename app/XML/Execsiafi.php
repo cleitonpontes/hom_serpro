@@ -269,6 +269,34 @@ class Execsiafi
 
     }
 
+    public function consultaDh(
+        BackpackUser $user,
+        string $ug_user,
+        string $amb,
+        string $ano,
+        $sfpadrao
+    ) {
+
+        $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
+        $senha = '';
+        if ($user->senhasiafi) {
+            $senha = base64_decode($user->senhasiafi);
+        } else {
+            \Alert::error('Cadastre sua Senha SIAFI em "Meus Dados"!')->flash();
+        }
+
+        $client = $this->conexao_xml($cpf, $senha, $ug_user, $sfpadrao->id, $amb, $ano, 'CPR');
+
+        $parms = $this->montaXmlcprDHDetalhar($sfpadrao);
+
+        $retorno = $this->submit($client, $parms, 'CONDH');
+
+//        return $this->trataretorno($retorno);
+
+        return $retorno;
+
+    }
+
     public function apropriaNovoDh(
         BackpackUser $user,
         string $ug_user,
@@ -344,6 +372,19 @@ class Execsiafi
             'txtMotivo' => $sfPadrao->txtmotivo,
             'pco' => $this->montaPco($sfPadrao->id),
             'centroCusto' => $this->montaCentroCusto($sfPadrao->id),
+        ];
+
+        return $parms;
+    }
+
+    private function montaXmlcprDHDetalhar($sfPadrao)
+    {
+        $parms = new \stdClass;
+        $parms->cprDHDetalharEntrada = [
+            'codUgEmit' => $sfPadrao->codugemit,
+            'anoDH' => $sfPadrao->anodh,
+            'codTipoDH' => $sfPadrao->codtipodh,
+            'numDH' => $sfPadrao->numdh,
         ];
 
         return $parms;
