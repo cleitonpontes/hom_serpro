@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Contratosfpadrao;
+use App\XML\ChainOfResponsabilities\DadosBasicos;
 use App\XML\Execsiafi;
 
 class ContratosfpadraoObserver
@@ -18,6 +19,9 @@ class ContratosfpadraoObserver
         $xml = new Execsiafi();
         $retorno = $xml->consultaDh(backpack_user(), session()->get('user_ug'), 'HOM', $contratosfpadrao->anodh,
             $contratosfpadrao);
+        $arrayXml = [];
+        $processamento = new DadosBasicos();
+        $processamento->manipulador($retorno,$arrayXml);
 
         dd($retorno);
     }
