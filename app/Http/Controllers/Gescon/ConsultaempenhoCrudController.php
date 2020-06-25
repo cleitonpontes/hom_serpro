@@ -50,6 +50,7 @@ class ConsultaempenhoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         // $this->crud->removeAllButtons();
 
+        $this->crud->addClause('select', 'contratoempenhos.*');
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratoempenhos.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
