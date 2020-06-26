@@ -78,6 +78,18 @@
             </a>
             <ul class="treeview-menu">
                 <li>
+                    <a href="{{ backpack_url('/gescon/consulta/cronogramas') }}">
+                        <i class="fa fa-calendar"></i>
+                        <span>Cronogramas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ backpack_url('/gescon/consulta/empenhos') }}">
+                        <i class="fa fa-money"></i>
+                        <span>Empenhos</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ backpack_url('/gescon/consulta/faturas') }}">
                         <i class="fa fa-list-ul"></i>
                         <span>Faturas</span>
@@ -90,15 +102,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ backpack_url('/gescon/consulta/cronogramas') }}">
-                        <i class="fa fa-calendar"></i>
-                        <span>Cronogramas</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/empenhos') }}">
-                        <i class="fa fa-money"></i>
-                        <span>Empenhos X Contratos</span>
+                    <a href="{{ backpack_url('/gescon/consulta/responsaveis') }}">
+                        <i class="fa fa-users"></i>
+                        <span>Responsáveis</span>
                     </a>
                 </li>
             </ul>
