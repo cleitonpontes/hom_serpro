@@ -15,6 +15,13 @@ class ContratoBase extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Determina o relacionamento com a Model Contrato
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
@@ -26,18 +33,15 @@ class ContratoBase extends Model
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Alias para $this->getContratoNumero()
+     *
+     * @return number
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getContrato()
     {
-        return $this->getContrato();
-
-        /*
-        if ($this->contrato_id) {
-            $contrato = Contrato::find($this->contrato_id);
-            return $contrato->numero;
-        } else {
-            return '';
-        }
-        */
+        return $this->getContratoNumero();
     }
 
     /**
@@ -65,6 +69,12 @@ class ContratoBase extends Model
         return $fornecedorCpfCnpj . ' - ' . $fornecedorNome;
     }
 
+    /**
+     * Retorna a Unidade, exibindo código e nome resumido da mesma
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getUnidade()
     {
         $unidadeCodigo = $this->contrato->unidade->codigo;
@@ -73,16 +83,34 @@ class ContratoBase extends Model
         return $unidadeCodigo . ' - ' . $unidadeNome;
     }
 
+    /**
+     * Retorna descrição do Tipo do Contrato
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getTipo()
     {
-        return $this->contrato->tipodescricao;
+        return $this->contrato->tipo->descricao;
     }
 
+    /**
+     * Retorna descrição da Categoria do Contrato
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getCategoria()
     {
         return $this->contrato->categoria->descricao;
     }
 
+    /**
+     * Retorna a descrição da Modalidade do Contrato
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getModalidade()
     {
         return $this->contrato->modalidade->descricao;
@@ -182,7 +210,7 @@ class ContratoBase extends Model
      * @return string
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function getValorAcumuolado()
+    public function getValorAcumulado()
     {
         return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_acumulado);
     }
@@ -190,7 +218,7 @@ class ContratoBase extends Model
     /**
      * Retorna a situação do contrato
      *
-     * @return mixed
+     * @return string
      * @author Anderson Sathler <asathler@gmail.com>
      */
     public function getSituacao()
@@ -201,6 +229,12 @@ class ContratoBase extends Model
         return $situacoes[$this->contrato->situacao];
     }
 
+    /**
+     * Retorna se é Receita ou Despesa
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getReceitaDespesa()
     {
         $retorno['D'] = 'Despesa';
@@ -210,16 +244,34 @@ class ContratoBase extends Model
         return $retorno[$this->receita_despesa];
     }
 
+    /**
+     * Retorna a descrição da Subcategoria do Contrato
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getSubcategoria()
     {
         return $this->contrato->orgaosubcategoria->descricao;
     }
 
+    /**
+     * Retorna o Total de Despesas Acessórias do Contrato
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getTotalDespesasAcessorias()
     {
         return $this->retornaCampoFormatadoComoNumero($this->contrato->total_despesas_acessorias);
     }
 
+    /**
+     * Retorna o Órgão, exibindo código e nome do mesmo
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
     public function getOrgao()
     {
         $orgaoCodigo = $this->contrato->unidade->orgao->codigo;

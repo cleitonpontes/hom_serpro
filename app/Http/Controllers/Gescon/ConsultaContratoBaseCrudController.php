@@ -40,7 +40,26 @@ class ConsultaContratoBaseCrudController extends CrudController
 
         $this->crud->addFields($this->retornaContratoCampos());
         $this->crud->enableExportButtons();
+
+        $this->aplicaFiltrosEspecificos();
+        $this->adicionaColunasEspecificasNaListagem();
     }
+
+    /**
+     * Adiciona filtros específicos a serem apresentados
+     * Método a ser sobrescrito na classe filha!
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function aplicaFiltrosEspecificos() {}
+
+    /**
+     * Adiciona as colunas específicas a serem exibidas bem como suas definições
+     * Método a ser sobrescrito na classe filha!
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunasEspecificasNaListagem() {}
 
     /**
      * Retorna o id do contrato, conforme parâmetro da requisição
@@ -265,7 +284,12 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratos.numero',
+                    'ilike', '%' . $searchTerm . '%'
+                );
+            }
         ]);
     }
 
@@ -278,7 +302,6 @@ class ConsultaContratoBaseCrudController extends CrudController
     private function adicionaColunaFornecedor()
     {
         $this->crud->addColumn([
-            // Método getFornecedor deve estar presente em \App\Models\Contrato
             'name' => 'getFornecedor',
             'label' => 'Fornecedor',
             'type' => 'model_function',
