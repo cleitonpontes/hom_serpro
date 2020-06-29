@@ -96,6 +96,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ backpack_url('/gescon/consulta/garantias') }}">
+                        <i class="fa fa-list-ul"></i>
+                        <span>Garantias</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ backpack_url('/gescon/consulta/ocorrencias') }}">
                         <i class="fa fa-check-square-o"></i>
                         <span>Ocorrências</span>
