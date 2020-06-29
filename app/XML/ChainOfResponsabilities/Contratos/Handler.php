@@ -2,7 +2,7 @@
 
 
 namespace App\XML\ChainOfResponsabilities\Contratos;
-
+use DOMDocument;
 
 abstract class Handler
 {
@@ -13,6 +13,13 @@ abstract class Handler
         $this->successor = $handler;
     }
 
+    /**
+     * Função recursiva para atribuir a responsabilidade de processar os dados em cadeia
+     * @param  string $xml
+     * @param array $dados
+     * @return array
+     * @author Franklin J. G. Silva
+     */
     final public function manipulador(string $xml,array $dados): ?array
     {
         $processed = $this->processing($xml,$dados);
@@ -24,6 +31,7 @@ abstract class Handler
 
         return $processed;
     }
+
 
     abstract protected function processing(string $xml,array $dados): ?array;
 }

@@ -19,7 +19,7 @@ class ContratosfpadraoObserver
         $xml = new Execsiafi();
         $retorno = $xml->consultaDh(backpack_user(), session()->get('user_ug'), 'HOM', $contratosfpadrao->anodh,
             $contratosfpadrao);
-        $arrayXml = [];
+        $arrayXml = ['sfpadrao_id' => '0'];
         $processamento = new DadosBasicos();
         $processamento->manipulador($retorno,$arrayXml);
 
