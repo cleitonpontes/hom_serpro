@@ -35,7 +35,7 @@ class ProcessaXmlSiafi extends Handler
 
 //        processa nó pcoItem
         $arrayXml = ['sfpco_id' => $modSfPco->id];
-        $modSfPcoItem = $this->processaTabelaSfDocOrigem($xmlSiafi,$arrayXml);
+        $modSfPcoItem = $this->processaTabelaPcoItem($xmlSiafi,$arrayXml);
         dd($modSfPcoItem);
     }
 
@@ -52,7 +52,6 @@ class ProcessaXmlSiafi extends Handler
         $tagName = 'docOrigem';
         $modSfDocOrigem = new SfDocOrigem();
         $modSfDocOrigem = $this->manipulador($tagName,$xmlSiafi,$arrayXml,$modSfDocOrigem);
-//        dd($modSfDocOrigem);
         return $modSfDocOrigem;
     }
 

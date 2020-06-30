@@ -43,7 +43,7 @@ abstract class Handler
             $no = $doc->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
             ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : '';
         }
-        dump($params);
+
         $modDadosBasicos = $model->newInstance($params);
         $modDadosBasicos->save($params);
         return $modDadosBasicos;
