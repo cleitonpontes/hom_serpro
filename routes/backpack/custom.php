@@ -156,6 +156,7 @@ Route::group([
                 CRUD::resource('cronogramas', 'ConsultacronogramaCrudController');
                 CRUD::resource('empenhos', 'ConsultaempenhoCrudController');
                 CRUD::resource('faturas', 'ConsultafaturaCrudController');
+                CRUD::resource('garantias', 'ConsultagarantiaCrudController');
                 CRUD::resource('ocorrencias', 'ConsultaocorrenciaCrudController');
                 CRUD::resource('responsaveis', 'ConsultaresponsavelCrudController');
             });
