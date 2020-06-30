@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+// use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratoterceirizado extends Model
+class Contratoterceirizado extends ContratoBase
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'terceirizado';
-    use SoftDeletes;
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -21,9 +23,6 @@ class Contratoterceirizado extends Model
     */
 
     protected $table = 'contratoterceirizados';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
         'cpf',
@@ -39,14 +38,13 @@ class Contratoterceirizado extends Model
         'data_fim',
         'situacao'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function inserirContratoterceirizadoMigracaoConta(array $dados)
     {
         $this->fill($dados);
@@ -102,11 +100,13 @@ class Contratoterceirizado extends Model
         $cpf = '***' . substr($this->cpf,3,9).'**';
         return $cpf;
     }
+
     public function getNome()
     {
         $nome = $this->nome;
         return $nome;
     }
+
     public function getEscolaridade()
     {
         if($this->escolaridade_id){
@@ -116,19 +116,23 @@ class Contratoterceirizado extends Model
             return '';
         }
     }
+
     public function formatVlrSalario()
     {
         return 'R$ '.number_format($this->salario, 2, ',', '.');
     }
+
     public function formatVlrCusto()
     {
         return 'R$ '.number_format($this->custo, 2, ',', '.');
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
@@ -143,6 +147,7 @@ class Contratoterceirizado extends Model
     {
         return $this->belongsTo(Codigoitem::class, 'escolaridade_id');
     }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -160,4 +165,5 @@ class Contratoterceirizado extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }
