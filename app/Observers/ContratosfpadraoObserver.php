@@ -4,7 +4,7 @@ namespace App\Observers;
 
 use App\Models\Contratosfpadrao;
 use App\Models\SfDadosBasicos;
-use App\XML\ChainOfResponsabilities\DadosBasicos;
+use App\XML\ChainOfResponsabilities\ProcessaXmlSiafi;
 use App\XML\Execsiafi;
 use Illuminate\Support\Facades\DB;
 
@@ -19,18 +19,10 @@ class ContratosfpadraoObserver
     public function created(Contratosfpadrao $contratosfpadrao)
     {
         $xml = new Execsiafi();
-        $retorno = $xml->consultaDh(backpack_user(), session()->get('user_ug'), 'HOM', $contratosfpadrao->anodh,$contratosfpadrao);
+        $xmlSiafi = $xml->consultaDh(backpack_user(), session()->get('user_ug'), 'HOM', $contratosfpadrao->anodh,$contratosfpadrao);
 
-
-        //processa dados básicos
-        $arrayXml = ['sfpadrao_id' => $contratosfpadrao->id];
-        $processamento = new DadosBasicos();
-        $modSfDadosBasicos = $processamento->manipulador($retorno,$arrayXml);
-
-        dd($modSfDadosBasicos->id);
-
-
-
+        $processamento =  new ProcessaXmlSiafi();
+        $processamento->process($xmlSiafi,$contratosfpadrao);
 
         DB::beginTransaction();
         try {
