@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\BackpackUser;
 use App\Models\Codigo;
 use App\Models\Codigoitem;
-use App\Models\Contratoresponsavel;
+use App\Models\Contratohistorico;
 use App\Models\Instalacao;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
  * @property-read CrudPanel $crud
  * @author Anderson Sathler <asathler@gmail.com>
  */
-class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudController
+class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
 {
     /**
      * Configurações iniciais do Backpack
@@ -31,13 +31,13 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->setModel('App\Models\Contratoresponsavel');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/consulta/responsaveis');
-        $this->crud->setEntityNameStrings('Responsável', 'Responsáveis');
-        $this->crud->setHeading('Consulta Responsáveis por Contrato');
+        $this->crud->setModel('App\Models\Contratohistorico');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/consulta/historicos');
+        $this->crud->setEntityNameStrings('Histórico', 'Históricos');
+        $this->crud->setHeading('Consulta Históricos por Contrato');
 
         $this->crud->addClause('leftJoin', 'contratos',
-            'contratos.id', '=', 'contratoresponsaveis.contrato_id'
+            'contratos.id', '=', 'contratohistorico.contrato_id'
         );
         $this->crud->addClause('leftJoin', 'fornecedores',
             'fornecedores.id', '=', 'contratos.fornecedor_id'
@@ -46,7 +46,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'contratos.*',
             'fornecedores.*',
             // Tabela principal deve ser sempre a última da listagem!
-            'contratoresponsaveis.*'
+            'contratohistorico.*'
         ]);
 
         // Apenas ocorrências da unidade atual
@@ -74,11 +74,13 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
 
         $this->crud->removeColumns([
             'contrato_id',
+            /*
             'user_id',
             'funcao_id',
             'instalacao_id',
             'data_inicio',
             'data_fim'
+            */
         ]);
 
         return $content;
@@ -91,10 +93,12 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
      */
     public function aplicaFiltrosEspecificos()
     {
+        /*
         $this->aplicaFiltroUsuario();
         $this->aplicaFiltroFuncao();
         $this->aplicaFiltroInstalacao();
         $this->aplicaFiltroPortaria();
+        */
     }
 
     /**
@@ -104,6 +108,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
      */
     public function adicionaColunasEspecificasNaListagem()
     {
+        /*
         $this->adicionaColunaUsuario();
         $this->adicionaColunaFuncao();
         $this->adicionaColunaInstalacao();
@@ -111,7 +116,46 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
         $this->adicionaColunaDataInicio();
         $this->adicionaColunaDataFim();
         $this->adicionaColunaSituacao();
+        */
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Adiciona o filtro ao campo Usuário
