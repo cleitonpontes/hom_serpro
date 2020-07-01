@@ -2,18 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
+
+// use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratohistorico extends Model
+class Contratohistorico extends ContratoBase
 {
     use CrudTrait;
     use LogsActivity;
+
+    // use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'contrato_historico';
-//    use SoftDeletes;
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -21,9 +24,6 @@ class Contratohistorico extends Model
     */
 
     protected $table = 'contratohistorico';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'numero',
         'contrato_id',
@@ -63,8 +63,6 @@ class Contratohistorico extends Model
         'unidades_requisitantes',
         'situacao',
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
@@ -83,8 +81,8 @@ class Contratohistorico extends Model
     public function getFornecedorHistorico()
     {
         $fornecedor = Fornecedor::find($this->fornecedor_id);
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
 
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
     }
 
     public function getReceitaDespesaHistorico()
@@ -102,8 +100,8 @@ class Contratohistorico extends Model
     public function getUnidadeHistorico()
     {
         $unidade = Unidade::find($this->unidade_id);
-        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
 
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
     }
 
     public function getOrgaoHistorico()
@@ -113,7 +111,6 @@ class Contratohistorico extends Model
         })->first();
 
         return $orgao->codigo . ' - ' . $orgao->nome;
-
     }
 
     public function getTipoHistorico()
@@ -125,8 +122,6 @@ class Contratohistorico extends Model
         } else {
             return '';
         }
-
-
     }
 
 
@@ -143,10 +138,10 @@ class Contratohistorico extends Model
 
     public function getSubCategoriaHistorico()
     {
-        if($this->subcategoria_id){
+        if ($this->subcategoria_id) {
             $subcategoria = OrgaoSubcategoria::find($this->subcategoria_id);
             return $subcategoria->descricao;
-        }else{
+        } else {
             return '';
         }
     }
@@ -161,7 +156,6 @@ class Contratohistorico extends Model
         return 'R$ ' . number_format($this->valor_global, 2, ',', '.');
     }
 
-
     public function formatNovoVlrParcelaHistorico()
     {
         return 'R$ ' . number_format($this->novo_valor_parcela, 2, ',', '.');
@@ -174,7 +168,7 @@ class Contratohistorico extends Model
 
     public function formatVlrRetroativoValor()
     {
-        if($this->retroativo_valor){
+        if ($this->retroativo_valor) {
             return 'R$ ' . number_format($this->retroativo_valor, 2, ',', '.');
         }
         return '';
@@ -195,35 +189,33 @@ class Contratohistorico extends Model
 
         $contratohistorico->fill($dado);
         $contratohistorico->save();
-        return $contratohistorico;
 
+        return $contratohistorico;
     }
 
     public function getRetroativoMesAnoReferenciaDe()
     {
-        if($this->retroativo_mesref_de and $this->retroativo_anoref_de){
+        if ($this->retroativo_mesref_de and $this->retroativo_anoref_de) {
             return $this->retroativo_mesref_de . '/' . $this->retroativo_anoref_de;
         }
 
         return '';
-
     }
 
     public function getRetroativoMesAnoReferenciaAte()
     {
-        if($this->retroativo_mesref_ate and $this->retroativo_anoref_ate){
+        if ($this->retroativo_mesref_ate and $this->retroativo_anoref_ate) {
             return $this->retroativo_mesref_ate . '/' . $this->retroativo_anoref_ate;
         }
 
         return '';
-
     }
 
     public function getFornecedor()
     {
         $fornecedor = Fornecedor::find($this->fornecedor_id);
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
 
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
     }
 
     public function getReceitaDespesa()
@@ -241,8 +233,8 @@ class Contratohistorico extends Model
     public function getUnidade()
     {
         $unidade = Unidade::find($this->unidade_id);
-        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
 
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
     }
 
     public function getOrgao()
@@ -252,7 +244,6 @@ class Contratohistorico extends Model
         })->first();
 
         return $orgao->codigo . ' - ' . $orgao->nome;
-
     }
 
     public function getTipo()
@@ -264,8 +255,6 @@ class Contratohistorico extends Model
         } else {
             return '';
         }
-
-
     }
 
     public function getModalidade()
@@ -277,10 +266,7 @@ class Contratohistorico extends Model
         } else {
             return '';
         }
-
-
     }
-
 
     public function getCategoria()
     {
@@ -291,16 +277,14 @@ class Contratohistorico extends Model
         } else {
             return '';
         }
-
-
     }
 
     public function getSubCategoria()
     {
-        if($this->subcategoria_id){
+        if ($this->subcategoria_id) {
             $subcategoria = OrgaoSubcategoria::find($this->subcategoria_id);
             return $subcategoria->descricao;
-        }else{
+        } else {
             return '';
         }
     }
@@ -314,7 +298,6 @@ class Contratohistorico extends Model
     {
         return 'R$ ' . number_format($this->valor_global, 2, ',', '.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -383,4 +366,5 @@ class Contratohistorico extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }
