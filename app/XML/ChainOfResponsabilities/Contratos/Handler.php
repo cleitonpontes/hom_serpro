@@ -5,6 +5,7 @@ namespace App\XML\ChainOfResponsabilities\Contratos;
 use App\Models\Contratosfpadrao;
 use DOMDocument;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\SfDadosBasicos;
 
 abstract class Handler
 {
@@ -36,19 +37,51 @@ abstract class Handler
     final public function processing(string $tagName,string $xml, array $params,Model $model): ?object
     {
         $doc = new DOMDocument('1.0', 'utf-8');
+        $doc->loadXML($xml);
+        $nomeNo = $doc->getElementsByTagName($tagName)->item(0)->nodeName;
+
+        if ($nomeNo == 'deducao' || $nomeNo == 'encargos' || $nomeNo == 'dadosPgto') {
+            $nomeModel = 'App\Models\Sf' . ucfirst($doc->getElementsByTagName($tagName)->item(0)->nodeName);
+        }else{
+            $nomeModel = 'App\Models\Sf' . ucfirst($doc->getElementsByTagName($tagName)->item(0)->nodeName);
+        }
+        $model = new $nomeModel;
+        $documentoHabil = $doc->getElementsByTagName($tagName)->item(0)->childNodes;
+
+        foreach($documentoHabil as $value => $item){
+
+            $no = $doc->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
+            ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : '';
+        }
+        $model = $model->newInstance($params);
+        $model->save($params);
+//        foreach($documentoHabil as $value => $item){
+//            $no = $doc->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
+//            ($no > 1) ? $this->processing($item->nodeName,$xml,$params,$model) : '';
+//        }
+//        dd($model);
+//        return $modDadosBasicos;
+        return $model;
+
+    }
+
+    final public function processaXml(string $tagName,string $xml, array $params,Model $model): ?object
+    {
+        $doc = new DOMDocument('1.0', 'utf-8');
         $doc->loadXML( $xml );
         $documentoHabil = $doc->getElementsByTagName($tagName)->item(0)->childNodes;
 
         foreach($documentoHabil as $value => $item){
             $no = $doc->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
-            ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : '';
+            ($no > 1) ? $this->processing($item->nodeName,$xml,$params,$model) : '';
         }
-
-        $modDadosBasicos = $model->newInstance($params);
-        $modDadosBasicos->save($params);
+        dd($params);
+//        $modDadosBasicos = $model->newInstance($params);
+//        $modDadosBasicos->save($params);
         return $modDadosBasicos;
 
     }
 
     abstract protected function process(string $xml,Contratosfpadrao $contratosfpadrao): ?object;
+
 }

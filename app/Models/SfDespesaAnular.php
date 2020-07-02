@@ -40,7 +40,7 @@ class SfDespesaAnular extends Model
 
     /**
      * Retorna dados para o relatório de apropriação - Despesas a anular
-     * 
+     *
      * @param number $apid
      * @return arrary
      */
@@ -67,7 +67,7 @@ class SfDespesaAnular extends Model
 
     /**
      * Retorna estrutura de dados para consultas posteriores
-     * 
+     *
      * @param number $apid
      * @return array
      */
@@ -85,5 +85,10 @@ class SfDespesaAnular extends Model
         $dados->orderBy('I.numseqitem');
 
         return $dados;
+    }
+
+    public function sfpadrao()
+    {
+        return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
     }
 }

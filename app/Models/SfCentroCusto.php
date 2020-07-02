@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Sfcentrocusto extends Model
+class SfCentroCusto extends Model
 {
     public $timestamps = false;
 

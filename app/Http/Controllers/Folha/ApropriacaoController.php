@@ -14,7 +14,7 @@ use App\Models\Apropriacao;
 use App\Models\Apropriacaofases;
 use App\Models\Apropriacaoimportacao;
 use App\Models\Execsfsituacao;
-use App\Models\Sfcentrocusto;
+use App\Models\SfCentroCusto;
 use App\Models\SfDadosBasicos;
 use App\Models\SfDocOrigem;
 use App\Models\SfPadrao;
@@ -482,7 +482,7 @@ class ApropriacaoController extends BaseController
                             'codugbenef' => $apropriacao->ug,
                         ];
 
-                        $ncentrocusto = new Sfcentrocusto();
+                        $ncentrocusto = new SfCentroCusto();
                         $ncentrocusto->fill($arraycentrocustos);
                         $ncentrocusto->save();
 
@@ -538,7 +538,7 @@ class ApropriacaoController extends BaseController
                             'codugbenef' => $apropriacao->ug,
                         ];
 
-                        $ncentrocusto = new Sfcentrocusto();
+                        $ncentrocusto = new SfCentroCusto();
                         $ncentrocusto->fill($arraycentrocustos);
                         $ncentrocusto->save();
 
