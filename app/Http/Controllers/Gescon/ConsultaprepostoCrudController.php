@@ -8,6 +8,8 @@ use App\Models\Codigoitem;
 use App\Models\Contratoresponsavel;
 use App\Models\Instalacao;
 use Backpack\CRUD\CrudPanel;
+use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -19,9 +21,163 @@ use Illuminate\Support\Facades\DB;
 class ConsultaprepostoCrudController extends ConsultaContratoBaseCrudController
 {
     /**
+     * Adiciona as colunas específicas a serem exibidas bem como suas definições
+     *
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    public function adicionaColunasEspecificasNaListagem()
+    {
+        $this->adicionaColunaNome();
+        $this->adicionaColunaEmail();
+        $this->adicionaColunaTelefone();
+        $this->adicionaColunaCelular();
+        $this->adicionaColunaDocumento();
+        $this->adicionaColunaInfComplementar();
+        $this->adicionaColunaDataInicio();
+        $this->adicionaColunaDataFim();
+        $this->adicionaColunaSituacao();
+
+    }
+
+    private function adicionaColunaNome()
+    {
+        $this->crud->addColumn([
+            'name' => 'nome',
+            'label' => 'Preposto',
+            'type' => 'text',
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratopreposto.nome', 'ilike', "%$searchTerm%");
+            },
+
+        ]);
+    }
+
+    private function adicionaColunaEmail()
+    {
+        $this->crud->addColumn([
+            'name' => 'email',
+            'label' => 'E-mail',
+            'type' => 'email',
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaTelefone()
+    {
+        $this->crud->addColumn([
+            'name' => 'telefonefixo',
+            'label' => 'Telefone Fixo',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaCelular()
+    {
+        $this->crud->addColumn([
+            'name' => 'celular',
+            'label' => 'Celular',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaDocumento()
+    {
+        $this->crud->addColumn([
+            'name' => 'doc_formalizacao',
+            'label' => 'Doc. Formalização',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaInfComplementar()
+    {
+        $this->crud->addColumn([
+            'name' => 'informacao_complementar',
+            'label' => 'Inform. Complementar',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaDataInicio()
+    {
+        $this->crud->addColumn([
+            'name' => 'data_inicio',
+            'label' => 'Data Início',
+            'type' => 'date',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaDataFim()
+    {
+        $this->crud->addColumn([
+            'name' => 'data_fim',
+            'label' => 'Data Fim',
+            'type' => 'date',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaSituacao()
+    {
+        $this->crud->addColumn([
+            'name' => 'situacao',
+            'label' => 'Situação',
+            'type' => 'boolean',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            // optionally override the Yes/No texts
+            'options' => [0 => 'Inativo', 1 => 'Ativo']
+        ]);
+    }
+
+    /**
+     * Adiciona filtros específicos a serem apresentados
+     *
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    public function aplicaFiltrosEspecificos()
+    {
+    }
+
+    /**
      * Configurações iniciais do Backpack
      *
-     * @throws \Exception
+     * @throws Exception
      * @author Saulo Soares <saulosao@gmail.com>
      */
     public function setup()
@@ -47,7 +203,7 @@ class ConsultaprepostoCrudController extends ConsultaContratoBaseCrudController
             'contratos.*',
             'fornecedores.*',
             // Tabela principal deve ser sempre a última da listagem!
-            'contratopreposto.*'
+            'contratopreposto.*',
         ]);
 
         // Apenas ocorrências da unidade atual
@@ -73,46 +229,9 @@ class ConsultaprepostoCrudController extends ConsultaContratoBaseCrudController
     {
         $content = parent::show($id);
 
-        $this->crud->removeColumns([
-            'contrato_id',
-            'user_id',
-            'funcao_id',
-            'instalacao_id',
-            'data_inicio',
-            'data_fim'
-        ]);
+        $this->crud->removeColumns([]);
 
         return $content;
     }
-
-    /**
-     * Adiciona as colunas específicas a serem exibidas bem como suas definições
-     *
-     * @author Saulo Soares <saulosao@gmail.com>
-     */
-    public function adicionaColunasEspecificasNaListagem()
-    {
-        $this->adicionaColunaNome();
-
-    }
-
-    private function adicionaColunaNome()
-    {
-        $this->crud->addColumn([
-            'name' => 'nome',
-            'label' => 'Nome',
-            'type' => 'text',
-        ]);
-    }
-
-    /**
-     * Adiciona filtros específicos a serem apresentados
-     *
-     * @author Saulo Soares <saulosao@gmail.com>
-     */
-    public function aplicaFiltrosEspecificos()
-    {
-    }
-
 
 }
