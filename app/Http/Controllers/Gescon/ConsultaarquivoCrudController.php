@@ -8,6 +8,7 @@ use App\Models\Codigoitem;
 use App\Models\Contratoresponsavel;
 use App\Models\Contratoarquivo;
 use App\Models\Instalacao;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Backpack\CRUD\CrudPanel;
 
@@ -44,9 +45,13 @@ class ConsultaarquivoCrudController extends ConsultaContratoBaseCrudController
         $this->crud->addClause('leftJoin', 'fornecedores',
             'fornecedores.id', '=', 'contratos.fornecedor_id'
         );
+        $this->crud->addClause('join', 'codigoitens',
+            'codigoitens.id', '=', 'contrato_arquivos.tipo'
+        );
         $this->crud->addClause('select', [
             'contratos.*',
             'fornecedores.*',
+            'codigoitens.descricao as tipoArquivo',
             // Tabela principal deve ser sempre a última da listagem!
             'contrato_arquivos.*'
         ]);
@@ -75,13 +80,8 @@ class ConsultaarquivoCrudController extends ConsultaContratoBaseCrudController
         $content = parent::show($id);
 
         $this->crud->removeColumns([
-            'name',
-            'user_id',
-            'funcao_id',
-            'instalacao_id',
-            'data_inicio',
-            'arquivos',
-            'data_fim'
+            'contrato_id',
+            'tipo',
         ]);
 
         return $content;
@@ -95,6 +95,10 @@ class ConsultaarquivoCrudController extends ConsultaContratoBaseCrudController
     public function adicionaColunasEspecificasNaListagem()
     {
         $this->adicionaColunaTipo();
+        $this->adicionaColunaProcesso();
+        $this->adicionaColunaSei();
+        $this->adicionaColunaDescricao();
+        $this->adicionaColunaArquivo();
     }
 
     /**
@@ -115,15 +119,18 @@ class ConsultaarquivoCrudController extends ConsultaContratoBaseCrudController
     private function adicionaColunaTipo()
     {
         $this->crud->addColumn([
-            'name' => 'getTipo',
-            'label' => 'Tipo', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getTipo', // the method in your Model
+            'name' => 'tipoArquivo',
+            'label' => 'Tipo',
+            'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contrato_arquivos.tipo', 'like', "%$searchTerm%");
+                    $query->orWhere('codigoitens.descricao', 'like', "%$searchTerm%");
+                },
         ]);
     }
 
@@ -132,15 +139,75 @@ class ConsultaarquivoCrudController extends ConsultaContratoBaseCrudController
         $this->crud->addColumn([
             'name' => 'arquivos',
             'label' => 'Arquivos',
-            'type' => 'upload_multiple',
+            'type' => 'arquivos_ico',
             'disk' => 'local',
             'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaProcesso()
+    {
+        $this->crud->addColumn([
+            'name' => 'contrato.processo',
+            'label' => 'Processo',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
-            // optionally override the Yes/No texts
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratos.processo',
+                    'ilike', '%' . $searchTerm . '%'
+                );
+            }
+
+            //                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('orgaossuperiores.codigo', 'like', "%$searchTerm%");
+//                    $query->orWhere('orgaossuperiores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+//                },
+
+        ]);
+    }
+
+    private function adicionaColunaSei()
+    {
+        $this->crud->addColumn([   // Number
+            'name' => 'sequencial_documento',
+            'label' => 'Nº SEI / Chave Acesso Sapiens',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    private function adicionaColunaDescricao()
+    {
+        $this->crud->addColumn([   // Number
+            'name' => 'descricao',
+            'label' => 'Descrição',
+            'type' => 'text',
+            'limit' => 1000,
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contrato_arquivos.descricao',
+                    'ilike', '%' . $searchTerm . '%'
+                );
+            }
         ]);
     }
 
 }
+
+
