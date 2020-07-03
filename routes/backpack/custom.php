@@ -136,6 +136,8 @@ Route::group([
             CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
 
+            Route::get('/apisiasg', 'ContratoCrudController@apisiasg');
+
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
