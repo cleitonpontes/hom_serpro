@@ -1024,9 +1024,9 @@ class ContratoCrudController extends CrudController
     {
         $apiSiasg = new ApiSiasg;
 
-        $tipo_consulta = 'Compra';
+//        $tipo_consulta = 'Compra';
 //        $tipo_consulta = 'ContratoSisg';
-//        $tipo_consulta = 'ContratoNaoSisg';
+        $tipo_consulta = 'ContratoNaoSisg';
 
         $dado_compra = [
             'ano' => '2018',
@@ -1035,7 +1035,15 @@ class ContratoCrudController extends CrudController
             'uasg' => '201057'
         ];
 
-        $dados = json_decode($apiSiasg->executaConsulta($tipo_consulta,$dado_compra));
+        $dado_contrato_sisg = [
+            'id_contrato' => '24012307000062018'
+        ];
+
+        $dado_contrato_sisg = [
+            'id_contrato' => '090003000000000050000272018'
+        ];
+
+        $dados = json_decode($apiSiasg->executaConsulta($tipo_consulta,$dado_contrato_sisg));
 
         dd($dados);
 
