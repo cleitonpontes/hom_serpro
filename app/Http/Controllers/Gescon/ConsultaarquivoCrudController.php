@@ -5,11 +5,9 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\BackpackUser;
 use App\Models\Codigo;
 use App\Models\Codigoitem;
-use App\Models\Contratoresponsavel;
 use App\Models\Contratoarquivo;
-use App\Models\Instalacao;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Backpack\CRUD\CrudPanel;
 
 /**
@@ -21,9 +19,166 @@ use Backpack\CRUD\CrudPanel;
 class ConsultaarquivoCrudController extends ConsultaContratoBaseCrudController
 {
     /**
+     * Adiciona as colunas específicas a serem exibidas bem como suas definições
+     *
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    public function adicionaColunasEspecificasNaListagem()
+    {
+        $this->adicionaColunaTipo();
+        $this->adicionaColunaProcesso();
+        $this->adicionaColunaSei();
+        $this->adicionaColunaDescricao();
+        $this->adicionaColunaArquivo();
+    }
+
+    /**
+     *Adiciona o campo Tipo na listagem
+     *
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    private function adicionaColunaTipo()
+    {
+        $this->crud->addColumn([
+            'name' => 'tipoArquivo',
+            'label' => 'Tipo',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contrato_arquivos.tipo', 'ilike', "%$searchTerm%");
+                $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+            },
+        ]);
+    }
+
+    private function adicionaColunaProcesso()
+    {
+        $this->crud->addColumn([
+            'name' => 'contrato.processo',
+            'label' => 'Processo',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratos.processo',
+                    'ilike', '%' . $searchTerm . '%'
+                );
+            }
+        ]);
+    }
+
+    private function adicionaColunaSei()
+    {
+        $this->crud->addColumn([   // Number
+            'name' => 'sequencial_documento',
+            'label' => 'Nº SEI / Chave Acesso Sapiens',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    private function adicionaColunaDescricao()
+    {
+        $this->crud->addColumn([   // Number
+            'name' => 'descricao',
+            'label' => 'Descrição',
+            'type' => 'text',
+            'limit' => 1000,
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contrato_arquivos.descricao',
+                    'ilike', '%' . $searchTerm . '%'
+                );
+            }
+        ]);
+    }
+
+    private function adicionaColunaArquivo()
+    {
+        $this->crud->addColumn([
+            'name' => 'arquivos',
+            'label' => 'Arquivos',
+            'type' => 'arquivos_ico',
+            'disk' => 'local',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    /**
+     * Adiciona filtros específicos a serem apresentados
+     *
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    public function aplicaFiltrosEspecificos()
+    {
+        $this->aplicaFiltroTipo();
+    }
+
+    /**
+     * Adiciona o filtro ao campo Tipo
+     *
+     * @author Saulo Soares <saulosaso@gmail.com>
+     */
+    private function aplicaFiltroTipo()
+    {
+        $campo = [
+            'name' => 'tipo',
+            'type' => 'select2_multiple',
+            'label' => 'Tipo'
+        ];
+
+        $dados = $this->retornaTiposParaCombo();
+
+        $this->crud->addFilter(
+            $campo,
+            $dados,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'contrato_arquivos.tipo', json_decode($value));
+            }
+        );
+    }
+
+    /**
+     * Retorna array de  para combo de filtro
+     *
+     * @return array
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    private function retornaTiposParaCombo()
+    {
+        $dados = Codigoitem::select('descricao', 'id');
+
+        $dados->where('codigo_id', Codigo::CODIGO_TIPO_ARQUIVOS_CONTRATO);
+        $dados->orderBy('descricao');
+
+        return $dados->pluck('descricao', 'id')->toArray();
+
+    }
+
+    /**
      * Configurações iniciais do Backpack
      *
-     * @throws \Exception
+     * @throws Exception
      * @author Saulo Soares <saulosao@gmail.com>
      */
     public function setup()
@@ -82,130 +237,10 @@ class ConsultaarquivoCrudController extends ConsultaContratoBaseCrudController
         $this->crud->removeColumns([
             'contrato_id',
             'tipo',
+            'processo',
         ]);
 
         return $content;
-    }
-
-    /**
-     * Adiciona as colunas específicas a serem exibidas bem como suas definições
-     *
-     * @author Saulo Soares <saulosao@gmail.com>
-     */
-    public function adicionaColunasEspecificasNaListagem()
-    {
-        $this->adicionaColunaTipo();
-        $this->adicionaColunaProcesso();
-        $this->adicionaColunaSei();
-        $this->adicionaColunaDescricao();
-        $this->adicionaColunaArquivo();
-    }
-
-    /**
-     * Adiciona filtros específicos a serem apresentados
-     *
-     * @author Saulo Soares <saulosao@gmail.com>
-     */
-    public function aplicaFiltrosEspecificos()
-    {
-//        $this->aplicaFiltroTipo();
-    }
-
-    /**
-     *Adiciona o campo Tipo na listagem
-     *
-     * @author Saulo Soares <saulosao@gmail.com>
-     */
-    private function adicionaColunaTipo()
-    {
-        $this->crud->addColumn([
-            'name' => 'tipoArquivo',
-            'label' => 'Tipo',
-            'type' => 'text',
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('contrato_arquivos.tipo', 'like', "%$searchTerm%");
-                    $query->orWhere('codigoitens.descricao', 'like', "%$searchTerm%");
-                },
-        ]);
-    }
-
-    private function adicionaColunaArquivo()
-    {
-        $this->crud->addColumn([
-            'name' => 'arquivos',
-            'label' => 'Arquivos',
-            'type' => 'arquivos_ico',
-            'disk' => 'local',
-            'orderable' => true,
-            'visibleInTable' => false,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true,
-        ]);
-    }
-
-    private function adicionaColunaProcesso()
-    {
-        $this->crud->addColumn([
-            'name' => 'contrato.processo',
-            'label' => 'Processo',
-            'type' => 'text',
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-            'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                $query->orWhere('contratos.processo',
-                    'ilike', '%' . $searchTerm . '%'
-                );
-            }
-
-            //                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('orgaossuperiores.codigo', 'like', "%$searchTerm%");
-//                    $query->orWhere('orgaossuperiores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-//                },
-
-        ]);
-    }
-
-    private function adicionaColunaSei()
-    {
-        $this->crud->addColumn([   // Number
-            'name' => 'sequencial_documento',
-            'label' => 'Nº SEI / Chave Acesso Sapiens',
-            'type' => 'text',
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ]);
-    }
-
-    private function adicionaColunaDescricao()
-    {
-        $this->crud->addColumn([   // Number
-            'name' => 'descricao',
-            'label' => 'Descrição',
-            'type' => 'text',
-            'limit' => 1000,
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true,
-            'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                $query->orWhere('contrato_arquivos.descricao',
-                    'ilike', '%' . $searchTerm . '%'
-                );
-            }
-        ]);
     }
 
 }
