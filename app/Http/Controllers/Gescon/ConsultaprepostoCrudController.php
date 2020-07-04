@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\BackpackUser;
 use App\Models\Codigo;
 use App\Models\Codigoitem;
+use App\Models\Contratopreposto;
 use App\Models\Contratoresponsavel;
 use App\Models\Instalacao;
 use Backpack\CRUD\CrudPanel;
@@ -172,7 +173,76 @@ class ConsultaprepostoCrudController extends ConsultaContratoBaseCrudController
      */
     public function aplicaFiltrosEspecificos()
     {
+        $this->aplicaFiltroPreposto();
+        $this->aplicaFiltroDataInicio();
     }
+
+    /**
+     * Adiciona o filtro ao campo Preposto
+     *
+     * @author Saulo Soares <saulosaso@gmail.com>
+     */
+    private function aplicaFiltroPreposto()
+    {
+        $campo = [
+            'name' => 'preposto',
+            'type' => 'select2_multiple',
+            'label' => 'Preposto'
+        ];
+
+        $dados = $this->retornaPrepostoParaCombo();
+
+        $this->crud->addFilter(
+            $campo,
+            $dados,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'contratopreposto.nome', json_decode($value));
+            }
+        );
+    }
+
+    /**
+     * Retorna array de  para combo de filtro
+     *
+     * @return array
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    private function retornaPrepostoParaCombo()
+    {
+        $dados = Contratopreposto::select('nome', 'contratopreposto.id');
+        $dados->join('contratos', 'contratos.id', '=', 'contratopreposto.contrato_id');
+
+        $dados->where('contratos.unidade_id', session()->get('user_ug_id'));
+        $dados->where('contratos.situacao', true);
+
+        return $dados->pluck('nome', 'nome')->toArray();
+    }
+
+    /**
+     * Adiciona o filtro ao campo DataInicio
+     *
+     * @author Saulo Soares <saulosaso@gmail.com>
+     */
+    private function aplicaFiltroDataInicio()
+    {
+        $campo = [
+            'name' => 'data_inicio',
+            'type' => 'date_range',
+            'label' => 'Data Início'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $dates = json_decode($value);
+                $this->crud->addClause('where', 'contratopreposto.data_inicio', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratopreposto.data_inicio', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
 
     /**
      * Configurações iniciais do Backpack
@@ -229,9 +299,11 @@ class ConsultaprepostoCrudController extends ConsultaContratoBaseCrudController
     {
         $content = parent::show($id);
 
-        $this->crud->removeColumns([]);
+        $this->crud->removeColumns([
+            'contrato_id',
+            'user_id',
+        ]);
 
         return $content;
     }
-
 }
