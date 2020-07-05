@@ -58,6 +58,7 @@ class ContratoCrudController extends CrudController
         $this->crud->enableExportButtons();
 //        $this->crud->disableResponsiveTable();
 
+        $this->crud->addButtonFromView('top', 'carregaritens', 'siasg', 'end');
         $this->crud->addButtonFromView('line', 'extratocontrato', 'extratocontrato', 'beginning');
         $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
         $this->crud->denyAccess('create');

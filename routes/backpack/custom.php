@@ -138,6 +138,13 @@ Route::group([
 
             Route::get('/apisiasg', 'ContratoCrudController@apisiasg');
 
+            Route::group([
+                'prefix' => 'siasg',
+                'namespace' => 'Siasg',
+                ], function () {
+                CRUD::resource('compras', 'SiasgcompraCrudController');
+            });
+
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
