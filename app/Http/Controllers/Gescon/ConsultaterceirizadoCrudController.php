@@ -74,31 +74,16 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
 
         $this->crud->removeColumns([
             'contrato_id',
-            /*
-            'user_id',
             'funcao_id',
-            'instalacao_id',
+            'salario',
+            'custo',
+            'escolaridade_id',
             'data_inicio',
-            'data_fim'
-            */
+            'data_fim',
+            'situacao'
         ]);
 
         return $content;
-    }
-
-    /**
-     * Adiciona filtros específicos a serem apresentados
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    public function aplicaFiltrosEspecificos()
-    {
-        /*
-        $this->aplicaFiltroUsuario();
-        $this->aplicaFiltroFuncao();
-        $this->aplicaFiltroInstalacao();
-        $this->aplicaFiltroPortaria();
-        */
     }
 
     /**
@@ -108,75 +93,261 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
      */
     public function adicionaColunasEspecificasNaListagem()
     {
-        /*
-        $this->adicionaColunaUsuario();
+        $this->adicionaColunaCpf();
+        $this->adicionaColunaNome();
         $this->adicionaColunaFuncao();
-        $this->adicionaColunaInstalacao();
-        $this->adicionaColunaPortaria();
-        $this->adicionaColunaDataInicio();
-        $this->adicionaColunaDataFim();
-        $this->adicionaColunaSituacao();
-        */
+        $this->adicionaColunaDescricaoComplementar();
+        $this->adicionaColunaJornada();
+        $this->adicionaColunaUnidade();
+        $this->adicionaColunaSalario();
+        $this->adicionaColunaCusto();
+        $this->adicionaColunaEscolaridade();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
-     * Adiciona o filtro ao campo Usuário
+     * Adiciona filtros específicos a serem apresentados
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function aplicaFiltroUsuario()
+    public function aplicaFiltrosEspecificos()
+    {
+        $this->aplicaFiltroCpf();
+        $this->aplicaFiltroNome();
+        $this->aplicaFiltroFuncao();
+        $this->aplicaFiltroSalario();
+        $this->aplicaFiltroEscolaridade();
+    }
+
+    /**
+     * Adiciona o campo CPF na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaCpf()
+    {
+        $this->crud->addColumn([
+            'name' => 'cpf',
+            'label' => 'CPF',
+            'type' => 'string',
+            'priority' => 10,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o campo Nome na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaNome()
+    {
+        $this->crud->addColumn([
+            'name' => 'nome',
+            'label' => 'Nome',
+            'type' => 'string',
+            'priority' => 11,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o campo Função na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaFuncao()
+    {
+        $this->crud->addColumn([
+            'name' => 'getFuncao',
+            'label' => 'Função',
+            'type' => 'model_function',
+            'function_name' => 'getFuncao',
+            'priority' => 12,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o campo Descrição Complementar na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaDescricaoComplementar()
+    {
+        $this->crud->addColumn([
+            'name' => 'descricao_complementar',
+            'label' => 'Desc. Complementar',
+            'type' => 'string',
+            'priority' => 13,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o campo Jornada na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaJornada()
+    {
+        $this->crud->addColumn([
+            'name' => 'jornada',
+            'label' => 'Jornada',
+            'type' => 'string',
+            'priority' => 14,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o campo Unidade na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaUnidade()
+    {
+        $this->crud->addColumn([
+            'name' => 'unidade',
+            'label' => 'Unidade',
+            'type' => 'string',
+            'priority' => 15,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o campo Salário na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaSalario()
+    {
+        $this->crud->addColumn([
+            'name' => 'formatVlrSalario',
+            'label' => 'Salário',
+            'type' => 'model_function',
+            'function_name' => 'formatVlrSalario',
+            'priority' => 16,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o campo Custo na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaCusto()
+    {
+        $this->crud->addColumn([
+            'name' => 'formatVlrCusto',
+            'label' => 'Custo',
+            'type' => 'model_function',
+            'function_name' => 'formatVlrCusto',
+            'priority' => 17,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o campo Escolaridade na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function adicionaColunaEscolaridade()
+    {
+        $this->crud->addColumn([
+            'name' => 'getEscolaridade',
+            'label' => 'Escolaridade',
+            'type' => 'model_function',
+            'function_name' => 'getEscolaridade',
+            'priority' => 18,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    /**
+     * Adiciona o filtro ao campo CPF
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function aplicaFiltroCpf()
     {
         $campo = [
-            'name' => 'usuario',
-            'type' => 'select2',
-            'label' => 'Usuário'
+            'name' => 'cpf',
+            'type' => 'text',
+            'label' => 'CPF'
         ];
-
-        $usuarios = $this->retornaUsuariosParaCombo();
 
         $this->crud->addFilter(
             $campo,
-            $usuarios,
+            null,
             function ($value) {
-                $this->crud->addClause('where', 'contratoresponsaveis.user_id', $value);
+                $this->crud->addClause('where',
+                    DB::raw("replace(replace(contratoterceirizados.cpf, '.', ''), '-', '')"), 'ilike',
+                    '%' . str_replace('.', '', str_replace('-', '', $value)) . '%'
+                );
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Nome
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function aplicaFiltroNome()
+    {
+        $campo = [
+            'name' => 'nome',
+            'type' => 'text',
+            'label' => 'Nome'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $this->crud->addClause('where',
+                    'contratoterceirizados.nome', 'ilike',
+                    '%' . $value . '%'
+                );
             }
         );
     }
@@ -200,230 +371,67 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             $campo,
             $funcoes,
             function ($value) {
-                $this->crud->addClause('where', 'contratoresponsaveis.funcao_id', $value);
+                $this->crud->addClause('where', 'contratoterceirizados.funcao_id', $value);
             }
         );
     }
 
     /**
-     * Adiciona o filtro ao campo Instalação
+     * Adiciona o filtro ao campo Salário
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function aplicaFiltroInstalacao()
+    private function aplicaFiltroSalario()
     {
         $campo = [
-            'name' => 'instalacao',
-            'type' => 'select2',
-            'label' => 'Instalação / Unidade'
-        ];
-
-        $instalacoes = $this->retornaInstalacaoesParaCombo();
-
-        $this->crud->addFilter(
-            $campo,
-            $instalacoes,
-            function ($value) {
-                $this->crud->addClause('where', 'contratoresponsaveis.instalacao_id', $value);
-            }
-        );
-    }
-
-    /**
-     * Adiciona o filtro ao campo Portaria
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function aplicaFiltroPortaria()
-    {
-        $campo = [
-            'name' => 'portaria',
-            'type' => 'text',
-            'label' => 'Portaria'
+            'name' => 'salario',
+            'type' => 'range',
+            'label' => 'Salário'
         ];
 
         $this->crud->addFilter(
             $campo,
             null,
             function ($value) {
-                $this->crud->addClause('where',
-                    'contratoresponsaveis.portaria', 'ilike',
-                    '%' . $value . '%'
-                );
+                $range = json_decode($value);
+
+                if ($range->from) {
+                    $this->crud->addClause('where',
+                        'contratoterceirizados.salario', '>=', (float)$range->from
+                    );
+                }
+
+                if ($range->to) {
+                    $this->crud->addClause('where',
+                        'contratoterceirizados.salario', '<=', (float)$range->to
+                    );
+                }
             }
         );
     }
 
     /**
-     * Adiciona o campo Usuário na listagem
+     * Adiciona o filtro ao campo Escolaridade
      *
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function adicionaColunaUsuario()
+    private function aplicaFiltroEscolaridade()
     {
-        $this->crud->addColumn([
-            'name' => 'getUser',
-            'label' => 'Responsável',
-            'type' => 'model_function',
-            'function_name' => 'getUser',
-            'priority' => 10,
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ]);
-    }
+        $campo = [
+            'name' => 'escolaridade',
+            'type' => 'select2',
+            'label' => 'Escolaridade'
+        ];
 
-    /**
-     * Adiciona o campo Função na listagem
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function adicionaColunaFuncao()
-    {
-        $this->crud->addColumn([
-            'name' => 'getFuncao',
-            'label' => 'Função',
-            'type' => 'model_function',
-            'function_name' => 'getFuncao',
-            'priority' => 11,
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ]);
-    }
+        $funcoes = $this->retornaEscolaridadesParaCombo();
 
-    /**
-     * Adiciona o campo Instalação na listagem
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function adicionaColunaInstalacao()
-    {
-        $this->crud->addColumn([
-            'name' => 'getInstalacao',
-            'label' => 'Instalação / Unidade',
-            'type' => 'model_function',
-            'function_name' => 'getInstalacao',
-            'priority' => 12,
-            'orderable' => true,
-            'visibleInTable' => false,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ]);
-    }
-
-    /**
-     * Adiciona o campo Portaria na listagem
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function adicionaColunaPortaria()
-    {
-        $this->crud->addColumn([
-            'name' => 'portaria',
-            'label' => 'Portaria',
-            'type' => 'string',
-            'priority' => 13,
-            'orderable' => true,
-            'visibleInTable' => false,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ]);
-    }
-
-    /**
-     * Adiciona o campo Data Início na listagem
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function adicionaColunaDataInicio()
-    {
-        $this->crud->addColumn([
-            'name' => 'getDataInicio',
-            'label' => 'Data Início',
-            'type' => 'model_function',
-            'function_name' => 'getDataInicio',
-            'priority' => 14,
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ]);
-    }
-
-    /**
-     * Adiciona o campo Data Fim na listagem
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function adicionaColunaDataFim()
-    {
-        $this->crud->addColumn([
-            'name' => 'getDataFim',
-            'label' => 'Data Fim',
-            'type' => 'model_function',
-            'function_name' => 'getDataFim',
-            'priority' => 15,
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ]);
-    }
-
-    /**
-     * Adiciona o campo Situação na listagem
-     *
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function adicionaColunaSituacao()
-    {
-        $this->crud->addColumn([
-            'name' => 'situacao',
-            'label' => 'Situação',
-            'type' => 'boolean',
-            'options' => [
-                0 => 'Inativo',
-                1 => 'Ativo'
-            ],
-            'priority' => 16,
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
-        ]);
-    }
-
-    /**
-     * Retorna array de Usuários para combo de filtro
-     *
-     * @return array
-     * @author Anderson Sathler <asathler@gmail.com>
-     */
-    private function retornaUsuariosParaCombo()
-    {
-        $dados = BackpackUser::select(
-            DB::raw("CONCAT(cpf, ' - ', LEFT(name, 80)) as descricao"),
-            'id'
+        $this->crud->addFilter(
+            $campo,
+            $funcoes,
+            function ($value) {
+                $this->crud->addClause('where', 'contratoterceirizados.escolaridade_id', $value);
+            }
         );
-
-        $dados->where('ugprimaria', session()->get('user_ug_id'));
-        $dados->where('situacao', true);
-        $dados->orWhereHas('unidades', function ($query) {
-            $query->where('unidade_id', session()->get('user_ug_id'));
-        });
-        $dados->orderBy('name');
-
-        return $dados->pluck('descricao', 'id')->toArray();
     }
 
     /**
@@ -436,23 +444,24 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
     {
         $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->where('codigo_id', Codigo::CODIGO_FUNÇAO_CONTRATO);
+        $dados->where('codigo_id', Codigo::CODIGO_MAO_DE_OBRA);
         $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();
     }
 
     /**
-     * Retorna array de Instalações para combo de filtro
+     * Retorna array de Escolaridades para combo de filtro
      *
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function retornaInstalacaoesParaCombo()
+    private function retornaEscolaridadesParaCombo()
     {
-        $dados = Instalacao::select('nome as descricao', 'id');
+        $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->orderBy('nome');
+        $dados->where('codigo_id', Codigo::CODIGO_ESCOLARIDADE);
+        $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();
     }
