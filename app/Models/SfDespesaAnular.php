@@ -91,4 +91,9 @@ class SfDespesaAnular extends Model
     {
         return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
     }
+
+    public function sfDespesaAnularItem()
+    {
+        return $this->belongsTo(SfDespesaAnularItem::class, 'sfdespesaanular_id');
+    }
 }

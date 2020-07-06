@@ -42,4 +42,9 @@ class SfPso extends Model
     {
         return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
     }
+
+    public function psoItem()
+    {
+        return $this->hasMany(SfPsoItem::class, 'sfpso_id');
+    }
 }

@@ -20,7 +20,7 @@ abstract class Handler
      * Função recursiva para atribuir a responsabilidade de processar os dados em cadeia
      * @param  string $xml
      * @param array $dados
-     * @return array
+     * @return object
      * @author Franklin J. G. Silva
      */
     final public function manipulador(string $tagName,string $xml,array $dados,Model $modObjeto): ?object

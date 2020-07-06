@@ -39,4 +39,14 @@ class SfDespesaAnularItem extends Model
         'txtinscrc',
         'numclassc'
     ];
+
+    public function sfdespesaAnular()
+    {
+        return $this->belongsTo(SfDespesaAnular::class, 'sfdespesaanular_id');
+    }
+
+    public function sfRelEncargo()
+    {
+        return $this->hasMany(SfRelEncargos::class, 'sfdespesaanularitem_id');
+    }
 }

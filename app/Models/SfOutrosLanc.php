@@ -50,4 +50,9 @@ class SfOutrosLanc extends Model
     {
         return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
     }
+
+    public function cronBaixaPatrimonial()
+    {
+        return $this->hasMany(SfCronBaixaPatrimonial::class, 'outroslanc_id');
+    }
 }

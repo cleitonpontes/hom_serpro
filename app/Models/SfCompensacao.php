@@ -40,4 +40,14 @@ class SfCompensacao extends Model
     {
         return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
     }
+
+    public function sfRelDeducaoItem()
+    {
+        return $this->hasOne(SfRelDeducaoItem::class, 'sfcompensacao_id');
+    }
+
+    public function sfRelEncargoItem()
+    {
+        return $this->hasOne(SfRelEncargoItem::class, 'sfcompensacao_id');
+    }
 }

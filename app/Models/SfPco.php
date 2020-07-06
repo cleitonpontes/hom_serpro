@@ -102,14 +102,19 @@ class SfPco extends Model
         return $dados;
     }
 
+    public function sfpadrao()
+    {
+        return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
+    }
+
     public function pcoItens()
     {
         return $this->hasMany(SfPcoItem::class, 'sfpco_id');
     }
 
-    public function sfpadrao()
+    public function cronBaixaPatrimonial()
     {
-        return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
+        return $this->hasMany(SfCronBaixaPatrimonial::class, 'sfpco_id');
     }
 
 }

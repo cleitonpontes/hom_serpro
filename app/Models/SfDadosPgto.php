@@ -37,4 +37,19 @@ class SfDadosPgto extends Model
     {
         return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
     }
+
+    public function sfItemRecolhimento()
+    {
+        return $this->hasMany(SfItemRecolhimento::class, 'sfdadospgto_id');
+    }
+
+    public function sfPreDoc()
+    {
+        return $this->hasOne(SfPredoc::class, 'sfdadospgto_id');
+    }
+
+    public function sfAcrescimo()
+    {
+        return $this->hasMany(SfAcrescimo::class, 'sfdadospgto_id');
+    }
 }
