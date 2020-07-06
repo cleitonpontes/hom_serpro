@@ -135,7 +135,7 @@ class ConsultaContratoBaseCrudController extends CrudController
      */
     protected function adicionaColunasNaListagem()
     {
-        $this->adicionaColunaUnidade();
+        $this->adicionaColunaUnidadeGestora();
         $this->adicionaColunaNumero();
         $this->adicionaColunaFornecedor();
         $this->adicionaColunaObjeto();
@@ -252,11 +252,11 @@ class ConsultaContratoBaseCrudController extends CrudController
      * @return array
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    private function adicionaColunaUnidade()
+    private function adicionaColunaUnidadeGestora()
     {
         $this->crud->addColumn([
             'name' => 'getUnidade',
-            'label' => 'UG',
+            'label' => 'Unidade Gestora',
             'type' => 'model_function',
             'function_name' => 'getUnidade',
             'priority' => 1,
