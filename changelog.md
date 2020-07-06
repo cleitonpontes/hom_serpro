@@ -9,7 +9,7 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 - Consulta Contratos X Historico (Issue #15);
 - Consulta Contratos X Garantias (Issue #17);
 - Consulta Contratos X Terceirizados (Issue #19);
-- Padrão SIAFI vinculado ao Contrato (Issue #92);
+- Padrões Documentos Hábeis SIAFI vinculado ao Contrato (Issue #92);
 
 ### Melhoria
 - Criação da Tabela para Arquivar Log  (Issue #91);
