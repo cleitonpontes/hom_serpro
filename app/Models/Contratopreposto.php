@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\ContratoBase as Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -11,9 +11,10 @@ class Contratopreposto extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'contratopreposto';
-    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -22,9 +23,6 @@ class Contratopreposto extends Model
     */
 
     protected $table = 'contratopreposto';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
         'user_id',
@@ -49,12 +47,7 @@ class Contratopreposto extends Model
     */
     public function getContrato()
     {
-        if($this->contrato_id){
-            $contrato = Contrato::find($this->contrato_id);
-            return $contrato->numero;
-        }else{
-            return '';
-        }
+        return $this->getContratoNumero();
     }
     /*
     |--------------------------------------------------------------------------
