@@ -22,6 +22,7 @@ class CreateMunicipiosTable extends Migration
             $table->boolean('capital')->default(false);
             $table->integer('estado_id');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('estado_id')->references('id')->on('estados');
         });
