@@ -9,19 +9,6 @@ use App\Models\Contratoresponsavel;
 use App\Models\Instalacao;
 use Illuminate\Support\Facades\DB;
 
-
-
-/*
-use App\Models\Contrato;
-use App\Models\Contratofatura;
-use App\Models\Fornecedor;
-use App\Models\Justificativafatura;
-use App\Models\Tipolistafatura;
-// use Backpack\CRUD\app\Http\Controllers\CrudController;
-use Backpack\CRUD\CrudPanel;
-use Illuminate\Database\Eloquent\Builder;
-*/
-
 /**
  * Class ConsultaresponsavelCrudController
  * @package App\Http\Controllers\Gescon
@@ -56,9 +43,10 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'fornecedores.id', '=', 'contratos.fornecedor_id'
         );
         $this->crud->addClause('select', [
-            'contratoresponsaveis.*',
             'contratos.*',
-            'fornecedores.*'
+            'fornecedores.*',
+            // Tabela principal deve ser sempre a última da listagem!
+            'contratoresponsaveis.*'
         ]);
 
         // Apenas ocorrências da unidade atual

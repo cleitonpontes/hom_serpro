@@ -241,7 +241,7 @@ class ContratoBase extends Model
         $retorno['R'] = 'Receita';
         $retorno[''] = '';
 
-        return $retorno[$this->receita_despesa];
+        return $retorno[$this->contrato->receita_despesa];
     }
 
     /**
