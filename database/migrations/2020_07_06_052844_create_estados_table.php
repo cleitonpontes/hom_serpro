@@ -23,7 +23,7 @@ class CreateEstadosTable extends Migration
             $table->string('longitude')->nullable();
             $table->timestamps();
 
-            $table->foreign('regiao_id')->references('id')->on('codigos');
+            $table->foreign('regiao_id')->references('id')->on('codigoitens');
         });
     }
 
