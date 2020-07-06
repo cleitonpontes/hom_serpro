@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\BackpackUser;
 use App\Models\Catmatseratualizacao;
 use App\Models\Comunica;
 use App\Models\Contrato;
@@ -11,6 +12,7 @@ use App\Models\Contratohistorico;
 use App\Models\Contratoitem;
 use App\Models\Saldohistoricoitem;
 use App\Models\SfPadrao;
+use App\Models\Contratosfpadrao;
 use App\Models\Subrogacao;
 use App\Observers\CatmatseratualizacaoObserver;
 use App\Observers\ComunicaObserver;
@@ -23,6 +25,7 @@ use App\Observers\ContratoObserve;
 use App\Observers\SaldohistoricoitemObserver;
 use App\Observers\SfpadraoObserver;
 use App\Observers\SubrogacaoObserver;
+use App\Observers\UsuarioObserver;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
@@ -47,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
             });
         }
 
+        BackpackUser::observe(UsuarioObserver::class);
         Contrato::observe(ContratoObserve::class);
         Contratohistorico::observe(ContratohistoricoObserve::class);
         Contratocronograma::observe(ContratocronogramaObserve::class);
@@ -54,7 +58,8 @@ class AppServiceProvider extends ServiceProvider
         Saldohistoricoitem::observe(SaldohistoricoitemObserver::class);
         Catmatseratualizacao::observe(CatmatseratualizacaoObserver::class);
         Comunica::observe(ComunicaObserver::class);
-        SfPadrao::observe(SfpadraoObserver::class);
+        //SfPadrao::observe(SfpadraoObserver::class);
+        Contratosfpadrao::observe(ContratosfpadraoObserver::class);
         Subrogacao::observe(SubrogacaoObserver::class);
         Contratodespesaacessoria::observe(ContratodespesaacessoriaObserver::class);
 
