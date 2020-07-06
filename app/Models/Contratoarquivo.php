@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\ContratoBase as Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -11,9 +11,10 @@ class Contratoarquivo extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'contrato_arquivos';
-    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -22,9 +23,6 @@ class Contratoarquivo extends Model
     */
 
     protected $table = 'contrato_arquivos';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
         'tipo',
@@ -47,23 +45,14 @@ class Contratoarquivo extends Model
     */
     public function getContrato()
     {
-        if($this->contrato_id){
-            $contrato = Contrato::find($this->contrato_id);
-            return $contrato->numero;
-        }else{
-            return '';
-        }
+        return $this->getContratoNumero();
     }
 
     public function getTipo()
     {
-        if($this->tipo){
-            $tipo = Codigoitem::find($this->tipo);
-            return $tipo->descricao;
-        }else{
-            return '';
-        }
+        return $this->codigoItem()->first()->descricao;
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -73,6 +62,7 @@ class Contratoarquivo extends Model
     {
         return $this->belongsTo(Codigoitem::class, 'tipo');
     }
+
 
 
 
