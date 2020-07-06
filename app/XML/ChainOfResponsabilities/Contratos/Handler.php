@@ -26,7 +26,7 @@ abstract class Handler
     final public function manipulador(string $tagName,string $xml,array $dados,Model $modObjeto): ?object
     {
         $processed = $this->processing($tagName,$xml,$dados,$modObjeto);
-
+        dd($modObjeto);
         if ($processed === null && $this->successor !== null) {
             $processed = $this->successor->manipulador($tagName,$xml,$dados,$modObjeto);
         }
@@ -38,21 +38,16 @@ abstract class Handler
     {
         $doc = new DOMDocument('1.0', 'utf-8');
         $doc->loadXML($xml);
-        $nomeNo = $doc->getElementsByTagName($tagName)->item(0)->nodeName;
-
-        if ($nomeNo == 'deducao' || $nomeNo == 'encargos' || $nomeNo == 'dadosPgto') {
-            $nomeModel = 'App\Models\Sf' . ucfirst($doc->getElementsByTagName($tagName)->item(0)->nodeName);
-        }else{
-            $nomeModel = 'App\Models\Sf' . ucfirst($doc->getElementsByTagName($tagName)->item(0)->nodeName);
-        }
+        $nomeModel = $this->retornaNomeModel($doc,$tagName);
         $model = new $nomeModel;
-        $documentoHabil = $doc->getElementsByTagName($tagName)->item(0)->childNodes;
 
-        foreach($documentoHabil as $value => $item){
+        $noAtual = $doc->getElementsByTagName($tagName)->item(0)->childNodes;
 
+        foreach($noAtual as $value => $item){
             $no = $doc->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
-            ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : '';
+           ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : '';
         }
+
         $model = $model->newInstance($params);
         $model->save($params);
 //        foreach($documentoHabil as $value => $item){
@@ -73,13 +68,31 @@ abstract class Handler
 
         foreach($documentoHabil as $value => $item){
             $no = $doc->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
-            ($no > 1) ? $this->processing($item->nodeName,$xml,$params,$model) : '';
+            ($no > 1) ? $this->manipulador($item->nodeName,$xml,$params,$model) : '';
         }
-        dd($params);
+//        dd($params);
+        dd('parei');
 //        $modDadosBasicos = $model->newInstance($params);
 //        $modDadosBasicos->save($params);
         return $modDadosBasicos;
 
+    }
+
+    public function retornaNomeModel(DOMDocument $doc,string $tagName): ?string
+    {
+        dd($doc);
+        dd($doc->getElementsByTagName($tagName)->item(0));
+        $nomeNo = $doc->getElementsByTagName($tagName)->item(0)->nodeName;
+
+        if ($nomeNo == 'deducao' || $nomeNo == 'encargos' || $nomeNo == 'dadosPgto') {
+            $nomeModel = 'App\Models\Sf' . ucfirst($doc->getElementsByTagName($tagName)->item(0)->nodeName);
+        }elseif(true){
+            $nomeModel = 'App\Models\Sf' . ucfirst($doc->getElementsByTagName($tagName)->item(0)->nodeName);
+        }else{
+            $nomeModel = 'App\Models\Sf' . ucfirst($doc->getElementsByTagName($tagName)->item(0)->nodeName);
+        }
+
+        return $nomeModel;
     }
 
     abstract protected function process(string $xml,Contratosfpadrao $contratosfpadrao): ?object;

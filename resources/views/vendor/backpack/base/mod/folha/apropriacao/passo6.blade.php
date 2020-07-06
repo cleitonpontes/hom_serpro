@@ -18,12 +18,12 @@
 @endphp
 @section('content')
     @include('backpack::mod.folha.apropriacao.cabecalho')
-
+    
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
             <h3 class="box-title">Persistir Dados</h3>
         </div>
-
+        
         <div class="box-body">
             <br />
             <table id="datatable" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
@@ -33,7 +33,7 @@
                         <th class='text-right'>Status</th>
                     </tr>
                 </thead>
-
+                
                 <tbody>
                     <tr>
                         <td><i>Preparação preliminar</i></td>
@@ -74,7 +74,7 @@
                 </tbody>
             </table>
             <br />
-
+            
             <div class="row">
             	<div class="col-md-12 text-center">
             		<button type="button"
@@ -90,14 +90,14 @@
                 	</button>
             	</div>
             </div>
-
+            
         </div>
         <br />
-
+        
     </div>
-
+    
     @include('backpack::mod.folha.apropriacao.botoes')
-
+    
     <input type='hidden' id='apid' value='<?php echo $apid; ?>' />
 @endsection
 
@@ -128,7 +128,7 @@
 		$('#btnRelatorio').click(function() {
 			var apid = $('#apid').val();
 			var url = '/folha/apropriacao/relatorio/' + apid;
-
+			
 			window.open(url, '_blank');
 		});
 
@@ -144,7 +144,7 @@
 		    	success: function(retorno) {
 		    		$('#prp').html("Prepração preliminar concluída");
 		    		$('#pdr').html("<strong>Prepração do registro 'SF - Padrão' em andamento...</strong>");
-
+		    		
 		    		atualizaPadrao(apid);
 		    	},
 		    	error: function(e) {
@@ -165,7 +165,7 @@
 		    	success: function(retorno) {
 		    		$('#pdr').html("Registro 'SF - Padrão' gravado");
 		    		$('#bas').html("<strong>Prepração do registro 'SF - Dados básicos' em andamento...</strong>");
-
+		    		
 		    		atualizaDadosBasicos(apid);
 		    	},
 		    	error: function(e) {
@@ -182,7 +182,7 @@
 					// Passagem do token no header
 			    	'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 		    	},
-		    	url: '/folha/apropriacao/persistir/' + apid + '/ProcessaXmlSiafi',
+		    	url: '/folha/apropriacao/persistir/' + apid + '/DadosBasicos',
 		    	success: function(retorno) {
 		    		$('#bas').html("Registro 'SF - Dados básicos' gravado");
 		    		$('#doc').html("<strong>Prepração do registro 'SF - Documento de origem' em andamento...</strong>");
@@ -299,7 +299,7 @@
 		    	}
 	    	});
 		}
-
+		
 		function atualizaRelacionamentos(apid) {
 		    $.ajax({
 		    	type: 'PUT',
@@ -311,7 +311,7 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/Relacionamentos',
 		    	success: function(retorno) {
 		    		$('#rdi').html("Registros 'SF - Rel. Itens Desp. Anular e PCO' gravados");
-
+		    		
 		    		$('#btnRelatorio').prop('disabled', false);
 		    		$('#btnProximo').prop('disabled', false);
 		    	},

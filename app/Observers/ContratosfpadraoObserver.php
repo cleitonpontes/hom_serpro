@@ -20,8 +20,8 @@ class ContratosfpadraoObserver
         $xmlSiafi = $xml->consultaDh(backpack_user(), session()->get('user_ug'), 'HOM', $contratosfpadrao->anodh,$contratosfpadrao);
 
         $processamento =  new ProcessaXmlSiafi();
-        $processamento->process($xmlSiafi,$contratosfpadrao);
-
+        $resultado = $processamento->process($xmlSiafi,$contratosfpadrao);
+        dd($resultado);
     }
 
     /**
