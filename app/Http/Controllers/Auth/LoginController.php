@@ -105,17 +105,4 @@ class LoginController extends Controller
 
         return view('backpack::auth.login', $this->data);
     }
-
-    /**
-     * Get the needed authorization credentials from the request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    protected function credentials(Request $request)
-    {
-        $request['situacao'] = 1;
-        return $request->only($this->username(), 'password', 'situacao');
-    }
-
 }
