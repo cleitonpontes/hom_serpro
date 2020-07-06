@@ -6,7 +6,9 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
 ### Implementação
 - Consulta Contratos X Responsáveis (Issue #12);
+- Consulta Contratos X Arquivos (Issue #13);
 - Consulta Contratos X Historico (Issue #15);
+- Consulta Contratos X Prepostos (Issue #16);
 - Consulta Contratos X Garantias (Issue #17);
 - Consulta Contratos X Terceirizados (Issue #19);
 - Padrões Documentos Hábeis SIAFI vinculado ao Contrato (Issue #92);
