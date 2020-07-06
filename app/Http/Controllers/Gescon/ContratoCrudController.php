@@ -1021,34 +1021,4 @@ class ContratoCrudController extends CrudController
         return redirect()->back();
     }
 
-    public function apiSiasg()
-    {
-        $apiSiasg = new ApiSiasg;
-
-//        $tipo_consulta = 'Compra';
-//        $tipo_consulta = 'ContratoSisg';
-        $tipo_consulta = 'ContratoNaoSisg';
-
-        $dado_compra = [
-            'ano' => '2018',
-            'modalidade' => '05',
-            'numero' => '00001',
-            'uasg' => '201057'
-        ];
-
-        $dado_contrato_sisg = [
-            'id_contrato' => '24012307000062018'
-        ];
-
-        $dado_contrato_sisg = [
-            'id_contrato' => '090003000000000050000272018'
-        ];
-
-        $dados = json_decode($apiSiasg->executaConsulta($tipo_consulta,$dado_contrato_sisg));
-
-        dd($dados);
-
-    }
-
-
 }

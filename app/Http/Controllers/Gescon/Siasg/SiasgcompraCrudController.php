@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Gescon\Siasg;
 
 use App\Models\Codigoitem;
+use App\Models\Unidade;
+use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -29,6 +31,10 @@ class SiasgcompraCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/siasg/compras');
         $this->crud->setEntityNameStrings('Compra - SIASG', 'Cadastro Compras - SIASG');
 
+        $this->crud->addClause('select', 'siasgcompras.*');
+        $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'siasgcompras.modalidade_id');
+        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'siasgcompras.unidade_id');
+
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -52,6 +58,70 @@ class SiasgcompraCrudController extends CrudController
 
         $campos = $this->campos();
         $this->crud->addFields($campos);
+
+        $unidades = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'codigo')
+            ->whereHas('compras', function ($u) {
+                $u->where('situacao', '<>', '');
+            })
+            ->pluck('nome', "codigo")
+            ->toArray();
+
+        $this->crud->addFilter([ // dropdown filter
+            'name' => 'unidade_id',
+            'type' => 'select2',
+            'label' => 'Unidade da Compra'
+        ], function () use ($unidades) {
+            return $unidades;
+        }, function ($value) {
+            $this->crud->addClause('where', 'unidades.codigo', $value);
+        });
+
+        $this->crud->addFilter([ // simple filter
+            'type' => 'text',
+            'name' => 'ano',
+            'label'=> 'Ano Compra'
+        ],
+            false,
+            function($value) { // if the filter is active
+                 $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
+            } );
+
+        $this->crud->addFilter([ // simple filter
+            'type' => 'text',
+            'name' => 'numero',
+            'label'=> 'Número Compra'
+        ],
+            false,
+            function($value) { // if the filter is active
+                 $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
+            } );
+
+        $modalidades = $this->buscaModalidades();
+
+        $this->crud->addFilter([ // dropdown filter
+            'name' => 'modalidade_id',
+            'type' => 'select2',
+            'label' => 'Modalidade Licitação'
+        ], function () use ($modalidades) {
+            return $modalidades;
+        }, function ($value) {
+            $this->crud->addClause('where', 'siasgcompras.modalidade_id', $value);
+        });
+
+        $this->crud->addFilter([ // dropdown filter
+            'name' => 'situacao',
+            'type' => 'select2',
+            'label' => 'Situação'
+        ], function () {
+            return [
+                'Pendente' => 'Pendente',
+                'Erro' => 'Erro',
+                'Importado' => 'Importado'
+            ];
+        }, function ($value) {
+            $this->crud->addClause('where', 'siasgcompras.situacao', $value);
+        });
+
 
         // add asterisk for fields that are required in SiasgcompraRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -205,4 +275,40 @@ class SiasgcompraCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
+    public function apiSiasg()
+    {
+        $apiSiasg = new ApiSiasg;
+
+        $tipo_consulta0 = 'Compra';
+        $tipo_consulta1 = 'ContratoSisg';
+        $tipo_consulta2 = 'ContratoNaoSisg';
+
+        $dado_compra = [
+            'ano' => '2018',
+            'modalidade' => '05',
+            'numero' => '00001',
+            'uasg' => '201057'
+        ];
+
+        $dado_contrato_sisg = [
+            'id_contrato' => '39301350006582018'
+        ];
+
+        $dado_contrato_nao_sisg = [
+            'id_contrato' => '090003000000000050000272018'
+        ];
+
+        $dados0 = json_decode($apiSiasg->executaConsulta($tipo_consulta0,$dado_compra));
+        $dados1 = json_decode($apiSiasg->executaConsulta($tipo_consulta1,$dado_contrato_sisg));
+        $dados2 = json_decode($apiSiasg->executaConsulta($tipo_consulta2,$dado_contrato_nao_sisg));
+
+        dd($tipo_consulta0,$dados0,$tipo_consulta1,$dados1,$tipo_consulta2,$dados2);
+
+    }
+
+
+
+
+
 }
