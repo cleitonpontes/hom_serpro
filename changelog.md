@@ -2,6 +2,22 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.29]- xx/xx/2020
+
+### Implementação
+- Consulta Contratos X Responsáveis (Issue #12);
+- Consulta Contratos X Historico (Issue #15);
+- Consulta Contratos X Garantias (Issue #17);
+- Consulta Contratos X Terceirizados (Issue #19);
+- Padrão SIAFI vinculado ao Contrato (Issue #92);
+
+### Melhoria
+- Criação da Tabela para Arquivar Log  (Issue #91);
+- Disponibilização do campo Ativo e Inativo no Usuário (Issue #4).
+
+### Bug
+- Correção Bug da consulta Contrato X Empenhos (issue fix #14);
+
 ## [5.0.28]- 18/06/2020
 
 ### Implementação
