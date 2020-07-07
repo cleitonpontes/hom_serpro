@@ -37,7 +37,9 @@ class Contratoterceirizado extends Model
         'escolaridade_id',
         'data_inicio',
         'data_fim',
-        'situacao'
+        'situacao',
+        'telefone_fixo',
+        'telefone_celular',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -106,6 +108,11 @@ class Contratoterceirizado extends Model
     {
         $nome = $this->nome;
         return $nome;
+    }
+    public function getTelefone()
+    {
+        $telefone = $this->telefone;
+        return $telefone;
     }
     public function getEscolaridade()
     {

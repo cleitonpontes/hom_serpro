@@ -96,6 +96,18 @@ class ContratoterceirizadoCrudController extends CrudController
                 'type'  => 'text',
             ],
             [
+                'name'  => 'telefone_fixo',
+                'label' => 'Telefone Fixo',
+                'type'  => 'text',
+                'visibleInTable' => false, // no point, since it's a large text
+            ],
+            [
+                'name'  => 'telefone_celular',
+                'label' => 'Telefone Celular',
+                'type'  => 'text',
+                'visibleInTable' => false, // no point, since it's a large text
+            ],
+            [
                 'name' => 'getFuncao',
                 'label' => 'Função', // Table column heading
                 'type' => 'model_function',
@@ -228,6 +240,18 @@ class ContratoterceirizadoCrudController extends CrudController
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"
                 ],
+                'tab' => 'Dados Pessoais',
+            ],
+            [
+                'name' => 'telefone_fixo',
+                'label' => 'Telefone Fixo',
+                'type' => 'telefone',
+                'tab' => 'Dados Pessoais',
+            ],
+            [
+                'name' => 'telefone_celular',
+                'label' => 'Telefone Celular',
+                'type' => 'celular',
                 'tab' => 'Dados Pessoais',
             ],
             [ // select_from_array
