@@ -285,14 +285,14 @@ class SiasgcompraCrudController extends CrudController
         $tipo_consulta2 = 'ContratoNaoSisg';
 
         $dado_compra = [
-            'ano' => '2018',
+            'ano' => '2016',
             'modalidade' => '05',
-            'numero' => '00001',
-            'uasg' => '201057'
+            'numero' => '00016',
+            'uasg' => '110161'
         ];
 
         $dado_contrato_sisg = [
-            'id_contrato' => '39301350006582018'
+            'id_contrato' => '11016150000302016'
         ];
 
         $dado_contrato_nao_sisg = [
