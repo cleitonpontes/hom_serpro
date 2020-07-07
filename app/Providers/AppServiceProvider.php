@@ -9,6 +9,7 @@ use App\Models\Contratocronograma;
 use App\Models\Contratodespesaacessoria;
 use App\Models\Contratohistorico;
 use App\Models\Contratoitem;
+use App\Models\Contratosfpadrao;
 use App\Models\Saldohistoricoitem;
 use App\Models\SfPadrao;
 use App\Models\Subrogacao;
@@ -53,11 +54,7 @@ class AppServiceProvider extends ServiceProvider
         Saldohistoricoitem::observe(SaldohistoricoitemObserver::class);
         Catmatseratualizacao::observe(CatmatseratualizacaoObserver::class);
         Comunica::observe(ComunicaObserver::class);
-<<<<<<< HEAD
-        SfPadrao::observe(SfpadraoObserver::class);
-=======
         Contratosfpadrao::observe(ContratosfpadraoObserver::class);
->>>>>>> hom
         Subrogacao::observe(SubrogacaoObserver::class);
         Contratodespesaacessoria::observe(ContratodespesaacessoriaObserver::class);
     }
