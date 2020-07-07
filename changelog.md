@@ -2,7 +2,7 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
-## [5.0.29]- xx/xx/2020
+## [5.0.29]- 07/07/2020
 
 ### Implementação
 - Consulta Contratos X Responsáveis (Issue #12);
@@ -11,7 +11,7 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 - Consulta Contratos X Prepostos (Issue #16);
 - Consulta Contratos X Garantias (Issue #17);
 - Consulta Contratos X Terceirizados (Issue #19);
-- Padrões Documentos Hábeis SIAFI vinculado ao Contrato (Issue #92);
+- Consulta Contratos X Itens (Issue #22).
 
 ### Melhoria
 - Criação da Tabela para Arquivar Log  (Issue #91);
