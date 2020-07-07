@@ -21,7 +21,7 @@ class CreateSiasgcomprasTable extends Migration
             $table->integer('modalidade_id');
             $table->string('mensagem')->nullable();
             $table->string('situacao');
-            $table->json('situacao');
+            $table->json('json')->nullable();
             $table->timestamps();
 
             $table->foreign('unidade_id')->references('id')->on('unidades')->onDelete('cascade');

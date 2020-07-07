@@ -40,15 +40,19 @@ class ApiSiasg
 
     private function submit(string $servico, array $params)
     {
+        $retorno = '';
+
         $servico_especifico = $this->retornaServicoEspecifico($servico);
         $url = $this->url_servico . $servico_especifico;
         $parametros = $this->trataParametros($params);
 
-        try {
-            $retorno = file_get_contents($url . $parametros, false, $this->context);
-        } catch (\Exception $e) {
-            //var_dump($e);
-        }
+        $retorno = file_get_contents($url . $parametros, false, $this->context);
+
+//        try {
+//
+//        } catch (\Exception $e) {
+//            //var_dump($e);
+//        }
 
         return $retorno;
     }

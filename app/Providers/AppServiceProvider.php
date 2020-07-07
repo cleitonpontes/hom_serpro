@@ -13,6 +13,7 @@ use App\Models\Contratoitem;
 use App\Models\Saldohistoricoitem;
 use App\Models\SfPadrao;
 use App\Models\Contratosfpadrao;
+use App\Models\Siasgcompra;
 use App\Models\Subrogacao;
 use App\Observers\CatmatseratualizacaoObserver;
 use App\Observers\ComunicaObserver;
@@ -23,6 +24,7 @@ use App\Observers\ContratoitemObserver;
 use App\Observers\ContratoObserve;
 use App\Observers\ContratosfpadraoObserver;
 use App\Observers\SaldohistoricoitemObserver;
+use App\Observers\SiasgcompraObserver;
 use App\Observers\SubrogacaoObserver;
 use App\Observers\UsuarioObserver;
 use Illuminate\Support\Facades\App;
@@ -60,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
         Contratosfpadrao::observe(ContratosfpadraoObserver::class);
         Subrogacao::observe(SubrogacaoObserver::class);
         Contratodespesaacessoria::observe(ContratodespesaacessoriaObserver::class);
+        Siasgcompra::observe(SiasgcompraObserver::class);
     }
 
     /**
