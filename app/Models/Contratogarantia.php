@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\ContratoBase as Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -11,6 +11,7 @@ class Contratogarantia extends Model
 {
     use CrudTrait;
     use LogsActivity;
+
     protected static $logFillable = true;
     protected static $logName = 'garantia';
     use SoftDeletes;
@@ -39,27 +40,14 @@ class Contratogarantia extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function getContrato()
-    {
-        if($this->contrato_id){
-            $contrato = Contrato::find($this->contrato_id);
-            return $contrato->numero;
-        }else{
-            return '';
-        }
-    }
     public function getTipo()
     {
-        if($this->tipo){
-            $tipo = Codigoitem::find($this->tipo);
-            return $tipo->descricao;
-        }else{
-            return '';
-        }
+        return $this->tipo()->first()->descricao;
     }
+
     public function formatVlr()
     {
-        return 'R$ '.number_format($this->valor, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor, 2, ',', '.');
     }
 
     /*
@@ -71,6 +59,12 @@ class Contratogarantia extends Model
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
     }
+
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

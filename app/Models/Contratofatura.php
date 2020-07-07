@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Traits\Formatador;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
