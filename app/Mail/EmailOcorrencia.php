@@ -40,7 +40,7 @@ class EmailOcorrencia extends Mailable
 
         $path = env('APP_PATH')."storage/app/";
 
-        if(is_array($anexos) && count($anexos) > 0){
+        if(count($anexos)){
             foreach ($anexos as $anexo){
                 $mensagem->attach($path.$anexo);
             }

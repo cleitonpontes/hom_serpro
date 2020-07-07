@@ -109,7 +109,7 @@ class SfPco extends Model
 
     public function sfpadrao()
     {
-        return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
+        return $this->belongsTo(SfPadrao::class, 'sfpadrao_id');
     }
 
 }
