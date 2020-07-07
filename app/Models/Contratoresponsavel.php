@@ -34,6 +34,8 @@ class Contratoresponsavel extends Model
         'situacao',
         'data_inicio',
         'data_fim',
+        'telefone_fixo',
+        'telefone_celular',
     ];
     // protected $hidden = [];
     // protected $dates = [];
