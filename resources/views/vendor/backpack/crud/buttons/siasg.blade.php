@@ -1,6 +1,6 @@
 <div class="btn-group">
     <button type="button" class="btn btn-default dropdown-toggle"
-            data-toggle="dropdown" title="Importação SIASG"><i class="fa fa-download"></i>
+            data-toggle="dropdown" title="Importação SIASG"><i class="fa fa-download"> </i> Importação SIASG
         <span class="caret"></span>
         <span class="sr-only">Toggle Dropdown</span>
     </button>
