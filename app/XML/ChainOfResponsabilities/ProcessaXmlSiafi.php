@@ -19,27 +19,48 @@ class ProcessaXmlSiafi extends Handler
 
     public function process(string $xmlSiafi,Contratosfpadrao $contratosfpadrao): ?object
     {
+
+        $xml = new \SimpleXMLIterator($xmlSiafi);
+        $xml->
+        $iterator = new \RecursiveIteratorIterator($xml);
+
         $document = new DOMDocument('1.0', 'utf-8');
         $document->loadXML($xmlSiafi);
+
         $documentoHabil = $document->getElementsByTagName('documentoHabil')->item(0)->childNodes;
 
-        dd($documentoHabil);
-        foreach($documentoHabil as $value => $item){
-            $no = $doc->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
-            ($no > 1) ? $this->manipulador($item->nodeName,$xml,$params,$model) : '';
+        $arrayObjetos = [];
+
+        $arrayFilhos = $this->pegaNosFilhos('documentoHabil',$document);
+//        dd($arrayFilhos);
+        if(!empty($arrayFilhos)){
+            foreach($arrayFilhos as $key => $value){
+                $arrayObjetos[$key] = $this->persisteModelo($params,$key,$value,$xmlSiafi,$contratosfpadrao,$document);
+            }
         }
-        $modelo = $this->persisteModelo('dadosBasicos',$xmlSiafi,$contratosfpadrao,$document);
-        dd($modelo);
+
+        dd($arrayObjetos);
+
     }
 
-    public function persisteModelo(string $tagName,string $xml,Model $model,DOMDocument $document): ?object
+    public function persisteModelo(array $params,int $key,string $tagName,string $xml,Model $model,DOMDocument $document): ?object
     {
 
         $nomeModel = $this->retornaNomeModel($document,$tagName);
+
         $model = new $nomeModel;
 
         $noAtual = $document->getElementsByTagName($tagName)->item(0)->childNodes;
+//        dd($noAtual);
+        dump($noAtual->item(0));
+        dump($noAtual->item(1));
+        dump($noAtual->item(2));
+        dump($noAtual->item(3));
+        dump($noAtual->item(4));
+        dump($noAtual->item(5));
+        dump($noAtual->item(6));
 
+        $deducao = [];
         foreach($noAtual as $value => $item){
             $no = $document->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
             ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : '';
@@ -48,6 +69,23 @@ class ProcessaXmlSiafi extends Handler
         $model = $model->newInstance($params);
         $model->save($params);
         return $model;
+
+    }
+
+    public function pegaNosFilhos(string $tagName,DOMDocument $document): ?array
+    {
+        $documentoHabil = $document->getElementsByTagName($tagName)->item(0)->childNodes;
+        $arrayFilhos =[];
+        foreach($documentoHabil as $value => $item){
+            $no = $document->getElementsByTagName($item->nodeName)->item(0)->childNodes->length;
+            ($no > 1) ? $arrayFilhos[$value] = $item->nodeName : '';
+        }
+
+        return $arrayFilhos;
+    }
+
+    public function persisteDadosBasicos()
+    {
 
     }
 

@@ -80,8 +80,8 @@ abstract class Handler
 
     public function retornaNomeModel(DOMDocument $doc,string $tagName): ?string
     {
-        dd($doc);
-        dd($doc->getElementsByTagName($tagName)->item(0));
+//        dd($doc);
+//        dd($doc->getElementsByTagName($tagName)->item(0));
         $nomeNo = $doc->getElementsByTagName($tagName)->item(0)->nodeName;
 
         if ($nomeNo == 'deducao' || $nomeNo == 'encargos' || $nomeNo == 'dadosPgto') {
