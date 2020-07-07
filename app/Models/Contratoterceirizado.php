@@ -109,10 +109,15 @@ class Contratoterceirizado extends Model
         $nome = $this->nome;
         return $nome;
     }
-    public function getTelefone()
+    public function getTelefoneFixo()
     {
-        $telefone = $this->telefone;
-        return $telefone;
+        $telefone_fixo = $this->telefone_fixo;
+        return $telefone_fixo;
+    }
+    public function getTelefoneCelular()
+    {
+        $telefone_celular = $this->telefone_celular;
+        return $telefone_celular;
     }
     public function getEscolaridade()
     {
