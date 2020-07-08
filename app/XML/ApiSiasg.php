@@ -19,7 +19,7 @@ class ApiSiasg
 
     public function executaConsulta(string $tipo, array $dado)
     {
-        $nome_funcao = 'consulta'.$tipo;
+        $nome_funcao = 'consulta' . $tipo;
 
         return $this->$nome_funcao($dado);
     }
@@ -46,13 +46,11 @@ class ApiSiasg
         $url = $this->url_servico . $servico_especifico;
         $parametros = $this->trataParametros($params);
 
-        $retorno = file_get_contents($url . $parametros, false, $this->context);
-
-//        try {
-//
-//        } catch (\Exception $e) {
-//            //var_dump($e);
-//        }
+        try {
+            $retorno = file_get_contents($url . $parametros, false, $this->context);
+        } catch (\Exception $e) {
+            //var_dump($e);
+        }
 
         return $retorno;
     }
@@ -77,37 +75,37 @@ class ApiSiasg
 
     private function consultaCompra(array $dado_consulta)
     {
-        $params = [
-            'ano' => $dado_consulta['ano'],
-            'modalidade' => $dado_consulta['modalidade'],
-            'numero' => $dado_consulta['numero'],
-            'uasg' => $dado_consulta['uasg']
-        ];
+//        $params = [
+//            'ano' => $dado_consulta['ano'],
+//            'modalidade' => $dado_consulta['modalidade'],
+//            'numero' => $dado_consulta['numero'],
+//            'uasg' => $dado_consulta['uasg']
+//        ];
 
-        return $this->submit('CONTRATOCOMPRA', $params);
+        return $this->submit('CONTRATOCOMPRA', $dado_consulta);
     }
 
     private function consultaContratoSisg(array $dado_consulta)
     {
-        $params = [
-            'contrato' => $dado_consulta['id_contrato'],
-        ];
+//        $params = [
+//            'contrato' => $dado_consulta['id_contrato'],
+//        ];
 
-        return $this->submit('CONTRATOSISG', $params);
+        return $this->submit('CONTRATOSISG', $dado_consulta);
     }
 
     private function consultaContratoNaoSisg(array $dado_consulta)
     {
-        $params = [
-            'contratoNSisg' => $dado_consulta['id_contrato'],
-        ];
+//        $params = [
+//            'contratoNSisg' => $dado_consulta['id_contrato'],
+//        ];
 
-        return $this->submit('CONTRATONAOSISG', $params);
+        return $this->submit('CONTRATONAOSISG', $dado_consulta);
     }
 
     private function trataParametros(array $params)
     {
-        return http_build_query($params);
+        return http_build_query($params,'','&');
     }
 
 }

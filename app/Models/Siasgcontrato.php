@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Siasgcompra extends Model
+class Siasgcontrato extends Model
 {
     use CrudTrait;
     use LogsActivity;
-
 
     /*
     |--------------------------------------------------------------------------
@@ -18,20 +17,24 @@ class Siasgcompra extends Model
     |--------------------------------------------------------------------------
     */
     protected static $logFillable = true;
-    protected static $logName = 'siasgcompras';
+    protected static $logName = 'siasgcontratos';
 
-    protected $table = 'siasgcompras';
+    protected $table = 'siasgcontratos';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'unidade_id',
-        'ano',
+        'compra_id',
+        'unidade',
+        'tipo_id',
         'numero',
-        'modalidade_id',
+        'ano',
+        'codigo_interno',
+        'unidadesubrrogacao',
         'mensagem',
         'situacao',
         'json',
+        'sisg',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -41,47 +44,50 @@ class Siasgcompra extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function atualizaJsonMensagemSituacao(int $id,string $json)
+
+    public function buscaIdUnidade(string $codigo)
     {
-        $json_var = json_decode($json);
-        $situacao = ($json_var->messagem != 'Sucesso') ? 'Erro' :  'Importado';
+        $unidade = Unidade::where('codigosiasg',$codigo)
+            ->first();
 
-        $compra = $this->find($id);
-        $compra->json = $json;
-        $compra->mensagem = $json_var->messagem;
-        $compra->situacao = $situacao;
-        $compra->save();
+        if(!isset($unidade->id)){
+            return null;
+        }
 
-        return $compra;
+        return $unidade->id;
     }
 
-
-    public function getUnidade()
+    public function buscaIdTipo(string $tipo)
     {
-        return $this->unidade->codigosiasg . ' - ' . $this->unidade->nomeresumido;
+        $codigoitem = Codigoitem::whereHas('codigo', function ($c){
+                $c->where('descricao','Tipo de Contrato');
+            })
+            ->where('descres',$tipo)
+            ->first();
+
+        return $codigoitem->id;
     }
 
-    public function getModalidade()
-    {
-        return $this->modalidade->descres . ' - ' . $this->modalidade->descricao;
-    }
 
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
     public function unidade()
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');
     }
 
-    public function modalidade()
+    public function unidadesubrrogacao()
     {
-        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
+        return $this->belongsTo(Unidade::class, 'unidadesubrrogacao_id');
     }
 
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

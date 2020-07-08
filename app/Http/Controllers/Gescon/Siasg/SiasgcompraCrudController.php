@@ -193,6 +193,26 @@ class SiasgcompraCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+            [
+                'name' => 'created_at',
+                'label' => 'Criação',
+                'type' => 'datetime',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'updated_at',
+                'label' => 'Atualização',
+                'type' => 'datetime',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
         ];
     }
 
