@@ -34,6 +34,7 @@ class OcorrenciaMailJob implements ShouldQueue
     public function handle()
     {
         Mail::to($this->dadosocorrencia['emailpreposto'])
+            ->cc($this->dadosocorrencia['responsaveis'])
             ->send(new EmailOcorrencia($this->dadosocorrencia));
     }
 }

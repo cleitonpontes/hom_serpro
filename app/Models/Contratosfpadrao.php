@@ -2,19 +2,14 @@
 
 namespace App\Models;
 
-use App\Models\ContratoBase as Model;
+use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratoarquivo extends Model
+class Contratosfpadrao extends Model
 {
     use CrudTrait;
-    use LogsActivity;
-    use SoftDeletes;
-
-    protected static $logFillable = true;
-    protected static $logName = 'contrato_arquivos';
 
     /*
     |--------------------------------------------------------------------------
@@ -22,18 +17,24 @@ class Contratoarquivo extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contrato_arquivos';
+    protected $table = 'sfpadrao';
+    // protected $primaryKey = 'id';
+    // public $timestamps = false;
+    protected $guarded = ['id'];
     protected $fillable = [
-        'contrato_id',
+        'id',
+        'fk',
+        'categoriapadrao',
+        'decricaopadrao',
+        'codugemit',
+        'anodh',
+        'codtipodh',
+        'numdh',
+        'dtemis',
+        'txtmotivo',
+        'msgretorno',
         'tipo',
-        'processo',
-        'sequencial_documento',
-        'descricao',
-        'arquivos',
-    ];
-
-    protected $casts = [
-        'arquivos' => 'array'
+        'situacao'
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -43,29 +44,53 @@ class Contratoarquivo extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function getContrato()
+
+    public function getNumeroContrato()
     {
-        return $this->getContratoNumero();
+        $contrato = Contrato::find($this->fk);
+        return $contrato->numero;
+
     }
 
-    public function getTipo()
+    public function getSituacao()
     {
-        return $this->codigoItem()->first()->descricao;
+        $retorno = '';
+
+        switch ($this->situacao) {
+            case 'P':
+                $retorno = 'Pendente';
+                break;
+            case 'I':
+                $retorno = 'Importado';
+                break;
+            case 'E':
+                $retorno = 'Erro na importação';
+                break;
+        }
+
+        return $retorno;
     }
+
 
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function codigoItem()
+    public function dadosBasicos()
     {
-        return $this->belongsTo(Codigoitem::class, 'tipo');
+        return $this->hasOne(SfDadosBasicos::class, 'sfpadrao_id');
     }
 
+    public function pco()
+    {
+        return $this->hasMany(SfPco::class, 'sfpadrao_id');
+    }
 
-
-
+    public function centroCusto()
+    {
+        return $this->hasMany(Sfcentrocusto::class, 'sfpadrao_id');
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -83,13 +108,4 @@ class Contratoarquivo extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-    public function setArquivosAttribute($value)
-    {
-        $attribute_name = "arquivos";
-        $disk = "local";
-        $contrato = Contrato::find($this->contrato_id);
-        $destination_path = "contrato/".$contrato->id."_".str_replace('/','_',$contrato->numero);
-
-        $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
-    }
 }

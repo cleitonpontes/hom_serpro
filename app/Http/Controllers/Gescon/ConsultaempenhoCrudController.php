@@ -7,6 +7,7 @@ use App\Models\Codigo;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
+use App\Models\Empenhos;
 use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
 use App\Models\Planointerno;
@@ -49,6 +50,7 @@ class ConsultaempenhoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         // $this->crud->removeAllButtons();
 
+        $this->crud->addClause('select', 'contratoempenhos.*');
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratoempenhos.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
@@ -208,7 +210,10 @@ class ConsultaempenhoCrudController extends CrudController
                 'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('empenhos.numero', 'like', "%$searchTerm%");
+                },
             ],
             [
                 'name' => 'empenho.numero',
@@ -372,6 +377,7 @@ class ConsultaempenhoCrudController extends CrudController
         $this->adicionaFiltroNumeroContrato();
         $this->adicionaFiltroFornecedor();
         $this->adicionaFiltroFornecedorEmpenho();
+        $this->adicionaFiltroNumeroEmpenho();
         $this->adicionaFiltroPlanoInterno();
         $this->adicionaFiltroNaturezaDespesa();
 
@@ -398,6 +404,31 @@ class ConsultaempenhoCrudController extends CrudController
             function ($value) {
                 $this->crud->addClause('whereIn'
                     , 'contratos.numero', json_decode($value));
+            }
+        );
+    }
+
+    /**
+     * Adiciona o filtro ao campo Número do Contrato
+     *
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    public function adicionaFiltroNumeroEmpenho()
+    {
+        $campo = [
+            'name' => 'numEmpenho',
+            'type' => 'select2_multiple',
+            'label' => 'Núm. Empenho'
+        ];
+
+        $empenhos = $this->retornaEmpenhos();
+
+        $this->crud->addFilter(
+            $campo,
+            $empenhos,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'empenhos.numero', json_decode($value));
             }
         );
     }
@@ -526,6 +557,22 @@ class ConsultaempenhoCrudController extends CrudController
     }
 
     /**
+     * Retorna dados dos Empenhos para exibição no controle de filtro
+     *
+     * @return array
+     * @author Saulo Soares <saulosao@gmail.com>
+     */
+    private function retornaEmpenhos()
+    {
+        $dados = Empenhos::select('numero');
+        $dados->where('unidade_id', session('user_ug_id'));
+
+        $dados->orderBy('id');
+
+        return $dados->pluck( 'numero','numero')->toArray();
+    }
+
+    /**
      * Retorna dados de Fornecedores para exibição no controle de filtro
      *
      * @return array
@@ -539,6 +586,7 @@ class ConsultaempenhoCrudController extends CrudController
 
         $dados->whereHas('contratos', function ($c) {
             $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
         });
 
         return $dados->pluck('descricao', 'cpf_cnpj_idgener')->toArray();
@@ -557,6 +605,10 @@ class ConsultaempenhoCrudController extends CrudController
         );
 
         $dados->has('empenhos');
+       $dados->whereHas('contratos', function ($c) {
+            $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
+        });
 
         return $dados->pluck('descricao', 'cpf_cnpj_idgener')->toArray();
     }
@@ -575,6 +627,7 @@ class ConsultaempenhoCrudController extends CrudController
 
         $dados->whereHas('empenhos', function ($c) {
             $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
         });
 
         return $dados->pluck('descricao', 'codigo')->toArray();
@@ -594,6 +647,7 @@ class ConsultaempenhoCrudController extends CrudController
 
         $dados->whereHas('empenhos', function ($c) {
             $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
         });
 
         return $dados->pluck('descricao', 'codigo')->toArray();

@@ -2,18 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Http\Traits\Formatador;
 use Backpack\CRUD\CrudTrait;
+// use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratoterceirizado extends Model
+class Contratoterceirizado extends ContratoBase
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+    use Formatador;
+
     protected static $logFillable = true;
     protected static $logName = 'terceirizado';
-    use SoftDeletes;
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -21,9 +25,6 @@ class Contratoterceirizado extends Model
     */
 
     protected $table = 'contratoterceirizados';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
         'cpf',
@@ -41,14 +42,13 @@ class Contratoterceirizado extends Model
         'telefone_fixo',
         'telefone_celular',
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function inserirContratoterceirizadoMigracaoConta(array $dados)
     {
         $this->fill($dados);
@@ -57,57 +57,21 @@ class Contratoterceirizado extends Model
         return $this;
     }
 
-    public function getContrato()
-    {
-        if($this->contrato_id){
-            $contrato = Contrato::find($this->contrato_id);
-            return $contrato->numero;
-        }else{
-            return '';
-        }
-    }
     public function getFuncao()
     {
-        if($this->funcao_id){
-            $funcao = Codigoitem::find($this->funcao_id);
-            return $funcao->descricao;
-        }else{
-            return '';
-        }
-    }
-
-    public function getOrgao()
-    {
-        $orgao = Orgao::whereHas('unidades', function ($query) {
-            $query->where('id', '=', $this->contrato->unidade_id);
-        })->first();
-
-        return $orgao->codigo . ' - ' . $orgao->nome;
-    }
-
-    public function getUnidade()
-    {
-        $unidade = Unidade::find($this->contrato->unidade_id);
-
-        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
-    }
-
-    public function getFornecedor()
-    {
-        $fornecedor = Fornecedor::find($this->contrato->fornecedor_id);
-
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+        return $this->funcao->descricao;
     }
 
     public function getCpf()
     {
-        $cpf = '***' . substr($this->cpf,3,9).'**';
+        $cpf = '***' . substr($this->cpf,3,9) . '**';
+
         return $cpf;
     }
+
     public function getNome()
     {
-        $nome = $this->nome;
-        return $nome;
+        return $this->nome;
     }
     public function getTelefoneFixo()
     {
@@ -121,29 +85,33 @@ class Contratoterceirizado extends Model
     }
     public function getEscolaridade()
     {
-        if($this->escolaridade_id){
-            $escolaridade = Codigoitem::find($this->escolaridade_id);
-            return $escolaridade->descricao;
-        }else{
-            return '';
-        }
+        return $this->escolaridade->descricao;
     }
+
     public function formatVlrSalario()
     {
-        return 'R$ '.number_format($this->salario, 2, ',', '.');
+        return $this->retornaCampoFormatadoComoNumero($this->salario, true);
     }
+
     public function formatVlrCusto()
     {
-        return 'R$ '.number_format($this->custo, 2, ',', '.');
+        return $this->retornaCampoFormatadoComoNumero($this->custo, true);
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
+    public function escolaridade()
+    {
+        return $this->belongsTo(Codigoitem::class, 'escolaridade_id');
     }
 
     public function funcao()
@@ -151,10 +119,6 @@ class Contratoterceirizado extends Model
         return $this->belongsTo(Codigoitem::class, 'funcao_id');
     }
 
-    public function escolaridade()
-    {
-        return $this->belongsTo(Codigoitem::class, 'escolaridade_id');
-    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -172,4 +136,5 @@ class Contratoterceirizado extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }

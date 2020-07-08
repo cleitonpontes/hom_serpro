@@ -2,19 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\ContratoBase as Model;
 use Backpack\CRUD\CrudTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
-class Contratoarquivo extends Model
+class ActivityLogExpurgo extends Model
 {
     use CrudTrait;
-    use LogsActivity;
-    use SoftDeletes;
-
-    protected static $logFillable = true;
-    protected static $logName = 'contrato_arquivos';
 
     /*
     |--------------------------------------------------------------------------
@@ -22,19 +15,12 @@ class Contratoarquivo extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contrato_arquivos';
-    protected $fillable = [
-        'contrato_id',
-        'tipo',
-        'processo',
-        'sequencial_documento',
-        'descricao',
-        'arquivos',
-    ];
+    protected $table = 'activity_log_expurgo';
+    // protected $primaryKey = 'id';
+    // public $timestamps = false;
+    // protected $guarded = ['id'];
+    protected $fillable = ['id','log_name','description','subject_id','subject_type','ip','causer_id','causer_type','properties','created_at', 'updated_at'];
 
-    protected $casts = [
-        'arquivos' => 'array'
-    ];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -43,28 +29,28 @@ class Contratoarquivo extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function getContrato()
-    {
-        return $this->getContratoNumero();
-    }
 
-    public function getTipo()
+    /*
+    public function getUser()
     {
-        return $this->codigoItem()->first()->descricao;
+        if($this->causer_id){
+            $user = BackpackUser::find($this->causer_id);
+            if(isset($user->cpf) and isset($user->name)){
+                return $user->cpf . ' - ' . $user->name;
+            }else{
+                return '';
+            }
+        }else{
+            return '';
+        }
     }
+    */
 
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function codigoItem()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo');
-    }
-
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -83,13 +69,4 @@ class Contratoarquivo extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-    public function setArquivosAttribute($value)
-    {
-        $attribute_name = "arquivos";
-        $disk = "local";
-        $contrato = Contrato::find($this->contrato_id);
-        $destination_path = "contrato/".$contrato->id."_".str_replace('/','_',$contrato->numero);
-
-        $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
-    }
 }

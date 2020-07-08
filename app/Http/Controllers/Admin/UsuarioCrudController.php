@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Traits\Authorizes;
 use App\Jobs\UserMailPasswordJob;
 use App\Models\BackpackUser;
+use App\Models\Contratoresponsavel;
 use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\UsuarioRequest as StoreRequest;
 use App\Http\Requests\UsuarioRequest as UpdateRequest;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -61,6 +63,9 @@ class UsuarioCrudController extends CrudController
                 'name' => 'cpf',
                 'label' => 'CPF',
                 'type' => 'text',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('name', 'ilike', '%' . $searchTerm . '%');
+                }
             ],
             [
                 'name' => 'name',
@@ -71,6 +76,25 @@ class UsuarioCrudController extends CrudController
                 'name' => 'email',
                 'label' => 'E-mail',
                 'type' => 'email',
+            ],
+            [
+                'name' => 'situacao',
+                'label' => 'Situação',
+                'type' => 'boolean',
+                'options' => [0 => 'Inativo', 1 => 'Ativo'],
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    if (strtolower($searchTerm) == 'inativo') {
+                        $query->orWhere('situacao', 0);
+                    }
+
+                    if (strtolower($searchTerm) == 'ativo') {
+                        $query->orWhere('situacao', 1);
+                    }
+                }
             ],
             [
                 'name' => 'getUGPrimaria',
@@ -144,6 +168,14 @@ class UsuarioCrudController extends CrudController
                 'label' => 'E-mail',
                 'type' => 'email',
                 'tab' => 'Dados Pessoais',
+            ],
+            [
+                'name' => 'situacao',
+                'label' => "Situação",
+                'type' => 'select_from_array',
+                'options' => [1 => 'Ativo', 0 => 'Inativo'],
+                'allows_null' => false,
+                'tab' => 'Dados Pessoais'
             ],
             [
                 // 1-n relationship
