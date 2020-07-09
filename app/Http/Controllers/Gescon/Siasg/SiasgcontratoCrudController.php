@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Gescon\Siasg;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -24,14 +24,18 @@ class SiasgcontratoCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Siasgcontrato');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/siasgcontrato');
-        $this->crud->setEntityNameStrings('siasgcontrato', 'siasgcontratos');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/siasg/contratos');
+        $this->crud->setEntityNameStrings('Contratos - SIASG', 'Cadastro Contrato - SIASG');
 
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
+        $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
+
+
 
         // TODO: remove setFromDb() and manually define Fields and Columns
         $this->crud->setFromDb();

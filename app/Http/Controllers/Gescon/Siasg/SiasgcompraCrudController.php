@@ -35,6 +35,8 @@ class SiasgcompraCrudController extends CrudController
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'siasgcompras.modalidade_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'siasgcompras.unidade_id');
 
+
+        $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');

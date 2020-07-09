@@ -9,10 +9,7 @@
             <a href="/gescon/siasg/compras">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Compras</a>
         </li>
         <li>
-            <a href="/gescon/siasg/compras">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Contratos SISG</a>
-        </li>
-        <li>
-            <a href="/gescon/siasg/compras">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Contratos Não SISG</a>
+            <a href="/gescon/siasg/contratos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Contratos</a>
         </li>
     </ul>
 </div>

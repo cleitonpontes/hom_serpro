@@ -25,12 +25,12 @@ class Siasgcontrato extends Model
     // protected $guarded = ['id'];
     protected $fillable = [
         'compra_id',
-        'unidade',
+        'unidade_id',
         'tipo_id',
         'numero',
         'ano',
         'codigo_interno',
-        'unidadesubrrogacao',
+        'unidadesubrrogacao_id',
         'mensagem',
         'situacao',
         'json',
@@ -51,11 +51,15 @@ class Siasgcontrato extends Model
             ->first();
 
         if(!isset($unidade->id)){
+            if($codigo == '000000'){
+                return 'sem';
+            }
             return null;
         }
 
         return $unidade->id;
     }
+
 
     public function buscaIdTipo(string $tipo)
     {
