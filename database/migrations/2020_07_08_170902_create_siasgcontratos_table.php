@@ -30,7 +30,7 @@ class CreateSiasgcontratosTable extends Migration
 
             $table->foreign('unidade_id')->references('id')->on('unidades')->onDelete('cascade');
             $table->foreign('unidadesubrrogacao_id')->references('id')->on('unidades')->onDelete('cascade');
-            $table->foreign('compra_id')->references('id')->on('codigoitens')->onDelete('cascade');
+            $table->foreign('compra_id')->references('id')->on('siasgcompras')->onDelete('cascade');
             $table->foreign('tipo_id')->references('id')->on('codigoitens')->onDelete('cascade');
 
             $table->unique(['unidade_id', 'tipo_id', 'numero', 'ano']);

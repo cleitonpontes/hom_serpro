@@ -48,7 +48,7 @@ class SiasgcompraObserver
 
         $compra = $siasgcompra->atualizaJsonMensagemSituacao($siasgcompra->id, $retorno);
 
-        $contratos = $this->atualizaSiasgContratos($compra);
+        $contratos = $this->atualizaSiasgContratos($siasgcompra);
 
     }
 

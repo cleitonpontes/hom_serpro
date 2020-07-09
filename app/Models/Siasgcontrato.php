@@ -72,12 +72,49 @@ class Siasgcontrato extends Model
         return $codigoitem->id;
     }
 
+    public function getUnidade()
+    {
+        if(!$this->unidade_id){
+            return '';
+        }
+
+        return $this->unidade->codigosiasg . ' - ' . $this->unidade->nomeresumido;
+    }
+
+    public function getUnidadeSubrrogada()
+    {
+        if(!$this->unidadesubrrogacao_id){
+            return '';
+        }
+
+        return $this->unidadesubrrogacao->codigosiasg . ' - ' . $this->unidadesubrrogacao->nomeresumido;
+    }
+
+    public function getTipo()
+    {
+        return $this->tipo->descres . ' - ' . $this->tipo->descricao;
+    }
+
+    public function getCompra()
+    {
+        if(!$this->compra_id){
+            return '';
+        }
+
+        return $this->compra->unidade->codigosiasg .  ' | ' . $this->compra->numero . '/'. $this->compra->ano;
+    }
+
 
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function compra()
+    {
+        return $this->belongsTo(Siasgcompra::class, 'compra_id');
+    }
+
     public function unidade()
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');

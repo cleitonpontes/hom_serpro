@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gescon\Siasg;
 
 use App\Models\Codigoitem;
+use App\Models\Siasgcompra;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -81,22 +82,22 @@ class SiasgcompraCrudController extends CrudController
         $this->crud->addFilter([ // simple filter
             'type' => 'text',
             'name' => 'ano',
-            'label'=> 'Ano Compra'
+            'label' => 'Ano Compra'
         ],
             false,
-            function($value) { // if the filter is active
-                 $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
-            } );
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
+            });
 
         $this->crud->addFilter([ // simple filter
             'type' => 'text',
             'name' => 'numero',
-            'label'=> 'Número Compra'
+            'label' => 'Número Compra'
         ],
             false,
-            function($value) { // if the filter is active
-                 $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
-            } );
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
+            });
 
         $modalidades = $this->buscaModalidades();
 
@@ -321,16 +322,60 @@ class SiasgcompraCrudController extends CrudController
             'id_contrato' => '090003000000000050000272018'
         ];
 
-        $dados0 = json_decode($apiSiasg->executaConsulta($tipo_consulta0,$dado_compra));
-        $dados1 = json_decode($apiSiasg->executaConsulta($tipo_consulta1,$dado_contrato_sisg));
-        $dados2 = json_decode($apiSiasg->executaConsulta($tipo_consulta2,$dado_contrato_nao_sisg));
+        $dados0 = json_decode($apiSiasg->executaConsulta($tipo_consulta0, $dado_compra));
+        $dados1 = json_decode($apiSiasg->executaConsulta($tipo_consulta1, $dado_contrato_sisg));
+        $dados2 = json_decode($apiSiasg->executaConsulta($tipo_consulta2, $dado_contrato_nao_sisg));
 
-        dd($tipo_consulta0,$dados0,$tipo_consulta1,$dados1,$tipo_consulta2,$dados2);
+        dd($tipo_consulta0, $dados0, $tipo_consulta1, $dados1, $tipo_consulta2, $dados2);
 
     }
 
 
+    public function inserirComprasEmMassa()
+    {
+        $file = fopen('C:\Users\heles.junior\Desktop\compras\dados_compras.txt', "r");
+        $compras = new Siasgcompra;
+        $dados = [];
+        while (!feof($file)) {
+            $line = fgets($file);
 
+            $unidade = Unidade::where('codigosiasg', substr($line, 0, 6))
+                ->first();
+
+            $modalidade = Codigoitem::whereHas('codigo', function ($c) {
+                $c->where('descricao', '=', 'Modalidade Licitação');
+            })
+                ->where('descres', substr($line, 6, 2))
+                ->first();
+
+            $numero = substr($line, 8, 5);
+            $ano = substr($line, 13, 4);
+
+            $busca = $compras->where('unidade_id', $unidade->id)
+                ->where('modalidade_id', $modalidade->id)
+                ->where('ano', $ano)
+                ->where('numero', $numero)
+                ->first();
+
+            if (!isset($busca->id)) {
+                $dados = [
+                    'unidade_id' => $unidade->id,
+                    'modalidade_id' => $modalidade->id,
+                    'ano' => $ano,
+                    'numero' => $numero,
+                    'situacao' => 'Pendente'
+                ];
+
+                $compranova = new Siasgcompra();
+                $compranova->fill($dados);
+                $compranova->save();
+            }
+        }
+        fclose($file);
+
+        dd($dados);
+
+    }
 
 
 }
