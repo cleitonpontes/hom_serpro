@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Contratosfpadrao;
 use App\XML\ChainOfResponsabilities\ProcessaXmlSiafi;
 use App\XML\Execsiafi;
+use App\XML\PadroesExecSiafi;
 
 class ContratosfpadraoObserver
 {
@@ -18,9 +19,9 @@ class ContratosfpadraoObserver
     {
         $xml = new Execsiafi();
         $xmlSiafi = $xml->consultaDh(backpack_user(), session()->get('user_ug'), 'HOM', $contratosfpadrao->anodh,$contratosfpadrao);
+        $padraoExecSiafi =  new PadroesExecSiafi();
 
-        $processamento =  new ProcessaXmlSiafi();
-        $resultado = $processamento->process($xmlSiafi,$contratosfpadrao);
+        $resultado = $padraoExecSiafi->processamento($xmlSiafi,$contratosfpadrao);
         dd($resultado);
     }
 
@@ -34,6 +35,7 @@ class ContratosfpadraoObserver
     {
         //
     }
+
 
     /**
      * Handle the models contratosfpadrao "deleted" event.
@@ -67,4 +69,5 @@ class ContratosfpadraoObserver
     {
         //
     }
+
 }

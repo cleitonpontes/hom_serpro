@@ -38,6 +38,7 @@ abstract class Handler
     {
         $doc = new DOMDocument('1.0', 'utf-8');
         $doc->loadXML($xml);
+
         $nomeModel = $this->retornaNomeModel($doc,$tagName);
         $model = new $nomeModel;
 
