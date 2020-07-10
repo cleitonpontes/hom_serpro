@@ -27,7 +27,7 @@ class SfItemRecolhimento extends Model
      */
     protected $fillable = [
         'id',
-        'sfdeducao_id',
+        'sfded_id',
         'sfencargo_id',
         'sfdadospgto_id',
         'numseqitem',
@@ -42,7 +42,7 @@ class SfItemRecolhimento extends Model
 
     public function sfdeducao()
     {
-        return $this->belongsTo(SfDeducao::class, 'sfdeducao_id');
+        return $this->belongsTo(SfDeducao::class, 'sfded_id');
     }
     public function sfencargos()
     {

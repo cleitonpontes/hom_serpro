@@ -20,7 +20,9 @@ class ContratosfpadraoObserver
         $xml = new Execsiafi();
         $xmlSiafi = $xml->consultaDh(backpack_user(), session()->get('user_ug'), 'HOM', $contratosfpadrao->anodh,$contratosfpadrao);
         $padraoExecSiafi =  new PadroesExecSiafi();
-
+//        $xml = simplexml_load_string(str_replace(':', '', $xmlSiafi));
+//        $json = json_encode($xml);
+//        dd($json);
         $resultado = $padraoExecSiafi->processamento($xmlSiafi,$contratosfpadrao);
         dd($resultado);
     }

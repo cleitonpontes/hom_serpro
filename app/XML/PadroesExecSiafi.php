@@ -97,43 +97,90 @@ class PadroesExecSiafi
             $model = new $modelName;
             $model = $model->newInstance($valor);
             $model->save($valor);
-            $this->processaItemRecolhimento($xpath,'itemRecolhimento','//deducao['.$i.']/itemRecolhimento',$model);
-            dump('passei');
+            $this->processaItemRecolhimento($xpath,'//deducao['.$i.']/itemRecolhimento',$model);
+            $this->processaPredoc($xpath,'//deducao['.$i.']/predoc',$model);
         }
-        dd('teste');
 
     }
 
-    public function processaItemRecolhimento(\DOMXPath $xpath,string $tagName,string $query,Model $model)
+    public function processaItemRecolhimento(\DOMXPath $xpath,string $query,Model $model)
     {
 
         $params["sfded_id"] = $model->id;
-        $modelName = "App\Models\Sf".(ucfirst($tagName));
+        $modelName = "App\Models\SfItemRecolhimento";
         $itemRecolhimento = $xpath->query($query);
 
         $no = $itemRecolhimento->item(0)->childNodes;
+
         foreach($no as $value => $item){
             $no = $item->childNodes->length;
             ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : '';
         }
-        //PAREI AQUI
-        dd($params);
 
-        DB::beginTransaction();
-        try {
-            $model = new $modelName;
-            $model = $model->newInstance($params);
-            $model->save($params);
-            dd($model);
-            DB::commit();
-
-        } catch (\Exception $exc) {
-            DB::rollback();
-            dd($exc->getMessage());
-        }
+        $model = new $modelName;
+        $model = $model->newInstance($params);
+        $model->save($params);
 
         return $model;
     }
 
+    public function processaPredoc(\DOMXPath $xpath,string $query,Model $model)
+    {
+        $params["sfded_id"] = $model->id;
+        $modelName = "App\Models\SfPredoc";
+        $preDoc = $xpath->query($query);
+
+        $no = $preDoc->item(0)->childNodes;
+
+        foreach($no as $value => $item){
+            $no = $item->childNodes->length;
+            ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : $params['tipo']= $item->nodeName;
+
+            $preDocFilho = $item->childNodes;
+            if($preDocFilho->length > 0) {
+                foreach ($preDocFilho as $value => $item) {
+                    $noFilho = [];
+                    $no = $item->childNodes->length;
+                    ($no <= 1 && $item->nodeName != '#text') ? $params[strtolower($item->nodeName)]=$item->nodeValue : $noFilho = ['i' => $value + 1,'tagName'=>$item->nodeValue];
+                    //PAREI AQUI
+                    dd($noFilho);
+                    if(!empty($noFilho)){
+                        $this->processaDomicilioBancario($xpath,'//deducao['.$i.']/predoc',$model);
+                    }
+                }
+            }
+
+        }
+
+        dd($params);
+
+
+        $model = new $modelName;
+        $model = $model->newInstance($params);
+        $model->save($params);
+
+        return $model;
+    }
+
+    public function processaDomicilioBancario(\DOMXPath $xpath,string $query,Model $model)
+    {
+
+        $params["sfded_id"] = $model->id;
+        $modelName = "App\Models\SfDomicilioBancario";
+        $itemRecolhimento = $xpath->query($query);
+
+        $no = $itemRecolhimento->item(0)->childNodes;
+
+        foreach($no as $value => $item){
+            $no = $item->childNodes->length;
+            ($no <= 1) ? $params[strtolower($item->nodeName)]=$item->nodeValue : '';
+        }
+
+        $model = new $modelName;
+        $model = $model->newInstance($params);
+        $model->save($params);
+
+        return $model;
+    }
 
 }

@@ -27,10 +27,42 @@ class SfPredoc extends Model
      */
     protected $fillable = [
         'id',
-        'sfdeducao_id',
+        'sfded_id',
         'sfencargo_id',
         'sfdadospgto_id',
-        'txtobser'
+        'txtobser',
+        'codrecurso',
+        'prdoapuracao',
+        'numref',
+        'txtprocesso',
+        'vlrrctabrutaacum',
+        'vlrpercentual',
+        'mesreferencia',
+        'anoreferencia',
+        'codugtmdrserv',
+        'numnf',
+        'txtserienf',
+        'numsubserienf',
+        'codmuninf',
+        'emisnf',
+        'vlrnf',
+        'numaliqnf',
+        'numcodbarras',
+        'codugfavorecida',
+        'codrecolhedor',
+        'numreferencia',
+        'mescompet',
+        'anocompet',
+        'vlrdocumento',
+        'vlrdesconto',
+        'vlroutrdeduc',
+        'codrecolhimento',
+        'indradiant13',
+        'codtipoob',
+        'codcredordevedor',
+        'codnumlista',
+        'txtcit',
+        'tipo'
     ];
 
     public function sfdeducao()
@@ -45,6 +77,11 @@ class SfPredoc extends Model
     public function sfdadospgto()
     {
         return $this->belongsTo(SfDadosPgto::class, 'sfdadospgto_id');
+    }
+
+    public function sfddomiciliobancario()
+    {
+        return $this->hasOne(SfDomicilioBancario::class, 'sfpredoc_id');
     }
 
 }
