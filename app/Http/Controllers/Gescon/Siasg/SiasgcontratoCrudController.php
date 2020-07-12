@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Gescon\Siasg;
 
+use App\Models\Codigoitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\SiasgcontratoRequest as StoreRequest;
 use App\Http\Requests\SiasgcontratoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class SiasgcontratoCrudController
@@ -31,6 +33,9 @@ class SiasgcontratoCrudController extends CrudController
         $this->crud->addClause('leftjoin', 'codigoitens', 'codigoitens.id', '=', 'siasgcontratos.tipo_id');
         $this->crud->addClause('leftjoin', 'unidades', 'unidades.id', '=', 'siasgcontratos.unidade_id');
         $this->crud->addClause('select', 'siasgcontratos.*');
+        $this->crud->addClause('where', 'siasgcontratos.unidade_id', '=', session()->get('user_ug_id'));
+        $this->crud->addClause('orwhere', 'siasgcontratos.unidadesubrrogacao_id', '=', session()->get('user_ug_id'));
+
 
         /*
         |--------------------------------------------------------------------------
@@ -54,7 +59,8 @@ class SiasgcontratoCrudController extends CrudController
         $colunas = $this->colunas();
         $this->crud->addColumns($colunas);
 
-
+        $campos = $this->campos();
+        $this->crud->addFields($campos);
 
 
         // add asterisk for fields that are required in SiasgcontratoRequest
@@ -193,6 +199,111 @@ class SiasgcontratoCrudController extends CrudController
         ];
     }
 
+    public function campos()
+    {
+        $tipos = $this->buscaTipos();
+
+        return [
+            [
+                // 1-n relationship
+                'label' => "Compra", // Table column heading
+                'type' => "select2_from_ajax_compra",
+                'name' => 'compra_id', // the column that contains the ID of that connected entity
+                'entity' => 'compra', // the method that defines the relationship in your Model
+                'attribute' => "unidadecompra", // foreign key attribute that is shown to user
+                'attribute2' => "numerocompra", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_comprasiasg',
+                'model' => "App\Models\Siasgcompra", // foreign key model
+                'data_source' => url("api/comprasiasg"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a Compra", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+            ],
+            [
+                // 1-n relationship
+                'label' => "Unidade do Contrato", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'unidade_id', // the column that contains the ID of that connected entity
+                'entity' => 'unidade', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
+                'model' => "App\Models\Unidade", // foreign key model
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a Unidade", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+            ],
+            [
+                // select_from_array
+                'name' => 'tipo_id',
+                'label' => "Tipo",
+                'type' => 'select2_from_array',
+                'options' => $tipos,
+                'allows_null' => true,
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'numero',
+                'label' => 'Número',
+                'type' => 'numerocompra',
+            ],
+            [
+                'name' => 'ano',
+                'label' => 'Ano Contrato',
+                'type' => 'anoquatrodigitos',
+            ],
+            [ // select_from_array
+                'name' => 'sisg',
+                'label' => "Rotina SISG?",
+                'type' => 'select_from_array',
+                'options' => [1 => 'Sim', 0 => 'Não'],
+                'allows_null' => false,
+            ],
+            [
+                'name' => 'codigo_interno',
+                'label' => 'Código Interno Não SISG',
+                'type' => 'codigointernonsisg',
+                'attributes' => [
+                    'onfocusout' => "maiuscula(this)"
+                ],
+                'default' => '0000000000'
+            ],
+            [
+                // 1-n relationship
+                'label' => "Unidade Subrrogação", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'unidadesubrrogacao_id', // the column that contains the ID of that connected entity
+                'entity' => 'unidadesubrrogacao', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
+                'model' => "App\Models\Unidade", // foreign key model
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a Unidade de Subrrogação", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+            ],
+            [   // Hidden
+                'name' => 'situacao',
+                'type' => 'hidden',
+                'default' => 'Pendente',
+            ],
+        ];
+
+    }
+
+    private function buscaTipos()
+    {
+        $tipos = Codigoitem::select(DB::raw("CONCAT(descres,' - ',descricao) AS nome"), 'id')
+            ->whereHas('codigo', function ($query) {
+                $query->where('descricao', '=', 'Tipo de Contrato');
+            })
+            ->whereIn('descres', config('api-siasg.tipo_contrato'))
+            ->orderBy('descres')
+            ->pluck('nome', 'id')
+            ->toArray();
+
+        return $tipos;
+    }
 
     public function store(StoreRequest $request)
     {

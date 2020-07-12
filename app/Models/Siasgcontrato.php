@@ -45,6 +45,8 @@ class Siasgcontrato extends Model
     |--------------------------------------------------------------------------
     */
 
+    
+
     public function buscaIdUnidade(string $codigo)
     {
         $unidade = Unidade::where('codigosiasg',$codigo)

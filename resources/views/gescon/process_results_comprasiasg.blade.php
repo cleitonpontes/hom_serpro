@@ -4,8 +4,8 @@ processResults: function (data, params) {
     var result = {
         results: $.map(data.data, function (item) {
             return {
-                text: item['codigo']+' - '+item['nomeresumido'],
-                id: item["{{ $connected_entity_key_name }}"]
+                text: item['unidadecompra']+' | '+item['numerocompra'],
+                id: item['id']
             }
         }),
         pagination: {

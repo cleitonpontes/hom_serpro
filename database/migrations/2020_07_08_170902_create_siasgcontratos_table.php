@@ -20,7 +20,7 @@ class CreateSiasgcontratosTable extends Migration
             $table->integer('tipo_id');
             $table->string('numero');
             $table->string('ano');
-            $table->string('codigo_interno')->nullable();
+            $table->string('codigo_interno')->default('0000000000');
             $table->integer('unidadesubrrogacao_id')->nullable();
             $table->string('mensagem')->nullable();
             $table->string('situacao');

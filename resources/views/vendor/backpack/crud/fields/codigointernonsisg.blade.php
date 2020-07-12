@@ -23,7 +23,7 @@
 
 @push('crud_fields_scripts')
     <script type="text/javascript">
-        $('#{{ $field['name'] }}').mask('99999');
+        $('#{{ $field['name'] }}').mask('**********');
     </script>
 @endpush
 

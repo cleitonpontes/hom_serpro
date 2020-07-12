@@ -18,7 +18,14 @@
 
         @if ($old_value)
             @php
-                $item = $connected_entity->find($old_value);
+                $item = $connected_entity->select(
+            \Illuminate\Support\Facades\DB::raw("CONCAT(unidades.codigosiasg,' - ',unidades.nomeresumido) AS unidadecompra"),
+            \Illuminate\Support\Facades\DB::raw("CONCAT(siasgcompras.numero,' - ',siasgcompras.ano) AS numerocompra"),
+            'siasgcompras.id AS id'
+        )
+            ->join('unidades', 'siasgcompras.unidade_id', '=', 'unidades.id')
+            ->where('siasgcompras.id',$old_value)
+            ->first();
             @endphp
             @if ($item)
 
@@ -30,7 +37,7 @@
             @endif
                 @if(isset($field['attribute2']))
                 <option value="{{ $item->getKey() }}" selected>
-                    {{ $item->{$field['attribute']} .' - '. $item->{$field['attribute2']} }}
+                    {{ $item->{$field['attribute']} .' | '. $item->{$field['attribute2']} }}
                 </option>
                 @else
                     <option value="{{ $item->getKey() }}" selected>
