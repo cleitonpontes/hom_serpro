@@ -45,15 +45,19 @@ class Siasgcontrato extends Model
     |--------------------------------------------------------------------------
     */
 
-    
+    public function buscaContratosPendentes()
+    {
+        return $this->where('situacao','Pendente')->get();
+    }
+
 
     public function buscaIdUnidade(string $codigo)
     {
-        $unidade = Unidade::where('codigosiasg',$codigo)
+        $unidade = Unidade::where('codigosiasg', $codigo)
             ->first();
 
-        if(!isset($unidade->id)){
-            if($codigo == '000000'){
+        if (!isset($unidade->id)) {
+            if ($codigo == '000000') {
                 return 'sem';
             }
             return null;
@@ -65,10 +69,10 @@ class Siasgcontrato extends Model
 
     public function buscaIdTipo(string $tipo)
     {
-        $codigoitem = Codigoitem::whereHas('codigo', function ($c){
-                $c->where('descricao','Tipo de Contrato');
-            })
-            ->where('descres',$tipo)
+        $codigoitem = Codigoitem::whereHas('codigo', function ($c) {
+            $c->where('descricao', 'Tipo de Contrato');
+        })
+            ->where('descres', $tipo)
             ->first();
 
         return $codigoitem->id;
@@ -76,7 +80,7 @@ class Siasgcontrato extends Model
 
     public function getUnidade()
     {
-        if(!$this->unidade_id){
+        if (!$this->unidade_id) {
             return '';
         }
 
@@ -85,7 +89,7 @@ class Siasgcontrato extends Model
 
     public function getUnidadeSubrrogada()
     {
-        if(!$this->unidadesubrrogacao_id){
+        if (!$this->unidadesubrrogacao_id) {
             return '';
         }
 
@@ -99,11 +103,11 @@ class Siasgcontrato extends Model
 
     public function getCompra()
     {
-        if(!$this->compra_id){
+        if (!$this->compra_id) {
             return '';
         }
 
-        return $this->compra->unidade->codigosiasg .  ' | ' . $this->compra->numero . '/'. $this->compra->ano;
+        return $this->compra->unidade->codigosiasg . ' | ' . $this->compra->numero . '/' . $this->compra->ano;
     }
 
 

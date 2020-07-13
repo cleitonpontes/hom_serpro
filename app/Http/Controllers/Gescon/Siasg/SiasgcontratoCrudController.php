@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Gescon\Siasg;
 
 use App\Models\Codigoitem;
+use App\Models\Siasgcontrato;
+use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -322,4 +324,51 @@ class SiasgcontratoCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
+    public function verificarContratosPendentes()
+    {
+        $model = new Siasgcontrato;
+        $apiSiasg = new ApiSiasg();
+
+        $contratos = $model->buscaContratosPendentes();
+
+        foreach ($contratos as $contrato) {
+            $dado = [];
+            if ($contrato->sisg == true) {
+                $dado = [
+                    'contrato' => $contrato->unidade->codigosiasg . $contrato->tipo->descres . $contrato->numero . $contrato->ano
+                ];
+                $retorno = $apiSiasg->executaConsulta('ContratoSisg', $dado);
+            } else {
+                $dado = [
+                    'contratoNSisg' => $contrato->unidade->codigosiasg . $contrato->codigo_interno . $contrato->tipo->descres . $contrato->numero . $contrato->ano
+                ];
+                $retorno = $apiSiasg->executaConsulta('ContratoNaoSisg', $dado);
+            }
+            $contrato_atualizado = $this->trataRetornoContrato($retorno, $contrato);
+        }
+
+        return 'Contratos importados com sucesso';
+    }
+
+    private function trataRetornoContrato($retorno, Siasgcontrato $siasgcontrato)
+    {
+        $var_json = json_decode($retorno);
+
+        if (isset($var_json->messagem)) {
+            if ($var_json->messagem == 'Sucesso') {
+                $siasgcontrato->json = $retorno;
+                $siasgcontrato->mensagem = $var_json->messagem;
+                $siasgcontrato->situacao = 'Importado';
+                $siasgcontrato->save();
+            } else {
+                $siasgcontrato->mensagem = $var_json->messagem;
+                $siasgcontrato->situacao = 'Erro';
+                $siasgcontrato->save();
+            }
+        }
+        return $siasgcontrato;
+    }
+
+
 }

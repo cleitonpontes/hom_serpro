@@ -150,6 +150,7 @@ Route::group([
 
                 Route::get('apisiasg', 'SiasgcompraCrudController@apisiasg');
                 Route::get('inserircompras', 'SiasgcompraCrudController@inserirComprasEmMassa');
+                Route::get('inserircontratos', 'SiasgcontratoCrudController@verificarContratosPendentes');
 
 
             });
