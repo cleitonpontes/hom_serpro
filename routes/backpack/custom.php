@@ -148,22 +148,15 @@ Route::group([
                 CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
                 CRUD::resource('itens', 'ContratoitemCrudController');
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
-                CRUD::resource('padrao', 'ContratosfpadraoCrudController');
+                CRUD::resource('status', 'ContratostatusprocessoCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
             Route::group(['prefix' => 'consulta/'], function() {
-                CRUD::resource('arquivos', 'ConsultaarquivoCrudController');
+                CRUD::resource('ocorrencias', 'ConsultaocorrenciaCrudController');
+                CRUD::resource('faturas', 'ConsultafaturaCrudController');
                 CRUD::resource('cronogramas', 'ConsultacronogramaCrudController');
                 CRUD::resource('empenhos', 'ConsultaempenhoCrudController');
-                CRUD::resource('faturas', 'ConsultafaturaCrudController');
-                CRUD::resource('garantias', 'ConsultagarantiaCrudController');
-                CRUD::resource('historicos', 'ConsultahistoricoCrudController');
-                CRUD::resource('itens', 'ConsultaitemCrudController');
-                CRUD::resource('ocorrencias', 'ConsultaocorrenciaCrudController');
-                CRUD::resource('prepostos', 'ConsultaprepostoCrudController');
-                CRUD::resource('responsaveis', 'ConsultaresponsavelCrudController');
-                CRUD::resource('terceirizados', 'ConsultaterceirizadoCrudController');
             });
 
             Route::group(['prefix' => 'contratohistorico/{contratohistorico_id}'], function () {

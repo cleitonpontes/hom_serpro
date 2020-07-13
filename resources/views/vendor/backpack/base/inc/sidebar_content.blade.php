@@ -78,9 +78,15 @@
             </a>
             <ul class="treeview-menu">
                 <li>
-                    <a href="{{ backpack_url('/gescon/consulta/arquivos') }}">
-                        <i class="fa fa-file-o"></i>
-                        <span>Arquivos</span>
+                    <a href="{{ backpack_url('/gescon/consulta/faturas') }}">
+                        <i class="fa fa-list-ul"></i>
+                        <span>Faturas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ backpack_url('/gescon/consulta/ocorrencias') }}">
+                        <i class="fa fa-check-square-o"></i>
+                        <span>Ocorrências</span>
                     </a>
                 </li>
                 <li>
@@ -92,55 +98,7 @@
                 <li>
                     <a href="{{ backpack_url('/gescon/consulta/empenhos') }}">
                         <i class="fa fa-money"></i>
-                        <span>Empenhos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/faturas') }}">
-                        <i class="fa fa-file-text-o"></i>
-                        <span>Faturas</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/garantias') }}">
-                        <i class="fa fa-gift"></i>
-                        <span>Garantias</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/historicos') }}">
-                        <i class="fa fa-history"></i>
-                        <span>Históricos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/itens') }}">
-                        <i class="fa fa-list-ul"></i>
-                        <span>Itens</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/ocorrencias') }}">
-                        <i class="fa fa-check-square-o"></i>
-                        <span>Ocorrências</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/prepostos') }}">
-                        <i class="fa fa-black-tie"></i>
-                        <span>Prepostos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/responsaveis') }}">
-                        <i class="fa fa-user-secret"></i>
-                        <span>Responsáveis</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ backpack_url('/gescon/consulta/terceirizados') }}">
-                        <i class="fa fa-users"></i>
-                        <span>Terceirizados</span>
+                        <span>Empenhos X Contratos</span>
                     </a>
                 </li>
             </ul>
