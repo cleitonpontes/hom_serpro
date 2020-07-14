@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Models\Contratostatusprocesso;
 use App\Models\Contrato;
 use App\Models\Codigo;
 use App\Models\Codigoitem;
@@ -130,6 +131,10 @@ class ContratostatusprocessoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratostatusprocessos.status', 'ilike', "%" . $searchTerm . "%");
+                },
+
             ],
             [
                 'name' => 'unidade',
@@ -242,7 +247,7 @@ class ContratostatusprocessoCrudController extends CrudController
         $this->adicionaFiltroNumeroProcesso();
         $this->adicionaFiltroDataInicio();
         $this->adicionaFiltroDataFim();
-        $this->adicionaFiltroStatus();
+        // $this->adicionaFiltroStatus();
         $this->adicionaFiltroUnidade();
         $this->adicionaFiltroSituacao();
     }
@@ -271,39 +276,6 @@ class ContratostatusprocessoCrudController extends CrudController
             }
         );
     }
-    private function adicionaFiltroUnidade()
-    {
-        $campo = [
-            'name' => 'unidade',
-            'type' => 'text',
-            'label' => 'Unidade'
-        ];
-        $contratos = $this->retornaContratos();
-        $this->crud->addFilter(
-            $campo,
-            $contratos,
-            function ($value) {
-                $this->crud->addClause('whereHas', 'contratostatusprocesso.unidade', $value);
-            }
-        );
-    }
-    private function adicionaFiltroStatus()
-    {
-        $campo = [
-            'name' => 'status',
-            'type' => 'text',
-            'label' => 'Status'
-        ];
-        $contratos = $this->retornaContratos();
-
-        $this->crud->addFilter(
-            $campo,
-            $contratos,
-            function ($value) {
-                $this->crud->addClause('whereHas', 'contratostatusprocesso.status', $value);
-            }
-        );
-    }
     private function adicionaFiltroDataFim()
     {
         $campo = [
@@ -316,8 +288,8 @@ class ContratostatusprocessoCrudController extends CrudController
             null,
             function ($value) {
                 $dates = json_decode($value);
-                $this->crud->addClause('where', 'contratostatusprocesso.data_fim', '>=', $dates->from . ' 00:00:00');
-                $this->crud->addClause('where', 'contratostatusprocesso.data_fim', '<=', $dates->to . ' 23:59:59');
+                $this->crud->addClause('where', 'contratostatusprocessos.data_fim', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratostatusprocessos.data_fim', '<=', $dates->to . ' 23:59:59');
             }
         );
     }
@@ -333,11 +305,48 @@ class ContratostatusprocessoCrudController extends CrudController
             null,
             function ($value) {
                 $dates = json_decode($value);
-                $this->crud->addClause('where', 'contratostatusprocesso.data_inicio', '>=', $dates->from . ' 00:00:00');
-                $this->crud->addClause('where', 'contratostatusprocesso.data_inicio', '<=', $dates->to . ' 23:59:59');
+                $this->crud->addClause('where', 'contratostatusprocessos.data_inicio', '>=', $dates->from . ' 00:00:00');
+                $this->crud->addClause('where', 'contratostatusprocessos.data_inicio', '<=', $dates->to . ' 23:59:59');
             }
         );
     }
+    private function adicionaFiltroStatus()
+    {
+        $campo = [
+            'name' => 'status',
+            'type' => 'select2_multiple',
+            'label' => 'Status'
+        ];
+        // $contratos = $this->retornaContratos();
+        $status = $this->retornaStatus();
+        $this->crud->addFilter(
+            $campo,
+            $status,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'contratostatusprocessos.status', json_decode($value));
+            }
+        );
+    }
+    private function adicionaFiltroUnidade()
+    {
+        $campo = [
+            'name' => 'unidade',
+            'type' => 'select2_multiple',
+            'label' => 'Unidade'
+        ];
+        // $contratos = $this->retornaContratos();
+        $unidades = $this->retornaUnidades();
+        $this->crud->addFilter(
+            $campo,
+            $unidades,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'contratostatusprocessos.unidade', json_decode($value));
+            }
+        );
+    }
+
     public function adicionaFiltroNumeroProcesso()
     {
         $campo = [
@@ -345,13 +354,14 @@ class ContratostatusprocessoCrudController extends CrudController
             'type' => 'select2_multiple',
             'label' => 'Número Processo'
         ];
-        $contratos = $this->retornaContratos();
+        // $contratos = $this->retornaContratos();
+        $processos = $this->retornaProcessos();
         $this->crud->addFilter(
             $campo,
-            $contratos,
+            $processos,
             function ($value) {
                 $this->crud->addClause('whereIn'
-                    , 'contratos.processo', json_decode($value));
+                    , 'contratostatusprocessos.processo', json_decode($value));
             }
         );
     }
@@ -361,6 +371,27 @@ class ContratostatusprocessoCrudController extends CrudController
         return $dados = Contrato::where('id', '=', $contrato_id)
         ->orderBy('id')
         ->pluck('numero', 'id')
+        ->toArray();
+    }
+    private function retornaProcessos()
+    {
+        $contrato_id = \Route::current()->parameter('contrato_id');
+        return $dados = Contratostatusprocesso::where('contrato_id', '=', $contrato_id)
+        ->pluck('processo', 'processo')
+        ->toArray();
+    }
+    private function retornaStatus()
+    {
+        $contrato_id = \Route::current()->parameter('contrato_id');
+        return $dados = Contratostatusprocesso::where('contrato_id', '=', $contrato_id)
+        ->pluck('status', 'status')
+        ->toArray();
+    }
+    private function retornaUnidades()
+    {
+        $contrato_id = \Route::current()->parameter('contrato_id');
+        return $dados = Contratostatusprocesso::where('contrato_id', '=', $contrato_id)
+        ->pluck('unidade', 'unidade')
         ->toArray();
     }
     public function store(StoreRequest $request)
