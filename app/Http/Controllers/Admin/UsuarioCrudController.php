@@ -35,13 +35,11 @@ class UsuarioCrudController extends CrudController
         if (!backpack_user()->hasRole('Administrador')) {
             abort('403', config('app.erro_permissao'));
         }
-
-
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuario');
         $this->crud->setEntityNameStrings('usuario', 'usuarios');
-
-
+        $this->crud->addClause('select', 'users.*');
+        $this->crud->addClause('leftJoin', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -64,7 +62,7 @@ class UsuarioCrudController extends CrudController
                 'label' => 'CPF',
                 'type' => 'text',
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('name', 'ilike', '%' . $searchTerm . '%');
+                    $query->orWhere('cpf', 'ilike', '%' . $searchTerm . '%');
                 }
             ],
             [
@@ -102,13 +100,10 @@ class UsuarioCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'getUGPrimaria', // the method in your Model
                 'orderable' => true,
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
+                'searchLogic' => function (Builder $q, $column, $searchTerm) {
+                    $q->orWhere('unidades.codigo', 'ilike', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+                    $q->orWhere('unidades.nomeresumido', 'ilike', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+               },
             ],
             [ // n-n relationship (with pivot table)
                 'label' => trans('backpack::permissionmanager.roles'), // Table column heading
