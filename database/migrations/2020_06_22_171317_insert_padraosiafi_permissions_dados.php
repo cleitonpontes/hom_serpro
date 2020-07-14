@@ -17,7 +17,7 @@ class InsertPadraosiafiPermissionsDados extends Migration
     {
         app()['cache']->forget('spatie.permission.cache');
 
-        Role::create(['name' => 'Execução Financeira']);
+//        Role::create(['name' => 'Execução Financeira']);
 
         Permission::create(['name' => 'contratosfpadrao_inserir']);
         Permission::create(['name' => 'contratosfpadrao_editar']);

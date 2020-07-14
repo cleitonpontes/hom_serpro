@@ -81,8 +81,11 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 - Correção de erro na edição dos Empenhos vinculados aos contratos.
 - Correção dos órgãos no formulário do Comunica. 
 
+## [5.0.23]- 16/04/2020
+
 ### Implementação
 - Liberação para Botão para Deletar Faturas.
+>>>>>>> Stashed changes
 
 ## [5.0.22]- 09/04/2020
 
