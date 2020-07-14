@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Siasgcompra;
+use App\Models\Siasgcontrato;
 use App\XML\ApiSiasg;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -43,10 +44,65 @@ class AtualizaSiasgCompraJob implements ShouldQueue
             'uasg' => $this->siasgcompra->unidade->codigosiasg
         ];
 
-        $retorno = $apiSiasg->executaConsulta($this->tipoconsulta,$dado);
+        $retorno = $apiSiasg->executaConsulta($this->tipoconsulta, $dado);
 
-        $this->siasgcompra->json = $retorno;
-        $this->siasgcompra->mensagem = $retorno->mensagem;
+        $compra = $this->siasgcompra->atualizaJsonMensagemSituacao($this->siasgcompra->id, $retorno);
 
+        $contratos = $this->inserirSiasgContratos($this->siasgcompra);
+
+    }
+
+    private function inserirSiasgContratos(Siasgcompra $compra)
+    {
+        $contrato = '';
+
+        if ($compra->situacao == 'Importado') {
+            $json = json_decode($compra->json);
+            $dado = [];
+            foreach ($json->data as $data) {
+                $contrato = new Siasgcontrato;
+                $unidade_id = $contrato->buscaIdUnidade(substr($data, 0, 6));
+                $tipo_id = $contrato->buscaIdTipo(substr($data, 6, 2));
+                $unidadesubrrogacao_id = $contrato->buscaIdUnidade(substr($data, 17, 6));
+
+                $numero = substr($data, 8, 5);
+                $ano = substr($data, 13, 4);
+
+                $busca = $contrato->where('unidade_id', $unidade_id)
+                    ->where('tipo_id', $tipo_id)
+                    ->where('numero', $numero)
+                    ->where('ano', $ano)
+                    ->first();
+
+                $mensagem = '';
+                if($unidade_id == null){
+                    $mensagem = 'Unidade '.substr($data, 0, 6).' Não Cadastrada';
+                }
+
+                if($unidadesubrrogacao_id == null){
+                    $mensagem .= ' | Unidade Subrrogação '.substr($data, 17, 6).' Não Cadastrada';
+                }
+
+                if($unidadesubrrogacao_id == 'sem'){
+                    $unidadesubrrogacao_id = null;
+                }
+
+                if (!isset($busca->id)) {
+                    $contrato->fill([
+                        'compra_id' => $compra->id,
+                        'unidade_id' => $unidade_id,
+                        'tipo_id' => $tipo_id,
+                        'numero' => $numero,
+                        'ano' => $ano,
+                        'mensagem' => $mensagem,
+                        'unidadesubrrogacao_id' => $unidadesubrrogacao_id,
+                        'situacao' => ($mensagem != '') ? 'Erro' : 'Pendente',
+                    ]);
+                    $contrato->save();
+                }
+            }
+        }
+
+        return $contrato;
     }
 }

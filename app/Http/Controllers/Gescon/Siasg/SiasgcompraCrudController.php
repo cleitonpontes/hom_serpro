@@ -374,8 +374,9 @@ class SiasgcompraCrudController extends CrudController
         }
         fclose($file);
 
-        dd($dados);
+        \Alert::success('Compras importadss com sucesso!')->flash();
 
+        return redirect('/gescon/siasg/compras');
     }
 
 

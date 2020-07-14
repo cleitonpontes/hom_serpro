@@ -45,7 +45,7 @@ class SiasgcontratoRequest extends FormRequest
             'unidade_id' => 'required',
             'tipo_id' => 'required',
             'ano' => 'required',
-            'codigo_interno' => 'required_if:sisg,0'
+            'codigo_interno' => 'max:10|required_if:sisg,0'
         ];
     }
 

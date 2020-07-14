@@ -35,8 +35,8 @@ class SiasgcontratoCrudController extends CrudController
         $this->crud->addClause('leftjoin', 'codigoitens', 'codigoitens.id', '=', 'siasgcontratos.tipo_id');
         $this->crud->addClause('leftjoin', 'unidades', 'unidades.id', '=', 'siasgcontratos.unidade_id');
         $this->crud->addClause('select', 'siasgcontratos.*');
-        $this->crud->addClause('where', 'siasgcontratos.unidade_id', '=', session()->get('user_ug_id'));
-        $this->crud->addClause('orwhere', 'siasgcontratos.unidadesubrrogacao_id', '=', session()->get('user_ug_id'));
+//        $this->crud->addClause('where', 'siasgcontratos.unidade_id', '=', session()->get('user_ug_id'));
+//        $this->crud->addClause('orwhere', 'siasgcontratos.unidadesubrrogacao_id', '=', session()->get('user_ug_id'));
 
 
         /*
@@ -169,7 +169,7 @@ class SiasgcontratoCrudController extends CrudController
             ],
             [
                 'name' => 'sisg',
-                'label' => 'SISG?',
+                'label' => 'Rotina SISG?',
                 'type' => 'boolean',
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
@@ -264,8 +264,9 @@ class SiasgcontratoCrudController extends CrudController
             [
                 'name' => 'codigo_interno',
                 'label' => 'Código Interno Não SISG',
-                'type' => 'codigointernonsisg',
+                'type' => 'text',
                 'attributes' => [
+                    'maxlength' => "10",
                     'onfocusout' => "maiuscula(this)"
                 ],
                 'default' => '0000000000'
@@ -341,14 +342,16 @@ class SiasgcontratoCrudController extends CrudController
                 $retorno = $apiSiasg->executaConsulta('ContratoSisg', $dado);
             } else {
                 $dado = [
-                    'contratoNSisg' => $contrato->unidade->codigosiasg . $contrato->codigo_interno . $contrato->tipo->descres . $contrato->numero . $contrato->ano
+                    'contratoNSisg' => $contrato->unidade->codigosiasg . str_pad($contrato->codigo_interno, 10 , " ") . $contrato->tipo->descres . $contrato->numero . $contrato->ano
                 ];
                 $retorno = $apiSiasg->executaConsulta('ContratoNaoSisg', $dado);
             }
             $contrato_atualizado = $this->trataRetornoContrato($retorno, $contrato);
         }
 
-        return 'Contratos importados com sucesso';
+        \Alert::success('Contratos importados com sucesso!')->flash();
+
+        return redirect('/gescon/siasg/contratos');
     }
 
     private function trataRetornoContrato($retorno, Siasgcontrato $siasgcontrato)

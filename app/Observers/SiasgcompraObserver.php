@@ -11,12 +11,13 @@ class SiasgcompraObserver
 
     public function created(Siasgcompra $siasgcompra)
     {
-        $this->importacao($siasgcompra);
+//        $this->importacao($siasgcompra);
+
     }
 
     public function updated(Siasgcompra $siasgcompra)
     {
-        $this->importacao($siasgcompra);
+//        $this->importacao($siasgcompra);
     }
 
     public function deleted(Siasgcompra $siasgcompra)
