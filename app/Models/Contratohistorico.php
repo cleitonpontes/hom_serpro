@@ -346,11 +346,6 @@ class Contratohistorico extends ContratoBase
         return $this->morphMany(Saldohistoricoitem::class, 'saldoable');
     }
 
-    public function tipo()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_id');
-    }
-
     public function unidade()
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');

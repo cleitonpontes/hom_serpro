@@ -11,8 +11,6 @@ use App\Models\Contratohistorico;
 use App\Models\Contratoitem;
 use App\Models\Contratosfpadrao;
 use App\Models\Saldohistoricoitem;
-use App\Models\SfPadrao;
-use App\Models\Contratosfpadrao;
 use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
 use App\Models\Subrogacao;
