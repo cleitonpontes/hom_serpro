@@ -2,22 +2,32 @@
 
 namespace App\Observers;
 
+use App\Jobs\AtualizaSiasgCompraJob;
 use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
 use App\XML\ApiSiasg;
+use Illuminate\Bus\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class SiasgcompraObserver
 {
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $timeout = 7200;
 
     public function created(Siasgcompra $siasgcompra)
     {
 //        $this->importacao($siasgcompra);
+        AtualizaSiasgCompraJob::dispatch($siasgcompra)->onQueue('siasgcompra');
 
     }
 
     public function updated(Siasgcompra $siasgcompra)
     {
 //        $this->importacao($siasgcompra);
+        AtualizaSiasgCompraJob::dispatch($siasgcompra)->onQueue('siasgcompra');
     }
 
     public function deleted(Siasgcompra $siasgcompra)

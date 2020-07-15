@@ -48,7 +48,7 @@ class AtualizaSiasgCompraJob implements ShouldQueue
 
         $compra = $this->siasgcompra->atualizaJsonMensagemSituacao($this->siasgcompra->id, $retorno);
 
-        $contratos = $this->inserirSiasgContratos($this->siasgcompra);
+        $contratos = $this->inserirSiasgContratos($compra);
 
     }
 

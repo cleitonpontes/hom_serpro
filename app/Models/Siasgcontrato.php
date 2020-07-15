@@ -45,6 +45,20 @@ class Siasgcontrato extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function atualizaJsonMensagemSituacao(int $id,string $json)
+    {
+        $json_var = json_decode($json);
+        $situacao = ($json_var->messagem != 'Sucesso') ? 'Erro' :  'Importado';
+
+        $siasgcontrato = $this->find($id);
+        $siasgcontrato->json = $json;
+        $siasgcontrato->mensagem = $json_var->messagem;
+        $siasgcontrato->situacao = $situacao;
+        $siasgcontrato->save();
+
+        return $siasgcontrato;
+    }
+
     public function buscaContratosPendentes()
     {
         return $this->where('situacao','Pendente')->get();

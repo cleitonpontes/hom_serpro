@@ -29,6 +29,7 @@ class Contratohistorico extends Model
         'contrato_id',
         'fornecedor_id',
         'unidade_id',
+        'unidadeorigem_id',
         'tipo_id',
         'categoria_id',
         'subcategoria_id',
@@ -104,6 +105,15 @@ class Contratohistorico extends Model
         $unidade = Unidade::find($this->unidade_id);
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
 
+    }
+
+    public function getUnidadeOrigemHistorico()
+    {
+        if(!$this->unidadeorigem_id){
+            return '';
+        }
+
+        return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
     }
 
     public function getOrgaoHistorico()
@@ -339,6 +349,11 @@ class Contratohistorico extends Model
     public function unidade()
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');
+    }
+
+    public function unidadeorigem()
+    {
+        return $this->belongsTo(Unidade::class, 'unidadeorigem_id');
     }
 
     public function tipo()

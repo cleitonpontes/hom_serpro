@@ -33,6 +33,7 @@ class Contrato extends Model
         'numero',
         'fornecedor_id',
         'unidade_id',
+        'unidadeorigem_id',
         'tipo_id',
         'categoria_id',
         'subcategoria_id',
@@ -310,6 +311,15 @@ class Contrato extends Model
     {
         $unidade = Unidade::find($this->unidade_id);
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+    }
+
+    public function getUnidadeOrigem()
+    {
+        if(!$this->unidadeorigem_id){
+            return '';
+        }
+
+        return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
 
     }
 
@@ -466,6 +476,11 @@ class Contrato extends Model
 
         return $this->belongsTo(Unidade::class, 'unidade_id');
 
+    }
+
+    public function unidadeorigem()
+    {
+        return $this->belongsTo(Unidade::class, 'unidadeorigem_id');
     }
 
     public function fornecedor()
