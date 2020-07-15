@@ -22,6 +22,10 @@ class CreateSfcompensacaoTable extends Migration
             $table->string('txtinscra')->nullable();
             $table->integer('numclassa')->nullable();
         });
+
+        Schema::table('sfcompensacao', function (Blueprint $table) {
+            $table->foreign('sfpadrao_id')->references('id')->on('sfpadrao')->onDelete('cascade');
+        });
     }
 
     /**

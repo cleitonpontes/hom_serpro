@@ -15,13 +15,13 @@ class CreateSfrelpsoitemTable extends Migration
     {
         Schema::create('sfrelpsoitem', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('sfdeducao_id')->nullable();
+            $table->integer('sfded_id')->nullable();
             $table->bigInteger('numseqpai')->nullable();
             $table->bigInteger('numseqitem')->nullable();;
         });
 
         Schema::table('sfrelpsoitem', function (Blueprint $table) {
-            $table->foreign('sfdeducao_id')->references('id')->on('sfdeducao')->onDelete('cascade');
+            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
         });
     }
 

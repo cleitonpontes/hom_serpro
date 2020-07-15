@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterSfpredocTable extends Migration
+class AlteraSfpredocTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,8 +16,9 @@ class AlterSfpredocTable extends Migration
         Schema::table('sfpredoc', function (Blueprint $table) {
             $table->dropForeign('sfpredoc_sfded_id_foreign');
 
-            $table->integer('sfencargos_id')->nullable();
-            $table->integer('sfdadospgto_id')->nullable();
+            $table->integer('sfded_id')->nullable()->change();
+            $table->integer('sfencargos_id')->nullable()->after('sfded_id');
+            $table->integer('sfdadospgto_id')->nullable()->after('sfencargos_id');
         });
 
         Schema::table('sfpredoc', function (Blueprint $table) {

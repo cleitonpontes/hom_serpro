@@ -28,7 +28,7 @@ class SfPredoc extends Model
     protected $fillable = [
         'id',
         'sfded_id',
-        'sfencargo_id',
+        'sfencargos_id',
         'sfdadospgto_id',
         'txtobser',
         'codrecurso',
@@ -71,7 +71,7 @@ class SfPredoc extends Model
     }
     public function sfencargos()
     {
-        return $this->belongsTo(SfEncargos::class, 'sfencargo_id');
+        return $this->belongsTo(SfEncargos::class, 'sfencargos_id');
     }
 
     public function sfdadospgto()

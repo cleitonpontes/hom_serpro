@@ -46,7 +46,7 @@ class CreateSfdeducaoTable extends Migration
     public function down()
     {
         Schema::table('sfdeducao', function (Blueprint $table) {
-            //
+            Schema::dropIfExists('sfdeducao');
         });
     }
 }

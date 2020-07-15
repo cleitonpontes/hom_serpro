@@ -48,7 +48,7 @@ class CreateSfencargoTable extends Migration
     public function down()
     {
         Schema::table('sfencargo', function (Blueprint $table) {
-            //
+            Schema::dropIfExists('sfencargo');
         });
     }
 }

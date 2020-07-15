@@ -27,13 +27,13 @@ class SfRelPcoItem extends Model
      */
     protected $fillable = [
         'id',
-        'sfdeducao_id',
+        'sfded_id',
         'numseqpai',
         'numseqitem'
     ];
 
     public function sfdeducao()
     {
-        return $this->belongsTo(SfDeducao::class, 'sfdeducao_id');
+        return $this->belongsTo(SfDeducao::class, 'sfded_id');
     }
 }

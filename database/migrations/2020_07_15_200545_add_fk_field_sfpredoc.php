@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSfrelcreditoTable extends Migration
+class AddFkFieldSfpredoc extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateSfrelcreditoTable extends Migration
      */
     public function up()
     {
-        Schema::create('sfrelcredito', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('sfded_id')->nullable();
-            $table->bigInteger('numseqitem')->nullable();;
+        Schema::table('sfpredoc', function (Blueprint $table) {
+            $table->dropForeign('sfpredoc_sfded_id_foreign');
         });
 
-        Schema::table('sfrelcredito', function (Blueprint $table) {
+        Schema::table('sfpredoc', function (Blueprint $table) {
             $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
         });
     }
@@ -31,8 +29,8 @@ class CreateSfrelcreditoTable extends Migration
      */
     public function down()
     {
-        Schema::table('sfrelcredito', function (Blueprint $table) {
-            Schema::dropIfExists('sfrelcredito');
+        Schema::table('sfpredoc', function (Blueprint $table) {
+            $table->dropForeign('sfpredoc_sfded_id_foreign');
         });
     }
 }

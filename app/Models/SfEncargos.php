@@ -54,16 +54,16 @@ class SfEncargos extends Model
 
     public function sfItemRecolhimento()
     {
-        return $this->hasMany(SfItemRecolhimento::class, 'sfencargo_id');
+        return $this->hasMany(SfItemRecolhimento::class, 'sfencargos_id');
     }
 
     public function sfPreDoc()
     {
-        return $this->hasOne(SfPredoc::class, 'sfencargo_id');
+        return $this->hasOne(SfPredoc::class, 'sfencargos_id');
     }
 
     public function sfAcrescimo()
     {
-        return $this->hasMany(SfAcrescimo::class, 'sfencargo_id');
+        return $this->hasMany(SfAcrescimo::class, 'sfencargos_id');
     }
 }

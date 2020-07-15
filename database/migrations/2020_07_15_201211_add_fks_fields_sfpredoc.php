@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlteraSfacrescimoTable extends Migration
+class AddFksFieldsSfpredoc extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,14 @@ class AlteraSfacrescimoTable extends Migration
      */
     public function up()
     {
-        Schema::table('sfacrescimo', function (Blueprint $table) {
-            $table->dropForeign('sfacrescimo_sfded_id_foreign');
+        Schema::table('sfpredoc', function (Blueprint $table) {
+
             $table->integer('sfded_id')->nullable()->change();
             $table->integer('sfencargos_id')->nullable()->after('sfded_id');
             $table->integer('sfdadospgto_id')->nullable()->after('sfencargos_id');
-            $table->integer('codfontrecur')->nullable()->after('codsubitemempe');
-            $table->string('codctgogasto')->nullable()->after('codfontrecur');
         });
 
-        Schema::table('sfacrescimo', function (Blueprint $table) {
-            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
+        Schema::table('sfpredoc', function (Blueprint $table) {
             $table->foreign('sfencargos_id')->references('id')->on('sfencargo')->onDelete('cascade');
             $table->foreign('sfdadospgto_id')->references('id')->on('sfdadospgto')->onDelete('cascade');
         });
@@ -36,10 +33,9 @@ class AlteraSfacrescimoTable extends Migration
      */
     public function down()
     {
-        Schema::table('sfacrescimo', function (Blueprint $table) {
-            $table->dropColumn('sfdeducao_id');
-            $table->dropColumn('codfontrecur');
-            $table->dropColumn('codctgogasto');
+        Schema::table('sfpredoc', function (Blueprint $table) {
+            $table->dropForeign('sfpredoc_sfencargos_id_foreign');
+            $table->dropForeign('sfpredoc_sfdadospgto_id_id_foreign');
         });
     }
 }

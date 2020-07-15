@@ -53,31 +53,31 @@ class SfDeducao extends Model
 
     public function sfItemRecolhimento()
     {
-        return $this->hasMany(SfItemRecolhimento::class, 'sfdeducao_id');
+        return $this->hasMany(SfItemRecolhimento::class, 'sfded_id');
     }
 
     public function sfPreDoc()
     {
-        return $this->hasOne(SfPredoc::class, 'sfdeducao_id');
+        return $this->hasOne(SfPredoc::class, 'sfded_id');
     }
 
     public function sfAcrescimo()
     {
-        return $this->hasMany(SfAcrescimo::class, 'sfdeducao_id');
+        return $this->hasMany(SfAcrescimo::class, 'sfded_id');
     }
 
     public function sfRelPcoItem()
     {
-        return $this->hasMany(SfPcoItem::class, 'sfdeducao_id');
+        return $this->hasMany(SfPcoItem::class, 'sfded_id');
     }
 
     public function sfRelPsoItem()
     {
-        return $this->hasMany(SfPsoItem::class, 'sfdeducao_id');
+        return $this->hasMany(SfPsoItem::class, 'sfded_id');
     }
 
     public function sfRelCredito()
     {
-        return $this->hasMany(SfCredito::class, 'sfdeducao_id');
+        return $this->hasMany(SfCredito::class, 'sfded_id');
     }
 }

@@ -27,8 +27,8 @@ class SfAcrescimo extends Model
      */
     protected $fillable = [
         'id',
-        'sfdeducao_id',
-        'sfencargo_id',
+        'sfded_id',
+        'sfencargos_id',
         'sfdadospgto_id',
         'tpacrescimo',
         'vlr',
@@ -45,7 +45,7 @@ class SfAcrescimo extends Model
 
     public function sfdeducao()
     {
-        return $this->belongsTo(SfDeducao::class, 'sfdeducao_id');
+        return $this->belongsTo(SfDeducao::class, 'sfded_id');
     }
     public function sfencargos()
     {

@@ -18,7 +18,7 @@ class SfPso extends Model
      *
      * @var string
      */
-    protected $table = 'sfpco';
+    protected $table = 'sfpso';
 
     /**
      * Campos da tabela

@@ -20,7 +20,10 @@ class CreateSfdoccontabilizacaoTable extends Migration
             $table->string('codtipodoccont')->nullable();
             $table->string('numcodcont')->nullable();
             $table->integer('codugemit')->nullable();
+        });
 
+        Schema::table('sfdoccontabilizacao', function (Blueprint $table) {
+            $table->foreign('sfpadrao_id')->references('id')->on('sfpadrao')->onDelete('cascade');
         });
     }
 
@@ -32,7 +35,7 @@ class CreateSfdoccontabilizacaoTable extends Migration
     public function down()
     {
         Schema::table('sfdoccontabilizacao', function (Blueprint $table) {
-            //
+            Schema::dropIfExists('sfdoccontabilizacao');
         });
     }
 }

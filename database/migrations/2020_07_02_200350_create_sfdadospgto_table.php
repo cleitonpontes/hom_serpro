@@ -19,6 +19,10 @@ class CreateSfdadospgtoTable extends Migration
             $table->string('codcredordevedor')->nullable();
             $table->decimal('vlr',15,2)->nullable()->default(0);
         });
+
+        Schema::table('sfdadospgto', function (Blueprint $table) {
+            $table->foreign('sfpadrao_id')->references('id')->on('sfpadrao')->onDelete('cascade');
+        });
     }
 
     /**
@@ -29,7 +33,7 @@ class CreateSfdadospgtoTable extends Migration
     public function down()
     {
         Schema::table('sfdadospgto', function (Blueprint $table) {
-            //
+            Schema::dropIfExists('sfdadospgto');
         });
     }
 }
