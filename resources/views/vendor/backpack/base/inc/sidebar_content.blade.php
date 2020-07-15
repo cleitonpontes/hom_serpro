@@ -267,7 +267,7 @@
 {{-- Transparência                                                                    --}}
 {{-- ******************************************************************************** --}}
 <li>
-    <a href="{{ backpack_url('/transparencia') }}">
+    <a href="{{ backpack_url('/transparencia') }}" target="_blank">
         <i class="fa fa-indent"></i>
         <span>Transparência</span>
     </a>
