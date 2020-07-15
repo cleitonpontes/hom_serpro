@@ -59,7 +59,7 @@ class Contrato extends Model
     ];
 
 
-    // protected $hidd = [];
+    // protected $hidden = [];
     // protected $dates = [];
 
     /*
@@ -343,7 +343,9 @@ class Contrato extends Model
             return '';
         }
 
+
     }
+
 
     public function getCategoria()
     {
@@ -362,22 +364,6 @@ class Contrato extends Model
             return '';
         }
 
-    }
-
-    public function getMailResponsaveis()
-    {
-
-        $dados = $this->select('email');
-        $dados->join('contratoresponsaveis as cr','cr.contrato_id' , '=', 'contratos.id');
-        $dados->join('users as u','u.id' , '=', 'cr.user_id');
-        $dados->where('contratos.id', $this->id);
-        $dados->where('cr.situacao', true);
-        $dados->where( function ($dados) {
-            $dados->where('cr.data_fim', '>=', date('Y-m-d'));
-            $dados->orWhere('cr.data_fim', null);
-        });
-
-        return $dados->pluck('email')->toArray();
 
     }
 

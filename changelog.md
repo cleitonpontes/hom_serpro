@@ -2,6 +2,24 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.0.29]- 07/07/2020
+
+### Implementação
+- Consulta Contratos X Responsáveis (Issue #12);
+- Consulta Contratos X Arquivos (Issue #13);
+- Consulta Contratos X Historico (Issue #15);
+- Consulta Contratos X Prepostos (Issue #16);
+- Consulta Contratos X Garantias (Issue #17);
+- Consulta Contratos X Terceirizados (Issue #19);
+- Consulta Contratos X Itens (Issue #22).
+
+### Melhoria
+- Criação da Tabela para Arquivar Log  (Issue #91);
+- Disponibilização do campo Ativo e Inativo no Usuário (Issue #4).
+
+### Bug
+- Correção Bug da consulta Contrato X Empenhos (issue fix #14);
+
 ## [5.0.28]- 18/06/2020
 
 ### Implementação
@@ -63,8 +81,11 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 - Correção de erro na edição dos Empenhos vinculados aos contratos.
 - Correção dos órgãos no formulário do Comunica. 
 
+## [5.0.23]- 16/04/2020
+
 ### Implementação
 - Liberação para Botão para Deletar Faturas.
+>>>>>>> Stashed changes
 
 ## [5.0.22]- 09/04/2020
 

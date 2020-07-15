@@ -79,7 +79,7 @@
     }
 
     function mascaraContrato(element) {
-        $(element).mask("9999/9999");
+        $(element).mask("99999/9999");
     }
 
     $(document).ready(function() {
