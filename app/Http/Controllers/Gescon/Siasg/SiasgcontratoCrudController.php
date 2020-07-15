@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gescon\Siasg;
 
 use App\Models\Codigoitem;
+use App\Models\Contrato;
 use App\Models\Siasgcontrato;
 use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -35,6 +36,7 @@ class SiasgcontratoCrudController extends CrudController
         $this->crud->addClause('leftjoin', 'codigoitens', 'codigoitens.id', '=', 'siasgcontratos.tipo_id');
         $this->crud->addClause('leftjoin', 'unidades', 'unidades.id', '=', 'siasgcontratos.unidade_id');
         $this->crud->addClause('select', 'siasgcontratos.*');
+        $this->crud->orderBy('siasgcontratos.updated_at','desc');
 //        $this->crud->addClause('where', 'siasgcontratos.unidade_id', '=', session()->get('user_ug_id'));
 //        $this->crud->addClause('orwhere', 'siasgcontratos.unidadesubrrogacao_id', '=', session()->get('user_ug_id'));
 
@@ -168,6 +170,17 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'getContratoVinculado',
+                'label' => 'Contrato vinculado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getContratoVinculado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'sisg',
                 'label' => 'Rotina SISG?',
                 'type' => 'boolean',
@@ -204,6 +217,7 @@ class SiasgcontratoCrudController extends CrudController
     public function campos()
     {
         $tipos = $this->buscaTipos();
+        $contratos = $this->buscaContratos();
 
         return [
             [
@@ -271,19 +285,12 @@ class SiasgcontratoCrudController extends CrudController
                 ],
                 'default' => '0000000000'
             ],
-            [
-                // 1-n relationship
-                'label' => "Unidade Subrrogação", // Table column heading
-                'type' => "select2_from_ajax",
-                'name' => 'unidadesubrrogacao_id', // the column that contains the ID of that connected entity
-                'entity' => 'unidadesubrrogacao', // the method that defines the relationship in your Model
-                'attribute' => "codigo", // foreign key attribute that is shown to user
-                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
-                'process_results_template' => 'gescon.process_results_unidade',
-                'model' => "App\Models\Unidade", // foreign key model
-                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
-                'placeholder' => "Selecione a Unidade de Subrrogação", // placeholder for the select
-                'minimum_input_length' => 2, // minimum characters to type before querying results
+            [ // select_from_array
+                'name' => 'contrato_id',
+                'label' => "Contrato vinculado",
+                'type' => 'select2_from_array',
+                'options' => $contratos,
+                'allows_null' => true,
             ],
             [   // Hidden
                 'name' => 'situacao',
@@ -306,6 +313,18 @@ class SiasgcontratoCrudController extends CrudController
             ->toArray();
 
         return $tipos;
+    }
+
+    private function buscaContratos()
+    {
+        $contratos = Contrato::select('numero', 'id')
+            ->where('unidade_id', session()->get('user_ug_id'))
+            ->where('situacao',true)
+            ->orderBy('numero')
+            ->pluck('numero', 'id')
+            ->toArray();
+
+        return $contratos;
     }
 
     public function store(StoreRequest $request)

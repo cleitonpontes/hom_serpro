@@ -6,6 +6,8 @@ return [
 
     'token' => env('API_SIASG_TOKEN'),
 
+    'formato_processo_padrao_sisg' => env('FORMATO_PROCESSO_PADRAO_SISG','99999.999999/9999-99'),
+
     'mensagem_contrato' => [
         '0000' => 'Sucesso',
         '0001' => 'O tamanho padrão do contrato é de %n dígitos.',

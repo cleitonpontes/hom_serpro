@@ -13,14 +13,14 @@ class SiasgcontratoObserver
 
     public function created(\App\Models\Siasgcontrato $siasgcontrato)
     {
-        $this->importacao($siasgcontrato);
-//        AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
+//        $this->importacao($siasgcontrato);
+        AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
     }
 
     public function updated(Siasgcontrato $siasgcontrato)
     {
-        $this->importacao($siasgcontrato);
-//        AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
+//        $this->importacao($siasgcontrato);
+        AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
     }
 
     public function deleted(Siasgcontrato $siasgcontrato)
@@ -48,6 +48,11 @@ class SiasgcontratoObserver
 
         $contratoSiagIntegracao = new ContratoSiasgIntegracao;
         $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
+
+        if(isset($contrato->id)){
+            $siasgcontrato_atualizado->contrato_id = $contrato->id;
+            $siasgcontrato_atualizado->save();
+        }
 
     }
 

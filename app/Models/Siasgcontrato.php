@@ -45,10 +45,10 @@ class Siasgcontrato extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function atualizaJsonMensagemSituacao(int $id,string $json)
+    public function atualizaJsonMensagemSituacao(int $id, string $json)
     {
         $json_var = json_decode($json);
-        $situacao = ($json_var->messagem != 'Sucesso') ? 'Erro' :  'Importado';
+        $situacao = ($json_var->messagem != 'Sucesso') ? 'Erro' : 'Importado';
 
         $siasgcontrato = $this->find($id);
         $siasgcontrato->json = $json;
@@ -61,7 +61,7 @@ class Siasgcontrato extends Model
 
     public function buscaContratosPendentes()
     {
-        return $this->where('situacao','Pendente')->get();
+        return $this->where('situacao', 'Pendente')->get();
     }
 
 
@@ -99,6 +99,15 @@ class Siasgcontrato extends Model
         }
 
         return $this->unidade->codigosiasg . ' - ' . $this->unidade->nomeresumido;
+    }
+
+    public function getContratoVinculado()
+    {
+        if (!$this->contrato_id) {
+            return '';
+        }
+
+        return $this->contrato->numero . ' | ' . $this->contrato->fornecedor->cpf_cnpj_idgener . ' - ' . $this->contrato->fornecedor->nome;
     }
 
     public function getUnidadeSubrrogada()
@@ -148,6 +157,11 @@ class Siasgcontrato extends Model
     public function tipo()
     {
         return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
+
+    public function contrato()
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
     }
     /*
     |--------------------------------------------------------------------------

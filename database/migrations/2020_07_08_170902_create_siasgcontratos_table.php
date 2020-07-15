@@ -24,6 +24,7 @@ class CreateSiasgcontratosTable extends Migration
             $table->integer('unidadesubrrogacao_id')->nullable();
             $table->string('mensagem')->nullable();
             $table->string('situacao');
+            $table->integer('contrato_id')->nullable();
             $table->json('json')->nullable();
             $table->boolean('sisg')->default(true);
             $table->timestamps();
@@ -32,6 +33,7 @@ class CreateSiasgcontratosTable extends Migration
             $table->foreign('unidadesubrrogacao_id')->references('id')->on('unidades')->onDelete('cascade');
             $table->foreign('compra_id')->references('id')->on('siasgcompras')->onDelete('cascade');
             $table->foreign('tipo_id')->references('id')->on('codigoitens')->onDelete('cascade');
+            $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
 
             $table->unique(['unidade_id', 'tipo_id', 'numero', 'ano']);
         });
