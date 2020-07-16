@@ -2,10 +2,17 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Codigoitem;
+
+
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ContratosfpadraoRequest extends FormRequest
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
+
+
+class ContratostatusprocessoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,19 +32,21 @@ class ContratosfpadraoRequest extends FormRequest
      */
     public function rules()
     {
-
         return [
-            'categoriapadrao' => 'required',
-            'decricaopadrao' => 'required',
-            'codugemit' => 'required',
-            'anodh' => 'required|max:4',
-            'codtipodh' => 'required|max:2',
-            'numdh' => 'required|numeric|min:1|max:999999',
-            'tipo' => 'required|max:1',
-            'situacao' => 'required|max:1'
+            'processo' => 'required',
+            'data_inicio' => 'required|date',
+            'data_fim' => Rule::requiredIf(function () {
+                $codigoitem = Codigoitem::find($this->situacao);
+                $descricaoCodigoItem = $codigoitem->descres;
+                if($descricaoCodigoItem=="Finalizado"){return true;}
+                else{return false;}
+            }),
+            'status' => 'required',
+            'unidade' => 'required',
+            'situacao' => 'required',
+            'contrato_id' => 'required',
         ];
     }
-
     /**
      * Get the validation attributes that apply to the request.
      *
@@ -58,9 +67,7 @@ class ContratosfpadraoRequest extends FormRequest
     public function messages()
     {
         return [
-            'required' => 'O campo :attribute é obrigatório.',
-            'max' => 'O campo :attribute não pode ser maior que :max.',
-            'min' => 'O :attribute deve maior que 0',
+            //
         ];
     }
 }

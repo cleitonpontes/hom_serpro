@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratoresponsavel extends Model
+class Contratoresponsavel extends ContratoBase
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'responsavel';
-    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -22,9 +22,6 @@ class Contratoresponsavel extends Model
     */
 
     protected $table = 'contratoresponsaveis';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
         'user_id',
@@ -34,15 +31,16 @@ class Contratoresponsavel extends Model
         'situacao',
         'data_inicio',
         'data_fim',
+        'telefone_fixo',
+        'telefone_celular',
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function inserirContratoresponsavelMigracaoConta(array $dados)
     {
         $this->fill($dados);
@@ -53,50 +51,61 @@ class Contratoresponsavel extends Model
 
     public function getContrato()
     {
-        if($this->contrato_id){
-            $contrato = Contrato::find($this->contrato_id);
-            return $contrato->numero;
-        }else{
-            return '';
-        }
+        return $this->getContratoNumero();
     }
+
     public function getUser()
     {
-        if($this->user_id){
-            $user = BackpackUser::find($this->user_id);
-            return $user->cpf . ' - ' . $user->name;
-        }else{
-            return '';
-        }
+        $usuarioCpf = $this->user->cpf;
+        $usuarioNome = $this->user->name;
+
+        return $usuarioCpf . ' - ' . $usuarioNome;
     }
+
     public function getFuncao()
     {
-        if($this->funcao_id){
-            $funcao = Codigoitem::find($this->funcao_id);
-            return $funcao->descricao;
-        }else{
-            return '';
-        }
+        return $this->funcao->descricao;
     }
 
     public function getInstalacao()
     {
-        if($this->instalacao_id){
-            $instalacao = Instalacao::find($this->instalacao_id);
-            return $instalacao->nome;
-        }else{
-            return '';
-        }
+        return ($this->instalacao) ? $instalacao = $this->instalacao->nome : '';
     }
+
+    /**
+     * Retorna a Data de Início
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getDataInicio()
+    {
+        return $this->retornaDataAPartirDeCampo($this->data_inicio);
+    }
+
+    /**
+     * Retorna a Data de Início
+     *
+     * @return string
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    public function getDataFim()
+    {
+        return $this->retornaDataAPartirDeCampo($this->data_fim);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
+    /*
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
     }
+    */
 
     public function user()
     {
@@ -112,6 +121,7 @@ class Contratoresponsavel extends Model
     {
         return $this->belongsTo(Instalacao::class, 'instalacao_id');
     }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -129,4 +139,5 @@ class Contratoresponsavel extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }

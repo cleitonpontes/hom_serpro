@@ -5,14 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Traits\Authorizes;
 use App\Jobs\UserMailPasswordJob;
 use App\Models\BackpackUser;
-use App\Models\Contratoresponsavel;
 use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\UsuarioRequest as StoreRequest;
 use App\Http\Requests\UsuarioRequest as UpdateRequest;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -35,13 +33,11 @@ class UsuarioCrudController extends CrudController
         if (!backpack_user()->hasRole('Administrador')) {
             abort('403', config('app.erro_permissao'));
         }
-
-
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuario');
         $this->crud->setEntityNameStrings('usuario', 'usuarios');
-
-
+        $this->crud->addClause('select', 'users.*');
+        $this->crud->addClause('leftJoin', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -64,7 +60,7 @@ class UsuarioCrudController extends CrudController
                 'label' => 'CPF',
                 'type' => 'text',
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('name', 'ilike', '%' . $searchTerm . '%');
+                    $query->orWhere('cpf', 'ilike', '%' . $searchTerm . '%');
                 }
             ],
             [
@@ -78,37 +74,15 @@ class UsuarioCrudController extends CrudController
                 'type' => 'email',
             ],
             [
-                'name' => 'situacao',
-                'label' => 'Situação',
-                'type' => 'boolean',
-                'options' => [0 => 'Inativo', 1 => 'Ativo'],
-                'visibleInTable' => false,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    if (strtolower($searchTerm) == 'inativo') {
-                        $query->orWhere('situacao', 0);
-                    }
-
-                    if (strtolower($searchTerm) == 'ativo') {
-                        $query->orWhere('situacao', 1);
-                    }
-                }
-            ],
-            [
                 'name' => 'getUGPrimaria',
                 'label' => 'UG Primária', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getUGPrimaria', // the method in your Model
                 'orderable' => true,
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
+                'searchLogic' => function (Builder $q, $column, $searchTerm) {
+                    $q->orWhere('unidades.codigo', 'ilike', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+                    $q->orWhere('unidades.nomeresumido', 'ilike', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+               },
             ],
             [ // n-n relationship (with pivot table)
                 'label' => trans('backpack::permissionmanager.roles'), // Table column heading
@@ -168,14 +142,6 @@ class UsuarioCrudController extends CrudController
                 'label' => 'E-mail',
                 'type' => 'email',
                 'tab' => 'Dados Pessoais',
-            ],
-            [
-                'name' => 'situacao',
-                'label' => "Situação",
-                'type' => 'select_from_array',
-                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-                'allows_null' => false,
-                'tab' => 'Dados Pessoais'
             ],
             [
                 // 1-n relationship

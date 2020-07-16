@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Http\Traits\Formatador;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -208,24 +209,6 @@ class Contratoocorrencia extends Model
     {
         $userCpfCnpj = $this->usuario->cpf;
         $userNome = $this->usuario->name;
-
-        return $userCpfCnpj . ' - ' . $userNome;
-    }
-
-    /**
-     * Retorna o usuário da ocorrência, exibindo CPF/CNPJ escondendo alguns caracteres
-     * e nome do mesmo
-     *
-     * @return string
-     * @author Saulo Soares <saulosao@gmail.com>
-     */
-    public function getUsuarioHidden()
-    {
-        $userNome = $this->usuario->name;
-        $userCpfCnpj = explode('.',$this->usuario->cpf);
-        $userCpfCnpj[0] = "\*\*\*";
-        $userCpfCnpj[2] = substr_replace($userCpfCnpj[2],'\*\*', -2);
-        $userCpfCnpj = implode('.', $userCpfCnpj);
 
         return $userCpfCnpj . ' - ' . $userNome;
     }

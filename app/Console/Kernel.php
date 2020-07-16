@@ -44,7 +44,12 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->at('08:50');
 
-
+        $schedule->call('App\Jobs\LimpaActivityLogJob@handle')
+            ->weekdays()
+            ->timezone('America/Sao_Paulo')
+            ->at('09:00');
+            //->everyMinute();
+            
 
         $schedule->job(new AlertaContratoJob)
             ->timezone('America/Sao_Paulo')

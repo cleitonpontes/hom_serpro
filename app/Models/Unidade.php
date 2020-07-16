@@ -86,6 +86,13 @@ class Unidade extends Model
 
     }
 
+    public function compras()
+    {
+
+        return $this->hasMany(Siasgcompra::class, 'unidade_id');
+
+    }
+
     public function configuracao()
     {
 

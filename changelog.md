@@ -2,6 +2,38 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.1.0]- xx/xx/2020
+
+### Integração
+- Integração com SIASG para retorno contratos por compra (Isseu #96)
+
+### Implementação
+- Campo de telefone para responsável do contrato e terceirizado (Issue #86);
+- Contrato X Status do processo (Issue #99);
+
+### Melhoria
+- Adicionar informação de empenhos na consulta de contratos do transparência  (Issue #40);
+- Alteração do número do contrato para o formato 99999/9999  (Issue #93);
+
+
+## [5.0.29]- 07/07/2020
+
+### Implementação
+- Consulta Contratos X Responsáveis (Issue #12);
+- Consulta Contratos X Arquivos (Issue #13);
+- Consulta Contratos X Historico (Issue #15);
+- Consulta Contratos X Prepostos (Issue #16);
+- Consulta Contratos X Garantias (Issue #17);
+- Consulta Contratos X Terceirizados (Issue #19);
+- Consulta Contratos X Itens (Issue #22).
+
+### Melhoria
+- Criação da Tabela para Arquivar Log  (Issue #91);
+- Disponibilização do campo Ativo e Inativo no Usuário (Issue #4).
+
+### Bug
+- Correção Bug da consulta Contrato X Empenhos (issue fix #14);
+
 ## [5.0.28]- 18/06/2020
 
 ### Implementação
@@ -57,7 +89,7 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 ### Bug
 - Correção de erro do atributo2 no formulário select2_from_ajax.
 
-## [5.0.23]- 13/04/2020
+## [5.0.23]- 16/04/2020
 
 ### Bug
 - Correção de erro na edição dos Empenhos vinculados aos contratos.

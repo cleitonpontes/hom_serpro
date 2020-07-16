@@ -1,5 +1,5 @@
 # v2 syntax
-version: '3'
+version: '2'
 
 # Named volumes
 volumes:
@@ -21,25 +21,13 @@ services:
       - POSTGRES_DB=conta
       - POSTGRES_USER=conta
 
-  # PHP (with Nginx)
+  # PHP (with Caddy)
   app:
-    image: ambientum/php:7.3-nginx
+    image: ambientum/php:7.1-nginx
     container_name: conta-app
     volumes:
-      - ./:/var/www/app
-    ports:
-      - "8080:8080"
-      - "8083:8083"
-    links:
-      - postgres
-
-
-  # Laravel Queues
-  queue:
-    image: ambientum/php:7.3
-    container_name: conta-queue
-    command: php artisan queue:listen
-    volumes:
       - .:/var/www/app
+    ports:
+      - "80:8080"
     links:
       - postgres

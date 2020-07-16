@@ -29,6 +29,8 @@ Route::group([
             Route::get('empenho/{id}', 'EmpenhoController@show');
             Route::get('unidade', 'UnidadeController@index');
             Route::get('unidade/{id}', 'UnidadeController@show');
+            Route::get('comprasiasg', 'ComprasiasgController@index');
+            Route::get('comprasiasg/{id}', 'ComprasiasgController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
             Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
             Route::get('catmatseritem', 'CatmatseritemController@index');
@@ -136,6 +138,23 @@ Route::group([
             CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
 
+
+
+            Route::group([
+                'prefix' => 'siasg',
+                'namespace' => 'Siasg',
+                ], function () {
+                CRUD::resource('compras', 'SiasgcompraCrudController');
+                CRUD::resource('contratos', 'SiasgcontratoCrudController');
+
+
+                Route::get('apisiasg', 'SiasgcompraCrudController@apisiasg');
+                Route::get('inserircompras', 'SiasgcompraCrudController@inserirComprasEmMassa');
+                Route::get('inserircontratos', 'SiasgcontratoCrudController@verificarContratosPendentes');
+
+
+            });
+
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
@@ -149,14 +168,22 @@ Route::group([
                 CRUD::resource('itens', 'ContratoitemCrudController');
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');
+                CRUD::resource('status', 'ContratostatusprocessoCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
             Route::group(['prefix' => 'consulta/'], function() {
-                CRUD::resource('ocorrencias', 'ConsultaocorrenciaCrudController');
-                CRUD::resource('faturas', 'ConsultafaturaCrudController');
+                CRUD::resource('arquivos', 'ConsultaarquivoCrudController');
                 CRUD::resource('cronogramas', 'ConsultacronogramaCrudController');
                 CRUD::resource('empenhos', 'ConsultaempenhoCrudController');
+                CRUD::resource('faturas', 'ConsultafaturaCrudController');
+                CRUD::resource('garantias', 'ConsultagarantiaCrudController');
+                CRUD::resource('historicos', 'ConsultahistoricoCrudController');
+                CRUD::resource('itens', 'ConsultaitemCrudController');
+                CRUD::resource('ocorrencias', 'ConsultaocorrenciaCrudController');
+                CRUD::resource('prepostos', 'ConsultaprepostoCrudController');
+                CRUD::resource('responsaveis', 'ConsultaresponsavelCrudController');
+                CRUD::resource('terceirizados', 'ConsultaterceirizadoCrudController');
             });
 
             Route::group(['prefix' => 'contratohistorico/{contratohistorico_id}'], function () {
