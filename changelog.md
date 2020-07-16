@@ -5,7 +5,8 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 ## [5.1.0]- xx/xx/2020
 
 ### Integração
-- Integração com SIASG para retorno contratos por compra (Isseu #96)
+- Integração com SIASG para retorno de contratos por compra (Issue #96)
+- Integração com SIAFI Web para trazer documento hábil como padrão para Apropriações (Issue #92)
 
 ### Implementação
 - Campo de telefone para responsável do contrato e terceirizado (Issue #86);
@@ -14,6 +15,7 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 ### Melhoria
 - Adicionar informação de empenhos na consulta de contratos do transparência  (Issue #40);
 - Alteração do número do contrato para o formato 99999/9999  (Issue #93);
+- Melhoria na usabilidade do menu principal (Issue #104);
 
 
 ## [5.0.29]- 07/07/2020
