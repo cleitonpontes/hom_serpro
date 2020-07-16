@@ -29,6 +29,7 @@ class Contratohistorico extends ContratoBase
         'contrato_id',
         'fornecedor_id',
         'unidade_id',
+        'unidadeorigem_id',
         'tipo_id',
         'categoria_id',
         'subcategoria_id',
@@ -193,6 +194,15 @@ class Contratohistorico extends ContratoBase
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
     }
 
+    public function getUnidadeOrigemHistorico()
+    {
+        if(!$this->unidadeorigem_id){
+            return '';
+        }
+
+        return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
+    }
+
     public function getOrgaoHistorico()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
@@ -311,7 +321,12 @@ class Contratohistorico extends ContratoBase
         return $this->hasMany(Contratocronograma::class, 'contratohistorico_id');
     }
 
-    public function fornecedor()
+    public function unidadeorigem()
+    {
+        return $this->belongsTo(Unidade::class, 'unidadeorigem_id');
+    }
+
+    public function tipo()
     {
         return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
     }
@@ -329,11 +344,6 @@ class Contratohistorico extends ContratoBase
     public function saldosItens()
     {
         return $this->morphMany(Saldohistoricoitem::class, 'saldoable');
-    }
-
-    public function tipo()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_id');
     }
 
     public function unidade()

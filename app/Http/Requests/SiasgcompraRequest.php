@@ -4,8 +4,9 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Unique;
 
-class ContratosfpadraoRequest extends FormRequest
+class SiasgcompraRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,16 +26,23 @@ class ContratosfpadraoRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+        $unidade_id = $this->unidade_id ?? "NULL";
+        $modalidade_id = $this->modalidade_id ?? "NULL";
+        $ano = $this->ano ?? "NULL";
 
         return [
-            'categoriapadrao' => 'required',
-            'decricaopadrao' => 'required',
-            'codugemit' => 'required',
-            'anodh' => 'required|max:4',
-            'codtipodh' => 'required|max:2',
-            'numdh' => 'required|numeric|min:1|max:999999',
-            'tipo' => 'required|max:1',
-            'situacao' => 'required|max:1'
+            'numero' => [
+                'required',
+                (new Unique('siasgcompras','numero'))
+                    ->ignore($id)
+                    ->where('unidade_id',$unidade_id)
+                    ->where('modalidade_id',$modalidade_id)
+                    ->where('ano',$ano)
+            ],
+            'unidade_id' => 'required',
+            'modalidade_id' => 'required',
+            'ano' => 'required',
         ];
     }
 
@@ -46,7 +54,10 @@ class ContratosfpadraoRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'numero' => 'Número Compra',
+            'ano' => 'Ano Compra',
+            'unidade_id' => 'Unidade da Compra',
+            'modalidade_id' => 'Modalidade Licitação',
         ];
     }
 
@@ -58,9 +69,7 @@ class ContratosfpadraoRequest extends FormRequest
     public function messages()
     {
         return [
-            'required' => 'O campo :attribute é obrigatório.',
-            'max' => 'O campo :attribute não pode ser maior que :max.',
-            'min' => 'O :attribute deve maior que 0',
+            //
         ];
     }
 }

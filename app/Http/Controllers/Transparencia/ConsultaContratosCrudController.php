@@ -455,6 +455,15 @@ class ConsultaContratosCrudController extends CrudController
                 'visibleInShow' => true,
             ],
             [
+                'name' => 'empenho',
+                'label' => 'Empenhos',
+                'type' => 'empenhotable',
+                'visibleInTable' => false,
+                'visibleInModal' => false, // would make the modal too big
+                'visibleInExport' => false, // not important enough
+                'visibleInShow' => true,
+            ],
+            [
                 'name' => 'arquivos',
                 'label' => 'Arquivos',
                 'type' => 'arquivos',

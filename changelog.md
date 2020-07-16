@@ -2,6 +2,15 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.1.0]- xx/xx/2020
+
+### Implementação
+- Campo de telefone para Responsável do Contrato e Terceirizado (Issue #86);
+
+### Melhoria
+- Adicionar informação de Empenhos na Consulta de Contratos do Transparência  (Issue #40);
+
+
 ## [5.0.29]- 07/07/2020
 
 ### Implementação
@@ -75,7 +84,7 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 ### Bug
 - Correção de erro do atributo2 no formulário select2_from_ajax.
 
-## [5.0.23]- 13/04/2020
+## [5.0.23]- 16/04/2020
 
 ### Bug
 - Correção de erro na edição dos Empenhos vinculados aos contratos.

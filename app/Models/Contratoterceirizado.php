@@ -38,7 +38,9 @@ class Contratoterceirizado extends ContratoBase
         'escolaridade_id',
         'data_inicio',
         'data_fim',
-        'situacao'
+        'situacao',
+        'telefone_fixo',
+        'telefone_celular',
     ];
 
     /*
@@ -71,7 +73,16 @@ class Contratoterceirizado extends ContratoBase
     {
         return $this->nome;
     }
-
+    public function getTelefoneFixo()
+    {
+        $telefone_fixo = $this->telefone_fixo;
+        return $telefone_fixo;
+    }
+    public function getTelefoneCelular()
+    {
+        $telefone_celular = $this->telefone_celular;
+        return $telefone_celular;
+    }
     public function getEscolaridade()
     {
         return $this->escolaridade->descricao;

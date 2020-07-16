@@ -10,6 +10,7 @@ use App\Models\Fornecedor;
 use App\Models\Unidade;
 use App\Notifications\RotinaAlertaContratoNotification;
 use App\PDF\Pdf;
+use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -57,6 +58,7 @@ class ContratoCrudController extends CrudController
         $this->crud->enableExportButtons();
 //        $this->crud->disableResponsiveTable();
 
+        $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
         $this->crud->addButtonFromView('line', 'extratocontrato', 'extratocontrato', 'beginning');
         $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
         $this->crud->denyAccess('create');
@@ -136,8 +138,19 @@ class ContratoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'getUnidadeOrigem',
+                'label' => 'Unidade Gestora Origem', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getUnidadeOrigem', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'getUnidade',
-                'label' => 'Unidade Gestora', // Table column heading
+                'label' => 'Unidade Gestora Atual', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getUnidade', // the method in your Model
                 'orderable' => true,
@@ -397,9 +410,24 @@ class ContratoCrudController extends CrudController
                 'type' => 'numprocesso',
                 'tab' => 'Dados Gerais',
             ],
+            [
+                // 1-n relationship
+                'label' => "Unidade Gestora Origem", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
+                'entity' => 'unidadeorigem', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
+                'model' => "App\Models\Unidade", // foreign key model
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a Unidade", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+                'tab' => 'Dados Gerais',
+            ],
             [ // select_from_array
                 'name' => 'unidade_id',
-                'label' => "Unidade Gestora",
+                'label' => "Unidade Gestora Atual",
                 'type' => 'select2_from_array',
                 'options' => $unidade,
                 'allows_null' => false,
@@ -759,23 +787,23 @@ class ContratoCrudController extends CrudController
 
             $pdf->SetFont('Arial', '', 7);
             $pdf->SetY($row_resp);
-            $lines = $pdf->NbLines(21,utf8_decode($registro->observacao)) * 5;
+            $lines = $pdf->NbLines(21, utf8_decode($registro->observacao)) * 5;
             $pdf->Cell(21, $lines, implode('/',
-                array_reverse(explode('-', $registro->data_assinatura)))
+                    array_reverse(explode('-', $registro->data_assinatura)))
                 , 1, 0, 'L');
             $pdf->Cell(21, $lines, $registro->numero, 1, 0, 'L');
             $pdf->MultiCell(21, 5, utf8_decode($registro->observacao), 1);
-            $pdf->SetXY($pdf->GetX()+(3*21),$row_resp);
+            $pdf->SetXY($pdf->GetX() + (3 * 21), $row_resp);
 //            $pdf->SetX($pdf->GetX()+(3*21));
             $pdf->Cell(21, $lines, utf8_decode($registro->tipo()->first()->descricao), 1, 0, 'C');
-            $pdf->Cell(21, $lines, implode('/',array_reverse(explode('-',$registro->vigencia_inicio)))
+            $pdf->Cell(21, $lines, implode('/', array_reverse(explode('-', $registro->vigencia_inicio)))
                 , 1, 0, 'C');
-            $pdf->Cell(21, $lines, implode('/',array_reverse(explode('-',$registro->vigencia_fim)))
+            $pdf->Cell(21, $lines, implode('/', array_reverse(explode('-', $registro->vigencia_fim)))
                 , 1, 0, 'C');
-            $pdf->Cell(21, $lines, number_format($registro->valor_global,2,',',".")
+            $pdf->Cell(21, $lines, number_format($registro->valor_global, 2, ',', ".")
                 , 1, 0, 'R');
             $pdf->Cell(21, $lines, $registro->num_parcelas, 1, 0, 'R');
-            $pdf->Cell(21, $lines, number_format($registro->valor_parcela,2,',',".")
+            $pdf->Cell(21, $lines, number_format($registro->valor_parcela, 2, ',', ".")
                 , 1, 0, 'R');
 
             $row_resp += $lines;
@@ -823,6 +851,18 @@ class ContratoCrudController extends CrudController
             $pdf->Cell(18, 5, utf8_decode("Portaria: "), 0, 0, 'L');
             $pdf->SetFont('Arial', 'B', 10);
             $pdf->Cell(20, 5, utf8_decode($ativo->portaria), 0, 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(20, 5, utf8_decode("Telefone Fixo: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(48, 5, utf8_decode($ativo->telefone_fixo), 0, 0, 'L');
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(25, 5, utf8_decode("Telefone Celular: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(50, 5, utf8_decode($ativo->telefone_celular), 0, 0, 'L');
 
             $row_resp = $row_resp + 5;
 
@@ -876,6 +916,18 @@ class ContratoCrudController extends CrudController
             $pdf->Cell(18, 5, utf8_decode("Portaria: "), 0, 0, 'L');
             $pdf->SetFont('Arial', 'B', 10);
             $pdf->Cell(20, 5, utf8_decode($inativo->portaria), 0, 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(20, 5, utf8_decode("Telefone Fixo: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(48, 5, utf8_decode($inativo->telefone_fixo), 0, 0, 'L');
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(25, 5, utf8_decode("Telefone Celular: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(50, 5, utf8_decode($inativo->telefone_celular), 0, 0, 'L');
 
             $row_resp = $row_resp + 5;
 
@@ -968,14 +1020,14 @@ class ContratoCrudController extends CrudController
             $pdf->SetY($row_resp);
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(21, 5, utf8_decode($empenho->empenho->numero), 1, 0, 'L');
-            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->empenhado,2,',',".")), 1, 0, 'R');
-            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->aliquidar,2,',',".")), 1, 0, 'R');
-            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->liquidado,2,',',".")), 1, 0, 'R');
-            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->pago,2,',',".")), 1, 0, 'R');
-            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpinscrito,2,',',".")), 1, 0, 'R');
-            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpaliquidar,2,',',".")), 1, 0, 'R');
-            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpliquidado,2,',',".")), 1, 0, 'R');
-            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rppago,2,',',".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->empenhado, 2, ',', ".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->aliquidar, 2, ',', ".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->liquidado, 2, ',', ".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->pago, 2, ',', ".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpinscrito, 2, ',', ".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpaliquidar, 2, ',', ".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rpliquidado, 2, ',', ".")), 1, 0, 'R');
+            $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rppago, 2, ',', ".")), 1, 0, 'R');
 
             $row_resp += 5;
 
@@ -984,14 +1036,14 @@ class ContratoCrudController extends CrudController
         $pdf->SetY($row_resp);
         $pdf->SetFont('Arial', 'B', 7);
         $pdf->Cell(21, 5, utf8_decode("Total"), 1, 0, 'R');
-        $pdf->Cell(21, 5, utf8_decode(number_format($t_empenhado,2,',',".")), 1, 0, 'R');
-        $pdf->Cell(21, 5, utf8_decode(number_format($t_aliquidar,2,',',".")), 1, 0, 'R');
-        $pdf->Cell(21, 5, utf8_decode(number_format($t_liquidado,2,',',".")), 1, 0, 'R');
-        $pdf->Cell(21, 5, utf8_decode(number_format($t_pago,2,',',".")), 1, 0, 'R');
-        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpinscrito,2,',',".")), 1, 0, 'R');
-        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpaliquidar,2,',',".")), 1, 0, 'R');
-        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpliquidado,2,',',".")), 1, 0, 'R');
-        $pdf->Cell(21, 5, utf8_decode(number_format($t_rppago,2,',',".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_empenhado, 2, ',', ".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_aliquidar, 2, ',', ".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_liquidado, 2, ',', ".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_pago, 2, ',', ".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpinscrito, 2, ',', ".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpaliquidar, 2, ',', ".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_rpliquidado, 2, ',', ".")), 1, 0, 'R');
+        $pdf->Cell(21, 5, utf8_decode(number_format($t_rppago, 2, ',', ".")), 1, 0, 'R');
 
         $nome_arquivo = str_replace('/', '', $contrato->numero) . ' - ' . str_replace(' ', '_', $contrato->fornecedor->nome) . '.pdf';
 
@@ -1018,6 +1070,5 @@ class ContratoCrudController extends CrudController
 
         return redirect()->back();
     }
-
 
 }
