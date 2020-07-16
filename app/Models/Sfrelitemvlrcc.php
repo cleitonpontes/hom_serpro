@@ -21,6 +21,6 @@ class Sfrelitemvlrcc extends Model
 
     public function centroCusto()
     {
-        return $this->belongsTo(Sfcentrocusto::class, 'sfcc_id');
+        return $this->belongsTo(SfCentroCusto::class, 'sfcc_id');
     }
 }

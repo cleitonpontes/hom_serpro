@@ -89,7 +89,7 @@ class Contratosfpadrao extends Model
 
     public function centroCusto()
     {
-        return $this->hasMany(Sfcentrocusto::class, 'sfpadrao_id');
+        return $this->hasMany(SfCentroCusto::class, 'sfpadrao_id');
     }
     /*
     |--------------------------------------------------------------------------

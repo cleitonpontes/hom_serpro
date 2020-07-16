@@ -1,11 +1,11 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SfDespesaAnularItem extends Model
+class SfCredito extends Model
 {
-
     /**
      * Informa que não utilizará os campos create_at e update_at do Laravel
      *
@@ -18,7 +18,7 @@ class SfDespesaAnularItem extends Model
      *
      * @var string
      */
-    protected $table = 'sfdespesaanularitem';
+    protected $table = 'sfcredito';
 
     /**
      * Campos da tabela
@@ -27,26 +27,26 @@ class SfDespesaAnularItem extends Model
      */
     protected $fillable = [
         'id',
-        'sfdespesaanular_id',
+        'sfpadrao_id',
         'numseqitem',
-        'numempe',
-        'codsubitemempe',
+        'codsit',
+        'indrliquidado',
         'vlr',
+        'codfontrecur',
+        'codctgogasto',
+        'dtvenc',
+        'dtpgtoreceb',
+        'codugpgto',
         'txtinscra',
         'numclassa',
         'txtinscrb',
         'numclassb',
-        'txtinscrc',
-        'numclassc'
+        'txtinscrc'
     ];
 
-    public function sfdespesaAnular()
-    {
-        return $this->belongsTo(SfDespesaAnular::class, 'sfdespesaanular_id');
-    }
 
-    public function sfRelEncargo()
+    public function sfpadrao()
     {
-        return $this->hasMany(SfRelEncargos::class, 'sfdespesaanularitem_id');
+        return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
     }
 }

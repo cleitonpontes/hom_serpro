@@ -7,7 +7,7 @@ use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Sfcertificado extends Model
+class SfCertificado extends Model
 {
     use CrudTrait;
     use LogsActivity;

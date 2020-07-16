@@ -49,13 +49,25 @@ class SfDadosBasicos extends Model
         'dtpgtoreceb'
     ];
 
+    public function sfpadrao()
+    {
+        return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
+    }
+
     public function docOrigem()
     {
         return $this->hasMany(SfDocOrigem::class, 'sfdadosbasicos_id');
     }
 
-    public function sfpadrao()
+    public function docRelacionado()
     {
-        return $this->belongsTo(SfPadrao::class, 'sfpadrao_id');
+        return $this->hasMany(SfDocRelacionado::class, 'sfdadosbasicos_id');
     }
+
+    public function tramite()
+    {
+        return $this->hasMany(SfTramite::class, 'sfdadosbasicos_id');
+    }
+
+
 }

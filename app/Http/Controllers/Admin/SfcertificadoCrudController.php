@@ -27,7 +27,7 @@ class SfcertificadoCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel('App\Models\Sfcertificado');
+        $this->crud->setModel('App\Models\SfCertificado');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/sfcertificado');
         $this->crud->setEntityNameStrings('Certificado Siafi', 'Certificado Siafi');
 
