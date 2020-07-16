@@ -856,6 +856,18 @@ class ContratoCrudController extends CrudController
 
             $pdf->SetY($row_resp);
             $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(20, 5, utf8_decode("Telefone Fixo: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(48, 5, utf8_decode($ativo->telefone_fixo), 0, 0, 'L');
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(25, 5, utf8_decode("Telefone Celular: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(50, 5, utf8_decode($ativo->telefone_celular), 0, 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
             $pdf->Cell(18, 5, utf8_decode("Unidade: "), 0, 0, 'L');
             $pdf->SetFont('Arial', 'B', 10);
             $pdf->Cell(0, 5, utf8_decode(($ativo->instalacao_id) ? $ativo->instalacao->nome : ''), 0, 0, 'L');
@@ -904,6 +916,18 @@ class ContratoCrudController extends CrudController
             $pdf->Cell(18, 5, utf8_decode("Portaria: "), 0, 0, 'L');
             $pdf->SetFont('Arial', 'B', 10);
             $pdf->Cell(20, 5, utf8_decode($inativo->portaria), 0, 0, 'L');
+
+            $row_resp = $row_resp + 5;
+
+            $pdf->SetY($row_resp);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(20, 5, utf8_decode("Telefone Fixo: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(48, 5, utf8_decode($inativo->telefone_fixo), 0, 0, 'L');
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(25, 5, utf8_decode("Telefone Celular: "), 0, 0, 'L');
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(50, 5, utf8_decode($inativo->telefone_celular), 0, 0, 'L');
 
             $row_resp = $row_resp + 5;
 
