@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Gescon\Siasg;
 
+use App\Jobs\AtualizaSiasgCompraJob;
 use App\Models\Codigoitem;
 use App\Models\Siasgcompra;
 use App\Models\Unidade;
@@ -377,6 +378,23 @@ class SiasgcompraCrudController extends CrudController
         \Alert::success('Compras importadss com sucesso!')->flash();
 
         return redirect('/gescon/siasg/compras');
+    }
+
+    public function executaJobAtualizacaoSiasgCompras()
+    {
+        $siasgcompras = $this->buscaComprasPendentes();
+
+        foreach ($siasgcompras as $siasgcompra){
+            if(isset($siasgcompra->id)){
+                AtualizaSiasgCompraJob::dispatch($siasgcompra)->onQueue('siasgcompra');
+            }
+        }
+    }
+
+    private function buscaComprasPendentes()
+    {
+        $compras = Siasgcompra::where('situacao','Pendente');
+        return $compras->get();
     }
 
 

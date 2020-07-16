@@ -35,15 +35,19 @@ class AtualizaSiasgContratoJob implements ShouldQueue
     public function handle()
     {
         $tipoconsulta = 'ContratoSisg';
+
         $dado = [
             'contrato' => $this->siasgcontrato->unidade->codigosiasg . $this->siasgcontrato->tipo->descres . $this->siasgcontrato->numero . $this->siasgcontrato->ano
         ];
 
         if($this->siasgcontrato->sisg == false){
+
             $tipoconsulta = 'ContratoNaoSisg';
+
             $dado = [
                 'contratoNSisg' => $this->siasgcontrato->unidade->codigosiasg . str_pad($this->siasgcontrato->codigo_interno, 10 , " ") . $this->siasgcontrato->tipo->descres . $this->siasgcontrato->numero . $this->siasgcontrato->ano
             ];
+
         }
 
         $apiSiasg = new ApiSiasg;
@@ -57,5 +61,8 @@ class AtualizaSiasgContratoJob implements ShouldQueue
             $siasgcontrato_atualizado->contrato_id = $contrato->id;
             $siasgcontrato_atualizado->save();
         }
+
     }
+
+
 }

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Gescon\Siasg;
 
+use App\Jobs\AtualizaSiasgCompraJob;
+use App\Jobs\AtualizaSiasgContratoJob;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
 use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -390,6 +393,23 @@ class SiasgcontratoCrudController extends CrudController
             }
         }
         return $siasgcontrato;
+    }
+
+    public function executaJobAtualizacaoSiasgContratos()
+    {
+        $siasgcontratos = $this->buscaContratosPendentes();
+
+        foreach ($siasgcontratos as $siasgcontrato){
+            if(isset($siasgcontrato->id)){
+                AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
+            }
+        }
+    }
+
+    private function buscaContratosPendentes()
+    {
+        $siasgcontratos = Siasgcontrato::where('situacao','Pendente');
+        return $siasgcontratos->get();
     }
 
 

@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Http\Traits\Formatador;
+use Illuminate\Database\Eloquent\Model;
 
-class ContratoSiasgIntegracao extends Contrato
+class ContratoSiasgIntegracao extends Model
 {
     use Formatador;
+
+
 
 
     /*
@@ -88,7 +91,7 @@ class ContratoSiasgIntegracao extends Contrato
 
         unset($dado['categoria_id']);
 
-        $contrato = $this->where('numero',$this->formataNumeroContratoLicitacao($json->data->numeroAno))
+        $contrato = $this->contrato()->where('numero',$this->formataNumeroContratoLicitacao($json->data->numeroAno))
             ->where('unidade_id', $siasgcontrato->unidade_id)
             ->where('fornecedor_id', $fornecedor->id)
             ->update($dado);
@@ -105,7 +108,7 @@ class ContratoSiasgIntegracao extends Contrato
 
         $dado = $this->montaArrayContrato($siasgcontrato, $fornecedor, $json);
 
-        $contrato = $this->create($dado);
+        $contrato = $this->contrato()->create($dado);
 
         return $contrato;
 
@@ -163,7 +166,7 @@ class ContratoSiasgIntegracao extends Contrato
 
     private function buscaContratoPorNumeroUgorigemFornecedor(Siasgcontrato $siasgcontrato, Fornecedor $fornecedor, $json)
     {
-        $contrato = $this->where('numero', $this->formataNumeroContratoLicitacao($json->data->numeroAno))
+        $contrato = $this->contrato()->where('numero', $this->formataNumeroContratoLicitacao($json->data->numeroAno))
             ->where('unidadeorigem_id', $siasgcontrato->unidade_id)
             ->where('fornecedor_id', $fornecedor->id)
             ->first();
@@ -177,7 +180,7 @@ class ContratoSiasgIntegracao extends Contrato
 
     private function countContratosPorNumeroFornecedor($numero, $fornecedor_id, $unidade_id)
     {
-        $count = $this->where('numero', $numero)
+        $count = $this->contrato()->where('numero', $numero)
             ->where('unidade_id', $unidade_id)
             ->where('fornecedor_id', $fornecedor_id)
             ->count();
@@ -187,7 +190,7 @@ class ContratoSiasgIntegracao extends Contrato
 
     private function buscaContratosPorNumeroUgFornecedor($numero, $fornecedor_id, $unidade_id)
     {
-        $contrato = $this->where('numero', $numero)
+        $contrato = $this->contrato()->where('numero', $numero)
             ->where('unidade_id', $unidade_id)
             ->where('fornecedor_id', $fornecedor_id)
             ->first();
@@ -216,7 +219,10 @@ class ContratoSiasgIntegracao extends Contrato
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
+    public function contrato()
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
 
     /*
     |--------------------------------------------------------------------------

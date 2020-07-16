@@ -15,19 +15,15 @@ class SiasgcompraObserver
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 7200;
-
     public function created(Siasgcompra $siasgcompra)
     {
-//        $this->importacao($siasgcompra);
-        AtualizaSiasgCompraJob::dispatch($siasgcompra)->onQueue('siasgcompra');
+        $this->atualizaSiasgContratos($siasgcompra);
 
     }
 
     public function updated(Siasgcompra $siasgcompra)
     {
-//        $this->importacao($siasgcompra);
-        AtualizaSiasgCompraJob::dispatch($siasgcompra)->onQueue('siasgcompra');
+        $this->atualizaSiasgContratos($siasgcompra);
     }
 
     public function deleted(Siasgcompra $siasgcompra)
@@ -39,27 +35,6 @@ class SiasgcompraObserver
     {
         $contratos = Siasgcontrato::where('compra_id',$siasgcompra->id)
             ->delete();
-
-    }
-
-
-    private function importacao(Siasgcompra $siasgcompra)
-    {
-        $tipoconsulta = 'Compra';
-
-        $apiSiasg = new ApiSiasg;
-        $dado = [
-            'ano' => $siasgcompra->ano,
-            'modalidade' => $siasgcompra->modalidade->descres,
-            'numero' => $siasgcompra->numero,
-            'uasg' => $siasgcompra->unidade->codigosiasg
-        ];
-
-        $retorno = $apiSiasg->executaConsulta($tipoconsulta, $dado);
-
-        $compra = $siasgcompra->atualizaJsonMensagemSituacao($siasgcompra->id, $retorno);
-
-        $contratos = $this->atualizaSiasgContratos($siasgcompra);
 
     }
 
@@ -113,8 +88,6 @@ class SiasgcompraObserver
                 }
             }
         }
-
-        return $contrato;
     }
 
 
