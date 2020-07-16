@@ -2,6 +2,21 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.1.0]- xx/xx/2020
+
+### Implementação
+- Campo de telefone para Responsável do Contrato e Terceirizado (Issue #86);
+- Consulta Contratos X Arquivos (Issue #13);
+- Consulta Contratos X Historico (Issue #15);
+- Consulta Contratos X Prepostos (Issue #16);
+- Consulta Contratos X Garantias (Issue #17);
+- Consulta Contratos X Terceirizados (Issue #19);
+- Consulta Contratos X Itens (Issue #22).
+
+### Melhoria
+- Criação da Tabela para Arquivar Log  (Issue #91);
+- Disponibilização do campo Ativo e Inativo no Usuário (Issue #4).
+
 ## [5.0.29]- 07/07/2020
 
 ### Implementação
@@ -75,17 +90,14 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 ### Bug
 - Correção de erro do atributo2 no formulário select2_from_ajax.
 
-## [5.0.23]- 13/04/2020
+## [5.0.23]- 16/04/2020
 
 ### Bug
 - Correção de erro na edição dos Empenhos vinculados aos contratos.
 - Correção dos órgãos no formulário do Comunica. 
 
-## [5.0.23]- 16/04/2020
-
 ### Implementação
 - Liberação para Botão para Deletar Faturas.
->>>>>>> Stashed changes
 
 ## [5.0.22]- 09/04/2020
 
