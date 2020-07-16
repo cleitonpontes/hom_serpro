@@ -6,16 +6,10 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
 ### Implementação
 - Campo de telefone para Responsável do Contrato e Terceirizado (Issue #86);
-- Consulta Contratos X Arquivos (Issue #13);
-- Consulta Contratos X Historico (Issue #15);
-- Consulta Contratos X Prepostos (Issue #16);
-- Consulta Contratos X Garantias (Issue #17);
-- Consulta Contratos X Terceirizados (Issue #19);
-- Consulta Contratos X Itens (Issue #22).
 
 ### Melhoria
-- Criação da Tabela para Arquivar Log  (Issue #91);
-- Disponibilização do campo Ativo e Inativo no Usuário (Issue #4).
+- Adicionar informação de Empenhos na Consulta de Contratos do Transparência  (Issue #40);
+
 
 ## [5.0.29]- 07/07/2020
 
