@@ -19,6 +19,8 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 - Alteração do número da licitação para o formato 99999/9999  (Issue #105);
 - Melhoria na usabilidade do menu principal (Issue #104);
 
+### Bug
+- Correção Bug em Sub-rogação no campo unidadeorigem_id (issue fix #108);
 
 ## [5.0.29]- 07/07/2020
 
