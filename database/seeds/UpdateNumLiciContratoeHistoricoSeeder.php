@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\DB;
 // composer require laracasts/testdummy
 use Laracasts\TestDummy\Factory as TestDummy;
 
-class UpdateNumeroContratoeHistoricoSeeder extends Seeder
+class UpdateNumLiciContratoeHistoricoSeeder extends Seeder
 {
     public function run()
     {
-        $arrumaCampo = new AlteraMascaraJob("contratos","numero",10,"0",['contratohistorico']);
+        $arrumaCampo = new AlteraMascaraJob("contratos","licitacao_numero",10,"0",['contratohistorico']);
         $arrumaCampo->handle();
     }
 }
