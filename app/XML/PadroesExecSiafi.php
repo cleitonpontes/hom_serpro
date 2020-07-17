@@ -7,6 +7,44 @@ use Illuminate\Support\Facades\DB;
 
 class PadroesExecSiafi
 {
+
+    public function importaDadosSiafi(string $xmlSiafi,Contratosfpadrao $contratosfpadrao)
+    {
+        $params['dtemis'] = date("Y-m-d H:i:s");
+
+        $xml = simplexml_load_string(str_replace(':', '', $xmlSiafi));
+        $json = json_encode($xml);
+        $objSiafi = json_decode($json);
+
+
+        $retornoSIAFI = $objSiafi->soapHeader->ns2EfetivacaoOperacao->resultado;
+
+        if($retornoSIAFI == 'SUCESSO'){
+
+            $body = $objSiafi->soapBody->ns3cprDHDetalharDHResponse->cprDhDetalharResposta->documentoHabil;
+            $resultado = $this->processamento($body,$contratosfpadrao);
+            $params['situacao'] = 'I';
+            $params['msgretorno'] = 'Importado com Sucesso!';
+            if(!$resultado){
+                $params['situacao'] = 'E';
+                $params['msgretorno'] = 'Erro ao tentar importar!';
+            }
+        }else{
+            $msgErro = $objSiafi->soapBody->soapFault->faultstring;
+            $params['situacao'] = 'E';
+            $params['msgretorno'] = $msgErro;
+        };
+
+
+        DB::beginTransaction();
+        try {
+            $contratosfpadrao->update($params);
+            DB::commit();
+        } catch (\Exception $exc) {
+            DB::rollback();
+        }
+    }
+
     public function processamento(object $arraySiafi,Contratosfpadrao $contratosfpadrao)
     {
         $arrayElemento = [];
@@ -102,7 +140,6 @@ class PadroesExecSiafi
             $retorno = true;
         } catch (\Exception $exc) {
             DB::rollback();
-            //dd($exc->getMessage());
         }
         return $retorno;
     }
