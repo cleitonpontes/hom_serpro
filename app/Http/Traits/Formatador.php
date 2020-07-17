@@ -12,15 +12,15 @@ trait Formatador
      * @return string
      * @author Anderson Sathler <asathler@gmail.com>
      */
-    public function retornaDataAPartirDeCampo($campo)
+    public function retornaDataAPartirDeCampo($campo, $formatoOrigem = 'Y-m-d', $formatoDestino = 'd/m/Y')
     {
         if (is_null($campo)) {
             return '';
         }
 
         try {
-            $data = \DateTime::createFromFormat('Y-m-d', $campo);
-            $retorno = $data->format('d/m/Y');
+            $data = \DateTime::createFromFormat($formatoOrigem, $campo);
+            $retorno = ($data !== false) ? $data->format($formatoDestino) : '';
         } catch (\Exception $e) {
             $retorno = '';
         }
@@ -59,11 +59,9 @@ trait Formatador
         return $mask;
     }
 
-    public function formataDataSiasg($dado)
+    public function formataDataSiasg($data)
     {
-        $data = \DateTime::createFromFormat('Ymd', $dado);
-        $retorno = $data->format('Y-m-d');
-        return $retorno;
+        return $this->retornaDataAPartirDeCampo($data, 'Ymd', 'Y-m-d');
     }
 
     public function formataDecimalSiasg($dado)
@@ -90,23 +88,11 @@ trait Formatador
         $tipo = $this->retornaTipoFornecedor($dado);
 
         if ($tipo == 'JURIDICA') {
-            $d[0] = substr($dado, 0, 2);
-            $d[1] = substr($dado, 2, 3);
-            $d[2] = substr($dado, 5, 3);
-            $d[3] = substr($dado, 8, 4);
-            $d[4] = substr($dado, 12, 2);
-
-            $retorno = $d[0] . '.' . $d[1] . '.' . $d[2] . '/' . $d[3] . '-' . $d[4];
-
+            $retorno = $this->formataCnpj($dado);
         }
 
         if ($tipo == 'FISICA') {
-            $d[0] = substr($dado, 0, 3);
-            $d[1] = substr($dado, 3, 3);
-            $d[2] = substr($dado, 6, 3);
-            $d[3] = substr($dado, 9, 2);
-
-            $retorno = $d[0] . '.' . $d[1] . '.' . $d[2] . '-' . $d[3];
+            $retorno = $this->formataCpf($dado);
         }
 
         return $retorno;
@@ -129,6 +115,27 @@ trait Formatador
         }
 
         return $retorno;
+    }
+
+    public function formataCnpj($numero)
+    {
+        $d[0] = substr($numero, 0, 2);
+        $d[1] = substr($numero, 2, 3);
+        $d[2] = substr($numero, 5, 3);
+        $d[3] = substr($numero, 8, 4);
+        $d[4] = substr($numero, 12, 2);
+
+        $retorno = $d[0] . '.' . $d[1] . '.' . $d[2] . '/' . $d[3] . '-' . $d[4];
+    }
+
+    public function formataCpf($numero)
+    {
+        $d[0] = substr($numero, 0, 3);
+        $d[1] = substr($numero, 3, 3);
+        $d[2] = substr($numero, 6, 3);
+        $d[3] = substr($numero, 9, 2);
+
+        $retorno = $d[0] . '.' . $d[1] . '.' . $d[2] . '-' . $d[3];
     }
 
 }
