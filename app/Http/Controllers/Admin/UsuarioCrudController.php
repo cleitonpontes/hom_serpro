@@ -35,7 +35,7 @@ class UsuarioCrudController extends CrudController
         }
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuario');
-        $this->crud->setEntityNameStrings('usuario', 'usuarios');
+        $this->crud->setEntityNameStrings('usuário', 'usuários');
         $this->crud->addClause('select', 'users.*');
         $this->crud->addClause('leftJoin', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         $this->crud->enableExportButtons();

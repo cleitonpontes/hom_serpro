@@ -352,7 +352,7 @@
                             <li>
                                 <a href='{{ backpack_url('/admin/usuarioorgao') }}'>
                                     <i class='fa fa-user'></i>
-                                    <span>Usuários órgão</span>
+                                    <span>Usuários do meu órgão</span>
                                 </a>
                             </li>
                         @endif
@@ -360,7 +360,7 @@
                             <li>
                                 <a href='{{ backpack_url('/admin/usuariounidade') }}'>
                                     <i class='fa fa-user'></i>
-                                    <span>Usuários unidade</span>
+                                    <span>Usuários da minha unidade</span>
                                 </a>
                             </li>
                         @endif
