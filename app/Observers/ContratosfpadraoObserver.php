@@ -18,11 +18,7 @@ class ContratosfpadraoObserver
      */
     public function created(Contratosfpadrao $contratosfpadrao)
     {
-        $xml = new Execsiafi();
-        $xmlSiafi = $xml->consultaDh(backpack_user(), session()->get('user_ug'), 'HOM', $contratosfpadrao->anodh,$contratosfpadrao);
 
-        $padraoExecSiafi =  new PadroesExecSiafi();
-        $padraoExecSiafi->importaDadosSiafi($xmlSiafi,$contratosfpadrao);
     }
 
 
@@ -34,7 +30,19 @@ class ContratosfpadraoObserver
      */
     public function updating(Contratosfpadrao $contratosfpadrao)
     {
+        $params = $contratosfpadrao->toArray();
+        unset($params['id']);
 
+        DB::beginTransaction();
+        try {
+            $contratosfpadrao->delete();
+            $novoContratoSfPadrao = new Contratosfpadrao($params);
+            $novoContratoSfPadrao->save();
+            DB::commit();
+        } catch (\Exception $exc) {
+            DB::rollback();
+            dd($exc->getMessage());
+        }
 
     }
 

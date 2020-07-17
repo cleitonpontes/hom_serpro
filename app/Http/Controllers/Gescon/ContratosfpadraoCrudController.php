@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Jobs\AtualizaSfPadraoJob;
+use App\Models\BackpackUser;
 use App\Models\Contrato;
+use App\Models\Contratosfpadrao;
 use App\Models\Unidade;
+use App\XML\Execsiafi;
+use App\XML\PadroesExecSiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -265,9 +270,35 @@ class ContratosfpadraoCrudController extends CrudController
                             'type' => 'hidden',
                             'default' => 'P',
                         ],
+                        [  // Hidden
+                            'name' => 'user_id',
+                            'type' => 'hidden',
+                            'default' => backpack_user()->id,
+                        ],
                     ];
 
 
         return $campos;
     }
+
+
+    public function executaJobAtualizacaoSfPadrao()
+    {
+        $modSfPadrao = $this->buscaPadroesPendentes();
+
+        foreach ($modSfPadrao as $sfpadrao){
+            if(isset($sfpadrao->id)){
+                AtualizaSfPadraoJob::dispatch($sfpadrao)->onQueue('sfpadrao');
+            }
+        }
+    }
+
+    private function buscaPadroesPendentes()
+    {
+        $modSfPadrao = Contratosfpadrao::where('situacao','P')->get();
+
+        return $modSfPadrao;
+    }
+
+
 }

@@ -30,8 +30,8 @@ class AddFkSfpadraoIdSfdadospgto extends Migration
     public function down()
     {
         Schema::table('sfdadospgto', function (Blueprint $table) {
+            $table->dropForeign('sfdadospgto_sfpadrao_id_foreign');
             $table->dropColumn('sfpadrao_id');
-            $table->foreign('sfdadospgto_sfpadrao_id_foreign');
         });
     }
 }

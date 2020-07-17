@@ -47,6 +47,12 @@ class SfPadrao extends Model
         'situacao'
     ];
 
+    public function atualizaMensagemSituacao($sfpadrao)
+    {
+        dd($this->dadosBasicos()->exists());
+    }
+
+
     public function dadosBasicos()
     {
         return $this->hasOne(SfDadosBasicos::class, 'sfpadrao_id');

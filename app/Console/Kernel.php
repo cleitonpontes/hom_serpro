@@ -44,6 +44,10 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->at('08:50');
 
+        $schedule->call('App\Http\Controllers\Gescon\ContratosfpadraoCrudController@executaJobAtualizacaoSfPadrao')
+            ->weekdays()
+            ->timezone('America/Sao_Paulo')
+            ->everyMinute();
 
 
         $schedule->job(new AlertaContratoJob)
