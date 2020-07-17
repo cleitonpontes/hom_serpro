@@ -80,21 +80,6 @@ class OrgaoCrudController extends CrudController
     {
         $colunas = [
             [
-                'name' => 'getOrgaoSuperior',
-                'label' => 'Órgão Superior', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getOrgaoSuperior', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('orgaossuperiores.codigo', 'like', "%$searchTerm%");
-//                    $query->orWhere('orgaossuperiores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-//                },
-            ],
-            [
                 'name' => 'codigo',
                 'label' => 'Código SIAFI', // Table column heading
                 'type' => 'text',
@@ -143,6 +128,21 @@ class OrgaoCrudController extends CrudController
 //                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
 //                            ->orWhereDate('depart_at', '=', date($searchTerm));
 //                    });
+//                },
+            ],
+            [
+                'name' => 'getOrgaoSuperior',
+                'label' => 'Órgão Superior', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getOrgaoSuperior', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('orgaossuperiores.codigo', 'like', "%$searchTerm%");
+//                    $query->orWhere('orgaossuperiores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
 //                },
             ],
             [
