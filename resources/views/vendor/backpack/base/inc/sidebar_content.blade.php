@@ -167,7 +167,7 @@
     <li class="treeview">
         <a href="#">
             <i class="fa fa-dollar"></i>
-            <span>Execução financeira</span>
+            <span>Gestão financeira</span>
             <i class="fa fa-angle-left pull-right"></i>
         </a>
         {{-- ************************************************************************ --}}
@@ -270,6 +270,7 @@
     <a href="{{ backpack_url('/transparencia') }}" target="_blank">
         <i class="fa fa-indent"></i>
         <span>Transparência</span>
+        <i class="fa fa-external-link pull-right"></i>
     </a>
 </li>
 
