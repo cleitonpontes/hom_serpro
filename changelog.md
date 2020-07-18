@@ -21,6 +21,8 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
 ### Bug
 - Correção Bug em Sub-rogação no campo unidadeorigem_id (issue fix #108);
+- Correção Bug em Contrato X Responsáveis (issue fix #12);
+- Correção Bug campo fornecedor do formulário de Contratos X Empenhos (issue fix #110);
 
 ## [5.0.29]- 07/07/2020
 

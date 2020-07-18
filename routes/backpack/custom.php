@@ -29,6 +29,8 @@ Route::group([
             Route::get('empenho/{id}', 'EmpenhoController@show');
             Route::get('unidade', 'UnidadeController@index');
             Route::get('unidade/{id}', 'UnidadeController@show');
+            Route::get('fornecedor', 'FornecedorController@index');
+            Route::get('fornecedor/{id}', 'FornecedorController@show');
             Route::get('comprasiasg', 'ComprasiasgController@index');
             Route::get('comprasiasg/{id}', 'ComprasiasgController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
