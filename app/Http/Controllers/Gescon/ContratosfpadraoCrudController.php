@@ -248,6 +248,7 @@ class ContratosfpadraoCrudController extends CrudController
                             'type' => 'codtipodh',
                             'attributes' => [
                                 'onkeyup' => "maiuscula(this)",
+                                'maxlength' => '2'
                             ]
                         ],
                         [
