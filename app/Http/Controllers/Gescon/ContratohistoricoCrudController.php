@@ -110,7 +110,7 @@ class ContratohistoricoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'getUnidadeOrigemHistorico',
+                'name' => 'getUnidadeOrigem',
                 'label' => 'Unidade Gestora Origem', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getUnidadeOrigem', // the method in your Model

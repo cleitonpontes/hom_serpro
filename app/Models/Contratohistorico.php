@@ -128,10 +128,6 @@ class Contratohistorico extends ContratoBase
         $fornecedorNome = $this->fornecedor->nome;
 
         return $fornecedorCpfCnpj . ' - ' . $fornecedorNome;
-
-        $fornecedor = Fornecedor::find($this->fornecedor_id);
-
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
     }
 
     public function getModalidade()
@@ -196,7 +192,7 @@ class Contratohistorico extends ContratoBase
 
     public function getUnidadeOrigemHistorico()
     {
-        if(!$this->unidadeorigem_id){
+        if(!isset($this->unidadeorigem_id)){
             return '';
         }
 
@@ -288,6 +284,15 @@ class Contratohistorico extends ContratoBase
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
     }
 
+    public function getUnidadeOrigem()
+    {
+        if(!isset($this->unidadeorigem_id)){
+            return '';
+        }
+
+        return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
+    }
+
     public function getOrgao()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
@@ -311,9 +316,9 @@ class Contratohistorico extends ContratoBase
     }
     */
 
-    public function categoria()
+    public function fornecedor()
     {
-        return $this->belongsTo(Codigoitem::class, 'categoria_id');
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
     }
 
     public function cronograma()

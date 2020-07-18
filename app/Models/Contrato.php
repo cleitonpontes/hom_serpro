@@ -315,7 +315,7 @@ class Contrato extends Model
 
     public function getUnidadeOrigem()
     {
-        if(!$this->unidadeorigem_id){
+        if(!isset($this->unidadeorigem_id)){
             return '';
         }
 

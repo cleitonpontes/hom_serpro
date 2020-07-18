@@ -157,7 +157,7 @@ class InstrumentoinicialCrudController extends CrudController
                 'name' => 'getUnidadeHistorico',
                 'label' => 'Unidade Gestora Atual', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getUnidade', // the method in your Model
+                'function_name' => 'getUnidadeHistorico', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
