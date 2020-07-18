@@ -14,9 +14,9 @@ class AlteraFkSfdedIdSfacrescimo extends Migration
     public function up()
     {
         Schema::table('sfacrescimo', function (Blueprint $table) {
-            $table->dropForeign('sfacrescimo_sfdeducao_id_foreign');
-            $table->dropColumn('sfdeducao_id');
-            $table->integer('sfded_id')->nullable()->after('tipo');
+//            $table->dropForeign('sfacrescimo_sfdeducao_id_foreign');
+//            $table->dropColumn('sfdeducao_id');
+//            $table->integer('sfded_id')->nullable()->after('tipo');
         });
 
     }
@@ -29,7 +29,7 @@ class AlteraFkSfdedIdSfacrescimo extends Migration
     public function down()
     {
         Schema::table('sfacrescimo', function (Blueprint $table) {
-            $table->dropForeign('sfacrescimo_sfded_id_foreign');
+//            $table->dropForeign('sfacrescimo_sfded_id_foreign');
         });
     }
 }

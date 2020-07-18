@@ -14,7 +14,7 @@ class AlterFkSfdedIdSfacrescimo extends Migration
     public function up()
     {
         Schema::table('sfacrescimo', function (Blueprint $table) {
-            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
+//            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
         });
     }
 

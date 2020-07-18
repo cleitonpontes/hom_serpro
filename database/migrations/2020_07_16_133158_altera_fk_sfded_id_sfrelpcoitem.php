@@ -13,15 +13,15 @@ class AlteraFkSfdedIdSfrelpcoitem extends Migration
      */
     public function up()
     {
-        Schema::table('sfrelpcoitem', function (Blueprint $table) {
-            $table->dropForeign('sfrelpcoitem_sfdeducao_id_foreign');
-            $table->dropColumn('sfdeducao_id');
-            $table->integer('sfded_id')->nullable();
-        });
-
-        Schema::table('sfrelpcoitem', function (Blueprint $table) {
-            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
-        });
+//        Schema::table('sfrelpcoitem', function (Blueprint $table) {
+//            $table->dropForeign('sfrelpcoitem_sfdeducao_id_foreign');
+//            $table->dropColumn('sfdeducao_id');
+//            $table->integer('sfded_id')->nullable();
+//        });
+//
+//        Schema::table('sfrelpcoitem', function (Blueprint $table) {
+//            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
+//        });
     }
 
     /**
