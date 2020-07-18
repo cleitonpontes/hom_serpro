@@ -4,9 +4,66 @@ namespace App\XML;
 use App\Models\Contratosfpadrao;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Models\BackpackUser;
 
 class PadroesExecSiafi
 {
+
+    public function retornaXmlSiafi(Contratosfpadrao $contratosfpadrao){
+        $xml = new Execsiafi();
+        $user = BackpackUser::where('id',$contratosfpadrao->user_id)->first();
+        $xmlSiafi = $xml->consultaDh($user,$user->cpf, 'HOM', $contratosfpadrao->anodh, $contratosfpadrao);
+        return $xmlSiafi;
+    }
+
+    public function importaDadosSiafi(string $xmlSiafi,Contratosfpadrao $contratosfpadrao)
+    {
+
+
+        $params['dtemis'] = date("Y-m-d H:i:s");
+
+        $msgErro = 'Erro ao consultar WebService do SIAFI';
+
+        $xml = simplexml_load_string(str_replace(':', '', $xmlSiafi));
+        $json = json_encode($xml);
+        $objSiafi = json_decode($json);
+
+
+        $retornoSIAFI = $objSiafi->soapHeader->ns2EfetivacaoOperacao->resultado;
+
+        if(isset($objSiafi->soapBody->ns3cprDHDetalharDHResponse)){
+
+            $body = $objSiafi->soapBody->ns3cprDHDetalharDHResponse->cprDhDetalharResposta;
+            if($retornoSIAFI == 'SUCESSO') {
+
+                if (isset($body->documentoHabil)){
+                    $resultado = $this->processamento($body, $contratosfpadrao);
+                    $params['situacao'] = 'I';
+                    $params['msgretorno'] = 'Importado com Sucesso!';
+                    if (!$resultado) {
+                        $params['situacao'] = 'E';
+                    $params['msgretorno'] = 'Erro ao tentar importar!';
+                    }
+                }else{
+                    $msgErro = $body->mensagem->txtMsg;
+                    $params['situacao'] = 'E';
+                    $params['msgretorno'] = $msgErro;
+                }
+            }else{
+                $msgErro = $objSiafi->soapBody->soapFault->faultstring;
+                $params['situacao'] = 'E';
+                $params['msgretorno'] = $msgErro;
+            }
+
+        }else{
+            $msgErro = 'Horario não permitido para consultar Documento Hábil.';
+            $params['situacao'] = 'E';
+            $params['msgretorno'] = $msgErro;
+        }
+        return $params;
+
+    }
+
     public function processamento(object $arraySiafi,Contratosfpadrao $contratosfpadrao)
     {
         $arrayElemento = [];
@@ -102,7 +159,6 @@ class PadroesExecSiafi
             $retorno = true;
         } catch (\Exception $exc) {
             DB::rollback();
-            //dd($exc->getMessage());
         }
         return $retorno;
     }
