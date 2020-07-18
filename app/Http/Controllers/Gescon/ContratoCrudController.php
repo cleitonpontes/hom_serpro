@@ -457,17 +457,31 @@ class ContratoCrudController extends CrudController
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
-
-            [ // select_from_array
-                'name' => 'fornecedor_id',
-                'label' => "Fornecedor",
-                'type' => 'select2_from_array',
-                'options' => $fornecedores,
-                'allows_null' => true,
+            [
+                // 1-n relationship
+                'label' => "Fornecedor", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'fornecedor_id', // the column that contains the ID of that connected entity
+                'entity' => 'fornecedor', // the method that defines the relationship in your Model
+                'attribute' => "cpf_cnpj_idgener", // foreign key attribute that is shown to user
+                'attribute2' => "nome", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_fornecedor',
+                'model' => "App\Models\Fornecedor", // foreign key model
+                'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione o fornecedor", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
                 'tab' => 'Dados Contrato',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
+//            [ // select_from_array
+//                'name' => 'fornecedor_id',
+//                'label' => "Fornecedor",
+//                'type' => 'select2_from_array',
+//                'options' => $fornecedores,
+//                'allows_null' => true,
+//                'tab' => 'Dados Contrato',
+////                'default' => 'one',
+//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+//            ],
             [   // Date
                 'name' => 'data_assinatura',
                 'label' => 'Data Assinatura',
