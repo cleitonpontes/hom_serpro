@@ -31,6 +31,7 @@ class Siasgcontrato extends Model
         'ano',
         'codigo_interno',
         'unidadesubrrogacao_id',
+        'contrato_id',
         'mensagem',
         'situacao',
         'json',

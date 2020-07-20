@@ -10,8 +10,6 @@ class ContratoSiasgIntegracao extends Model
     use Formatador;
 
 
-
-
     /*
    |--------------------------------------------------------------------------
    | FUNCTIONS
@@ -35,17 +33,36 @@ class ContratoSiasgIntegracao extends Model
 
     private function buscaFornecedorCpfCnpjIdgener(string $cpfCnpjfornecedor, string $nomefornecedor)
     {
-        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $this->formataCnpjCpf($cpfCnpjfornecedor))
-            ->first();
+        $cpf_cnpj_idgener = $this->formataCnpjCpf($cpfCnpjfornecedor);
+        $tipo = $this->retornaTipoFornecedor($cpfCnpjfornecedor);
+        $nome = trim($nomefornecedor);
 
-        if (!isset($fornecedor->id)) {
+        if ($cpfCnpjfornecedor == 'ESTRANGEIRO') {
+            $cpf_cnpj_idgener = $cpfCnpjfornecedor;
+            $tipo = 'IDGENERICO';
+            $nome = 'Fornecedor estrangeiro';
+
+            $fornecedor = Fornecedor::where('nome', 'ilike', '%' . trim($nomefornecedor) . '%')
+                ->first();
+
+            if (!$fornecedor) {
+                $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $cpf_cnpj_idgener)
+                    ->first();
+            }
+
+        } else {
+            $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $cpf_cnpj_idgener)
+                ->first();
+        }
+
+        if (!$fornecedor) {
             $dado = [
-                'tipo_fornecedor' => $this->retornaTipoFornecedor($cpfCnpjfornecedor),
-                'cpf_cnpj_idgener' => $this->formataCnpjCpf($cpfCnpjfornecedor),
-                'nome' => trim($nomefornecedor),
+                'tipo_fornecedor' => $tipo,
+                'cpf_cnpj_idgener' => $cpf_cnpj_idgener,
+                'nome' => $nome,
             ];
 
-            $fornecedor = $this->fornecedor()->create($dado);
+            $fornecedor = Fornecedor::create($dado);
         }
 
         return $fornecedor;
@@ -56,22 +73,21 @@ class ContratoSiasgIntegracao extends Model
     {
         $contrato = $this->buscaContratoPorNumeroUgorigemFornecedor($siasgcontrato, $fornecedor, $json);
 
-        if (!isset($contrato->id)) {
-
+        if (!$contrato) {
             $temContratoAtivo = $this->buscaUnidadeComContratosAtivos($siasgcontrato->unidade_id);
 
             if ($temContratoAtivo) {
-                $count = $this->countContratosPorNumeroFornecedor(
+                $contratos = $this->buscaContratosPorNumeroUgFornecedor(
                     $this->formataNumeroContratoLicitacao($json->data->numeroAno),
                     $fornecedor->id,
                     $siasgcontrato->unidade_id
                 );
 
-                if ($count == 1) {
-                    $contrato = $this->atualizaContratoFromSiasg($siasgcontrato, $fornecedor);
+                if ($contratos->count() == 1) {
+                    $contrato = $this->atualizaContratoFromSiasg($siasgcontrato, $fornecedor, $contratos->first());
                 }
 
-                if ($count == 0) {
+                if ($contratos->count() == 0) {
                     $contrato = $this->inserirContratoFromSiasg($siasgcontrato, $fornecedor);
                 }
 
@@ -83,7 +99,7 @@ class ContratoSiasgIntegracao extends Model
         return $contrato;
     }
 
-    private function atualizaContratoFromSiasg(Siasgcontrato $siasgcontrato, Fornecedor $fornecedor)
+    private function atualizaContratoFromSiasg(Siasgcontrato $siasgcontrato, Fornecedor $fornecedor, Contrato $contrato_alteracao)
     {
         $json = json_decode($siasgcontrato->json);
 
@@ -91,15 +107,12 @@ class ContratoSiasgIntegracao extends Model
 
         unset($dado['categoria_id']);
 
-        $contrato = $this->contrato()->where('numero',$this->formataNumeroContratoLicitacao($json->data->numeroAno))
-            ->where('unidade_id', $siasgcontrato->unidade_id)
-            ->where('fornecedor_id', $fornecedor->id)
+        $contrato = Contrato::where('id',$contrato_alteracao->id)
             ->update($dado);
 
         return $contrato;
 
     }
-
 
 
     private function inserirContratoFromSiasg(Siasgcontrato $siasgcontrato, Fornecedor $fornecedor)
@@ -108,13 +121,14 @@ class ContratoSiasgIntegracao extends Model
 
         $dado = $this->montaArrayContrato($siasgcontrato, $fornecedor, $json);
 
-        $contrato = $this->contrato()->create($dado);
+        $contrato = Contrato::create($dado);
 
         return $contrato;
 
     }
 
-    private function montaArrayContrato(Siasgcontrato $siasgcontrato, Fornecedor $fornecedor, $json){
+    private function montaArrayContrato(Siasgcontrato $siasgcontrato, Fornecedor $fornecedor, $json)
+    {
 
         $dado['numero'] = $this->formataNumeroContratoLicitacao($json->data->numeroAno);
         $dado['unidadeorigem_id'] = $siasgcontrato->unidade_id;
@@ -122,9 +136,9 @@ class ContratoSiasgIntegracao extends Model
         $dado['tipo_id'] = $siasgcontrato->tipo_id;
         $dado['categoria_id'] = 55;
         $dado['processo'] = $this->retornaNumeroProcessoFormatado($json->data->numeroProcesso);
-        $dado['objeto'] = mb_strtoupper(trim($json->data->objeto),'UTF-8');
+        $dado['objeto'] = mb_strtoupper(trim($json->data->objeto), 'UTF-8');
         $dado['receita_despesa'] = 'D';
-        $dado['fundamento_legal'] = mb_strtoupper(trim($json->data->fundamentoLegal),'UTF-8');
+        $dado['fundamento_legal'] = mb_strtoupper(trim($json->data->fundamentoLegal), 'UTF-8');
         $dado['modalidade_id'] = $siasgcontrato->compra->modalidade_id;
         $dado['licitacao_numero'] = $this->formataNumeroContratoLicitacao($json->data->numLicitacao);
         $dado['situacao'] = true;
@@ -135,8 +149,8 @@ class ContratoSiasgIntegracao extends Model
         $dado['vigencia_fim'] = $this->formataDataSiasg($json->data->dataFim);
         $dado['valor_inicial'] = $this->formataDecimalSiasg($json->data->valorTotal);
         $dado['valor_global'] = $this->formataDecimalSiasg($json->data->valorTotal);
-        $dado['num_parcelas'] = (isset($json->data->valorParcela) and $json->data->valorParcela != '0.00')? $this->formataIntengerSiasg($this->formataDecimalSiasg($json->data->valorTotal)/$this->formataDecimalSiasg($json->data->valorParcela)) : 1;
-        $dado['valor_parcela'] = (isset($json->data->valorParcela) and $json->data->valorParcela != '0.00')?$this->formataDecimalSiasg($json->data->valorParcela):$this->formataDecimalSiasg($json->data->valorTotal);
+        $dado['num_parcelas'] = (isset($json->data->valorParcela) and $json->data->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($json->data->valorTotal) / $this->formataDecimalSiasg($json->data->valorParcela)) : 1;
+        $dado['valor_parcela'] = (isset($json->data->valorParcela) and $json->data->valorParcela != '0.00') ? $this->formataDecimalSiasg($json->data->valorParcela) : $this->formataDecimalSiasg($json->data->valorTotal);
         $dado['valor_acumulado'] = $this->formataDecimalSiasg($json->data->valorTotal);
 
         return $dado;
@@ -157,8 +171,8 @@ class ContratoSiasgIntegracao extends Model
         $mask_processo = str_replace('9', '#', $mask_processo);
         $countMask = substr_count($mask_processo, '#');
 
-        if(strlen($numero) == $countMask){
-            return $this->formataProcesso($mask_processo,$numero);
+        if (strlen($numero) == $countMask) {
+            return $this->formataProcesso($mask_processo, $numero);
         }
 
         return $numero;
@@ -171,8 +185,8 @@ class ContratoSiasgIntegracao extends Model
             ->where('fornecedor_id', $fornecedor->id)
             ->first();
 
-        if(isset($contrato->id)){
-            $contrato = $this->atualizaContratoFromSiasg($siasgcontrato, $fornecedor);
+        if ($contrato) {
+            $contrato = $this->atualizaContratoFromSiasg($siasgcontrato, $fornecedor, $contrato);
         }
 
         return $contrato;
@@ -180,7 +194,7 @@ class ContratoSiasgIntegracao extends Model
 
     private function countContratosPorNumeroFornecedor($numero, $fornecedor_id, $unidade_id)
     {
-        $count = $this->contrato()->where('numero', $numero)
+        $count = Contrato::where('numero', $numero)
             ->where('unidade_id', $unidade_id)
             ->where('fornecedor_id', $fornecedor_id)
             ->count();
@@ -190,10 +204,9 @@ class ContratoSiasgIntegracao extends Model
 
     private function buscaContratosPorNumeroUgFornecedor($numero, $fornecedor_id, $unidade_id)
     {
-        $contrato = $this->contrato()->where('numero', $numero)
+        $contrato = Contrato::where('numero', $numero)
             ->where('unidade_id', $unidade_id)
-            ->where('fornecedor_id', $fornecedor_id)
-            ->first();
+            ->where('fornecedor_id', $fornecedor_id);
 
         return $contrato;
     }

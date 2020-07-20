@@ -38,6 +38,7 @@ class ContratoObserve
 
         unset($contrato_array['id']);
         unset($contrato_array['unidade_id']);
+        unset($contrato_array['total_despesas_acessorias']);
         unset($contrato_array['numero']);
         unset($contrato_array['tipo_id']);
 
@@ -60,7 +61,6 @@ class ContratoObserve
         $contrato->faturas()->delete();
         $contrato->ocorrencias()->delete();
         $contrato->terceirizados()->delete();
-
     }
 
 

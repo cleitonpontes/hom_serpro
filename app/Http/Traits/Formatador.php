@@ -125,7 +125,7 @@ trait Formatador
         $d[3] = substr($numero, 8, 4);
         $d[4] = substr($numero, 12, 2);
 
-        $retorno = $d[0] . '.' . $d[1] . '.' . $d[2] . '/' . $d[3] . '-' . $d[4];
+        return $d[0] . '.' . $d[1] . '.' . $d[2] . '/' . $d[3] . '-' . $d[4];
     }
 
     public function formataCpf($numero)
@@ -135,7 +135,7 @@ trait Formatador
         $d[2] = substr($numero, 6, 3);
         $d[3] = substr($numero, 9, 2);
 
-        $retorno = $d[0] . '.' . $d[1] . '.' . $d[2] . '-' . $d[3];
+        return $d[0] . '.' . $d[1] . '.' . $d[2] . '-' . $d[3];
     }
 
 }

@@ -6,6 +6,7 @@ use App\Jobs\AtualizaSiasgCompraJob;
 use App\Jobs\AtualizaSiasgContratoJob;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\ContratoSiasgIntegracao;
 use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
 use App\XML\ApiSiasg;
@@ -178,7 +179,7 @@ class SiasgcontratoCrudController extends CrudController
                 'type' => 'model_function',
                 'function_name' => 'getContratoVinculado', // the method in your Model
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
@@ -320,11 +321,12 @@ class SiasgcontratoCrudController extends CrudController
 
     private function buscaContratos()
     {
-        $contratos = Contrato::select('numero', 'id')
+        $contratos = Contrato::select(DB::raw("CONCAT(contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS numero"), 'contratos.id')
+            ->join('fornecedores','contratos.fornecedor_id','=','fornecedores.id')
             ->where('unidade_id', session()->get('user_ug_id'))
             ->where('situacao',true)
             ->orderBy('numero')
-            ->pluck('numero', 'id')
+            ->pluck('numero', 'contratos.id')
             ->toArray();
 
         return $contratos;
@@ -353,22 +355,31 @@ class SiasgcontratoCrudController extends CrudController
         $model = new Siasgcontrato;
         $apiSiasg = new ApiSiasg();
 
-        $contratos = $model->buscaContratosPendentes();
+        $siasgcontratos = $model->buscaContratosPendentes();
 
-        foreach ($contratos as $contrato) {
+        foreach ($siasgcontratos as $siasgcontrato) {
             $dado = [];
-            if ($contrato->sisg == true) {
+            if ($siasgcontrato->sisg == true) {
                 $dado = [
-                    'contrato' => $contrato->unidade->codigosiasg . $contrato->tipo->descres . $contrato->numero . $contrato->ano
+                    'contrato' => $siasgcontrato->unidade->codigosiasg . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
                 ];
                 $retorno = $apiSiasg->executaConsulta('ContratoSisg', $dado);
             } else {
                 $dado = [
-                    'contratoNSisg' => $contrato->unidade->codigosiasg . str_pad($contrato->codigo_interno, 10 , " ") . $contrato->tipo->descres . $contrato->numero . $contrato->ano
+                    'contratoNSisg' => $siasgcontrato->unidade->codigosiasg . str_pad($siasgcontrato->codigo_interno, 10 , " ") . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
                 ];
                 $retorno = $apiSiasg->executaConsulta('ContratoNaoSisg', $dado);
             }
-            $contrato_atualizado = $this->trataRetornoContrato($retorno, $contrato);
+
+            $siasgcontrato_atualizado = $siasgcontrato->atualizaJsonMensagemSituacao($siasgcontrato->id, $retorno);
+
+            $contratoSiagIntegracao = new ContratoSiasgIntegracao;
+            $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
+
+            if(isset($contrato->id)){
+                $siasgcontrato_atualizado->contrato_id = $contrato->id;
+                $siasgcontrato_atualizado->save();
+            }
         }
 
         \Alert::success('Contratos importados com sucesso!')->flash();
@@ -376,28 +387,11 @@ class SiasgcontratoCrudController extends CrudController
         return redirect('/gescon/siasg/contratos');
     }
 
-    private function trataRetornoContrato($retorno, Siasgcontrato $siasgcontrato)
-    {
-        $var_json = json_decode($retorno);
-
-        if (isset($var_json->messagem)) {
-            if ($var_json->messagem == 'Sucesso') {
-                $siasgcontrato->json = $retorno;
-                $siasgcontrato->mensagem = $var_json->messagem;
-                $siasgcontrato->situacao = 'Importado';
-                $siasgcontrato->save();
-            } else {
-                $siasgcontrato->mensagem = $var_json->messagem;
-                $siasgcontrato->situacao = 'Erro';
-                $siasgcontrato->save();
-            }
-        }
-        return $siasgcontrato;
-    }
 
     public function executaJobAtualizacaoSiasgContratos()
     {
-        $siasgcontratos = $this->buscaContratosPendentes();
+        $model = new Siasgcontrato;
+        $siasgcontratos = $model->buscaContratosPendentes();
 
         foreach ($siasgcontratos as $siasgcontrato){
             if(isset($siasgcontrato->id)){
@@ -405,12 +399,5 @@ class SiasgcontratoCrudController extends CrudController
             }
         }
     }
-
-    private function buscaContratosPendentes()
-    {
-        $siasgcontratos = Siasgcontrato::where('situacao','Pendente');
-        return $siasgcontratos->get();
-    }
-
 
 }
