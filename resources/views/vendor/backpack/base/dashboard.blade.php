@@ -4,7 +4,9 @@
     <section class="content-header">
         <h1>
             Início
-            <small>Comprasnet Contratos</small>
+            <small>
+                {{ $dataHoraAtualizacao ? 'Atualizado em: ' . $dataHoraAtualizacao : '' }}
+            </small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>

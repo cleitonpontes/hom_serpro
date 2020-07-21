@@ -8,6 +8,7 @@ use App\Models\BackpackUser;
 use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Siasgcontrato;
 use App\Models\Unidade;
 use App\Repositories\Empenho;
 use Illuminate\Http\Request;
@@ -91,13 +92,16 @@ class AdminController extends Controller
         }
         $gridEmpenhos = $this->montaGridCampos();
 
+        $dataHoraAtualizacao = $this->retornaDataHoraUltimaAtualizacao();
+
         return view('backpack::dashboard', [
             'calendar' => $calendar,
             'data' => $this->data,
             'chartjs' => $chartjs,
             'html' => $dadosContratos,
             'ug' => $ug,
-            'gridEmpenhos' => $gridEmpenhos
+            'gridEmpenhos' => $gridEmpenhos,
+            'dataHoraAtualizacao' => $dataHoraAtualizacao
         ]);
     }
 
@@ -610,6 +614,11 @@ class AdminController extends Controller
         $botaoConfirma .= "</a>";
 
         return $botaoConfirma;
+    }
+
+    private function retornaDataHoraUltimaAtualizacao()
+    {
+        return Siasgcontrato::max('updated_at');
     }
 
 }
