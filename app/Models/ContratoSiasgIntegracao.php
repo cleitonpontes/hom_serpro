@@ -28,7 +28,7 @@ class ContratoSiasgIntegracao extends Model
 
         if (isset($contrato->id)) {
             if (isset($json->data->termosAditivos) and $json->data->termosAditivos != null) {
-
+                
             }
         }
 
