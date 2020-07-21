@@ -11,6 +11,7 @@ use App\Models\Contrato;
 use App\Models\Siasgcontrato;
 use App\Models\Unidade;
 use App\Repositories\Empenho;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -618,7 +619,15 @@ class AdminController extends Controller
 
     private function retornaDataHoraUltimaAtualizacao()
     {
-        return Siasgcontrato::max('updated_at');
+        $dataFormatada = '';
+
+        $campo = Siasgcontrato::max('updated_at');
+
+        if ($campo) {
+            $dataFormatada = Carbon::make($campo)->format('d/m/Y H:i:s');
+        }
+
+        return $dataFormatada;
     }
 
 }
