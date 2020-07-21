@@ -30,7 +30,7 @@
                 @endif
             @else
             <!-- Topbar. Contains the right part -->
-                <li><a href="{{ url('/mudar-ug') }}"><span><i class="fa fa-exchange"></i> Mudar UG</a></li>
+                <li><a href="{{ url('/mudar-ug') }}"><span><i class="fa fa-exchange"></i> Mudar UG/UASG</a></li>
                 <li><a href="{{ route('inicio.meusdados') }}"><span><i class="fa fa-user-circle-o"></i> {{ trans('backpack::base.my_account') }}</span></a>
                 </li>
                 {{--<li class="dropdown">--}}
