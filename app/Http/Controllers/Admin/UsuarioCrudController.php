@@ -75,6 +75,25 @@ class UsuarioCrudController extends CrudController
                 'type' => 'email',
             ],
             [
+                'name' => 'situacao',
+                'label' => 'Situação',
+                'type' => 'boolean',
+                'options' => [0 => 'Inativo', 1 => 'Ativo'],
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    if (strtolower($searchTerm) == 'inativo') {
+                        $query->orWhere('users.situacao', 0);
+                    }
+
+                    if (strtolower($searchTerm) == 'ativo') {
+                        $query->orWhere('users.situacao', 1);
+                    }
+                }
+            ],
+            [
                 'name' => 'getUGPrimaria',
                 'label' => 'UG Primária', // Table column heading
                 'type' => 'model_function',
@@ -143,6 +162,14 @@ class UsuarioCrudController extends CrudController
                 'label' => 'E-mail',
                 'type' => 'email',
                 'tab' => 'Dados Pessoais',
+            ],
+            [
+                'name' => 'situacao',
+                'label' => "Situação",
+                'type' => 'select_from_array',
+                'options' => [1 => 'Ativo', 0 => 'Inativo'],
+                'allows_null' => false,
+                'tab' => 'Dados Pessoais'
             ],
             [
                 // 1-n relationship

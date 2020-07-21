@@ -202,6 +202,14 @@ class UsuarioUnidadeCrudController extends CrudController
                 'type' => 'email',
                 'tab' => 'Dados Pessoais',
             ],
+            [
+                'name' => 'situacao',
+                'label' => "Situação",
+                'type' => 'select_from_array',
+                'options' => [1 => 'Ativo', 0 => 'Inativo'],
+                'allows_null' => false,
+                'tab' => 'Dados Pessoais'
+            ],
             [ // select2_from_array
                 'name' => 'ugprimaria',
                 'label' => 'UG Primária',
