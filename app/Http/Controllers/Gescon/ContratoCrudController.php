@@ -129,7 +129,7 @@ class ContratoCrudController extends CrudController
 
         $colunas[] = [
             'name' => 'numero',
-            'label' => 'Número Contrato',
+            'label' => 'Contrato',
             'type' => 'text',
             'orderable' => true,
             'visibleInTable' => true, // no point, since it's a large text
@@ -355,6 +355,28 @@ class ContratoCrudController extends CrudController
             'options' => [0 => 'Inativo', 1 => 'Ativo']
         ];
 
+        $colunas[] = [
+            'name' => 'created_at',
+            'label' => 'Criado em',
+            'type' => 'datetime',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ];
+
+        $colunas[] = [
+            'name' => 'updated_at',
+            'label' => 'Atualizado em',
+            'type' => 'datetime',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ];
+
         return $colunas;
 
     }
@@ -508,7 +530,7 @@ class ContratoCrudController extends CrudController
 
         $campos[] = [
             'name' => 'numero',
-            'label' => 'Número Contrato',
+            'label' => 'Contrato',
             'type' => 'numcontrato',
             'tab' => 'Características do contrato',
         ];
@@ -708,7 +730,7 @@ class ContratoCrudController extends CrudController
 
         $pdf->SetY("35");
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(28, 5, utf8_decode("Número Contrato: "), 0, 0, 'L');
+        $pdf->Cell(28, 5, utf8_decode("Contrato: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(20, 5, utf8_decode($contrato->numero), 0, 0, 'L');
 
