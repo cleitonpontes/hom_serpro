@@ -47,7 +47,6 @@ class ContratoObserve
             ->where('numero', $contrato->numero)
             ->whereIn('tipo_id', $tipos)
             ->update($contrato_array);
-
     }
 
     public function deleted(Contrato $contrato)

@@ -17,11 +17,13 @@ class FornecedorController extends Controller
         {
             $results = Fornecedor::where('cpf_cnpj_idgener', 'LIKE', '%'.strtoupper($search_term).'%')
                 ->orWhere('nome', 'LIKE', '%'.strtoupper($search_term).'%')
+                ->orderBy('nome','asc')
                 ->paginate(10);
         }
         else
         {
-            $results = Fornecedor::paginate(10);
+            $results = Fornecedor::orderBy('nome','asc')
+                ->paginate(10);
         }
 
         return $results;

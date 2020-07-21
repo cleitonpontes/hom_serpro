@@ -343,6 +343,8 @@ class SiasgcontratoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $request->request->set('situacao', 'Pendente');
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -380,6 +382,7 @@ class SiasgcontratoCrudController extends CrudController
                 $siasgcontrato_atualizado->contrato_id = $contrato->id;
                 $siasgcontrato_atualizado->save();
             }
+
         }
 
         \Alert::success('Contratos importados com sucesso!')->flash();

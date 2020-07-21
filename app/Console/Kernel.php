@@ -44,10 +44,10 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->at('08:50');
 
-        $schedule->call('App\Http\Controllers\Gescon\ContratosfpadraoCrudController@executaJobAtualizacaoSfPadrao')
-            ->weekdays()
-            ->timezone('America/Sao_Paulo')
-            ->everyMinute();
+//        $schedule->call('App\Http\Controllers\Gescon\ContratosfpadraoCrudController@executaJobAtualizacaoSfPadrao')
+//            ->weekdays()
+//            ->timezone('America/Sao_Paulo')
+//            ->everyMinute();
 
         $schedule->call('App\Jobs\LimpaActivityLogJob@handle')
             ->weekdays()
@@ -59,7 +59,7 @@ class Kernel extends ConsoleKernel
             ->dailyAt('08:00');
 
         $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
-//            ->weekdays()
+            ->weekdays()
             ->timezone('America/Sao_Paulo')
             ->everyMinute();
 
