@@ -30,11 +30,26 @@ class ContratoSiasgIntegracao extends Model
             if (isset($json->data->termosAditivos) and $json->data->termosAditivos != null) {
 
             }
+            if (isset($json->data->itens) and $json->data->itens != null) {
+                $itens = $this->inserirItensContrato($json->data->itens, $contrato);
+            }
         }
 
 
         return $contrato;
 
+    }
+
+    private function inserirItensContrato($itens, Contrato $contrato)
+    {
+        foreach ($itens as $item) {
+            $item_id = $this->buscaItensCatmatCatser($item);
+        }
+    }
+
+    private function buscaItensCatmatCatser($item)
+    {
+        
     }
 
     private function buscaFornecedorCpfCnpjIdgener(string $cpfCnpjfornecedor, string $nomefornecedor, Siasgcontrato $siasgcontrato)
