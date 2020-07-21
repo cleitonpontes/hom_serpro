@@ -29,7 +29,8 @@ class BackpackUser extends User
         'email',
         'ugprimaria',
         'password',
-        'senhasiafi'
+        'senhasiafi',
+        'situacao'
     ];
 
     protected $table = 'users';
