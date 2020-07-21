@@ -80,8 +80,8 @@ class OrgaoCrudController extends CrudController
     {
         $colunas = [
             [
-                'name' => 'codigo',
-                'label' => 'UG SIAFI', // Table column heading
+                'name' => 'codigosiasg',
+                'label' => 'Código SIASG', // Table column heading
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -97,8 +97,8 @@ class OrgaoCrudController extends CrudController
 //                },
             ],
             [
-                'name' => 'codigosiasg',
-                'label' => 'UASG SIASG', // Table column heading
+                'name' => 'codigo',
+                'label' => 'Código SIAFI', // Table column heading
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
