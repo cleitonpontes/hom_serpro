@@ -49,7 +49,14 @@ class ContratoSiasgIntegracao extends Model
 
     private function buscaItensCatmatCatser($item)
     {
-        
+        $tipo = '';
+
+        if($item->tipo == 'S'){
+            $tipo == 'SERVIÇO';
+        }else{
+            $tipo == 'SERVIÇO';
+        }
+
     }
 
     private function buscaFornecedorCpfCnpjIdgener(string $cpfCnpjfornecedor, string $nomefornecedor, Siasgcontrato $siasgcontrato)
