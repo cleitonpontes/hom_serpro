@@ -33,6 +33,7 @@ class ContratoCrudController extends CrudController
      */
     public function setup()
     {
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -78,7 +79,6 @@ class ContratoCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration Campos Formulário
@@ -107,235 +107,252 @@ class ContratoCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
-
         $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos);
         $this->crud->addFields($campos);
-
     }
 
     public function Colunas()
     {
-        $colunas = [
-            [
-                'name' => 'getReceitaDespesa',
-                'label' => 'Receita / Despesa', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getReceitaDespesa', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'numero',
-                'label' => 'Número Contrato',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getUnidadeOrigem',
-                'label' => 'Unidade Gestora Origem', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getUnidadeOrigem', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getUnidade',
-                'label' => 'Unidade Gestora Atual', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getUnidade', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'unidades_requisitantes',
-                'label' => 'Unidades Requisitantes',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getTipo',
-                'label' => 'Tipo', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getTipo', // the method in your Model
+        $colunas = array();
 
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getCategoria',
-                'label' => 'Categoria', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getCategoria', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getSubCategoria',
-                'label' => 'Subcategoria', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getSubCategoria', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getFornecedor',
-                'label' => 'Fornecedor', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getFornecedor', // the method in your Model
-                'orderable' => true,
-                'limit' => 1000,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
-                    $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-                },
-            ],
-            [
-                'name' => 'processo',
-                'label' => 'Processo',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'objeto',
-                'label' => 'Objeto',
-                'type' => 'text',
-                'limit' => 1000,
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'info_complementar',
-                'label' => 'Informações Complementares',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'vigencia_inicio',
-                'label' => 'Vig. Início',
-                'type' => 'date',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'vigencia_fim',
-                'label' => 'Vig. Fim',
-                'type' => 'date',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'formatVlrGlobal',
-                'label' => 'Valor Global', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrGlobal', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'num_parcelas',
-                'label' => 'Núm. Parcelas',
-                'type' => 'number',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'formatVlrParcela',
-                'label' => 'Valor Parcela', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrParcela', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'formatVlrAcumulado',
-                'label' => 'Valor Acumulado', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrAcumulado', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'formatTotalDespesasAcessorias',
-                'label' => 'Total Despesas Acessórias', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatTotalDespesasAcessorias', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'situacao',
-                'label' => 'Situação',
-                'type' => 'boolean',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                // optionally override the Yes/No texts
-                'options' => [0 => 'Inativo', 1 => 'Ativo']
-            ],
+        $colunas[] = [
+            'name' => 'getReceitaDespesa',
+            'label' => 'Receita / Despesa', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getReceitaDespesa', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'numero',
+            'label' => 'Número Contrato',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'getUnidadeOrigem',
+            'label' => 'Unidade Gestora Origem', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getUnidadeOrigem', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'getUnidade',
+            'label' => 'Unidade Gestora Atual', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getUnidade', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'unidades_requisitantes',
+            'label' => 'Unidades Requisitantes',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'getTipo',
+            'label' => 'Tipo', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getTipo', // the method in your Model
+
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'getCategoria',
+            'label' => 'Categoria', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getCategoria', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'getSubCategoria',
+            'label' => 'Subcategoria', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getSubCategoria', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'getFornecedor',
+            'label' => 'Fornecedor', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getFornecedor', // the method in your Model
+            'orderable' => true,
+            'limit' => 1000,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
+                $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+            },
+        ];
+
+        $colunas[] = [
+            'name' => 'processo',
+            'label' => 'Processo',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'objeto',
+            'label' => 'Objeto',
+            'type' => 'text',
+            'limit' => 1000,
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'info_complementar',
+            'label' => 'Informações Complementares',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'vigencia_inicio',
+            'label' => 'Vig. Início',
+            'type' => 'date',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'vigencia_fim',
+            'label' => 'Vig. Fim',
+            'type' => 'date',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'formatVlrGlobal',
+            'label' => 'Valor Global', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'formatVlrGlobal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'num_parcelas',
+            'label' => 'Núm. Parcelas',
+            'type' => 'number',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'formatVlrParcela',
+            'label' => 'Valor Parcela', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'formatVlrParcela', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'formatVlrAcumulado',
+            'label' => 'Valor Acumulado', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'formatVlrAcumulado', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'formatTotalDespesasAcessorias',
+            'label' => 'Total Despesas Acessórias', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'formatTotalDespesasAcessorias', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'situacao',
+            'label' => 'Situação',
+            'type' => 'boolean',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            // optionally override the Yes/No texts
+            'options' => [0 => 'Inativo', 1 => 'Ativo']
         ];
 
         return $colunas;
@@ -344,241 +361,275 @@ class ContratoCrudController extends CrudController
 
     public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos)
     {
-        $campos = [
-            [ // select_from_array
-                'name' => 'receita_despesa',
-                'label' => "Receita / Despesa",
-                'type' => 'select_from_array',
-                'options' => [
-                    'D' => 'Despesa',
-                    'R' => 'Receita',
-                ],
-                'default' => 'D',
-                'allows_null' => false,
-                'tab' => 'Dados Gerais',
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [
-                // select_from_array
-                'name' => 'tipo_id',
-                'label' => "Tipo",
-                'type' => 'select2_from_array',
-                'options' => $tipos,
-                'attributes' => [
-                    'id' => 'tipo_contrato',
-                ],
-                'allows_null' => true,
-                'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [ // select_from_array
-                'name' => 'categoria_id',
-                'label' => "Categoria",
-                'type' => 'select2_from_array',
-                'options' => $categorias,
-                'allows_null' => true,
-                'tab' => 'Dados Gerais',
-            ],
-            [ // select2_from_ajax: 1-n relationship
-                'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
-                'label' => "Subcategoria", // Table column heading
-                'type' => 'select2_from_ajax',
-                'model' => 'App\Models\OrgaoSubcategoria',
-                'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
-                'attribute' => 'descricao', // foreign key attribute that is shown to user
-                'data_source' => url('api/orgaosubcategoria'), // url to controller search function (with /{id} should return model)
-                'placeholder' => 'Selecione...', // placeholder for the select
-                'minimum_input_length' => 0, // minimum characters to type before querying results
-                'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
-                'method' => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
-                'tab' => 'Dados Gerais',
-            ],
-            [
-                'name' => 'numero',
-                'label' => 'Número Contrato',
-                'type' => 'numcontrato',
-                'tab' => 'Dados Gerais',
-            ],
-            [
-                'name' => 'processo',
-                'label' => 'Número Processo',
-                'type' => 'numprocesso',
-                'tab' => 'Dados Gerais',
-            ],
-            [
-                // 1-n relationship
-                'label' => "Unidade Gestora Origem", // Table column heading
-                'type' => "select2_from_ajax",
-                'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
-                'entity' => 'unidadeorigem', // the method that defines the relationship in your Model
-                'attribute' => "codigo", // foreign key attribute that is shown to user
-                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
-                'process_results_template' => 'gescon.process_results_unidade',
-                'model' => "App\Models\Unidade", // foreign key model
-                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
-                'placeholder' => "Selecione a Unidade", // placeholder for the select
-                'minimum_input_length' => 2, // minimum characters to type before querying results
-                'tab' => 'Dados Gerais',
-            ],
-            [ // select_from_array
-                'name' => 'unidade_id',
-                'label' => "Unidade Gestora Atual",
-                'type' => 'select2_from_array',
-                'options' => $unidade,
-                'allows_null' => false,
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-                'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [
-                'name' => 'unidades_requisitantes',
-                'label' => 'Unidades Requisitantes',
-                'type' => 'text',
-                'tab' => 'Dados Gerais',
-            ],
-            [ // select_from_array
-                'name' => 'situacao',
-                'label' => "Situação",
-                'type' => 'select_from_array',
-                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-                'allows_null' => false,
-                'tab' => 'Dados Gerais',
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [
-                // 1-n relationship
-                'label' => "Fornecedor", // Table column heading
-                'type' => "select2_from_ajax",
-                'name' => 'fornecedor_id', // the column that contains the ID of that connected entity
-                'entity' => 'fornecedor', // the method that defines the relationship in your Model
-                'attribute' => "cpf_cnpj_idgener", // foreign key attribute that is shown to user
-                'attribute2' => "nome", // foreign key attribute that is shown to user
-                'process_results_template' => 'gescon.process_results_fornecedor',
-                'model' => "App\Models\Fornecedor", // foreign key model
-                'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
-                'placeholder' => "Selecione o fornecedor", // placeholder for the select
-                'minimum_input_length' => 2, // minimum characters to type before querying results
-                'tab' => 'Dados Contrato',
-            ],
-//            [ // select_from_array
-//                'name' => 'fornecedor_id',
-//                'label' => "Fornecedor",
-//                'type' => 'select2_from_array',
-//                'options' => $fornecedores,
-//                'allows_null' => true,
-//                'tab' => 'Dados Contrato',
-////                'default' => 'one',
-//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-//            ],
-            [   // Date
-                'name' => 'data_assinatura',
-                'label' => 'Data Assinatura',
-                'type' => 'date',
-                'tab' => 'Dados Contrato',
-            ],
-            [   // Date
-                'name' => 'data_publicacao',
-                'label' => 'Data Publicação',
-                'type' => 'date',
-                'tab' => 'Dados Contrato',
-            ],
-            [
-                'name' => 'objeto',
-                'label' => 'Objeto',
-                'type' => 'textarea',
-                'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
-                ],
-                'tab' => 'Dados Contrato',
-            ],
-            [
-                'name' => 'info_complementar',
-                'label' => 'Informações Complementares',
-                'type' => 'textarea',
-                'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
-                ],
-                'tab' => 'Dados Contrato',
-            ],
-            [
-                // select_from_array
-                'name' => 'modalidade_id',
-                'label' => "Modalidade Licitação",
-                'type' => 'select2_from_array',
-                'options' => $modalidades,
-                'allows_null' => true,
-                'tab' => 'Dados Contrato',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [
-                'name' => 'licitacao_numero',
-                'label' => 'Número Licitação',
-                'type' => 'numlicitacao',
-                'tab' => 'Dados Contrato',
-            ],
-            [   // Date
-                'name' => 'vigencia_inicio',
-                'label' => 'Data Vig. Início',
-                'type' => 'date',
-                'tab' => 'Vigência / Valores',
-            ],
-            [   // Date
-                'name' => 'vigencia_fim',
-                'label' => 'Data Vig. Fim',
-                'type' => 'date',
-                'tab' => 'Vigência / Valores',
-            ],
-            [   // Number
-                'name' => 'valor_global',
-                'label' => 'Valor Global',
-                'type' => 'money',
-                // optionals
-                'attributes' => [
-                    'id' => 'valor_global',
-                ], // allow decimals
-                'prefix' => "R$",
-                'tab' => 'Vigência / Valores',
-                // 'suffix' => ".00",
-            ],
-            [   // Number
-                'name' => 'num_parcelas',
-                'label' => 'Núm. Parcelas',
-                'type' => 'number',
-                // optionals
-                'attributes' => [
-                    "step" => "any",
-                    "min" => '1',
-                ], // allow decimals
-//                'prefix' => "R$",
-                'tab' => 'Vigência / Valores',
-                // 'suffix' => ".00",
-            ],
-            [   // Number
-                'name' => 'valor_parcela',
-                'label' => 'Valor Parcela',
-                'type' => 'money',
-                // optionals
-                'attributes' => [
-                    'id' => 'valor_parcela',
-                ], // allow decimals
-                'prefix' => "R$",
-                'tab' => 'Vigência / Valores',
-                // 'suffix' => ".00",
-            ],
+        $campos = array();
 
+        $campos[] = [
+            // 1-n relationship
+            'label' => "Fornecedor", // Table column heading
+            'type' => "select2_from_ajax",
+            'name' => 'fornecedor_id', // the column that contains the ID of that connected entity
+            'entity' => 'fornecedor', // the method that defines the relationship in your Model
+            'attribute' => "cpf_cnpj_idgener", // foreign key attribute that is shown to user
+            'attribute2' => "nome", // foreign key attribute that is shown to user
+            'process_results_template' => 'gescon.process_results_fornecedor',
+            'model' => "App\Models\Fornecedor", // foreign key model
+            'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
+            'placeholder' => "Selecione o fornecedor", // placeholder for the select
+            'minimum_input_length' => 2, // minimum characters to type before querying results
+            'tab' => 'Dados do contrato',
+        ];
+
+//        $campos[] = [
+//            // select_from_array
+//            'name' => 'fornecedor_id',
+//            'label' => "Fornecedor",
+//            'type' => 'select2_from_array',
+//            'options' => $fornecedores,
+//            'allows_null' => true,
+//            'tab' => 'Dados do contrato',
+////            'default' => 'one',
+//            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+//        ];
+
+        $campos[] = [
+            // Date
+            'name' => 'data_assinatura',
+            'label' => 'Data Assinatura',
+            'type' => 'date',
+            'tab' => 'Dados do contrato',
+        ];
+
+        $campos[] = [
+            // Date
+            'name' => 'data_publicacao',
+            'label' => 'Data Publicação',
+            'type' => 'date',
+            'tab' => 'Dados do contrato',
+        ];
+
+        $campos[] = [
+            'name' => 'objeto',
+            'label' => 'Objeto',
+            'type' => 'textarea',
+            'attributes' => [
+                'onkeyup' => "maiuscula(this)"
+            ],
+            'tab' => 'Dados do contrato',
+        ];
+
+        $campos[] = [
+            'name' => 'info_complementar',
+            'label' => 'Informações Complementares',
+            'type' => 'textarea',
+            'attributes' => [
+                'onkeyup' => "maiuscula(this)"
+            ],
+            'tab' => 'Dados do contrato',
+        ];
+
+        $campos[] = [
+            // select_from_array
+            'name' => 'modalidade_id',
+            'label' => "Modalidade Licitação",
+            'type' => 'select2_from_array',
+            'options' => $modalidades,
+            'allows_null' => true,
+            'tab' => 'Dados do contrato',
+//                'default' => 'one',
+            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+        ];
+
+        $campos[] = [
+            'name' => 'licitacao_numero',
+            'label' => 'Número Licitação',
+            'type' => 'numlicitacao',
+            'tab' => 'Dados do contrato',
+        ];
+
+        $campos[] = [
+            // select_from_array
+            'name' => 'receita_despesa',
+            'label' => "Receita / Despesa",
+            'type' => 'select_from_array',
+            'options' => [
+                'D' => 'Despesa',
+                'R' => 'Receita',
+            ],
+            'default' => 'D',
+            'allows_null' => false,
+            'tab' => 'Características do contrato',
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+//                'default' => 'one',
+            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+        ];
+
+        $campos[] = [
+            // select_from_array
+            'name' => 'tipo_id',
+            'label' => "Tipo",
+            'type' => 'select2_from_array',
+            'options' => $tipos,
+            'attributes' => [
+                'id' => 'tipo_contrato',
+            ],
+            'allows_null' => true,
+            'tab' => 'Características do contrato',
+//                'default' => 'one',
+            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+        ];
+
+        $campos[] = [
+            // select_from_array
+            'name' => 'categoria_id',
+            'label' => "Categoria",
+            'type' => 'select2_from_array',
+            'options' => $categorias,
+            'allows_null' => true,
+            'tab' => 'Características do contrato',
+        ];
+
+        $campos[] = [
+            // select2_from_ajax: 1-n relationship
+            'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
+            'label' => "Subcategoria", // Table column heading
+            'type' => 'select2_from_ajax',
+            'model' => 'App\Models\OrgaoSubcategoria',
+            'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
+            'attribute' => 'descricao', // foreign key attribute that is shown to user
+            'data_source' => url('api/orgaosubcategoria'), // url to controller search function (with /{id} should return model)
+            'placeholder' => 'Selecione...', // placeholder for the select
+            'minimum_input_length' => 0, // minimum characters to type before querying results
+            'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
+            'method' => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
+            'tab' => 'Características do contrato',
+        ];
+
+        $campos[] = [
+            'name' => 'numero',
+            'label' => 'Número Contrato',
+            'type' => 'numcontrato',
+            'tab' => 'Características do contrato',
+        ];
+
+        $campos[] = [
+            'name' => 'processo',
+            'label' => 'Número Processo',
+            'type' => 'numprocesso',
+            'tab' => 'Características do contrato',
+        ];
+
+        $campos[] = [
+            // 1-n relationship
+            'label' => "Unidade Gestora Origem", // Table column heading
+            'type' => "select2_from_ajax",
+            'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
+            'entity' => 'unidadeorigem', // the method that defines the relationship in your Model
+            'attribute' => "codigo", // foreign key attribute that is shown to user
+            'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+            'process_results_template' => 'gescon.process_results_unidade',
+            'model' => "App\Models\Unidade", // foreign key model
+            'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+            'placeholder' => "Selecione a Unidade", // placeholder for the select
+            'minimum_input_length' => 2, // minimum characters to type before querying results
+            'tab' => 'Características do contrato',
+        ];
+
+        $campos[] = [
+            // select_from_array
+            'name' => 'unidade_id',
+            'label' => "Unidade Gestora Atual",
+            'type' => 'select2_from_array',
+            'options' => $unidade,
+            'allows_null' => false,
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+            'tab' => 'Características do contrato',
+//                'default' => 'one',
+            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+        ];
+
+        $campos[] = [
+            'name' => 'unidades_requisitantes',
+            'label' => 'Unidades Requisitantes',
+            'type' => 'text',
+            'tab' => 'Características do contrato',
+        ];
+
+        $campos[] = [
+            // select_from_array
+            'name' => 'situacao',
+            'label' => "Situação",
+            'type' => 'select_from_array',
+            'options' => [1 => 'Ativo', 0 => 'Inativo'],
+            'allows_null' => false,
+            'tab' => 'Características do contrato',
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+//                'default' => 'one',
+            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+        ];
+
+        $campos[] = [
+            // Date
+            'name' => 'vigencia_inicio',
+            'label' => 'Data Vig. Início',
+            'type' => 'date',
+            'tab' => 'Vigência / Valores',
+        ];
+
+        $campos[] = [
+            // Date
+            'name' => 'vigencia_fim',
+            'label' => 'Data Vig. Fim',
+            'type' => 'date',
+            'tab' => 'Vigência / Valores',
+        ];
+
+        $campos[] = [
+            // Number
+            'name' => 'valor_global',
+            'label' => 'Valor Global',
+            'type' => 'money',
+            // optionals
+            'attributes' => [
+                'id' => 'valor_global',
+            ], // allow decimals
+            'prefix' => "R$",
+            'tab' => 'Vigência / Valores',
+            // 'suffix' => ".00",
+        ];
+
+        $campos[] = [
+            // Number
+            'name' => 'num_parcelas',
+            'label' => 'Núm. Parcelas',
+            'type' => 'number',
+            // optionals
+            'attributes' => [
+                "step" => "any",
+                "min" => '1',
+            ], // allow decimals
+//                'prefix' => "R$",
+            'tab' => 'Vigência / Valores',
+            // 'suffix' => ".00",
+        ];
+
+        $campos[] = [
+            // Number
+            'name' => 'valor_parcela',
+            'label' => 'Valor Parcela',
+            'type' => 'money',
+            // optionals
+            'attributes' => [
+                'id' => 'valor_parcela',
+            ], // allow decimals
+            'prefix' => "R$",
+            'tab' => 'Vigência / Valores',
+            // 'suffix' => ".00",
         ];
 
         return $campos;
@@ -638,7 +689,6 @@ class ContratoCrudController extends CrudController
         $this->crud->removeColumn('receita_despesa');
         $this->crud->removeColumn('subcategoria_id');
 
-
         return $content;
     }
 
@@ -651,7 +701,7 @@ class ContratoCrudController extends CrudController
         $pdf->AliasNbPages();
         $pdf->AddPage();
 
-        //Dados Contratos
+        // Dados do contratos
         $pdf->SetY("28");
         $pdf->SetFont('Arial', 'BIU', 10);
         $pdf->Cell(0, 5, utf8_decode("Dados do Contrato") . ' - Contrato num.: ' . utf8_decode($contrato->numero) . ' - UG: ' . utf8_decode($contrato->unidade->codigo . " - " . $contrato->unidade->nomeresumido), 0, 0, 'C');
@@ -821,7 +871,6 @@ class ContratoCrudController extends CrudController
                 , 1, 0, 'R');
 
             $row_resp += $lines;
-
         }
 
         //responsaveis do contrato
@@ -907,6 +956,7 @@ class ContratoCrudController extends CrudController
         $pdf->SetFont('Arial', 'BU', 10);
         $pdf->Cell(28, 5, utf8_decode("Inativos"), 0, 0, 'L');
         $row_resp = $row_resp + 5;
+
         foreach ($responsaveis_inativos as $inativo) {
             if ($row_resp >= 260) {
                 $row_resp = 35;
@@ -1044,7 +1094,6 @@ class ContratoCrudController extends CrudController
             $pdf->Cell(21, 5, utf8_decode(number_format($empenho->empenho->rppago, 2, ',', ".")), 1, 0, 'R');
 
             $row_resp += 5;
-
         }
 
         $pdf->SetY($row_resp);
