@@ -171,7 +171,6 @@ Route::group([
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');
-                Route::get('sfpadraorun', 'ContratosfpadraoCrudController@executaJobAtualizacaoSfPadrao');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
