@@ -436,6 +436,13 @@ class Contrato extends Model
 
     }
 
+    public function itens()
+    {
+
+        return $this->hasMany(Contratoitem::class, 'contrato_id');
+
+    }
+
     public function faturas()
     {
 

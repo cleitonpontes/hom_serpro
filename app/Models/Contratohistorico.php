@@ -333,7 +333,7 @@ class Contratohistorico extends ContratoBase
 
     public function tipo()
     {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
     }
 
     public function modalidade()

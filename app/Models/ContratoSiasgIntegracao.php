@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Traits\Formatador;
 use Illuminate\Database\Eloquent\Model;
+use function foo\func;
 
 class ContratoSiasgIntegracao extends Model
 {
@@ -31,32 +32,81 @@ class ContratoSiasgIntegracao extends Model
 
             }
             if (isset($json->data->itens) and $json->data->itens != null) {
-                $itens = $this->inserirItensContrato($json->data->itens, $contrato);
+                $itens = $this->verificaItensContrato($json->data->itens, $contrato);
             }
         }
-
 
         return $contrato;
 
     }
 
-    private function inserirItensContrato($itens, Contrato $contrato)
+    private function verificaItensContrato($itens, Contrato $contrato)
     {
+        $contrato->itens()->delete();
+
         foreach ($itens as $item) {
-            $item_id = $this->buscaItensCatmatCatser($item);
+            $catmatseritem = $this->buscaItensCatmatCatser($item);
+
+            if(isset($catmatseritem->id)){
+                $contratoitem = $this->inserirContratoItem($catmatseritem, $contrato, $item);
+            }
         }
+
+        return $contratoitem;
+
+    }
+
+    private function inserirContratoItem(Catmatseritem $catmatseritem, Contrato $contrato, $item)
+    {
+        $tipo_id = $catmatseritem->catmatsergrupo->tipo_id;
+        $grupo_id = $catmatseritem->grupo_id;
+
+        $contratoitem = Contratoitem::create([
+            'contrato_id' =>  $contrato->id,
+            'tipo_id' =>  $catmatseritem->catmatsergrupo->tipo_id,
+            'grupo_id' =>  $catmatseritem->grupo_id,
+            'catmatseritem_id' =>  $catmatseritem->id,
+            'quantidade' => intval($item->quantidade),
+            'valorunitario' => number_format($item->valorUnitario,2,'.',''),
+            'valortotal' => number_format(intval($item->quantidade) * number_format($item->valorUnitario,2,'.',''),2,'.','')
+        ]);
+
+        return $contratoitem;
+
     }
 
     private function buscaItensCatmatCatser($item)
     {
         $tipo = '';
+        $grupo_nome = '';
 
-        if($item->tipo == 'S'){
-            $tipo == 'SERVIÇO';
-        }else{
-            $tipo == 'SERVIÇO';
+        if ($item->tipo == 'S') {
+            $tipo = 'SERVIÇO';
+            $grupo_nome = 'GRUPO GENERICO SERVICO';
+        } else {
+            $tipo = 'MATERIAL';
+            $grupo_nome = 'GRUPO GENERICO MATERIAIS';
         }
 
+        $catmatser = Catmatseritem::whereHas('catmatsergrupo', function ($g) use ($tipo) {
+            $g->whereHas('tipo', function ($t) use ($tipo) {
+                $t->where('descres', $tipo);
+            });
+        })
+            ->where('codigo_siasg', intval($item->código))
+            ->first();
+
+        if (!$catmatser) {
+            $grupo = Catmatsergrupo::where('descricao', $grupo_nome)
+                ->first();
+            $catmatser = Catmatseritem::create([
+                'grupo_id' => $grupo->id,
+                'codigo_siasg' => intval($item->código),
+                'descricao' => mb_strtoupper(trim($item->descricao), 'UTF-8')
+            ]);
+        }
+
+        return $catmatser;
     }
 
     private function buscaFornecedorCpfCnpjIdgener(string $cpfCnpjfornecedor, string $nomefornecedor, Siasgcontrato $siasgcontrato)

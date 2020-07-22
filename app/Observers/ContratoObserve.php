@@ -60,6 +60,7 @@ class ContratoObserve
         $contrato->faturas()->delete();
         $contrato->ocorrencias()->delete();
         $contrato->terceirizados()->delete();
+        $contrato->itens()->delete();
     }
 
 

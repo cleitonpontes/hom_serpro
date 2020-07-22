@@ -375,12 +375,14 @@ class SiasgcontratoCrudController extends CrudController
 
             $siasgcontrato_atualizado = $siasgcontrato->atualizaJsonMensagemSituacao($siasgcontrato->id, $retorno);
 
-            $contratoSiagIntegracao = new ContratoSiasgIntegracao;
-            $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
+            if($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado'){
+                $contratoSiagIntegracao = new ContratoSiasgIntegracao;
+                $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
 
-            if(isset($contrato->id)){
-                $siasgcontrato_atualizado->contrato_id = $contrato->id;
-                $siasgcontrato_atualizado->save();
+                if(isset($contrato->id)){
+                    $siasgcontrato_atualizado->contrato_id = $contrato->id;
+                    $siasgcontrato_atualizado->save();
+                }
             }
 
         }

@@ -124,7 +124,7 @@ class ContratoitemCrudController extends CrudController
                 'function_name' => 'getCatmatsergrupo', // the method in your Model
                 'limit' => 1000,
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
