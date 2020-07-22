@@ -13,6 +13,7 @@ class PadroesExecSiafi
         $xml = new Execsiafi();
         $user = BackpackUser::where('id',$contratosfpadrao->user_id)->first();
         $xmlSiafi = $xml->consultaDh($user,$user->cpf, 'HOM', $contratosfpadrao->anodh, $contratosfpadrao);
+
         return $xmlSiafi;
     }
 
@@ -37,12 +38,12 @@ class PadroesExecSiafi
             if($retornoSIAFI == 'SUCESSO') {
 
                 if (isset($body->documentoHabil)){
-                    $resultado = $this->processamento($body, $contratosfpadrao);
+                    $resultado = $this->processamento($body->documentoHabil, $contratosfpadrao);
                     $params['situacao'] = 'I';
                     $params['msgretorno'] = 'Importado com Sucesso!';
                     if (!$resultado) {
                         $params['situacao'] = 'E';
-                    $params['msgretorno'] = 'Erro ao tentar importar!';
+                        $params['msgretorno'] = 'Erro ao tentar importar!';
                     }
                 }else{
                     $msgErro = $body->mensagem->txtMsg;
@@ -152,7 +153,7 @@ class PadroesExecSiafi
                     $arrayElemento[0] = $arraySiafi->docContabilizacao;
                     $modDocContabilizacao = $this->processaObjetoModel($arrayElemento,'SfDocContabilizacao',$contratosfpadrao);
                 }elseif(isset($arraySiafi->docContabilizacao)){
-                    $modDocContabilizacao = $this->processaCentroCusto($arraySiafi->docContabilizacao,'SfDocContabilizacao',$contratosfpadrao);
+                    $modDocContabilizacao = $this->processaObjetoModel($arraySiafi->docContabilizacao,'SfDocContabilizacao',$contratosfpadrao);
                 }
 
             DB::commit();
@@ -307,7 +308,9 @@ class PadroesExecSiafi
         }
 
         foreach($deducao as $value => $item) {
+
             $model = new $modelName;
+
             $model = $model->newInstance($params[$value]);
             $model->save($params[$value]);
 
@@ -460,6 +463,27 @@ class PadroesExecSiafi
                 $modDesAnularItem = $this->processaObjetoModel($arrayElemento,'SfDespesaAnularItem',$model);
             }elseif(isset($item->despesaAnularItem)){
                 $modDesAnularItem = $this->processaObjetoModel($item->despesaAnularItem,'SfDespesaAnularItem',$model);
+            }
+
+            if(isset($item->despesaAnularItem->relPcoItem) && !is_array($item->despesaAnularItem->relPcoItem)){
+                $arrayElemento[0] = $item->despesaAnularItem->relPcoItem;
+                $this->processaObjetoModel($arrayElemento,'SfRelPcoItem',$modDesAnularItem);
+            }elseif(isset($item->despesaAnularItem->relPcoItem)){
+                $this->processaObjetoModel($item->despesaAnularItem->relPcoItem,'SfRelPcoItem',$modDesAnularItem);
+            }
+
+            if(isset($item->despesaAnularItem->relPsoItem) && !is_array($item->despesaAnularItem->relPsoItem)){
+                $arrayElemento[0] = $item->despesaAnularItem->relPsoItem;
+                $this->processaObjetoModel($arrayElemento,'SfRelPsoItem',$modDesAnularItem);
+            }elseif(isset($item->despesaAnularItem->relPsoItem)){
+                $this->processaObjetoModel($item->despesaAnularItem->relPsoItem,'SfRelPsoItem',$modDesAnularItem);
+            }
+
+            if(isset($item->despesaAnularItem->relCredito) && !is_array($item->despesaAnularItem->relCredito)){
+                $arrayElemento[0] = $item->despesaAnularItem->relCredito;
+                $this->processaObjetoModel($arrayElemento,'SfRelCredito',$modDesAnularItem);
+            }elseif(isset($item->despesaAnularItem->relCredito)){
+                $this->processaObjetoModel($item->despesaAnularItem->relCredito,'SfRelCredito',$modDesAnularItem);
             }
 
             if(isset($item->despesaAnularItem->relEncargo) && !is_array($item->despesaAnularItem->relEncargo)){

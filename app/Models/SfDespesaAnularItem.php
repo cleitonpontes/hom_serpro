@@ -49,4 +49,19 @@ class SfDespesaAnularItem extends Model
     {
         return $this->hasMany(SfRelEncargos::class, 'sfdespesaanularitem_id');
     }
+
+    public function sfRelPcoItem()
+    {
+        return $this->hasMany(SfPcoItem::class, 'sfdespesaanularitem_id');
+    }
+
+    public function sfRelPsoItem()
+    {
+        return $this->hasMany(SfPsoItem::class, 'sfdespesaanularitem_id');
+    }
+
+    public function sfRelCredito()
+    {
+        return $this->hasMany(SfCredito::class, 'sfdespesaanularitem_id');
+    }
 }

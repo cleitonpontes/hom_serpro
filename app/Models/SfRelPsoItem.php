@@ -28,12 +28,19 @@ class SfRelPsoItem extends Model
     protected $fillable = [
         'id',
         'sfded_id',
+        'sfdespesaanularitem_id',
         'numseqpai',
-        'numseqitem'
+        'numseqitem',
+        'vlr'
     ];
 
     public function sfdeducao()
     {
         return $this->belongsTo(SfDeducao::class, 'sfded_id');
+    }
+
+    public function sfdespesaanularitem()
+    {
+        return $this->belongsTo(SfDespesaAnularItem::class, 'sfdespesaanularitem_id');
     }
 }

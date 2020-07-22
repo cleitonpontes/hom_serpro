@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlteraSfpredocTable extends Migration
+class AlterFkSfdedIdPredocTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,10 +15,11 @@ class AlteraSfpredocTable extends Migration
     {
         Schema::table('sfpredoc', function (Blueprint $table) {
             $table->dropForeign('sfpredoc_sfded_id_foreign');
-            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
-
         });
 
+        Schema::table('sfpredoc', function (Blueprint $table) {
+            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
+        });
     }
 
     /**
@@ -30,7 +31,6 @@ class AlteraSfpredocTable extends Migration
     {
         Schema::table('sfpredoc', function (Blueprint $table) {
             $table->dropForeign('sfpredoc_sfded_id_foreign');
-            $table->foreign('sfded_id')->references('id')->on('sfdeducao_encargo_dadospagto')->onDelete('cascade');
         });
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterFkSfdedIdSfacrescimo extends Migration
+class AlterFkSfdedIdNullSfacrescimoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AlterFkSfdedIdSfacrescimo extends Migration
     public function up()
     {
         Schema::table('sfacrescimo', function (Blueprint $table) {
-//            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
+            $table->integer('sfded_id')->nullable()->change();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterFkSfdedIdSfacrescimo extends Migration
     public function down()
     {
         Schema::table('sfacrescimo', function (Blueprint $table) {
-            $table->dropForeign('sfacrescimo_sfded_id_foreign');
+            $table->integer('sfded_id')->change();
         });
     }
 }

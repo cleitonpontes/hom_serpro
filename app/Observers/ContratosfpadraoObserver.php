@@ -28,22 +28,24 @@ class ContratosfpadraoObserver
      * @param  \App\Models\Contratosfpadrao  $contratosfpadrao
      * @return void
      */
-    public function updating(Contratosfpadrao $contratosfpadrao)
+    public function updated(Contratosfpadrao $contratosfpadrao)
     {
         $params = $contratosfpadrao->toArray();
         unset($params['id']);
 
-        DB::beginTransaction();
-        try {
-            $contratosfpadrao->delete();
-            $novoContratoSfPadrao = new Contratosfpadrao($params);
-            $novoContratoSfPadrao->save();
-            DB::commit();
-        } catch (\Exception $exc) {
-            DB::rollback();
-            dd($exc->getMessage());
-        }
+        if($params['situacao'] == 'P') {
 
+            DB::beginTransaction();
+            try {
+                $contratosfpadrao->delete();
+                $novoContratoSfPadrao = new Contratosfpadrao($params);
+                $novoContratoSfPadrao->save();
+                DB::commit();
+            } catch (\Exception $exc) {
+                DB::rollback();
+                dd($exc->getMessage());
+            }
+        }
     }
 
 

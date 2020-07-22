@@ -97,6 +97,8 @@ class ContratosfpadraoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $request->request->set('situacao', 'P');
+        $request->request->set('msgretorno', '');
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -267,6 +269,11 @@ class ContratosfpadraoCrudController extends CrudController
                             'default' => 'P',
                         ],
                         [  // Hidden
+                            'name' => 'msgretorno',
+                            'type' => 'hidden',
+                            'default' => '',
+                        ],
+                        [  // Hidden
                             'name' => 'situacao',
                             'type' => 'hidden',
                             'default' => 'P',
@@ -286,7 +293,6 @@ class ContratosfpadraoCrudController extends CrudController
     public function executaJobAtualizacaoSfPadrao()
     {
         $modSfPadrao = $this->buscaPadroesPendentes();
-
         foreach ($modSfPadrao as $sfpadrao){
             if(isset($sfpadrao->id)){
                 AtualizaSfPadraoJob::dispatch($sfpadrao)->onQueue('sfpadrao');
@@ -296,8 +302,7 @@ class ContratosfpadraoCrudController extends CrudController
 
     private function buscaPadroesPendentes()
     {
-        $modSfPadrao = Contratosfpadrao::where('situacao','P')->get();
-
+        $modSfPadrao = Contratosfpadrao::where('situacao','P')->where('categoriapadrao','EXECFATURAPADRAO')->get();
         return $modSfPadrao;
     }
 

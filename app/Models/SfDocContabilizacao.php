@@ -30,7 +30,7 @@ class SfDocContabilizacao extends Model
         'sfpadrao_id',
         'anodoccont',
         'codtipodoccont',
-        'numcodcont',
+        'numdoccont',
         'codugemit'
     ];
 

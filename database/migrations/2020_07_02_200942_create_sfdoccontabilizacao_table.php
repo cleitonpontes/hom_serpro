@@ -18,7 +18,7 @@ class CreateSfdoccontabilizacaoTable extends Migration
             $table->integer('sfpadrao_id');
             $table->integer('anodoccont')->nullable();
             $table->string('codtipodoccont')->nullable();
-            $table->string('numcodcont')->nullable();
+            $table->string('numdoccont')->nullable();
             $table->integer('codugemit')->nullable();
         });
 

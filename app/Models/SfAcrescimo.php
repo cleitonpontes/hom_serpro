@@ -49,7 +49,7 @@ class SfAcrescimo extends Model
     }
     public function sfencargos()
     {
-        return $this->belongsTo(SfEncargos::class, 'sfencargo_id');
+        return $this->belongsTo(SfEncargos::class, 'sfencargos_id');
     }
 
     public function sfdadospgto()

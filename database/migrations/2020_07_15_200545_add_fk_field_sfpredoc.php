@@ -14,12 +14,14 @@ class AddFkFieldSfpredoc extends Migration
     public function up()
     {
         Schema::table('sfpredoc', function (Blueprint $table) {
-            $table->dropForeign('sfpredoc_sfded_id_foreign');
+
+            $table->integer('sfencargos_id')->nullable()->after('sfded_id');
+            $table->integer('sfdadospgto_id')->nullable()->after('sfencargos_id');
+
+            $table->foreign('sfencargos_id')->references('id')->on('sfencargo')->onDelete('cascade');
+            $table->foreign('sfdadospgto_id')->references('id')->on('sfdadospgto')->onDelete('cascade');
         });
 
-        Schema::table('sfpredoc', function (Blueprint $table) {
-            $table->foreign('sfded_id')->references('id')->on('sfdeducao')->onDelete('cascade');
-        });
     }
 
     /**
@@ -30,7 +32,10 @@ class AddFkFieldSfpredoc extends Migration
     public function down()
     {
         Schema::table('sfpredoc', function (Blueprint $table) {
-            $table->dropForeign('sfpredoc_sfded_id_foreign');
+            $table->dropForeign('sfpredoc_sfencargos_id_foreign');
+            $table->dropForeign('sfpredoc_sfdadospgto_id_foreign');
+            $table->dropColumn('sfencargos_id');
+            $table->dropColumn('sfdadospgto_id');
         });
     }
 }

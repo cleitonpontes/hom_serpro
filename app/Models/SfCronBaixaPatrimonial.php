@@ -29,7 +29,7 @@ class SfCronBaixaPatrimonial extends Model
     protected $fillable = [
         'id',
         'sfpco_id',
-        'outroslanc_id',
+        'sfoutroslanc_id',
         'parcela'
     ];
 
@@ -40,7 +40,7 @@ class SfCronBaixaPatrimonial extends Model
 
     public function outrosLanc()
     {
-        return $this->belongsTo(SfOutrosLanc::class, 'outroslanc_id');
+        return $this->belongsTo(SfOutrosLanc::class, 'sfoutroslanc_id');
     }
 
     public function parcela()
