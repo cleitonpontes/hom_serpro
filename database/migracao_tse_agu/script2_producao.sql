@@ -1,0 +1,94 @@
+
+-- desabilitar trigger
+SELECT fc_habilitar_triggers('public', FALSE );
+
+-- INÍCIO INCREMENTO SEQUENCE
+select setval('activity_log_expurgo_id_seq',  (select nextval('activity_log_expurgo_id_seq') + 50000000 ));
+select setval('activity_log_id_seq',          (select nextval('activity_log_id_seq') + 50000000));
+select setval('app_version_id_seq',  (select nextval('app_version_id_seq') + 50000000));
+select setval('apropriacoes_fases_id_seq',  (select nextval('apropriacoes_fases_id_seq') + 50000000));
+select setval('apropriacoes_id_seq',  (select nextval('apropriacoes_id_seq') + 50000000));
+select setval('apropriacoes_importacao_id_seq',  (select nextval('apropriacoes_importacao_id_seq') + 50000000));
+select setval('apropriacoes_nota_empenho_id_seq',  (select nextval('apropriacoes_nota_empenho_id_seq') + 50000000));
+select setval('apropriacoes_situacao_id_seq',  (select nextval('apropriacoes_situacao_id_seq') + 50000000));
+select setval('calendarevents_id_seq',  (select nextval('calendarevents_id_seq') + 50000000));
+select setval('catmatseratualizacao_id_seq',  (select nextval('catmatseratualizacao_id_seq') + 50000000));
+select setval('catmatsergrupos_id_seq',  (select nextval('catmatsergrupos_id_seq') + 50000000));
+select setval('catmatseritens_id_seq',  (select nextval('catmatseritens_id_seq') + 50000000));
+select setval('centrocusto_id_seq',  (select nextval('centrocusto_id_seq') + 50000000));
+select setval('codigoitens_id_seq',  (select nextval('codigoitens_id_seq') + 50000000));
+select setval('codigos_id_seq',  (select nextval('codigos_id_seq') + 50000000));
+select setval('comunica_id_seq',  (select nextval('comunica_id_seq') + 50000000));
+select setval('contrato_arquivos_id_seq',  (select nextval('contrato_arquivos_id_seq') + 50000000));
+select setval('contratocronograma_id_seq',  (select nextval('contratocronograma_id_seq') + 50000000));
+select setval('contratodespesaacessoria_id_seq',  (select nextval('contratodespesaacessoria_id_seq') + 50000000));
+select setval('contratoempenhos_id_seq',  (select nextval('contratoempenhos_id_seq') + 50000000));
+select setval('contratofaturas_id_seq',  (select nextval('contratofaturas_id_seq') + 50000000));
+select setval('contratogarantias_id_seq',  (select nextval('contratogarantias_id_seq') + 50000000));
+select setval('contratohistorico_id_seq',  (select nextval('contratohistorico_id_seq') + 50000000));
+select setval('contratoitens_id_seq',  (select nextval('contratoitens_id_seq') + 50000000));
+select setval('contratoocorrencias_id_seq',  (select nextval('contratoocorrencias_id_seq') + 50000000));
+select setval('contratopreposto_id_seq',  (select nextval('contratopreposto_id_seq') + 50000000));
+select setval('contratoresponsaveis_id_seq',  (select nextval('contratoresponsaveis_id_seq') + 50000000));
+select setval('contratos_id_seq',  (select nextval('contratos_id_seq') + 50000000));
+select setval('contratoterceirizados_id_seq',  (select nextval('contratoterceirizados_id_seq') + 50000000));
+select setval('documentosiafi_id_seq',  (select nextval('documentosiafi_id_seq') + 50000000));
+select setval('empenhodetalhado_id_seq',  (select nextval('empenhodetalhado_id_seq') + 50000000));
+select setval('empenhos_id_seq',  (select nextval('empenhos_id_seq') + 50000000));
+select setval('execsfsituacao_id_seq',  (select nextval('execsfsituacao_id_seq') + 50000000));
+select setval('failed_jobs_id_seq',  (select nextval('failed_jobs_id_seq') + 50000000));
+select setval('fornecedores_id_seq',  (select nextval('fornecedores_id_seq') + 50000000));
+select setval('importacoes_id_seq',  (select nextval('importacoes_id_seq') + 50000000));
+select setval('instalacoes_id_seq',  (select nextval('instalacoes_id_seq') + 50000000));
+select setval('jobs_id_seq',  (select nextval('jobs_id_seq') + 50000000));
+select setval('justificativafatura_id_seq',  (select nextval('justificativafatura_id_seq') + 50000000));
+select setval('migracaosistemaconta_id_seq',  (select nextval('migracaosistemaconta_id_seq') + 50000000));
+select setval('migrations_id_seq',  (select nextval('migrations_id_seq') + 50000000));
+select setval('naturezadespesa_id_seq',  (select nextval('naturezadespesa_id_seq') + 50000000));
+select setval('naturezasubitem_id_seq',  (select nextval('naturezasubitem_id_seq') + 50000000));
+select setval('orgaoconfiguracao_id_seq',  (select nextval('orgaoconfiguracao_id_seq') + 50000000));
+select setval('orgaos_id_seq',  (select nextval('orgaos_id_seq') + 50000000));
+select setval('orgaossuperiores_id_seq',  (select nextval('orgaossuperiores_id_seq') + 50000000));
+select setval('orgaosubcategorias_id_seq',  (select nextval('orgaosubcategorias_id_seq') + 50000000));
+select setval('permissions_id_seq',  (select nextval('permissions_id_seq') + 50000000));
+select setval('planointerno_id_seq',  (select nextval('planointerno_id_seq') + 50000000));
+select setval('rhddp_id_seq',  (select nextval('rhddp_id_seq') + 50000000));
+select setval('rhddpdetalhado_id_seq',  (select nextval('rhddpdetalhado_id_seq') + 50000000));
+select setval('rhrubrica_id_seq',  (select nextval('rhrubrica_id_seq') + 50000000));
+select setval('rhsituacao_id_seq',  (select nextval('rhsituacao_id_seq') + 50000000));
+select setval('roles_id_seq',  (select nextval('roles_id_seq') + 50000000));
+select setval('saldohistoricoitens_id_seq',  (select nextval('saldohistoricoitens_id_seq') + 50000000));
+select setval('sfacrescimo_id_seq',  (select nextval('sfacrescimo_id_seq') + 50000000));
+select setval('sfcentrocusto_id_seq',  (select nextval('sfcentrocusto_id_seq') + 50000000));
+select setval('sfcertificado_id_seq',  (select nextval('sfcertificado_id_seq') + 50000000));
+select setval('sfdadosbasicos_id_seq',  (select nextval('sfdadosbasicos_id_seq') + 50000000));
+select setval('sfdeducao_encargo_dadospagto_id_seq',  (select nextval('sfdeducao_encargo_dadospagto_id_seq') + 50000000));
+select setval('sfdespesaanular_id_seq',  (select nextval('sfdespesaanular_id_seq') + 50000000));
+select setval('sfdespesaanularitem_id_seq',  (select nextval('sfdespesaanularitem_id_seq') + 50000000));
+select setval('sfdocorigem_id_seq',  (select nextval('sfdocorigem_id_seq') + 50000000));
+select setval('sfdomiciliobancario_id_seq',  (select nextval('sfdomiciliobancario_id_seq') + 50000000));
+select setval('sfitemrecolhimento_id_seq',  (select nextval('sfitemrecolhimento_id_seq') + 50000000));
+select setval('sfnonce_id_seq',  (select nextval('sfnonce_id_seq') + 50000000));
+select setval('sfoutroslanc_id_seq',  (select nextval('sfoutroslanc_id_seq') + 50000000));
+select setval('sfpadrao_id_seq',  (select nextval('sfpadrao_id_seq') + 50000000));
+select setval('sfpco_id_seq',  (select nextval('sfpco_id_seq') + 50000000));
+select setval('sfpcoitem_id_seq',  (select nextval('sfpcoitem_id_seq') + 50000000));
+select setval('sfpredoc_id_seq',  (select nextval('sfpredoc_id_seq') + 50000000));
+select setval('sfpso_id_seq',  (select nextval('sfpso_id_seq') + 50000000));
+select setval('sfpsoitem_id_seq',  (select nextval('sfpsoitem_id_seq') + 50000000));
+select setval('sfrelitemded_id_seq',  (select nextval('sfrelitemded_id_seq') + 50000000));
+select setval('sfrelitemdespanular_id_seq',  (select nextval('sfrelitemdespanular_id_seq') + 50000000));
+select setval('sfrelitemvlrcc_id_seq',  (select nextval('sfrelitemvlrcc_id_seq') + 50000000));
+select setval('subrogacoes_id_seq',  (select nextval('subrogacoes_id_seq') + 50000000));
+select setval('tipolistafatura_id_seq',  (select nextval('tipolistafatura_id_seq') + 50000000));
+select setval('unidadeconfiguracao_id_seq',  (select nextval('unidadeconfiguracao_id_seq') + 50000000));
+select setval('unidades_id_seq',  (select nextval('unidades_id_seq') + 50000000));
+select setval('users_id_seq',  (select nextval('users_id_seq') + 50000000));
+
+-- habilitar trigger
+SELECT fc_habilitar_triggers('public', TRUE );
+
+-- adicionar as constraints - descimentar quando o tratamento dos duplicados estiver sido feito.
+-- ALTER TABLE fornecedores ADD CONSTRAINT fornecedores_cpf_cnpj_idgener_unique UNIQUE (cpf_cnpj_idgener);
+-- ALTER TABLE users ADD CONSTRAINT users_cpf_unique UNIQUE (cpf);
+-- ALTER TABLE users ADD CONSTRAINT users_email_unique UNIQUE (email);
