@@ -109,11 +109,34 @@ class MigracaotseaguController extends Controller
         else{return false;}
     }
     public function atualizarIdInvalidoParaIdValido($nomeCampo, $nomeTabela, $idInvalido, $idValido){
-        // vamos buscar na tabela, onde o nome do campo for igual ao idInvalido e alterar para o idValido
-        $query = "update  $nomeTabela set $nomeCampo = $idValido where $nomeCampo = $idInvalido";
-        echo '<br>'.$query;
-        $dados = DB::select($query);
-        // return true;
+        //buscar aonde o id = idValido e verificar se a unidade é igual a unidade
+        if($nomeTabela=='unidadesusers'){
+            // precisamos saber se, ao excluírmos, a chave composta não será repetida, o que ocasionará erro
+            $arrayDadosVerificar = DB::select("select * from unidadesusers where user_id = $idInvalido");
+            foreach($arrayDadosVerificar as $objDadosVerificar){
+                $userId = $objDadosVerificar->user_id;
+                $unidadeId = $objDadosVerificar->unidade_id;
+                // vamos verificar se ja tem o idValido e a unidade
+                $arrayDadosVerificar = DB::select("
+                    select count(*) as quantidade from unidadesusers where user_id = $idValido and unidade_id = $unidadeId
+                ");
+                $quantidade = $arrayDadosVerificar[0]->quantidade;
+                if($quantidade==0){
+                    // vamos buscar na tabela, onde o nome do campo for igual ao idInvalido e alterar para o idValido
+                    $query = "update  $nomeTabela set $nomeCampo = $idValido where $nomeCampo = $idInvalido";
+                    echo '<br>'.$query;
+                    $dados = DB::select($query);
+                } else {
+                    echo '<br>A chave composta já existe. deletando...';
+                    DB::select("delete from unidadesusers where user_id = $userId and unidade_id = $unidadeId");
+                }
+            }
+        } else {
+            // vamos buscar na tabela, onde o nome do campo for igual ao idInvalido e alterar para o idValido
+            $query = "update  $nomeTabela set $nomeCampo = $idValido where $nomeCampo = $idInvalido";
+            echo '<br>'.$query;
+            $dados = DB::select($query);
+        }
     }
     public function getTodosNomesTabelas(){
         return $dados = DB::select("
