@@ -87,8 +87,3 @@ select setval('users_id_seq',  (select nextval('users_id_seq') + 50000000));
 
 -- habilitar trigger
 SELECT fc_habilitar_triggers('public', TRUE );
-
--- adicionar as constraints - descimentar quando o tratamento dos duplicados estiver sido feito.
--- ALTER TABLE fornecedores ADD CONSTRAINT fornecedores_cpf_cnpj_idgener_unique UNIQUE (cpf_cnpj_idgener);
--- ALTER TABLE users ADD CONSTRAINT users_cpf_unique UNIQUE (cpf);
--- ALTER TABLE users ADD CONSTRAINT users_email_unique UNIQUE (email);

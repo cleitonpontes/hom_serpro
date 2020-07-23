@@ -6,3 +6,5 @@ Com o sistema comprasnet rodando:
 4. php composer.phar dump-autoload
 5. php artisan db:seed
 6. executar script2_producao.sql
+7. no browser: http://localhost:8000/tratardadosmigracaotseagu
+8. executar script3_producao.sql
