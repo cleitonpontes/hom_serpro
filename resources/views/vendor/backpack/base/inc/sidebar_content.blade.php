@@ -44,6 +44,27 @@
                 <span>Sub-rogações</span>
             </a>
         </li>
+        <li class="treeview">
+            <a href="#">
+                <i class="fa fa-download"></i>
+                <span>Integração SIASG</span>
+                <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu">
+                <li>
+                    <a href="{{ backpack_url('/gescon/siasg/compras') }}">
+                        <i class="fa fa-angle-right"></i>
+                        <span>Compras</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ backpack_url('/gescon/siasg/contratos') }}">
+                        <i class="fa fa-angle-right"></i>
+                        <span>Contratos</span>
+                    </a>
+                </li>
+            </ul>
+        <li>
         {{-- ************************************************************************ --}}
         {{-- Consultas                                                                --}}
         {{-- ************************************************************************ --}}

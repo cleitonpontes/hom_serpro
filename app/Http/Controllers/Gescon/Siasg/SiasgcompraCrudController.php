@@ -31,7 +31,7 @@ class SiasgcompraCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Siasgcompra');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/siasg/compras');
-        $this->crud->setEntityNameStrings('Compra - SIASG', 'Cadastro Compras - SIASG');
+        $this->crud->setEntityNameStrings('Importação SIASG - Compra', 'Importação SIASG - Compras');
 
         $this->crud->addClause('select', 'siasgcompras.*');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'siasgcompras.modalidade_id');
@@ -39,7 +39,7 @@ class SiasgcompraCrudController extends CrudController
         $this->crud->addClause('where', 'siasgcompras.unidade_id', '=', session()->get('user_ug_id'));
 
 
-        $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
+//        $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');

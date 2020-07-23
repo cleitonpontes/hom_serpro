@@ -34,7 +34,7 @@ class SiasgcontratoCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Siasgcontrato');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/siasg/contratos');
-        $this->crud->setEntityNameStrings('Contratos - SIASG', 'Cadastro Contrato - SIASG');
+        $this->crud->setEntityNameStrings('Importação SIASG - Contrato', 'Importação SIASG - Contratos');
 
         $this->crud->addClause('leftjoin', 'siasgcompras', 'siasgcompras.id', '=', 'siasgcontratos.compra_id');
         $this->crud->addClause('leftjoin', 'codigoitens', 'codigoitens.id', '=', 'siasgcontratos.tipo_id');
@@ -51,7 +51,7 @@ class SiasgcontratoCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
+//        $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
