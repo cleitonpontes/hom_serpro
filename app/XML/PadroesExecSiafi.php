@@ -12,7 +12,7 @@ class PadroesExecSiafi
     public function retornaXmlSiafi(Contratosfpadrao $contratosfpadrao){
         $xml = new Execsiafi();
         $user = BackpackUser::where('id',$contratosfpadrao->user_id)->first();
-        $xmlSiafi = $xml->consultaDh($user,$user->cpf, env('AMBIENTE_WS_SIAFI'), $contratosfpadrao->anodh, $contratosfpadrao);
+        $xmlSiafi = $xml->consultaDh($user->cpf,$user->unidade->codigo, env('AMBIENTE_WS_SIAFI'), $contratosfpadrao->anodh, $contratosfpadrao);
 
         return $xmlSiafi;
     }
