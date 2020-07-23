@@ -13,6 +13,7 @@ class UpdateVersion510SeederTableSeeder extends Seeder
         $this->call(UpdateNumeroContratoeHistoricoSeeder::class);
         $this->call(UpdateNumLiciContratoeHistoricoSeeder::class);
         $this->call(UpdateCatmatCatserSeederTableSeeder::class);
+        $this->call(UpdateCamposSiasgUnidadeTableSeeder::class);
 
     }
 }
