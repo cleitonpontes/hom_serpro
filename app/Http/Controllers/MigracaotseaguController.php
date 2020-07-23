@@ -68,24 +68,6 @@ class MigracaotseaguController extends Controller
                 self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratos', $idInvalido, $idValido);
                 self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratos', $idInvalido, $idValido);
                 self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratos', $idInvalido, $idValido);
-
-                // foreach($arrayTabelas as $nomeTabela){
-                //     $contParar++;
-                //     echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
-                //     // aqui já sabemos quais tabelas possuem o fornecedor_id
-                //     // vamos verificar se algum tem o fornecedor_id inválido
-                //     self::atualizarIdInvalidoParaIdValido('categoria_id', $nomeTabela, $idInvalido, $idValido);
-
-                //     self::atualizarIdInvalidoParaIdValido('categoria_id', $nomeTabela, $idInvalido, $idValido);
-                //     self::atualizarIdInvalidoParaIdValido('categoria_id', $nomeTabela, $idInvalido, $idValido);
-                //     self::atualizarIdInvalidoParaIdValido('categoria_id', $nomeTabela, $idInvalido, $idValido);
-
-                //     self::atualizarIdInvalidoParaIdValido('categoria_id', $nomeTabela, $idInvalido, $idValido);
-                //     self::atualizarIdInvalidoParaIdValido('categoria_id', $nomeTabela, $idInvalido, $idValido);
-                //     self::atualizarIdInvalidoParaIdValido('categoria_id', $nomeTabela, $idInvalido, $idValido);
-
-
-                // }
                 // aqui já podemos excluir o registro com id inválido
                 if(!self::excluirCodigoitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
             } else {
@@ -109,8 +91,16 @@ class MigracaotseaguController extends Controller
         else{return false;}
     }
     public function atualizarIdInvalidoParaIdValido($nomeCampo, $nomeTabela, $idInvalido, $idValido){
+
+
+
+
         //buscar aonde o id = idValido e verificar se a unidade é igual a unidade
         if($nomeTabela=='unidadesusers'){
+
+
+
+
             // precisamos saber se, ao excluírmos, a chave composta não será repetida, o que ocasionará erro
             $arrayDadosVerificar = DB::select("select * from unidadesusers where user_id = $idInvalido");
             foreach($arrayDadosVerificar as $objDadosVerificar){
@@ -127,8 +117,19 @@ class MigracaotseaguController extends Controller
                     echo '<br>'.$query;
                     $dados = DB::select($query);
                 } else {
-                    echo '<br>A chave composta já existe. deletando...';
-                    DB::select("delete from unidadesusers where user_id = $userId and unidade_id = $unidadeId");
+                    echo '<br>A chave composta já existe.';
+
+
+                    echo '<br>nome campo: '.$nomeCampo;
+                    echo '<br>nome tabela: '.$nomeTabela;
+                    echo '<br>id inválido: '.$idInvalido;
+                    echo '<br>id valido: '.$idValido;
+                    echo '<br>unidade id: '.$unidadeId;
+
+                    $query = "update  $nomeTabela set $nomeCampo = $idValido where $nomeCampo = $idInvalido";
+                    echo '<br>'.$query;
+                    DB::select("delete from unidadesusers where user_id = $idInvalido and unidade_id = $unidadeId");
+
                 }
             }
         } else {
