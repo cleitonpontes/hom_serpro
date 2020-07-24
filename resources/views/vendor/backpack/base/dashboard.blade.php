@@ -45,7 +45,7 @@
                     <h3>{{$html['atualizados']}}</h3>
 
                     <p>
-                        Contratos Atualizados<br />
+                        Contratos atualizados<br />
                         <small>
                             <em>(últimos 5 dias)</em>
                         </small>
