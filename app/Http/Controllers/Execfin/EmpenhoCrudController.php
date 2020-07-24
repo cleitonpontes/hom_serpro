@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use Alert;
 use App\Http\Controllers\AdminController;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
@@ -357,6 +358,18 @@ class EmpenhoCrudController extends CrudController
         return $campos;
     }
 
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('fornecedor_id');
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('planointerno_id');
+        $this->crud->removeColumn('naturezadespesa_id');
+
+        return $content;
+    }
+
     public function store(StoreRequest $request)
     {
 
@@ -380,38 +393,67 @@ class EmpenhoCrudController extends CrudController
         return $redirect_location;
     }
 
-    public function show($id)
-    {
-        $content = parent::show($id);
-
-        $this->crud->removeColumn('fornecedor_id');
-        $this->crud->removeColumn('unidade_id');
-        $this->crud->removeColumn('planointerno_id');
-        $this->crud->removeColumn('naturezadespesa_id');
-
-        return $content;
-    }
-
     public function executaMigracaoEmpenho()
     {
-        $unidades = Unidade::whereHas('contratos', function ($c) {
-            $c->where('situacao', true);
-        })
-            ->where('tipo', 'E')
-            ->where('situacao', true)
-            ->get();
 
-        foreach ($unidades as $unidade) {
-            MigracaoempenhoJob::dispatch($unidade->id);
-            MigracaoRpJob::dispatch($unidade->id);
-//            $this->migracaoEmpenho($unidade->id);
-//            $this->migracaoRp($unidade->id);
+        // BUSCA AS UNIDADES COM EMPENHOS CRIADOS NOS ULTIMOS
+        // CINCO DIAS A PARTIR DA DATA ENVIADA (PADRÃO HOJE)
+        $url = config('migracao.api_sta')
+            . '/api/unidade/empenho/' . date('Y');
+        $unidades = $this->buscaDadosUrl($url);
+
+        $unidadesAtivas =
+            Unidade::whereHas('contratos', function ($c) {
+                $c->where('situacao', true);
+            })
+                ->where('situacao', true)
+                ->select('codigo')
+                ->whereIn('codigo', $unidades)
+                ->get();
+
+        foreach ($unidadesAtivas as $unidade) {
+            MigracaoempenhoJob::dispatch($unidade->codigo);
+        }
+
+        // BUSCA AS UNIDADES COM RP CRIADOS NOS ULTIMOS
+        // CINCO DIAS A PARTIR DA DATA ENVIADA (PADRÃO HOJE)
+        $url = config('migracao.api_sta')
+            . '/api/unidade/rp';
+        $unidades = $this->buscaDadosUrl($url);
+
+        $unidadesAtivas =
+            Unidade::whereHas('contratos', function ($c) {
+                $c->where('situacao', true);
+            })
+                ->where('situacao', true)
+                ->select('codigo')
+                ->whereIn('codigo', $unidades)
+                ->get();
+
+        foreach ($unidadesAtivas as $unidade) {
+            MigracaoRpJob::dispatch($unidade->codigo);
         }
 
         if (backpack_user()) {
-            \Alert::success('Migração de Empenhos em Andamento!')->flash();
+            Alert::success('Migração de Empenhos em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
+    }
+
+    public function buscaDadosUrl($url)
+    {
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode($data, true);
+
     }
 
     public function executaAtualizacaoNd()
@@ -420,7 +462,7 @@ class EmpenhoCrudController extends CrudController
         AtualizaNaturezaDespesasJob::dispatch();
 
         if (backpack_user()) {
-            \Alert::success('Atualização de ND em Andamento!')->flash();
+            Alert::success('Atualização de ND em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
     }
@@ -505,7 +547,7 @@ class EmpenhoCrudController extends CrudController
 
 
         if (backpack_user()) {
-            \Alert::success('Atualização de Empenhos em Andamento!')->flash();
+            Alert::success('Atualização de Empenhos em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
 
@@ -662,6 +704,57 @@ class EmpenhoCrudController extends CrudController
         return $empenhos;
     }
 
+    public function buscaFornecedor($credor)
+    {
+
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
+            ->first();
+
+        if (!$fornecedor) {
+            $tipo = 'JURIDICA';
+            if (strlen($credor['cpfcnpjugidgener']) == 14) {
+                $tipo = 'FISICA';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
+                $tipo = 'IDGENERICO';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+                $tipo = 'UG';
+            }
+
+            $fornecedor = Fornecedor::create([
+                'tipo_fornecedor' => $tipo,
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
+                'nome' => strtoupper(trim($credor['nome']))
+            ]);
+
+        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
+            $fornecedor->nome = strtoupper(trim($credor['nome']));
+            $fornecedor->save();
+        }
+
+        return $fornecedor;
+    }
+
+    public function buscaPi($pi)
+    {
+
+        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
+            ->first();
+
+        if (!$planointerno) {
+            $planointerno = Planointerno::create([
+                'codigo' => $pi['picodigo'],
+                'descricao' => strtoupper($pi['pidescricao']),
+                'situacao' => true
+            ]);
+        } else {
+            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
+                $planointerno->descricao = strtoupper($pi['pidescricao']);
+                $planointerno->save();
+            }
+        }
+        return $planointerno;
+    }
+
     public function migracaoEmpenho($ug_id)
     {
         $unidade = Unidade::find($ug_id);
@@ -725,73 +818,6 @@ class EmpenhoCrudController extends CrudController
                 }
             }
         }
-
-    }
-
-    public function buscaFornecedor($credor)
-    {
-
-        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
-            ->first();
-
-        if (!$fornecedor) {
-            $tipo = 'JURIDICA';
-            if (strlen($credor['cpfcnpjugidgener']) == 14) {
-                $tipo = 'FISICA';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
-                $tipo = 'IDGENERICO';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
-                $tipo = 'UG';
-            };
-
-            $fornecedor = Fornecedor::create([
-                'tipo_fornecedor' => $tipo,
-                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
-                'nome' => strtoupper(trim($credor['nome']))
-            ]);
-
-        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
-            $fornecedor->nome = strtoupper(trim($credor['nome']));
-            $fornecedor->save();
-        }
-
-        return $fornecedor;
-    }
-
-    public function buscaPi($pi)
-    {
-
-        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
-            ->first();
-
-        if (!$planointerno) {
-            $planointerno = Planointerno::create([
-                'codigo' => $pi['picodigo'],
-                'descricao' => strtoupper($pi['pidescricao']),
-                'situacao' => true
-            ]);
-        } else {
-            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
-                $planointerno->descricao = strtoupper($pi['pidescricao']);
-                $planointerno->save();
-            }
-        }
-        return $planointerno;
-    }
-
-    public function buscaDadosUrl($url)
-    {
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $data = curl_exec($ch);
-
-        curl_close($ch);
-
-        return json_decode($data, true);
 
     }
 }
