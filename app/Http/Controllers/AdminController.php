@@ -198,24 +198,27 @@ class AdminController extends Controller
 
     private function retornaCategoriasContrato()
     {
-        $categorias = Contrato::where('unidade_id', session()->get('user_ug_id'));
-        $categorias->join('codigoitens as cat', 'cat.id', '=', 'categoria_id');
-        $categorias->selectRaw("concat(cat.descricao, ' (', count(cat.descricao), ')') as descricao");
-        $categorias->groupBy('cat.descricao');
-        $categorias->orderBy('cat.descricao');
-
-        return $categorias->pluck('descricao')->toArray();
+        return $this->retornaContratosParaGrafico('descricao');
     }
 
     private function retornaContrato()
     {
-        return DB::table('contratos')
-            ->select(DB::raw('categoria_id, count(categoria_id)'))
-            ->where('situacao', '=', true)
-            ->where('unidade_id', session()->get('user_ug_id'))
-            ->orderBy('categoria_id', 'asc')
-            ->groupBy('categoria_id')
-            ->pluck('count')->toArray();
+        return $this->retornaContratosParaGrafico('qtde');
+    }
+
+    private function retornaContratosParaGrafico($campo)
+    {
+        $dados = Contrato::join('codigoitens as cat', 'cat.id', '=', 'categoria_id');
+        $dados->where('unidade_id', session()->get('user_ug_id'));
+        $dados->where('situacao', true);
+        $dados->selectRaw(
+            "concat(cat.descricao, ' (', count(cat.descricao), ')') as descricao,
+            count(cat.descricao) qtde"
+        );
+        $dados->groupBy('cat.descricao');
+        $dados->orderBy('cat.descricao');
+
+        return $dados->pluck($campo)->toArray();
     }
 
     private function retornaGrafico($colors, $categorias, $contrato)
