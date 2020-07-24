@@ -7,6 +7,7 @@ use App\Models\Contratohistorico;
 use App\User;
 use App\Models\Fornecedor;
 use App\Models\Codigoitem;
+use App\Models\AppVersion;
 
 use Illuminate\Http\Request;
 
@@ -19,61 +20,13 @@ class MigracaotseaguController extends Controller
         self::migrarUsersCpf();
         self::migrarUsersEmail();
         self::migrarCodigoitem();
+        self::migrarAppVersion();
         echo '<br><br>migração finalizada.';
     }
-    public function migrarCodigoitem(){
-        echo '<br><br>Preparando para tratar codigoitem...';
-        // vamos buscar os codigoitens com descricao duplicads
-        $codigoItemComDescricaoDuplicada = self::getDescricaoCodigoitemComDescricaoDuplicado();
-        $quantidade = count($codigoItemComDescricaoDuplicada);
-        echo '<br>Qtd encontrada: '.$quantidade;
-        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
-        $cont = 0;
-        foreach($codigoItemComDescricaoDuplicada as $codigoitem){
-            $cont++;
-            $descricaoDuplicada = $codigoitem->descricao;
-            echo '<br><br>'.$cont.' -> '.$descricaoDuplicada.'<br>';
-            //aqui já temos os duplicados
-            // para cada um vamos buscar o id invalido e o id válido
-            $arrayIdsCodigoitemByDescricao = self::getIdCodigoitemByDescricao($descricaoDuplicada);
-            $quantidadeIds = count($arrayIdsCodigoitemByDescricao);
-            if($quantidadeIds > 1){
-                $idValido = $arrayIdsCodigoitemByDescricao[0]->id;
-                $idInvalido = $arrayIdsCodigoitemByDescricao[1]->id;
-                echo ' ==> '.$idValido.' - '.$idInvalido;
-                // aqui já temos os ids válidos e inválidos
-                // vamos buscar as tabelas que têm fornecedor_id
-                // $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('fornecedor_id');
-
-                $arrayTabelas = array('orgaosubcategorias', 'contratohistorico', 'contratos');
-
-                echo '<br><br>Vai atualizar as seguintes tabelas: ';
-                foreach($arrayTabelas as $nomeTabela){
-                    // $nomeTabela = $objDadosTabela->nomeTabela;
-                    echo '<br>'.$nomeTabela;
-                }
-
-                $contParar = 0;
-
-
-                echo '<br>Atualizando tabela orgaosubcategorias...';
-                self::atualizarIdInvalidoParaIdValido('categoria_id', 'orgaosubcategorias', $idInvalido, $idValido);
-
-                echo '<br>Atualizando tabela contratohistorico...';
-                self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratohistorico', $idInvalido, $idValido);
-                self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratohistorico', $idInvalido, $idValido);
-                self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratohistorico', $idInvalido, $idValido);
-
-                echo '<br>Atualizando tabela contratos...';
-                self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratos', $idInvalido, $idValido);
-                self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratos', $idInvalido, $idValido);
-                self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratos', $idInvalido, $idValido);
-                // aqui já podemos excluir o registro com id inválido
-                if(!self::excluirCodigoitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
-            } else {
-                echo '<br>Só retornou um.';
-            }
-        }
+    public function excluirAppVersionComIdInvalido($idExcluir){
+        echo '<br>Preparando para excluir app version id = '.$idExcluir;
+        if(AppVersion::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
     }
     public function excluirUserComIdInvalido($idExcluir){
         echo '<br>Preparando para excluir user id = '.$idExcluir;
@@ -91,16 +44,8 @@ class MigracaotseaguController extends Controller
         else{return false;}
     }
     public function atualizarIdInvalidoParaIdValido($nomeCampo, $nomeTabela, $idInvalido, $idValido){
-
-
-
-
         //buscar aonde o id = idValido e verificar se a unidade é igual a unidade
         if($nomeTabela=='unidadesusers'){
-
-
-
-
             // precisamos saber se, ao excluírmos, a chave composta não será repetida, o que ocasionará erro
             $arrayDadosVerificar = DB::select("select * from unidadesusers where user_id = $idInvalido");
             foreach($arrayDadosVerificar as $objDadosVerificar){
@@ -118,8 +63,6 @@ class MigracaotseaguController extends Controller
                     $dados = DB::select($query);
                 } else {
                     echo '<br>A chave composta já existe.';
-
-
                     echo '<br>nome campo: '.$nomeCampo;
                     echo '<br>nome tabela: '.$nomeTabela;
                     echo '<br>id inválido: '.$idInvalido;
@@ -166,6 +109,13 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
+    public function getIdAppVersionByPatch($patch){
+        $dados = AppVersion::select('id')
+        ->where('patch', '=', $patch)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
     public function getIdUserByCpf($cpf){
         $dados = User::select('id')
         ->where('cpf', '=', $cpf)
@@ -186,6 +136,14 @@ class MigracaotseaguController extends Controller
         ->groupBy('email')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('email')
+        ->get();
+        return $dados;
+    }
+    public function getPatchAppVersionComPatchDuplicado(){
+        $dados = AppVersion::select('patch')
+        ->groupBy('patch')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('patch')
         ->get();
         return $dados;
     }
@@ -343,6 +301,86 @@ class MigracaotseaguController extends Controller
                 }
                 // aqui já podemos excluir o fornecedor com id inválido
                 if(!self::excluirUserComIdInvalido($idUserInvalido)){echo 'erro(1)'; exit;}
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
+    public function migrarCodigoitem(){
+        echo '<br><br>Preparando para tratar codigoitem...';
+        // vamos buscar os codigoitens com descricao duplicads
+        $codigoItemComDescricaoDuplicada = self::getDescricaoCodigoitemComDescricaoDuplicado();
+        $quantidade = count($codigoItemComDescricaoDuplicada);
+        echo '<br>Qtd encontrada: '.$quantidade;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($codigoItemComDescricaoDuplicada as $codigoitem){
+            $cont++;
+            $descricaoDuplicada = $codigoitem->descricao;
+            echo '<br><br>'.$cont.' -> '.$descricaoDuplicada.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIdsCodigoitemByDescricao = self::getIdCodigoitemByDescricao($descricaoDuplicada);
+            $quantidadeIds = count($arrayIdsCodigoitemByDescricao);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIdsCodigoitemByDescricao[0]->id;
+                $idInvalido = $arrayIdsCodigoitemByDescricao[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                // aqui já temos os ids válidos e inválidos
+                // vamos buscar as tabelas que têm fornecedor_id
+                // $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('fornecedor_id');
+
+                $arrayTabelas = array('orgaosubcategorias', 'contratohistorico', 'contratos');
+
+                echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                foreach($arrayTabelas as $nomeTabela){
+                    // $nomeTabela = $objDadosTabela->nomeTabela;
+                    echo '<br>'.$nomeTabela;
+                }
+
+                $contParar = 0;
+
+
+                echo '<br>Atualizando tabela orgaosubcategorias...';
+                self::atualizarIdInvalidoParaIdValido('categoria_id', 'orgaosubcategorias', $idInvalido, $idValido);
+
+                echo '<br>Atualizando tabela contratohistorico...';
+                self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratohistorico', $idInvalido, $idValido);
+                self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratohistorico', $idInvalido, $idValido);
+                self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratohistorico', $idInvalido, $idValido);
+
+                echo '<br>Atualizando tabela contratos...';
+                self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratos', $idInvalido, $idValido);
+                self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratos', $idInvalido, $idValido);
+                self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratos', $idInvalido, $idValido);
+                // aqui já podemos excluir o registro com id inválido
+                if(!self::excluirCodigoitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
+    public function migrarAppVersion(){
+        echo '<br><br>Preparando para tratar app version...';
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getPatchAppVersionComPatchDuplicado();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->patch;
+            echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdAppVersionByPatch($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                if(!self::excluirAppVersionComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
