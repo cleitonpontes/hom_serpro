@@ -41,7 +41,6 @@ class UsuarioOrgaoCrudController extends CrudController
         $unidades_orgao = Unidade::where('orgao_id', $orgao->id)
             ->pluck('id')->toArray();
 
-
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuarioorgao');
         $this->crud->setEntityNameStrings('Usuário Órgão: ' . $orgao->codigo, 'Usuários Órgão: ' . $orgao->codigo);
@@ -53,9 +52,6 @@ class UsuarioOrgaoCrudController extends CrudController
             });
             $u->orWhereIn('id', $unidades_orgao);
         });
-
-
-
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -82,7 +78,6 @@ class UsuarioOrgaoCrudController extends CrudController
             ->orderBy('codigo', 'asc')
             ->pluck('nome', 'id')
             ->toArray();
-
 
         $campos = $this->Campos($ugs, $unidades_orgao);
         $this->crud->addFields($campos);
@@ -140,7 +135,7 @@ class UsuarioOrgaoCrudController extends CrudController
             ],
             [
                 'name' => 'getUGPrimaria',
-                'label' => 'UG Primária', // Table column heading
+                'label' => 'UG/UASG Padrão',
                 'type' => 'model_function',
                 'function_name' => 'getUGPrimaria', // the method in your Model
                 'orderable' => true,
@@ -210,7 +205,7 @@ class UsuarioOrgaoCrudController extends CrudController
             ],
             [ // select2_from_array
                 'name' => 'ugprimaria',
-                'label' => 'UG Primária',
+                'label' => 'UG/UASG Padrão',
                 'type' => 'select2_from_array',
                 'options' => $ugs,
                 'allows_null' => true,
@@ -218,7 +213,7 @@ class UsuarioOrgaoCrudController extends CrudController
                 'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [       // Select2Multiple = n-n relationship (with pivot table)
-                'label' => 'UG´s Secundárias',
+                'label' => 'Demais UGs/UASGs',
                 'type' => 'select2_multiple',
                 'name' => 'unidades', // the method that defines the relationship in your Model
                 'entity' => 'unidades', // the method that defines the relationship in your Model
@@ -338,6 +333,6 @@ class UsuarioOrgaoCrudController extends CrudController
             // use $this->data['entry'] or $this->crud->entry
             return $redirect_location;
         }
-
     }
+
 }
