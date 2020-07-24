@@ -12,6 +12,9 @@ use App\Models\Centrocusto;
 use App\Models\Codigo;
 use App\Models\Justificativafatura;
 use App\Models\Tipolistafatura;
+use App\Models\Naturezadespesa;
+use App\Models\Naturezasubitem;
+use App\Models\Orgaosuperior;
 
 use Illuminate\Http\Request;
 
@@ -29,12 +32,15 @@ class MigracaotseaguController extends Controller
         self::migrarCodigo();
         self::migrarJustificativafatura();
         self::migrarTipolistafatura();
+        self::migrarNaturezadespesa();
+        self::migrarNaturezasubitem();
+        self::migrarOrgaosuperior();
         echo '<br><br>migração finalizada.';
     }
-    public function migrarTipolistafatura(){
-        echo '<br><br>Preparando para tratar tipolistafatura...';
+    public function migrarOrgaosuperior(){
+        echo '<br><br>Preparando para tratar orgaosuperior...';
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getNomeTipolistafaturaComNomeDuplicado();
+        $arrayDuplicados = self::getNomeOrgaosuperiorComNomeDuplicado();
         $quantidadeDuplicados = count($arrayDuplicados);
         echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
         echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
@@ -45,35 +51,55 @@ class MigracaotseaguController extends Controller
             echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
             //aqui já temos os duplicados
             // para cada um vamos buscar o id invalido e o id válido
-            $arrayIds = self::getIdTipolistafaturaByNome($duplicado);
+            $arrayIds = self::getIdOrgaosuperiorByNome($duplicado);
             $quantidadeIds = count($arrayIds);
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
                 echo ' ==> '.$idValido.' - '.$idInvalido;
-                // aqui já temos os ids válidos e inválidos
-                // vamos buscar as tabelas que têm codigo_id
-                $arrayTabelas = self::getNomesTabelasComByCampo('justificativafatura_id');
-                echo '<br><br>Vai atualizar as seguintes tabelas: ';
-                foreach($arrayTabelas as $objDadosTabela){
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br>'.$nomeTabela;
-                }
-                $contParar = 0;
-                foreach($arrayTabelas as $objDadosTabela){
-                    $contParar++;
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
-                    // aqui já sabemos quais tabelas possuem o justificativafatura_id
-                    // vamos verificar se algum tem o justificativafatura_id inválido
-                    self::atualizarIdInvalidoParaIdValido('tipolistafatura_id', $nomeTabela, $idInvalido, $idValido);
+                if($idInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelas = self::getNomesTabelasComByCampo('orgaosuperior_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o id
+                        // vamos verificar se algum tem o id inválido
+                        self::atualizarIdInvalidoParaIdValido('orgaosuperior_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+
+                    if(!self::excluirOrgaosuperiorComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
 
-                if(!self::excluirTipolistafaturaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
         }
+    }
+    public function excluirOrgaosuperiorComIdInvalido($idExcluir){
+        echo '<br>Preparando para excluir orgaosuperior id = '.$idExcluir;
+        if(Orgaosuperior::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
+    }
+    public function excluirNaturezasubitemComIdInvalido($idExcluir){
+        echo '<br>Preparando para excluir naturezasubitem id = '.$idExcluir;
+        if(Naturezasubitem::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
+    }
+    public function excluirNaturezadespesaComIdInvalido($idExcluir){
+        echo '<br>Preparando para excluir naturezadespesa id = '.$idExcluir;
+        if(Naturezadespesa::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
     }
     public function excluirTipolistafaturaComIdInvalido($idExcluir){
         echo '<br>Preparando para excluir tipolistafatura id = '.$idExcluir;
@@ -167,6 +193,27 @@ class MigracaotseaguController extends Controller
             WHERE column_name = '$campo'
         ");
     }
+    public function getIdOrgaosuperiorByNome($buscar){
+        $dados = Orgaosuperior::select('id')
+        ->where('nome', '=', $buscar)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
+    public function getIdNaturezasubitemByDescricao($descricao){
+        $dados = Naturezasubitem::select('id')
+        ->where('descricao', '=', $descricao)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
+    public function getIdNaturezadespesaByDescricao($descricao){
+        $dados = Naturezadespesa::select('id')
+        ->where('descricao', '=', $descricao)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
     public function getIdCodigoByDescricao($descricao){
         $dados = Codigo::select('id')
         ->where('descricao', '=', $descricao)
@@ -230,7 +277,14 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
-    // retorna os cpf dos users que possuem email duplicado na base
+    public function getNomeOrgaosuperiorComNomeDuplicado(){
+        $dados = Orgaosuperior::select('nome')
+        ->groupBy('nome')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('nome')
+        ->get();
+        return $dados;
+    }
     public function getNomeTipolistafaturaComNomeDuplicado(){
         $dados = Tipolistafatura::select('nome')
         ->groupBy('nome')
@@ -249,6 +303,22 @@ class MigracaotseaguController extends Controller
     }
     public function getDescricaoJustificativafaturaComDescricaoDuplicada(){
         $dados = Justificativafatura::select('descricao')
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoNaturezasubitemComDescricaoDuplicada(){
+        $dados = Naturezasubitem::select('descricao')
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoNaturezadespesaComDescricaoDuplicada(){
+        $dados = Naturezadespesa::select('descricao')
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
@@ -287,7 +357,6 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
-    // retorna os cpf dos users que possuem cpf duplicado na base
     public function getCpfUsersComCpfDuplicado(){
         $dados = User::select('cpf')
         ->groupBy('cpf')
@@ -296,7 +365,6 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
-    // retorna as descricoes dos codigoitem que possuem descricao duplicado na base
     public function getDescricaoCodigoitemComDescricaoDuplicado(){
         $dados = Codigoitem::select('descricao')
         ->groupBy('descricao')
@@ -305,7 +373,6 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
-    // retorna os cpf dos fornecedores que possuem cpf duplicado na base
     public function getCpfFornecedoresComCpfDuplicado(){
         $dados = Fornecedor::select('cpf_cnpj_idgener')
         ->groupBy('cpf_cnpj_idgener')
@@ -334,25 +401,30 @@ class MigracaotseaguController extends Controller
                 $idFornecedorValido = $arrayIdsFornecedorByCpf[0]->id;
                 $idFornecedorInvalido = $arrayIdsFornecedorByCpf[1]->id;
                 echo ' ==> '.$idFornecedorValido.' - '.$idFornecedorInvalido;
-                // aqui já temos os ids válidos e inválidos
-                // vamos buscar as tabelas que têm fornecedor_id
-                $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('fornecedor_id');
-                echo '<br><br>Vai atualizar as seguintes tabelas: ';
-                foreach($arrayTabelasComFornecedorId as $objDadosTabela){
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br>'.$nomeTabela;
+                if($idFornecedorInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm fornecedor_id
+                    $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('fornecedor_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelasComFornecedorId as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelasComFornecedorId as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o fornecedor_id
+                        // vamos verificar se algum tem o fornecedor_id inválido
+                        self::atualizarIdInvalidoParaIdValido('fornecedor_id', $nomeTabela, $idFornecedorInvalido, $idFornecedorValido);
+                    }
+                    // aqui já podemos excluir o fornecedor com id inválido
+                    if(!self::excluirFornecedorComIdInvalido($idFornecedorInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
-                $contParar = 0;
-                foreach($arrayTabelasComFornecedorId as $objDadosTabela){
-                    $contParar++;
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
-                    // aqui já sabemos quais tabelas possuem o fornecedor_id
-                    // vamos verificar se algum tem o fornecedor_id inválido
-                    self::atualizarIdInvalidoParaIdValido('fornecedor_id', $nomeTabela, $idFornecedorInvalido, $idFornecedorValido);
-                }
-                // aqui já podemos excluir o fornecedor com id inválido
-                if(!self::excluirFornecedorComIdInvalido($idFornecedorInvalido)){echo 'erro(1)'; exit;}
+
             } else {
                 echo '<br>Só retornou um.';
             }
@@ -378,25 +450,29 @@ class MigracaotseaguController extends Controller
                 $idUserValido = $arrayIdsUserByEmail[0]->id;
                 $idUserInvalido = $arrayIdsUserByEmail[1]->id;
                 echo ' ==> '.$idUserValido.' - '.$idUserInvalido;
-                // aqui já temos os ids válidos e inválidos
-                // vamos buscar as tabelas que têm user_id
-                $arrayTabelasComUserId = self::getNomesTabelasComByCampo('user_id');
-                echo '<br><br>Vai atualizar as seguintes tabelas: ';
-                foreach($arrayTabelasComUserId as $objDadosTabela){
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br>'.$nomeTabela;
+                if($idUserInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm user_id
+                    $arrayTabelasComUserId = self::getNomesTabelasComByCampo('user_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelasComUserId as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelasComUserId as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o fornecedor_id
+                        // vamos verificar se algum tem o fornecedor_id inválido
+                        self::atualizarIdInvalidoParaIdValido('user_id', $nomeTabela, $idUserInvalido, $idUserValido);
+                    }
+                    // aqui já podemos excluir o fornecedor com id inválido
+                    if(!self::excluirUserComIdInvalido($idUserInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
-                $contParar = 0;
-                foreach($arrayTabelasComUserId as $objDadosTabela){
-                    $contParar++;
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
-                    // aqui já sabemos quais tabelas possuem o fornecedor_id
-                    // vamos verificar se algum tem o fornecedor_id inválido
-                    self::atualizarIdInvalidoParaIdValido('user_id', $nomeTabela, $idUserInvalido, $idUserValido);
-                }
-                // aqui já podemos excluir o fornecedor com id inválido
-                if(!self::excluirUserComIdInvalido($idUserInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
@@ -422,25 +498,29 @@ class MigracaotseaguController extends Controller
                 $idUserValido = $arrayIdsUserByCpf[0]->id;
                 $idUserInvalido = $arrayIdsUserByCpf[1]->id;
                 echo ' ==> '.$idUserValido.' - '.$idUserInvalido;
-                // aqui já temos os ids válidos e inválidos
-                // vamos buscar as tabelas que têm user_id
-                $arrayTabelasComUserId = self::getNomesTabelasComByCampo('user_id');
-                echo '<br><br>Vai atualizar as seguintes tabelas: ';
-                foreach($arrayTabelasComUserId as $objDadosTabela){
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br>'.$nomeTabela;
+                if($idUserInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm user_id
+                    $arrayTabelasComUserId = self::getNomesTabelasComByCampo('user_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelasComUserId as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelasComUserId as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o fornecedor_id
+                        // vamos verificar se algum tem o fornecedor_id inválido
+                        self::atualizarIdInvalidoParaIdValido('user_id', $nomeTabela, $idUserInvalido, $idUserValido);
+                    }
+                    // aqui já podemos excluir o fornecedor com id inválido
+                    if(!self::excluirUserComIdInvalido($idUserInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
-                $contParar = 0;
-                foreach($arrayTabelasComUserId as $objDadosTabela){
-                    $contParar++;
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
-                    // aqui já sabemos quais tabelas possuem o fornecedor_id
-                    // vamos verificar se algum tem o fornecedor_id inválido
-                    self::atualizarIdInvalidoParaIdValido('user_id', $nomeTabela, $idUserInvalido, $idUserValido);
-                }
-                // aqui já podemos excluir o fornecedor com id inválido
-                if(!self::excluirUserComIdInvalido($idUserInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
@@ -466,35 +546,33 @@ class MigracaotseaguController extends Controller
                 $idValido = $arrayIdsCodigoitemByDescricao[0]->id;
                 $idInvalido = $arrayIdsCodigoitemByDescricao[1]->id;
                 echo ' ==> '.$idValido.' - '.$idInvalido;
-                // aqui já temos os ids válidos e inválidos
-                // vamos buscar as tabelas que têm fornecedor_id
-                // $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('fornecedor_id');
+                if($idInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm fornecedor_id
+                    // $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('fornecedor_id');
 
-                $arrayTabelas = array('orgaosubcategorias', 'contratohistorico', 'contratos');
+                    $arrayTabelas = array('orgaosubcategorias', 'contratohistorico', 'contratos');
 
-                echo '<br><br>Vai atualizar as seguintes tabelas: ';
-                foreach($arrayTabelas as $nomeTabela){
-                    // $nomeTabela = $objDadosTabela->nomeTabela;
-                    echo '<br>'.$nomeTabela;
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelas as $nomeTabela){
+                        // $nomeTabela = $objDadosTabela->nomeTabela;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    echo '<br>Atualizando tabela orgaosubcategorias...';
+                    self::atualizarIdInvalidoParaIdValido('categoria_id', 'orgaosubcategorias', $idInvalido, $idValido);
+                    echo '<br>Atualizando tabela contratohistorico...';
+                    self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratohistorico', $idInvalido, $idValido);
+                    self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratohistorico', $idInvalido, $idValido);
+                    self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratohistorico', $idInvalido, $idValido);
+                    echo '<br>Atualizando tabela contratos...';
+                    self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratos', $idInvalido, $idValido);
+                    self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratos', $idInvalido, $idValido);
+                    self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratos', $idInvalido, $idValido);
+                    // aqui já podemos excluir o registro com id inválido
+                    if(!self::excluirCodigoitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
-
-                $contParar = 0;
-
-
-                echo '<br>Atualizando tabela orgaosubcategorias...';
-                self::atualizarIdInvalidoParaIdValido('categoria_id', 'orgaosubcategorias', $idInvalido, $idValido);
-
-                echo '<br>Atualizando tabela contratohistorico...';
-                self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratohistorico', $idInvalido, $idValido);
-                self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratohistorico', $idInvalido, $idValido);
-                self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratohistorico', $idInvalido, $idValido);
-
-                echo '<br>Atualizando tabela contratos...';
-                self::atualizarIdInvalidoParaIdValido('categoria_id', 'contratos', $idInvalido, $idValido);
-                self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratos', $idInvalido, $idValido);
-                self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratos', $idInvalido, $idValido);
-                // aqui já podemos excluir o registro com id inválido
-                if(!self::excluirCodigoitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
@@ -521,7 +599,11 @@ class MigracaotseaguController extends Controller
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
                 echo ' ==> '.$idValido.' - '.$idInvalido;
-                if(!self::excluirAppVersionComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                if($idInvalido > 55000000){
+                    if(!self::excluirAppVersionComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
+                }
             } else {
                 echo '<br>Só retornou um.';
             }
@@ -547,7 +629,11 @@ class MigracaotseaguController extends Controller
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
                 echo ' ==> '.$idValido.' - '.$idInvalido;
-                if(!self::excluirCentrocustoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                if($idInvalido > 55000000){
+                    if(!self::excluirCentrocustoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
+                }
             } else {
                 echo '<br>Só retornou um.';
             }
@@ -573,25 +659,28 @@ class MigracaotseaguController extends Controller
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
                 echo ' ==> '.$idValido.' - '.$idInvalido;
-                // aqui já temos os ids válidos e inválidos
-                // vamos buscar as tabelas que têm codigo_id
-                $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('codigo_id');
-                echo '<br><br>Vai atualizar as seguintes tabelas: ';
-                foreach($arrayTabelasComFornecedorId as $objDadosTabela){
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br>'.$nomeTabela;
+                if($idInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('codigo_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelasComFornecedorId as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelasComFornecedorId as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o codigo_id
+                        // vamos verificar se algum tem o codigo_id inválido
+                        self::atualizarIdInvalidoParaIdValido('codigo_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+                    if(!self::excluirCodigoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
-                $contParar = 0;
-                foreach($arrayTabelasComFornecedorId as $objDadosTabela){
-                    $contParar++;
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
-                    // aqui já sabemos quais tabelas possuem o codigo_id
-                    // vamos verificar se algum tem o codigo_id inválido
-                    self::atualizarIdInvalidoParaIdValido('codigo_id', $nomeTabela, $idInvalido, $idValido);
-                }
-
-                if(!self::excluirCodigoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
@@ -617,25 +706,173 @@ class MigracaotseaguController extends Controller
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
                 echo ' ==> '.$idValido.' - '.$idInvalido;
-                // aqui já temos os ids válidos e inválidos
-                // vamos buscar as tabelas que têm codigo_id
-                $arrayTabelas = self::getNomesTabelasComByCampo('justificativafatura_id');
-                echo '<br><br>Vai atualizar as seguintes tabelas: ';
-                foreach($arrayTabelas as $objDadosTabela){
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br>'.$nomeTabela;
+                if($idInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelas = self::getNomesTabelasComByCampo('justificativafatura_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o justificativafatura_id
+                        // vamos verificar se algum tem o justificativafatura_id inválido
+                        self::atualizarIdInvalidoParaIdValido('justificativafatura_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+                    if(!self::excluirJustificativafaturaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
-                $contParar = 0;
-                foreach($arrayTabelas as $objDadosTabela){
-                    $contParar++;
-                    $nomeTabela = $objDadosTabela->table_name;
-                    echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
-                    // aqui já sabemos quais tabelas possuem o justificativafatura_id
-                    // vamos verificar se algum tem o justificativafatura_id inválido
-                    self::atualizarIdInvalidoParaIdValido('justificativafatura_id', $nomeTabela, $idInvalido, $idValido);
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
+    public function migrarTipolistafatura(){
+        echo '<br><br>Preparando para tratar tipolistafatura...';
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getNomeTipolistafaturaComNomeDuplicado();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->nome;
+            echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdTipolistafaturaByNome($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                if($idInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelas = self::getNomesTabelasComByCampo('justificativafatura_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o justificativafatura_id
+                        // vamos verificar se algum tem o justificativafatura_id inválido
+                        self::atualizarIdInvalidoParaIdValido('tipolistafatura_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+                    if(!self::excluirTipolistafaturaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
+                }
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
+    public function migrarNaturezadespesa(){
+        echo '<br><br>Preparando para tratar naturezadespesa...';
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getDescricaoNaturezadespesaComDescricaoDuplicada();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->descricao;
+            echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdNaturezadespesaByDescricao($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                if($idInvalido > 55000000){
+                        // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelas = self::getNomesTabelasComByCampo('naturezadespesa_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o justificativafatura_id
+                        // vamos verificar se algum tem o justificativafatura_id inválido
+                        self::atualizarIdInvalidoParaIdValido('naturezadespesa_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+
+                    if(!self::excluirNaturezadespesaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
 
-                if(!self::excluirJustificativafaturaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
+    public function migrarNaturezasubitem(){
+        echo '<br><br>Preparando para tratar naturezasubitem...';
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getDescricaoNaturezasubitemComDescricaoDuplicada();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->descricao;
+            echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdNaturezasubitemByDescricao($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                if($idInvalido > 55000000){
+                        // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelas = self::getNomesTabelasComByCampo('naturezasubitem_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o id
+                        // vamos verificar se algum tem o id inválido
+                        self::atualizarIdInvalidoParaIdValido('naturezasubitem_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+
+                    if(!self::excluirNaturezasubitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
+                }
+
             } else {
                 echo '<br>Só retornou um.';
             }
