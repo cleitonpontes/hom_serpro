@@ -335,7 +335,7 @@ class SiasgcompraCrudController extends CrudController
 
     public function inserirComprasEmMassa()
     {
-        $file = fopen('C:\Users\heles.junior\Desktop\compras\dados_compras.txt', "r");
+        $file = fopen('C:\Users\heles.junior\Desktop\compras\dados_todas_compras.txt', "r");
         $compras = new Siasgcompra;
         $dados = [];
         while (!feof($file)) {
@@ -353,24 +353,26 @@ class SiasgcompraCrudController extends CrudController
             $numero = substr($line, 8, 5);
             $ano = substr($line, 13, 4);
 
-            $busca = $compras->where('unidade_id', $unidade->id)
-                ->where('modalidade_id', $modalidade->id)
-                ->where('ano', $ano)
-                ->where('numero', $numero)
-                ->first();
+            if(isset($unidade->id)){
+                $busca = $compras->where('unidade_id', $unidade->id)
+                    ->where('modalidade_id', $modalidade->id)
+                    ->where('ano', $ano)
+                    ->where('numero', $numero)
+                    ->first();
 
-            if (!isset($busca->id)) {
-                $dados = [
-                    'unidade_id' => $unidade->id,
-                    'modalidade_id' => $modalidade->id,
-                    'ano' => $ano,
-                    'numero' => $numero,
-                    'situacao' => 'Pendente'
-                ];
+                if (!isset($busca->id)) {
+                    $dados = [
+                        'unidade_id' => $unidade->id,
+                        'modalidade_id' => $modalidade->id,
+                        'ano' => $ano,
+                        'numero' => $numero,
+                        'situacao' => 'Pendente'
+                    ];
 
-                $compranova = new Siasgcompra();
-                $compranova->fill($dados);
-                $compranova->save();
+                    $compranova = new Siasgcompra();
+                    $compranova->fill($dados);
+                    $compranova->save();
+                }
             }
         }
         fclose($file);
