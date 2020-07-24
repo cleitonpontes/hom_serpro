@@ -40,13 +40,14 @@ class OrgaoSuperiorCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
+        $this->crud->addClause('orderBy', 'nome');
+
         (backpack_user()->hasRole('Administrador')) ? $this->crud->addButtonFromView('top', 'atualizaorgaosuperior',
             'atualizaorgaosuperior', 'end') : null;
 
         (backpack_user()->can('orgaosuperior_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('orgaosuperior_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('orgaosuperior_deletar')) ? $this->crud->allowAccess('delete') : null;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -121,12 +122,10 @@ class OrgaoSuperiorCrudController extends CrudController
         ];
 
         return $colunas;
-
     }
 
     public function Campos()
     {
-
         $campos = [
             [ // select_from_array
                 'name' => 'codigo',
@@ -159,7 +158,6 @@ class OrgaoSuperiorCrudController extends CrudController
 
         return $campos;
     }
-
 
     public function store(StoreRequest $request)
     {
@@ -210,9 +208,6 @@ class OrgaoSuperiorCrudController extends CrudController
         }
 
         return redirect('admin/orgaosuperior');
-
     }
-
-
 
 }
