@@ -24,7 +24,12 @@
                 <div class="inner">
                     <h3>{{$html['novos']}}</h3>
 
-                    <p>Novos Contratos inseridos</p>
+                    <p>
+                        Novos contratos<br />
+                        <small>
+                            <em>(últimos 5 dias)</em>
+                        </small>
+                    </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-cloud-download"></i>
@@ -39,7 +44,12 @@
                 <div class="inner">
                     <h3>{{$html['atualizados']}}</h3>
 
-                    <p>Contratos Atualizados</p>
+                    <p>
+                        Contratos atualizados<br />
+                        <small>
+                            <em>(últimos 5 dias)</em>
+                        </small>
+                    </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-refresh"></i>
@@ -54,7 +64,10 @@
                 <div class="inner">
                     <h3>{{$html['vencidos']}}</h3>
 
-                    <p>Contratos vencidos</p>
+                    <p>
+                        Contratos vencidos<br />
+                        &nbsp;
+                    </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-close"></i>
@@ -71,7 +84,10 @@
             <div class="small-box bg-yellow">
                 <div class="inner">
                     <h3>{{$totalmsg}}</h3>
-                    <p>Mensagens pendentes</p>
+                        <p>
+                            Mensagens pendentes<br />
+                            &nbsp;
+                        </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-email"></i>
@@ -97,6 +113,9 @@
                 </div>
                 <div class="box-body">
                     {!! $chartjs->render() !!}
+                    <div class="text-center">
+                        Total: {{ $chartjsTotal }}
+                    </div>
                 </div>
             </div>
         </section>

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Execfin;
 
-use Alert;
 use App\Http\Controllers\AdminController;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
@@ -55,7 +54,6 @@ class EmpenhoCrudController extends CrudController
         (backpack_user()->can('atualizacao_saldos_empenhos')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
             'atualizasaldosempenhos', 'end') : null;
 
-
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
         $this->crud->enableExportButtons();
@@ -89,7 +87,6 @@ class EmpenhoCrudController extends CrudController
 
         $naturezadespesa = Naturezadespesa::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
             ->orderBy('codigo', 'asc')->pluck('nome', 'id')->toArray();
-
 
         $campos = $this->Campos($unidade, $fornecedores, $planointerno, $naturezadespesa);
 
@@ -301,12 +298,10 @@ class EmpenhoCrudController extends CrudController
         ];
 
         return $colunas;
-
     }
 
     public function Campos($unidade, $fornecedores, $planointerno, $naturezadespesa)
     {
-
         $campos = [
             [ // select_from_array
                 'name' => 'unidade_id',
@@ -358,24 +353,10 @@ class EmpenhoCrudController extends CrudController
         return $campos;
     }
 
-    public function show($id)
-    {
-        $content = parent::show($id);
-
-        $this->crud->removeColumn('fornecedor_id');
-        $this->crud->removeColumn('unidade_id');
-        $this->crud->removeColumn('planointerno_id');
-        $this->crud->removeColumn('naturezadespesa_id');
-
-        return $content;
-    }
-
     public function store(StoreRequest $request)
     {
-
         $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
             ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
-
 
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
@@ -391,6 +372,27 @@ class EmpenhoCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('fornecedor_id');
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('planointerno_id');
+        $this->crud->removeColumn('naturezadespesa_id');
+
+        $this->crud->removeColumn('empenhado');
+        $this->crud->removeColumn('aliquidar');
+        $this->crud->removeColumn('liquidado');
+        $this->crud->removeColumn('pago');
+        $this->crud->removeColumn('rpinscrito');
+        $this->crud->removeColumn('rpaliquidar');
+        $this->crud->removeColumn('rpliquidado');
+        $this->crud->removeColumn('rppago');
+
+        return $content;
     }
 
     public function executaMigracaoEmpenho()
@@ -440,29 +442,13 @@ class EmpenhoCrudController extends CrudController
         }
     }
 
-    public function buscaDadosUrl($url)
-    {
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $data = curl_exec($ch);
-
-        curl_close($ch);
-
-        return json_decode($data, true);
-
-    }
-
     public function executaAtualizacaoNd()
     {
 //        $this->NdAtualizacao();
         AtualizaNaturezaDespesasJob::dispatch();
 
         if (backpack_user()) {
-            Alert::success('Atualização de ND em Andamento!')->flash();
+            \Alert::success('Atualização de ND em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
     }
@@ -484,7 +470,6 @@ class EmpenhoCrudController extends CrudController
         }
 
         return 'Atualização realizada com sucesso!';
-
     }
 
     public function executaAtualizaSaldosEmpenhos()
@@ -502,7 +487,6 @@ class EmpenhoCrudController extends CrudController
         $mes = $meses[(int)date('m')];//$meses[(int) $registro['mes']];
 
         foreach ($empenhos as $empenho) {
-
             $contas_contabeis = [];
             $anoEmpenho = substr($empenho->numero, 0, 4);
 
@@ -517,9 +501,7 @@ class EmpenhoCrudController extends CrudController
             $empenhodetalhes = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
                 ->get();
 
-
             foreach ($empenhodetalhes as $empenhodetalhe) {
-
                 $contacorrente = $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
                         STR_PAD_LEFT);
 
@@ -545,13 +527,10 @@ class EmpenhoCrudController extends CrudController
             }
         }
 
-
         if (backpack_user()) {
-            Alert::success('Atualização de Empenhos em Andamento!')->flash();
+            \Alert::success('Atualização de Empenhos em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
-
-
     }
 
     public function teste(
@@ -592,7 +571,6 @@ class EmpenhoCrudController extends CrudController
                 $dado[$item] = $saldoAtual;
             }
 
-
 //            $execsiafi = new Execsiafi();
 //
 //            $retorno = null;
@@ -605,7 +583,6 @@ class EmpenhoCrudController extends CrudController
 //                $contacorrente,
 //                $mes,
 //                $user);
-
 
 //            if ($retorno->resultado[0] == 'SUCESSO') {
 //                if (isset($retorno->resultado[4])) {
@@ -632,11 +609,9 @@ class EmpenhoCrudController extends CrudController
         //        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
 //            true);
 
-
         $dados = $this->buscaDadosUrl($url);
 
         foreach ($dados as $d) {
-
             $credor = $this->buscaFornecedor($d);
 
             if ($d['picodigo'] != "") {
@@ -693,7 +668,6 @@ class EmpenhoCrudController extends CrudController
                 }
             }
         }
-
     }
 
     public function atualizaEmpenhosRpsAntigos($unidade_id)
@@ -702,57 +676,6 @@ class EmpenhoCrudController extends CrudController
             ->update(['rp' => false]);
 
         return $empenhos;
-    }
-
-    public function buscaFornecedor($credor)
-    {
-
-        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
-            ->first();
-
-        if (!$fornecedor) {
-            $tipo = 'JURIDICA';
-            if (strlen($credor['cpfcnpjugidgener']) == 14) {
-                $tipo = 'FISICA';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
-                $tipo = 'IDGENERICO';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
-                $tipo = 'UG';
-            }
-
-            $fornecedor = Fornecedor::create([
-                'tipo_fornecedor' => $tipo,
-                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
-                'nome' => strtoupper(trim($credor['nome']))
-            ]);
-
-        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
-            $fornecedor->nome = strtoupper(trim($credor['nome']));
-            $fornecedor->save();
-        }
-
-        return $fornecedor;
-    }
-
-    public function buscaPi($pi)
-    {
-
-        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
-            ->first();
-
-        if (!$planointerno) {
-            $planointerno = Planointerno::create([
-                'codigo' => $pi['picodigo'],
-                'descricao' => strtoupper($pi['pidescricao']),
-                'situacao' => true
-            ]);
-        } else {
-            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
-                $planointerno->descricao = strtoupper($pi['pidescricao']);
-                $planointerno->save();
-            }
-        }
-        return $planointerno;
     }
 
     public function migracaoEmpenho($ug_id)
@@ -770,7 +693,6 @@ class EmpenhoCrudController extends CrudController
         $dados = $this->buscaDadosUrl($url);
 
         foreach ($dados as $d) {
-
             $credor = $this->buscaFornecedor($d);
 
             if ($d['picodigo']) {
@@ -779,7 +701,6 @@ class EmpenhoCrudController extends CrudController
 
             $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                 ->first();
-
 
             $empenho = Empenho::where('numero', '=', trim($d['numero']))
                 ->where('unidade_id', '=', $unidade->id)
@@ -801,7 +722,6 @@ class EmpenhoCrudController extends CrudController
             }
 
             foreach ($d['itens'] as $item) {
-
                 $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
                     ->where('naturezadespesa_id', $naturezadespesa->id)
                     ->first();
@@ -818,6 +738,69 @@ class EmpenhoCrudController extends CrudController
                 }
             }
         }
-
     }
+
+    public function buscaFornecedor($credor)
+    {
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
+            ->first();
+
+        if (!$fornecedor) {
+            $tipo = 'JURIDICA';
+            if (strlen($credor['cpfcnpjugidgener']) == 14) {
+                $tipo = 'FISICA';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
+                $tipo = 'IDGENERICO';
+            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+                $tipo = 'UG';
+            };
+
+            $fornecedor = Fornecedor::create([
+                'tipo_fornecedor' => $tipo,
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
+                'nome' => strtoupper(trim($credor['nome']))
+            ]);
+
+        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
+            $fornecedor->nome = strtoupper(trim($credor['nome']));
+            $fornecedor->save();
+        }
+
+        return $fornecedor;
+    }
+
+    public function buscaPi($pi)
+    {
+        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
+            ->first();
+
+        if (!$planointerno) {
+            $planointerno = Planointerno::create([
+                'codigo' => $pi['picodigo'],
+                'descricao' => strtoupper($pi['pidescricao']),
+                'situacao' => true
+            ]);
+        } else {
+            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
+                $planointerno->descricao = strtoupper($pi['pidescricao']);
+                $planointerno->save();
+            }
+        }
+        return $planointerno;
+    }
+
+    public function buscaDadosUrl($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode($data, true);
+    }
+
 }

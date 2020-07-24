@@ -57,6 +57,7 @@ class EmpenhodetalhadoCrudController extends CrudController
         (backpack_user()->can('empenhodetalhado_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('empenhodetalhado_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('empenhodetalhado_deletar')) ? $this->crud->allowAccess('delete') : null;
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -72,8 +73,6 @@ class EmpenhodetalhadoCrudController extends CrudController
             ->where('codigo', '<>', '00')
             ->orderBy('codigo', 'asc')
             ->pluck('nome', 'id')->toArray();
-
-//        dd();
 
         $emp = $empenho->where('id','=', $empenho_id)->pluck('numero', 'id')->toArray();
 
@@ -344,16 +343,13 @@ class EmpenhodetalhadoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
-
         ];
 
         return $colunas;
-
     }
 
     public function Campos($empenho, $naturezasubitem)
     {
-
         $campos = [
             [ // select_from_array
                 'name' => 'empenho_id',
@@ -423,6 +419,26 @@ class EmpenhodetalhadoCrudController extends CrudController
         $this->crud->removeColumn('rpppago');
         $this->crud->removeColumn('rppcancelado');
 
+        $this->crud->removeColumn('rpnpaliquidinsc');
+        $this->crud->removeColumn('rpnpemliquidinsc');
+        $this->crud->removeColumn('reinscrpnpaliquidbloq');
+        $this->crud->removeColumn('reinscrpnpemliquid');
+        $this->crud->removeColumn('rpnprestab');
+        $this->crud->removeColumn('rpnpaliquidtransfdeb');
+        $this->crud->removeColumn('rpnpaliquidemliquidtransfdeb');
+        $this->crud->removeColumn('rpnpliquidapgtransfdeb');
+        $this->crud->removeColumn('rpnpbloqtransfdeb');
+        $this->crud->removeColumn('rppinsc');
+        $this->crud->removeColumn('rppexecant');
+        $this->crud->removeColumn('rpptrasf');
+        $this->crud->removeColumn('rpnpaliquidtransfcred');
+        $this->crud->removeColumn('rpnpaliquidemliquidtransfcred');
+        $this->crud->removeColumn('rpnpliquidapgtransfcred');
+        $this->crud->removeColumn('rpnpbloqtransfcred');
+        $this->crud->removeColumn('rpptransffusao');
+        $this->crud->removeColumn('ajusterpexecant');
+
         return $content;
     }
+
 }

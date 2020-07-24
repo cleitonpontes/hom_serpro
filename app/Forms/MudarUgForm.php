@@ -12,7 +12,7 @@ class MudarUgForm extends Form
 
         $this
             ->add('ug', 'select', [
-                'label' => 'Unidade Gestora',
+                'label' => 'UG/UASG',
 //                'rules' => "required",
                 'attr' => [
 //                    'class' => 'select2'
@@ -21,4 +21,5 @@ class MudarUgForm extends Form
                 'empty_value' => 'Selecione',
             ]);
     }
+
 }

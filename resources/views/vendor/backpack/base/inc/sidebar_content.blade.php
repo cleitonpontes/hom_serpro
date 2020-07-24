@@ -156,19 +156,19 @@
                 <li>
                     <a href="{{ route('relatorio.listacontratosug') }}">
                         <i class="fa fa-file-text-o"></i>
-                        <span>Lista Contratos da UG</span>
+                        <span>Contratos da UG</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('relatorio.listacontratosorgao') }}">
                         <i class="fa fa-file-text-o"></i>
-                        <span>Lista Contratos do Órgão</span>
+                        <span>Contratos do Órgão</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('relatorio.listatodoscontratos') }}">
                         <i class="fa fa-file-text-o"></i>
-                        <span>Lista Todos Contratos</span>
+                        <span>Todos os Contratos</span>
                     </a>
                 </li>
             </ul>

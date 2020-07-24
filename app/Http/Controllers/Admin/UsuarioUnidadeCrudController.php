@@ -37,25 +37,14 @@ class UsuarioUnidadeCrudController extends CrudController
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuariounidade');
 
-
-
-
         // $this->crud->setEntityNameStrings('Usuário Unidade: ' . $unidade_user->codigo, 'Usuários Unidade: ' . $unidade_user->codigo);
         // $this->crud->addClause('select', 'users.*');
         // $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         // $this->crud->addClause('where', 'users.unidade_id', '=', $unidade_user->id);
 
-
-
-
-
         $this->crud->setEntityNameStrings('Usuário Unidade: ' . $unidade_user->codigo, 'Usuários Unidade: ' . $unidade_user->codigo);
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         $this->crud->addClause('where', 'users.ugprimaria', '=', $unidade_user->id);
-
-
-
-
 
         // $this->crud->addClause('whereHas', 'unidades', function ($q) use ($unidade_user) {
         //     $q->where('unidade_id', $unidade_user->id);
@@ -65,10 +54,7 @@ class UsuarioUnidadeCrudController extends CrudController
         // $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         // $this->crud->addClause('where', 'users.unidade_id', '=', $unidade_user->id);
 
-
-
         $this->crud->addClause('select', 'users.*');
-
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -88,7 +74,6 @@ class UsuarioUnidadeCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-
         $ugs = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
             ->where('tipo', '=', 'E')
             ->where('situacao', '=', true)
@@ -96,7 +81,6 @@ class UsuarioUnidadeCrudController extends CrudController
             ->orderBy('codigo', 'asc')
             ->pluck('nome', 'id')
             ->toArray();
-
 
         $campos = $this->Campos($ugs, $unidade_user->id);
         $this->crud->addFields($campos);
@@ -154,7 +138,7 @@ class UsuarioUnidadeCrudController extends CrudController
             ],
             [
                 'name' => 'getUGPrimaria',
-                'label' => 'UG Primária', // Table column heading
+                'label' => 'UG/UASG Padrão',
                 'type' => 'model_function',
                 'function_name' => 'getUGPrimaria', // the method in your Model
                 'orderable' => true,
@@ -212,7 +196,7 @@ class UsuarioUnidadeCrudController extends CrudController
             ],
             [ // select2_from_array
                 'name' => 'ugprimaria',
-                'label' => 'UG Primária',
+                'label' => 'UG/UASG Padrão',
                 'type' => 'select2_from_array',
                 'options' => $ug,
                 'allows_null' => true,
@@ -220,7 +204,7 @@ class UsuarioUnidadeCrudController extends CrudController
                 'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [       // Select2Multiple = n-n relationship (with pivot table)
-                'label' => 'UG´s Secundárias',
+                'label' => 'Demais UGs/UASGs',
                 'type' => 'select2_multiple',
                 'name' => 'unidades', // the method that defines the relationship in your Model
                 'entity' => 'unidades', // the method that defines the relationship in your Model
@@ -342,4 +326,5 @@ class UsuarioUnidadeCrudController extends CrudController
             return $redirect_location;
         }
     }
+
 }
