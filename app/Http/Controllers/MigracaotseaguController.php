@@ -23,18 +23,18 @@ class MigracaotseaguController extends Controller
     public function tratardadosmigracaotseagu(){
         set_time_limit(0);
         echo '<br><br>iniciando migração...<br><br>';
-        self::migrarFornecedores();
-        self::migrarUsersCpf();
-        self::migrarUsersEmail();
+        // self::migrarFornecedores();
+        // self::migrarUsersCpf();
+        // self::migrarUsersEmail();
         self::migrarCodigoitem();
-        self::migrarAppVersion();
-        self::migrarCentrocusto();
-        self::migrarCodigo();
-        self::migrarJustificativafatura();
-        self::migrarTipolistafatura();
-        self::migrarNaturezadespesa();
-        self::migrarNaturezasubitem();
-        self::migrarOrgaosuperior();
+        // self::migrarAppVersion();
+        // self::migrarCentrocusto();
+        // self::migrarCodigo();
+        // self::migrarJustificativafatura();
+        // self::migrarTipolistafatura();
+        // self::migrarNaturezadespesa();
+        // self::migrarNaturezasubitem();
+        // self::migrarOrgaosuperior();
         echo '<br><br>migração finalizada.';
     }
     public function migrarOrgaosuperior(){
@@ -222,7 +222,7 @@ class MigracaotseaguController extends Controller
         return $dados;
     }
     public function getIdCodigoitemByDescricao($descricao){
-        $dados = Codigoitem::select('id')
+        $dados = Codigoitem::select('id', 'codigo_id')
         ->where('descricao', '=', $descricao)
         ->orderBy('id')
         ->get();
@@ -544,9 +544,16 @@ class MigracaotseaguController extends Controller
             $quantidadeIds = count($arrayIdsCodigoitemByDescricao);
             if($quantidadeIds > 1){
                 $idValido = $arrayIdsCodigoitemByDescricao[0]->id;
+                $codigoIdValido = $arrayIdsCodigoitemByDescricao[0]->codigo_id;
+
                 $idInvalido = $arrayIdsCodigoitemByDescricao[1]->id;
-                echo ' ==> '.$idValido.' - '.$idInvalido;
-                if($idInvalido > 55000000){
+                $codigoIdInvalido = $arrayIdsCodigoitemByDescricao[1]->codigo_id;
+
+                echo '<br>Dados válidos: id = '.$idValido.' codigoIdValido = '.$codigoIdValido;
+                echo '<br>Dados inválidos: id = '.$idInvalido.' codigoIdInvalido = '.$codigoIdInvalido;
+
+                if($idInvalido > 55000000 && ($codigoIdInvalido == $codigoIdValido) ){
+                    echo '<br>Vai alterar...';
                     // aqui já temos os ids válidos e inválidos
                     // vamos buscar as tabelas que têm fornecedor_id
                     // $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('fornecedor_id');
@@ -570,9 +577,14 @@ class MigracaotseaguController extends Controller
                     self::atualizarIdInvalidoParaIdValido('tipo_id', 'contratos', $idInvalido, $idValido);
                     self::atualizarIdInvalidoParaIdValido('modalidade_id', 'contratos', $idInvalido, $idValido);
                     // aqui já podemos excluir o registro com id inválido
-                    if(!self::excluirCodigoitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}                } else {
-                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
+                    if(!self::excluirCodigoitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else if($idInvalido > 55000000 && ($codigoIdInvalido != $codigoIdValido) ){
+                    echo '<br>Apesar do id ser > 55000000, o codigo_id é diferente - Não vai alterar.';
+                } else{
+                    echo '<br>O código é < 55000000.';
                 }
+
+
             } else {
                 echo '<br>Só retornou um.';
             }
