@@ -437,7 +437,7 @@ class EmpenhoCrudController extends CrudController
         }
 
         if (backpack_user()) {
-            Alert::success('Migração de Empenhos em Andamento!')->flash();
+            \Alert::success('Migração de Empenhos em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
     }
