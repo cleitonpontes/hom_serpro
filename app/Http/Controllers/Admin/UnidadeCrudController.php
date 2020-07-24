@@ -27,6 +27,7 @@ class UnidadeCrudController extends CrudController
      */
     public function setup()
     {
+
         if (backpack_user()->hasRole('Administrador') or backpack_user()->hasRole('Administrador Órgão') or backpack_user()->hasRole('Administrador Unidade')) {
 
             /*
@@ -43,6 +44,8 @@ class UnidadeCrudController extends CrudController
             $this->crud->denyAccess('update');
             $this->crud->denyAccess('delete');
             $this->crud->allowAccess('show');
+
+            $this->crud->addClause('orderBy', 'nomeresumido');
 
             (backpack_user()->hasRole('Administrador')) ? $this->crud->addButtonFromView('top', 'atualizaunidade',
                 'atualizaunidade', 'end') : null;
@@ -78,13 +81,11 @@ class UnidadeCrudController extends CrudController
         } else {
             abort('403', config('app.erro_permissao'));
         }
-
     }
 
     public function Colunas()
     {
         $colunas = [
-
             [
                 'name' => 'codigosiasg',
                 'label' => 'UASG SIASG', // Table column heading
@@ -153,7 +154,6 @@ class UnidadeCrudController extends CrudController
 ////                    });
 ////                },
 //            ],
-
             [
                 'name' => 'nome',
                 'label' => 'Nome', // Table column heading
@@ -231,7 +231,6 @@ class UnidadeCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
-
             [
                 'name' => 'situacao',
                 'label' => 'Situação',
@@ -248,12 +247,10 @@ class UnidadeCrudController extends CrudController
         ];
 
         return $colunas;
-
     }
 
     public function Campos($orgaos)
     {
-
         $campos = [
             [ // select_from_array
                 'name' => 'orgao_id',
@@ -343,12 +340,10 @@ class UnidadeCrudController extends CrudController
                 'options' => [1 => 'Ativo', 0 => 'Inativo'],
                 'allows_null' => false,
             ],
-
         ];
 
         return $campos;
     }
-
 
     public function store(StoreRequest $request)
     {

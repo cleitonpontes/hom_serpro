@@ -45,6 +45,8 @@ class OrgaoCrudController extends CrudController
             $this->crud->denyAccess('delete');
             $this->crud->allowAccess('show');
 
+            $this->crud->addClause('orderBy', 'nome');
+
             (backpack_user()->hasRole('Administrador')) ? $this->crud->addButtonFromView('top', 'atualizaorgao',
                 'atualizaorgao', 'end') : null;
 
@@ -161,12 +163,10 @@ class OrgaoCrudController extends CrudController
         ];
 
         return $colunas;
-
     }
 
     public function Campos($orgaossuperiores)
     {
-
         $campos = [
             [ // select_from_array
                 'name' => 'orgaosuperior_id',
