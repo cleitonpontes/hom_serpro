@@ -167,7 +167,7 @@ class ContratoCrudController extends CrudController
             'label' => 'Unidades Requisitantes',
             'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
@@ -216,7 +216,7 @@ class ContratoCrudController extends CrudController
             'type' => 'model_function',
             'function_name' => 'getFornecedor', // the method in your Model
             'orderable' => true,
-            'limit' => 1000,
+            'limit' => 50,
             'visibleInTable' => true, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
@@ -347,7 +347,7 @@ class ContratoCrudController extends CrudController
             'label' => 'Situação',
             'type' => 'boolean',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
@@ -371,7 +371,7 @@ class ContratoCrudController extends CrudController
             'label' => 'Atualizado em',
             'type' => 'datetime',
             'orderable' => true,
-            'visibleInTable' => false,
+            'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
