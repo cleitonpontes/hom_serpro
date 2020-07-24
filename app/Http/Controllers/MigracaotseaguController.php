@@ -11,6 +11,7 @@ use App\Models\AppVersion;
 use App\Models\Centrocusto;
 use App\Models\Codigo;
 use App\Models\Justificativafatura;
+use App\Models\Tipolistafatura;
 
 use Illuminate\Http\Request;
 
@@ -27,23 +28,24 @@ class MigracaotseaguController extends Controller
         self::migrarCentrocusto();
         self::migrarCodigo();
         self::migrarJustificativafatura();
+        self::migrarTipolistafatura();
         echo '<br><br>migração finalizada.';
     }
-    public function migrarJustificativafatura(){
-        echo '<br><br>Preparando para tratar justificativa fatura...';
+    public function migrarTipolistafatura(){
+        echo '<br><br>Preparando para tratar tipolistafatura...';
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getDescricaoJustificativafaturaComDescricaoDuplicada();
+        $arrayDuplicados = self::getNomeTipolistafaturaComNomeDuplicado();
         $quantidadeDuplicados = count($arrayDuplicados);
         echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
         echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
             $cont++;
-            $duplicado = $itemDuplicado->descricao;
+            $duplicado = $itemDuplicado->nome;
             echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
             //aqui já temos os duplicados
             // para cada um vamos buscar o id invalido e o id válido
-            $arrayIds = self::getIdJustificativafaturaByDescricao($duplicado);
+            $arrayIds = self::getIdTipolistafaturaByNome($duplicado);
             $quantidadeIds = count($arrayIds);
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
@@ -64,14 +66,19 @@ class MigracaotseaguController extends Controller
                     echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
                     // aqui já sabemos quais tabelas possuem o justificativafatura_id
                     // vamos verificar se algum tem o justificativafatura_id inválido
-                    self::atualizarIdInvalidoParaIdValido('justificativafatura_id', $nomeTabela, $idInvalido, $idValido);
+                    self::atualizarIdInvalidoParaIdValido('tipolistafatura_id', $nomeTabela, $idInvalido, $idValido);
                 }
 
-                if(!self::excluirJustificativafaturaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                if(!self::excluirTipolistafaturaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
         }
+    }
+    public function excluirTipolistafaturaComIdInvalido($idExcluir){
+        echo '<br>Preparando para excluir tipolistafatura id = '.$idExcluir;
+        if(Tipolistafatura::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
     }
     public function excluirJustificativafaturaComIdInvalido($idExcluir){
         echo '<br>Preparando para excluir justificativafatura id = '.$idExcluir;
@@ -188,6 +195,13 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
+    public function getIdTipolistafaturaByNome($buscar){
+        $dados = Tipolistafatura::select('id')
+        ->where('nome', '=', $buscar)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
     public function getIdUserByCpf($cpf){
         $dados = User::select('id')
         ->where('cpf', '=', $cpf)
@@ -217,6 +231,14 @@ class MigracaotseaguController extends Controller
         return $dados;
     }
     // retorna os cpf dos users que possuem email duplicado na base
+    public function getNomeTipolistafaturaComNomeDuplicado(){
+        $dados = Tipolistafatura::select('nome')
+        ->groupBy('nome')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('nome')
+        ->get();
+        return $dados;
+    }
     public function getEmailUsersComEmailDuplicado(){
         $dados = User::select('email')
         ->groupBy('email')
@@ -570,6 +592,50 @@ class MigracaotseaguController extends Controller
                 }
 
                 if(!self::excluirCodigoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
+    public function migrarJustificativafatura(){
+        echo '<br><br>Preparando para tratar justificativa fatura...';
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getDescricaoJustificativafaturaComDescricaoDuplicada();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->descricao;
+            echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdJustificativafaturaByDescricao($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                // aqui já temos os ids válidos e inválidos
+                // vamos buscar as tabelas que têm codigo_id
+                $arrayTabelas = self::getNomesTabelasComByCampo('justificativafatura_id');
+                echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                foreach($arrayTabelas as $objDadosTabela){
+                    $nomeTabela = $objDadosTabela->table_name;
+                    echo '<br>'.$nomeTabela;
+                }
+                $contParar = 0;
+                foreach($arrayTabelas as $objDadosTabela){
+                    $contParar++;
+                    $nomeTabela = $objDadosTabela->table_name;
+                    echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                    // aqui já sabemos quais tabelas possuem o justificativafatura_id
+                    // vamos verificar se algum tem o justificativafatura_id inválido
+                    self::atualizarIdInvalidoParaIdValido('justificativafatura_id', $nomeTabela, $idInvalido, $idValido);
+                }
+
+                if(!self::excluirJustificativafaturaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
