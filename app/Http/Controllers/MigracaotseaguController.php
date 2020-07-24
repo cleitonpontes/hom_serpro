@@ -8,6 +8,7 @@ use App\User;
 use App\Models\Fornecedor;
 use App\Models\Codigoitem;
 use App\Models\AppVersion;
+use App\Models\Centrocusto;
 
 use Illuminate\Http\Request;
 
@@ -21,7 +22,40 @@ class MigracaotseaguController extends Controller
         self::migrarUsersEmail();
         self::migrarCodigoitem();
         self::migrarAppVersion();
+        self::migrarCentrocusto();
         echo '<br><br>migração finalizada.';
+    }
+
+    public function migrarCentrocusto(){
+        echo '<br><br>Preparando para tratar centrocusto...';
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getDescricaoCentrocustoComDescricaoDuplicada();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->descricao;
+            echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdCentrocustoByDescricao($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                if(!self::excluirCentrocustoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
+    public function excluirCentrocustoComIdInvalido($idExcluir){
+        echo '<br>Preparando para excluir centrocusto id = '.$idExcluir;
+        if(Centrocusto::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
     }
     public function excluirAppVersionComIdInvalido($idExcluir){
         echo '<br>Preparando para excluir app version id = '.$idExcluir;
@@ -123,6 +157,13 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
+    public function getIdCentrocustoByDescricao($buscar){
+        $dados = Centrocusto::select('id')
+        ->where('descricao', '=', $buscar)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
     public function getIdFornecedorByCpf($cpf){
         $dados = Fornecedor::select('id')
         ->where('cpf_cnpj_idgener', '=', $cpf)
@@ -136,6 +177,22 @@ class MigracaotseaguController extends Controller
         ->groupBy('email')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('email')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoCentrocustoComDescricaoDuplicada(){
+        $dados = Centrocusto::select('descricao')
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }
+    public function getFaseApropriacaofasesComFaseDuplicada(){
+        $dados = Apropriacaofases::select('fase')
+        ->groupBy('fase')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('fase')
         ->get();
         return $dados;
     }
@@ -360,6 +417,7 @@ class MigracaotseaguController extends Controller
             }
         }
     }
+    // app version não trata tabelas, só exclui
     public function migrarAppVersion(){
         echo '<br><br>Preparando para tratar app version...';
         // vamos buscar os duplicados
