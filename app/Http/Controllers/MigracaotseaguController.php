@@ -9,6 +9,7 @@ use App\Models\Fornecedor;
 use App\Models\Codigoitem;
 use App\Models\AppVersion;
 use App\Models\Centrocusto;
+use App\Models\Codigo;
 
 use Illuminate\Http\Request;
 
@@ -23,13 +24,13 @@ class MigracaotseaguController extends Controller
         self::migrarCodigoitem();
         self::migrarAppVersion();
         self::migrarCentrocusto();
+        self::migrarCodigo();
         echo '<br><br>migração finalizada.';
     }
-
-    public function migrarCentrocusto(){
-        echo '<br><br>Preparando para tratar centrocusto...';
+    public function migrarCodigo(){
+        echo '<br><br>Preparando para tratar codigo...';
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getDescricaoCentrocustoComDescricaoDuplicada();
+        $arrayDuplicados = self::getDescricaoCodigoComDescricaoDuplicada();
         $quantidadeDuplicados = count($arrayDuplicados);
         echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
         echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
@@ -40,17 +41,40 @@ class MigracaotseaguController extends Controller
             echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
             //aqui já temos os duplicados
             // para cada um vamos buscar o id invalido e o id válido
-            $arrayIds = self::getIdCentrocustoByDescricao($duplicado);
+            $arrayIds = self::getIdCodigoByDescricao($duplicado);
             $quantidadeIds = count($arrayIds);
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
                 echo ' ==> '.$idValido.' - '.$idInvalido;
-                if(!self::excluirCentrocustoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                // aqui já temos os ids válidos e inválidos
+                // vamos buscar as tabelas que têm codigo_id
+                $arrayTabelasComFornecedorId = self::getNomesTabelasComByCampo('codigo_id');
+                echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                foreach($arrayTabelasComFornecedorId as $objDadosTabela){
+                    $nomeTabela = $objDadosTabela->table_name;
+                    echo '<br>'.$nomeTabela;
+                }
+                $contParar = 0;
+                foreach($arrayTabelasComFornecedorId as $objDadosTabela){
+                    $contParar++;
+                    $nomeTabela = $objDadosTabela->table_name;
+                    echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                    // aqui já sabemos quais tabelas possuem o codigo_id
+                    // vamos verificar se algum tem o codigo_id inválido
+                    self::atualizarIdInvalidoParaIdValido('codigo_id', $nomeTabela, $idInvalido, $idValido);
+                }
+
+                if(!self::excluirCodigoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
             } else {
                 echo '<br>Só retornou um.';
             }
         }
+    }
+    public function excluirCodigoComIdInvalido($idExcluir){
+        echo '<br>Preparando para excluir codigo id = '.$idExcluir;
+        if(Codigo::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
     }
     public function excluirCentrocustoComIdInvalido($idExcluir){
         echo '<br>Preparando para excluir centrocusto id = '.$idExcluir;
@@ -129,6 +153,13 @@ class MigracaotseaguController extends Controller
             WHERE column_name = '$campo'
         ");
     }
+    public function getIdCodigoByDescricao($descricao){
+        $dados = Codigo::select('id')
+        ->where('descricao', '=', $descricao)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
     public function getIdCodigoitemByDescricao($descricao){
         $dados = Codigoitem::select('id')
         ->where('descricao', '=', $descricao)
@@ -180,7 +211,14 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
-    public function getDescricaoCentrocustoComDescricaoDuplicada(){
+    public function getDescricaoCodigoComDescricaoDuplicada(){
+        $dados = Codigo::select('descricao')
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }public function getDescricaoCentrocustoComDescricaoDuplicada(){
         $dados = Centrocusto::select('descricao')
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
@@ -444,5 +482,30 @@ class MigracaotseaguController extends Controller
             }
         }
     }
-
+    public function migrarCentrocusto(){
+        echo '<br><br>Preparando para tratar centrocusto...';
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getDescricaoCentrocustoComDescricaoDuplicada();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->descricao;
+            echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdCentrocustoByDescricao($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                if(!self::excluirCentrocustoComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
 }
