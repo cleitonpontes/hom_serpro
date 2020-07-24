@@ -397,6 +397,10 @@ class EmpenhoCrudController extends CrudController
 
     public function executaMigracaoEmpenho()
     {
+        $ano = date('Y');
+        if(date('md') == '0101' or date('md') == '0102'){
+            $ano = $ano - 1;
+        }
 
         // BUSCA AS UNIDADES COM EMPENHOS CRIADOS NOS ULTIMOS
         // CINCO DIAS A PARTIR DA DATA ENVIADA (PADRÃO HOJE)

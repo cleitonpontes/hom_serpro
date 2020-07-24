@@ -22,15 +22,17 @@ class MigracaoempenhoJob implements ShouldQueue
     public $timeout = 7200;
 
     protected $ug_codigo;
+    protected $ano;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(string $ug_codigo)
+    public function __construct(string $ug_codigo, $ano)
     {
         $this->ug_codigo = $ug_codigo;
+        $this->ano = $ano;
     }
 
     /**
@@ -43,7 +45,7 @@ class MigracaoempenhoJob implements ShouldQueue
         $unidade = Unidade::where('codigo', $this->ug_codigo)->first();
         $migracao_url = config('migracao.api_sta');
 
-        $url = $migracao_url . '/api/empenho/ano/' . date('Y') . '/ug/' . $unidade->codigo . '/dia';
+        $url = $migracao_url . '/api/empenho/ano/' . $this->ano . '/ug/' . $unidade->codigo . '/dia';
 
         $dados = $this->buscaDadosUrl($url);
 

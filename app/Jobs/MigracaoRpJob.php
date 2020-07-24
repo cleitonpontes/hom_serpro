@@ -47,7 +47,7 @@ class MigracaoRpJob implements ShouldQueue
 
         $migracao_url = config('migracao.api_sta');
 
-        $url = $migracao_url . '/api/rp/ug/' . $unidade->codigo;
+        $url = $migracao_url . '/api/rp/ug/' . $unidade->codigo . '/dia';
 
         $dados = $this->buscaDadosUrl($url);
 
