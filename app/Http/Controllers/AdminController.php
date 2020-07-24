@@ -6,7 +6,6 @@ use App\Forms\MeusdadosForm;
 use App\Forms\MudarUgForm;
 use App\Models\BackpackUser;
 use App\Models\CalendarEvent;
-use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Siasgcontrato;
 use App\Models\Unidade;
@@ -40,31 +39,40 @@ class AdminController extends Controller
      */
     public function index(Request $request, Builder $htmlBuilder)
     {
+        // ************************************************************
         // Configurações iniciais
+        // ************************************************************
         $this->htmlBuilder = $htmlBuilder;
         $this->data['title'] = "Início"; //trans('backpack::base.dashboard'); // set the page title
         $ug = session('user_ug');
 
+        // ************************************************************
         // Calendário
+        // ************************************************************
         $events = $this->getEvents();
 
         $calendar = \Calendar::addEvents($events)->setOptions([
             'first_day' => 1,
-//            'aspectRatio' => 2.5,
+            // 'aspectRatio' => 2.5,
         ])->setCallbacks([]);
 
+        // ************************************************************
         // Gráfico Contratos por Categoria
+        // ************************************************************
         $colors = $this->getColors();
-
         $categorias = $this->retornaCategorias();
         $contrato = $this->retornaContrato();
 
         $chartjs = $this->retornaGrafico($colors, $categorias, $contrato);
 
+        // ************************************************************
         // Empenhos sem Contrato
+        // ************************************************************
         $dadosContratos = $this->retornaDadosContratos();
 
+        // ************************************************************
         // Monta GRID Empenhos sem Contrato
+        // ************************************************************
         if ($request->ajax()) {
             $dt = DataTables::of($this->retornaDadosEmpenhosSemContratos());
 
@@ -99,6 +107,7 @@ class AdminController extends Controller
             'calendar' => $calendar,
             'data' => $this->data,
             'chartjs' => $chartjs,
+            'chartjsTotal' => array_sum($contrato),
             'html' => $dadosContratos,
             'ug' => $ug,
             'gridEmpenhos' => $gridEmpenhos,
@@ -175,6 +184,8 @@ class AdminController extends Controller
     private function retornaCategorias()
     {
         $categoriasContrato = $this->retornaCategoriasContrato();
+
+        //dd($categoriasContrato);
         $cats = array_unique($categoriasContrato);
 
         $categorias = [];
@@ -187,14 +198,13 @@ class AdminController extends Controller
 
     private function retornaCategoriasContrato()
     {
-        return Codigoitem::whereHas('codigo', function ($q) {
-            $q->where('descricao', '=', 'Categoria Contrato');
-        })
-            ->join('contratos', function ($join) {
-                $join->on('codigoitens.id', '=', 'contratos.categoria_id');
-            })
-            ->where('contratos.unidade_id', session()->get('user_ug_id'))
-            ->orderBy('codigoitens.id', 'asc')->pluck('descricao')->toArray();
+        $categorias = Contrato::where('unidade_id', session()->get('user_ug_id'));
+        $categorias->join('codigoitens as cat', 'cat.id', '=', 'categoria_id');
+        $categorias->selectRaw("concat(cat.descricao, ' (', count(cat.descricao), ')') as descricao");
+        $categorias->groupBy('cat.descricao');
+        $categorias->orderBy('cat.descricao');
+
+        return $categorias->pluck('descricao')->toArray();
     }
 
     private function retornaContrato()

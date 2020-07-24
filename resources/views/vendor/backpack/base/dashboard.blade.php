@@ -97,6 +97,9 @@
                 </div>
                 <div class="box-body">
                     {!! $chartjs->render() !!}
+                    <div class="text-center">
+                        Total: {{ $chartjsTotal }}
+                    </div>
                 </div>
             </div>
         </section>
