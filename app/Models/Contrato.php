@@ -15,9 +15,10 @@ class Contrato extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    // use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'contrato';
-//    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -26,9 +27,6 @@ class Contrato extends Model
     */
 
     protected $table = 'contratos';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'numero',
         'fornecedor_id',
@@ -57,10 +55,6 @@ class Contrato extends Model
         'situacao',
         'unidades_requisitantes',
     ];
-
-
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
@@ -133,7 +127,6 @@ class Contrato extends Model
 
     public function buscaListaContratosOrgao($filtro)
     {
-
         $unidade_user = Unidade::find(session()->get('user_ug_id'));
 
         $lista = $this->select([
@@ -188,7 +181,6 @@ class Contrato extends Model
 
     public function buscaListaTodosContratos($filtro)
     {
-
         $lista = $this->select([
             DB::raw('CONCAT("O"."codigo", \' - \', "O"."nome")  as orgao'),
             DB::raw('CONCAT("U"."codigo",\' - \',"U"."nomeresumido")  as unidade'),
@@ -270,7 +262,6 @@ class Contrato extends Model
 
     public function atualizaContratoFromHistorico(string $contrato_id, array $array)
     {
-
         $this->where('id', '=', $contrato_id)
             ->update($array);
 
@@ -292,7 +283,6 @@ class Contrato extends Model
     {
         $fornecedor = Fornecedor::find($this->fornecedor_id);
         return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
-
     }
 
     public function getReceitaDespesa()
@@ -320,7 +310,6 @@ class Contrato extends Model
         }
 
         return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
-
     }
 
     public function getOrgao()
@@ -330,7 +319,6 @@ class Contrato extends Model
         })->first();
 
         return $orgao->codigo . ' - ' . $orgao->nome;
-
     }
 
     public function getTipo()
@@ -342,17 +330,11 @@ class Contrato extends Model
         } else {
             return '';
         }
-
-
     }
-
 
     public function getCategoria()
     {
-        $categoria = Codigoitem::find($this->categoria_id);
-
-        return $categoria->descricao;
-
+        return $this->categoria->descricao;
     }
 
     public function getSubCategoria()
@@ -363,10 +345,7 @@ class Contrato extends Model
         } else {
             return '';
         }
-
-
     }
-
 
     public function formatVlrParcela()
     {
@@ -395,80 +374,57 @@ class Contrato extends Model
     */
     public function historico()
     {
-
         return $this->hasMany(Contratohistorico::class, 'contrato_id');
-
     }
 
     public function cronograma()
     {
-
         return $this->hasMany(Contratocronograma::class, 'contrato_id');
-
     }
-
 
     public function responsaveis()
     {
-
         return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
-
     }
 
     public function garantias()
     {
-
         return $this->hasMany(Contratogarantia::class, 'contrato_id');
-
     }
 
     public function arquivos()
     {
-
         return $this->hasMany(Contratoarquivo::class, 'contrato_id');
-
     }
 
     public function empenhos()
     {
-
         return $this->hasMany(Contratoempenho::class, 'contrato_id');
-
     }
 
     public function itens()
     {
-
         return $this->hasMany(Contratoitem::class, 'contrato_id');
-
     }
 
     public function faturas()
     {
-
         return $this->hasMany(Contratofatura::class, 'contrato_id');
-
     }
 
     public function ocorrencias()
     {
-
         return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
-
     }
 
     public function terceirizados()
     {
-
         return $this->hasMany(Contratoterceirizado::class, 'contrato_id');
-
     }
 
     public function unidade()
     {
-
         return $this->belongsTo(Unidade::class, 'unidade_id');
-
     }
 
     public function unidadeorigem()
