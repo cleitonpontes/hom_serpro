@@ -397,18 +397,43 @@ class EmpenhoCrudController extends CrudController
 
     public function executaMigracaoEmpenho()
     {
-        $unidades = Unidade::whereHas('contratos', function ($c) {
-            $c->where('situacao', true);
-        })
-            ->where('tipo', 'E')
-            ->where('situacao', true)
-            ->get();
 
-        foreach ($unidades as $unidade) {
-            MigracaoempenhoJob::dispatch($unidade->id);
-            MigracaoRpJob::dispatch($unidade->id);
-//            $this->migracaoEmpenho($unidade->id);
-//            $this->migracaoRp($unidade->id);
+        // BUSCA AS UNIDADES COM EMPENHOS CRIADOS NOS ULTIMOS
+        // CINCO DIAS A PARTIR DA DATA ENVIADA (PADRÃO HOJE)
+        $url = config('migracao.api_sta')
+            . '/api/unidade/empenho/' . date('Y');
+        $unidades = $this->buscaDadosUrl($url);
+
+        $unidadesAtivas =
+            Unidade::whereHas('contratos', function ($c) {
+                $c->where('situacao', true);
+            })
+                ->where('situacao', true)
+                ->select('codigo')
+                ->whereIn('codigo', $unidades)
+                ->get();
+
+        foreach ($unidadesAtivas as $unidade) {
+            MigracaoempenhoJob::dispatch($unidade->codigo);
+        }
+
+        // BUSCA AS UNIDADES COM RP CRIADOS NOS ULTIMOS
+        // CINCO DIAS A PARTIR DA DATA ENVIADA (PADRÃO HOJE)
+        $url = config('migracao.api_sta')
+            . '/api/unidade/rp';
+        $unidades = $this->buscaDadosUrl($url);
+
+        $unidadesAtivas =
+            Unidade::whereHas('contratos', function ($c) {
+                $c->where('situacao', true);
+            })
+                ->where('situacao', true)
+                ->select('codigo')
+                ->whereIn('codigo', $unidades)
+                ->get();
+
+        foreach ($unidadesAtivas as $unidade) {
+            MigracaoRpJob::dispatch($unidade->codigo);
         }
 
         if (backpack_user()) {
