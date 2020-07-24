@@ -47,6 +47,7 @@ class UsuarioCrudController extends CrudController
         (backpack_user()->can('usuario_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('usuario_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('usuario_deletar')) ? $this->crud->allowAccess('delete') : null;
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Columns
@@ -95,7 +96,7 @@ class UsuarioCrudController extends CrudController
             ],
             [
                 'name' => 'getUGPrimaria',
-                'label' => 'UG Primária', // Table column heading
+                'label' => 'UG/UASG Padrão',
                 'type' => 'model_function',
                 'function_name' => 'getUGPrimaria', // the method in your Model
                 'orderable' => true,
@@ -121,7 +122,6 @@ class UsuarioCrudController extends CrudController
 //                'model' => config('permission.models.permission'), // foreign key model
 //            ],
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -173,7 +173,7 @@ class UsuarioCrudController extends CrudController
             ],
             [
                 // 1-n relationship
-                'label' => "UG Primária", // Table column heading
+                'label' => "UG/UASG Padrão", // Table column heading
                 'type' => "select2_from_ajax",
                 'name' => 'ugprimaria', // the column that contains the ID of that connected entity
                 'entity' => 'ugPrimariaRelation', // the method that defines the relationship in your Model
@@ -188,7 +188,7 @@ class UsuarioCrudController extends CrudController
             ],
             [
                 // n-n relationship
-                'label' => "UG´s Secundárias", // Table column heading
+                'label' => "Demais UGs/UASGs", // Table column heading
                 'type' => "select2_from_ajax_multiple",
                 'name' => 'unidades', // the column that contains the ID of that connected entity
                 'entity' => 'unidades', // the method that defines the relationship in your Model
@@ -204,7 +204,7 @@ class UsuarioCrudController extends CrudController
             ],
 //            [ // select2_from_array
 //                'name' => 'ugprimaria',
-//                'label' => 'UG Primária',
+//                'label' => 'UG/UASG Padrão',
 //                'type' => 'select2_from_array',
 //                'options' => $ugs,
 //                'allows_null' => true,
@@ -212,7 +212,7 @@ class UsuarioCrudController extends CrudController
 //                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
 //            ],
 //            [       // Select2Multiple = n-n relationship (with pivot table)
-//                'label' => 'UG´s Secundárias',
+//                'label' => 'Demais UGs/UASGs',
 //                'type' => 'select2_multiple',
 //                'name' => 'unidades', // the method that defines the relationship in your Model
 //                'entity' => 'unidades', // the method that defines the relationship in your Model
@@ -276,12 +276,10 @@ class UsuarioCrudController extends CrudController
 //            ],
         ]);
 
-
         // add asterisk for fields that are required in UsuarioRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
-
     }
 
     public function store(StoreRequest $request)
@@ -328,4 +326,5 @@ class UsuarioCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
 }
