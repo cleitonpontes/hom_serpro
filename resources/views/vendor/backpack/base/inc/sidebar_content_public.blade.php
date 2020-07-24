@@ -40,5 +40,5 @@
     </ul>
 </li>
 @if (backpack_auth()->check())
-    <li><a href="{{ backpack_url('/inicio') }}"><i class="fa fa-reply"></i> <span>Voltar</span></a></li>
+{{--    <li><a href="{{ backpack_url('/inicio') }}"><i class="fa fa-reply"></i> <span>Voltar</span></a></li>--}}
 @endif

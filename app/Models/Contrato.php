@@ -33,6 +33,7 @@ class Contrato extends Model
         'numero',
         'fornecedor_id',
         'unidade_id',
+        'unidadeorigem_id',
         'tipo_id',
         'categoria_id',
         'subcategoria_id',
@@ -58,7 +59,7 @@ class Contrato extends Model
     ];
 
 
-    // protected $hidd = [];
+    // protected $hidden = [];
     // protected $dates = [];
 
     /*
@@ -310,6 +311,15 @@ class Contrato extends Model
     {
         $unidade = Unidade::find($this->unidade_id);
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+    }
+
+    public function getUnidadeOrigem()
+    {
+        if(!isset($this->unidadeorigem_id)){
+            return '';
+        }
+
+        return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
 
     }
 
@@ -333,7 +343,9 @@ class Contrato extends Model
             return '';
         }
 
+
     }
+
 
     public function getCategoria()
     {
@@ -352,22 +364,6 @@ class Contrato extends Model
             return '';
         }
 
-    }
-
-    public function getMailResponsaveis()
-    {
-
-        $dados = $this->select('email');
-        $dados->join('contratoresponsaveis as cr','cr.contrato_id' , '=', 'contratos.id');
-        $dados->join('users as u','u.id' , '=', 'cr.user_id');
-        $dados->where('contratos.id', $this->id);
-        $dados->where('cr.situacao', true);
-        $dados->where( function ($dados) {
-            $dados->where('cr.data_fim', '>=', date('Y-m-d'));
-            $dados->orWhere('cr.data_fim', null);
-        });
-
-        return $dados->pluck('email')->toArray();
 
     }
 
@@ -440,6 +436,13 @@ class Contrato extends Model
 
     }
 
+    public function itens()
+    {
+
+        return $this->hasMany(Contratoitem::class, 'contrato_id');
+
+    }
+
     public function faturas()
     {
 
@@ -466,6 +469,11 @@ class Contrato extends Model
 
         return $this->belongsTo(Unidade::class, 'unidade_id');
 
+    }
+
+    public function unidadeorigem()
+    {
+        return $this->belongsTo(Unidade::class, 'unidadeorigem_id');
     }
 
     public function fornecedor()

@@ -4,7 +4,9 @@
     <section class="content-header">
         <h1>
             Início
-            <small>Comprasnet Contratos</small>
+            <small>
+                {{ $dataHoraAtualizacao ? 'Atualizado em: ' . $dataHoraAtualizacao : '' }}
+            </small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>
@@ -135,7 +137,7 @@
                     <div class="box box-solid">
                         <div class="box-header with-border">
                             <i class="fa fa-bar-chart"></i>
-                            <h3 class="box-title">Empenhos sem Contrato: {{ $ug }}</h3>
+                            <h3 class="box-title">Empenhos sem contratos vinculados UG: {{ $ug }}</h3>
 
                             <div class="box-tools pull-right">
                                 <button type="button" class="btn btn-box-tool" data-widget="collapse">
@@ -167,7 +169,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                     <h4 class="modal-title ">
-                        Empenhos sem Contrato: {{ $ug }}
+                        Empenhos sem contratos vinculados UG: {{ $ug }}
                     </h4>
                 </div>
                 <div class="modal-body">

@@ -9,12 +9,7 @@ use App\Models\Saldohistoricoitem;
 
 class ContratoitemObserver
 {
-    /**
-     * Handle the contratoitem "created" event.
-     *
-     * @param \App\Contratoitem $contratoitem
-     * @return void
-     */
+
     public function created(Contratoitem $contratoitem)
     {
         $contratohistorico = Contratohistorico::whereHas('tipo', function ($query) {

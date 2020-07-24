@@ -84,24 +84,27 @@ class UnidadeCrudController extends CrudController
     public function Colunas()
     {
         $colunas = [
+
             [
-                'name' => 'getOrgao',
-                'label' => 'Órgão', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getOrgao', // the method in your Model
+                'name' => 'codigosiasg',
+                'label' => 'UASG SIASG', // Table column heading
+                'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('orgaossuperiores.codigo', 'like', "%$searchTerm%");
-//                    $query->orWhere('orgaossuperiores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
 //                },
             ],
             [
                 'name' => 'codigo',
-                'label' => 'Código SIAFI', // Table column heading
+                'label' => 'UG SIAFI', // Table column heading
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -133,23 +136,24 @@ class UnidadeCrudController extends CrudController
 //                    });
 //                },
             ],
-            [
-                'name' => 'codigosiasg',
-                'label' => 'Código SIASG', // Table column heading
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
-            ],
+//            [
+//                'name' => 'codigosiasg',
+//                'label' => 'UASG SIASG', // Table column heading
+//                'type' => 'text',
+//                'orderable' => true,
+//                'visibleInTable' => true, // no point, since it's a large text
+//                'visibleInModal' => true, // would make the modal too big
+//                'visibleInExport' => true, // not important enough
+//                'visibleInShow' => true, // sure, why not
+////                'searchLogic' => function ($query, $column, $searchTerm) {
+////                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+////                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+////                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+////                            ->orWhereDate('depart_at', '=', date($searchTerm));
+////                    });
+////                },
+//            ],
+
             [
                 'name' => 'nome',
                 'label' => 'Nome', // Table column heading
@@ -185,6 +189,21 @@ class UnidadeCrudController extends CrudController
 //                },
             ],
             [
+                'name' => 'getOrgao',
+                'label' => 'Órgão', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getOrgao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+//                    $query->orWhere('orgaossuperiores.codigo', 'like', "%$searchTerm%");
+//                    $query->orWhere('orgaossuperiores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+//                },
+            ],
+            [
                 'name' => 'telefone',
                 'label' => 'Telefone', // Table column heading
                 'type' => 'text',
@@ -212,6 +231,7 @@ class UnidadeCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+
             [
                 'name' => 'situacao',
                 'label' => 'Situação',

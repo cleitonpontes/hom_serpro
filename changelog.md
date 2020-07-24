@@ -2,6 +2,28 @@
 
 Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
+## [5.1.0]- xx/xx/2020
+
+### Integração
+- Integração com SIASG para retorno de contratos por compra (Issue #96)
+- Integração com SIAFI Web para trazer documento hábil como padrão para Apropriações (Issue #92)
+
+### Implementação
+- Campo de telefone para responsável do contrato e terceirizado (Issue #86);
+- Contrato X Status do processo (Issue #99);
+
+### Melhoria
+- Adicionar informação de empenhos na consulta de contratos do transparência  (Issue #40);
+- Criação do campo Unidade Gestora Origem no formulário de contratos e instrumento inicial  (Complementação da Issue #96);
+- Alteração do número do contrato para o formato 99999/9999  (Issue #93);
+- Alteração do número da licitação para o formato 99999/9999  (Issue #105);
+- Melhoria na usabilidade do menu principal (Issue #104);
+
+### Bug
+- Correção Bug em Sub-rogação no campo unidadeorigem_id (issue fix #108);
+- Correção Bug em Contrato X Responsáveis (issue fix #12);
+- Correção Bug campo fornecedor do formulário de Contratos X Empenhos (issue fix #110);
+
 ## [5.0.29]- 07/07/2020
 
 ### Implementação
@@ -75,7 +97,7 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 ### Bug
 - Correção de erro do atributo2 no formulário select2_from_ajax.
 
-## [5.0.23]- 13/04/2020
+## [5.0.23]- 16/04/2020
 
 ### Bug
 - Correção de erro na edição dos Empenhos vinculados aos contratos.

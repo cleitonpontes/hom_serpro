@@ -31,7 +31,7 @@ class ContratosfpadraoRequest extends FormRequest
             'decricaopadrao' => 'required',
             'codugemit' => 'required',
             'anodh' => 'required|max:4',
-            'codtipodh' => 'required|max:2',
+            'codtipodh' => 'required|max:2|min:2',
             'numdh' => 'required|numeric|min:1|max:999999',
             'tipo' => 'required|max:1',
             'situacao' => 'required|max:1'

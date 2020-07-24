@@ -23,9 +23,9 @@ class LimpaActivityLogJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(){
+    public function __construct(){   
         $this->dias = -30;
-        $this->date = Carbon::parse(Carbon::now())->addDays($this->dias);
+        $this->date = Carbon::parse(Carbon::now())->addDays($this->dias)->format('d-m-Y');
     }
 
     /**
@@ -37,9 +37,9 @@ class LimpaActivityLogJob implements ShouldQueue
 
         DB::transaction(function () {
             $this->populaActivityLogExpurgo();
-            $this->removeActivityLog();
+            $this->removeActivityLog();    
         });
-
+        
     }
 
     private function populaActivityLogExpurgo(){

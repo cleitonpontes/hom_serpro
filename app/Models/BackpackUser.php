@@ -122,4 +122,9 @@ class BackpackUser extends User
         return $this->belongsTo(Unidade::class, 'ugprimaria');
     }
 
+    public function contratoSfPadrao()
+    {
+        return $this->hasMany(Contratosfpadrao::class, 'user_id');
+    }
+
 }

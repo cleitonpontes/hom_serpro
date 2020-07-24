@@ -21,6 +21,11 @@
     @endif
 </div>
 
+@push('crud_fields_scripts')
+    <script type="text/javascript">
+        $('#{{ $field['name'] }}').mask('**********');
+    </script>
+@endpush
 
 
 

@@ -31,6 +31,8 @@ class Contratoresponsavel extends ContratoBase
         'situacao',
         'data_inicio',
         'data_fim',
+        'telefone_fixo',
+        'telefone_celular',
     ];
 
     /*

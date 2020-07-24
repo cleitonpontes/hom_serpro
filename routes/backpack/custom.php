@@ -29,6 +29,10 @@ Route::group([
             Route::get('empenho/{id}', 'EmpenhoController@show');
             Route::get('unidade', 'UnidadeController@index');
             Route::get('unidade/{id}', 'UnidadeController@show');
+            Route::get('fornecedor', 'FornecedorController@index');
+            Route::get('fornecedor/{id}', 'FornecedorController@show');
+            Route::get('comprasiasg', 'ComprasiasgController@index');
+            Route::get('comprasiasg/{id}', 'ComprasiasgController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
             Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
             Route::get('catmatseritem', 'CatmatseritemController@index');
@@ -136,6 +140,23 @@ Route::group([
             CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
 
+
+
+            Route::group([
+                'prefix' => 'siasg',
+                'namespace' => 'Siasg',
+                ], function () {
+                CRUD::resource('compras', 'SiasgcompraCrudController');
+                CRUD::resource('contratos', 'SiasgcontratoCrudController');
+
+
+                Route::get('apisiasg', 'SiasgcompraCrudController@apisiasg');
+                Route::get('inserircompras', 'SiasgcompraCrudController@inserirComprasEmMassa');
+                Route::get('inserircontratos', 'SiasgcontratoCrudController@verificarContratosPendentes');
+
+
+            });
+
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
@@ -149,6 +170,7 @@ Route::group([
                 CRUD::resource('itens', 'ContratoitemCrudController');
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');
+                CRUD::resource('status', 'ContratostatusprocessoCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 

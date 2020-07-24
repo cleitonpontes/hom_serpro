@@ -620,5 +620,4 @@ class ConsultaocorrenciaCrudController extends CrudController
 
         return $dados->pluck('descricao', 'id')->toArray();
     }
-
 }

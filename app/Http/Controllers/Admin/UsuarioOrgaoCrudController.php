@@ -130,11 +130,11 @@ class UsuarioOrgaoCrudController extends CrudController
                 'visibleInShow' => true,
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     if (strtolower($searchTerm) == 'inativo') {
-                        $query->orWhere('situacao', 0);
+                        $query->orWhere('users.situacao', 0);
                     }
 
                     if (strtolower($searchTerm) == 'ativo') {
-                        $query->orWhere('situacao', 1);
+                        $query->orWhere('users.situacao', 1);
                     }
                 }
             ],

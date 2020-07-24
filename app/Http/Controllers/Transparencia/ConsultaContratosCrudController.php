@@ -249,6 +249,17 @@ class ConsultaContratosCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'getUnidadeOrigem',
+                'label' => 'Unidade Gestora Origem', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getUnidadeOrigem', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'getUnidade',
                 'label' => 'Unidade Gestora', // Table column heading
                 'type' => 'model_function',
@@ -449,6 +460,15 @@ class ConsultaContratosCrudController extends CrudController
                 'name' => 'historico',
                 'label' => 'Histórico',
                 'type' => 'contratohistoricotable',
+                'visibleInTable' => false,
+                'visibleInModal' => false, // would make the modal too big
+                'visibleInExport' => false, // not important enough
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'empenho',
+                'label' => 'Empenhos',
+                'type' => 'empenhotable',
                 'visibleInTable' => false,
                 'visibleInModal' => false, // would make the modal too big
                 'visibleInExport' => false, // not important enough

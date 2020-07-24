@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Jobs\AtualizaSfPadraoJob;
+use App\Models\BackpackUser;
 use App\Models\Contrato;
+use App\Models\Contratosfpadrao;
 use App\Models\Unidade;
+use App\XML\Execsiafi;
+use App\XML\PadroesExecSiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -92,6 +97,8 @@ class ContratosfpadraoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $request->request->set('situacao', 'P');
+        $request->request->set('msgretorno', '');
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -243,6 +250,7 @@ class ContratosfpadraoCrudController extends CrudController
                             'type' => 'codtipodh',
                             'attributes' => [
                                 'onkeyup' => "maiuscula(this)",
+                                'maxlength' => '2'
                             ]
                         ],
                         [
@@ -261,13 +269,42 @@ class ContratosfpadraoCrudController extends CrudController
                             'default' => 'P',
                         ],
                         [  // Hidden
+                            'name' => 'msgretorno',
+                            'type' => 'hidden',
+                            'default' => '',
+                        ],
+                        [  // Hidden
                             'name' => 'situacao',
                             'type' => 'hidden',
                             'default' => 'P',
+                        ],
+                        [  // Hidden
+                            'name' => 'user_id',
+                            'type' => 'hidden',
+                            'default' => backpack_user()->id,
                         ],
                     ];
 
 
         return $campos;
     }
+
+
+    public function executaJobAtualizacaoSfPadrao()
+    {
+        $modSfPadrao = $this->buscaPadroesPendentes();
+        foreach ($modSfPadrao as $sfpadrao){
+            if(isset($sfpadrao->id)){
+                AtualizaSfPadraoJob::dispatch($sfpadrao)->onQueue('sfpadrao');
+            }
+        }
+    }
+
+    private function buscaPadroesPendentes()
+    {
+        $modSfPadrao = Contratosfpadrao::where('situacao','P')->where('categoriapadrao','EXECFATURAPADRAO')->get();
+        return $modSfPadrao;
+    }
+
+
 }
