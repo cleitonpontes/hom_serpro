@@ -13,10 +13,12 @@ class AlterCollunNameSfdoccontabilizacaoTable extends Migration
      */
     public function up()
     {
-        Schema::table('sfdoccontabilizacao', function (Blueprint $table) {
-            $table->dropColumn('numcodcont');
-            $table->string('numdoccont')->nullable();
-        });
+        if(Schema::hasColumn('sfdoccontabilizacao','numcodcont')){
+            Schema::table('sfdoccontabilizacao', function (Blueprint $table) {
+                $table->dropColumn('numcodcont');
+                $table->string('numdoccont')->nullable();
+            });
+        }
     }
 
     /**
