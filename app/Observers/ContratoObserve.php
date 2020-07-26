@@ -42,11 +42,14 @@ class ContratoObserve
         unset($contrato_array['numero']);
         unset($contrato_array['tipo_id']);
 
-        Contratohistorico::where('unidade_id', $contrato->unidade_id)
-            ->where('contrato_id',)
+        $contratohistorico = $contrato->historico->where('unidade_id', $contrato->unidade_id)
+            ->where('contrato_id', $contrato->id)
             ->where('numero', $contrato->numero)
             ->whereIn('tipo_id', $tipos)
-            ->update($contrato_array);
+            ->first();
+
+        $contratohistorico->update($contrato_array);
+
     }
 
     public function deleted(Contrato $contrato)
