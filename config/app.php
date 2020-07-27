@@ -57,6 +57,8 @@ return [
     'situacao_pco' => 'PCO',
     'situacao_despesa_anular' => 'DESPESA_ANULAR',
     'erro_permissao' => 'Acesso negado - você não possui a permissão necessária para acessar esta página.<br \> <a href="javascript:history.back()" \'="">Voltar</a>',
+    'erro_token' => 'Acesso negado - token informado está errado.<br \> <a href="javascript:history.back()" \'="">Voltar</a>',
+    'carga_inicial_siasg_token' => env('CARGA_INICIAL_SIASG_TOKEN'),
 
     'situacao_fatura' => [
         "PEN" => 'Pendente',

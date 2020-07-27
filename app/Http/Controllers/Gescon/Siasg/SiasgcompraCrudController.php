@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gescon\Siasg;
 
 use App\Jobs\AtualizaSiasgCompraJob;
+use App\Jobs\CargaInicialSiasgComprasJob;
 use App\Models\Codigoitem;
 use App\Models\Siasgcompra;
 use App\Models\Unidade;
@@ -13,6 +14,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\SiasgcompraRequest as StoreRequest;
 use App\Http\Requests\SiasgcompraRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use http\Env\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -335,50 +337,9 @@ class SiasgcompraCrudController extends CrudController
 
     public function inserirComprasEmMassa()
     {
-        $file = fopen('C:\Users\heles.junior\Desktop\compras\dados_todas_compras.txt', "r");
-        $compras = new Siasgcompra;
-        $dados = [];
-        while (!feof($file)) {
-            $line = fgets($file);
-
-            $unidade = Unidade::where('codigosiasg', substr($line, 0, 6))
-                ->first();
-
-            $modalidade = Codigoitem::whereHas('codigo', function ($c) {
-                $c->where('descricao', '=', 'Modalidade Licitação');
-            })
-                ->where('descres', substr($line, 6, 2))
-                ->first();
-
-            $numero = substr($line, 8, 5);
-            $ano = substr($line, 13, 4);
-
-            if(isset($unidade->id)){
-                $busca = $compras->where('unidade_id', $unidade->id)
-                    ->where('modalidade_id', $modalidade->id)
-                    ->where('ano', $ano)
-                    ->where('numero', $numero)
-                    ->first();
-
-                if (!isset($busca->id)) {
-                    $dados = [
-                        'unidade_id' => $unidade->id,
-                        'modalidade_id' => $modalidade->id,
-                        'ano' => $ano,
-                        'numero' => $numero,
-                        'situacao' => 'Pendente'
-                    ];
-
-                    $compranova = new Siasgcompra();
-                    $compranova->fill($dados);
-                    $compranova->save();
-                }
-            }
-        }
-        fclose($file);
+        CargaInicialSiasgComprasJob::dispatch()->onQueue('cargasiasgcompra');
 
         \Alert::success('Compras importadss com sucesso!')->flash();
-
         return redirect('/gescon/siasg/compras');
     }
 
@@ -386,8 +347,8 @@ class SiasgcompraCrudController extends CrudController
     {
         $siasgcompras = $this->buscaComprasPendentes();
 
-        foreach ($siasgcompras as $siasgcompra){
-            if(isset($siasgcompra->id)){
+        foreach ($siasgcompras as $siasgcompra) {
+            if (isset($siasgcompra->id)) {
                 AtualizaSiasgCompraJob::dispatch($siasgcompra)->onQueue('siasgcompra');
             }
         }
@@ -395,7 +356,7 @@ class SiasgcompraCrudController extends CrudController
 
     private function buscaComprasPendentes()
     {
-        $compras = Siasgcompra::where('situacao','Pendente');
+        $compras = Siasgcompra::where('situacao', 'Pendente');
         return $compras->get();
     }
 
