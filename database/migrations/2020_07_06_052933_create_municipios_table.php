@@ -37,4 +37,5 @@ class CreateMunicipiosTable extends Migration
     {
         Schema::dropIfExists('municipios');
     }
+
 }

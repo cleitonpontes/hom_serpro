@@ -16,7 +16,7 @@ class CreateEstadosTable extends Migration
         Schema::create('estados', function (Blueprint $table) {
             $table->increments('id');
             $table->char('sigla', 2)->unique();
-            $table->string('descricao');
+            $table->string('nome');
             // Tipo (Código Itens): Norte, Nordeste, Centro-Oeste, Sudeste e Sul
             $table->integer('regiao_id')->nullable();
             $table->string('latitude')->nullable();
@@ -37,4 +37,5 @@ class CreateEstadosTable extends Migration
     {
         Schema::dropIfExists('estados');
     }
+
 }

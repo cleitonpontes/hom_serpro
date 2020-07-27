@@ -42,11 +42,12 @@ class AddRipToInstalacoesTable extends Migration
                 'tipo_id',
                 'endereco',
                 'bairro',
-                'cidade_id',
-                'uf',
+                'municipio_id',
+                // 'uf',
                 'latitude',
                 'longitude'
             ]);
         });
     }
+
 }
