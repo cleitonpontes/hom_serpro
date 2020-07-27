@@ -15,6 +15,7 @@ use App\Models\Tipolistafatura;
 use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Orgaosuperior;
+use App\Models\Rhrubrica;
 
 use Illuminate\Http\Request;
 
@@ -22,7 +23,7 @@ class MigracaotseaguController extends Controller
 {
     public function tratardadosmigracaotseagu(){
         set_time_limit(0);
-        echo '<br><br>iniciando migração...<br><br>';
+        echo '<br><br>iniciando tratamento de dados...<br><br>';
         self::migrarFornecedores();
         self::migrarUsersCpf();
         self::migrarUsersEmail();
@@ -35,23 +36,25 @@ class MigracaotseaguController extends Controller
         self::migrarNaturezadespesa();
         self::migrarNaturezasubitem();
         self::migrarOrgaosuperior();
-        echo '<br><br>migração finalizada.';
+        self::migrarRhrubrica();
+        echo '<br><br>tratamento finalizado.';
     }
-    public function migrarOrgaosuperior(){
-        echo '<br><br>Preparando para tratar orgaosuperior...';
+    public function migrarRhrubrica(){
+        echo '<br><br>Preparando para tratar rhrubrica...';
+        $nomeChaveEstrangeira = 'rhrubrica_id';
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getNomeOrgaosuperiorComNomeDuplicado();
+        $arrayDuplicados = self::getDescricaoRhrubricaComDescricaoDuplicada();
         $quantidadeDuplicados = count($arrayDuplicados);
         echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
         echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
             $cont++;
-            $duplicado = $itemDuplicado->nome;
+            $duplicado = $itemDuplicado->descricao;
             echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
             //aqui já temos os duplicados
             // para cada um vamos buscar o id invalido e o id válido
-            $arrayIds = self::getIdOrgaosuperiorByNome($duplicado);
+            $arrayIds = self::getIdRhrubricaByDescricao($duplicado);
             $quantidadeIds = count($arrayIds);
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
@@ -60,12 +63,13 @@ class MigracaotseaguController extends Controller
                 if($idInvalido > 55000000){
                     // aqui já temos os ids válidos e inválidos
                     // vamos buscar as tabelas que têm codigo_id
-                    $arrayTabelas = self::getNomesTabelasComByCampo('orgaosuperior_id');
+                    $arrayTabelas = self::getNomesTabelasComByCampo($nomeChaveEstrangeira);
                     echo '<br><br>Vai atualizar as seguintes tabelas: ';
                     foreach($arrayTabelas as $objDadosTabela){
                         $nomeTabela = $objDadosTabela->table_name;
                         echo '<br>'.$nomeTabela;
                     }
+                    // exit;
                     $contParar = 0;
                     foreach($arrayTabelas as $objDadosTabela){
                         $contParar++;
@@ -73,10 +77,10 @@ class MigracaotseaguController extends Controller
                         echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
                         // aqui já sabemos quais tabelas possuem o id
                         // vamos verificar se algum tem o id inválido
-                        self::atualizarIdInvalidoParaIdValido('orgaosuperior_id', $nomeTabela, $idInvalido, $idValido);
+                        self::atualizarIdInvalidoParaIdValido($nomeChaveEstrangeira, $nomeTabela, $idInvalido, $idValido);
                     }
 
-                    if(!self::excluirOrgaosuperiorComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                    if(!self::excluirRhrubricaComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
                 } else {
                     echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
@@ -85,6 +89,11 @@ class MigracaotseaguController extends Controller
                 echo '<br>Só retornou um.';
             }
         }
+    }
+    public function excluirRhrubricaComIdInvalido($idExcluir){
+        echo '<br>Preparando para excluir rhrubrica id = '.$idExcluir;
+        if(Rhrubrica::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
     }
     public function excluirOrgaosuperiorComIdInvalido($idExcluir){
         echo '<br>Preparando para excluir orgaosuperior id = '.$idExcluir;
@@ -207,6 +216,13 @@ class MigracaotseaguController extends Controller
         ->get();
         return $dados;
     }
+    public function getIdRhrubricaByDescricao($descricao){
+        $dados = Rhrubrica::select('id')
+        ->where('descricao', '=', $descricao)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
     public function getIdNaturezadespesaByDescricao($descricao){
         $dados = Naturezadespesa::select('id')
         ->where('descricao', '=', $descricao)
@@ -298,6 +314,14 @@ class MigracaotseaguController extends Controller
         ->groupBy('email')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('email')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoRhrubricaComDescricaoDuplicada(){
+        $dados = Rhrubrica::select('descricao')
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao')
         ->get();
         return $dados;
     }
@@ -526,6 +550,7 @@ class MigracaotseaguController extends Controller
             }
         }
     }
+    // várias verificações
     public function migrarCodigoitem(){
         echo '<br><br>Preparando para tratar codigoitem...';
         // vamos buscar os codigoitens com descricao duplicads
@@ -881,6 +906,55 @@ class MigracaotseaguController extends Controller
                     }
 
                     if(!self::excluirNaturezasubitemComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
+                } else {
+                    echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
+                }
+
+            } else {
+                echo '<br>Só retornou um.';
+            }
+        }
+    }
+    public function migrarOrgaosuperior(){
+        echo '<br><br>Preparando para tratar orgaosuperior...';
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getNomeOrgaosuperiorComNomeDuplicado();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        echo '<br>Qtd encontrada: '.$quantidadeDuplicados;
+        echo '<br>Atenção! Caso busque diretamente na base, lembrar do deleted at.';
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->nome;
+            echo '<br><br>'.$cont.' -> '.$duplicado.'<br>';
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdOrgaosuperiorByNome($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                echo ' ==> '.$idValido.' - '.$idInvalido;
+                if($idInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelas = self::getNomesTabelasComByCampo('orgaosuperior_id');
+                    echo '<br><br>Vai atualizar as seguintes tabelas: ';
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br>'.$nomeTabela;
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        echo '<br><br>Preparando para atualizar tabela : '.$nomeTabela;
+                        // aqui já sabemos quais tabelas possuem o id
+                        // vamos verificar se algum tem o id inválido
+                        self::atualizarIdInvalidoParaIdValido('orgaosuperior_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+
+                    if(!self::excluirOrgaosuperiorComIdInvalido($idInvalido)){echo 'erro(1)'; exit;}
                 } else {
                     echo '<br>Não fez nada, pois o idInválido não era > 55000000.';
                 }
