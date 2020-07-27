@@ -23,7 +23,7 @@ class OrgaoconfiguracaoCrudController extends CrudController
         $orgao_id = \Route::current()->parameter('orgao_id');
 
         $orgao = Orgao::find($orgao_id);
-        if (!$orgao or !(backpack_user()->hasRole('Administrador'))) {
+        if (!$orgao or (!(backpack_user()->hasRole('Administrador')) and (backpack_user()->hasRole('Administrador Órgão') and backpack_user()->unidade->sisg))) {
             abort('403', config('app.erro_permissao'));
         }
 
