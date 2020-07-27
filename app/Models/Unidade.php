@@ -26,7 +26,17 @@ class Unidade extends Model
         'nomeresumido',
         'telefone',
         'tipo',
-        'situacao'
+        'situacao',
+        'sisg',
+        'uf',
+        'municipio',
+        'esfera',
+        'poder',
+        'tipo_adm',
+        'aderiu_siasg',
+        'utiliza_siafi',
+        'codigo_siorg',
+
     ];
 
 
@@ -88,16 +98,12 @@ class Unidade extends Model
 
     public function compras()
     {
-
         return $this->hasMany(Siasgcompra::class, 'unidade_id');
-
     }
 
     public function configuracao()
     {
-
         return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
-
     }
 
 }

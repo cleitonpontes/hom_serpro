@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Alert;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Execfin\EmpenhoCrudController;
 use App\Jobs\AlertaContratoJob;
@@ -14,6 +15,7 @@ use Backpack\CRUD\CrudPanel;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\UnidadeRequest as StoreRequest;
 use App\Http\Requests\UnidadeRequest as UpdateRequest;
+use Exception;
 
 /**
  * Class UnidadeCrudController
@@ -23,7 +25,7 @@ use App\Http\Requests\UnidadeRequest as UpdateRequest;
 class UnidadeCrudController extends CrudController
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function setup()
     {
@@ -232,6 +234,114 @@ class UnidadeCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'sisg',
+                'label' => 'Sisg',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
+                'name' => 'uf',
+                'label' => 'Estado',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
+                'name' => 'municipio',
+                'label' => 'Município',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
+                'name' => 'esfera',
+                'label' => 'Esfera',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
+                'name' => 'poder',
+                'label' => 'Poder',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
+                'name' => 'tipo_adm',
+                'label' => 'Administração',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
+                'name' => 'aderiu_siasg',
+                'label' => 'SIASG',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
+                'name' => 'utiliza_siafi',
+                'label' => 'SIAFI',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
+                'name' => 'codigo_siorg',
+                'label' => 'SIORG',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+//                'options' => [0 => 'Inativo', 1 => 'Ativo']
+            ],
+            [
                 'name' => 'situacao',
                 'label' => 'Situação',
                 'type' => 'boolean',
@@ -242,7 +352,7 @@ class UnidadeCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
                 // optionally override the Yes/No texts
                 'options' => [0 => 'Inativo', 1 => 'Ativo']
-            ],
+            ]
 
         ];
 
@@ -334,6 +444,109 @@ class UnidadeCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [ // select_from_array
+                'name' => 'sisg',
+                'label' => "Sisg",
+                'type' => 'select_from_array',
+                'options' => [1 => 'Ativo', 0 => 'Inativo'],
+                'allows_null' => false,
+            ],
+            [ // select_from_array
+                'name' => 'uf',
+                'label' => "Estado",
+                'type' => 'select_from_array',
+                'options' =>
+                    [
+                        "AC" => "Acre",
+                        "AL" => "Alagoas",
+                        "AM" => "Amazonas",
+                        "AP" => "Amapá",
+                        "BA" => "Bahia",
+                        "CE" => "Ceará",
+                        "DF" => "Distrito Federal",
+                        "ES" => "Espírito Santo",
+                        "GO" => "Goiás",
+                        "MA" => "Maranhão",
+                        "MT" => "Mato Grosso",
+                        "MS" => "Mato Grosso do Sul",
+                        "MG" => "Minas Gerais",
+                        "PA" => "Pará",
+                        "PB" => "Paraíba",
+                        "PR" => "Paraná",
+                        "PE" => "Pernambuco",
+                        "PI" => "Piauí",
+                        "RJ" => "Rio de Janeiro",
+                        "RN" => "Rio Grande do Norte",
+                        "RO" => "Rondônia",
+                        "RS" => "Rio Grande do Sul",
+                        "RR" => "Roraima",
+                        "SC" => "Santa Catarina",
+                        "SE" => "Sergipe",
+                        "SP" => "São Paulo",
+                        "TO" => "Tocantins"
+                    ],
+                'allows_null' => true,
+            ],
+            [ // select_from_array
+                'name' => 'municipio',
+                'label' => "Município",
+                'type' => 'text',
+                'allows_null' => true,
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)",
+                ]
+            ],
+            [ // select_from_array
+                'name' => 'esfera',
+                'label' => "Esfera",
+                'type' => 'select_from_array',
+                'options' => ['Estadual' => 'Estadual', 'Federal' => 'Federal'],
+                'allows_null' => true,
+            ],
+            [ // select_from_array
+                'name' => 'poder',
+                'label' => "Poder",
+                'type' => 'select_from_array',
+                'options' => ['Executivo' => 'Executivo',
+                    'Judiciário' => 'Judiciário',
+                    'Legislativo' => 'Legislativo'],
+                'allows_null' => true,
+            ],
+            [ // select_from_array
+                'name' => 'tipo_adm',
+                'label' => "Administração",
+                'type' => 'select_from_array',
+                'options' => ['ADMINISTRAÇÃO DIRETA' => 'ADMINISTRAÇÃO DIRETA',
+                    'ADMINISTRAÇÃO DIRETA ESTADUAL' => 'ADMINISTRAÇÃO DIRETA ESTADUAL',
+                    'AUTARQUIA' => 'AUTARQUIA',
+                    'ECONOMIA MISTA' => 'ECONOMIA MISTA',
+                    'EMPRESA PÚBLICA COM. E FIN.' => 'EMPRESA PÚBLICA COM. E FIN.',
+                    'FUNDAÇÃO' => 'FUNDAÇÃO',
+                    'FUNDOS' => 'FUNDOS'],
+                'allows_null' => true,
+            ],
+            [ // select_from_array
+                'name' => 'aderiu_siasg',
+                'label' => "Aderiu SIASG",
+                'type' => 'select_from_array',
+                'options' => ['Não', 'Sim'],
+                'allows_null' => false,
+                'default' => 1,
+            ],
+            [ // select_from_array
+                'name' => 'utiliza_siafi',
+                'label' => "Utiliza SIAFI",
+                'type' => 'select_from_array',
+                'options' => ['Não', 'Sim'],
+                'allows_null' => false,
+                'default' => 1,
+            ],
+            [ // select_from_array
+                'name' => 'codigo_siorg',
+                'label' => "Codigo Siorg",
+                'type' => 'text',
+                'allows_null' => true
+            ],
+            [ // select_from_array
                 'name' => 'situacao',
                 'label' => "Situação",
                 'type' => 'select_from_array',
@@ -379,7 +592,7 @@ class UnidadeCrudController extends CrudController
         $alerta->extratoMensal();
 
         if (backpack_user()) {
-            \Alert::success('Alerta Mensal executado com Sucesso!')->flash();
+            Alert::success('Alerta Mensal executado com Sucesso!')->flash();
             return redirect('/admin/unidade');
         }
     }
@@ -390,7 +603,7 @@ class UnidadeCrudController extends CrudController
             abort('403', config('app.erro_permissao'));
         }
 
-        $url = config('migracao.api_sta'). '/api/estrutura/unidades';
+        $url = config('migracao.api_sta') . '/api/estrutura/unidades';
 
         $funcao = new AdminController();
 
@@ -398,15 +611,15 @@ class UnidadeCrudController extends CrudController
 
         foreach ($dados as $dado) {
 
-            $unidade = Unidade::where('codigo',$dado['codigo'])
+            $unidade = Unidade::where('codigo', $dado['codigo'])
                 ->first();
 
-            if(!isset($unidade->codigo)){
+            if (!isset($unidade->codigo)) {
 
-                $orgao = Orgao::where('codigo',$dado['orgao'])
+                $orgao = Orgao::where('codigo', $dado['orgao'])
                     ->first();
 
-                if(isset($orgao->id)){
+                if (isset($orgao->id)) {
                     $novo = new Unidade();
                     $novo->orgao_id = $orgao->id;
                     $novo->codigo = $dado['codigo'];
@@ -419,13 +632,13 @@ class UnidadeCrudController extends CrudController
                     $novo->save();
                 }
 
-            }else{
-                if($unidade->nome != $dado['nome'] or $unidade->nomeresumido != $dado['nomeresumido'] or $unidade->orgao->codigo != $dado['orgao']){
+            } else {
+                if ($unidade->nome != $dado['nome'] or $unidade->nomeresumido != $dado['nomeresumido'] or $unidade->orgao->codigo != $dado['orgao']) {
 
-                    $orgao = Orgao::where('codigo',$dado['orgao'])
+                    $orgao = Orgao::where('codigo', $dado['orgao'])
                         ->first();
 
-                    if(isset($orgao->id)) {
+                    if (isset($orgao->id)) {
                         $unidade->orgao_id = $orgao->id;
                         $unidade->nome = $dado['nome'];
                         $unidade->nomeresumido = $dado['nomeresumido'];
