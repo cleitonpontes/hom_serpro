@@ -23,18 +23,18 @@ class MigracaotseaguController extends Controller
     public function tratardadosmigracaotseagu(){
         set_time_limit(0);
         echo '<br><br>iniciando migração...<br><br>';
-        // self::migrarFornecedores();
-        // self::migrarUsersCpf();
-        // self::migrarUsersEmail();
+        self::migrarFornecedores();
+        self::migrarUsersCpf();
+        self::migrarUsersEmail();
         self::migrarCodigoitem();
-        // self::migrarAppVersion();
-        // self::migrarCentrocusto();
-        // self::migrarCodigo();
-        // self::migrarJustificativafatura();
-        // self::migrarTipolistafatura();
-        // self::migrarNaturezadespesa();
-        // self::migrarNaturezasubitem();
-        // self::migrarOrgaosuperior();
+        self::migrarAppVersion();
+        self::migrarCentrocusto();
+        self::migrarCodigo();
+        self::migrarJustificativafatura();
+        self::migrarTipolistafatura();
+        self::migrarNaturezadespesa();
+        self::migrarNaturezasubitem();
+        self::migrarOrgaosuperior();
         echo '<br><br>migração finalizada.';
     }
     public function migrarOrgaosuperior(){
