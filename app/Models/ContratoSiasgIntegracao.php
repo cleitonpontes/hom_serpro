@@ -35,11 +35,68 @@ class ContratoSiasgIntegracao extends Model
             if (isset($json->data->itens) and $json->data->itens != null) {
                 $itens = $this->verificaItensContrato($json->data->itens, $contrato);
             }
+            if (isset($json->data->empenhos) and $json->data->empenhos != null) {
+                $empenhos = $this->verificaEmpenhosContrato($json->data->empenhos, $contrato);
+            }
 
         }
 
         return $contrato;
 
+    }
+
+    private function verificaEmpenhosContrato($empenhos, Contrato $contrato)
+    {
+        foreach ($empenhos as $empenho) {
+            $buscaContratoEmpenho = $this->buscaContratoEmpenho($empenho, $contrato);
+
+            if (!isset($buscaContratoEmpenho->id)) {
+                $buscaempenho = $this->buscaEmpenho($empenho);
+
+                if (isset($buscaempenho->id)) {
+                    $contratoempenho = $this->inserirContratoempenho($buscaempenho, $contrato);
+                }
+            }
+        }
+
+        return $empenhos;
+    }
+
+    private function inserirContratoEmpenho(Empenho $empenho, Contrato $contrato)
+    {
+        $dado = [
+            'contrato_id' => $contrato->id,
+            'fornecedor_id' => $empenho->fornecedor_id,
+            'empenho_id' => $empenho->id
+        ];
+        $contratoempenho = Contratoempenho::create($dado);
+
+        return $contratoempenho;
+    }
+
+    private function buscaEmpenho($empenho)
+    {
+        $busca = Empenho::whereHas('unidade', function ($u) use ($empenho) {
+            $u->where('codigo', $empenho->ug);
+        })
+            ->where('numero', $empenho->nrEmpenho)
+            ->first();
+
+        return $busca;
+    }
+
+    private function buscaContratoEmpenho($empenho, Contrato $contrato)
+    {
+        $contratoempenho = Contratoempenho::whereHas('empenho', function ($e) use ($empenho) {
+//            $e->whereHas('unidade', function ($u) use ($empenho) {
+//                $u->where('codigo', $empenho->ug);
+//            })
+            $e->where('numero', $empenho->nrEmpenho);
+        })
+            ->where('contrato_id', $contrato->id)
+            ->first();
+
+        return $contratoempenho;
     }
 
     private function verificaAditivos($aditivos, Contrato $contrato, Siasgcontrato $siasgcontrato)
@@ -57,14 +114,14 @@ class ContratoSiasgIntegracao extends Model
         foreach ($aditivos as $aditivo) {
             $busca = $this->buscaAditivo($aditivo->nuTermo, $contrato);
 
-            if($aditivo->dataInicio != '00000000'){
+            if ($aditivo->dataInicio != '00000000') {
                 $dtinicio_old = $this->formataDataSiasg($aditivo->dataInicio);
             }
-            if($aditivo->dataFim != '00000000'){
+            if ($aditivo->dataFim != '00000000') {
                 $dtfim_old = $this->formataDataSiasg($aditivo->dataFim);
             }
 
-            if($aditivo->valorTotal != '0' or $aditivo->valorParcela != '0'){
+            if ($aditivo->valorTotal != '0' or $aditivo->valorParcela != '0') {
                 $vlrinicial = $this->formataDecimalSiasg($aditivo->valorTotal);
                 $vlrglobal = $this->formataDecimalSiasg($aditivo->valorTotal);
                 $numparcelas = (isset($aditivo->valorParcela) and $aditivo->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($aditivo->valorTotal) / $this->formataDecimalSiasg($aditivo->valorParcela)) : 1;
@@ -97,7 +154,7 @@ class ContratoSiasgIntegracao extends Model
                 unset($dados['contrato_id']);
                 unset($dados['tipo_id']);
                 $busca->update($dados);
-            }else{
+            } else {
                 $contratohistorico = Contratohistorico::create($dados);
             }
         }
