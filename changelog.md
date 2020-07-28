@@ -14,6 +14,8 @@ Todas as alterações do Comprasnet Contratos serão documentadas neste arquivo.
 
 ### Melhoria
 - Adicionar informação de empenhos na consulta de contratos do transparência  (Issue #40);
+- Criado botões de Próxima Aba no formulário de Contratos  (Issue #113);
+- Permitir Administradores de Órgãos de Entidades Não SISG a alterar configuração de órgão  (Issue #112);
 - Criação do campo Unidade Gestora Origem no formulário de contratos e instrumento inicial  (Complementação da Issue #96);
 - Alteração do número do contrato para o formato 99999/9999  (Issue #93);
 - Alteração do número da licitação para o formato 99999/9999  (Issue #105);
