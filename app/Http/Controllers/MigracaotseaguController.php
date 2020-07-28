@@ -37,6 +37,7 @@ class MigracaotseaguController extends Controller
         self::migrarNaturezasubitem();
         self::migrarOrgaosuperior();
         self::migrarRhrubrica();
+        // self::migrarRoles();
         echo '<br><br>tratamento finalizado.';
     }
     public function migrarRhrubrica(){
@@ -56,9 +57,18 @@ class MigracaotseaguController extends Controller
             // para cada um vamos buscar o id invalido e o id válido
             $arrayIds = self::getIdRhrubricaByDescricao($duplicado);
             $quantidadeIds = count($arrayIds);
+            echo '<br>Quantidade ids: '.$quantidadeIds;
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        echo '<br>id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds;
+                        // exit;
+                    }
+                }
                 echo ' ==> '.$idValido.' - '.$idInvalido;
                 if($idInvalido > 55000000){
                     // aqui já temos os ids válidos e inválidos
@@ -151,8 +161,42 @@ class MigracaotseaguController extends Controller
         else{return false;}
     }
     public function atualizarIdInvalidoParaIdValido($nomeCampo, $nomeTabela, $idInvalido, $idValido){
+        echo '<br>Entrou em atualizarIdInvalidoParaIdValido... tabela: '.$nomeTabela.' id valido: '.$idValido.'id inválido: '.$idInvalido;
+
         //buscar aonde o id = idValido e verificar se a unidade é igual a unidade
-        if($nomeTabela=='unidadesusers'){
+        if($nomeTabela=='rhsituacao_rhrubrica'){
+            // precisamos saber se, ao excluírmos, a chave composta não será repetida, o que ocasionará erro
+            $arrayDadosVerificar = DB::select("select * from rhsituacao_rhrubrica where rhrubrica_id = $idInvalido");
+            foreach($arrayDadosVerificar as $objDadosVerificar){
+                $rhrubrica_id = $objDadosVerificar->rhrubrica_id;
+                $rhsituacao_id = $objDadosVerificar->rhsituacao_id;
+                // vamos verificar se ja tem o idValido e a situacao
+                $arrayDadosVerificar = DB::select("
+                    select count(*) as quantidade from rhsituacao_rhrubrica where rhrubrica_id = $idValido and rhsituacao_id = $rhsituacao_id
+                ");
+                $quantidade = $arrayDadosVerificar[0]->quantidade;
+
+                if($quantidade==0){
+                    echo '<br>Vai atualizar...';
+                    $query = "update  $nomeTabela set $nomeCampo = $idValido where $nomeCampo = $idInvalido";
+                    // vamos buscar na tabela, onde o nome do campo for igual ao idInvalido e alterar para o idValido
+                    $dados = DB::select($query);
+                } else {
+                    echo '<br><br>Não vai atualizar. Vai excluir o registro que viraria a chave composta que já existe.';
+                    echo '<br><br>Chave composta que já existe: rhrubrica_id: '.$idValido.' rhsituacao_id: '.$rhsituacao_id;
+                    echo '<br>nome campo: '.$nomeCampo;
+                    echo '<br>nome tabela: '.$nomeTabela;
+                    echo '<br>id inválido: '.$idInvalido;
+                    echo '<br>id valido: '.$idValido;
+                    echo '<br>rhsituacao id: '.$rhsituacao_id;
+                    $query = "delete from rhsituacao_rhrubrica where rhrubrica_id = $idInvalido and rhsituacao_id = $rhsituacao_id";
+                    $dados = DB::select($query);
+                }
+                echo '<br>Rodou a seguinte query: ';
+                echo '<br>'.$query;
+
+            }
+        }elseif($nomeTabela=='unidadesusers'){
             // precisamos saber se, ao excluírmos, a chave composta não será repetida, o que ocasionará erro
             $arrayDadosVerificar = DB::select("select * from unidadesusers where user_id = $idInvalido");
             foreach($arrayDadosVerificar as $objDadosVerificar){
