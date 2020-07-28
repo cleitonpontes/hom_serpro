@@ -97,22 +97,57 @@ class tratarDadosMigracaoTseAgu extends Command
     }
 
     public function rodarScript1(){
-        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script1_producao.sql', $res);
-        $this->info($res);
 
-        exec('php composer.phar dump-autoload', $res);
-        $this->info($res);
+        // 1. copiar os arquivos da pasta /database/migracao_tse_agu/seeders empacotados para a pasta database/seeds
 
-        exec('php artisan db:seed', $res);
-        $this->info($res);
+        $this->line('***************************copiar arquivos seed...******************************');
 
-        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script2_producao.sql', $res);
-        $this->info($res);
+        exec('cp -rf database/migracao_tse_agu/seeders\ empacotados/* database/seeds/');
+
+
+        $this->line('***************************instalar composer...******************************');
+
+        exec('curl -s https://getcomposer.org/installer | php');
+
+        $this->line('***************************instalar dependências...******************************');
+
+        exec('php -d memory_limit=-1 composer.phar install');
+
+        $this->line('***************************gerar chave...******************************');
+
+        exec('php artisan key:generate');
+
+
+        $this->line('***************************gerar autoload...******************************');
+
+        exec('php composer.phar dump-autoload');
+
+        $this->info('*************************************script 1******************************************');
+
+
+        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script1_producao.sql');
+
+
+        $this->info('**********************************script 1_2*********************************************');
+
+        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script1_2_producao.sql');
+
+        $this->info('*********************************script 1_3**********************************************');
+
+        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script1_3_producao.sql');
+
+        $this->info('*********************************** seed ********************************************');
+
+        exec('php artisan db:seed');
+
+        $this->info('************************************ script 2 *******************************************');
+
+        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script2_producao.sql');
+        $this->info('************************************ PRIMEIRA PARTE OK *******************************************');
     }
 
     public function rodarScript3(){
-        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script3_producao.sql', $res);
-        $this->info($res);
+        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script3_producao.sql');
     }
 
 
