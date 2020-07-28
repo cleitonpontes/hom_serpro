@@ -1,6 +1,6 @@
 Com o sistema comprasnet rodando:
 
-1. copiar os arquivos da pasta seeders empacotados para a pasta database/seeds
+1. copiar os arquivos da pasta /database/migracao_tse_agu/seeders empacotados para a pasta database/seeds
 2. executar script1_producao.sql
 3. php composer.phar dump-autoload
 4. php artisan db:seed
