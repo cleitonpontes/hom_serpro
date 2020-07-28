@@ -15,6 +15,7 @@ use App\Http\Requests\SiasgcompraRequest as StoreRequest;
 use App\Http\Requests\SiasgcompraRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use http\Env\Request;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -35,9 +36,9 @@ class SiasgcompraCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/siasg/compras');
         $this->crud->setEntityNameStrings('compra', 'Importação SIASG - Compras');
 
-        $this->crud->addClause('select', 'siasgcompras.*');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'siasgcompras.modalidade_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'siasgcompras.unidade_id');
+        $this->crud->addClause('select', 'siasgcompras.*');
 //        $this->crud->addClause('where', 'siasgcompras.unidade_id', '=', session()->get('user_ug_id'));
 
 
@@ -83,25 +84,25 @@ class SiasgcompraCrudController extends CrudController
             $this->crud->addClause('where', 'unidades.codigo', $value);
         });
 
-        $this->crud->addFilter([ // simple filter
-            'type' => 'text',
-            'name' => 'ano',
-            'label' => 'Ano Compra'
-        ],
-            false,
-            function ($value) { // if the filter is active
-                $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
-            });
-
-        $this->crud->addFilter([ // simple filter
-            'type' => 'text',
-            'name' => 'numero',
-            'label' => 'Número Compra'
-        ],
-            false,
-            function ($value) { // if the filter is active
-                $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
-            });
+//        $this->crud->addFilter([ // simple filter
+//            'type' => 'text',
+//            'name' => 'ano',
+//            'label' => 'Ano Compra'
+//        ],
+//            false,
+//            function ($value) { // if the filter is active
+//                $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
+//            });
+//
+//        $this->crud->addFilter([ // simple filter
+//            'type' => 'text',
+//            'name' => 'numero',
+//            'label' => 'Número Compra'
+//        ],
+//            false,
+//            function ($value) { // if the filter is active
+//                $this->crud->addClause('where', 'siasgcompras.ano', 'LIKE', "%$value%");
+//            });
 
         $modalidades = $this->buscaModalidades();
 
@@ -148,6 +149,10 @@ class SiasgcompraCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('unidades.codigo', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('unidades.nomeresumido', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'ano',
@@ -179,6 +184,10 @@ class SiasgcompraCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('codigoitens.descres', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('codigoitens.descricao', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'mensagem',
@@ -199,6 +208,9 @@ class SiasgcompraCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('siasgcompras.situacao', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'created_at',

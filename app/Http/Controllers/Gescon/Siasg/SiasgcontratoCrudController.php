@@ -16,6 +16,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\SiasgcontratoRequest as StoreRequest;
 use App\Http\Requests\SiasgcontratoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -89,6 +90,12 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('siasgcompras.numero', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('siasgcompras.ano', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('unidades.codigo', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('unidades.nomeresumido', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'getUnidade',
@@ -100,6 +107,10 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('unidades.codigo', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('unidades.nomeresumido', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'getTipo',
@@ -111,6 +122,10 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('codigoitens.descres', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('codigoitens.descricao', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'numero',
@@ -121,6 +136,9 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('siasgcontratos.numero', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'ano',
@@ -131,6 +149,9 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('siasgcontratos.ano', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'codigo_interno',
@@ -152,6 +173,10 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('unidades.codigo', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('unidades.nomeresumido', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'mensagem',
@@ -162,6 +187,9 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('siasgcontratos.mensagem', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'situacao',
@@ -172,6 +200,9 @@ class SiasgcontratoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('siasgcontratos.situacao', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'getContratoVinculado',
