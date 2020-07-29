@@ -19,6 +19,7 @@ use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Orgaosuperior;
 use App\Models\Rhrubrica;
+use App\Models\Contrato;
 
 use Spatie\Permission\Models\Role;
 
@@ -26,12 +27,31 @@ use Spatie\Permission\Models\Role;
 
 class tratarDadosMigracaoTseAgu extends Command
 {
+
+    private $quantidadeExclusoes = 0;
+    private $quantidadeVerificacoes = 0;
+    //
+    private $quantidadeExclusoesFornecedores = 0;
+    private $quantidadeExclusoesUsers = 0;
+    private $quantidadeExclusoesCodigoitem = 0;
+    private $quantidadeExclusoesAppversion = 0;
+    private $quantidadeExclusoesCentrocusto = 0;
+    private $quantidadeExclusoesCodigo = 0;
+    private $quantidadeExclusoesJustificativafatura = 0;
+    private $quantidadeExclusoesTipolistafatura = 0;
+    private $quantidadeExclusoesNaturezadespesa = 0;
+    private $quantidadeExclusoesNaturezasubitem = 0;
+    private $quantidadeExclusoesOrgaosuperior = 0;
+    private $quantidadeExclusoesRhrubrica = 0;
+    private $quantidadeExclusoesRoles = 0;
+    private $quantidadeExclusoesContrato = 0;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'make:tratarDadosMigracaoTseAgu';
+    protected $signature = 'make:tratarDadosMigracaoTseAgu {nomeBancoDeDados}';
 
     /**
      * The console command description.
@@ -58,44 +78,234 @@ class tratarDadosMigracaoTseAgu extends Command
     public function handle()
     {
         set_time_limit(0);
-        $this->line('-----------------------------');
-        $this->info('Iniciando tratamento dos dados...');
-        $this->line('-----------------------------');
-        self::rodarScript1();
-        self::migrarFornecedores();
-        $this->line('-----------------------------');
-        self::migrarUsersCpf();
-        $this->line('-----------------------------');
-        self::migrarUsersEmail();
-        $this->line('-----------------------------');
-        self::migrarCodigoitem();
-        $this->line('-----------------------------');
-        self::migrarAppVersion();
-        $this->line('-----------------------------');
-        self::migrarCentrocusto();
-        $this->line('-----------------------------');
-        self::migrarCodigo();
-        $this->line('-----------------------------');
-        self::migrarJustificativafatura();
-        $this->line('-----------------------------');
-        self::migrarTipolistafatura();
-        $this->line('-----------------------------');
-        self::migrarNaturezadespesa();
-        $this->line('-----------------------------');
-        self::migrarNaturezasubitem();
-        $this->line('-----------------------------');
-        self::migrarOrgaosuperior();
-        $this->line('-----------------------------');
-        self::migrarRhrubrica();
-        $this->line('-----------------------------');
-        self::migrarRoles();
-        $this->line('-----------------------------');
-        $this->info('tratamento finalizado.');
-        $this->line('-----------------------------');
-        self::rodarScript3();
-    }
 
-    public function rodarScript1(){
+        $nomeBancoDeDados = $this->argument('nomeBancoDeDados');
+
+        $this->line('-----------------------------------------------------------------------');
+        $this->error('Iniciando tratamento dos dados para o banco '.$nomeBancoDeDados.'...');
+        $this->line('-----------------------------------------------------------------------');
+        self::rodarScript1($nomeBancoDeDados);
+
+
+
+            // fornecedores
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de fornecedores...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesFornecedores != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesFornecedores = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarFornecedores();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // users
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de users...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesUsers != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesUsers = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarUsersCpf();
+                self::migrarUsersEmail();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // codigoitem
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de codigoitem...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesCodigoitem != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesCodigoitem = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarCodigoitem();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // appversion
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de appversion...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesAppversion != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesAppversion = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarAppVersion();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // centrocusto
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de centrocusto...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesCentrocusto != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesCentrocusto = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarCentrocusto();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // codigo
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de codigo...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesCodigo != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesCodigo = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarCodigo();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // Justificativafatura
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de Justificativafatura...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesJustificativafatura != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesJustificativafatura = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarJustificativafatura();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // Tipolistafatura
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de Tipolistafatura...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesTipolistafatura != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesTipolistafatura = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarTipolistafatura();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // Naturezadespesa
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de Naturezadespesa...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesNaturezadespesa != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesNaturezadespesa = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarNaturezadespesa();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // Naturezasubitem
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de Naturezasubitem...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesNaturezasubitem != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesNaturezasubitem = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarNaturezasubitem();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // Orgaosuperior
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de Orgaosuperior...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesOrgaosuperior != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesOrgaosuperior = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarOrgaosuperior();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // Rhrubrica
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de Rhrubrica...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesRhrubrica != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesRhrubrica = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarRhrubrica();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // Roles
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de Roles...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesRoles != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesRoles = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarRoles();
+            }
+            $this->quantidadeVerificacoes = 0;
+            // Contrato
+            $this->line('-----------------------------------------------------------------------');
+            $this->line('Iniciando verificação de Contrato...');
+            $this->line('-----------------------------------------------------------------------');
+            while( $this->quantidadeExclusoesContrato != 0 || $this->quantidadeVerificacoes==0 ){
+                $this->quantidadeVerificacoes++;
+                $this->quantidadeExclusoesContrato = 0;
+                $this->line('Verificação '.$this->quantidadeVerificacoes);
+                self::migrarContrato();
+            }
+            $this->quantidadeVerificacoes = 0;
+
+        //
+        $this->line('-----------------------------------------------------------------------');
+        $this->error('Processamento Finalizado com '.$this->quantidadeVerificacoes.' verificações.');
+        self::rodarScript3($nomeBancoDeDados);
+
+
+
+
+
+
+        // exit;
+
+
+
+        // while( $this->quantidadeVerificacoes > 1 ){
+        // while( $this->quantidadeExclusoes != 0 || $this->quantidadeVerificacoes==0 ){
+        //     $this->quantidadeExclusoes = 0;
+        //     $this->quantidadeVerificacoes++;
+        //     $this->line('Verificação '.$this->quantidadeVerificacoes);
+
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarFornecedores();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarUsersCpf();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarUsersEmail();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarCodigoitem();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarAppVersion();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarCentrocusto();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarCodigo();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarJustificativafatura();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarTipolistafatura();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarNaturezadespesa();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarNaturezasubitem();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarOrgaosuperior();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarRhrubrica();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarRoles();
+            // $this->line('-----------------------------------------------------------------------');
+            // self::migrarContrato();
+            // $this->line('-----------------------------------------------------------------------');
+            // $this->info('tratamento evoluindo com '.$this->quantidadeExclusoes.' exclusões.');
+            // $this->line('-----------------------------------------------------------------------');
+
+        // }
+
+        // $this->error('Processamento Finalizado com '.$this->quantidadeVerificacoes.' verificações.');
+
+        // self::rodarScript3($nomeBancoDeDados);
+    }
+    //
+    public function rodarScript1($nomeBancoDeDados){
         $this->line('***************************copiar arquivos seed...******************************');
         exec('cp -rf database/migracao_tse_agu/seeders\ empacotados/* database/seeds/');
         $this->line('***************************instalar composer...******************************');
@@ -107,134 +317,90 @@ class tratarDadosMigracaoTseAgu extends Command
         $this->line('***************************gerar autoload...******************************');
         exec('php composer.phar dump-autoload');
         $this->info('*************************************script 1******************************************');
-        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script1_producao.sql');
+        exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script1_producao.sql');
         $this->info('**********************************script 1_2*********************************************');
-        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script1_2_producao.sql');
+        exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script1_2_producao.sql');
         $this->info('*********************************script 1_3**********************************************');
-        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script1_3_producao.sql');
+        exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script1_3_producao.sql');
         $this->info('*********************************** seed ********************************************');
         exec('php artisan db:seed');
         $this->info('************************************ script 2 *******************************************');
-        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script2_producao.sql');
+        exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script2_producao.sql');
         $this->info('************************************ PRIMEIRA PARTE OK *******************************************');
     }
-    public function rodarScript3(){
-        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script3_producao.sql');
+    public function rodarScript3($nomeBancoDeDados){
+        exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script3_producao.sql');
     }
-
-    public function migrarRoles(){
-        $this->info('Preparando para tratar roles...');
-        // vamos buscar os duplicados
-        $arrayDuplicados = self::getNomeRolesComNomeDuplicado();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
-        $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
-        $cont = 0;
-        foreach($arrayDuplicados as $itemDuplicado){
-            $cont++;
-            $duplicado = $itemDuplicado->name;
-            $this->info($cont.' -> '.$duplicado);
-            //aqui já temos os duplicados
-            // para cada um vamos buscar o id invalido e o id válido
-            $arrayIds = self::getIdRolesByName($duplicado);
-            $quantidadeIds = count($arrayIds);
-            if($quantidadeIds > 1){
-                $idValido = $arrayIds[0]->id;
-                $idInvalido = $arrayIds[1]->id;
-                $this->info(' ==> '.$idValido.' - '.$idInvalido);
-                if($idInvalido > 55000000){
-                    // aqui já temos os ids válidos e inválidos
-                    // vamos buscar as tabelas que têm codigo_id
-                    $arrayTabelas = self::getNomesTabelasComByCampo('role_id');
-                    $this->info('Vai atualizar as seguintes tabelas: ');
-                    foreach($arrayTabelas as $objDadosTabela){
-                        $nomeTabela = $objDadosTabela->table_name;
-                        $this->info($nomeTabela);
-                    }
-                    $contParar = 0;
-                    foreach($arrayTabelas as $objDadosTabela){
-                        $contParar++;
-                        $nomeTabela = $objDadosTabela->table_name;
-                        $this->info('Preparando para atualizar tabela : '.$nomeTabela);
-                        // aqui já sabemos quais tabelas possuem o justificativafatura_id
-                        // vamos verificar se algum tem o justificativafatura_id inválido
-                        self::atualizarIdInvalidoParaIdValido('role_id', $nomeTabela, $idInvalido, $idValido);
-                    }
-                    if(!self::excluirRolesComIdInvalido($idInvalido)){$this->info('erro(1)'); exit;}
-                } else {
-                    $this->info('Não fez nada, pois o idInválido não era > 55000000.');
-                }
-            } else {
-                $this->info('Só retornou um.');
-            }
-        }
-    }
-
 
     //
     public function excluirRolesComIdInvalido($idExcluir){
         $this->info('Preparando para excluir roles id = '.$idExcluir);
-        if(Role::where('id', $idExcluir)->delete()){return true;}
+        if(Role::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesRoles++; return true;}
         else{return false;}
     }
     public function excluirRhrubricaComIdInvalido($idExcluir){
         $this->info('Preparando para excluir rhrubrica id = '.$idExcluir);
-        if(Rhrubrica::where('id', $idExcluir)->delete()){return true;}
+        if(Rhrubrica::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesRhrubrica++; return true;}
         else{return false;}
     }
     public function excluirOrgaosuperiorComIdInvalido($idExcluir){
         $this->info('Preparando para excluir orgaosuperior id = '.$idExcluir);
-        if(Orgaosuperior::where('id', $idExcluir)->delete()){return true;}
+        if(Orgaosuperior::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesOrgaosuperior++; return true;}
         else{return false;}
     }
     public function excluirNaturezasubitemComIdInvalido($idExcluir){
         $this->info('Preparando para excluir naturezasubitem id = '.$idExcluir);
-        if(Naturezasubitem::where('id', $idExcluir)->delete()){return true;}
+        if(Naturezasubitem::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesNaturezasubitem++; return true;}
         else{return false;}
     }
     public function excluirNaturezadespesaComIdInvalido($idExcluir){
         $this->info('Preparando para excluir naturezadespesa id = '.$idExcluir);
-        if(Naturezadespesa::where('id', $idExcluir)->delete()){return true;}
+        if(Naturezadespesa::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesNaturezadespesa++; return true;}
         else{return false;}
     }
     public function excluirTipolistafaturaComIdInvalido($idExcluir){
         $this->info('Preparando para excluir tipolistafatura id = '.$idExcluir);
-        if(Tipolistafatura::where('id', $idExcluir)->delete()){return true;}
+        if(Tipolistafatura::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesTipolistafatura++; return true;}
         else{return false;}
     }
     public function excluirJustificativafaturaComIdInvalido($idExcluir){
         $this->info('Preparando para excluir justificativafatura id = '.$idExcluir);
-        if(Justificativafatura::where('id', $idExcluir)->delete()){return true;}
+        if(Justificativafatura::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesJustificativafatura++; return true;}
         else{return false;}
     }
     public function excluirCodigoComIdInvalido($idExcluir){
         $this->info('Preparando para excluir codigo id = '.$idExcluir);
-        if(Codigo::where('id', $idExcluir)->delete()){return true;}
+        if(Codigo::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesCodigoitem++; return true;}
         else{return false;}
     }
     public function excluirCentrocustoComIdInvalido($idExcluir){
         $this->info('Preparando para excluir centrocusto id = '.$idExcluir);
-        if(Centrocusto::where('id', $idExcluir)->delete()){return true;}
+        if(Centrocusto::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesCentrocusto++; return true;}
         else{return false;}
     }
     public function excluirAppVersionComIdInvalido($idExcluir){
         $this->info('Preparando para excluir app version id = '.$idExcluir);
-        if(AppVersion::where('id', $idExcluir)->delete()){return true;}
+        if(AppVersion::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesAppversion++; return true;}
         else{return false;}
     }
     public function excluirUserComIdInvalido($idExcluir){
         $this->info('Preparando para excluir user id = '.$idExcluir);
-        if(User::where('id', $idExcluir)->delete()){return true;}
+        if(User::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesUsers++; return true;}
         else{return false;}
     }
     public function excluirCodigoitemComIdInvalido($idExcluir){
         $this->info('Preparando para excluir codigoitem id = '.$idExcluir);
-        if(Codigoitem::where('id', $idExcluir)->delete()){return true;}
+        if(Codigoitem::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesCodigo++; return true;}
+        else{return false;}
+    }
+    public function excluirContratoComIdInvalido($idExcluir){
+        $this->info('Preparando para excluir contrato id = '.$idExcluir);
+        if(Contrato::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesContrato++; return true;}
         else{return false;}
     }
     public function excluirFornecedorComIdInvalido($idExcluir){
         $this->info('Preparando para excluir fornecedor id = '.$idExcluir);
-        if(Fornecedor::where('id', $idExcluir)->delete()){return true;}
+        if(Fornecedor::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesFornecedor++; return true;}
         else{return false;}
     }
 
@@ -327,6 +493,8 @@ class tratarDadosMigracaoTseAgu extends Command
             WHERE column_name = '$campo'
         ");
     }
+
+    //
     public function getIdOrgaosuperiorByNome($buscar){
         $dados = Orgaosuperior::select('id')
         ->where('nome', '=', $buscar)
@@ -362,6 +530,15 @@ class tratarDadosMigracaoTseAgu extends Command
         ->get();
         return $dados;
     }
+    // retorna vários campos para várias verificações
+    public function getIdContratoByProcesso($buscar){
+        $dados = Contrato::select('id', 'numero', 'fornecedor_id', 'unidade_id', 'tipo_id', 'categoria_id', 'processo', 'objeto', 'licitacao_numero', 'valor_global', 'data_assinatura')
+        ->where('processo', '=', $buscar)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
+    // retorna vários campos para várias verificações
     public function getIdCodigoitemByDescricao($descricao){
         $dados = Codigoitem::select('id', 'codigo_id')
         ->where('descricao', '=', $descricao)
@@ -425,6 +602,16 @@ class tratarDadosMigracaoTseAgu extends Command
         ->get();
         return $dados;
     }
+
+    //
+    public function getProcessoContratoComProcessoDuplicado(){
+        $dados = Contrato::select('processo')
+        ->groupBy('processo')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('processo')
+        ->get();
+        return $dados;
+    }
     public function getNomeRolesComNomeDuplicado(){
         $dados = Role::select('name')
         ->groupBy('name')
@@ -454,6 +641,14 @@ class tratarDadosMigracaoTseAgu extends Command
         ->groupBy('email')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('email')
+        ->get();
+        return $dados;
+    }
+    public function getFaseApropriacaofasesComFaseDuplicada(){
+        $dados = Apropriacaofases::select('fase')
+        ->groupBy('fase')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('fase')
         ->get();
         return $dados;
     }
@@ -502,14 +697,6 @@ class tratarDadosMigracaoTseAgu extends Command
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
-        ->get();
-        return $dados;
-    }
-    public function getFaseApropriacaofasesComFaseDuplicada(){
-        $dados = Apropriacaofases::select('fase')
-        ->groupBy('fase')
-        ->havingRaw('COUNT(*) > 1')
-        ->orderBy('fase')
         ->get();
         return $dados;
     }
@@ -694,7 +881,7 @@ class tratarDadosMigracaoTseAgu extends Command
             }
         }
     }
-    // várias verificações
+    // várias verificações - no getId, na verdade pega vários campos pra verificar
     public function migrarCodigoitem(){
         $this->info('Preparando para tratar codigoitem...');
         // vamos buscar os codigoitens com descricao duplicads
@@ -779,6 +966,16 @@ class tratarDadosMigracaoTseAgu extends Command
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
                 $this->info(' ==> '.$idValido.' - '.$idInvalido);
                 if($idInvalido > 55000000){
                     if(!self::excluirAppVersionComIdInvalido($idInvalido)){$this->info('erro(1)'); exit;}
@@ -809,6 +1006,16 @@ class tratarDadosMigracaoTseAgu extends Command
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
                 $this->info(' ==> '.$idValido.' - '.$idInvalido);
                 if($idInvalido > 55000000){
                     if(!self::excluirCentrocustoComIdInvalido($idInvalido)){$this->info('erro(1)'); exit;}
@@ -839,6 +1046,16 @@ class tratarDadosMigracaoTseAgu extends Command
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
                 $this->info(' ==> '.$idValido.' - '.$idInvalido);
                 if($idInvalido > 55000000){
                     // aqui já temos os ids válidos e inválidos
@@ -886,6 +1103,16 @@ class tratarDadosMigracaoTseAgu extends Command
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
                 $this->info(' ==> '.$idValido.' - '.$idInvalido);
                 if($idInvalido > 55000000){
                     // aqui já temos os ids válidos e inválidos
@@ -933,6 +1160,16 @@ class tratarDadosMigracaoTseAgu extends Command
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
                 $this->info(' ==> '.$idValido.' - '.$idInvalido);
                 if($idInvalido > 55000000){
                     // aqui já temos os ids válidos e inválidos
@@ -980,6 +1217,16 @@ class tratarDadosMigracaoTseAgu extends Command
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
                 $this->info(' ==> '.$idValido.' - '.$idInvalido);
                 if($idInvalido > 55000000){
                         // aqui já temos os ids válidos e inválidos
@@ -1029,6 +1276,16 @@ class tratarDadosMigracaoTseAgu extends Command
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
                 $this->info(' ==> '.$idValido.' - '.$idInvalido);
                 if($idInvalido > 55000000){
                         // aqui já temos os ids válidos e inválidos
@@ -1119,6 +1376,63 @@ class tratarDadosMigracaoTseAgu extends Command
             }
         }
     }
+    public function migrarRoles(){
+        $this->info('Preparando para tratar roles...');
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getNomeRolesComNomeDuplicado();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->name;
+            $this->info($cont.' -> '.$duplicado);
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdRolesByName($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
+                $this->info(' ==> '.$idValido.' - '.$idInvalido);
+                if($idInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelas = self::getNomesTabelasComByCampo('role_id');
+                    $this->info('Vai atualizar as seguintes tabelas: ');
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        $this->info($nomeTabela);
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        $this->info('Preparando para atualizar tabela : '.$nomeTabela);
+                        // aqui já sabemos quais tabelas possuem o justificativafatura_id
+                        // vamos verificar se algum tem o justificativafatura_id inválido
+                        self::atualizarIdInvalidoParaIdValido('role_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+                    if(!self::excluirRolesComIdInvalido($idInvalido)){$this->info('erro(1)'); exit;}
+                } else {
+                    $this->info('Não fez nada, pois o idInválido não era > 55000000.');
+                }
+            } else {
+                $this->info('Só retornou um.');
+            }
+        }
+    }
     public function migrarOrgaosuperior(){
         $this->info('Preparando para tratar orgaosuperior...');
         // vamos buscar os duplicados
@@ -1138,6 +1452,16 @@ class tratarDadosMigracaoTseAgu extends Command
             if($quantidadeIds > 1){
                 $idValido = $arrayIds[0]->id;
                 $idInvalido = $arrayIds[1]->id;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
                 $this->info(' ==> '.$idValido.' - '.$idInvalido);
                 if($idInvalido > 55000000){
                     // aqui já temos os ids válidos e inválidos
@@ -1163,6 +1487,102 @@ class tratarDadosMigracaoTseAgu extends Command
                     $this->info('Não fez nada, pois o idInválido não era > 55000000.');
                 }
 
+            } else {
+                $this->info('Só retornou um.');
+            }
+        }
+    }
+    // várias verificações - no getProcesso..., na verdade pega vários campos pra verificar
+    public function migrarContrato(){
+        $this->info('Preparando para tratar contrato...');
+        // vamos buscar os duplicados
+        $duplicados = self::getProcessoContratoComProcessoDuplicado();
+        $quantidade = count($duplicados);
+        $this->info('Qtd encontrada: '.$quantidade);
+        $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
+        $cont = 0;
+        foreach($duplicados as $item){
+            $cont++;
+            $duplicado = $item->processo;
+            $this->info($cont.' -> '.$duplicado);
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdContratoByProcesso($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $numeroValido = $arrayIds[0]->numero;
+                $fornecedor_idValido = $arrayIds[0]->fornecedor_id;
+                $unidade_idValido = $arrayIds[0]->unidade_id;
+                $tipo_idValido = $arrayIds[0]->tipo_id;
+                $categoria_idValido = $arrayIds[0]->categoria_id;
+                $processoValido = $arrayIds[0]->processo;
+                $objetoValido = $arrayIds[0]->objeto;
+                $licitacao_numeroValido = $arrayIds[0]->licitacao_numero;
+                $valor_globalValido = $arrayIds[0]->valor_global;
+                $data_assinaturaValido = $arrayIds[0]->data_assinatura;
+                //
+                $idInvalido = $arrayIds[1]->id;
+                $numeroInvalido = $arrayIds[1]->numero;
+                $fornecedor_idInvalido = $arrayIds[1]->fornecedor_id;
+                $unidade_idInvalido = $arrayIds[1]->unidade_id;
+                $tipo_idInvalido = $arrayIds[1]->tipo_id;
+                $categoria_idInvalido = $arrayIds[1]->categoria_id;
+                $processoInvalido = $arrayIds[1]->processo;
+                $objetoInvalido = $arrayIds[1]->objeto;
+                $licitacao_numeroInvalido = $arrayIds[1]->licitacao_numero;
+                $valor_globalInvalido = $arrayIds[1]->valor_global;
+                $data_assinaturaInvalido = $arrayIds[1]->data_assinatura;
+                // início teste
+                if($idValido < 55000000 && $idInvalido < 55000000 && $quantidadeIds > 2){
+                    while($quantidadeIds > 0 && $idInvalido < 55000000){
+                        $idInvalido = $arrayIds[$quantidadeIds - 1]->id;
+                        $quantidadeIds --;
+                        $this->info('id invalido = '.$idInvalido.' quantidade = '.$quantidadeIds);
+                        // exit;
+                    }
+                }
+                // fim teste
+
+                $this->info('Dados válidos: id = '.$idValido.' valor global = '.$valor_globalValido);
+                $this->info('Dados inválidos: id = '.$idInvalido.' valor global = '.$valor_globalInvalido);
+
+                if($idInvalido > 55000000 && (
+                    $numeroInvalido == $numeroValido &&
+                    $fornecedor_idInvalido == $fornecedor_idValido &&
+                    $unidade_idInvalido == $unidade_idValido &&
+                    $tipo_idInvalido == $tipo_idValido &&
+                    $categoria_idInvalido == $categoria_idValido &&
+                    $processoInvalido == $processoValido &&
+                    $objetoInvalido == $objetoValido &&
+                    $licitacao_numeroInvalido == $licitacao_numeroValido &&
+                    $valor_globalInvalido == $valor_globalValido &&
+                    $data_assinaturaInvalido == $data_assinaturaValido
+                    ) ){
+                    $this->info('Vai alterar...');
+                    // aqui já temos os ids válidos e inválidos
+                    $arrayTabelas = self::getNomesTabelasComByCampo('contrato_id');
+                    $this->info('Vai atualizar as seguintes tabelas: ');
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        $this->info($nomeTabela);
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        $this->info('Preparando para atualizar tabela : '.$nomeTabela);
+                        // aqui já sabemos quais tabelas possuem o id
+                        // vamos verificar se algum tem o id inválido
+                        self::atualizarIdInvalidoParaIdValido('contrato_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+                    // aqui já podemos excluir o registro com id inválido
+                    if(!self::excluirContratoComIdInvalido($idInvalido)){$this->error('erro(1)'); exit;}
+                } else if($idInvalido > 55000000 ){
+                    $this->info('Apesar do id ser > 55000000, outros dados não bateram - Não vai alterar.');
+                } else{
+                    $this->info('O código é < 55000000.');
+                }
             } else {
                 $this->info('Só retornou um.');
             }
