@@ -20,6 +20,9 @@ use App\Models\Naturezasubitem;
 use App\Models\Orgaosuperior;
 use App\Models\Rhrubrica;
 
+use Spatie\Permission\Models\Role;
+
+
 
 class tratarDadosMigracaoTseAgu extends Command
 {
@@ -58,11 +61,7 @@ class tratarDadosMigracaoTseAgu extends Command
         $this->line('-----------------------------');
         $this->info('Iniciando tratamento dos dados...');
         $this->line('-----------------------------');
-
-
         self::rodarScript1();
-
-        // $this->error('teste');
         self::migrarFornecedores();
         $this->line('-----------------------------');
         self::migrarUsersCpf();
@@ -88,8 +87,8 @@ class tratarDadosMigracaoTseAgu extends Command
         self::migrarOrgaosuperior();
         $this->line('-----------------------------');
         self::migrarRhrubrica();
-        // testar o roles.
-        // self::migrarRoles();
+        $this->line('-----------------------------');
+        self::migrarRoles();
         $this->line('-----------------------------');
         $this->info('tratamento finalizado.');
         $this->line('-----------------------------');
@@ -97,61 +96,87 @@ class tratarDadosMigracaoTseAgu extends Command
     }
 
     public function rodarScript1(){
-
-        // 1. copiar os arquivos da pasta /database/migracao_tse_agu/seeders empacotados para a pasta database/seeds
-
         $this->line('***************************copiar arquivos seed...******************************');
-
         exec('cp -rf database/migracao_tse_agu/seeders\ empacotados/* database/seeds/');
-
-
         $this->line('***************************instalar composer...******************************');
-
         exec('curl -s https://getcomposer.org/installer | php');
-
         $this->line('***************************instalar dependências...******************************');
-
         exec('php -d memory_limit=-1 composer.phar install');
-
         $this->line('***************************gerar chave...******************************');
-
         exec('php artisan key:generate');
-
-
         $this->line('***************************gerar autoload...******************************');
-
         exec('php composer.phar dump-autoload');
-
         $this->info('*************************************script 1******************************************');
-
-
-        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script1_producao.sql');
-
-
+        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script1_producao.sql');
         $this->info('**********************************script 1_2*********************************************');
-
-        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script1_2_producao.sql');
-
+        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script1_2_producao.sql');
         $this->info('*********************************script 1_3**********************************************');
-
-        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script1_3_producao.sql');
-
+        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script1_3_producao.sql');
         $this->info('*********************************** seed ********************************************');
-
         exec('php artisan db:seed');
-
         $this->info('************************************ script 2 *******************************************');
-
-        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script2_producao.sql');
+        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script2_producao.sql');
         $this->info('************************************ PRIMEIRA PARTE OK *******************************************');
     }
-
     public function rodarScript3(){
-        exec('psql -U postgres -d contaagu2 -1 -f database/migracao_tse_agu/script3_producao.sql');
+        exec('psql -U postgres -d contaagu4 -1 -f database/migracao_tse_agu/script3_producao.sql');
+    }
+
+    public function migrarRoles(){
+        $this->info('Preparando para tratar roles...');
+        // vamos buscar os duplicados
+        $arrayDuplicados = self::getNomeRolesComNomeDuplicado();
+        $quantidadeDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
+        $cont = 0;
+        foreach($arrayDuplicados as $itemDuplicado){
+            $cont++;
+            $duplicado = $itemDuplicado->name;
+            $this->info($cont.' -> '.$duplicado);
+            //aqui já temos os duplicados
+            // para cada um vamos buscar o id invalido e o id válido
+            $arrayIds = self::getIdRolesByName($duplicado);
+            $quantidadeIds = count($arrayIds);
+            if($quantidadeIds > 1){
+                $idValido = $arrayIds[0]->id;
+                $idInvalido = $arrayIds[1]->id;
+                $this->info(' ==> '.$idValido.' - '.$idInvalido);
+                if($idInvalido > 55000000){
+                    // aqui já temos os ids válidos e inválidos
+                    // vamos buscar as tabelas que têm codigo_id
+                    $arrayTabelas = self::getNomesTabelasComByCampo('role_id');
+                    $this->info('Vai atualizar as seguintes tabelas: ');
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $nomeTabela = $objDadosTabela->table_name;
+                        $this->info($nomeTabela);
+                    }
+                    $contParar = 0;
+                    foreach($arrayTabelas as $objDadosTabela){
+                        $contParar++;
+                        $nomeTabela = $objDadosTabela->table_name;
+                        $this->info('Preparando para atualizar tabela : '.$nomeTabela);
+                        // aqui já sabemos quais tabelas possuem o justificativafatura_id
+                        // vamos verificar se algum tem o justificativafatura_id inválido
+                        self::atualizarIdInvalidoParaIdValido('role_id', $nomeTabela, $idInvalido, $idValido);
+                    }
+                    if(!self::excluirRolesComIdInvalido($idInvalido)){$this->info('erro(1)'); exit;}
+                } else {
+                    $this->info('Não fez nada, pois o idInválido não era > 55000000.');
+                }
+            } else {
+                $this->info('Só retornou um.');
+            }
+        }
     }
 
 
     //
+    public function excluirRolesComIdInvalido($idExcluir){
+        $this->info('Preparando para excluir roles id = '.$idExcluir);
+        if(Role::where('id', $idExcluir)->delete()){return true;}
+        else{return false;}
+    }
     public function excluirRhrubricaComIdInvalido($idExcluir){
         $this->info('Preparando para excluir rhrubrica id = '.$idExcluir);
         if(Rhrubrica::where('id', $idExcluir)->delete()){return true;}
@@ -358,6 +383,13 @@ class tratarDadosMigracaoTseAgu extends Command
         ->get();
         return $dados;
     }
+    public function getIdRolesByName($buscar){
+        $dados = Role::select('id')
+        ->where('name', '=', $buscar)
+        ->orderBy('id')
+        ->get();
+        return $dados;
+    }
     public function getIdTipolistafaturaByNome($buscar){
         $dados = Tipolistafatura::select('id')
         ->where('nome', '=', $buscar)
@@ -390,6 +422,14 @@ class tratarDadosMigracaoTseAgu extends Command
         $dados = Fornecedor::select('id')
         ->where('cpf_cnpj_idgener', '=', $cpf)
         ->orderBy('id')
+        ->get();
+        return $dados;
+    }
+    public function getNomeRolesComNomeDuplicado(){
+        $dados = Role::select('name')
+        ->groupBy('name')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('name')
         ->get();
         return $dados;
     }
