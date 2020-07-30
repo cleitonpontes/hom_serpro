@@ -27,24 +27,51 @@ use Spatie\Permission\Models\Role;
 
 class tratarDadosMigracaoTseAgu extends Command
 {
-
     private $quantidadeExclusoes = 0;
     private $quantidadeVerificacoes = 0;
     //
     private $quantidadeExclusoesFornecedores = 0;
+    private $quantidadeFornecedoresComCpfDuplicado = 0;
+
     private $quantidadeExclusoesUsers = 0;
+    private $quantidadeUsersComEmailDuplicado = 0;
+    private $quantidadeUsersComCpfDuplicado = 0;
+
     private $quantidadeExclusoesCodigoitem = 0;
+    private $quantidadeCodigoitemEncontrado = 0;
+
     private $quantidadeExclusoesAppversion = 0;
+    private $quantidadeAppversionDuplicados = 0;
+
     private $quantidadeExclusoesCentrocusto = 0;
+    private $quantidadeCentrocustoDuplicados = 0;
+
     private $quantidadeExclusoesCodigo = 0;
+    private $quantidadeCodigoDuplicados = 0;
+
     private $quantidadeExclusoesJustificativafatura = 0;
+    private $quantidadeJustificativafaturaDuplicados = 0;
+
     private $quantidadeExclusoesTipolistafatura = 0;
+    private $quantidadeTipolistafaturaDuplicados = 0;
+
     private $quantidadeExclusoesNaturezadespesa = 0;
+    private $quantidadeNaturezadespesaDuplicados = 0;
+
     private $quantidadeExclusoesNaturezasubitem = 0;
+    private $quantidadeNaturezasubitemDuplicados = 0;
+
     private $quantidadeExclusoesOrgaosuperior = 0;
+    private $quantidadeOrgaosuperiorDuplicados = 0;
+
     private $quantidadeExclusoesRhrubrica = 0;
+    private $quantidadeRhrubricaDuplicados = 0;
+
     private $quantidadeExclusoesRoles = 0;
+    private $quantidadeRolesDuplicados = 0;
+
     private $quantidadeExclusoesContrato = 0;
+    private $quantidadeContratoDuplicados = 0;
 
     /**
      * The name and signature of the console command.
@@ -78,15 +105,14 @@ class tratarDadosMigracaoTseAgu extends Command
     public function handle()
     {
         set_time_limit(0);
+        // DB::beginTransaction();
 
         $nomeBancoDeDados = $this->argument('nomeBancoDeDados');
 
         $this->line('-----------------------------------------------------------------------');
-        $this->error('Iniciando tratamento dos dados para o banco '.$nomeBancoDeDados.'...');
+        $this->error('Iniciando transação para tratamento dos dados para o banco '.$nomeBancoDeDados.'...');
         $this->line('-----------------------------------------------------------------------');
         self::rodarScript1($nomeBancoDeDados);
-
-
 
             // fornecedores
             $this->line('-----------------------------------------------------------------------');
@@ -245,64 +271,13 @@ class tratarDadosMigracaoTseAgu extends Command
             $this->quantidadeVerificacoes = 0;
 
         //
-        $this->line('-----------------------------------------------------------------------');
-        $this->error('Processamento Finalizado com '.$this->quantidadeVerificacoes.' verificações.');
+        $this->line('---------------------------------Script 3--------------------------------------');
         self::rodarScript3($nomeBancoDeDados);
+        $this->line('----------------------------------------------------------------------------');
+        // DB::commit();
+        $this->error('Processamento Finalizado.');
+        $this->line('----------------------------------------------------------------------------');
 
-
-
-
-
-
-        // exit;
-
-
-
-        // while( $this->quantidadeVerificacoes > 1 ){
-        // while( $this->quantidadeExclusoes != 0 || $this->quantidadeVerificacoes==0 ){
-        //     $this->quantidadeExclusoes = 0;
-        //     $this->quantidadeVerificacoes++;
-        //     $this->line('Verificação '.$this->quantidadeVerificacoes);
-
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarFornecedores();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarUsersCpf();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarUsersEmail();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarCodigoitem();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarAppVersion();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarCentrocusto();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarCodigo();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarJustificativafatura();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarTipolistafatura();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarNaturezadespesa();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarNaturezasubitem();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarOrgaosuperior();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarRhrubrica();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarRoles();
-            // $this->line('-----------------------------------------------------------------------');
-            // self::migrarContrato();
-            // $this->line('-----------------------------------------------------------------------');
-            // $this->info('tratamento evoluindo com '.$this->quantidadeExclusoes.' exclusões.');
-            // $this->line('-----------------------------------------------------------------------');
-
-        // }
-
-        // $this->error('Processamento Finalizado com '.$this->quantidadeVerificacoes.' verificações.');
-
-        // self::rodarScript3($nomeBancoDeDados);
     }
     //
     public function rodarScript1($nomeBancoDeDados){
@@ -324,6 +299,8 @@ class tratarDadosMigracaoTseAgu extends Command
         exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script1_3_producao.sql');
         $this->info('*********************************** seed ********************************************');
         exec('php artisan db:seed');
+        $this->info('Aguardando conclusão do seed...');
+        sleep(25);
         $this->info('************************************ script 2 *******************************************');
         exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script2_producao.sql');
         $this->info('************************************ PRIMEIRA PARTE OK *******************************************');
@@ -400,7 +377,7 @@ class tratarDadosMigracaoTseAgu extends Command
     }
     public function excluirFornecedorComIdInvalido($idExcluir){
         $this->info('Preparando para excluir fornecedor id = '.$idExcluir);
-        if(Fornecedor::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesFornecedor++; return true;}
+        if(Fornecedor::where('id', $idExcluir)->delete()){$this->quantidadeExclusoesFornecedores++; return true;}
         else{return false;}
     }
 
@@ -604,128 +581,304 @@ class tratarDadosMigracaoTseAgu extends Command
     }
 
     //
+    public function getProcessoContratoComProcessoDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Contrato::select('processo')
+        // ->where('id', '>', 50000000)
+        ->groupBy('processo')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('processo', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getProcessoContratoComProcessoDuplicado(){
         $dados = Contrato::select('processo')
+        // ->where('id', '>', 50000000)
         ->groupBy('processo')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('processo')
         ->get();
         return $dados;
     }
+    public function getNomeRolesComNomeDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Role::select('name')
+        // ->where('id', '>', 50000000)
+        ->groupBy('name')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('name', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getNomeRolesComNomeDuplicado(){
         $dados = Role::select('name')
+        // ->where('id', '>', 50000000)
         ->groupBy('name')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('name')
         ->get();
         return $dados;
     }
+    public function getNomeOrgaosuperiorComNomeDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Orgaosuperior::select('nome')
+        // ->where('id', '>', 50000000)
+        ->groupBy('nome')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('nome', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getNomeOrgaosuperiorComNomeDuplicado(){
         $dados = Orgaosuperior::select('nome')
+        // ->where('id', '>', 50000000)
         ->groupBy('nome')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('nome')
+        ->get();
+        return $dados;
+    }
+    public function getNomeTipolistafaturaComNomeDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Tipolistafatura::select('nome')
+        // ->where('id', '>', 50000000)
+        ->groupBy('nome')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('nome', 'desc')
         ->get();
         return $dados;
     }
     public function getNomeTipolistafaturaComNomeDuplicado(){
         $dados = Tipolistafatura::select('nome')
+        // ->where('id', '>', 50000000)
         ->groupBy('nome')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('nome')
         ->get();
         return $dados;
     }
+    public function getEmailUsersComEmailDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = User::select('email')
+        // ->where('id', '>', 50000000)
+        ->groupBy('email')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('email', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getEmailUsersComEmailDuplicado(){
         $dados = User::select('email')
+        // ->where('id', '>', 50000000)
         ->groupBy('email')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('email')
         ->get();
         return $dados;
     }
+    public function getFaseApropriacaofasesComFaseDuplicadaDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Apropriacaofases::select('fase')
+        // ->where('id', '>', 50000000)
+        ->groupBy('fase')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('fase', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getFaseApropriacaofasesComFaseDuplicada(){
         $dados = Apropriacaofases::select('fase')
+        // ->where('id', '>', 50000000)
         ->groupBy('fase')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('fase')
         ->get();
         return $dados;
     }
+    public function getDescricaoRhrubricaComDescricaoDuplicadaDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Rhrubrica::select('descricao')
+        // ->where('id', '>', 50000000)
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getDescricaoRhrubricaComDescricaoDuplicada(){
         $dados = Rhrubrica::select('descricao')
+        // ->where('id', '>', 50000000)
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoJustificativafaturaComDescricaoDuplicadaDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Justificativafatura::select('descricao')
+        // ->where('id', '>', 50000000)
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao', 'desc')
         ->get();
         return $dados;
     }
     public function getDescricaoJustificativafaturaComDescricaoDuplicada(){
         $dados = Justificativafatura::select('descricao')
+        // ->where('id', '>', 50000000)
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoNaturezasubitemComDescricaoDuplicadaDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Naturezasubitem::select('descricao')
+        // ->where('id', '>', 50000000)
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao', 'desc')
         ->get();
         return $dados;
     }
     public function getDescricaoNaturezasubitemComDescricaoDuplicada(){
         $dados = Naturezasubitem::select('descricao')
+        // ->where('id', '>', 50000000)
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoNaturezadespesaComDescricaoDuplicadaDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Naturezadespesa::select('descricao')
+        // ->where('id', '>', 50000000)
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao', 'desc')
         ->get();
         return $dados;
     }
     public function getDescricaoNaturezadespesaComDescricaoDuplicada(){
         $dados = Naturezadespesa::select('descricao')
+        // ->where('id', '>', 50000000)
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoCodigoComDescricaoDuplicadaDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Codigo::select('descricao')
+        // ->where('id', '>', 50000000)
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao', 'desc')
         ->get();
         return $dados;
     }
     public function getDescricaoCodigoComDescricaoDuplicada(){
         $dados = Codigo::select('descricao')
+        // ->where('id', '>', 50000000)
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
+        ->get();
+        return $dados;
+    }
+    public function getDescricaoCentrocustoComDescricaoDuplicadaDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Centrocusto::select('descricao')
+        // ->where('id', '>', 50000000)
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao', 'desc')
         ->get();
         return $dados;
     }
     public function getDescricaoCentrocustoComDescricaoDuplicada(){
         $dados = Centrocusto::select('descricao')
+        // ->where('id', '>', 50000000)
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
         ->get();
         return $dados;
     }
+    public function getPatchAppVersionComPatchDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = AppVersion::select('patch')
+        // ->where('id', '>', 50000000)
+        ->groupBy('patch')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('patch', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getPatchAppVersionComPatchDuplicado(){
         $dados = AppVersion::select('patch')
+        // ->where('id', '>', 50000000)
         ->groupBy('patch')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('patch')
         ->get();
         return $dados;
     }
+    public function getCpfUsersComCpfDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = User::select('cpf')
+        // ->where('id', '>', 50000000)
+        ->groupBy('cpf')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('cpf', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getCpfUsersComCpfDuplicado(){
         $dados = User::select('cpf')
+        // ->where('id', '>', 50000000)
         ->groupBy('cpf')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('cpf')
         ->get();
         return $dados;
     }
+    public function getDescricaoCodigoitemComDescricaoDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Codigoitem::select('descricao')
+        // ->where('id', '>', 50000000)
+        ->groupBy('descricao')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('descricao', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getDescricaoCodigoitemComDescricaoDuplicado(){
         $dados = Codigoitem::select('descricao')
+        // ->where('id', '>', 50000000)
         ->groupBy('descricao')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('descricao')
         ->get();
         return $dados;
     }
+    public function getCpfFornecedoresComCpfDuplicadoDesc(){
+        $this->info('Buscar por desc...');
+        $dados = Fornecedor::select('cpf_cnpj_idgener')
+        // ->where('id', '>', 50000000)
+        ->groupBy('cpf_cnpj_idgener')
+        ->havingRaw('COUNT(*) > 1')
+        ->orderBy('cpf_cnpj_idgener', 'desc')
+        ->get();
+        return $dados;
+    }
     public function getCpfFornecedoresComCpfDuplicado(){
         $dados = Fornecedor::select('cpf_cnpj_idgener')
+        // ->where('id', '>', 50000000)
         ->groupBy('cpf_cnpj_idgener')
         ->havingRaw('COUNT(*) > 1')
         ->orderBy('cpf_cnpj_idgener')
@@ -739,9 +892,12 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarFornecedores(){
         $this->info('Preparando para tratar fornecedores...');
         // vamos buscar os fornecedores com cpf duplicado
-        $fornecedoresComCpfDuplicado = self::getCpfFornecedoresComCpfDuplicado();
-        $quantidadeFornecedoresComCpfDuplicado = count($fornecedoresComCpfDuplicado);
-        $this->info('Qtd encontrada: '.$quantidadeFornecedoresComCpfDuplicado);
+        $this->info('Quantidade aux: '.$this->quantidadeFornecedoresComCpfDuplicado);
+        if($this->quantidadeFornecedoresComCpfDuplicado>0){$fornecedoresComCpfDuplicado = self::getCpfFornecedoresComCpfDuplicadoDesc();}
+        else{$fornecedoresComCpfDuplicado = self::getCpfFornecedoresComCpfDuplicado();}
+
+        $this->quantidadeFornecedoresComCpfDuplicado = count($fornecedoresComCpfDuplicado);
+        $this->info('Qtd encontrada: '.$this->quantidadeFornecedoresComCpfDuplicado);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($fornecedoresComCpfDuplicado as $fornecedor){
@@ -788,9 +944,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarUsersEmail(){
         $this->info('Preparando para tratar users com emails duplicados...');
         // vamos buscar os users com email duplicado
-        $usersComEmailDuplicado = self::getEmailUsersComEmailDuplicado();
-        $quantidadeUsersComEmailDuplicado = count($usersComEmailDuplicado);
-        $this->info('Qtd encontrada: '.$quantidadeUsersComEmailDuplicado);
+        $this->info('Quantidade aux: '.$this->quantidadeUsersComEmailDuplicado);
+        if($this->quantidadeUsersComEmailDuplicado>0){$usersComEmailDuplicado = self::getEmailUsersComEmailDuplicadoDesc();}
+        else{$usersComEmailDuplicado = self::getEmailUsersComEmailDuplicado();}
+        $this->quantidadeUsersComEmailDuplicado = count($usersComEmailDuplicado);
+        $this->info('Qtd encontrada: '.$this->quantidadeUsersComEmailDuplicado);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($usersComEmailDuplicado as $user){
@@ -836,9 +994,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarUsersCpf(){
         $this->info('Preparando para tratar users com cpfs duplicados...');
         // vamos buscar os users com cpf duplicado
-        $usersComCpfDuplicado = self::getCpfUsersComCpfDuplicado();
-        $quantidadeUsersComCpfDuplicado = count($usersComCpfDuplicado);
-        $this->info('Qtd encontrada: '.$quantidadeUsersComCpfDuplicado);
+        $this->info('Quantidade aux: '.$this->quantidadeUsersComCpfDuplicado);
+        if($this->quantidadeUsersComCpfDuplicado>0){$usersComCpfDuplicado = self::getCpfUsersComCpfDuplicadoDesc();}
+        else{$usersComCpfDuplicado = self::getCpfUsersComCpfDuplicado();}
+        $this->quantidadeUsersComCpfDuplicado = count($usersComCpfDuplicado);
+        $this->info('Qtd encontrada: '.$this->quantidadeUsersComCpfDuplicado);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($usersComCpfDuplicado as $user){
@@ -885,9 +1045,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarCodigoitem(){
         $this->info('Preparando para tratar codigoitem...');
         // vamos buscar os codigoitens com descricao duplicads
-        $codigoItemComDescricaoDuplicada = self::getDescricaoCodigoitemComDescricaoDuplicado();
-        $quantidade = count($codigoItemComDescricaoDuplicada);
-        $this->info('Qtd encontrada: '.$quantidade);
+        $this->info('Quantidade aux: '.$this->quantidadeCodigoitemEncontrado);
+        if($this->quantidadeCodigoitemEncontrado>0){$codigoItemComDescricaoDuplicada = self::getDescricaoCodigoitemComDescricaoDuplicadoDesc();}
+        else{$codigoItemComDescricaoDuplicada = self::getDescricaoCodigoitemComDescricaoDuplicado();}
+        $this->quantidadeCodigoitemEncontrado = count($codigoItemComDescricaoDuplicada);
+        $this->info('Qtd encontrada: '.$this->quantidadeCodigoitemEncontrado);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($codigoItemComDescricaoDuplicada as $codigoitem){
@@ -950,9 +1112,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarAppVersion(){
         $this->info('Preparando para tratar app version...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getPatchAppVersionComPatchDuplicado();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeAppversionDuplicados);
+        if($this->quantidadeAppversionDuplicados>0){$arrayDuplicados = self::getPatchAppVersionComPatchDuplicadoDesc();}
+        else{$arrayDuplicados = self::getPatchAppVersionComPatchDuplicado();}
+        $this->quantidadeAppversionDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeAppversionDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -990,9 +1154,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarCentrocusto(){
         $this->info('Preparando para tratar centrocusto...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getDescricaoCentrocustoComDescricaoDuplicada();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeCentrocustoDuplicados);
+        if($this->quantidadeCentrocustoDuplicados>0){$arrayDuplicados = self::getDescricaoCentrocustoComDescricaoDuplicadaDesc();}
+        else{$arrayDuplicados = self::getDescricaoCentrocustoComDescricaoDuplicada();}
+        $this->quantidadeCentrocustoDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeCentrocustoDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1030,9 +1196,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarCodigo(){
         $this->info('Preparando para tratar codigo...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getDescricaoCodigoComDescricaoDuplicada();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeCodigoDuplicados);
+        if($this->quantidadeCodigoDuplicados>0){$arrayDuplicados = self::getDescricaoCodigoComDescricaoDuplicadaDesc();}
+        else{$arrayDuplicados = self::getDescricaoCodigoComDescricaoDuplicada();}
+        $this->quantidadeCodigoDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeCodigoDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1087,9 +1255,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarJustificativafatura(){
         $this->info('Preparando para tratar justificativa fatura...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getDescricaoJustificativafaturaComDescricaoDuplicada();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeJustificativafaturaDuplicados);
+        if($this->quantidadeJustificativafaturaDuplicados>0){$arrayDuplicados = self::getDescricaoJustificativafaturaComDescricaoDuplicadaDesc();}
+        else{$arrayDuplicados = self::getDescricaoJustificativafaturaComDescricaoDuplicada();}
+        $this->quantidadeJustificativafaturaDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeJustificativafaturaDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1144,9 +1314,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarTipolistafatura(){
         $this->info('Preparando para tratar tipolistafatura...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getNomeTipolistafaturaComNomeDuplicado();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeTipolistafaturaDuplicados);
+        if($this->quantidadeTipolistafaturaDuplicados>0){$arrayDuplicados = self::getNomeTipolistafaturaComNomeDuplicadoDesc();}
+        else{$arrayDuplicados = self::getNomeTipolistafaturaComNomeDuplicado();}
+        $this->quantidadeTipolistafaturaDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeTipolistafaturaDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1201,9 +1373,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarNaturezadespesa(){
         $this->info('Preparando para tratar naturezadespesa...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getDescricaoNaturezadespesaComDescricaoDuplicada();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeNaturezadespesaDuplicados);
+        if($this->quantidadeNaturezadespesaDuplicados>0){$arrayDuplicados = self::getDescricaoNaturezadespesaComDescricaoDuplicadaDesc();}
+        else{$arrayDuplicados = self::getDescricaoNaturezadespesaComDescricaoDuplicada();}
+        $this->quantidadeNaturezadespesaDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeNaturezadespesaDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1260,9 +1434,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarNaturezasubitem(){
         $this->info('Preparando para tratar naturezasubitem...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getDescricaoNaturezasubitemComDescricaoDuplicada();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeNaturezasubitemDuplicados);
+        if($this->quantidadeNaturezasubitemDuplicados>0){$arrayDuplicados = self::getDescricaoNaturezasubitemComDescricaoDuplicadaDesc();}
+        else{$arrayDuplicados = self::getDescricaoNaturezasubitemComDescricaoDuplicada();}
+        $this->quantidadeNaturezasubitemDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeNaturezasubitemDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1320,9 +1496,11 @@ class tratarDadosMigracaoTseAgu extends Command
         $this->info('Preparando para tratar rhrubrica...');
         $nomeChaveEstrangeira = 'rhrubrica_id';
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getDescricaoRhrubricaComDescricaoDuplicada();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeRhrubricaDuplicados);
+        if($this->quantidadeRhrubricaDuplicados>0){$arrayDuplicados = self::getDescricaoRhrubricaComDescricaoDuplicadaDesc();}
+        else{$arrayDuplicados = self::getDescricaoRhrubricaComDescricaoDuplicada();}
+        $this->quantidadeRhrubricaDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeRhrubricaDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1379,9 +1557,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarRoles(){
         $this->info('Preparando para tratar roles...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getNomeRolesComNomeDuplicado();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeRolesDuplicados);
+        if($this->quantidadeRolesDuplicados>0){$arrayDuplicados = self::getNomeRolesComNomeDuplicadoDesc();}
+        else{$arrayDuplicados = self::getNomeRolesComNomeDuplicado();}
+        $this->quantidadeRolesDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeRolesDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1436,9 +1616,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarOrgaosuperior(){
         $this->info('Preparando para tratar orgaosuperior...');
         // vamos buscar os duplicados
-        $arrayDuplicados = self::getNomeOrgaosuperiorComNomeDuplicado();
-        $quantidadeDuplicados = count($arrayDuplicados);
-        $this->info('Qtd encontrada: '.$quantidadeDuplicados);
+        $this->info('Quantidade aux: '.$this->quantidadeRolesDuplicados);
+        if($this->quantidadeOrgaosuperiorDuplicados>0){$arrayDuplicados = self::getNomeOrgaosuperiorComNomeDuplicadoDesc();}
+        else{$arrayDuplicados = self::getNomeOrgaosuperiorComNomeDuplicado();}
+        $this->quantidadeOrgaosuperiorDuplicados = count($arrayDuplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeOrgaosuperiorDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($arrayDuplicados as $itemDuplicado){
@@ -1496,9 +1678,11 @@ class tratarDadosMigracaoTseAgu extends Command
     public function migrarContrato(){
         $this->info('Preparando para tratar contrato...');
         // vamos buscar os duplicados
-        $duplicados = self::getProcessoContratoComProcessoDuplicado();
-        $quantidade = count($duplicados);
-        $this->info('Qtd encontrada: '.$quantidade);
+        $this->info('Quantidade aux: '.$this->quantidadeContratoDuplicados);
+        if($this->quantidadeContratoDuplicados>0){$duplicados = self::getProcessoContratoComProcessoDuplicadoDesc();}
+        else{$duplicados = self::getProcessoContratoComProcessoDuplicado();}
+        $this->quantidadeContratoDuplicados = count($duplicados);
+        $this->info('Qtd encontrada: '.$this->quantidadeContratoDuplicados);
         $this->info('Atenção! Caso busque diretamente na base, lembrar do deleted at.');
         $cont = 0;
         foreach($duplicados as $item){
