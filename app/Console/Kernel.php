@@ -61,12 +61,12 @@ class Kernel extends ConsoleKernel
         $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
             ->weekdays()
             ->timezone('America/Sao_Paulo')
-            ->everyTenMinutes();
+            ->everyMinute();
 
         $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
             ->weekdays()
             ->timezone('America/Sao_Paulo')
-            ->everyFiveMinutes();
+            ->everyMinute();
 
     }
 

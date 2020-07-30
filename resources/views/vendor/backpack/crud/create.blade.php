@@ -43,10 +43,12 @@
 		      @endif
 		    </div><!-- /.box-body -->
 		    <div class="">
-
+            @if(Route::current()->getName() == 'crud.contrato.create')
+                @include('crud::inc.form_aba_buttons')
+            @else
                 @include('crud::inc.form_save_buttons')
-
-		    </div><!-- /.box-footer-->
+            @endif
+            </div><!-- /.box-footer-->
 
 		  </div><!-- /.box -->
 		  </form>

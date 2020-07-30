@@ -38,11 +38,33 @@ class ContratoSiasgIntegracao extends Model
             if (isset($json->data->empenhos) and $json->data->empenhos != null) {
                 $empenhos = $this->verificaEmpenhosContrato($json->data->empenhos, $contrato);
             }
+            if ($json->data->uasgSubRogada != '000000') {
+                $subrogacao = $this->verificaSubrrogacao($contrato);
+            }
 
         }
 
         return $contrato;
 
+    }
+
+    private function verificaSubrrogacao(Contrato $contrato)
+    {
+        $subrogacao = Subrogacao::where('unidadeorigem_id',$contrato->unidadeorigem_id)
+            ->where('contrato_id', $contrato->id)
+            ->where('unidadedestino_id', $contrato->unidade_id)
+            ->first();
+
+        if(!$subrogacao){
+            $subrogacao = Subrogacao::create([
+                'unidadeorigem_id' => $contrato->unidadeorigem_id,
+                'contrato_id' => $contrato->id,
+                'unidadedestino_id' => $contrato->unidade_id,
+                'data_termo' => date('Y-m-d')
+            ]);
+        }
+
+        return $subrogacao;
     }
 
     private function verificaEmpenhosContrato($empenhos, Contrato $contrato)
@@ -423,7 +445,7 @@ class ContratoSiasgIntegracao extends Model
         $dado['fundamento_legal'] = mb_strtoupper(trim($json->data->fundamentoLegal), 'UTF-8');
         $dado['modalidade_id'] = $modalidade_id;
         $dado['licitacao_numero'] = ($json->data->numLicitacao != '') ? $this->formataNumeroContratoLicitacao($json->data->numLicitacao) : $json->data->numLicitacao;
-        $dado['situacao'] = true;
+        $dado['situacao'] = $json->data->situacao == '1' ? true : false;
         $dado['fornecedor_id'] = $fornecedor->id;
         $dado['data_assinatura'] = $this->formataDataSiasg($json->data->dataAssinatura);
         $dado['data_publicacao'] = $this->formataDataSiasg($json->data->dataPublicacao);
