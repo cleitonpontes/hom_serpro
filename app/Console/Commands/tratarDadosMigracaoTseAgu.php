@@ -279,33 +279,6 @@ class tratarDadosMigracaoTseAgu extends Command
         $this->line('----------------------------------------------------------------------------');
 
     }
-    //
-    // public function rodarScript1($nomeBancoDeDados){
-    //     $this->line('***************************copiar arquivos seed...******************************');
-    //     exec('cp -rf database/migracao_tse_agu/seeders\ empacotados/* database/seeds/');
-    //     $this->line('***************************instalar composer...******************************');
-    //     exec('curl -s https://getcomposer.org/installer | php');
-    //     $this->line('***************************instalar dependências...******************************');
-    //     exec('php -d memory_limit=-1 composer.phar install');
-    //     $this->line('***************************gerar chave...******************************');
-    //     exec('php artisan key:generate');
-    //     $this->line('***************************gerar autoload...******************************');
-    //     exec('php composer.phar dump-autoload');
-    //     $this->info('*************************************script 1******************************************');
-    //     exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script1_producao.sql');
-    //     $this->info('**********************************script 1_2*********************************************');
-    //     exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script1_2_producao.sql');
-    //     $this->info('*********************************script 1_3**********************************************');
-    //     exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script1_3_producao.sql');
-    //     $this->info('*********************************** seed ********************************************');
-    //     exec('php artisan db:seed');
-    //     $this->info('Aguardando conclusão do seed...');
-    //     sleep(25);
-    //     $this->info('************************************ script 2 *******************************************');
-    //     exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script2_producao.sql');
-    //     $this->info('************************************ PRIMEIRA PARTE OK *******************************************');
-    // }
-
 
     public function rodarScript1($nomeBancoDeDados){
         // alterado.
@@ -336,13 +309,18 @@ class tratarDadosMigracaoTseAgu extends Command
         $this->info('Aguardando conclusão do seed...');
         sleep(25);
         $this->info('************************************ script 2 *******************************************');
-        exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script2_producao.sql');
+        // exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script2_producao.sql');
+        $sql = file_get_contents('database/migracao_tse_agu/script2_producao.sql');
+        DB::unprepared($sql);
+
         $this->info('************************************ PRIMEIRA PARTE OK *******************************************');
     }
 
 
     public function rodarScript3($nomeBancoDeDados){
-        exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script3_producao.sql');
+        // exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script1_3_producao.sql');
+        $sql = file_get_contents('database/migracao_tse_agu/script1_3_producao.sql');
+        DB::unprepared($sql);
     }
 
     //
