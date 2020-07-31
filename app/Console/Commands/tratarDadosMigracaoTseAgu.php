@@ -307,7 +307,7 @@ class tratarDadosMigracaoTseAgu extends Command
         $this->info('*********************************** seed ********************************************');
         exec('php artisan db:seed');
         $this->info('Aguardando conclusão do seed...');
-        sleep(25);
+        sleep(35);
         $this->info('************************************ script 2 *******************************************');
         // exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script2_producao.sql');
         $sql = file_get_contents('database/migracao_tse_agu/script2_producao.sql');
