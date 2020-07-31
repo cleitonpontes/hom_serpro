@@ -15,8 +15,7 @@ class AlterUnidadeAddFieldsSiasg extends Migration
     {
         Schema::table('unidades', function (Blueprint $table) {
             $table->boolean('sisg')->default(false);
-            $table->string('uf')->nullable();
-            $table->string('municipio')->nullable();
+            $table->integer('municipio_id')->unsigned()->nullable();
             $table->string('esfera')->nullable();
             $table->string('poder')->nullable();
             $table->string('tipo_adm')->nullable();
@@ -35,8 +34,7 @@ class AlterUnidadeAddFieldsSiasg extends Migration
     {
         Schema::table('unidades', function (Blueprint $table) {
             $table->dropColumn('sisg');
-            $table->dropColumn('uf');
-            $table->dropColumn('municipio');
+            $table->dropColumn('municipio_id');
             $table->dropColumn('esfera');
             $table->dropColumn('poder');
             $table->dropColumn('tipo_adm');
