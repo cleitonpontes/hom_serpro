@@ -312,13 +312,11 @@ class tratarDadosMigracaoTseAgu extends Command
         // exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script2_producao.sql');
         $sql = file_get_contents('database/migracao_tse_agu/script2_producao.sql');
         DB::unprepared($sql);
-
-        $this->info('************************************ PRIMEIRA PARTE OK *******************************************');
     }
 
 
     public function rodarScript3($nomeBancoDeDados){
-        exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script3_producao.sql');
+        //exec('psql -U postgres -d '.$nomeBancoDeDados.' -1 -f database/migracao_tse_agu/script3_producao.sql');
         $sql = file_get_contents('database/migracao_tse_agu/script3_producao.sql');
         DB::unprepared($sql);
     }
