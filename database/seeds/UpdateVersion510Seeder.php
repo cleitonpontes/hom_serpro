@@ -22,5 +22,7 @@ class UpdateVersion510Seeder extends Seeder
 
         $this->call(UpdateCamposSiasgUnidade::class);
 
+        $this->call(InsertSuperiorOrgaoUnidadeSeeder::class);
+
     }
 }
