@@ -8,18 +8,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Municipio extends Model
 {
     use SoftDeletes;
+
+    public $primaryKey = 'id';
     protected $table = 'municipios';
-    protected $fillable = [
-        'codigo_ibge',
-        'nome',
-        'latitude',
-        'longitude',
-        'capital',
-        'estado_id'
-    ];
 
     public function estado()
     {
-        return $this->belongsTo(Estado::class,'estado_id','id');
+        return $this->belongsTo(Estado::class, 'estado_id', 'id');
     }
 }

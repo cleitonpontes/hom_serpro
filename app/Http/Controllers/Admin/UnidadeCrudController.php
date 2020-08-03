@@ -6,6 +6,8 @@ use Alert;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Execfin\EmpenhoCrudController;
 use App\Jobs\AlertaContratoJob;
+use App\Models\Estado;
+use App\Models\Municipio;
 use App\Models\Orgao;
 use App\Models\OrgaoSuperior;
 use App\Models\Unidade;
@@ -456,44 +458,49 @@ class UnidadeCrudController extends CrudController
                 'type' => 'select_from_array',
                 'options' =>
                     [
-                        "AC" => "Acre",
-                        "AL" => "Alagoas",
-                        "AM" => "Amazonas",
-                        "AP" => "Amapá",
-                        "BA" => "Bahia",
-                        "CE" => "Ceará",
-                        "DF" => "Distrito Federal",
-                        "ES" => "Espírito Santo",
-                        "GO" => "Goiás",
-                        "MA" => "Maranhão",
-                        "MT" => "Mato Grosso",
-                        "MS" => "Mato Grosso do Sul",
-                        "MG" => "Minas Gerais",
-                        "PA" => "Pará",
-                        "PB" => "Paraíba",
-                        "PR" => "Paraná",
-                        "PE" => "Pernambuco",
-                        "PI" => "Piauí",
-                        "RJ" => "Rio de Janeiro",
-                        "RN" => "Rio Grande do Norte",
-                        "RO" => "Rondônia",
-                        "RS" => "Rio Grande do Sul",
-                        "RR" => "Roraima",
-                        "SC" => "Santa Catarina",
-                        "SE" => "Sergipe",
-                        "SP" => "São Paulo",
-                        "TO" => "Tocantins"
+                        12 => "Acre",
+                        27 => "Alagoas",
+                        16 => "Amazonas",
+                        13 => "Amapá",
+                        29 => "Bahia",
+                        23 => "Ceará",
+                        53 => "Distrito Federal",
+                        32 => "Espírito Santo",
+                        52 => "Goiás",
+                        21 => "Maranhão",
+                        51 => "Mato Grosso",
+                        50 => "Mato Grosso do Sul",
+                        31 => "Minas Gerais",
+                        15 => "Pará",
+                        25 => "Paraíba",
+                        41 => "Paraná",
+                        26 => "Pernambuco",
+                        22 => "Piauí",
+                        33 => "Rio de Janeiro",
+                        24 => "Rio Grande do Norte",
+                        43 => "Rondônia",
+                        11 => "Rio Grande do Sul",
+                        14 => "Roraima",
+                        42 => "Santa Catarina",
+                        35 => "Sergipe",
+                        28 => "São Paulo",
+                        17 => "Tocantins",
+                        99 => "Exterior"
                     ],
                 'allows_null' => true,
             ],
             [ // select_from_array
-                'name' => 'municipio',
-                'label' => "Município",
-                'type' => 'text',
-                'allows_null' => true,
-                'attributes' => [
-                    'onkeyup' => "maiuscula(this)",
-                ]
+                'name' => 'municipio_id', // the column that contains the ID of that connected entity
+                'label' => "Municipio", // Table column heading
+                'type' => 'select2_from_ajax',
+                'model' => 'App\Models\Municipio',
+                'entity' => 'municipio', // the method that defines the relationship in your Model
+                'attribute' => 'nome', // foreign key attribute that is shown to user
+                'data_source' => url('api/municipios'), // url to controller search function (with /{id} should return model)
+                'placeholder' => 'Selecione...', // placeholder for the select
+                'minimum_input_length' => 0, // minimum characters to type before querying results
+                'dependencies' => ['uf'], // when a dependency changes, this select2 is reset to null
+                'method' => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
             ],
             [ // select_from_array
                 'name' => 'esfera',

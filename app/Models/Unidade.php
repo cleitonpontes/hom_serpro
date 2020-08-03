@@ -28,8 +28,7 @@ class Unidade extends Model
         'tipo',
         'situacao',
         'sisg',
-        'uf',
-        'municipio',
+        'municipio_id',
         'esfera',
         'poder',
         'tipo_adm',
@@ -104,6 +103,11 @@ class Unidade extends Model
     public function configuracao()
     {
         return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
+    }
+
+    public function municipio()
+    {
+        return $this->belongsTo(Municipio::class, 'municipio_id');
     }
 
 }

@@ -8,15 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Estado extends Model
 {
     use SoftDeletes;
-    protected $table = 'estados';
-    protected $fillable = [
-        'sigla',
-        'nome',
-        'regiao_id',
-        'latitude',
-        'longitude'
-    ];
 
+    public $primaryKey = 'id';
+    protected $table = 'estados';
 
     public function municipios()
     {
