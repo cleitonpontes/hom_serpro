@@ -16,6 +16,7 @@ class UpdateVersion510Seeder extends Seeder
         $this->call(UpdateNumeroContratoeHistoricoSeeder::class);
         $this->call(UpdateNumLiciContratoeHistoricoSeeder::class);
         $this->call(UpdateCatmatCatserSeeder::class);
+
         $this->call(EstadosSeeder::class);
         $this->call(MunicipiosSeeder::class);
 
