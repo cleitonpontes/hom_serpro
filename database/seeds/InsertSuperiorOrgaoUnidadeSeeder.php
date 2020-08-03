@@ -20,7 +20,7 @@ class InsertSuperiorOrgaoUnidadeSeeder extends Seeder
         // Supported Versions do Postgresql: Current (12) / 11 / 10 / 9.6 / 9.5
         DB::select( DB::raw(" CREATE EXTENSION IF NOT EXISTS unaccent ") );
 
-        $json = File::get('database/data/lista_uasg_2020_06_05_min.json');
+        $json = File::get('database/data/lista_uasg_2020_06_05.json');
         $data = json_decode($json);
 
         foreach ($data as $item) {
