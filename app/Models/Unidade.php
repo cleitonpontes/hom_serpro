@@ -26,7 +26,16 @@ class Unidade extends Model
         'nomeresumido',
         'telefone',
         'tipo',
-        'situacao'
+        'situacao',
+        'sisg',
+        'municipio_id',
+        'esfera',
+        'poder',
+        'tipo_adm',
+        'aderiu_siasg',
+        'utiliza_siafi',
+        'codigo_siorg',
+
     ];
 
 
@@ -88,16 +97,17 @@ class Unidade extends Model
 
     public function compras()
     {
-
         return $this->hasMany(Siasgcompra::class, 'unidade_id');
-
     }
 
     public function configuracao()
     {
-
         return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
+    }
 
+    public function municipio()
+    {
+        return $this->belongsTo(Municipio::class, 'municipio_id');
     }
 
 }

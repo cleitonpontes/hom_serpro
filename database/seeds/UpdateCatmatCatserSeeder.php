@@ -5,7 +5,7 @@ use Illuminate\Database\Seeder;
 // composer require laracasts/testdummy
 use Laracasts\TestDummy\Factory as TestDummy;
 
-class UpdateCatmatCatserSeederTableSeeder extends Seeder
+class UpdateCatmatCatserSeeder extends Seeder
 {
     public function run()
     {
