@@ -9,10 +9,7 @@ class UpdateVersion510Seeder extends Seeder
 {
     public function run()
     {
-        $this->call(InsertSuperiorOrgaoUnidadeSeeder::class);
         $this->call(UpdateCodigoSiasgUnidadeSeeder::class);
-
-
         $this->call(UpdateNumeroContratoeHistoricoSeeder::class);
         $this->call(UpdateNumLiciContratoeHistoricoSeeder::class);
         $this->call(UpdateCatmatCatserSeeder::class);
@@ -20,6 +17,7 @@ class UpdateVersion510Seeder extends Seeder
         $this->call(EstadosSeeder::class);
         $this->call(MunicipiosSeeder::class);
 
+        $this->call(InsertSuperiorOrgaoUnidadeSeeder::class);
         $this->call(UpdateCamposSiasgUnidade::class);
     }
 }
