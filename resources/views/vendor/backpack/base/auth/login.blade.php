@@ -97,11 +97,11 @@
                     <div class="box">
                         <div class="box-body">
                             <div class="text-center m-t-10">
-                                <a href="{{ url('/acessogov') }}">
+                                <a href="{{ url('/acessogov/autorizacao') }}">
                                     <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/govbr.png")) ?>" width="150px"
                                          alt="Entrar via Acesso Gov"></a>
                             <div>
-                                <a href="{{ url('/acessogov') }}" class="btn btn-primary" id="prev_aba"><span class="fa fa-sign-in"></span> &nbsp;Entrar via Acesso Gov</a>
+                                <a href="{{ url('/acessogov/autorizacao') }}" class="btn btn-primary" id="prev_aba"><span class="fa fa-sign-in"></span> &nbsp;Entrar via Acesso Gov</a>
                             </div>
                             </div>
                         </div>
