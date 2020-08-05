@@ -44,6 +44,9 @@ class InsertPadraosiafiPermissionsDados extends Migration
         $role->givePermissionTo('contratosfpadrao_deletar');
 
         $role = Role::where(['name' => 'Execução Financeira'])->first();
+        if(!$role){
+            $role = Role::create(['name' => 'Execução Financeira']);
+        }
         $role->givePermissionTo('contratosfpadrao_inserir');
         $role->givePermissionTo('contratosfpadrao_editar');
         $role->givePermissionTo('contratosfpadrao_deletar');
