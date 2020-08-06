@@ -70,4 +70,28 @@ class LoginAcessoGov
         return $retorno;
     }
 
+    public function login() {
+
+        $dados = $this->autorizacao();
+        $redirect_uri = 'http://comprasnet.gov.br/acessogov/tokenacesso';
+
+        $base = new AdminController();
+        $url = $this->host_acessogov . '/token?response_type=authorization_code&code='.$dados['code'].'&redirect_uri='.$redirect_uri;
+
+        $dados = $base->buscaDadosUrl($url);
+
+        dd($dados);
+
+        $retorno = null;
+
+        if($dados != null){
+            $retorno = [
+                'code' => $dados['code'],
+                'state' => $dados['state']
+            ];
+        }
+
+        return $retorno;
+    }
+
 }
