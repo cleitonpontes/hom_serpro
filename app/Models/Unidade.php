@@ -73,9 +73,21 @@ class Unidade extends Model
             $tipo = "Setorial Contábil";
         }
 
-
         return $tipo;
 
+    }
+
+    public function getMunicipio()
+    {
+        if (!$this->municipio_id)
+            return '';
+        return $this->municipio->nome;
+    }
+    public function getUF()
+    {
+        if (!$this->municipio_id)
+            return '';
+        return $this->municipio->estado->sigla;
     }
 
     public function orgao()
@@ -90,9 +102,7 @@ class Unidade extends Model
 
     public function contratos()
     {
-
         return $this->hasMany(Contrato::class, 'unidade_id');
-
     }
 
     public function compras()

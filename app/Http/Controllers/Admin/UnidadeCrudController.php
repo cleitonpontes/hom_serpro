@@ -248,9 +248,10 @@ class UnidadeCrudController extends CrudController
 //                'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
             [
-                'name' => 'uf',
-                'label' => 'Estado',
-                'type' => 'text',
+                'name' => 'getUF',
+                'label' => 'UF',
+                'type' => 'model_function',
+                'function_name' => 'getUF',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -260,9 +261,10 @@ class UnidadeCrudController extends CrudController
 //                'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
             [
-                'name' => 'municipio',
+                'name' => 'getMunicipio',
                 'label' => 'Município',
-                'type' => 'text',
+                'type' => 'model_function',
+                'function_name' => 'getMunicipio',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -589,6 +591,7 @@ class UnidadeCrudController extends CrudController
 
         $this->crud->removeColumn('orgao_id');
         $this->crud->removeColumn('tipo');
+        $this->crud->removeColumn('municipio_id');
 
         return $content;
     }
