@@ -730,19 +730,21 @@ class ContratoCrudController extends CrudController
 
         $pdf->SetY("35");
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(28, 5, utf8_decode("Contrato: "), 0, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode("Contrato: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(20, 5, utf8_decode($contrato->numero), 0, 0, 'L');
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(18, 5, utf8_decode("Fornecedor: "), 0, 0, 'L');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(20, 5,utf8_decode(strlen($contrato->fornecedor->nome) > 65 ? substr($contrato->fornecedor->nome,0,65)." [...]" : $contrato->fornecedor->nome), 0, 0, 'L');
 
         $pdf->SetY("40");
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(33, 5, utf8_decode("CNPJ/CPF/ID Genérico: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Cell(30, 5, utf8_decode($contrato->fornecedor->cpf_cnpj_idgener), 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(18, 5, utf8_decode("Fornecedor: "), 0, 0, 'L');
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(20, 5, utf8_decode($contrato->fornecedor->nome), 0, 0, 'L');
+        
 
         $pdf->SetY("45");
         $pdf->SetFont('Arial', '', 8);
@@ -813,13 +815,15 @@ class ContratoCrudController extends CrudController
         $pdf->Cell(0, 5, utf8_decode("Objeto: "), 0, 0, 'L');
         $pdf->SetY("80");
         $pdf->SetFont('Arial', 'B', 9);
+        //$pdf->MultiCell(0, 5, utf8_decode(preg_replace( "/\r|\n/", "", $contrato->objeto )), 0, 'J');
         $pdf->MultiCell(0, 5, utf8_decode($contrato->objeto), 0, 'J');
 
         //numero de caracteres fonte 9 por linha 100
-        $pdf->SetY($this->calculaLinhasMultiCell(strlen($contrato->objeto), '80'));
+        
+        $pdf->SetY(80 + ($pdf->NbLines(161, utf8_decode($contrato->objeto))*5));
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(0, 5, utf8_decode("Informação Complementar: "), 0, 0, 'L');
-        $pdf->SetY($this->calculaLinhasMultiCell(strlen($contrato->objeto), '80') + 5);
+        $pdf->SetY(85 + ($pdf->NbLines(161, utf8_decode($contrato->objeto))*5));
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->MultiCell(0, 5, utf8_decode($contrato->info_complementar), 0, 'J');
 
@@ -840,15 +844,16 @@ class ContratoCrudController extends CrudController
 
         $pdf->SetY(40);
         $pdf->SetFont('Arial', 'B', 7);
-        $pdf->Cell(21, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
-        $pdf->Cell(21, 5, utf8_decode("Número"), 1, 0, 'C');
-        $pdf->Cell(21, 5, utf8_decode("Observação"), 1, 0, 'C');
-        $pdf->Cell(21, 5, utf8_decode("Tipo"), 1, 0, 'C');
-        $pdf->Cell(21, 5, utf8_decode("Data Início"), 1, 0, 'C');
-        $pdf->Cell(21, 5, utf8_decode("Data Fim"), 1, 0, 'C');
-        $pdf->Cell(21, 5, utf8_decode("Valor Global"), 1, 0, 'C');
-        $pdf->Cell(21, 5, utf8_decode("Parcelas"), 1, 0, 'C');
-        $pdf->Cell(21, 5, utf8_decode("Valor Parcela"), 1, 0, 'C');
+        $pdf->Cell(23, 5, utf8_decode("Tipo"), 1, 0, 'C');
+        
+        $pdf->Cell(23, 5, utf8_decode("Número"), 1, 0, 'C');
+        //$pdf->Cell(21, 5, utf8_decode("Observação"), 1, 0, 'C');
+        $pdf->Cell(23, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
+        $pdf->Cell(23, 5, utf8_decode("Data Início"), 1, 0, 'C');
+        $pdf->Cell(23, 5, utf8_decode("Data Fim"), 1, 0, 'C');
+        $pdf->Cell(23, 5, utf8_decode("Valor Global"), 1, 0, 'C');
+        $pdf->Cell(23, 5, utf8_decode("Parcelas"), 1, 0, 'C');
+        $pdf->Cell(23, 5, utf8_decode("Valor Parcela"), 1, 0, 'C');
 
         $row_resp = 45;
         $historico = $contrato->historico()->get();
@@ -859,40 +864,52 @@ class ContratoCrudController extends CrudController
                 $pdf->AddPage();
                 $pdf->SetY($row_resp);
                 $pdf->SetFont('Arial', 'B', 7);
-                $pdf->Cell(21, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
-                $pdf->Cell(21, 5, utf8_decode("Número"), 1, 0, 'C');
-                $pdf->Cell(21, 5, utf8_decode("Observação"), 1, 0, 'C');
-                $pdf->Cell(21, 5, utf8_decode("Tipo"), 1, 0, 'C');
-                $pdf->Cell(21, 5, utf8_decode("Data Início"), 1, 0, 'C');
-                $pdf->Cell(21, 5, utf8_decode("Data Fim"), 1, 0, 'C');
-                $pdf->Cell(21, 5, utf8_decode("Valor Global"), 1, 0, 'C');
-                $pdf->Cell(21, 5, utf8_decode("Parcelas"), 1, 0, 'C');
-                $pdf->Cell(21, 5, utf8_decode("Valor Parcela"), 1, 0, 'C');
+                $pdf->Cell(23, 5, utf8_decode("Tipo"), 1, 0, 'C');
+                $pdf->Cell(23, 5, utf8_decode("Número"), 1, 0, 'C');
+                $pdf->Cell(23, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
+                
+                //$pdf->Cell(21, 5, utf8_decode("Observação"), 1, 0, 'C');
+                
+                $pdf->Cell(23, 5, utf8_decode("Data Início"), 1, 0, 'C');
+                $pdf->Cell(23, 5, utf8_decode("Data Fim"), 1, 0, 'C');
+                $pdf->Cell(23, 5, utf8_decode("Valor Global"), 1, 0, 'C');
+                $pdf->Cell(23, 5, utf8_decode("Parcelas"), 1, 0, 'C');
+                $pdf->Cell(23, 5, utf8_decode("Valor Parcela"), 1, 0, 'C');
                 $row_resp += 5;
             }
 
-            $pdf->SetFont('Arial', '', 7);
+            
             $pdf->SetY($row_resp);
-            $lines = $pdf->NbLines(21, utf8_decode($registro->observacao)) * 5;
-            $pdf->Cell(21, $lines, implode('/',
-                    array_reverse(explode('-', $registro->data_assinatura)))
-                , 1, 0, 'L');
-            $pdf->Cell(21, $lines, $registro->numero, 1, 0, 'L');
-            $pdf->MultiCell(21, 5, utf8_decode($registro->observacao), 1);
-            $pdf->SetXY($pdf->GetX() + (3 * 21), $row_resp);
+            
+            $pdf->SetFont('Arial', 'B', 7);
+            $pdf->Cell(23, 5, utf8_decode($registro->tipo()->first()->descricao), 1, 0, 'C');
+            $pdf->SetFont('Arial', '', 7);
+            $pdf->Cell(23, 5, $registro->numero, 1, 0, 'L');
+            $pdf->Cell(23, 5, implode('/',array_reverse(explode('-', $registro->data_assinatura))), 1, 0, 'L');
+            
+            //$pdf->MultiCell(21, 5, utf8_decode($registro->observacao), 1);
+            //$pdf->SetXY($pdf->GetX() + (3 * 21), $row_resp);
 //            $pdf->SetX($pdf->GetX()+(3*21));
-            $pdf->Cell(21, $lines, utf8_decode($registro->tipo()->first()->descricao), 1, 0, 'C');
-            $pdf->Cell(21, $lines, implode('/', array_reverse(explode('-', $registro->vigencia_inicio)))
-                , 1, 0, 'C');
-            $pdf->Cell(21, $lines, implode('/', array_reverse(explode('-', $registro->vigencia_fim)))
-                , 1, 0, 'C');
-            $pdf->Cell(21, $lines, number_format($registro->valor_global, 2, ',', ".")
-                , 1, 0, 'R');
-            $pdf->Cell(21, $lines, $registro->num_parcelas, 1, 0, 'R');
-            $pdf->Cell(21, $lines, number_format($registro->valor_parcela, 2, ',', ".")
-                , 1, 0, 'R');
+            
+            $pdf->Cell(23, 5, implode('/', array_reverse(explode('-', $registro->vigencia_inicio))), 1, 0, 'C');
+            $pdf->Cell(23, 5, implode('/', array_reverse(explode('-', $registro->vigencia_fim))), 1, 0, 'C');
+            $pdf->Cell(23, 5, number_format($registro->valor_global, 2, ',', "."), 1, 0, 'R');
+            $pdf->Cell(23, 5, $registro->num_parcelas, 1, 0, 'R');
+            $pdf->Cell(23, 5, number_format($registro->valor_parcela, 2, ',', "."), 1, 0, 'R');
+            
+            $row_resp += 5;
+            $pdf->SetY($row_resp);
 
-            $row_resp += $lines;
+            $lines = $pdf->NbLines(161, utf8_decode($registro->observacao)) *5;
+            $pdf->SetFont('Arial', 'B', 7);
+            $pdf->Cell(23, $lines, utf8_decode("Observação"), 1, 0, 'C');
+
+            $pdf->SetFont('Arial', '', 7);
+            $pdf->MultiCell(161, 5, utf8_decode($registro->observacao), 1);
+
+            
+
+            $row_resp += $lines +5;
         }
 
         //responsaveis do contrato
