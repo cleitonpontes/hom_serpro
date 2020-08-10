@@ -12,6 +12,7 @@ use App\Http\Requests\ContratofaturaRequest as StoreRequest;
 use App\Http\Requests\ContratofaturaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
+use DB;
 
 /**
  * Class ContratofaturaCrudController
@@ -75,11 +76,10 @@ class ContratofaturaCrudController extends CrudController
             ->pluck('numero', 'id')
             ->toArray();
 
-        $tipolistafatura = Tipolistafatura::where('situacao',true)
+        $tipolistafatura = Tipolistafatura::where('situacao', true)
             ->orderBy('nome', 'ASC')
-            ->pluck('nome','id')
+            ->pluck('nome', 'id')
             ->toArray();
-
 
 
         $campos = $this->Campos($con, $tipolistafatura, $contrato_id);
@@ -323,18 +323,18 @@ class ContratofaturaCrudController extends CrudController
 //                },
             ],
             [ // n-n relationship (with pivot table)
-                'name'      => 'empenhos',
-                'label'     => 'Empenhos',
-                'type'      => 'select_multiple',
+                'name' => 'empenhos',
+                'label' => 'Empenhos',
+                'type' => 'select_multiple',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'entity'    => 'empenhos',
+                'entity' => 'empenhos',
                 'attribute' => 'numero',
-                'model'     => Empenho::class,
-                'pivot'     => true,
+                'model' => Empenho::class,
+                'pivot' => true,
             ],
             [
                 'name' => 'repactuacao',
@@ -410,7 +410,7 @@ class ContratofaturaCrudController extends CrudController
 
     }
 
-    public function Campos($contrato,$tipolistafatura, $contrato_id)
+    public function Campos($contrato, $tipolistafatura, $contrato_id)
     {
 
         $con = Contrato::find($contrato_id);
@@ -423,7 +423,7 @@ class ContratofaturaCrudController extends CrudController
                 'options' => $contrato,
                 'allows_null' => false,
                 'attributes' => [
-                    'readonly'=>'readonly',
+                    'readonly' => 'readonly',
                     'style' => 'pointer-events: none;touch-action: none;'
                 ], // chan
                 'tab' => 'Dados Fatura',
@@ -443,7 +443,7 @@ class ContratofaturaCrudController extends CrudController
                 'label' => "Número",
                 'type' => 'text',
                 'attributes' => [
-                    'maxlength'=>'17',
+                    'maxlength' => '17',
                     'onkeyup' => "maiuscula(this)",
 //                    'disabled'=>'disabled',
                 ],
@@ -529,8 +529,8 @@ class ContratofaturaCrudController extends CrudController
                 'label' => "Repactuação?",
                 'type' => 'radio',
                 'options' => [0 => 'Não', 1 => 'Sim'],
-                'default'    => 0,
-                'inline'      => true,
+                'default' => 0,
+                'inline' => true,
                 'tab' => 'Outras Informações',
             ],
             [ // select_from_array
@@ -556,7 +556,7 @@ class ContratofaturaCrudController extends CrudController
                 'label' => "Ano Referência",
                 'type' => 'select2_from_array',
                 'options' => config('app.anos_referencia_fatura'),
-                'default'    => date('Y'),
+                'default' => date('Y'),
                 'allows_null' => false,
                 'tab' => 'Outras Informações',
             ],
@@ -566,14 +566,20 @@ class ContratofaturaCrudController extends CrudController
                 'name' => 'empenhos', // the method that defines the relationship in your Model
                 'entity' => 'empenhos', // the method that defines the relationship in your Model
                 'attribute' => 'numero', // foreign key attribute that is shown to user
-                'attribute2' => 'aliquidar', // foreign key attribute that is shown to user
-                'attribute_separator' => ' - Valor a Liquidar: R$ ', // foreign key attribute that is shown to user
+//                'attribute2' => 'aliquidar', // foreign key attribute that is shown to user
+//                'attribute_separator' => ' - Valor a Liquidar: R$ ', // foreign key attribute that is shown to user
                 'model' => "App\Models\Empenho", // foreign key model
                 'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
                 'options' => (function ($query) use ($con) {
                     return $query->orderBy('numero', 'ASC')
-                        ->where('unidade_id',session()->get('user_ug_id'))
-                        ->where('fornecedor_id',$con->fornecedor_id)
+                        ->select(['id', DB::raw('case
+                           when left(numero, 4) = date_part(\'year\', current_date)::text
+                               then numero || \' - Saldo a Liquidar: R$ \' || aliquidar
+                           else numero || \' - Saldo RP  a Liquidar: R$ \' || rpaliquidar
+                           end as numero')
+                        ])
+                        ->where('unidade_id', session()->get('user_ug_id'))
+                        ->where('fornecedor_id', $con->fornecedor_id)
                         ->get();
                 }),
                 'tab' => 'Outras Informações',
@@ -584,9 +590,9 @@ class ContratofaturaCrudController extends CrudController
                 'label' => "Situação",
                 'type' => 'select_from_array',
                 'options' => config('app.situacao_fatura'),
-                'default'    => 'PEN',
+                'default' => 'PEN',
                 'attributes' => [
-                    'readonly'=>'readonly',
+                    'readonly' => 'readonly',
                     'style' => 'pointer-events: none;touch-action: none;'
                 ],
                 'allows_null' => false,
@@ -600,25 +606,25 @@ class ContratofaturaCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        $v = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('valor')))),2,'.','');
-        $j = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('juros')))),2,'.','');
-        $m = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('multa')))),2,'.','');
-        $g = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('glosa')))),2,'.','');
-        $vl = number_format(floatval($v + $j + $m - $g),2,'.','');
+        $v = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('valor')))), 2, '.', '');
+        $j = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('juros')))), 2, '.', '');
+        $m = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('multa')))), 2, '.', '');
+        $g = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('glosa')))), 2, '.', '');
+        $vl = number_format(floatval($v + $j + $m - $g), 2, '.', '');
 
 
-        if($request->input('vencimento')){
+        if ($request->input('vencimento')) {
 
             $request->request->set('prazo', $request->input('vencimento'));
 
-        }else{
+        } else {
             $tipolistafatura = $request->input('tipolistafatura_id');
-            if($tipolistafatura == '5'){
+            if ($tipolistafatura == '5') {
                 $ateste = $request->input('ateste');
-                $request->request->set('prazo', date('Y-m-d', strtotime("+5 days",strtotime($ateste))));
-            }else{
+                $request->request->set('prazo', date('Y-m-d', strtotime("+5 days", strtotime($ateste))));
+            } else {
                 $ateste = $request->input('ateste');
-                $request->request->set('prazo', date('Y-m-d', strtotime("+30 days",strtotime($ateste))));
+                $request->request->set('prazo', date('Y-m-d', strtotime("+30 days", strtotime($ateste))));
             }
         }
 
@@ -641,26 +647,26 @@ class ContratofaturaCrudController extends CrudController
         $contrato_id = $request->input('contrato_id');
         $situacao = $request->input('situacao');
 
-        if($situacao == 'PEN'){
+        if ($situacao == 'PEN') {
 
-            $v = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('valor')))),2,'.','');
-            $j = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('juros')))),2,'.','');
-            $m = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('multa')))),2,'.','');
-            $g = number_format(floatval(str_replace(',', '.', str_replace('.','',$request->input('glosa')))),2,'.','');
-            $vl = number_format(floatval($v + $j + $m - $g),2,'.','');
+            $v = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('valor')))), 2, '.', '');
+            $j = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('juros')))), 2, '.', '');
+            $m = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('multa')))), 2, '.', '');
+            $g = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('glosa')))), 2, '.', '');
+            $vl = number_format(floatval($v + $j + $m - $g), 2, '.', '');
 
-            if($request->input('vencimento')){
+            if ($request->input('vencimento')) {
 
                 $request->request->set('prazo', $request->input('vencimento'));
 
-            }else{
+            } else {
                 $tipolistafatura = $request->input('tipolistafatura_id');
-                if($tipolistafatura == '5'){
+                if ($tipolistafatura == '5') {
                     $ateste = $request->input('ateste');
-                    $request->request->set('prazo', date('Y-m-d', strtotime("+5 days",strtotime($ateste))));
-                }else{
+                    $request->request->set('prazo', date('Y-m-d', strtotime("+5 days", strtotime($ateste))));
+                } else {
                     $ateste = $request->input('ateste');
-                    $request->request->set('prazo', date('Y-m-d', strtotime("+30 days",strtotime($ateste))));
+                    $request->request->set('prazo', date('Y-m-d', strtotime("+30 days", strtotime($ateste))));
                 }
             }
 
@@ -673,10 +679,10 @@ class ContratofaturaCrudController extends CrudController
             $redirect_location = parent::updateCrud($request);
             return $redirect_location;
 
-        }else{
+        } else {
 
             \Alert::error('Essa Fatura não pode ser alterada!')->flash();
-            return redirect('/gescon/meus-contratos/'.$contrato_id.'/faturas');
+            return redirect('/gescon/meus-contratos/' . $contrato_id . '/faturas');
 
         }
 

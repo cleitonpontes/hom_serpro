@@ -41,6 +41,7 @@ Route::group([
             Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
             Route::get('ocorrenciaconcluida', 'OcorrenciaconcluidaController@index');
             Route::get('ocorrenciaconcluida/{id}', 'OcorrenciaconcluidaController@show');
+            Route::get('municipios', 'MunicipioController@index');
         });
 
         // if not otherwise configured, setup the dashboard routes
