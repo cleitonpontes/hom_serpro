@@ -17,30 +17,40 @@ class MigracaoSistemaContaController extends Controller
     {
         $orgaoconfiguracao = Orgaoconfiguracao::find($orgaoconfiguracao_id);
 
-        $migracao = MigracaoSistemaConta::where('orgao_id',$orgaoconfiguracao->orgao_id)
-            ->first();
+        if($orgaoconfiguracao->tipo == 'CONTA'){
 
-        if(isset($migracao->id)){
-            \Alert::warning('Esse órgão já realizou migração!')->flash();
-            return redirect()->back();
+            $migracao = MigracaoSistemaConta::where('orgao_id',$orgaoconfiguracao->orgao_id)
+                ->first();
+
+            if(isset($migracao->id)){
+                \Alert::warning('Esse órgão já realizou migração!')->flash();
+                return redirect()->back();
+            }
+
+            if (!isset($orgaoconfiguracao->id)) {
+                \Alert::error('Configuração Inválida!')->flash();
+                return redirect()->back();
+            }
+
+            if (isset($orgaoconfiguracao->api_migracao_conta_url) and isset($orgaoconfiguracao->api_migracao_conta_token)) {
+                $retorno = $this->executaMigracao($orgaoconfiguracao);
+            }
+
+            if ($retorno == []) {
+                \Alert::warning('Algo deu errado, entre em contato com o Suporte!')->flash();
+                return redirect()->back();
+            }
+
         }
 
-        if (!isset($orgaoconfiguracao->id)) {
-            \Alert::error('Configuração Inválida!')->flash();
-            return redirect()->back();
+        if($orgaoconfiguracao->tipo == 'CCONTRATOS'){
+            //seu codigo aqui
         }
 
-        if (isset($orgaoconfiguracao->api_migracao_conta_url) and isset($orgaoconfiguracao->api_migracao_conta_token)) {
-            $retorno = $this->executaMigracao($orgaoconfiguracao);
-        }
-
-        if ($retorno == []) {
-            \Alert::warning('Algo deu errado, entre em contato com o Suporte!')->flash();
-            return redirect()->back();
-        }
 
         \Alert::success('Migração de Dados em Andamento!')->flash();
         return redirect()->back();
+
     }
 
     private function executaMigracao(Orgaoconfiguracao $orgaoconfiguracao)
