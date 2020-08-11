@@ -93,7 +93,7 @@ class LoginAcessoGov extends Controller
                         curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
             $json_output_jwk = json_decode(curl_exec($ch_jwk), true);
             curl_close($ch_jwk);
-            dd($json_output_tokens);
+
             $access_token = $json_output_tokens['access_token'];
 
             try{
@@ -110,7 +110,8 @@ class LoginAcessoGov extends Controller
                 $detalhamentoErro = $e;
             }
 
-            return ['access_token' => $access_token, 'id_token' => $id_token];
+            $retorno =  ['access_token' => $access_token, 'id_token' => $id_token];
+            $this->login($retorno);
         } catch (\Exception $e) {
             dd($e->getMessage());
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
