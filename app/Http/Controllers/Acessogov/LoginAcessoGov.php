@@ -93,6 +93,7 @@ class LoginAcessoGov extends Controller
             curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
             $json_output_jwk = json_decode(curl_exec($ch_jwk), true);
             curl_close($ch_jwk);
+            dd($json_output_tokens);
             $access_token = $json_output_tokens['access_token'];
 
             try{
