@@ -62,7 +62,7 @@ class LoginAcessoGov extends Controller
                 'code' => urlencode($code->get('code')),
                 'redirect_uri' => urlencode($redirect_uri)
             );
-
+            dd($campos);
             foreach($campos as $key=>$value) {
                 $fields_string .= $key.'='.$value.'&';
             }
