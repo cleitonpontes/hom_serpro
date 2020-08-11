@@ -52,11 +52,7 @@ class LoginAcessoGov extends Controller
 
     public function tokenAcesso(Request $request)
     {
-        $code = $request->get('code');
-        $redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/login');
-        $url_uri = $this->host_acessogov
-            . '/token?grant_type=authorization_code&code='.$code.'&redirect_uri='.$redirect_uri;
-        dd($url_uri);
+
         try {
             $fields_string = '';
 
@@ -77,11 +73,11 @@ class LoginAcessoGov extends Controller
 
             rtrim($fields_string, '&');
 
-            $URL_PROVIDER = $this->host_acessogov.'/token?';
+            $URL_PROVIDER = $this->host_acessogov.'/token';
 
             $ch_token = curl_init();
-                            curl_setopt($ch_token, CURLOPT_URL, $url_uri);
-//                            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
+                            curl_setopt($ch_token, CURLOPT_URL, $URL_PROVIDER);
+                            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
                             curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
                             curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
                             curl_setopt($ch_token, CURLOPT_POST, true);
