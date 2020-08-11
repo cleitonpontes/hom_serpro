@@ -54,7 +54,7 @@ class LoginAcessoGov extends Controller
     {
 
         try {
-            $redirect_uri = 'https://sc-treino.agu.gov.br/acessogov/login';
+            $redirect_uri = 'https://sc-treino.agu.gov.br/acessogov/tokenacesso';
             $fields_string = '';
 
             $campos = array(
@@ -86,7 +86,7 @@ class LoginAcessoGov extends Controller
             curl_setopt($ch_token, CURLOPT_HTTPHEADER, $headers);
             $json_output_tokens = json_decode(curl_exec($ch_token), true);
             curl_close($ch_token);
-
+            dd($json_output_tokens);
             $url = $this->host_acessogov. "/jwk";
             $ch_jwk = curl_init();
             curl_setopt($ch_jwk,CURLOPT_SSL_VERIFYPEER, true);
