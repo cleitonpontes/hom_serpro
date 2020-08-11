@@ -66,21 +66,21 @@ class LoginAcessoGov extends Controller
                 'code' => urlencode($code->get('code')),
                 'redirect_uri' => urlencode($this->redirect_uri.'/login')
             );
-            dump($campos);
+
             foreach($campos as $key=>$value) {
                 $fields_string .= $key.'='.$value.'&';
             }
 
             rtrim($fields_string, '&');
-
-            $URL_PROVIDER = urlencode($this->host_acessogov.'/token');
+            dump($fields_string);
+            $URL_PROVIDER = $this->host_acessogov.'/token?';
             dump($URL_PROVIDER);
             $ch_token = curl_init();
                             curl_setopt($ch_token, CURLOPT_URL, $URL_PROVIDER);
-                            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
+                            //curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
                             curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
                             curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
-                            //curl_setopt($ch_token, CURLOPT_POST, true);
+                            curl_setopt($ch_token, CURLOPT_POST, true);
                             curl_setopt($ch_token, CURLOPT_HTTPHEADER, $headers);
             $json_output_tokens = json_decode(curl_exec($ch_token), true);
                          curl_close($ch_token);
