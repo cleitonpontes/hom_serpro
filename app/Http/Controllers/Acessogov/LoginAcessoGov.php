@@ -54,7 +54,7 @@ class LoginAcessoGov extends Controller
     {
 
         try {
-            $redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/login');
+            $redirect_uri = 'https://sc-treino.agu.gov.br/acessogov/login';
             $fields_string = '';
 
             $campos = array(
@@ -62,7 +62,7 @@ class LoginAcessoGov extends Controller
                 'code' => urlencode($code->get('code')),
                 'redirect_uri' => urlencode($redirect_uri)
             );
-            dd($campos);
+
             foreach($campos as $key=>$value) {
                 $fields_string .= $key.'='.$value.'&';
             }
