@@ -128,7 +128,7 @@ class LoginAcessoGov extends Controller
                 'Authorization: Bearer '. $token['access_token']
             );
 
-            $url = $this->url_provider. "/jwk";
+            $url = $this->host_acessogov. "/jwk";
 
             $ch_jwk = curl_init();
             curl_setopt($ch_jwk, CURLOPT_HTTPHEADER, $headers);
