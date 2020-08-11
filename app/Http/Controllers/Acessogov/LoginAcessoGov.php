@@ -141,7 +141,7 @@ class LoginAcessoGov extends Controller
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
             dd($dados);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            return $e->getMessage();
         }
     }
 
