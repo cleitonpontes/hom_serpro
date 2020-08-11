@@ -111,6 +111,7 @@ class LoginAcessoGov extends Controller
 
             return ['access_token' => $access_token, 'id_token' => $id_token];
         } catch (\Exception $e) {
+            dd($e->getMessage());
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
         }
 
