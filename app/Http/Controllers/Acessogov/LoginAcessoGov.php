@@ -52,7 +52,7 @@ class LoginAcessoGov extends Controller
 
     public function tokenAcesso(Request $code)
     {
-        dd($code->get('code'));
+
         try {
             $redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/login');
             $fields_string = '';
@@ -62,7 +62,7 @@ class LoginAcessoGov extends Controller
                 'code' => urlencode($code->get('code')),
                 'redirect_uri' => urlencode($redirect_uri)
             );
-
+            dd($campos);
             foreach($campos as $key=>$value) {
                 $fields_string .= $key.'='.$value.'&';
             }
