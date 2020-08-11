@@ -120,9 +120,9 @@ class LoginAcessoGov extends Controller
     }
 
 
-    public function login(Request $token)
+    public function login(array $token)
     {
-        dd($token->all());
+        dd($token);
         try {
             $headers = array(
                 'Authorization: Bearer '. $token->get('access_token')
