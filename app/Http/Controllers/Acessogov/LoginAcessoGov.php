@@ -56,41 +56,41 @@ class LoginAcessoGov extends Controller
         try {
             $fields_string = '';
 
+            $headers = array(
+                'Content-Type:application/x-www-form-urlencoded',
+                'Authorization: Basic '. base64_encode($this->client_id . ":" . $this->secret)
+            );
+
             $campos = array(
                 'grant_type' => urlencode('authorization_code'),
                 'code' => urlencode($code->get('code')),
                 'redirect_uri' => urlencode($this->redirect_uri.'/login')
             );
-
+            dump($campos);
             foreach($campos as $key=>$value) {
                 $fields_string .= $key.'='.$value.'&';
             }
 
             rtrim($fields_string, '&');
 
-            $URL_PROVIDER = $this->host_acessogov;
-
+            $URL_PROVIDER = urlencode($this->host_acessogov.'/token');
+            dump($URL_PROVIDER);
             $ch_token = curl_init();
-            curl_setopt($ch_token, CURLOPT_URL, $URL_PROVIDER . "/token" );
-            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
-            curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
-            curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch_token, CURLOPT_POST, true);
-
-            $headers = array(
-                'Content-Type:application/x-www-form-urlencoded',
-                'Authorization: Basic '. base64_encode($this->client_id . ":" . $this->secret)
-            );
-
-            curl_setopt($ch_token, CURLOPT_HTTPHEADER, $headers);
+                            curl_setopt($ch_token, CURLOPT_URL, $URL_PROVIDER);
+                            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
+                            curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
+                            curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
+                            //curl_setopt($ch_token, CURLOPT_POST, true);
+                            curl_setopt($ch_token, CURLOPT_HTTPHEADER, $headers);
             $json_output_tokens = json_decode(curl_exec($ch_token), true);
-            curl_close($ch_token);
+                         curl_close($ch_token);
             dd($json_output_tokens);
+
             $url = $this->host_acessogov. "/jwk";
             $ch_jwk = curl_init();
-            curl_setopt($ch_jwk,CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch_jwk,CURLOPT_URL, $url);
-            curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
+                        curl_setopt($ch_jwk,CURLOPT_SSL_VERIFYPEER, true);
+                        curl_setopt($ch_jwk,CURLOPT_URL, $url);
+                        curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
             $json_output_jwk = json_decode(curl_exec($ch_jwk), true);
             curl_close($ch_jwk);
 
