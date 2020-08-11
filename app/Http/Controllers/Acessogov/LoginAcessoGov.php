@@ -48,9 +48,10 @@ class LoginAcessoGov extends Controller
     }
 
 
-    public function tokenAcesso($code)
+    public function tokenAcesso(Request $code)
     {
-        dd($code);
+        dump($code);
+        dd($code->all());
         try {
             $redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/login');
             $fields_string = '';
