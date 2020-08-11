@@ -81,7 +81,7 @@ class LoginAcessoGov extends Controller
 
             $ch_token = curl_init();
                             curl_setopt($ch_token, CURLOPT_URL, $url_uri);
-                            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
+//                            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
                             curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
                             curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
                             curl_setopt($ch_token, CURLOPT_POST, true);
