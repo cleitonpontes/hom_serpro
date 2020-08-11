@@ -103,7 +103,7 @@ class LoginAcessoGov extends Controller
             }
 
             $id_token = $json_output_tokens['id_token'];
-            dd($id_token);
+
             try{
                 $json_output_payload_id_token = $this->processToClaims($id_token, $json_output_jwk);
             } catch (Exception $e) {
