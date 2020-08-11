@@ -112,7 +112,7 @@ class LoginAcessoGov extends Controller
 
             $retorno =  ['access_token' => $access_token, 'id_token' => $id_token];
             $this->login($retorno);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dd($e->getMessage());
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
         }
@@ -137,10 +137,10 @@ class LoginAcessoGov extends Controller
             curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
             $json_output_jwk = json_decode(curl_exec($ch_jwk), true);
             curl_close($ch_jwk);
-
+            dump($json_output_jwk);
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
             dd($dados);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
