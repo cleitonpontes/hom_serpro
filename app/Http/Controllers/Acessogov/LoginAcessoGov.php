@@ -64,7 +64,7 @@ class LoginAcessoGov extends Controller
             $campos = array(
                 'grant_type' => urlencode('authorization_code'),
                 'code' => urlencode($request->get('code')),
-                'redirect_uri' => urlencode($this->redirect_uri.'/login')
+                'redirect_uri' => urlencode($this->redirect_uri.'/tokenacesso')
             );
 
             foreach($campos as $key=>$value) {
