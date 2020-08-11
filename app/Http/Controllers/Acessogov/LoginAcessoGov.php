@@ -64,7 +64,7 @@ class LoginAcessoGov extends Controller
             $campos = array(
                 'grant_type' => 'authorization_code',
                 'code' => $request->get('code'),
-                'redirect_uri' => urlencode('https://sc-treino.agu.gov.br/acessogov/token')
+                'redirect_uri' => urlencode('https://sc-treino.agu.gov.br/acessogov/tokenacesso')
             );
 
             foreach($campos as $key=>$value) {
