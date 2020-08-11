@@ -33,6 +33,7 @@ class LoginAcessoGov extends Controller
         $this->redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/tokenacesso');
         $this->nonce =  $this->generateRandomString(12);//valor aleatório - Item obrigatório.
         $this->state = $this->generateRandomString(13); //Item não obrigatório.
+        $this->secret = 'PrWSPE-3dlrbZgIHQxDrXV7Oq3c4FCCdz1nI4o7htB5FHlfm97fl5MqK3XOMwPnu4nQCxLYGg1HoJgeWVINigA';
     }
 
     public function autorizacao()
@@ -51,15 +52,13 @@ class LoginAcessoGov extends Controller
 
     public function tokenAcesso(Request $code)
     {
-        dump($code);
-        dd($code->all());
         try {
             $redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/login');
             $fields_string = '';
 
             $campos = array(
                 'grant_type' => urlencode('authorization_code'),
-                'code' => urlencode($code),
+                'code' => urlencode($code->get('code')),
                 'redirect_uri' => urlencode($redirect_uri)
             );
 
@@ -103,7 +102,7 @@ class LoginAcessoGov extends Controller
             }
 
             $id_token = $json_output_tokens['id_token'];
-
+            dd($id_token);
             try{
                 $json_output_payload_id_token = $this->processToClaims($id_token, $json_output_jwk);
             } catch (Exception $e) {
