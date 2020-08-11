@@ -72,7 +72,7 @@ class LoginAcessoGov extends Controller
             }
 
             rtrim($fields_string, '&');
-
+            dd($fields_string);
             $URL_PROVIDER = $this->host_acessogov.'/token';
 
             $ch_token = curl_init();
