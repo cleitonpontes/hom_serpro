@@ -111,18 +111,17 @@ class LoginAcessoGov extends Controller
             }
 
             $retorno =  ['access_token' => $access_token, 'id_token' => $id_token];
-            $this->login($retorno);
+            $dados = $this->retornaDados($retorno);
         } catch (Exception $e) {
-            dd($e->getMessage());
+            $e->getMessage();
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
         }
 
     }
 
 
-    public function login(array $token)
+    public function retornaDados(array $token)
     {
-
         try {
             $headers = array(
                 'Authorization: Bearer '. $token['access_token']
@@ -137,14 +136,68 @@ class LoginAcessoGov extends Controller
             curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
             $json_output_jwk = json_decode(curl_exec($ch_jwk), true);
             curl_close($ch_jwk);
-            dump($json_output_jwk);
+
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
-            dd($dados);
+            $this->login($dados);
         } catch (Exception $e) {
-            return $e->getMessage();
+            $e->getMessage();
+            return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
         }
     }
 
+
+    public function login($dados)
+    {
+
+        $userJson = [
+            'sub' => '444.444.444-44',
+            'amr' => ['passwd' => '123456'],
+            'name' => 'Ciclano de tal',
+            'email' => 'ciclanodetal@foo.com'
+        ];
+
+        $cpf = $userJson['sub'];
+        $user = BackpackUser::where('cpf',$cpf)->first();
+
+        (is_null($user))? $this->cadastraUsuarioAcessoGov($userJson) : $this->loginUsuarioAcessoGov($user);
+    }
+
+
+
+    public function cadastraUsuarioAcessoGov($userJson)
+    {
+        $params = [
+            'cpf' => $userJson['sub'],
+            'name' => $userJson['name'],
+            'password' => Hash::make($userJson['amr']['passwd']),
+            'email' => $userJson['email'],
+            'acessogov' => 1
+            ];
+            $backpackuser = new BackpackUser($params);
+            $backpackuser->save();
+            $user = BackpackUser::where('cpf',$params['cpf'])->first();
+
+            $this->loginUsuarioAcessoGov($user);
+    }
+
+    public function loginUsuarioAcessoGov(BackpackUser $user)
+    {
+        Auth::login($user);
+        backpack_url('dashboard');
+
+    }
+
+
+    function generateRandomString($length = 10)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 
     public function processToClaims($token, $jwk)
     {
@@ -188,84 +241,4 @@ class LoginAcessoGov extends Controller
         $temp = ltrim(pack('N', $length), chr(0));
         return pack('Ca*', 0x80 | strlen($temp), $temp);
     }
-
-
-
-    public function cadastraUsuarioAcessoGov($userJson)
-    {
-        $params = [
-            'cpf' => $userJson['sub'],
-            'name' => $userJson['name'],
-            'password' => Hash::make($userJson['amr']['passwd']),
-            'email' => $userJson['email'],
-            'acessogov' => 1
-            ];
-            $backpackuser = new BackpackUser($params);
-            $backpackuser->save();
-            $user = BackpackUser::where('cpf',$params['cpf'])->first();
-
-            $this->loginUsuarioAcessoGov($user);
-    }
-
-    public function loginUsuarioAcessoGov(BackpackUser $user)
-    {
-        Auth::login($user);
-        backpack_url('dashboard');
-
-    }
-
-
-    function generateRandomString($length = 10)
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
-        }
-        return $randomString;
-    }
-
-//    public function login(Request $request)
-//    {
-//
-//        dd($request);
-//
-//        $userJson = [
-//            'sub' => '444.444.444-44',
-//            'amr' => ['passwd' => '123456'],
-//            'name' => 'Ciclano de tal',
-//            'email' => 'ciclanodetal@foo.com'
-//        ];
-//
-//        $cpf = $userJson['sub'];
-//        $user = BackpackUser::where('cpf',$cpf)->first();
-//
-//        (is_null($user))? $this->cadastraUsuarioAcessoGov($userJson) : $this->loginUsuarioAcessoGov($user);
-//    }
-
-//    public function tokenAcesso(Request $request)
-//    {
-//        $code = $request->get('code');
-//        $state = $request->get('state');
-//        $redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/login');
-//        $secret = 'PrWSPE-3dlrbZgIHQxDrXV7Oq3c4FCCdz1nI4o7htB5FHlfm97fl5MqK3XOMwPnu4nQCxLYGg1HoJgeWVINigA';
-//        $headers = array(
-//            "Content-type:application/x-www-form-urlencoded",
-//            "Authorization: Basic " . base64_encode($secret)
-//        );
-//
-//        $url = $this->host_acessogov . '/token?response_type=authorization_code&code='.$code.'&redirect_uri='.$redirect_uri;
-//
-//        $ch = curl_init();
-//                curl_setopt($ch, CURLOPT_TIMEOUT, 900);
-//                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 900);
-//                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-//                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//                curl_setopt($ch, CURLOPT_POST, true);
-//                curl_setopt($ch, CURLOPT_URL, $url);
-//                curl_exec($ch);
-//            curl_close($ch);
-//
-//    }
 }
