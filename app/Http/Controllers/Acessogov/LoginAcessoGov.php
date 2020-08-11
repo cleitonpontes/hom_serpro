@@ -56,7 +56,7 @@ class LoginAcessoGov extends Controller
         $redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/login');
         $url_uri = $this->host_acessogov
             . '/token?grant_type=authorization_code&code='.$code.'&redirect_uri='.$redirect_uri;
-
+        dd($url_uri);
         try {
             $fields_string = '';
 
