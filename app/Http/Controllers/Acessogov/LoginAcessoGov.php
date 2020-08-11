@@ -30,7 +30,7 @@ class LoginAcessoGov extends Controller
         $this->response_type = 'code';
         $this->client_id	= 'sc-treino.agu.gov.br';
         $this->scope = 'openid+email+phone+profile+govbr_confiabilidades';
-        $this->redirect_uri = urlencode('https://sc-treino.agu.gov.br/acessogov/tokenacesso');
+        $this->redirect_uri = 'https://sc-treino.agu.gov.br/acessogov';
         $this->nonce =  $this->generateRandomString(12);//valor aleatório - Item obrigatório.
         $this->state = $this->generateRandomString(13); //Item não obrigatório.
         $this->secret = 'PrWSPE-3dlrbZgIHQxDrXV7Oq3c4FCCdz1nI4o7htB5FHlfm97fl5MqK3XOMwPnu4nQCxLYGg1HoJgeWVINigA';
@@ -42,7 +42,7 @@ class LoginAcessoGov extends Controller
                     . '/authorize?response_type='.$this->response_type
                     . '&client_id='.$this->client_id
                     . '&scope='.$this->scope
-                    . '&redirect_uri='.$this->redirect_uri
+                    . '&redirect_uri='.urlencode($this->redirect_uri.'/tokenacesso')
                     . '&nonce='.$this->nonce
                     . '&state='.$this->state;
 
@@ -54,13 +54,12 @@ class LoginAcessoGov extends Controller
     {
 
         try {
-            $redirect_uri = 'https://sc-treino.agu.gov.br/acessogov/login';
             $fields_string = '';
 
             $campos = array(
                 'grant_type' => urlencode('authorization_code'),
                 'code' => urlencode($code->get('code')),
-                'redirect_uri' => $redirect_uri
+                'redirect_uri' => urlencode($this->redirect_uri.'/login')
             );
 
             foreach($campos as $key=>$value) {
@@ -86,7 +85,7 @@ class LoginAcessoGov extends Controller
             curl_setopt($ch_token, CURLOPT_HTTPHEADER, $headers);
             $json_output_tokens = json_decode(curl_exec($ch_token), true);
             curl_close($ch_token);
-            dd($json_output_tokens);
+
             $url = $this->host_acessogov. "/jwk";
             $ch_jwk = curl_init();
             curl_setopt($ch_jwk,CURLOPT_SSL_VERIFYPEER, true);
@@ -122,7 +121,7 @@ class LoginAcessoGov extends Controller
 
     public function login(Request $token)
     {
-
+        dd($token->all());
         try {
             $headers = array(
                 'Authorization: Bearer '. $token->get('access_token')
