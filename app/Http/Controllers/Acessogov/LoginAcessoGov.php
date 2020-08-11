@@ -9,7 +9,7 @@ use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 
 
 class LoginAcessoGov extends Controller
