@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\Request;
 
+
 class LoginAcessoGov extends Controller
 {
     private $host_acessogov;
