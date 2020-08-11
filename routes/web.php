@@ -34,7 +34,7 @@ Route::group([
     'namespace' => 'Acessogov',
 ], function () {
     Route::get('/autorizacao', 'LoginAcessoGov@autorizacao')->name('acessogov.autorizacao');
-    Route::post('/tokenacesso', 'LoginAcessoGov@tokenAcesso')->name('acessogov.tokenacesso');
+    Route::get('/tokenacesso', 'LoginAcessoGov@tokenAcesso')->name('acessogov.tokenacesso');
     Route::get('/login', 'LoginAcessoGov@login')->name('acessogov.login');
 });
 
