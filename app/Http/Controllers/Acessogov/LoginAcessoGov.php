@@ -64,7 +64,7 @@ class LoginAcessoGov extends Controller
             $campos = array(
                 'grant_type' => 'authorization_code',
                 'code' => $request->get('code'),
-                'redirect_uri' => urlencode('https://sc-treino.agu.gov.br/login')
+                'redirect_uri' => urlencode('https://sc-treino.agu.gov.br/acessogov/token')
             );
 
             foreach($campos as $key=>$value) {
@@ -84,7 +84,7 @@ class LoginAcessoGov extends Controller
                             curl_setopt($ch_token, CURLOPT_HTTPHEADER, $headers);
             $json_output_tokens = json_decode(curl_exec($ch_token), true);
                          curl_close($ch_token);
-            dd($json_output_tokens);
+
 
             $url = $this->host_acessogov. "/jwk";
             $ch_jwk = curl_init();
@@ -103,7 +103,7 @@ class LoginAcessoGov extends Controller
             }
 
             $id_token = $json_output_tokens['id_token'];
-
+            dd($id_token);
             try{
                 $json_output_payload_id_token = $this->processToClaims($id_token, $json_output_jwk);
             } catch (Exception $e) {
