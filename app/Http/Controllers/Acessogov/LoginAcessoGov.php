@@ -64,7 +64,7 @@ class LoginAcessoGov extends Controller
             $campos = array(
                 'grant_type' => 'authorization_code',
                 'code' => $request->get('code'),
-                'redirect_uri' => urlencode('https://sc-treino.agu.gov.br/acessogov/tokenacesso')
+                'redirect_uri' => urlencode('https://sc-treino.agu.gov.br/acessogov/login')
             );
 
             foreach($campos as $key=>$value) {
@@ -72,6 +72,7 @@ class LoginAcessoGov extends Controller
             }
 
             rtrim($fields_string, '&');
+
             $URL_PROVIDER = $this->host_acessogov.'/token';
 
             $ch_token = curl_init();
