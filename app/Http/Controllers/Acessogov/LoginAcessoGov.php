@@ -54,7 +54,7 @@ class LoginAcessoGov extends Controller
     {
 
         try {
-            $redirect_uri = 'https://sc-treino.agu.gov.br/acessogov/tokenacesso';
+            $redirect_uri = 'https://sc-treino.agu.gov.br/acessogov/login';
             $fields_string = '';
 
             $campos = array(
