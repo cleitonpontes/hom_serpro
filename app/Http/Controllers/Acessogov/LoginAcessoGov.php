@@ -122,11 +122,10 @@ class LoginAcessoGov extends Controller
 
     public function login(array $token)
     {
-        dd($token);
 
         try {
             $headers = array(
-                'Authorization: Bearer '. $token->get('access_token')
+                'Authorization: Bearer '. $token['access_token']
             );
 
             $url = $this->url_provider. "/jwk";
