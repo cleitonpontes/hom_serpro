@@ -119,7 +119,7 @@ class LoginAcessoGov extends Controller
     }
 
 
-    public function recuperaDados($token)
+    public function login($token)
     {
 
         try {
