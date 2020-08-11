@@ -74,6 +74,7 @@ class LoginAcessoGov extends Controller
             curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
             curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
             curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
 
             $headers = array(
                 'Content-Type:application/x-www-form-urlencoded',
