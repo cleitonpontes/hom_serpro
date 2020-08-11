@@ -60,9 +60,9 @@ class LoginAcessoGov extends Controller
             $campos = array(
                 'grant_type' => urlencode('authorization_code'),
                 'code' => urlencode($code->get('code')),
-                'redirect_uri' => urlencode($redirect_uri)
+                'redirect_uri' => $redirect_uri
             );
-            dd($campos);
+
             foreach($campos as $key=>$value) {
                 $fields_string .= $key.'='.$value.'&';
             }
