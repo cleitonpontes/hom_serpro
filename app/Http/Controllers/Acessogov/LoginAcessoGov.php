@@ -166,7 +166,7 @@ class LoginAcessoGov extends Controller
             'email' => $dados['email'],
             'acessogov' => 1
             ];
-        dd($params);
+
             $backpackuser = new BackpackUser($params);
             $backpackuser->save();
             $user = BackpackUser::where('cpf',$params['cpf'])->first();
