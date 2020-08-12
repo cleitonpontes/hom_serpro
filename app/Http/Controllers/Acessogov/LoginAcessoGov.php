@@ -138,6 +138,7 @@ class LoginAcessoGov extends Controller
             curl_close($ch_jwk);
 
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
+            dd($dados);
             $dados['email_verified'] = false;
             ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
 
