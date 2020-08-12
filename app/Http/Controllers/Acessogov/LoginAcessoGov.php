@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 
 class LoginAcessoGov extends Controller
@@ -162,7 +163,7 @@ class LoginAcessoGov extends Controller
         $params = [
             'cpf' => $this->mask($dados['sub'],'###.###.###-##'),
             'name' => $dados['name'],
-            'password' => Hash::make($dados['amr'][0].$this->generateRandomString(5)),
+            'password' => Hash::make($dados['amr'][0] . $this->generateRandomString(5)),
             'email' => $dados['email'],
             'acessogov' => 1
             ];
@@ -176,17 +177,20 @@ class LoginAcessoGov extends Controller
 
     public function loginUsuarioAcessoGov(BackpackUser $user)
     {
-        Auth::login($user);
-        //backpack_url('dashboard');
-        return redirect('dashboard');
+        Auth::login($user, true);
+        backpack_url('dashboard');
     }
 
     public function redirecionaTelaLogin($dados)
     {
         $mensagem = "Seu e-mail não foi validado no cadastro Gov.br. Acesse o site acesso.gov para realizar a validação.";
+        return redirect('login')->withWarning($mensagem);
+
+        /*
         return redirect()
                 ->action('Auth\LoginController@showLoginForm')
                 ->with('warning',$mensagem);
+        */
     }
 
     function generateRandomString($length = 10)
