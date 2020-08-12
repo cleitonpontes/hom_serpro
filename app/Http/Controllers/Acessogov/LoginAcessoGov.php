@@ -178,7 +178,7 @@ class LoginAcessoGov extends Controller
     {
         Auth::login($user);
         //backpack_url('dashboard');
-        return redirect()->route('/inicio');
+        return redirect('dashboard');
     }
 
     public function redirecionaTelaLogin($dados)
