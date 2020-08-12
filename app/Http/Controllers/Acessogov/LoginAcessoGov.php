@@ -64,7 +64,7 @@ class LoginAcessoGov extends Controller
             $campos = array(
                 'grant_type' => 'authorization_code',
                 'code' => $request->get('code'),
-                'redirect_uri' => urlencode('https://sc-treino.agu.gov.br/acessogov/tokenacesso')
+                'redirect_uri' => urlencode($this->redirect_uri.'/tokenacesso')
             );
 
             foreach($campos as $key=>$value) {
@@ -138,7 +138,9 @@ class LoginAcessoGov extends Controller
             curl_close($ch_jwk);
 
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
-            $this->login($dados);
+            $dados['email_verified'] = false;
+            ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
+
         } catch (Exception $e) {
             $e->getMessage();
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
@@ -148,29 +150,19 @@ class LoginAcessoGov extends Controller
 
     public function login($dados)
     {
-
-        $userJson = [
-            'sub' => '444.444.444-44',
-            'amr' => ['passwd' => '123456'],
-            'name' => 'Ciclano de tal',
-            'email' => 'ciclanodetal@foo.com'
-        ];
-
-        $cpf = $userJson['sub'];
+        $cpf = $dados['sub'];
         $user = BackpackUser::where('cpf',$cpf)->first();
 
-        (is_null($user))? $this->cadastraUsuarioAcessoGov($userJson) : $this->loginUsuarioAcessoGov($user);
+        (is_null($user))? $this->cadastraUsuarioAcessoGov($dados) : $this->loginUsuarioAcessoGov($user);
     }
 
-
-
-    public function cadastraUsuarioAcessoGov($userJson)
+    public function cadastraUsuarioAcessoGov($dados)
     {
         $params = [
-            'cpf' => $userJson['sub'],
-            'name' => $userJson['name'],
-            'password' => Hash::make($userJson['amr']['passwd']),
-            'email' => $userJson['email'],
+            'cpf' => $dados['sub'],
+            'name' => $dados['name'],
+            'password' => Hash::make($dados['amr']['passwd']),
+            'email' => $dados['email'],
             'acessogov' => 1
             ];
             $backpackuser = new BackpackUser($params);
@@ -187,6 +179,13 @@ class LoginAcessoGov extends Controller
 
     }
 
+    public function redirecionaTelaLogin($dados)
+    {
+        $mensagem = "Seu e-mail não foi validado no cadastro Gov.br. Acesse o site acesso.gov para realizar a validação.";
+        return redirect()
+                ->action('Auth\LoginController@showLoginForm')
+                ->with('warning',$mensagem);
+    }
 
     function generateRandomString($length = 10)
     {
