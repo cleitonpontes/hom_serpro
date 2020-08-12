@@ -170,12 +170,13 @@ class LoginAcessoGov extends Controller
             $backpackuser = new BackpackUser($params);
             $backpackuser->save();
             $user = BackpackUser::where('cpf',$params['cpf'])->first();
-
+            dump($user);
             $this->loginUsuarioAcessoGov($user);
     }
 
     public function loginUsuarioAcessoGov(BackpackUser $user)
     {
+        dd($user);
         Auth::login($user);
         backpack_url('dashboard');
 
