@@ -138,7 +138,7 @@ class LoginAcessoGov extends Controller
             curl_close($ch_jwk);
 
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
-            dd($dados);
+
             ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
 
         } catch (Exception $e) {
@@ -162,7 +162,7 @@ class LoginAcessoGov extends Controller
         $params = [
             'cpf' => $this->mask($dados['sub'],'###.###.###-##'),
             'name' => $dados['name'],
-            'password' => Hash::make($dados['amr']['passwd']),
+            'password' => Hash::make($dados['amr'][0].$this->generateRandomString(5)),
             'email' => $dados['email'],
             'acessogov' => 1
             ];
