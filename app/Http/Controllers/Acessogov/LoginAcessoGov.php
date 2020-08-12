@@ -138,8 +138,7 @@ class LoginAcessoGov extends Controller
             curl_close($ch_jwk);
 
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
-            dd($dados);
-            $dados['email_verified'] = false;
+            dump($dados);
             ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
 
         } catch (Exception $e) {
@@ -151,7 +150,8 @@ class LoginAcessoGov extends Controller
 
     public function login($dados)
     {
-        $cpf = $dados['sub'];
+        $cpf = $this->mask($dados['sub'],'###.###.###-##');
+
         $user = BackpackUser::where('cpf',$cpf)->first();
 
         (is_null($user))? $this->cadastraUsuarioAcessoGov($dados) : $this->loginUsuarioAcessoGov($user);
@@ -160,12 +160,13 @@ class LoginAcessoGov extends Controller
     public function cadastraUsuarioAcessoGov($dados)
     {
         $params = [
-            'cpf' => $dados['sub'],
+            'cpf' => $this->mask($dados['sub'],'###.###.###-##'),
             'name' => $dados['name'],
             'password' => Hash::make($dados['amr']['passwd']),
             'email' => $dados['email'],
             'acessogov' => 1
             ];
+        dd($params);
             $backpackuser = new BackpackUser($params);
             $backpackuser->save();
             $user = BackpackUser::where('cpf',$params['cpf'])->first();
@@ -240,5 +241,20 @@ class LoginAcessoGov extends Controller
         }
         $temp = ltrim(pack('N', $length), chr(0));
         return pack('Ca*', 0x80 | strlen($temp), $temp);
+    }
+
+    function mask($val, $mask){
+        $maskared = '';
+        $k = 0;
+        for($i = 0; $i<=strlen($mask)-1; $i++) {
+            if($mask[$i] == '#') {
+                if(isset($val[$k]))
+                    $maskared .= $val[$k++];
+            } else {
+                if(isset($mask[$i]))
+                    $maskared .= $mask[$i];
+            }
+        }
+        return $maskared;
     }
 }
