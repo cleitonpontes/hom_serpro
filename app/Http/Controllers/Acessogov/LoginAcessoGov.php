@@ -75,21 +75,20 @@ class LoginAcessoGov extends Controller
             $URL_PROVIDER = $this->host_acessogov.'/token';
 
             $ch_token = curl_init();
-                            curl_setopt($ch_token, CURLOPT_URL, $URL_PROVIDER);
-                            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
-                            curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
-                            curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
-                            curl_setopt($ch_token, CURLOPT_POST, true);
-                            curl_setopt($ch_token, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch_token, CURLOPT_URL, $URL_PROVIDER);
+            curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
+            curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch_token, CURLOPT_POST, true);
+            curl_setopt($ch_token, CURLOPT_HTTPHEADER, $headers);
             $json_output_tokens = json_decode(curl_exec($ch_token), true);
-                         curl_close($ch_token);
-
+            curl_close($ch_token);
 
             $url = $this->host_acessogov. "/jwk";
             $ch_jwk = curl_init();
-                        curl_setopt($ch_jwk,CURLOPT_SSL_VERIFYPEER, true);
-                        curl_setopt($ch_jwk,CURLOPT_URL, $url);
-                        curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($ch_jwk,CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch_jwk,CURLOPT_URL, $url);
+            curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
             $json_output_jwk = json_decode(curl_exec($ch_jwk), true);
             curl_close($ch_jwk);
 
@@ -111,6 +110,8 @@ class LoginAcessoGov extends Controller
 
             $retorno =  ['access_token' => $access_token, 'id_token' => $id_token];
             $dados = $this->retornaDados($retorno);
+
+            backpack_url('transparencia.index');
         } catch (Exception $e) {
             $e->getMessage();
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
@@ -138,8 +139,7 @@ class LoginAcessoGov extends Controller
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
 
             ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
-            backpack_url('dashboard');
-            dump('aqui');
+            // backpack_url('dashboard');
         } catch (Exception $e) {
             $e->getMessage();
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
@@ -174,7 +174,7 @@ class LoginAcessoGov extends Controller
     public function loginUsuarioAcessoGov(BackpackUser $user)
     {
         Auth::login($user, true);
-        //return redirect()->route('transparencia.index');
+        return redirect()->route('transparencia.index');
     }
 
     public function redirecionaTelaLogin($dados)
