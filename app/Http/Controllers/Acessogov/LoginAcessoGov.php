@@ -178,6 +178,7 @@ class LoginAcessoGov extends Controller
     public function loginUsuarioAcessoGov(BackpackUser $user)
     {
         Auth::login($user, true);
+        //return redirect()->route('transparencia.index');
         backpack_url('dashboard');
     }
 
