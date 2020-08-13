@@ -21,6 +21,7 @@ class LoginAcessoGov extends Controller
     private $state;
     private $secret;
     // private $url_logout;
+    
 
     public function __construct()
     {
