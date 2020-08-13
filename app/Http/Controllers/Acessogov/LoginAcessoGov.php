@@ -22,7 +22,6 @@ class LoginAcessoGov extends Controller
     private $secret;
     // private $url_logout;
 
-
     public function __construct()
     {
         $this->host_acessogov = 'https://sso.staging.acesso.gov.br';
@@ -112,8 +111,11 @@ class LoginAcessoGov extends Controller
             $retorno = ['access_token' => $access_token, 'id_token' => $id_token];
             $dados = $this->retornaDados($retorno);
 
-            backpack_url('transparencia.index');
+            // backpack_url('transparencia.index');
+            return redirect()->route('transparencia.index');
         } catch (Exception $e) {
+            dd('Erro', $e->getMessage());
+
             $e->getMessage();
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
         }
