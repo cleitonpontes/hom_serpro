@@ -153,10 +153,9 @@ class LoginAcessoGov extends Controller
     public function login($dados)
     {
         $cpf = $this->mask($dados['sub'],'###.###.###-##');
-
         $user = BackpackUser::where('cpf',$cpf)->first();
-
-        (is_null($user))? $this->cadastraUsuarioAcessoGov($dados) : $this->loginUsuarioAcessoGov($user);
+//        (is_null($user))? $this->cadastraUsuarioAcessoGov($dados) : $this->loginUsuarioAcessoGov($user);
+        (is_null($user))? Auth::login($user, true) : $this->loginUsuarioAcessoGov($user);
     }
 
     public function cadastraUsuarioAcessoGov($dados)
