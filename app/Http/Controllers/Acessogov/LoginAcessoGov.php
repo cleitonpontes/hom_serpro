@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class LoginAcessoGov extends Controller
 {
@@ -20,32 +21,31 @@ class LoginAcessoGov extends Controller
     private $nonce;
     private $state;
     private $secret;
-    // private $url_logout;
 
     public function __construct()
     {
-        $this->host_acessogov = 'https://sso.staging.acesso.gov.br';
-        $this->response_type  = 'code';
-        // $this->client_id	  = 'sc-treino.agu.gov.br';
+        $this->host_acessogov = config('acessogov.host');
+        $this->response_type  = config('acessogov.response_type');
         $this->client_id	  = config('acessogov.client_id');
-        $this->scope          = 'openid+email+phone+profile+govbr_confiabilidades';
-        // $this->redirect_uri   = 'https://sc-treino.agu.gov.br/acessogov';
+        $this->scope          = config('acessogov.scope');
         $this->redirect_uri   = config('app.url') . '/acessogov';
-        $this->nonce          = $this->generateRandomString(12);//valor aleatório - Item obrigatório.
-        $this->state          = $this->generateRandomString(13); //Item não obrigatório.
-        $this->secret         = 'PrWSPE-3dlrbZgIHQxDrXV7Oq3c4FCCdz1nI4o7htB5FHlfm97fl5MqK3XOMwPnu4nQCxLYGg1HoJgeWVINigA';
+        // $this->nonce          = $this->generateRandomString(12);//valor aleatório - Item obrigatório.
+        // $this->state          = $this->generateRandomString(13); //Item não obrigatório.
+        $this->nonce          = Str::random(12);
+        $this->state          = Str::random(13);
+        $this->secret         = config('acessogov.secret');
     }
 
     public function autorizacao()
     {
         $url = $this->host_acessogov
-                    . '/authorize?response_type='.$this->response_type
-                    . '&client_id='.$this->client_id
-                    . '&scope='.$this->scope
-                    . '&redirect_uri='.urlencode($this->redirect_uri.'/tokenacesso')
-                    . '&nonce='.$this->nonce
-                    . '&state='.$this->state;
-
+               . '/authorize?response_type=' . $this->response_type
+               . '&client_id=' . $this->client_id
+               . '&scope=' . $this->scope
+               . '&redirect_uri=' . urlencode($this->redirect_uri.'/tokenacesso')
+               . '&nonce=' . $this->nonce
+               . '&state=' . $this->state;
+        
         return Redirect::away($url);
     }
 
@@ -111,12 +111,9 @@ class LoginAcessoGov extends Controller
             $retorno = ['access_token' => $access_token, 'id_token' => $id_token];
             $dados = $this->retornaDados($retorno);
 
-            // backpack_url('transparencia.index');
             return redirect()->route('transparencia.index');
         } catch (Exception $e) {
-            dd('Erro', $e->getMessage());
-
-            $e->getMessage();
+            // $e->getMessage();
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
         }
 
