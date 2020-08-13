@@ -135,7 +135,7 @@ class LoginAcessoGov extends Controller
 
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
 
-            (!$dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
+            ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
         } catch (Exception $e) {
             return redirect()->route('login')->withError(self::MSG_ERRO);
         }
