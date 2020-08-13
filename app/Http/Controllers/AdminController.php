@@ -18,6 +18,7 @@ use MaddHatter\LaravelFullcalendar\Calendar;
 use phpDocumentor\Reflection\File;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
+use function GuzzleHttp\Promise\all;
 
 class AdminController extends Controller
 {
@@ -280,7 +281,7 @@ class AdminController extends Controller
 
     protected function getCalendarEvents()
     {
-        $eventsCollections = new CalendarEvent();
+        $eventsCollections = CalendarEvent::whereNull('unidade_id');
         if (session()->get('user_ug_id')) {
             $eventsCollections = $eventsCollections->where('unidade_id', session()->get('user_ug_id'));
         }
