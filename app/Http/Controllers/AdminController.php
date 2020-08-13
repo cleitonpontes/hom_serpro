@@ -281,8 +281,8 @@ class AdminController extends Controller
     protected function getCalendarEvents()
     {
         $eventsCollections = new CalendarEvent();
-        dd(session()->get('user_ug_id'));
         if (session()->get('user_ug_id')) {
+            dd('aqui');
             $eventsCollections = $eventsCollections->where('unidade_id', session()->get('user_ug_id'));
         }
         return $eventsCollections;
