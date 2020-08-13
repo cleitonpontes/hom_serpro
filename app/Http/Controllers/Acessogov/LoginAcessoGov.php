@@ -21,7 +21,7 @@ class LoginAcessoGov extends Controller
     private $state;
     private $secret;
     // private $url_logout;
-    
+
 
     public function __construct()
     {
@@ -140,7 +140,7 @@ class LoginAcessoGov extends Controller
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
 
             ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
-            // backpack_url('dashboard');
+            backpack_url('transparencia.index');
         } catch (Exception $e) {
             $e->getMessage();
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
