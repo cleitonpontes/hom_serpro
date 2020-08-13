@@ -109,7 +109,7 @@ class LoginAcessoGov extends Controller
                 $detalhamentoErro = $e;
             }
 
-            $retorno =  ['access_token' => $access_token, 'id_token' => $id_token];
+            $retorno = ['access_token' => $access_token, 'id_token' => $id_token];
             $dados = $this->retornaDados($retorno);
 
             backpack_url('transparencia.index');
@@ -140,9 +140,11 @@ class LoginAcessoGov extends Controller
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
 
             ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
-            backpack_url('transparencia.index');
+            // backpack_url('transparencia.index');
+            return redirect()->route('transparencia.index');
         } catch (Exception $e) {
             $e->getMessage();
+            dd($e);
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
         }
     }
