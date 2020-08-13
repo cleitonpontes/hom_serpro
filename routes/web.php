@@ -224,7 +224,7 @@ Route::group(
         Route::group([
             'prefix' => 'apropriacao',
             // 'middleware' => 'auth',
-            // 'middleware' = 'permission:folha_apropriacao_passo'
+            // 'middleware' = 'permission:apropriacao_fatura_passos'
         ], function () {
             /**
              *
