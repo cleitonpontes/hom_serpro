@@ -45,7 +45,7 @@ class LoginAcessoGov extends Controller
                . '&redirect_uri=' . urlencode($this->redirect_uri.'/tokenacesso')
                . '&nonce=' . $this->nonce
                . '&state=' . $this->state;
-        
+
         return Redirect::away($url);
     }
 
