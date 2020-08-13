@@ -131,7 +131,7 @@ class AdminController extends Controller
 
         $events = [];
         $eventsCollections = $this->getCalendarEvents();
-
+        dump($eventsCollections);
         if ($eventsCollections->count() > 0) {
             dd($eventsCollections->count());
             foreach ($eventsCollections as $key => $value) {
@@ -282,7 +282,6 @@ class AdminController extends Controller
     {
         $eventsCollections = new CalendarEvent();
         if (session()->get('user_ug_id')) {
-            dd('aqui');
             $eventsCollections = $eventsCollections->where('unidade_id', session()->get('user_ug_id'));
         }
         return $eventsCollections;
