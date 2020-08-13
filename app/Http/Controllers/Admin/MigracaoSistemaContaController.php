@@ -13,6 +13,8 @@ use App\Http\Controllers\Controller;
 
 class MigracaoSistemaContaController extends Controller
 {
+
+
     public function index(int $orgaoconfiguracao_id)
     {
         $orgaoconfiguracao = Orgaoconfiguracao::find($orgaoconfiguracao_id);
@@ -49,6 +51,7 @@ class MigracaoSistemaContaController extends Controller
 
         $url = $this->montaUrl($orgaoconfiguracao, 'contratos');
         $base = new AdminController();
+
         $dados = $base->buscaDadosUrlMigracao($url);
 
         if ($dados == []) {
@@ -87,7 +90,6 @@ class MigracaoSistemaContaController extends Controller
         if ($orgaoconfiguracao->api_migracao_conta_url and $orgaoconfiguracao->api_migracao_conta_token) {
             $url = $orgaoconfiguracao->api_migracao_conta_url . '/api/v1/' . $tabela . '/' . $id . '?token=' . $orgaoconfiguracao->api_migracao_conta_token;
         }
-
         return $url;
     }
 
