@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Acessogov;
 use App\Http\Controllers\Controller;
 use App\Models\BackpackUser;
 use Firebase\JWT\JWT;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class LoginAcessoGov extends Controller
@@ -22,6 +22,8 @@ class LoginAcessoGov extends Controller
     private $state;
     private $secret;
 
+    const MSG_ERRO = 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
+
     public function __construct()
     {
         $this->host_acessogov = config('acessogov.host');
@@ -29,8 +31,6 @@ class LoginAcessoGov extends Controller
         $this->client_id	  = config('acessogov.client_id');
         $this->scope          = config('acessogov.scope');
         $this->redirect_uri   = config('app.url') . '/acessogov';
-        // $this->nonce          = $this->generateRandomString(12);//valor aleatório - Item obrigatório.
-        // $this->state          = $this->generateRandomString(13); //Item não obrigatório.
         $this->nonce          = Str::random(12);
         $this->state          = Str::random(13);
         $this->secret         = config('acessogov.secret');
@@ -39,19 +39,18 @@ class LoginAcessoGov extends Controller
     public function autorizacao()
     {
         $url = $this->host_acessogov
-               . '/authorize?response_type=' . $this->response_type
-               . '&client_id=' . $this->client_id
-               . '&scope=' . $this->scope
-               . '&redirect_uri=' . urlencode($this->redirect_uri.'/tokenacesso')
-               . '&nonce=' . $this->nonce
-               . '&state=' . $this->state;
+            . '/authorize?response_type=' . $this->response_type
+            . '&client_id=' . $this->client_id
+            . '&scope=' . $this->scope
+            . '&redirect_uri=' . urlencode($this->redirect_uri . '/tokenacesso')
+            . '&nonce=' . $this->nonce
+            . '&state=' . $this->state;
 
         return Redirect::away($url);
     }
 
     public function tokenAcesso(Request $request)
     {
-
         try {
             $fields_string = '';
 
@@ -72,10 +71,11 @@ class LoginAcessoGov extends Controller
 
             rtrim($fields_string, '&');
 
-            $URL_PROVIDER = $this->host_acessogov.'/token';
+            $urlProvider = $this->host_acessogov . '/token';
+            $urlJwk = $this->host_acessogov. '/jwk';
 
             $ch_token = curl_init();
-            curl_setopt($ch_token, CURLOPT_URL, $URL_PROVIDER);
+            curl_setopt($ch_token, CURLOPT_URL, $urlProvider);
             curl_setopt($ch_token, CURLOPT_POSTFIELDS, $fields_string);
             curl_setopt($ch_token, CURLOPT_RETURNTRANSFER, TRUE);
             curl_setopt($ch_token, CURLOPT_SSL_VERIFYPEER, true);
@@ -84,10 +84,9 @@ class LoginAcessoGov extends Controller
             $json_output_tokens = json_decode(curl_exec($ch_token), true);
             curl_close($ch_token);
 
-            $url = $this->host_acessogov. "/jwk";
             $ch_jwk = curl_init();
             curl_setopt($ch_jwk,CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch_jwk,CURLOPT_URL, $url);
+            curl_setopt($ch_jwk,CURLOPT_URL, $urlJwk);
             curl_setopt($ch_jwk, CURLOPT_RETURNTRANSFER, TRUE);
             $json_output_jwk = json_decode(curl_exec($ch_jwk), true);
             curl_close($ch_jwk);
@@ -97,7 +96,7 @@ class LoginAcessoGov extends Controller
             try{
                 $json_output_payload_access_token = $this->processToClaims($access_token, $json_output_jwk);
             } catch (Exception $e) {
-                $detalhamentoErro  = $e;
+                return redirect()->route('login')->withError($e->getMessage());
             }
 
             $id_token = $json_output_tokens['id_token'];
@@ -105,18 +104,16 @@ class LoginAcessoGov extends Controller
             try{
                 $json_output_payload_id_token = $this->processToClaims($id_token, $json_output_jwk);
             } catch (Exception $e) {
-                $detalhamentoErro = $e;
+                return redirect()->route('login')->withError($e->getMessage());
             }
 
             $retorno = ['access_token' => $access_token, 'id_token' => $id_token];
-            $dados = $this->retornaDados($retorno);
+            $this->retornaDados($retorno);
 
             return redirect()->route('transparencia.index');
         } catch (Exception $e) {
-            // $e->getMessage();
-            return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
+            return redirect()->route('login')->withError(self::MSG_ERRO);
         }
-
     }
 
     public function retornaDados(array $token)
@@ -139,12 +136,8 @@ class LoginAcessoGov extends Controller
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
 
             ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
-            // backpack_url('transparencia.index');
-            return redirect()->route('transparencia.index');
         } catch (Exception $e) {
-            $e->getMessage();
-            dd($e);
-            return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
+            return redirect()->route('login')->withError(self::MSG_ERRO);
         }
     }
 
@@ -183,12 +176,6 @@ class LoginAcessoGov extends Controller
     {
         $mensagem = "Seu e-mail não foi validado no cadastro Gov.br. Acesse o site acesso.gov para realizar a validação.";
         return redirect('login')->withWarning($mensagem);
-
-        /*
-        return redirect()
-                ->action('Auth\LoginController@showLoginForm')
-                ->with('warning',$mensagem);
-        */
     }
 
     function generateRandomString($length = 10)
@@ -199,6 +186,7 @@ class LoginAcessoGov extends Controller
         for ($i = 0; $i < $length; $i++) {
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
+
         return $randomString;
     }
 
@@ -206,6 +194,7 @@ class LoginAcessoGov extends Controller
     {
         $modulus = JWT::urlsafeB64Decode($jwk['keys'][0]['n']);
         $publicExponent = JWT::urlsafeB64Decode($jwk['keys'][0]['e']);
+
         $components = array(
             'modulus' => pack('Ca*a*', 2, $this->encodeLength(strlen($modulus)), $modulus),
             'publicExponent' => pack('Ca*a*', 2, $this->encodeLength(strlen($publicExponent)), $publicExponent)
@@ -217,6 +206,7 @@ class LoginAcessoGov extends Controller
             $components['modulus'],
             $components['publicExponent']
         );
+
         $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
         $RSAPublicKey = chr(0) . $RSAPublicKey;
         $RSAPublicKey = chr(3) . $this->encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
@@ -226,7 +216,9 @@ class LoginAcessoGov extends Controller
             $this->encodeLength(strlen($rsaOID . $RSAPublicKey)),
             $rsaOID . $RSAPublicKey
         );
-        $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n" . chunk_split(base64_encode($RSAPublicKey), 64) . '-----END PUBLIC KEY-----';
+        $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n"
+            . chunk_split(base64_encode($RSAPublicKey), 64)
+            . '-----END PUBLIC KEY-----';
 
         JWT::$leeway = 3 * 60; //em segundos
 
@@ -240,6 +232,7 @@ class LoginAcessoGov extends Controller
         if ($length <= 0x7F) {
             return chr($length);
         }
+
         $temp = ltrim(pack('N', $length), chr(0));
         return pack('Ca*', 0x80 | strlen($temp), $temp);
     }
@@ -247,6 +240,7 @@ class LoginAcessoGov extends Controller
     function mask($val, $mask){
         $maskared = '';
         $k = 0;
+
         for($i = 0; $i<=strlen($mask)-1; $i++) {
             if($mask[$i] == '#') {
                 if(isset($val[$k]))
@@ -256,6 +250,7 @@ class LoginAcessoGov extends Controller
                     $maskared .= $mask[$i];
             }
         }
+        
         return $maskared;
     }
 }
