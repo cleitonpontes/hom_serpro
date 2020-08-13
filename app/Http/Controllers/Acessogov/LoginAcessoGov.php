@@ -31,7 +31,7 @@ class LoginAcessoGov extends Controller
         $this->client_id	  = config('acessogov.client_id');
         $this->scope          = 'openid+email+phone+profile+govbr_confiabilidades';
         // $this->redirect_uri   = 'https://sc-treino.agu.gov.br/acessogov';
-        $this->redirect_uri   = config('acessogov.path') . '/acessogov';
+        $this->redirect_uri   = config('app.url') . '/acessogov';
         $this->nonce          = $this->generateRandomString(12);//valor aleatório - Item obrigatório.
         $this->state          = $this->generateRandomString(13); //Item não obrigatório.
         $this->secret         = 'PrWSPE-3dlrbZgIHQxDrXV7Oq3c4FCCdz1nI4o7htB5FHlfm97fl5MqK3XOMwPnu4nQCxLYGg1HoJgeWVINigA';
