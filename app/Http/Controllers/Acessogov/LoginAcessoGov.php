@@ -141,7 +141,8 @@ class LoginAcessoGov extends Controller
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
 
             ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
-
+            backpack_url('dashboard');
+            dump('aqui');
         } catch (Exception $e) {
             $e->getMessage();
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
@@ -178,8 +179,8 @@ class LoginAcessoGov extends Controller
     public function loginUsuarioAcessoGov(BackpackUser $user)
     {
         Auth::login($user, true);
-        return redirect()->route('transparencia.index');
-        //backpack_url('dashboard');
+        //return redirect()->route('transparencia.index');
+
     }
 
     public function redirecionaTelaLogin($dados)
