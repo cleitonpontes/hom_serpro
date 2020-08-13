@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Acessogov;
 
 use App\Http\Controllers\Controller;
@@ -10,8 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-
 
 class LoginAcessoGov extends Controller
 {
@@ -23,18 +20,20 @@ class LoginAcessoGov extends Controller
     private $nonce;
     private $state;
     private $secret;
-    private $url_logout;
+    // private $url_logout;
 
     public function __construct()
     {
         $this->host_acessogov = 'https://sso.staging.acesso.gov.br';
-        $this->response_type = 'code';
-        $this->client_id	= 'sc-treino.agu.gov.br';
-        $this->scope = 'openid+email+phone+profile+govbr_confiabilidades';
-        $this->redirect_uri = 'https://sc-treino.agu.gov.br/acessogov';
-        $this->nonce =  $this->generateRandomString(12);//valor aleatório - Item obrigatório.
-        $this->state = $this->generateRandomString(13); //Item não obrigatório.
-        $this->secret = 'PrWSPE-3dlrbZgIHQxDrXV7Oq3c4FCCdz1nI4o7htB5FHlfm97fl5MqK3XOMwPnu4nQCxLYGg1HoJgeWVINigA';
+        $this->response_type  = 'code';
+        // $this->client_id	  = 'sc-treino.agu.gov.br';
+        $this->client_id	  = config('acessogov.client_id');
+        $this->scope          = 'openid+email+phone+profile+govbr_confiabilidades';
+        // $this->redirect_uri   = 'https://sc-treino.agu.gov.br/acessogov';
+        $this->redirect_uri   = config('acessogov.path') . '/acessogov';
+        $this->nonce          = $this->generateRandomString(12);//valor aleatório - Item obrigatório.
+        $this->state          = $this->generateRandomString(13); //Item não obrigatório.
+        $this->secret         = 'PrWSPE-3dlrbZgIHQxDrXV7Oq3c4FCCdz1nI4o7htB5FHlfm97fl5MqK3XOMwPnu4nQCxLYGg1HoJgeWVINigA';
     }
 
     public function autorizacao()
@@ -49,7 +48,6 @@ class LoginAcessoGov extends Controller
 
         return Redirect::away($url);
     }
-
 
     public function tokenAcesso(Request $request)
     {
@@ -120,7 +118,6 @@ class LoginAcessoGov extends Controller
 
     }
 
-
     public function retornaDados(array $token)
     {
         try {
@@ -148,7 +145,6 @@ class LoginAcessoGov extends Controller
             return 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
         }
     }
-
 
     public function login($dados)
     {
@@ -179,7 +175,6 @@ class LoginAcessoGov extends Controller
     {
         Auth::login($user, true);
         //return redirect()->route('transparencia.index');
-
     }
 
     public function redirecionaTelaLogin($dados)
@@ -237,7 +232,6 @@ class LoginAcessoGov extends Controller
 
         return (array)$decoded;
     }
-
 
     public function encodeLength($length)
     {
