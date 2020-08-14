@@ -307,7 +307,7 @@ class UnidadeconfiguracaoCrudController extends CrudController
                 'name' => 'padrao_processo_mascara',
                 'label' => 'Padrão Formato Processo',
                 'type' => 'text',
-//                'default' => '99999.999999/9999-99',
+                'default' => '99999.999999/9999-99',
                 'tab' => 'Dados Gerais',
             ],
             [
