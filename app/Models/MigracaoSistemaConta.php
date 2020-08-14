@@ -45,6 +45,10 @@ class MigracaoSistemaConta extends Model
         $unidade = new Unidade();
 
         $contrato['numero'] = $dado['numero']; // já está vindo formatado da agu
+        // o código do tse está diferente nas bases
+        if($dado['unidade_id'] == '700001' || $dado['unidade_id'] == 700001){
+            $dado['unidade_id'] == '070001';
+        }
         $contrato['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado['unidade_id']);
         $contrato['tipo_id'] = $this->buscarTipoId($dado);
         $contrato['categoria_id'] = $this->buscarCategoriaId($dado);
