@@ -16,6 +16,7 @@ class AddPadraoProcessoMascaraTableUnidadeconfiguracao extends Migration
         Schema::table('unidadeconfiguracao', function (Blueprint $table) {
             $table->string('padrao_processo_mascara')->nullable()->after('unidade_id');
         });
+
     }
 
     /**
