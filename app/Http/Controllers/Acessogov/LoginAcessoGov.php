@@ -260,4 +260,5 @@ class LoginAcessoGov extends Controller
 
         return $maskared;
     }
+
 }

@@ -85,7 +85,6 @@
                             </div>
 
                         </div>
-
                         <hr class="m-t-30" />
                     </form>
 
