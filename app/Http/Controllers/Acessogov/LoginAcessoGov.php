@@ -23,6 +23,8 @@ class LoginAcessoGov extends Controller
     private $secret;
 
     const MSG_ERRO = 'Ocorreu um erro ao se comunicar com o acesso gov, tente novamente mais tarde';
+    const MSG_CHECK_EMAIL = "Seu e-mail não foi validado no cadastro Gov.br. Acesse o site acesso.gov para realizar a validação.";
+
 
     public function __construct()
     {
@@ -108,9 +110,14 @@ class LoginAcessoGov extends Controller
             }
 
             $retorno = ['access_token' => $access_token, 'id_token' => $id_token];
-            $this->retornaDados($retorno);
+
+            $rota = $this->retornaDados($retorno);
+
+            if($rota == 'login')
+                return redirect('login')->withWarning(self::MSG_CHECK_EMAIL);
 
             return redirect()->route('transparencia.index');
+
         } catch (Exception $e) {
             return redirect()->route('login')->withError(self::MSG_ERRO);
         }
@@ -135,7 +142,10 @@ class LoginAcessoGov extends Controller
 
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
 
-            ($dados['email_verified']) ? $this->login($dados) : $this->redirecionaTelaLogin($dados);
+            ($dados['email_verified']) ? $rota = $this->login($dados) : $rota = 'login';
+
+            return $rota;
+
         } catch (Exception $e) {
             return redirect()->route('login')->withError(self::MSG_ERRO);
         }
@@ -144,9 +154,10 @@ class LoginAcessoGov extends Controller
     public function login($dados)
     {
         $cpf = $this->mask($dados['sub'],'###.###.###-##');
-        $user = BackpackUser::where('cpf',$cpf)->first();
-//        (is_null($user))? $this->cadastraUsuarioAcessoGov($dados) : $this->loginUsuarioAcessoGov($user);
-        (is_null($user))? Auth::login($user, true) : $this->loginUsuarioAcessoGov($user);
+        $user = BackpackUser::where('cpf',$cpf)->first();;
+        (is_null($user))? $rota = $this->cadastraUsuarioAcessoGov($dados) : $rota = $this->loginUsuarioAcessoGov($user);
+
+        return $rota;
     }
 
     public function cadastraUsuarioAcessoGov($dados)
@@ -163,19 +174,15 @@ class LoginAcessoGov extends Controller
             $backpackuser->save();
             $user = BackpackUser::where('cpf',$params['cpf'])->first();
 
-            $this->loginUsuarioAcessoGov($user);
+            $rota = $this->loginUsuarioAcessoGov($user);
+            return $rota;
     }
 
     public function loginUsuarioAcessoGov(BackpackUser $user)
     {
         Auth::login($user, true);
-        return redirect()->route('transparencia.index');
-    }
-
-    public function redirecionaTelaLogin($dados)
-    {
-        $mensagem = "Seu e-mail não foi validado no cadastro Gov.br. Acesse o site acesso.gov para realizar a validação.";
-        return redirect('login')->withWarning($mensagem);
+        $rota = 'transparencia.index';
+        return $rota;
     }
 
     function generateRandomString($length = 10)
