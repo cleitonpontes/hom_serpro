@@ -11,6 +11,8 @@
 |
 */
 
+Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
+
 Route::get('/', function () {
     return redirect('/inicio');
 });

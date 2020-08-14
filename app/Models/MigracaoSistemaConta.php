@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Models;
-
 use App\Http\Controllers\AdminController;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
@@ -29,129 +27,145 @@ class MigracaoSistemaConta extends Model
         'orgao_id',
     ];
 
+    public function imprimirNaTela($valor){
+        echo '<pre>';
+        var_dump($valor);
+        echo '</pre>';
+    }
+    // método chamado em MigracaoSistemaContaJob.php
     public function trataDadosMigracaoConta(array $dado)
     {
+        echo '<hr>';
+        self::imprimirNaTela('Tratamento dos dados iniciado para o contrato número: '.$dado['numero']);
+
+        set_time_limit(0);
+
         $retorno = [];
         $base = new AdminController();
         $unidade = new Unidade();
 
-        $contrato['numero'] = $base->formataContrato($dado['con_num']);
-        $contrato['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado['con_ug']);
-        $contrato['tipo_id'] = 60;
-        $contrato['categoria_id'] = 55;
-        $contrato['processo'] = $base->formataProcesso($dado['con_processo']);
-        $contrato['objeto'] = $dado['con_objeto'];
-        $contrato['info_complementar'] = $dado['con_infocomple'];
-        $contrato['receita_despesa'] = 'D';
-        $contrato['fundamento_legal'] = '';
-        $contrato['modalidade_id'] = $this->buscaModalidade($dado['con_tipolicitacao']);
-        $contrato['licitacao_numero'] = $base->formataContrato($dado['con_licitnum']);
-        $contrato['situacao'] = true;
+        $contrato['numero'] = $dado['numero']; // já está vindo formatado da agu
+        $contrato['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado['unidade_id']);
+        $contrato['tipo_id'] = $this->buscarTipoId($dado);
+        $contrato['categoria_id'] = $this->buscarCategoriaId($dado);
+        $contrato['processo'] = $dado['processo']; // já está vindo formatado da agu
+        $contrato['objeto'] = $dado['objeto'];
+        $contrato['info_complementar'] = $dado['info_complementar'];
+        $contrato['receita_despesa'] = $dado['receita_despesa'];
+        $contrato['fundamento_legal'] = $dado['fundamento_legal'];
+        $contrato['modalidade_id'] = $this->buscarModalidadeId($dado);
+        $contrato['licitacao_numero'] = $dado['licitacao_numero']; // já está vindo formatado da agu
+        $contrato['situacao'] = $dado['situacao'];
 
         $dados_historico = [];
-        foreach ($dado['historico'] as $item) {
+        foreach ($dado['contratohistoricos'] as $item) {
             $dados_historico[] = $base->buscaDadosUrlMigracao($item);
         }
+
+        self::imprimirNaTela('Iniciando varredura dos históricos...');
+
+
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
-            if ($dado_historico['his_tipo'] == 'Contrato Inicial') {
+            if ($dado_historico['tipo_id'] == 'Contrato') {
+
+                self::imprimirNaTela('Contrato inicial!');
+
                 //contrato inicial
-                $contrato['fornecedor_id'] = $this->buscaFornecedor($dado_historico['his_cnpj'], $dado_historico['his_fornnome']);
-                $contrato['data_assinatura'] = $dado_historico['his_data'];
-                $contrato['data_publicacao'] = $dado_historico['his_data'];
-                $contrato['vigencia_inicio'] = $dado_historico['his_dtviginicio'];
-                $contrato['vigencia_fim'] = $dado_historico['his_dtvigfim'];
-                $contrato['valor_inicial'] = $dado_historico['his_vlrglobal'];
-                $contrato['valor_global'] = $dado_historico['his_vlrglobal'];
-                $contrato['num_parcelas'] = $dado_historico['his_parcelas'];
-                $contrato['valor_parcela'] = $dado_historico['his_vlrparcial'];
-                $contrato['valor_acumulado'] = $dado_historico['his_vlrglobal'];
+                $contrato['fornecedor_id'] = $dado_historico['fornecedor_id'];
+                $contrato['data_assinatura'] = $dado_historico['data_assinatura'];
+                $contrato['data_publicacao'] = $dado_historico['data_publicacao'];
+                $contrato['vigencia_inicio'] = $dado_historico['vigencia_inicio'];
+                $contrato['vigencia_fim'] = $dado_historico['vigencia_fim'];
+                $contrato['valor_inicial'] = $dado_historico['valor_inicial'];
+                $contrato['valor_global'] = $dado_historico['valor_global'];
+                $contrato['num_parcelas'] = $dado_historico['num_parcelas'];
+                $contrato['valor_parcela'] = $dado_historico['valor_parcela'];
+                $contrato['valor_acumulado'] = $dado_historico['valor_acumulado'];
 
                 $cont = new Contrato();
                 $contrato_inserido = $cont->inserirContratoMigracaoConta($contrato);
+
+                self::imprimirNaTela('Contrato inserido!');
+
             } else {
+
                 if (isset($contrato_inserido->id)) {
 
+                    self::imprimirNaTela('Preparando para inserir contrato histórico...');
+
                     //historico
-
                     $con = Contrato::find($contrato_inserido->id);
-
-                    $ano_historico = explode('-', $dado_historico['his_data']);
-
-                    $his_num = str_pad($dado_historico['his_numero'], 4, "0", STR_PAD_LEFT) . '/' . $ano_historico[0];
-
+                    $ano_historico = explode('-', $dado_historico['data_assinatura']);
+                    $his_num = str_pad($dado_historico['numero'], 4, "0", STR_PAD_LEFT) . '/' . $ano_historico[0];
                     $historico['numero'] = $his_num;
                     $historico['contrato_id'] = $con->id;
-
-                    if ($dado_historico['his_cnpj'] != '' and $dado_historico['his_fornnome'] != '') {
-                        $historico['fornecedor_id'] = $this->buscaFornecedor($dado_historico['his_cnpj'], $dado_historico['his_fornnome']);
-                    } else {
-                        $historico['fornecedor_id'] = $con->fornecedor_id;
-                    }
-
-                    $historico['unidade_id'] = $con->unidade_id;
-
-                    $historico['tipo_id'] = ($dado_historico['his_tipo'] == 'Apostilamento') ? 68 : 65;
-                    $historico['receita_despesa'] = 'D';
-                    $historico['info_complementar'] = $dado['con_infocomple'];
-                    $historico['data_assinatura'] = $dado_historico['his_data'];
-                    $historico['data_publicacao'] = ($dado_historico['his_tipo'] == 'Apostilamento') ? null : $dado_historico['his_data'];
-                    $historico['vigencia_inicio'] = ($dado_historico['his_tipo'] == 'Apostilamento') ? $con->vigencia_inicio : $dado_historico['his_dtviginicio'];
-                    $historico['vigencia_fim'] = ($dado_historico['his_tipo'] == 'Apostilamento') ? $con->vigencia_fim : $dado_historico['his_dtvigfim'];
-
-                    $historico['valor_inicial'] = $dado_historico['his_vlrglobal'];
-                    $historico['valor_global'] = $dado_historico['his_vlrglobal'];
-                    $historico['num_parcelas'] = $dado_historico['his_parcelas'];
-                    $historico['valor_parcela'] = $dado_historico['his_vlrparcial'];
-
-                    $historico['novo_valor_global'] = ($dado_historico['his_tipo'] == 'Apostilamento') ? $dado_historico['his_vlrglobal'] : null;
-                    $historico['novo_num_parcelas'] = ($dado_historico['his_tipo'] == 'Apostilamento') ? $dado_historico['his_parcelas'] : null;
-                    $historico['novo_valor_parcela'] = ($dado_historico['his_tipo'] == 'Apostilamento') ? $dado_historico['his_vlrparcial'] : null;
-                    $historico['data_inicio_novo_valor'] = ($dado_historico['his_tipo'] == 'Apostilamento') ? $dado_historico['his_dtnovovalor'] : null;
-                    $historico['observacao'] = $dado_historico['his_observacao'];
-                    $historico['retroativo'] = ($dado_historico['his_retroativo'] == 'N') ? false : true;
-
-                    if ($dado_historico['his_retroativo'] == 'S') {
-                        $dtde = explode('-', $dado_historico['his_retrodtde']);
-                        $dtate = explode('-', $dado_historico['his_retrodtate']);
+                    $historico['fornecedor_id'] = $dado_historico['fornecedor_id'];
+                    $historico['unidade_id'] = $dado_historico['unidade_id'];
+                    $historico['tipo_id'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? 68 : 65;
+                    $historico['receita_despesa'] = $dado_historico['receita_despesa'];
+                    $historico['info_complementar'] = $dado_historico['info_complementar'];
+                    $historico['data_assinatura'] = $dado_historico['data_assinatura'];
+                    $historico['data_publicacao'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? null : $dado_historico['data_assinatura'];
+                    $historico['vigencia_inicio'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $con->vigencia_inicio : $dado_historico['vigencia_inicio'];
+                    $historico['vigencia_fim'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $con->vigencia_fim : $dado_historico['vigencia_fim'];
+                    $historico['valor_inicial'] = $dado_historico['valor_inicial'];
+                    $historico['valor_global'] = $dado_historico['valor_global'];
+                    $historico['num_parcelas'] = $dado_historico['num_parcelas'];
+                    $historico['valor_parcela'] = $dado_historico['valor_parcela'];
+                    $historico['novo_valor_global'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $dado_historico['novo_valor_global'] : null;
+                    $historico['novo_num_parcelas'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $dado_historico['novo_num_parcelas'] : null;
+                    $historico['novo_valor_parcela'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $dado_historico['novo_valor_parcela'] : null;
+                    $historico['data_inicio_novo_valor'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $dado_historico['data_inicio_novo_valor'] : null;
+                    $historico['observacao'] = $dado_historico['observacao'];
+                    $historico['retroativo'] = ($dado_historico['retroativo'] == 'N') ? false : true;
+                    if ($dado_historico['retroativo'] == 'S') {
+                        $dtde = explode('-', $dado_historico['retroativo_mesref_de']);
+                        $dtate = explode('-', $dado_historico['retroativo_mesref_ate']);
                         $historico['retroativo_mesref_de'] = $dtde[1];
                         $historico['retroativo_anoref_de'] = $dtde[0];
                         $historico['retroativo_mesref_ate'] = $dtate[1];
                         $historico['retroativo_anoref_ate'] = $dtate[0];
-                        $historico['retroativo_vencimento'] = ($dado_historico['his_retrovencimento']) ? $dado_historico['his_retrovencimento'] : $dado_historico['his_retrodtate'];
-                        $historico['retroativo_valor'] = $dado_historico['his_retrovlr'];
-                        $historico['retroativo_soma_subtrai'] = true;
+                        $historico['retroativo_vencimento'] = ($dado_historico['retroativo_vencimento']) ? $dado_historico['retroativo_vencimento'] : $dado_historico['retroativo_mesref_ate'];
+                        $historico['retroativo_valor'] = $dado_historico['retroativo_valor'];
+                        $historico['retroativo_soma_subtrai'] = $dado_historico['retroativo_soma_subtrai'];
                     }
-
                     $hist = new Contratohistorico();
                     $historico_inserido = $hist->inserirContratohistoricoMigracaoConta($historico);
+
+                    self::imprimirNaTela('Contrato histórico inserido! id = '.$historico_inserido->id);
                 }
             }
         }
 
         if (isset($contrato_inserido->id)) {
-
             $con = Contrato::find($contrato_inserido->id);
+            $quantidadeContratoResponsaveis = (is_array($dado['contratoresponsaveis']) ? count($dado['contratoresponsaveis']) : 0);
+
+            self::imprimirNaTela('Este contrato possui '.$quantidadeContratoResponsaveis.' responsáveis.');
 
             //responsaveis
             $dados_responsaveis = [];
-            if (count($dado['responsaveis'])) {
-                foreach ($dado['responsaveis'] as $item) {
+            if ($quantidadeContratoResponsaveis>0) {
+                foreach ($dado['contratoresponsaveis'] as $item) {
                     $dados_responsaveis[] = $base->buscaDadosUrlMigracao($item);
                 }
             }
-
             if (count($dados_responsaveis)) {
+
+                self::imprimirNaTela('Iniciando varredura dos responsáveis...');
+
                 foreach ($dados_responsaveis as $dado_responsavel) {
-
-                    $user = explode('|', $dado_responsavel['qeq_user_cod']);
-
-                    $cpf_user = $base->formataCnpjCpfTipo(str_pad($user[0], 11, "0", STR_PAD_LEFT), 'FISICA');
-
+                    $user = explode('|', $dado_responsavel['user_id']);
+                    $cpf_user = $user[0];
                     $usuario = BackpackUser::where('cpf', $cpf_user)
                         ->first();
 
+                    self::imprimirNaTela('Varrendo responsável com user id = '.$dado_responsavel['user_id'].' e cpf = '.$cpf_user);
+
                     if (!isset($usuario->id)) {
+
+                        self::imprimirNaTela('! usuário não existe na base.');
 
                         $array_user = [
                             'cpf' => $cpf_user,
@@ -162,7 +176,13 @@ class MigracaoSistemaConta extends Model
                             'perfil' => 'Responsável por Contrato',
                         ];
 
+                        self::imprimirNaTela('Preparando para inserir um usuário: ');
+                        self::imprimirNaTela($array_user);
+
                         $usuario = $this->inserirUsuario($array_user);
+
+                        self::imprimirNaTela('usuário inserido');
+                        self::imprimirNaTela($usuario);
 
                     }
 
@@ -174,33 +194,42 @@ class MigracaoSistemaConta extends Model
 
                     $responsavel['contrato_id'] = $con->id;
                     $responsavel['user_id'] = $usuario->id;
-                    $responsavel['funcao_id'] = $this->buscaFuncaoResponsavel($dado_responsavel['qeq_funcao']);
+                    $responsavel['funcao_id'] = $this->buscaFuncaoResponsavel($dado_responsavel['funcao_id']);
                     $responsavel['instalacao_id'] = null;
-                    $responsavel['portaria'] = $dado_responsavel['qeq_portaria'];
-                    $responsavel['situacao'] = ($dado_responsavel['qeq_situacao'] == 'I') ? false : true;
-                    $responsavel['data_inicio'] = date('Y-m-d');
-                    $responsavel['data_fim'] = ($dado_responsavel['qeq_situacao'] == 'I') ? date('Y-m-d') : null;
+                    $responsavel['portaria'] = $dado_responsavel['portaria'];
+                    $responsavel['situacao'] = $dado_responsavel['situacao'];
+                    $responsavel['data_inicio'] = $dado_responsavel['data_inicio'];
+                    $responsavel['data_fim'] = $dado_responsavel['data_fim'];
+
+                    self::imprimirNaTela('Preparando para inserir um contrato responsável...');
+                    self::imprimirNaTela($responsavel);
 
                     $hist = new Contratoresponsavel();
                     $historico_inserido = $hist->inserirContratoresponsavelMigracaoConta($responsavel);
+
+                    self::imprimirNaTela('Contrato responsável inserido!');
+                    self::imprimirNaTela('Histórico foi inserido!');
 
                 }
             }
 
             //ocorrencias
             $dados_ocorrencias = [];
-            foreach ($dado['ocorrencias'] as $item) {
-                $dados_ocorrencias[] = $base->buscaDadosUrlMigracao($item);
+            $quantidadeContratoOcorrencias = (is_array($dado['contratoocorrencias']) ? count($dado['contratoocorrencias']) : 0);
+            if($quantidadeContratoOcorrencias > 0){
+                foreach ($dado['contratoocorrencias'] as $item) {
+                    $dados_ocorrencias[] = $base->buscaDadosUrlMigracao($item);
+                }
             }
 
             if (count($dados_ocorrencias)) {
+
+                self::imprimirNaTela('Atenção! Tratar ocorrências!');
+                dd($dados_ocorrencia);
+
                 foreach ($dados_ocorrencias as $dados_ocorrencia) {
-
                     $url_user = $base->buscaDadosUrlMigracao($dados_ocorrencia['oco_fiscal']);
-
                     $cpf_user = $base->formataCnpjCpfTipo(str_pad($url_user['login'], 11, "0", STR_PAD_LEFT), 'FISICA');
-
-
                     $situacao = Codigoitem::whereHas('codigo', function ($query) {
                         $query->where('descricao', 'Situação Ocorrência');
                     })
@@ -260,13 +289,18 @@ class MigracaoSistemaConta extends Model
 
             // terceirizados
             $dados_terceirizados = [];
-            foreach ($dado['terceirizados'] as $item) {
-                $dados_terceirizados[] = $base->buscaDadosUrlMigracao($item);
+            $quantidadeContratoTerceirizados = (is_array($dado['contratoterceirizados']) ? count($dado['contratoterceirizados']) : 0);
+            if($quantidadeContratoTerceirizados > 0){
+                foreach ($dado['contratoterceirizados'] as $item) {
+                    $dados_terceirizados[] = $base->buscaDadosUrlMigracao($item);
+                }
             }
-
             if (count($dados_terceirizados)) {
-                foreach ($dados_terceirizados as $dados_terceirizado) {
 
+                self::imprimirNaTela('Atenção! Tratar terceirizados!');
+                dd($dados_terceirizados);
+
+                foreach ($dados_terceirizados as $dados_terceirizado) {
                     $cpf_terceirizado = $base->formataCnpjCpfTipo(str_pad($dados_terceirizado['ter_cpf'], 11, "0", STR_PAD_LEFT), 'FISICA');
 
                     $funcao = Codigoitem::whereHas('codigo', function ($query) {
@@ -302,21 +336,36 @@ class MigracaoSistemaConta extends Model
 
             // empenhos
             $dados_empenhos = [];
-            foreach ($dado['empenhos'] as $item) {
-                $dados_empenhos[] = $base->buscaDadosUrlMigracao($item);
-            }
+            $quantidadeContratoEmpenhos = (is_array($dado['contratoempenhos']) ? count($dado['contratoempenhos']) : 0);
+            if($quantidadeContratoEmpenhos > 0){
 
+                self::imprimirNaTela('Atenção! Trtar empenhos!');
+                dd($dado['contratoempenhos']);
+
+                foreach ($dado['contratoempenhos'] as $item) {
+                    $dados_empenhos[] = $base->buscaDadosUrlMigracao($item);
+                }
+            }
             if (count($dados_empenhos)) {
                 foreach ($dados_empenhos as $dados_empenho) {
                     $contratoempenho_inserido = $this->inserirEmpenho($dados_empenho, $con);
                 }
             }
 
-            $dados_faturas = [];
-            foreach ($dado['faturas'] as $item) {
-                $dados_faturas[] = $base->buscaDadosUrlMigracao($item);
-            }
 
+
+            // faturas
+            $dados_faturas = [];
+            $quantidadeContratoFaturas = (is_array($dado['contratofaturas']) ? count($dado['contratofaturas']) : 0);
+            if($quantidadeContratoFaturas > 0){
+
+                self::imprimirNaTela('Atenção! Tratar faturas!');
+                dd($dado['contratofaturas']);
+
+                foreach ($dado['contratofaturas'] as $item) {
+                    $dados_faturas[] = $base->buscaDadosUrlMigracao($item);
+                }
+            }
             if (count($dados_faturas)) {
                 foreach ($dados_faturas as $dados_fatura) {
                     $contratofatura_inserido = $this->inserirFatura($dados_fatura, $con);
@@ -399,7 +448,6 @@ class MigracaoSistemaConta extends Model
         $empenho['rpliquidado'] = $dados_empenho['emp_rpliquidado'];
         $empenho['rppago'] = $dados_empenho['emp_rppago'];
 
-
         $empenho_inserido = $this->buscaEmpenho($empenho);
 
         $array_con_emp = [
@@ -431,6 +479,9 @@ class MigracaoSistemaConta extends Model
 
     private function inserirUsuario(array $dados)
     {
+
+        self::imprimirNaTela('Preparando para cadastrar usuário...');
+
         $usuario = BackpackUser::create([
             'cpf' => $dados['cpf'],
             'name' => $dados['name'],
@@ -439,22 +490,15 @@ class MigracaoSistemaConta extends Model
             'password' => $dados['password'],
         ]);
 
+        self::imprimirNaTela('ok!');
+
+
         $usuario->assignRole('Responsável por Contrato');
 
         return $usuario;
+
     }
 
-    private function buscaModalidade($dado)
-    {
-        $contrato = new Contrato();
-        $modalidade = $contrato->modalidade()->where('descricao', $dado)->first();
-
-        if (!isset($modalidade->id)) {
-            return 75;
-        }
-
-        return $modalidade->id;
-    }
 
     private function buscaTipoListaFatura($dado)
     {
@@ -566,7 +610,35 @@ class MigracaoSistemaConta extends Model
 
     }
 
+    private function buscaModalidade($dado)
+    {
+        $contrato = new Contrato();
+        $modalidade = $contrato->modalidade()->where('descricao', $dado)->first();
 
+        if (!isset($modalidade->id)) {
+            return 75;
+        }
 
+        return $modalidade->id;
+    }
 
+    //
+    public function buscarModalidadeId($dado){
+        $idDado = $dado['modalidade_id'];
+        $objeto = Codigoitem::where('descricao', $idDado)->first();
+        if($objeto==null){return config('migracao.modalidade_padrao');}
+        else{return $id = $objeto->id;}
+    }
+    public function buscarTipoId($dado){
+        $tipoIdDado = $dado['tipo_id'];
+        $objeto = Codigoitem::where('descricao', $tipoIdDado)->first();
+        if($objeto==null){return config('migracao.tipo_contrato_padrao');}
+        else{return $id = $objeto->id;}
+    }
+    public function buscarCategoriaId($dado){
+        $categoriaIdDado = $dado['categoria_id'];
+        $objeto = Codigoitem::where('descricao', $categoriaIdDado)->first();
+        if($objeto==null){return config('migracao.categoria_padrao');}
+        else{return $id = $objeto->id;}
+    }
 }

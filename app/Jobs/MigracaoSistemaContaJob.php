@@ -38,7 +38,6 @@ class MigracaoSistemaContaJob implements ShouldQueue
     {
         $base = new AdminController();
         $dados = $base->buscaDadosUrlMigracao($this->url);
-
         foreach ($dados as $dado){
             $contrato = new MigracaoSistemaConta();
             $retorno = $contrato->trataDadosMigracaoConta($dado);
