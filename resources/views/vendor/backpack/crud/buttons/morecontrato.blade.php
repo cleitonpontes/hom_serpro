@@ -8,6 +8,7 @@
         <li class="dropdown-header"><i class="fa fa-list"></i> Itens Contrato:</li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/arquivos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Arquivos</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/cronograma">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Cronograma</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/despesaacessoria">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Despesas Acessórias</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/empenhos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Empenhos</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/garantias">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Garantias</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/historico">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Histórico</a></li>

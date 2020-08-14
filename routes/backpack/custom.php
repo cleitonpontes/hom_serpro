@@ -66,7 +66,7 @@ Route::group([
         Route::group([
             'prefix' => 'painel',
             'namespace' => 'Painel'
-        ], function (){
+        ], function () {
             Route::get('financeiro', 'FinanceiroController@index')->name('painel.financeiro');
             Route::get('orcamentario', 'OrcamentarioController@index')->name('painel.orcamentario');
         });
@@ -137,16 +137,13 @@ Route::group([
 
             CRUD::resource('contrato', 'ContratoCrudController');
             CRUD::resource('subrogacao', 'SubrogacaoCrudController');
-            CRUD::resource('despesaacessoria', 'ContratodespesaacessoriaCrudController');
             CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
-
-
 
             Route::group([
                 'prefix' => 'siasg',
                 'namespace' => 'Siasg',
-                ], function () {
+            ], function () {
                 CRUD::resource('compras', 'SiasgcompraCrudController');
                 CRUD::resource('contratos', 'SiasgcontratoCrudController');
 
@@ -159,25 +156,27 @@ Route::group([
             });
 
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
-                CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
-                CRUD::resource('garantias', 'ContratogarantiaCrudController');
-                CRUD::resource('arquivos', 'ContratoarquivoCrudController');
-                CRUD::resource('empenhos', 'ContratoempenhoCrudController');
-                CRUD::resource('historico', 'ContratohistoricoCrudController');
-                CRUD::resource('cronograma', 'ContratocronogramaCrudController');
-                CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
                 CRUD::resource('aditivos', 'AditivoCrudController');
                 CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
+                CRUD::resource('arquivos', 'ContratoarquivoCrudController');
+                CRUD::resource('cronograma', 'ContratocronogramaCrudController');
+                CRUD::resource('despesaacessoria', 'ContratoDespesaAcessoriaCrudController');
+                CRUD::resource('empenhos', 'ContratoempenhoCrudController');
+                CRUD::resource('garantias', 'ContratogarantiaCrudController');
+                CRUD::resource('historico', 'ContratohistoricoCrudController');
+                CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
                 CRUD::resource('itens', 'ContratoitemCrudController');
-                CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');
+                CRUD::resource('prepostos', 'ContratoprepostoCrudController');
+                CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');
                 Route::get('extrato', 'ContratoCrudController@extratoPdf');
             });
 
-            Route::group(['prefix' => 'consulta/'], function() {
+            Route::group(['prefix' => 'consulta/'], function () {
                 CRUD::resource('arquivos', 'ConsultaarquivoCrudController');
                 CRUD::resource('cronogramas', 'ConsultacronogramaCrudController');
+                CRUD::resource('despesasacessorias', 'ConsultaDespesaAcessoriaCrudController');
                 CRUD::resource('empenhos', 'ConsultaempenhoCrudController');
                 CRUD::resource('faturas', 'ConsultafaturaCrudController');
                 CRUD::resource('garantias', 'ConsultagarantiaCrudController');
