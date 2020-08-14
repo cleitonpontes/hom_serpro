@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use App\Http\Requests\Request;
+use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Requests\UnidadeconfiguracaoRequest as UpdateRequest;
 use App\Models\BackpackUser;
 use App\Models\Codigoitem;
@@ -126,6 +127,16 @@ class UnidadeconfiguracaoCrudController extends CrudController
 //                    $query->orWhere('unidades.codigo', 'like', "%".strtoupper($searchTerm)."%");
 //                    $query->orWhere('unidades.nomeresumido', 'like', "%".strtoupper($searchTerm)."%");
 //                },
+            ],
+            [
+                'name' => 'padrao_processo_mascara',
+                'label' => 'Padrão Formato Processo',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'getUser1',
@@ -293,6 +304,13 @@ class UnidadeconfiguracaoCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
+                'name' => 'padrao_processo_mascara',
+                'label' => 'Padrão Formato Processo',
+                'type' => 'text',
+//                'default' => '99999.999999/9999-99',
+                'tab' => 'Dados Gerais',
+            ],
+            [
                 // select_from_array
                 'name' => 'user1_id',
                 'label' => "Chefe Contratos",
@@ -431,6 +449,8 @@ class UnidadeconfiguracaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        $request = $this->verificaSeUnidadeSisg($request);
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -440,6 +460,8 @@ class UnidadeconfiguracaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $request = $this->verificaSeUnidadeSisg($request);
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -459,7 +481,16 @@ class UnidadeconfiguracaoCrudController extends CrudController
             'user4_id',
         ]);
 
-
         return $content;
     }
+
+    public function verificaSeUnidadeSisg(FormRequest $request){
+
+        $unidade = Unidade::find($request->get('unidade_id'));
+
+        ($unidade->sisg)? $request['padrao_processo_mascara'] = '' :'';
+
+        return $request;
+    }
+
 }

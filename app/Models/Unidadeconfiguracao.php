@@ -37,6 +37,7 @@ class Unidadeconfiguracao extends Model
         'email_mensal',
         'email_mensal_dia',
         'email_mensal_texto',
+        'padrao_processo_mascara'
     ];
     // protected $hidden = [];
     // protected $dates = [];
