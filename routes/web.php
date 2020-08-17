@@ -31,6 +31,15 @@ Route::group([
     CRUD::resource('/terceirizados', 'ConsultaTerceirizadosCrudController')->name('transparencia.consulta.terceirizados');
 });
 
+Route::group([
+    'prefix' => 'acessogov',
+    'namespace' => 'Acessogov',
+], function () {
+    Route::get('/autorizacao', 'LoginAcessoGov@autorizacao')->name('acessogov.autorizacao');
+    Route::get('/tokenacesso', 'LoginAcessoGov@tokenAcesso')->name('acessogov.tokenacesso');
+});
+
+
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
 
 
@@ -94,7 +103,6 @@ Route::group(
         }
 
 
-
         // Módulo Folha de Pagamento
         Route::group([
             'prefix' => 'folha',
@@ -109,7 +117,7 @@ Route::group(
              **/
             Route::get('/apropriacao', 'ApropriacaoController@index')
                 ->name('apropriacao')
-                    ->middleware('permission:folha_apropriacao_acesso');
+                ->middleware('permission:folha_apropriacao_acesso');
             Route::get('/apropriacao/remove', function () {
                 return redirect('/folha/apropriacao');
             })

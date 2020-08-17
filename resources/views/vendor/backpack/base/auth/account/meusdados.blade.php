@@ -15,7 +15,7 @@
     <h1>
         {{ trans('backpack::base.my_account') }}
     </h1>
-
+@if((!is_null(session('user_ug'))))
     <ol class="breadcrumb">
 
         <li>
@@ -31,7 +31,7 @@
         </li>
 
     </ol>
-
+@endif
 </section>
 @endsection
 

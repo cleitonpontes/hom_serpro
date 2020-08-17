@@ -9,11 +9,12 @@
                     <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>" width="200px"
                          alt="{!! env('APP_NAME') !!}"></a>
             </div>
+
             <div class="box">
                 <div class="box-body">
                     <form class="col-md-12 p-t-10" role="form" method="POST"
                           action="{{ route('backpack.auth.login') }}">
-                        {!! csrf_field() !!}
+                        @csrf
 
                         <div class="form-group{{ $errors->has($username) ? ' has-error' : '' }}">
                             <label class="control-label">{{ config('backpack.base.authentication_column_name') }}</label>
@@ -61,28 +62,65 @@
                                     {{ trans('backpack::base.login') }}
                                 </button>
                             </div>
+
+                            <div class="m-t-10">
+                                <a href="/acessogov/autorizacao"
+                                   class="btn btn-block btn-info">
+                                    <img src="data:image/png;base64,
+                                         <?php echo base64_encode(file_get_contents("../public/img/govbr.png")) ?>"
+                                         width="55px"
+                                         alt="Entrar via Acesso Gov" />
+                                    Entrar com Acesso Gov
+                                </a>
+                                @if (session('warning'))
+                                    <div class="alert alert-warning">
+                                        {{ session('warning') }}
+                                    </div>
+                                @endif
+                                @if (session('error'))
+                                    <div class="alert alert-error">
+                                        {{ session('error') }}
+                                    </div>
+                                @endif
+                            </div>
+
                         </div>
+                        <hr class="m-t-30" />
                     </form>
+
+                    @if (backpack_users_have_email())
+                        <div class="text-center text-lg m-t-10">
+                            <a href="{{ route('backpack.auth.password.reset') }}">
+                                {{ trans('backpack::base.forgot_your_password') }}
+                            </a>
+                        </div>
+                    @endif
+
+                    <div class="text-center text-lg m-t-10">
+                        <a href="/transparencia">
+                            <label>
+                                Transparência
+                            </label>
+                        </a>
+                    </div>
                 </div>
             </div>
-            @if (backpack_users_have_email())
-                <div class="text-center m-t-10"><a
-                            href="{{ route('backpack.auth.password.reset') }}">{{ trans('backpack::base.forgot_your_password') }}</a>
-                </div>
-            @endif
-            <div class="text-center m-t-10"><a
-                    href="/transparencia">Transparência</a>
-            </div>
+
             @if (config('backpack.base.registration_open'))
-                <div class="text-center m-t-10"><a
-                            href="{{ route('backpack.auth.register') }}">{{ trans('backpack::base.register') }}</a>
+                <div class="text-center text-lg m-t-10">
+                    <a
+                        {{ trans('backpack::base.register') }}
+                    </a>
                 </div>
             @endif
         </div>
     </div>
+
     @push('after_scripts')
         <script type="text/javascript">
-            $('#{{ $username }}').mask('999.999.999-99');
+            $( document ).ready(function($) {
+                $('#{{ $username }}').mask('999.999.999-99');
+            });
         </script>
     @endpush
 @endsection
