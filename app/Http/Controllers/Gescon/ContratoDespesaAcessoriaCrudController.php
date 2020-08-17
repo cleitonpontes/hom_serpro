@@ -14,27 +14,38 @@ use App\Http\Requests\ContratodespesaacessoriaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Route;
 
 /**
  * Class ContratodespesasacessoriaCrudController
  * @package App\Http\Controllers\Admin
  * @property-read CrudPanel $crud
  */
-class ContratodespesaacessoriaCrudController extends CrudController
+class ContratoDespesaAcessoriaCrudController extends CrudController
 {
     public function setup()
     {
+        $contrato_id = Route::current()->parameter('contrato_id');
+
+        $contrato = Contrato::where('id', '=', $contrato_id)
+            ->where('unidade_id', '=', session()->get('user_ug_id'));
+
+        if (!$contrato->first()) {
+            abort('403', config('app.erro_permissao'));
+        }
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Contratodespesaacessoria');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/despesaacessoria');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . "/gescon/contrato/$contrato_id/despesaacessoria");
         $this->crud->setEntityNameStrings('Despesa Acessória', 'Despesas Acessórias');
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratodespesaacessoria.contrato_id');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
+        $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addClause('where', 'unidades.id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratodespesaacessoria.*');
 
@@ -43,6 +54,7 @@ class ContratodespesaacessoriaCrudController extends CrudController
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -54,7 +66,10 @@ class ContratodespesaacessoriaCrudController extends CrudController
         (backpack_user()->can('contratodespesaacessoria_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         $this->crud->addColumns($this->Colunas());
-        $this->crud->addFields($this->Campos());
+        $this->crud->addFields($this->Campos(
+            $contrato->pluck('numero', 'id')
+                ->toArray())
+        );
         $this->adicionaFiltros();
 
 
@@ -323,14 +338,8 @@ class ContratodespesaacessoriaCrudController extends CrudController
 
     }
 
-    public function campos()
+    public function campos($contrato)
     {
-        $contratos = Contrato::select(DB::raw("CONCAT(contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS nome"), 'contratos.id')
-            ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
-            ->where('unidade_id', session()->get('user_ug_id'))
-            ->where('situacao', true)
-            ->orderBy('contratos.numero', 'asc')->pluck('nome', 'id')->toArray();
-
         $tipoDespesa = Codigoitem::whereHas('codigo', function ($c) {
             $c->where('descricao', 'Tipo Despesa Acessória');
         })
@@ -346,21 +355,21 @@ class ContratodespesaacessoriaCrudController extends CrudController
             ->toArray();
 
         return [
-            [ // select_from_array
+            [
                 'name' => 'contrato_id',
                 'label' => "Contrato",
                 'type' => 'select2_from_array',
-                'options' => $contratos,
-                'allows_null' => true,
+                'options' => $contrato,
+                'allows_null' => false,
             ],
-            [ // select_from_array
+            [
                 'name' => 'tipo_id',
                 'label' => "Tipo Despesa",
                 'type' => 'select2_from_array',
                 'options' => $tipoDespesa,
                 'allows_null' => true,
             ],
-            [ // select_from_array
+            [
                 'name' => 'recorrencia_id',
                 'label' => "Recorrência Despesa",
                 'type' => 'select2_from_array',

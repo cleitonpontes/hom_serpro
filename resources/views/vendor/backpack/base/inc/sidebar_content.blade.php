@@ -27,12 +27,6 @@
             </a>
         </li>
         <li>
-            <a href="{{ backpack_url('/gescon/despesaacessoria') }}">
-                <i class="fa fa-list"></i>
-                <span>Despesas acessórias</span>
-            </a>
-        </li>
-        <li>
             <a href="{{ backpack_url('/gescon/fornecedor') }}">
                 <i class="fa fa-users"></i>
                 <span>Fornecedores</span>
@@ -85,6 +79,12 @@
                     <a href="{{ backpack_url('/gescon/consulta/cronogramas') }}">
                         <i class="fa fa-calendar"></i>
                         <span>Cronogramas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ backpack_url('/gescon/consulta/despesasacessorias') }}">
+                        <i class="fa fa-list"></i>
+                        <span>Despesas acessórias</span>
                     </a>
                 </li>
                 <li>
