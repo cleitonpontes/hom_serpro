@@ -142,7 +142,7 @@ class LoginAcessoGov extends Controller
 
             $dados = $this->processToClaims($token['id_token'], $json_output_jwk);
 
-            ($dados['email_verified']) ? $rota = $this->login($dados) : $rota = 'login';
+            (!$dados['email_verified']) ? $rota = $this->login($dados) : $rota = 'login';
 
             return $rota;
 
