@@ -436,7 +436,6 @@ class ContratoDespesaAcessoriaCrudController extends CrudController
         $this->crud->removeColumn('recorrencia_id');
         $this->crud->removeColumn('valor');
 
-
         return $content;
     }
 }
