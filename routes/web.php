@@ -223,7 +223,8 @@ Route::group(
         // Módulo Apropriação da Fatura
         Route::group([
             'prefix' => 'apropriacao',
-            // 'middleware' => 'auth',
+            'namespace' => 'apropriacao',
+            'middleware' => 'auth',
             // 'middleware' = 'permission:apropriacao_fatura_passos'
         ], function () {
             /**
@@ -234,7 +235,7 @@ Route::group(
              * {sit}  = Situação
              *
              */
-            // Route::get('/fatura', 'ApropriacaoFaturaController@index')->name('apropriacao.fatura');
+            Route::get('/fatura', 'FaturaController@index')->name('apropriacao.fatura');
             // Route::get('/fatura/{id}', 'ApropriacaoFaturaController@show')->name('apropriacao.fatura.relatorio');
             // Route::delete('/fatura/{id}', 'ApropriacaoFaturaController@destroy')->name('apropriacao.fatura.excluir');
         });
