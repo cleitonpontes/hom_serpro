@@ -180,7 +180,7 @@ class LoginAcessoGov extends Controller
 
     public function loginUsuarioAcessoGov(BackpackUser $user)
     {
-        (is_null($user->ugprimaria))?$rota = 'transparencia.index' : $rota = '/inicio';
+        (is_null($user->ugprimaria))?$rota = 'transparencia.index' : $rota = 'backpack.inicio';
         Auth::login($user, true);
         return $rota;
     }
