@@ -116,7 +116,7 @@ class LoginAcessoGov extends Controller
             if($rota == 'login')
                 return redirect('login')->withWarning(self::MSG_CHECK_EMAIL);
 
-            return redirect()->route('transparencia.index');
+            return redirect()->route($rota);
 
         } catch (Exception $e) {
             return redirect()->route('login')->withError(self::MSG_ERRO);
@@ -164,7 +164,8 @@ class LoginAcessoGov extends Controller
     {
         $params = [
             'cpf' => $this->mask($dados['sub'],'###.###.###-##'),
-            'name' => $dados['name'],
+            // 'name' => strtoupper(mb_convert_encoding($dados['name'], 'UTF-8')),
+            'name' => Str::upper($dados['name']),
             'password' => Hash::make($dados['amr'][0] . $this->generateRandomString(5)),
             'email' => $dados['email'],
             'acessogov' => 1
@@ -180,8 +181,8 @@ class LoginAcessoGov extends Controller
 
     public function loginUsuarioAcessoGov(BackpackUser $user)
     {
+        (is_null($user->ugprimaria))?$rota = 'transparencia.index' : $rota = 'backpack.inicio';
         Auth::login($user, true);
-        $rota = 'transparencia.index';
         return $rota;
     }
 
