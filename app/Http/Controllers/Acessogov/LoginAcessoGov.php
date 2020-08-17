@@ -164,7 +164,7 @@ class LoginAcessoGov extends Controller
     {
         $params = [
             'cpf' => $this->mask($dados['sub'],'###.###.###-##'),
-            'name' => strtoupper(mb_convert_encoding($dados['name'], 'UTF-8', 'UTF-8')),
+            'name' => strtoupper(utf8_encode($dados['name'])),
             'password' => Hash::make($dados['amr'][0] . $this->generateRandomString(5)),
             'email' => $dados['email'],
             'acessogov' => 1
