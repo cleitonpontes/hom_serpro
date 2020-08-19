@@ -64,14 +64,12 @@ class IndexController extends Controller
         $datas_anoref['fim_cronograma'] = $base->retornaDataMaisOuMenosQtdTipoFormato('Y','+','2', 'years', date('Y-m-d'));
         $graficoContratosCronograma = $this->geraGraficoContratosCronograma($filtro,$datas_anoref);
 
-
         $dt30 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','30', 'days', date('Y-m-d'));
         $dt60 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','60', 'days', date('Y-m-d'));
         $dt90 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','90', 'days', date('Y-m-d'));
         $dt180 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','180', 'days', date('Y-m-d'));
         $dt999 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','99', 'years', date('Y-m-d'));
         $dt000 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','-','99', 'years', date('Y-m-d'));
-
 
         $url_datas['dt30'] = '{"from":"'.$dt000.'","to":"'.$dt30.'"}';
         $url_datas['dt3060'] = '{"from":"'.$dt30.'","to":"'.$dt60.'"}';
@@ -81,15 +79,14 @@ class IndexController extends Controller
 
         $url_filtro = '';
         if (isset($filtro['orgao'])) {
-            $url_filtro .= 'orgao='.strval($filtro['orgao']).'&';
+            $url_filtro .= 'orgao=["' . strval($filtro['orgao']) . '"]&';
         }
         if (isset($filtro['unidade'])) {
-            $url_filtro .= 'unidade='.strval($filtro['unidade']).'&';
+            $url_filtro .= 'unidade=["' . strval($filtro['unidade']) . '"]&';
         }
         if (isset($filtro['fornecedor'])) {
-            $url_filtro .= 'fornecedor='.strval($filtro['fornecedor']).'&';
+            $url_filtro .= 'fornecedor=["' . strval($filtro['fornecedor']) . '"]&';
         }
-
 
         $this->data['contratos_total_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_TOTAL,
             $filtro);
@@ -104,6 +101,7 @@ class IndexController extends Controller
         $this->data['contratos_vencer180_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_180,
             $filtro, [$dt180]);
         $this->data['contratos_total_percentual'] = '100%';
+
         if ($this->data['contratos_total_numero'] > 0) {
             $this->data['contratos_vencer30_percentual'] = number_format($this->data['contratos_vencer30_numero'] / $this->data['contratos_total_numero'] * 100,
                     0, ',', '') . '%';
