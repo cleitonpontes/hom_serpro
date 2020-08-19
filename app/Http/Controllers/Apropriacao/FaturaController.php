@@ -34,8 +34,8 @@ class FaturaController extends Controller
      */
     public function __construct(Builder $htmlBuilder)
     {
+        backpack_auth()->check();
         $this->htmlBuilder = $htmlBuilder;
-        // backpack_auth()->check();
     }
 
     /**
@@ -53,6 +53,7 @@ class FaturaController extends Controller
                 ->addColumn('action', function ($registro) {
                     return $this->montaHtmlAcoes($registro->id);
                 })
+                ->editColumn('valor', '{!! number_format(floatval($valor), 2, ",", ".") !!}')
                 ->make(true);
         }
 
@@ -88,21 +89,15 @@ class FaturaController extends Controller
         $html = $this->htmlBuilder;
 
         $html->addColumn([
-            'data' => 'id',
-            'name' => 'id',
-            'title' => 'Id'
+            'data' => 'competencia',
+            'name' => 'competencia',
+            'title' => 'Competência'
         ]);
 
         $html->addColumn([
             'data' => 'numero',
             'name' => 'numero',
             'title' => 'Número'
-        ]);
-
-        $html->addColumn([
-            'data' => 'competencia',
-            'name' => 'competencia',
-            'title' => 'Competência'
         ]);
 
         $html->addColumn([
@@ -147,7 +142,7 @@ class FaturaController extends Controller
         return $html;
     }
 
-    public function montaHtmlAcoes($id)
+    private function montaHtmlAcoes($id)
     {
         $conferencia = 'C';
         $editar = 'E';
