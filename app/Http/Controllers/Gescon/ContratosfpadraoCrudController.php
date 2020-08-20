@@ -113,7 +113,7 @@ class ContratosfpadraoCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'getNumeroContrato',
-                'label' => 'Número Contrato', // Table column heading
+                'label' => 'Número do instrumento', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getNumeroContrato', // the method in your Model
                 'orderable' => true,

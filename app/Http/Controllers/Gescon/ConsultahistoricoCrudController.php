@@ -223,7 +223,7 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
     {
         $this->crud->addColumn([
             'name' => 'numero',
-            'label' => 'Núm. Contrato Hist.',
+            'label' => 'Número do instrumento Hist.',
             'type' => 'text',
             'priority' => 13,
             'orderable' => true,
@@ -706,7 +706,7 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
         $campo = [
             'name' => 'numcontrato',
             'type' => 'text',
-            'label' => 'Núm. Contrato Hist.'
+            'label' => 'Número do instrumento Hist.'
         ];
 
         $this->crud->addFilter(

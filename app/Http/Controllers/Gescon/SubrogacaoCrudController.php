@@ -84,7 +84,7 @@ class SubrogacaoCrudController extends CrudController
             ],
             [
                 'name' => 'getContrato',
-                'label' => 'Contrato - Fornecedor', // Table column heading
+                'label' => 'Número do instrumento - Fornecedor', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContrato', // the method in your Model
                 'limit' => 150,
@@ -157,7 +157,7 @@ class SubrogacaoCrudController extends CrudController
             ],
             [ // select_from_array
                 'name' => 'contrato_id',
-                'label' => "Contrato",
+                'label' => "Número do instrumento",
                 'type' => 'select2_from_array',
                 'options' => $contratos,
                 'allows_null' => true,

@@ -168,7 +168,7 @@ class ContratoDespesaAcessoriaCrudController extends CrudController
         $campo = [
             'name' => 'contrato',
             'type' => 'select2',
-            'label' => 'Núm. Contrato'
+            'label' => 'Número do instrumento'
         ];
 
         $contratos = $this->retornaContratos();
@@ -250,7 +250,7 @@ class ContratoDespesaAcessoriaCrudController extends CrudController
             ],
             [
                 'name' => 'getContrato',
-                'label' => 'Número Contrato', // Table column heading
+                'label' => 'Número do instrumento', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContrato', // the method in your Model
                 'limit' => 150,

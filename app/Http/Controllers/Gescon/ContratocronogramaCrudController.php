@@ -94,7 +94,7 @@ class ContratocronogramaCrudController extends CrudController
             ],
             [
                 'name' => 'getContratoNumero',
-                'label' => 'Número Contrato', // Table column heading
+                'label' => 'Número do instrumento', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContratoNumero', // the method in your Model
                 'orderable' => true,

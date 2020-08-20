@@ -115,7 +115,7 @@ class ConsultaempenhoCrudController extends CrudController
             ],
             [
                 'name' => 'contrato.numero',
-                'label' => 'Número Contrato',
+                'label' => 'Número do instrumento',
                 'type' => 'string',
                 'priority' => 1,
                 'orderable' => true,
