@@ -28,7 +28,6 @@ class MigracaoSistemaContaJob implements ShouldQueue
     {
         $this->url = $url;
     }
-
     /**
      * Execute the job.
      *

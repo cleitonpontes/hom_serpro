@@ -62,11 +62,17 @@ class MigracaoSistemaConta extends Model
             $dados_historico[] = $base->buscaDadosUrlMigracao($item);
         }
 
-        self::imprimirNaTela('Iniciando varredura dos históricos...');
+        $quantidadeHistoricos = count($dados_historico);
+        self::imprimirNaTela('Iniciando varredura dos históricos...'.$quantidadeHistoricos.' históricos.');
+
 
 
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
+
+            $tipoHistorico =$dado_historico['tipo_id'];
+            self::imprimirNaTela('Tipo do histórico: '.$tipoHistorico);
+
             if ($dado_historico['tipo_id'] == 'Contrato') {
 
                 self::imprimirNaTela('Contrato inicial!');
@@ -134,6 +140,8 @@ class MigracaoSistemaConta extends Model
                     $historico_inserido = $hist->inserirContratohistoricoMigracaoConta($historico);
 
                     self::imprimirNaTela('Contrato histórico inserido! id = '.$historico_inserido->id);
+                } else {
+                    self::imprimirNaTela('Nada será feito por enquanto.');
                 }
             }
         }
@@ -165,7 +173,7 @@ class MigracaoSistemaConta extends Model
 
                     if (!isset($usuario->id)) {
 
-                        self::imprimirNaTela('! usuário não existe na base.');
+                        self::imprimirNaTela('Usuário não existe na base!');
 
                         $array_user = [
                             'cpf' => $cpf_user,
@@ -176,13 +184,10 @@ class MigracaoSistemaConta extends Model
                             'perfil' => 'Responsável por Contrato',
                         ];
 
-                        self::imprimirNaTela('Preparando para inserir um usuário: ');
-                        self::imprimirNaTela($array_user);
-
                         $usuario = $this->inserirUsuario($array_user);
 
-                        self::imprimirNaTela('usuário inserido');
-                        self::imprimirNaTela($usuario);
+                        self::imprimirNaTela('Usuário inserido: ');
+                        self::imprimirNaTela($usuario->name);
 
                     }
 
@@ -479,9 +484,7 @@ class MigracaoSistemaConta extends Model
 
     private function inserirUsuario(array $dados)
     {
-
         self::imprimirNaTela('Preparando para cadastrar usuário...');
-
         $usuario = BackpackUser::create([
             'cpf' => $dados['cpf'],
             'name' => $dados['name'],
@@ -489,17 +492,12 @@ class MigracaoSistemaConta extends Model
             'ugprimaria' => $dados['ugprimaria'],
             'password' => $dados['password'],
         ]);
-
         self::imprimirNaTela('ok!');
-
-
+        self::imprimirNaTela('Preparando para atribuir uma role ao usuário...');
         $usuario->assignRole('Responsável por Contrato');
-
+        self::imprimirNaTela('ok!');
         return $usuario;
-
     }
-
-
     private function buscaTipoListaFatura($dado)
     {
         $tipolista = Tipolistafatura::where('nome', $dado)->first();
