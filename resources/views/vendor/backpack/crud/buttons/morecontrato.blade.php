@@ -21,6 +21,6 @@
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/instrumentoinicial">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Instrumento Inicial</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/aditivos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Aditivo</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/apostilamentos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Apostilamento</a></li>
-{{--        <li><a href="/gescon/contrato/{{$entry->getKey()}}/rescisao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Rescisão</a></li>--}}
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/rescisao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Rescisão</a></li>
     </ul>
 </div>
