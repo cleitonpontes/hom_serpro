@@ -124,8 +124,10 @@ abstract class ConsultaContratoBaseCrudController extends CrudController
             $campos,
             $orgaos,
             function ($value) {
-                $this->crud->addClause('whereIn'
-                    , 'orgaos.codigo', json_decode($value));
+                $this->crud->addClause('whereIn',
+                    'orgaos.codigo',
+                    json_decode($value)
+                );
             }
         );
     }
@@ -160,7 +162,12 @@ abstract class ConsultaContratoBaseCrudController extends CrudController
             $campo,
             $unidades->pluck('nome', "codigo")->toArray(),
             function ($value) {
-                $this->crud->addClause('whereIn', 'unidades.codigo', json_decode($value));
+                $value;
+
+                $this->crud->addClause('whereIn',
+                    'unidades.codigo',
+                    json_decode($value)
+                );
             }
         );
     }
@@ -186,7 +193,9 @@ abstract class ConsultaContratoBaseCrudController extends CrudController
         ], $fornecedores
             , function ($value) {
                 $this->crud->addClause('whereIn',
-                    'fornecedores.cpf_cnpj_idgener', json_decode($value));
+                    'fornecedores.cpf_cnpj_idgener',
+                    json_decode($value)
+                );
             });
 
     }
