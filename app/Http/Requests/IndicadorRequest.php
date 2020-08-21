@@ -26,7 +26,7 @@ class IndicadorRequest extends FormRequest
     public function rules():array
     {
         return [
-             'nome' => 'required|max:255',
+             'nome' => 'required|max:255|unique:indicadores',
              'finalidade' => 'required',
              'situacao' => 'required',
 

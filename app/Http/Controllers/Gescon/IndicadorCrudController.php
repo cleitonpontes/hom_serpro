@@ -132,6 +132,7 @@ class IndicadorCrudController extends CrudController
                 'label' => 'Nome',
                 'type' => 'text',
                 'attributes' => [
+                    'onfocusout' => "maiuscula(this)",
                     'maxlength' => "255",
                 ],
             ],
