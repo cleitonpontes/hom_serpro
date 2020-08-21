@@ -33,6 +33,11 @@
                 <i class="fa fa-users"></i>
                 <span>Fornecedores</span>
             </a>
+        <li>
+            <a href="{{ backpack_url('/gescon/indicador') }}">
+                <i class="fa fa-users"></i>
+                <span>Indicadores</span>
+            </a>
         </li>
         <li>
             <a href="{{ backpack_url('/gescon/subrogacao') }}">
