@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Fornecedor;
+use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
-use App\Http\Requests\ApostilamentoRequest as StoreRequest;
-use App\Http\Requests\ApostilamentoRequest as UpdateRequest;
+use App\Http\Requests\RescisaoRequest as StoreRequest;
+use App\Http\Requests\RescisaoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 
@@ -34,7 +35,7 @@ class RescisaoCrudController extends CrudController
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
             ->Where('descricao', '=', 'Termo de Rescisão')
-            ->pluck('id')
+            ->pluck('descres')
             ->toArray();
 
         /*
@@ -64,9 +65,9 @@ class RescisaoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
-        (backpack_user()->can('contratoapostilamento_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('contratoapostilamento_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('contratoapostilamento_deletar')) ? $this->crud->allowAccess('delete') : null;
+        (backpack_user()->can('contratorescisao_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('contratorescisao_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('contratorescisao_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
         |--------------------------------------------------------------------------
@@ -82,16 +83,14 @@ class RescisaoCrudController extends CrudController
 
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
-        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+        $tipo = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
             ->where('descricao', '=', 'Termo de Rescisão')
-            ->orderBy('descricao')
-            ->pluck('descricao', 'id')
-            ->toArray();
+            ->first();
 
 
-        $campos = $this->Campos($fornecedores, $tipos, $contrato_id, $unidade);
+        $campos = $this->Campos($fornecedores, $tipo, $contrato_id, $unidade);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in ApostilamentoRequest
@@ -103,20 +102,31 @@ class RescisaoCrudController extends CrudController
     {
         $colunas = [
             [
+                'name' => 'numero',
+                'label' => 'Núm. Rescisão',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'observacao',
                 'label' => 'Observação',
                 'type' => 'text',
                 'limit' => 1000,
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'numero',
-                'label' => 'Número Rescisão',
+                'name' => 'processo',
+                'label' => 'Processo',
                 'type' => 'text',
+                'limit' => 1000,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -124,8 +134,8 @@ class RescisaoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'data_inicio_novo_valor',
-                'label' => 'Início Novo Valor',
+                'name' => 'data_assinatura',
+                'label' => 'Data da Assinatura',
                 'type' => 'date',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -134,78 +144,21 @@ class RescisaoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'formatNovoVlrGlobalHistorico',
-                'label' => 'Novo Valor Global', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatNovoVlrGlobalHistorico', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'formatNovoVlrParcelaHistorico',
-                'label' => 'Novo Valor Parcela', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatNovoVlrParcelaHistorico', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'retroativo',
-                'label' => 'Retroativo',
-                'type' => 'boolean',
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                // optionally override the Yes/No texts
-                'options' => [0 => 'Não', 1 => 'Sim']
-            ],
-            [
-                'name' => 'getRetroativoMesAnoReferenciaDe',
-                'label' => 'Retroativo Mês Ref. De', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getRetroativoMesAnoReferenciaDe', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getRetroativoMesAnoReferenciaAte',
-                'label' => 'Retroativo Mês Ref. Até', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getRetroativoMesAnoReferenciaAte', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'retroativo_vencimento',
-                'label' => 'Vencimento Retroativo',
+                'name' => 'data_publicacao',
+                'label' => 'Data de Publicação',
                 'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'formatVlrRetroativoValor',
-                'label' => 'Valor Retroativo', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'formatVlrRetroativoValor', // the method in your Model
+                'name' => 'vigencia_fim',
+                'label' => 'Vigência Fim',
+                'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
@@ -216,11 +169,12 @@ class RescisaoCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $tipos, $contrato_id, $unidade)
+    public function Campos($fornecedores, $tipo, $contrato_id, $unidade)
     {
         $contrato = Contrato::find($contrato_id);
 
         $campos = [
+
             [   // Hidden
                 'name' => 'receita_despesa',
                 'type' => 'hidden',
@@ -236,32 +190,30 @@ class RescisaoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato->fornecedor_id,
             ],
+            [   // Hidden
+                'name' => 'unidade_id',
+                'type' => 'hidden',
+                'default' => $contrato->unidade_id,
+            ],
+            [   // Hidden
+                'name' => 'categoria_id',
+                'type' => 'hidden',
+                'default' => $contrato->categoria_id,
+            ],
             [   // Date
                 'name' => 'vigencia_inicio',
                 'type' => 'hidden',
                 'default' => $contrato->vigencia_inicio,
             ],
-            [   // Date
-                'name' => 'vigencia_fim',
-                'type' => 'hidden',
-                'default' => $contrato->vigencia_fim,
-            ],
-            [
-                // select_from_array
+            [   // Hidden
                 'name' => 'tipo_id',
-                'label' => "Tipo",
-                'type' => 'select_from_array',
-                'options' => $tipos,
-                'allows_null' => false,
-                'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+                'type' => 'hidden',
+                'default' => $tipo->descres,
             ],
-            [
+            [   // Hidden
                 'name' => 'numero',
-                'label' => 'Número Termo Apostilamento',
-                'type' => 'numcontrato',
-                'tab' => 'Dados Gerais',
+                'type' => 'hidden',
+                'default' => $contrato->numero,
 
             ],
             [
@@ -271,147 +223,28 @@ class RescisaoCrudController extends CrudController
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"
                 ],
-                'tab' => 'Dados Gerais',
             ],
-            [ // select_from_array
-                'name' => 'unidade_id',
-                'label' => "Unidade Gestora",
-                'type' => 'select_from_array',
-                'options' => $unidade,
-                'allows_null' => false,
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-                'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            $campos[] = [
+                'name' => 'processo',
+                'label' => 'Número Processo',
+                'type' => 'numprocesso',
             ],
             [   // Date
                 'name' => 'data_assinatura',
-                'label' => 'Data Assinatura Apostilamento',
+                'label' => 'Data Assinatura Rescisão',
                 'type' => 'date',
-                'tab' => 'Dados Apostilamento',
             ],
-            [   // Date
-                'name' => 'data_inicio_novo_valor',
-                'label' => 'Data Início Novo Valor',
+            [
+            'name' => 'data_publicacao',
+            'label' => 'Data Publicação',
+            'type' => 'date',
+            ],
+            [
+                // Date
+                'name' => 'vigencia_fim',
+                'label' => 'Data Vig. Fim',
                 'type' => 'date',
-//                'default' => date('Y-m-d'),
-                'tab' => 'Dados Apostilamento',
-            ],
-            [   // Number
-                'name' => 'novo_valor_global',
-                'label' => 'Novo Valor Global',
-                'type' => 'money',
-                // optionals
-                'attributes' => [
-                    'id' => 'novo_valor_global',
-                ], // allow decimals
-                'prefix' => "R$",
-                'default' => number_format($contrato->valor_global, 2, ',', '.'),
-                'tab' => 'Dados Apostilamento',
-                // 'suffix' => ".00",
-            ],
-            [   // Number
-                'name' => 'novo_num_parcelas',
-                'label' => 'Novo Núm. Parcelas',
-                'type' => 'number',
-                // optionals
-//                'attributes' => [
-//                    "step" => "any",
-//                    "min" => '1',
-//                ], // allow decimals
-                'default' => $contrato->num_parcelas,
-//                'prefix' => "R$",
-                'tab' => 'Dados Apostilamento',
-                // 'suffix' => ".00",
-            ],
-            [   // Number
-                'name' => 'novo_valor_parcela',
-                'label' => 'Novo Valor Parcela',
-                'type' => 'money',
-                // optionals
-                'attributes' => [
-                    'id' => 'novo_valor_parcela',
-                ], // allow decimals
-                'prefix' => "R$",
-                'default' => number_format($contrato->valor_parcela, 2, ',', '.'),
-                'tab' => 'Dados Apostilamento',
-                // 'suffix' => ".00",
-            ],
-
-
-
-            [ // select_from_array
-                'name' => 'retroativo',
-                'label' => "Retroativo?",
-                'type' => 'radio',
-                'options' => [0 => 'Não', 1 => 'Sim'],
-                'default' => 0,
-                'inline' => true,
-                'tab' => 'Retroativo',
-            ],
-            [ // select_from_array
-                'name' => 'retroativo_mesref_de',
-                'label' => "Mês Referência De",
-                'type' => 'select2_from_array',
-                'options' => config('app.meses_referencia_fatura'),
-                'allows_null' => true,
-                'tab' => 'Retroativo',
-            ],
-            [ // select_from_array
-                'name' => 'retroativo_anoref_de',
-                'label' => "Ano Referência De",
-                'type' => 'select2_from_array',
-                'options' => config('app.anos_referencia_fatura'),
-//                'default'    => date('Y'),
-                'allows_null' => true,
-                'tab' => 'Retroativo',
-            ],
-            [ // select_from_array
-                'name' => 'retroativo_mesref_ate',
-                'label' => "Mês Referência Até",
-                'type' => 'select2_from_array',
-                'options' => config('app.meses_referencia_fatura'),
-                'allows_null' => true,
-                'tab' => 'Retroativo',
-            ],
-            [ // select_from_array
-                'name' => 'retroativo_anoref_ate',
-                'label' => "Ano Referência Até",
-                'type' => 'select2_from_array',
-                'options' => config('app.anos_referencia_fatura'),
-//                'default'    => date('Y'),
-                'allows_null' => true,
-                'tab' => 'Retroativo',
-            ],
-            [   // Date
-                'name' => 'retroativo_vencimento',
-                'label' => 'Vencimento Retroativo',
-                'type' => 'date',
-                'tab' => 'Retroativo',
-            ],
-            [ // select_from_array
-                'name' => 'retroativo_soma_subtrai',
-                'label' => "Soma ou Subtrai?",
-                'type' => 'radio',
-                'options' => [1 => 'Soma', 0 => 'Subtrai'],
-                'default'    => 1,
-                'inline'      => true,
-                'tab' => 'Retroativo',
-            ],
-            [   // Number
-                'name' => 'retroativo_valor',
-                'label' => 'Valor Retroativo',
-                'type' => 'money',
-                // optionals
-                'attributes' => [
-                    'id' => 'retroativo_valor',
-                ], // allow decimals
-                'prefix' => "R$",
-                'tab' => 'Retroativo',
-                // 'suffix' => ".00",
-            ],
+            ]
 
         ];
 
@@ -420,30 +253,8 @@ class RescisaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        $novo_valor_parcela = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_parcela'))));
-        $request->request->set('novo_valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
-        $request->request->set('valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
 
-        $novo_num_parcelas = $request->input('novo_num_parcelas');
-        $request->request->set('num_parcelas', $novo_num_parcelas);
-
-        $novo_valor_global = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_global'))));
-        $request->request->set('novo_valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
-        $request->request->set('valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
-        $request->request->set('valor_inicial', number_format(floatval($novo_valor_global), 2, '.', ''));
-
-        $soma_subtrai = $request->input('retroativo_soma_subtrai');
-
-        $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
-
-        if($soma_subtrai == '0'){
-            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
-        }else{
-            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
-        }
-
-        $request->request->set('retroativo_valor', $retroativo_valor);
-
+        $request->request->set('situacao',0);
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -452,30 +263,8 @@ class RescisaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $novo_valor_parcela = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_parcela'))));
-        $request->request->set('novo_valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
-        $request->request->set('valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
 
-        $novo_num_parcelas = $request->input('novo_num_parcelas');
-        $request->request->set('num_parcelas', $novo_num_parcelas);
-
-        $novo_valor_global = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_global'))));
-        $request->request->set('novo_valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
-        $request->request->set('valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
-        $request->request->set('valor_inicial', number_format(floatval($novo_valor_global), 2, '.', ''));
-
-        $soma_subtrai = $request->input('retroativo_soma_subtrai');
-
-        $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
-
-        if($soma_subtrai == '0'){
-            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
-        }else{
-            $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
-        }
-
-        $request->request->set('retroativo_valor', $retroativo_valor);
-
+        $request->request->set('situacao',0);
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
