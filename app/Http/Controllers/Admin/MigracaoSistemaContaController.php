@@ -62,6 +62,8 @@ class MigracaoSistemaContaController extends Controller
         $url = $this->montaUrl($orgaoconfiguracao, 'contratos');
         $base = new AdminController();
 
+        $tipo_migracao = $orgaoconfiguracao->tipomigracao;
+
         $dados = $base->buscaDadosUrlMigracao($url);
 
         if ($dados == []) {
@@ -70,16 +72,7 @@ class MigracaoSistemaContaController extends Controller
 
 //        $i = 0;
         foreach ($dados as $dado) {
-
-//            $ndados = $base->buscaDadosUrlMigracao($dado);
-//            foreach ($ndados as $ndado) {
-//                $contrato = new MigracaoSistemaConta();
-//                $retorno = $contrato->trataDadosMigracaoConta($ndado);
-//            }
-//            ($i == 10) ? dd($retorno) : null;
-//            $i++;
-
-            MigracaoSistemaContaJob::dispatch($dado)->onQueue('migracaosistemaconta');
+            MigracaoSistemaContaJob::dispatch($dado, $tipo_migracao)->onQueue('migracaosistemaconta');
         }
 
         $retorno = true;

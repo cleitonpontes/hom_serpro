@@ -1,16 +1,19 @@
 <?php
+
 namespace App\Models;
+
 use App\Http\Controllers\AdminController;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class MigracaoSistemaConta extends Model
+class MigracaoComprasnetContratos extends Model
 {
     use CrudTrait;
     use LogsActivity;
+
     protected static $logFillable = true;
-    protected static $logName = 'migracaoSistemaConta';
+    protected static $logName = 'migracaoComprasnetContratos';
 //    use SoftDeletes;
 
     /*
@@ -27,16 +30,18 @@ class MigracaoSistemaConta extends Model
         'orgao_id',
     ];
 
-    public function imprimirNaTela($valor){
+    public function imprimirNaTela($valor)
+    {
         echo '<pre>';
         var_dump($valor);
         echo '</pre>';
     }
+
     // método chamado em MigracaoSistemaContaJob.php
     public function trataDadosMigracaoConta(array $dado)
     {
         echo '<hr>';
-        self::imprimirNaTela('Tratamento dos dados iniciado para o contrato número: '.$dado['numero']);
+        self::imprimirNaTela('Tratamento dos dados iniciado para o contrato número: ' . $dado['numero']);
 
         set_time_limit(0);
 
@@ -63,15 +68,14 @@ class MigracaoSistemaConta extends Model
         }
 
         $quantidadeHistoricos = count($dados_historico);
-        self::imprimirNaTela('Iniciando varredura dos históricos...'.$quantidadeHistoricos.' históricos.');
-
+        self::imprimirNaTela('Iniciando varredura dos históricos...' . $quantidadeHistoricos . ' históricos.');
 
 
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
 
-            $tipoHistorico =$dado_historico['tipo_id'];
-            self::imprimirNaTela('Tipo do histórico: '.$tipoHistorico);
+            $tipoHistorico = $dado_historico['tipo_id'];
+            self::imprimirNaTela('Tipo do histórico: ' . $tipoHistorico);
 
             if ($dado_historico['tipo_id'] == 'Contrato') {
 
@@ -139,7 +143,7 @@ class MigracaoSistemaConta extends Model
                     $hist = new Contratohistorico();
                     $historico_inserido = $hist->inserirContratohistoricoMigracaoConta($historico);
 
-                    self::imprimirNaTela('Contrato histórico inserido! id = '.$historico_inserido->id);
+                    self::imprimirNaTela('Contrato histórico inserido! id = ' . $historico_inserido->id);
                 } else {
                     self::imprimirNaTela('Nada será feito por enquanto.');
                 }
@@ -150,11 +154,11 @@ class MigracaoSistemaConta extends Model
             $con = Contrato::find($contrato_inserido->id);
             $quantidadeContratoResponsaveis = (is_array($dado['contratoresponsaveis']) ? count($dado['contratoresponsaveis']) : 0);
 
-            self::imprimirNaTela('Este contrato possui '.$quantidadeContratoResponsaveis.' responsáveis.');
+            self::imprimirNaTela('Este contrato possui ' . $quantidadeContratoResponsaveis . ' responsáveis.');
 
             //responsaveis
             $dados_responsaveis = [];
-            if ($quantidadeContratoResponsaveis>0) {
+            if ($quantidadeContratoResponsaveis > 0) {
                 foreach ($dado['contratoresponsaveis'] as $item) {
                     $dados_responsaveis[] = $base->buscaDadosUrlMigracao($item);
                 }
@@ -169,7 +173,7 @@ class MigracaoSistemaConta extends Model
                     $usuario = BackpackUser::where('cpf', $cpf_user)
                         ->first();
 
-                    self::imprimirNaTela('Varrendo responsável com user id = '.$dado_responsavel['user_id'].' e cpf = '.$cpf_user);
+                    self::imprimirNaTela('Varrendo responsável com user id = ' . $dado_responsavel['user_id'] . ' e cpf = ' . $cpf_user);
 
                     if (!isset($usuario->id)) {
 
@@ -221,7 +225,7 @@ class MigracaoSistemaConta extends Model
             //ocorrencias
             $dados_ocorrencias = [];
             $quantidadeContratoOcorrencias = (is_array($dado['contratoocorrencias']) ? count($dado['contratoocorrencias']) : 0);
-            if($quantidadeContratoOcorrencias > 0){
+            if ($quantidadeContratoOcorrencias > 0) {
                 foreach ($dado['contratoocorrencias'] as $item) {
                     $dados_ocorrencias[] = $base->buscaDadosUrlMigracao($item);
                 }
@@ -295,7 +299,7 @@ class MigracaoSistemaConta extends Model
             // terceirizados
             $dados_terceirizados = [];
             $quantidadeContratoTerceirizados = (is_array($dado['contratoterceirizados']) ? count($dado['contratoterceirizados']) : 0);
-            if($quantidadeContratoTerceirizados > 0){
+            if ($quantidadeContratoTerceirizados > 0) {
                 foreach ($dado['contratoterceirizados'] as $item) {
                     $dados_terceirizados[] = $base->buscaDadosUrlMigracao($item);
                 }
@@ -342,7 +346,7 @@ class MigracaoSistemaConta extends Model
             // empenhos
             $dados_empenhos = [];
             $quantidadeContratoEmpenhos = (is_array($dado['contratoempenhos']) ? count($dado['contratoempenhos']) : 0);
-            if($quantidadeContratoEmpenhos > 0){
+            if ($quantidadeContratoEmpenhos > 0) {
 
                 self::imprimirNaTela('Atenção! Trtar empenhos!');
                 dd($dado['contratoempenhos']);
@@ -358,11 +362,10 @@ class MigracaoSistemaConta extends Model
             }
 
 
-
             // faturas
             $dados_faturas = [];
             $quantidadeContratoFaturas = (is_array($dado['contratofaturas']) ? count($dado['contratofaturas']) : 0);
-            if($quantidadeContratoFaturas > 0){
+            if ($quantidadeContratoFaturas > 0) {
 
                 self::imprimirNaTela('Atenção! Tratar faturas!');
                 dd($dado['contratofaturas']);
@@ -386,14 +389,14 @@ class MigracaoSistemaConta extends Model
         $base = new AdminController();
         $tipolistafatura_id = $this->buscaTipoListaFatura($dados_fatura['fat_tli_id']);
         $justificativafatura_id = null;
-        if($dados_fatura['fat_jus_id'] != ""){
+        if ($dados_fatura['fat_jus_id'] != "") {
             $justificativafatura_id = $this->buscaJustificativaFatura($dados_fatura['fat_jus_id']);
         }
 
 
-        if($dados_fatura['fat_processo'] != ''){
+        if ($dados_fatura['fat_processo'] != '') {
             $processo = $base->formataProcesso($dados_fatura['fat_processo']);
-        }else{
+        } else {
             $processo = '99999.999999/9999-99';
         }
 
@@ -498,11 +501,12 @@ class MigracaoSistemaConta extends Model
         self::imprimirNaTela('ok!');
         return $usuario;
     }
+
     private function buscaTipoListaFatura($dado)
     {
         $tipolista = Tipolistafatura::where('nome', $dado)->first();
 
-        if(!isset($tipolista->id)){
+        if (!isset($tipolista->id)) {
             return 5;
         }
 
@@ -513,7 +517,7 @@ class MigracaoSistemaConta extends Model
     {
         $justificativa = Justificativafatura::where('nome', $dado)->first();
 
-        if(!isset($justificativa->id)){
+        if (!isset($justificativa->id)) {
             return 7;
         }
 
@@ -599,8 +603,6 @@ class MigracaoSistemaConta extends Model
     }
 
 
-
-
     public function orgao()
     {
 
@@ -621,22 +623,36 @@ class MigracaoSistemaConta extends Model
     }
 
     //
-    public function buscarModalidadeId($dado){
+    public function buscarModalidadeId($dado)
+    {
         $idDado = $dado['modalidade_id'];
         $objeto = Codigoitem::where('descricao', $idDado)->first();
-        if($objeto==null){return config('migracao.modalidade_padrao');}
-        else{return $id = $objeto->id;}
+        if ($objeto == null) {
+            return config('migracao.modalidade_padrao');
+        } else {
+            return $id = $objeto->id;
+        }
     }
-    public function buscarTipoId($dado){
+
+    public function buscarTipoId($dado)
+    {
         $tipoIdDado = $dado['tipo_id'];
         $objeto = Codigoitem::where('descricao', $tipoIdDado)->first();
-        if($objeto==null){return config('migracao.tipo_contrato_padrao');}
-        else{return $id = $objeto->id;}
+        if ($objeto == null) {
+            return config('migracao.tipo_contrato_padrao');
+        } else {
+            return $id = $objeto->id;
+        }
     }
-    public function buscarCategoriaId($dado){
+
+    public function buscarCategoriaId($dado)
+    {
         $categoriaIdDado = $dado['categoria_id'];
         $objeto = Codigoitem::where('descricao', $categoriaIdDado)->first();
-        if($objeto==null){return config('migracao.categoria_padrao');}
-        else{return $id = $objeto->id;}
+        if ($objeto == null) {
+            return config('migracao.categoria_padrao');
+        } else {
+            return $id = $objeto->id;
+        }
     }
 }
