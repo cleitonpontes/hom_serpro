@@ -101,67 +101,73 @@ class ContratohistoricoObserve
 
     private function atualizaContrato($contratohistorico)
     {
+
         foreach ($contratohistorico as $h) {
 
             $contrato_id = $h->contrato_id;
             $arrayhistorico = $h->toArray();
 
             $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
-
-            if ($tipo->descricao == 'Termo Aditivo' or $tipo->descricao == 'Termo de Apostilamento') {
-                unset($arrayhistorico['numero']);
-                unset($arrayhistorico['receita_despesa']);
-                unset($arrayhistorico['tipo_id']);
-                unset($arrayhistorico['categoria_id']);
-                unset($arrayhistorico['processo']);
-                unset($arrayhistorico['modalidade_id']);
-                unset($arrayhistorico['licitacao_numero']);
-                unset($arrayhistorico['data_assinatura']);
-                unset($arrayhistorico['data_publicacao']);
-                unset($arrayhistorico['valor_inicial']);
-                unset($arrayhistorico['novo_valor_global']);
-                unset($arrayhistorico['novo_num_parcelas']);
-                unset($arrayhistorico['novo_valor_parcela']);
-                unset($arrayhistorico['data_inicio_novo_valor']);
-                unset($arrayhistorico['unidades_requisitantes']);
-                unset($arrayhistorico['situacao']);
-
-            }
-
-            if($tipo->descricao == 'Termo de Apostilamento'){
-                unset($arrayhistorico['vigencia_inicio']);
-                unset($arrayhistorico['vigencia_fim']);
-            }
-
-            unset($arrayhistorico['id']);
-            unset($arrayhistorico['contrato_id']);
-            unset($arrayhistorico['observacao']);
-            unset($arrayhistorico['created_at']);
-            unset($arrayhistorico['updated_at']);
-            unset($arrayhistorico['retroativo']);
-            unset($arrayhistorico['retroativo_mesref_de']);
-            unset($arrayhistorico['retroativo_anoref_de']);
-            unset($arrayhistorico['retroativo_mesref_ate']);
-            unset($arrayhistorico['retroativo_anoref_ate']);
-            unset($arrayhistorico['retroativo_vencimento']);
-            unset($arrayhistorico['retroativo_valor']);
-            unset($arrayhistorico['retroativo_soma_subtrai']);
-
-
-            $array = array_filter($arrayhistorico, function ($a) {
-                return trim($a) !== "";
-            });
-
-            if(isset($arrayhistorico['situacao'])){
-                $array['situacao'] = $arrayhistorico['situacao'];
-            }
+            $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico);
 
             $contrato = new Contrato();
             $contrato->atualizaContratoFromHistorico($contrato_id, $array);
 
-
-
         }
+    }
+
+    public function retornaArrayContratoHistorico(Codigoitem $tipo,array $arrayhistorico)
+    {
+
+        if($tipo->descricao == 'Termo de Rescisão'){
+            return $this->retornaArrayRescisao($arrayhistorico);
+        }
+
+        if($tipo->descricao == 'Termo Aditivo'){
+            return $this->retornaArrayAditivo($arrayhistorico);
+        }
+
+        if($tipo->descricao == 'Termo de Apostilamento'){
+            return $this->retornaArrayApostilamento($arrayhistorico);
+        }
+    }
+
+    public function retornaArrayAditivo(array $arrayhistorico)
+    {
+        $arrayAditivo = [
+            'fornecedor_id' => $arrayhistorico['fornecedor_id'],
+            'unidade_id' => $arrayhistorico['unidade_id'],
+            'info_complementar' => $arrayhistorico['info_complementar'],
+            'vigencia_inicio' => $arrayhistorico['vigencia_inicio'],
+            'vigencia_fim' => $arrayhistorico['vigencia_fim'],
+            'valor_global' => $arrayhistorico['valor_global'],
+            'num_parcelas' => $arrayhistorico['num_parcelas'],
+            'valor_parcela' => $arrayhistorico['valor_parcela']
+        ];
+        (isset($arrayhistorico['situacao']))?$arrayAditivo['situacao'] = $arrayhistorico['situacao'] : "";
+        return $arrayAditivo;
+    }
+
+    public function retornaArrayApostilamento(array $arrayhistorico)
+    {
+        $arrayApostilamento = [
+            'fornecedor_id' => $arrayhistorico['fornecedor_id'],
+            'unidade_id' => $arrayhistorico['unidade_id'],
+            'valor_global' => $arrayhistorico['valor_global'],
+            'num_parcelas' => $arrayhistorico['num_parcelas'],
+            'valor_parcela' => $arrayhistorico['valor_parcela']
+        ];
+        (isset($arrayhistorico['situacao']))?$arrayApostilamento['situacao'] = $arrayhistorico['situacao'] : "";
+        return $arrayApostilamento;
+    }
+
+    public function retornaArrayRescisao(array $arrayhistorico)
+    {
+        return $arrayRescisao = [
+            'vigencia_fim' => $arrayhistorico['vigencia_fim'],
+            'situacao' => $arrayhistorico['situacao'],
+        ];
+        return $arrayApostilamento;
     }
 
     public function createEventCalendar(Contratohistorico $contratohistorico)

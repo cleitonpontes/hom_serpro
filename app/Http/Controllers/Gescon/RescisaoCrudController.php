@@ -35,7 +35,7 @@ class RescisaoCrudController extends CrudController
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
             ->Where('descricao', '=', 'Termo de Rescisão')
-            ->pluck('descres')
+            ->pluck('id')
             ->toArray();
 
         /*
@@ -208,7 +208,7 @@ class RescisaoCrudController extends CrudController
             [   // Hidden
                 'name' => 'tipo_id',
                 'type' => 'hidden',
-                'default' => $tipo->descres,
+                'default' => $tipo->id,
             ],
             [   // Hidden
                 'name' => 'numero',
@@ -253,7 +253,6 @@ class RescisaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-
         $request->request->set('situacao',0);
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -263,7 +262,6 @@ class RescisaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-
         $request->request->set('situacao',0);
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);

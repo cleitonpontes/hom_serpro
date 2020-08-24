@@ -39,7 +39,7 @@ class RescisaoRequest extends FormRequest
         return [
             'observacao' => 'required',
             'processo' => 'required',
-            'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:vigencia_inicio",
+            'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|after_or_equal:vigencia_inicio",
             'data_publicacao' => "required|".$data_publicacao,
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
         ];
