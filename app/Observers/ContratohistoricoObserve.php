@@ -28,7 +28,7 @@ class ContratohistoricoObserve
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura','ASC')
             ->get();
-        dump($historico);
+
         $this->contratocronograma->inserirCronogramaFromHistorico($contratohistorico);
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
