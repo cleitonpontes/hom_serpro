@@ -109,7 +109,7 @@ class ContratohistoricoObserve
 
             $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
             $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico);
-
+            dd($array);
             $contrato = new Contrato();
             $contrato->atualizaContratoFromHistorico($contrato_id, $array);
 
@@ -167,7 +167,7 @@ class ContratohistoricoObserve
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'situacao' => $arrayhistorico['situacao'],
         ];
-        return $arrayApostilamento;
+        return $arrayRescisao;
     }
 
     public function createEventCalendar(Contratohistorico $contratohistorico)
