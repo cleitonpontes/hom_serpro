@@ -107,7 +107,7 @@ class MigracaoComprasnetContratos extends Model
                     //historico
                     $con = Contrato::find($contrato_inserido->id);
                     $ano_historico = explode('-', $dado_historico['data_assinatura']);
-                    $his_num = str_pad($dado_historico['numero'], 4, "0", STR_PAD_LEFT) . '/' . $ano_historico[0];
+                    $his_num = str_pad($dado_historico['numero'], 4, "0", STR_PAD_LEFT);
                     $historico['numero'] = $his_num;
                     $historico['contrato_id'] = $con->id;
                     $historico['fornecedor_id'] = $dado_historico['fornecedor_id'];
