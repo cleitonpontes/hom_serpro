@@ -108,7 +108,6 @@ class ContratohistoricoObserve
             $arrayhistorico = $h->toArray();
 
             $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
-            dump($arrayhistorico);
             $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico);
             dd($array);
             $contrato = new Contrato();
@@ -164,7 +163,9 @@ class ContratohistoricoObserve
 
     public function retornaArrayRescisao(array $arrayhistorico)
     {
-        return $arrayRescisao = [
+        dump('entrei');
+        dump($arrayhistorico);
+        $arrayRescisao = [
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'situacao' => $arrayhistorico['situacao'],
         ];
