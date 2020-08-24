@@ -19,34 +19,27 @@ class MigracaoSistemaContaController extends Controller
     {
         $orgaoconfiguracao = Orgaoconfiguracao::find($orgaoconfiguracao_id);
 
-        if($orgaoconfiguracao->tipo == 'CONTA'){
 
-            $migracao = MigracaoSistemaConta::where('orgao_id',$orgaoconfiguracao->orgao_id)
-                ->first();
+        $migracao = MigracaoSistemaConta::where('orgao_id', $orgaoconfiguracao->orgao_id)
+            ->first();
 
-            if(isset($migracao->id)){
-                \Alert::warning('Esse órgão já realizou migração!')->flash();
-                return redirect()->back();
-            }
-
-            if (!isset($orgaoconfiguracao->id)) {
-                \Alert::error('Configuração Inválida!')->flash();
-                return redirect()->back();
-            }
-
-            if (isset($orgaoconfiguracao->api_migracao_conta_url) and isset($orgaoconfiguracao->api_migracao_conta_token)) {
-                $retorno = $this->executaMigracao($orgaoconfiguracao);
-            }
-
-            if ($retorno == []) {
-                \Alert::warning('Algo deu errado, entre em contato com o Suporte!')->flash();
-                return redirect()->back();
-            }
-
+        if (isset($migracao->id)) {
+            \Alert::warning('Esse órgão já realizou migração!')->flash();
+            return redirect()->back();
         }
 
-        if($orgaoconfiguracao->tipo == 'CCONTRATOS'){
-            //seu codigo aqui
+        if (!isset($orgaoconfiguracao->id)) {
+            \Alert::error('Configuração Inválida!')->flash();
+            return redirect()->back();
+        }
+
+        if (isset($orgaoconfiguracao->api_migracao_conta_url) and isset($orgaoconfiguracao->api_migracao_conta_token)) {
+            $retorno = $this->executaMigracao($orgaoconfiguracao);
+        }
+
+        if ($retorno == []) {
+            \Alert::warning('Algo deu errado, entre em contato com o Suporte!')->flash();
+            return redirect()->back();
         }
 
 
@@ -77,7 +70,7 @@ class MigracaoSistemaContaController extends Controller
 
         $retorno = true;
 
-        if($retorno){
+        if ($retorno) {
             $migracao = MigracaoSistemaConta::create([
                 'orgao_id' => $orgaoconfiguracao->orgao_id,
             ]);
