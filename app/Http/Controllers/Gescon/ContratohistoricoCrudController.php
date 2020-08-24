@@ -101,7 +101,7 @@ class ContratohistoricoCrudController extends CrudController
             ],
             [
                 'name' => 'numero',
-                'label' => 'Número Contrato',
+                'label' => 'Número do instrumento',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text

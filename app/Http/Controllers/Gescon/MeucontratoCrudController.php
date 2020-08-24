@@ -54,7 +54,7 @@ class MeucontratoCrudController extends CrudController
         $this->crud->addColumns([
             [
                 'name' => 'numero',
-                'label' => 'Número Contrato',
+                'label' => 'Número do instrumento',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text

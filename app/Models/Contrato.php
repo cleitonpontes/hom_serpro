@@ -33,6 +33,7 @@ class Contrato extends Model
         'unidade_id',
         'unidadeorigem_id',
         'tipo_id',
+        'subtipo',
         'categoria_id',
         'subcategoria_id',
         'processo',

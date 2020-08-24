@@ -103,6 +103,7 @@ class ContratoCrudController extends CrudController
         })
             ->where('descricao', '<>', 'Termo Aditivo')
             ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->where('descricao', '<>', 'Termo de Rescisão')
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
@@ -129,7 +130,7 @@ class ContratoCrudController extends CrudController
 
         $colunas[] = [
             'name' => 'numero',
-            'label' => 'Contrato',
+            'label' => 'Número do instrumento',
             'type' => 'text',
             'orderable' => true,
             'visibleInTable' => true, // no point, since it's a large text
@@ -179,6 +180,17 @@ class ContratoCrudController extends CrudController
             'type' => 'model_function',
             'function_name' => 'getTipo', // the method in your Model
 
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ];
+
+        $colunas[] = [
+            'name' => 'subtipo',
+            'label' => 'Subtipo',
+            'type' => 'text',
             'orderable' => true,
             'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
@@ -503,6 +515,16 @@ class ContratoCrudController extends CrudController
         ];
 
         $campos[] = [
+            'name' => 'subtipo',
+            'label' => 'Subtipo',
+            'type' => 'textarea',
+            'attributes' => [
+                'onkeyup' => "maiuscula(this)"
+            ],
+            'tab' => 'Características do contrato',
+        ];
+
+        $campos[] = [
             // select_from_array
             'name' => 'categoria_id',
             'label' => "Categoria",
@@ -730,21 +752,21 @@ class ContratoCrudController extends CrudController
 
         $pdf->SetY("35");
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(15, 5, utf8_decode("Contrato: "), 0, 0, 'L');
+        $pdf->Cell(31, 5, utf8_decode("Número do instrumento: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(20, 5, utf8_decode($contrato->numero), 0, 0, 'L');
 
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(18, 5, utf8_decode("Fornecedor: "), 0, 0, 'L');
+        $pdf->Cell(20, 5, utf8_decode("Fornecedor: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(20, 5,utf8_decode(strlen($contrato->fornecedor->nome) > 65 ? substr($contrato->fornecedor->nome,0,65)." [...]" : $contrato->fornecedor->nome), 0, 0, 'L');
+        $pdf->Cell(18, 5,utf8_decode(strlen($contrato->fornecedor->nome) > 65 ? substr($contrato->fornecedor->nome,0,65)." [...]" : $contrato->fornecedor->nome), 0, 0, 'L');
 
         $pdf->SetY("40");
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(33, 5, utf8_decode("CNPJ/CPF/ID Genérico: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Cell(30, 5, utf8_decode($contrato->fornecedor->cpf_cnpj_idgener), 0, 0, 'L');
-        
+
 
         $pdf->SetY("45");
         $pdf->SetFont('Arial', '', 8);
@@ -819,7 +841,7 @@ class ContratoCrudController extends CrudController
         $pdf->MultiCell(0, 5, utf8_decode($contrato->objeto), 0, 'J');
 
         //numero de caracteres fonte 9 por linha 100
-        
+
         $pdf->SetY(80 + ($pdf->NbLines(161, utf8_decode($contrato->objeto))*5));
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(0, 5, utf8_decode("Informação Complementar: "), 0, 0, 'L');
@@ -845,7 +867,7 @@ class ContratoCrudController extends CrudController
         $pdf->SetY(40);
         $pdf->SetFont('Arial', 'B', 7);
         $pdf->Cell(23, 5, utf8_decode("Tipo"), 1, 0, 'C');
-        
+
         $pdf->Cell(23, 5, utf8_decode("Número"), 1, 0, 'C');
         //$pdf->Cell(21, 5, utf8_decode("Observação"), 1, 0, 'C');
         $pdf->Cell(23, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
@@ -867,9 +889,9 @@ class ContratoCrudController extends CrudController
                 $pdf->Cell(23, 5, utf8_decode("Tipo"), 1, 0, 'C');
                 $pdf->Cell(23, 5, utf8_decode("Número"), 1, 0, 'C');
                 $pdf->Cell(23, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
-                
+
                 //$pdf->Cell(21, 5, utf8_decode("Observação"), 1, 0, 'C');
-                
+
                 $pdf->Cell(23, 5, utf8_decode("Data Início"), 1, 0, 'C');
                 $pdf->Cell(23, 5, utf8_decode("Data Fim"), 1, 0, 'C');
                 $pdf->Cell(23, 5, utf8_decode("Valor Global"), 1, 0, 'C');
@@ -878,25 +900,25 @@ class ContratoCrudController extends CrudController
                 $row_resp += 5;
             }
 
-            
+
             $pdf->SetY($row_resp);
-            
+
             $pdf->SetFont('Arial', 'B', 7);
             $pdf->Cell(23, 5, utf8_decode($registro->tipo()->first()->descricao), 1, 0, 'C');
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(23, 5, $registro->numero, 1, 0, 'L');
             $pdf->Cell(23, 5, implode('/',array_reverse(explode('-', $registro->data_assinatura))), 1, 0, 'L');
-            
+
             //$pdf->MultiCell(21, 5, utf8_decode($registro->observacao), 1);
             //$pdf->SetXY($pdf->GetX() + (3 * 21), $row_resp);
 //            $pdf->SetX($pdf->GetX()+(3*21));
-            
+
             $pdf->Cell(23, 5, implode('/', array_reverse(explode('-', $registro->vigencia_inicio))), 1, 0, 'C');
             $pdf->Cell(23, 5, implode('/', array_reverse(explode('-', $registro->vigencia_fim))), 1, 0, 'C');
             $pdf->Cell(23, 5, number_format($registro->valor_global, 2, ',', "."), 1, 0, 'R');
             $pdf->Cell(23, 5, $registro->num_parcelas, 1, 0, 'R');
             $pdf->Cell(23, 5, number_format($registro->valor_parcela, 2, ',', "."), 1, 0, 'R');
-            
+
             $row_resp += 5;
             $pdf->SetY($row_resp);
 
@@ -907,7 +929,7 @@ class ContratoCrudController extends CrudController
             $pdf->SetFont('Arial', '', 7);
             $pdf->MultiCell(161, 5, utf8_decode($registro->observacao), 1);
 
-            
+
 
             $row_resp += $lines +5;
         }

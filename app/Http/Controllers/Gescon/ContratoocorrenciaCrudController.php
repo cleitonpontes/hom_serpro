@@ -102,7 +102,7 @@ class ContratoocorrenciaCrudController extends CrudController
         $this->crud->addFields([
             [ // select_from_array
                 'name' => 'contrato_id',
-                'label' => "Número Contrato",
+                'label' => "Número do instrumento",
                 'type' => 'select_from_array',
                 'options' => $con,
                 'allows_null' => false,
@@ -292,7 +292,7 @@ class ContratoocorrenciaCrudController extends CrudController
             ],
             [
                 'name' => 'getContrato',
-                'label' => 'Número Contrato', // Table column heading
+                'label' => 'Núm. do instrumento', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContrato', // the method in your Model
                 'orderable' => true,

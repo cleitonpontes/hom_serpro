@@ -73,7 +73,7 @@ class ContratoprepostoCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'getContrato',
-                'label' => 'Contrato', // Table column heading
+                'label' => 'Núm. do instrumento', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContrato', // the method in your Model
                 'orderable' => true,
@@ -230,7 +230,7 @@ class ContratoprepostoCrudController extends CrudController
             ],
             [ // select_from_array
                 'name' => 'contrato_id',
-                'label' => "Contrato",
+                'label' => "Número do instrumento",
                 'type' => 'select_from_array',
                 'options' => $con,
                 'allows_null' => false,

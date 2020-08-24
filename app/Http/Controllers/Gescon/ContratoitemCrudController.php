@@ -83,7 +83,7 @@ class ContratoitemCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'getContrato',
-                'label' => 'Número Contrato', // Table column heading
+                'label' => 'Número do instrumento', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContrato', // the method in your Model
                 'orderable' => true,

@@ -119,7 +119,7 @@ class ConsultaocorrenciaCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'contrato.numero',
-                'label' => 'Número Contrato',
+                'label' => 'Número do instrumento',
                 'type' => 'string',
                 'priority' => 1,
                 'orderable' => true,
@@ -414,7 +414,7 @@ class ConsultaocorrenciaCrudController extends CrudController
         $campo = [
             'name' => 'contrato',
             'type' => 'select2',
-            'label' => 'Núm. Contrato'
+            'label' => 'Número do instrumento'
         ];
 
         $contratos = $this->retornaContratos();
