@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use Alert;
+use App\Models\Indicador;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use App\Http\Requests\IndicadorRequest as StoreRequest;
@@ -9,6 +11,8 @@ use App\Http\Requests\IndicadorRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
+use Redirect;
+use Request;
 
 /**
  * Class IndicadorCrudController
@@ -59,6 +63,21 @@ class IndicadorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        $indicador = Indicador::where('nome', $request->nome)->onlyTrashed()->first();
+
+        //CASO EXISTA INDICADOR DELETADO
+        if ($indicador) {
+            $indicador->update(['finalidade' => $request->finalidade, 'situacao' => $request->situacao]);
+            $indicador->restore();
+            Alert::success(trans('backpack::crud.insert_success'))->flash();
+            $redirectUrl = Request::has('http_referrer') ? Request::get('http_referrer') : $this->crud->route;
+
+            return Redirect::to($redirectUrl);
+
+            //$indicador->forceDelete();
+
+        }
+
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
