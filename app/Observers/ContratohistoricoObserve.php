@@ -118,8 +118,10 @@ class ContratohistoricoObserve
 
     public function retornaArrayContratoHistorico(Codigoitem $tipo,array $arrayhistorico)
     {
-
+        dump($tipo);
         if($tipo->descricao == 'Termo de Rescisão'){
+            dump('$arrayhistorico');
+            dd($arrayhistorico);
             return $this->retornaArrayRescisao($arrayhistorico);
         }
 
