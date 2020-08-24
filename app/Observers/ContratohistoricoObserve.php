@@ -118,18 +118,21 @@ class ContratohistoricoObserve
 
     public function retornaArrayContratoHistorico(Codigoitem $tipo,array $arrayhistorico)
     {
-
-        if($tipo->descricao == 'Termo de Rescisão'){
-            return $this->retornaArrayRescisao($arrayhistorico);
+        switch ($tipo->descricao) {
+            case 'Termo de Rescisão':
+                return $this->retornaArrayRescisao($arrayhistorico);
+                break;
+            case 'Termo Aditivo':
+                return $this->retornaArrayAditivo($arrayhistorico);
+                break;
+            case 'Termo de Apostilamento':
+                return $this->retornaArrayApostilamento($arrayhistorico);
+                break;
+            default:
+                return $this->retornaArrayDefault($arrayhistorico);
         }
 
-        if($tipo->descricao == 'Termo Aditivo'){
-            return $this->retornaArrayAditivo($arrayhistorico);
-        }
 
-        if($tipo->descricao == 'Termo de Apostilamento'){
-            return $this->retornaArrayApostilamento($arrayhistorico);
-        }
     }
 
     public function retornaArrayAditivo(array $arrayhistorico)
@@ -163,11 +166,39 @@ class ContratohistoricoObserve
 
     public function retornaArrayRescisao(array $arrayhistorico)
     {
-        return $arrayRescisao = [
+        $arrayRescisao = [
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'situacao' => $arrayhistorico['situacao'],
         ];
-        return $arrayApostilamento;
+        return $arrayRescisao;
+    }
+
+    public function retornaArrayDefault(array $arrayhistorico)
+    {
+        unset($arrayhistorico['id']);
+        unset($arrayhistorico['contrato_id']);
+        unset($arrayhistorico['observacao']);
+        unset($arrayhistorico['created_at']);
+        unset($arrayhistorico['updated_at']);
+        unset($arrayhistorico['retroativo']);
+        unset($arrayhistorico['retroativo_mesref_de']);
+        unset($arrayhistorico['retroativo_anoref_de']);
+        unset($arrayhistorico['retroativo_mesref_ate']);
+        unset($arrayhistorico['retroativo_anoref_ate']);
+        unset($arrayhistorico['retroativo_vencimento']);
+        unset($arrayhistorico['retroativo_valor']);
+        unset($arrayhistorico['retroativo_soma_subtrai']);
+
+
+        $arrayDefault = array_filter($arrayhistorico, function ($a) {
+            return trim($a) !== "";
+        });
+
+        if(isset($arrayhistorico['situacao'])){
+            $arrayDefault['situacao'] = $arrayhistorico['situacao'];
+        }
+
+        return $arrayDefault;
     }
 
     public function createEventCalendar(Contratohistorico $contratohistorico)
