@@ -28,7 +28,7 @@ class ContratohistoricoObserve
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura','ASC')
             ->get();
-
+        dump($historico);
         $this->contratocronograma->inserirCronogramaFromHistorico($contratohistorico);
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
@@ -108,6 +108,7 @@ class ContratohistoricoObserve
             $arrayhistorico = $h->toArray();
 
             $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
+            dump($arrayhistorico);
             $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico);
             dd($array);
             $contrato = new Contrato();
