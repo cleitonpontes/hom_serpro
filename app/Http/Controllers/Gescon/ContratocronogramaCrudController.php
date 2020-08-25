@@ -203,7 +203,7 @@ class ContratocronogramaCrudController extends CrudController
             ],
             [ // select_from_array
                 'name' => 'contrato_id',
-                'label' => "Contrato",
+                'label' => "Número do instrumento",
                 'type' => 'select_from_array',
                 'options' => $contrato,
                 'allows_null' => false,
