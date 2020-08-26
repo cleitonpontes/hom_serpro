@@ -36,19 +36,27 @@ class MigracaoComprasnetContratos extends Model
         var_dump($valor);
         echo '</pre>';
     }
+    public function tratarDadosFornecedor($dadosFornecedor){
+        $partes = explode("|", $dadosFornecedor);
+        $cnpjFornecedor = $partes[0];
+        $nomeFornecedor = $partes[1];
+        return $arrayRetorno = array('cnpj' => $cnpjFornecedor, 'nome' => $nomeFornecedor);
+    }
 
     // método chamado em MigracaoSistemaContaJob.php
     public function trataDadosMigracaoConta(array $dado)
     {
+        set_time_limit(0);
+
+
         echo '<hr>';
         self::imprimirNaTela('Tratamento dos dados iniciado para o contrato número: ' . $dado['numero']);
+        self::imprimirNaTela($dado);
 
-        set_time_limit(0);
 
         $retorno = [];
         $base = new AdminController();
         $unidade = new Unidade();
-
         $contrato['numero'] = $dado['numero']; // já está vindo formatado da agu
         $contrato['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado['unidade_id']);
         $contrato['tipo_id'] = $this->buscarTipoId($dado);
@@ -67,9 +75,9 @@ class MigracaoComprasnetContratos extends Model
             $dados_historico[] = $base->buscaDadosUrlMigracao($item);
         }
 
+
         $quantidadeHistoricos = count($dados_historico);
         self::imprimirNaTela('Iniciando varredura dos históricos...' . $quantidadeHistoricos . ' históricos.');
-
 
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
@@ -82,7 +90,15 @@ class MigracaoComprasnetContratos extends Model
                 self::imprimirNaTela('Contrato inicial!');
 
                 //contrato inicial
-                $contrato['fornecedor_id'] = $dado_historico['fornecedor_id'];
+                // $contrato['fornecedor_id'] = $dado_historico['fornecedor_id'];
+
+                $dadosFornecedor = $dado_historico['fornecedor_id'];
+
+                $dadosFornecedorTratados = self::tratarDadosFornecedor($dadosFornecedor);
+                $cnpjFornecedor = $dadosFornecedorTratados['cnpj'];
+                $nomeFornecedor = $dadosFornecedorTratados['nome'];
+
+                $contrato['fornecedor_id'] = $this->buscaFornecedor($cnpjFornecedor, $nomeFornecedor);
                 $contrato['data_assinatura'] = $dado_historico['data_assinatura'];
                 $contrato['data_publicacao'] = $dado_historico['data_publicacao'];
                 $contrato['vigencia_inicio'] = $dado_historico['vigencia_inicio'];
@@ -93,12 +109,16 @@ class MigracaoComprasnetContratos extends Model
                 $contrato['valor_parcela'] = $dado_historico['valor_parcela'];
                 $contrato['valor_acumulado'] = $dado_historico['valor_acumulado'];
 
+
                 $cont = new Contrato();
                 $contrato_inserido = $cont->inserirContratoMigracaoConta($contrato);
 
-                self::imprimirNaTela('Contrato inserido!');
+                self::imprimirNaTela('Contrato inicial inserido: ');
+                self::imprimirNaTela($contrato);
+
 
             } else {
+
 
                 if (isset($contrato_inserido->id)) {
 
@@ -110,9 +130,21 @@ class MigracaoComprasnetContratos extends Model
                     $his_num = $dado_historico['numero'];
                     $historico['numero'] = $his_num;
                     $historico['contrato_id'] = $con->id;
-                    $historico['fornecedor_id'] = $dado_historico['fornecedor_id'];
-                    $historico['unidade_id'] = $dado_historico['unidade_id'];
-                    $historico['tipo_id'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? 68 : 65;
+                    // $historico['fornecedor_id'] = $dado_historico['fornecedor_id'];
+
+
+                    $dadosFornecedor = $dado_historico['fornecedor_id'];
+                    $dadosFornecedorTratados = self::tratarDadosFornecedor($dadosFornecedor);
+                    $cnpjFornecedor = $dadosFornecedorTratados['cnpj'];
+                    $nomeFornecedor = $dadosFornecedorTratados['nome'];
+
+                    $historico['fornecedor_id'] = $this->buscaFornecedor($cnpjFornecedor, $nomeFornecedor);
+                    // $historico['unidade_id'] = $dado_historico['unidade_id'];
+                    $historico['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado_historico['unidade_id']);
+
+                    $tipoId = $this->buscarTipoId($dado);
+                    $historico['tipo_id'] = ($tipoId == 'Apostilamento') ? 68 : 65;
+
                     $historico['receita_despesa'] = $dado_historico['receita_despesa'];
                     $historico['info_complementar'] = $dado_historico['info_complementar'];
                     $historico['data_assinatura'] = $dado_historico['data_assinatura'];
@@ -141,6 +173,11 @@ class MigracaoComprasnetContratos extends Model
                         $historico['retroativo_soma_subtrai'] = $dado_historico['retroativo_soma_subtrai'];
                     }
                     $hist = new Contratohistorico();
+
+
+                    echo 'Preparando para inserir histórico';
+                    self::imprimirNaTela($historico);
+
                     $historico_inserido = $hist->inserirContratohistoricoMigracaoConta($historico);
 
                     self::imprimirNaTela('Contrato histórico inserido! id = ' . $historico_inserido->id);
@@ -150,7 +187,9 @@ class MigracaoComprasnetContratos extends Model
             }
         }
 
+
         if (isset($contrato_inserido->id)) {
+
             $con = Contrato::find($contrato_inserido->id);
             $quantidadeContratoResponsaveis = (is_array($dado['contratoresponsaveis']) ? count($dado['contratoresponsaveis']) : 0);
 
@@ -191,7 +230,7 @@ class MigracaoComprasnetContratos extends Model
                         $usuario = $this->inserirUsuario($array_user);
 
                         self::imprimirNaTela('Usuário inserido: ');
-                        self::imprimirNaTela($usuario->name);
+                        self::imprimirNaTela($usuario);
 
                     }
 
@@ -211,12 +250,13 @@ class MigracaoComprasnetContratos extends Model
                     $responsavel['data_fim'] = $dado_responsavel['data_fim'];
 
                     self::imprimirNaTela('Preparando para inserir um contrato responsável...');
-                    self::imprimirNaTela($responsavel);
 
                     $hist = new Contratoresponsavel();
                     $historico_inserido = $hist->inserirContratoresponsavelMigracaoConta($responsavel);
 
-                    self::imprimirNaTela('Contrato responsável inserido!');
+                    self::imprimirNaTela('Contrato responsável inserido:');
+                    self::imprimirNaTela($responsavel);
+
                     self::imprimirNaTela('Histórico foi inserido!');
 
                 }
@@ -582,7 +622,14 @@ class MigracaoComprasnetContratos extends Model
             $tipo = 'UG';
         };
 
-        $cpf_cnpj_idgener = $base->formataCnpjCpfTipo($cnpj, $tipo);
+        // verificar se o cnpj precisa ser formatado
+        $quantidadeCaracteresCnpj = strlen($cnpj);
+        if($quantidadeCaracteresCnpj < 18){
+            $cpf_cnpj_idgener = $base->formataCnpjCpfTipo($cnpj, $tipo);
+        } else {
+            $cpf_cnpj_idgener = $cnpj;
+        }
+
 
         $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $cpf_cnpj_idgener)
             ->first();
@@ -626,10 +673,24 @@ class MigracaoComprasnetContratos extends Model
     public function buscarModalidadeId($dado)
     {
         $idDado = $dado['modalidade_id'];
+
+        self::imprimirNaTela('Vai buscar codigo item descricao = '.$idDado);
+
+
+
         $objeto = Codigoitem::where('descricao', $idDado)->first();
         if ($objeto == null) {
+
+            self::imprimirNaTela( 'id = '.config('migracao.modalidade_padrao') );
+
+
+
             return config('migracao.modalidade_padrao');
         } else {
+
+            self::imprimirNaTela('id = '.$objeto->id);
+
+
             return $id = $objeto->id;
         }
     }
@@ -637,10 +698,18 @@ class MigracaoComprasnetContratos extends Model
     public function buscarTipoId($dado)
     {
         $tipoIdDado = $dado['tipo_id'];
+
+        self::imprimirNaTela('Vai buscar codigo item descricao = '.$tipoIdDado);
+
         $objeto = Codigoitem::where('descricao', $tipoIdDado)->first();
         if ($objeto == null) {
+
+            self::imprimirNaTela( 'id = '.config('migracao.tipo_contrato_padrao') );
+
             return config('migracao.tipo_contrato_padrao');
         } else {
+            self::imprimirNaTela('id = '.$objeto->id);
+
             return $id = $objeto->id;
         }
     }
@@ -648,10 +717,23 @@ class MigracaoComprasnetContratos extends Model
     public function buscarCategoriaId($dado)
     {
         $categoriaIdDado = $dado['categoria_id'];
+
+        self::imprimirNaTela('Vai buscar codigo item descricao = '.$categoriaIdDado);
+
+
+
         $objeto = Codigoitem::where('descricao', $categoriaIdDado)->first();
         if ($objeto == null) {
+
+            self::imprimirNaTela( 'id = '.config('migracao.categoria_padrao') );
+
+
             return config('migracao.categoria_padrao');
         } else {
+
+            self::imprimirNaTela('id = '.$objeto->id);
+
+
             return $id = $objeto->id;
         }
     }
