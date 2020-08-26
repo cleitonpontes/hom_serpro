@@ -172,6 +172,40 @@ class ContratoterceirizadoCrudController extends CrudController
 //                },
 
             ],
+
+            [
+                'name' => 'formatAuxTransporte',
+                'label' => 'Auxílio Trasporte', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatAuxTransporte', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
+            ],
+
+            [
+                'name' => 'formatValeAlimentacao',
+                'label' => 'Vale Alimentação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatValeAlimentacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
+            ],
             [
                 'name' => 'getEscolaridade',
                 'label' => 'Escolaridade', // Table column heading
@@ -329,6 +363,26 @@ class ContratoterceirizadoCrudController extends CrudController
                 'tab' => 'Dados Funcionais',
             ],
             [
+                'name' => 'aux_transporte',
+                'label' => 'Auxílio Trasporte',
+                'type' => 'money',
+                'attributes' => [
+                    'id' => 'aux_transporte',
+                ],
+                'prefix' => "R$",
+                'tab' => 'Dados Funcionais',
+            ],
+            [
+                'name' => 'vale_alimentacao',
+                'label' => 'Vale Alimentação',
+                'type' => 'money',
+                'attributes' => [
+                    'id' => 'vale_alimentacao',
+                ],
+                'prefix' => "R$",
+                'tab' => 'Dados Funcionais',
+            ],
+            [
                 'name' => 'data_inicio',
                 'label' => 'Data Início',
                 'type' => 'date',
@@ -367,6 +421,12 @@ class ContratoterceirizadoCrudController extends CrudController
         $custo = str_replace(',', '.', str_replace('.','',$request->input('custo')));
         $request->request->set('custo', number_format(floatval($custo),2,'.',''));
 
+        $vale_alimentacao = str_replace(',', '.', str_replace('.','',$request->input('vale_alimentacao')));
+        $request->request->set('vale_alimentacao', number_format(floatval($vale_alimentacao),2,'.',''));
+
+        $aux_transporte = str_replace(',', '.', str_replace('.','',$request->input('aux_transporte')));
+        $request->request->set('aux_transporte', number_format(floatval($aux_transporte),2,'.',''));
+        
         if($request->input('data_fim')){
             $request->request->set('situacao', false);
         }
@@ -385,6 +445,12 @@ class ContratoterceirizadoCrudController extends CrudController
 
         $custo = str_replace(',', '.', str_replace('.','',$request->input('custo')));
         $request->request->set('custo', number_format(floatval($custo),2,'.',''));
+
+        $vale_alimentacao = str_replace(',', '.', str_replace('.','',$request->input('vale_alimentacao')));
+        $request->request->set('vale_alimentacao', number_format(floatval($vale_alimentacao),2,'.',''));
+
+        $aux_transporte = str_replace(',', '.', str_replace('.','',$request->input('aux_transporte')));
+        $request->request->set('aux_transporte', number_format(floatval($aux_transporte),2,'.',''));
 
         if($request->input('data_fim')){
             $request->request->set('situacao', false);
@@ -405,6 +471,8 @@ class ContratoterceirizadoCrudController extends CrudController
         $this->crud->removeColumn('escolaridade_id');
         $this->crud->removeColumn('custo');
         $this->crud->removeColumn('salario');
+        $this->crud->removeColumn('aux_alimentacao');
+        $this->crud->removeColumn('vale_transporte');
 
         return $content;
     }

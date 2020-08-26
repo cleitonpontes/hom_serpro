@@ -41,6 +41,8 @@ class Contratoterceirizado extends ContratoBase
         'situacao',
         'telefone_fixo',
         'telefone_celular',
+        'aux_transporte',
+        'vale_alimentacao',
     ];
 
     /*
@@ -86,6 +88,16 @@ class Contratoterceirizado extends ContratoBase
     public function getEscolaridade()
     {
         return $this->escolaridade->descricao;
+    }
+
+    public function formatAuxTransporte()
+    {
+        return $this->retornaCampoFormatadoComoNumero($this->aux_transporte, true);
+    }
+
+    public function formatValeAlimentacao()
+    {
+        return $this->retornaCampoFormatadoComoNumero($this->vale_alimentacao, true);
     }
 
     public function formatVlrSalario()
