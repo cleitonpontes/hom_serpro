@@ -45,7 +45,6 @@ class ApiSiasg
         $servico_especifico = $this->retornaServicoEspecifico($servico);
         $url = $this->url_servico . $servico_especifico;
         $parametros = $this->trataParametros($params);
-
         try {
             $retorno = file_get_contents($url . $parametros, false, $this->context);
         } catch (\Exception $e) {
@@ -68,6 +67,9 @@ class ApiSiasg
                 break;
             case 'CONTRATONAOSISG':
                 $complemento_url = 'contrato/v1/contratonsisg?';
+                break;
+            case 'DADOSCONTRATO':
+                $complemento_url = 'contrato/v1/dadoscontrato?';
                 break;
         }
         return $complemento_url;
@@ -101,6 +103,11 @@ class ApiSiasg
 //        ];
 
         return $this->submit('CONTRATONAOSISG', $dado_consulta);
+    }
+
+    private function consultaDadosContrato(array $dado_consulta)
+    {
+        return $this->submit('DADOSCONTRATO', $dado_consulta);
     }
 
     private function trataParametros(array $params)
