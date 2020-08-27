@@ -135,6 +135,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dados = [];
 
         foreach ($aditivos as $aditivo) {
+
             $busca = $this->buscaAditivo($aditivo->nuTermo, $contrato);
 
             if ($aditivo->dataInicio != '00000000') {
@@ -169,7 +170,8 @@ class ContratoSiasgIntegracaoNovo extends Model
                 'valor_inicial' => $vlrinicial,
                 'valor_global' => $vlrglobal,
                 'num_parcelas' => $numparcelas,
-                'valor_parcela' => $vlrparcela
+                'valor_parcela' => $vlrparcela,
+                'supressao' => $aditivo->supressao
             ];
 
             if (isset($busca->id)) {

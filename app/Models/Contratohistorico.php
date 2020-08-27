@@ -63,6 +63,7 @@ class Contratohistorico extends ContratoBase
         'retroativo_soma_subtrai',
         'unidades_requisitantes',
         'situacao',
+        'supressao'
     ];
 
     /*
