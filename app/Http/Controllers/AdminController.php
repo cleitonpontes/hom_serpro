@@ -446,7 +446,6 @@ class AdminController extends Controller
 
     public function buscaDadosUrlMigracao($url)
     {
-        echo '<br>'.$url;
         return json_decode(file_get_contents($url), true);
     }
 
