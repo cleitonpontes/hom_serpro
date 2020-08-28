@@ -17,4 +17,17 @@ class ApropriacaoFaturas extends Model
             'contratofaturas_id'
         );
     }
+
+    public function contratos()
+    {
+        // return $this;
+    }
+
+    public function getNumeroFaturasAttribute()
+    {
+        return implode(
+            ' / ',
+            $this->faturas()->pluck('numero')->toArray()
+        );
+    }
 }

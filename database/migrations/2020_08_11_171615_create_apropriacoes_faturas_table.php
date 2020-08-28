@@ -15,8 +15,6 @@ class CreateApropriacoesFaturasTable extends Migration
     {
         Schema::create('apropriacoes_faturas', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('competencia', 7);
-            $table->text('observacoes')->nullable();
             $table->decimal('valor', 15, 2)->default(0);
             $table->integer('fase_id')->default(0);
             $table->timestamps();
