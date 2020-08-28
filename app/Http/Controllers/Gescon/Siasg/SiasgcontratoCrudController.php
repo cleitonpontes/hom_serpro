@@ -7,6 +7,7 @@ use App\Jobs\AtualizaSiasgContratoJob;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\ContratoSiasgIntegracao;
+use App\Models\ContratoSiasgIntegracaoNovo;
 use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
 use App\XML\ApiSiasg;
@@ -396,7 +397,7 @@ class SiasgcontratoCrudController extends CrudController
                 $dado = [
                     'contrato' => $siasgcontrato->unidade->codigosiasg . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
                 ];
-                $retorno = $apiSiasg->executaConsulta('ContratoSisg', $dado);
+                $retorno = $apiSiasg->executaConsulta('DadosContrato', $dado);
             } else {
                 $dado = [
                     'contratoNSisg' => $siasgcontrato->unidade->codigosiasg . str_pad($siasgcontrato->codigo_interno, 10 , " ") . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
@@ -407,7 +408,7 @@ class SiasgcontratoCrudController extends CrudController
             $siasgcontrato_atualizado = $siasgcontrato->atualizaJsonMensagemSituacao($siasgcontrato->id, $retorno);
 
             if($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado'){
-                $contratoSiagIntegracao = new ContratoSiasgIntegracao;
+                $contratoSiagIntegracao = new ContratoSiasgIntegracaoNovo();
                 $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
 
                 if(isset($contrato->id)){
