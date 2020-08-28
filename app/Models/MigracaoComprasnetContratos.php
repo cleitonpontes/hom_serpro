@@ -70,6 +70,14 @@ class MigracaoComprasnetContratos extends Model
         $contrato['licitacao_numero'] = $dado['licitacao_numero']; // já está vindo formatado da agu
         $contrato['situacao'] = $dado['situacao'];
 
+        // verificar se algum contrato veio sem histórico
+        $quantidadeHistoricos = $dado['contratohistoricos'];
+        if($quantidadeHistoricos == 0){
+            self::imprimirNaTela('Atenção!!! Contrato sem histórico, número = '.$dado['numero']);
+        }
+
+
+
         $dados_historico = [];
         foreach ($dado['contratohistoricos'] as $item) {
             $dados_historico[] = $base->buscaDadosUrlMigracao($item);
@@ -78,6 +86,7 @@ class MigracaoComprasnetContratos extends Model
 
         $quantidadeHistoricos = count($dados_historico);
         self::imprimirNaTela('Iniciando varredura dos históricos...' . $quantidadeHistoricos . ' históricos.');
+
 
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
@@ -174,7 +183,6 @@ class MigracaoComprasnetContratos extends Model
                     }
                     $hist = new Contratohistorico();
 
-
                     echo 'Preparando para inserir histórico';
                     self::imprimirNaTela($historico);
 
@@ -182,7 +190,105 @@ class MigracaoComprasnetContratos extends Model
 
                     self::imprimirNaTela('Contrato histórico inserido! id = ' . $historico_inserido->id);
                 } else {
-                    self::imprimirNaTela('Nada será feito por enquanto.');
+                    // ESSE CONTRATO NÃO FOI MIGRADO PORQUE SÓ TEM UM HISTÓRICO E ESSE HISTÓRICO NÃO É CONTRATO INICIAL
+                    if( $quantidadeHistoricos == 1 ){
+                        // precisamos fazer a migração de qualquer jeito.
+                        self::imprimirNaTela('Atenção!!! Contrato número '.$dado['numero'].' só tem 1 histórico e o tipo do hist não é contrato inicial. É = '.$dado_historico['tipo_id'] );
+                        self::imprimirNaTela('Vamos inserir o contrato mesmo assim e depois inserir o histórico.');
+
+                        $dadosFornecedor = $dado_historico['fornecedor_id'];
+
+                        $dadosFornecedorTratados = self::tratarDadosFornecedor($dadosFornecedor);
+                        $cnpjFornecedor = $dadosFornecedorTratados['cnpj'];
+                        $nomeFornecedor = $dadosFornecedorTratados['nome'];
+
+                        $contrato['fornecedor_id'] = $this->buscaFornecedor($cnpjFornecedor, $nomeFornecedor);
+                        $contrato['data_assinatura'] = $dado_historico['data_assinatura'];
+                        $contrato['data_publicacao'] = $dado_historico['data_publicacao'];
+                        $contrato['vigencia_inicio'] = $dado_historico['vigencia_inicio'];
+                        $contrato['vigencia_fim'] = $dado_historico['vigencia_fim'];
+                        $contrato['valor_inicial'] = $dado_historico['valor_inicial'];
+                        $contrato['valor_global'] = $dado_historico['valor_global'];
+                        $contrato['num_parcelas'] = $dado_historico['num_parcelas'];
+                        $contrato['valor_parcela'] = $dado_historico['valor_parcela'];
+                        $contrato['valor_acumulado'] = $dado_historico['valor_acumulado'];
+
+                        $cont = new Contrato();
+                        $contrato_inserido = $cont->inserirContratoMigracaoConta($contrato);
+
+                        self::imprimirNaTela('Contrato inicial inserido: ');
+                        self::imprimirNaTela($contrato);
+
+                        // aqui o contrato inicial já foi inserido. Vamos inserir o histórico.
+
+
+                        self::imprimirNaTela('Preparando para inserir contrato histórico...');
+
+                        //historico
+                        $con = Contrato::find($contrato_inserido->id);
+                        $ano_historico = explode('-', $dado_historico['data_assinatura']);
+                        $his_num = $dado_historico['numero'];
+                        $historico['numero'] = $his_num;
+                        $historico['contrato_id'] = $con->id;
+                        // $historico['fornecedor_id'] = $dado_historico['fornecedor_id'];
+
+
+                        $dadosFornecedor = $dado_historico['fornecedor_id'];
+                        $dadosFornecedorTratados = self::tratarDadosFornecedor($dadosFornecedor);
+                        $cnpjFornecedor = $dadosFornecedorTratados['cnpj'];
+                        $nomeFornecedor = $dadosFornecedorTratados['nome'];
+
+                        $historico['fornecedor_id'] = $this->buscaFornecedor($cnpjFornecedor, $nomeFornecedor);
+                        // $historico['unidade_id'] = $dado_historico['unidade_id'];
+                        $historico['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado_historico['unidade_id']);
+
+                        $tipoId = $this->buscarTipoId($dado);
+                        $historico['tipo_id'] = ($tipoId == 'Apostilamento') ? 68 : 65;
+
+                        $historico['receita_despesa'] = $dado_historico['receita_despesa'];
+                        $historico['info_complementar'] = $dado_historico['info_complementar'];
+                        $historico['data_assinatura'] = $dado_historico['data_assinatura'];
+                        $historico['data_publicacao'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? null : $dado_historico['data_assinatura'];
+                        $historico['vigencia_inicio'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $con->vigencia_inicio : $dado_historico['vigencia_inicio'];
+                        $historico['vigencia_fim'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $con->vigencia_fim : $dado_historico['vigencia_fim'];
+                        $historico['valor_inicial'] = $dado_historico['valor_inicial'];
+                        $historico['valor_global'] = $dado_historico['valor_global'];
+                        $historico['num_parcelas'] = $dado_historico['num_parcelas'];
+                        $historico['valor_parcela'] = $dado_historico['valor_parcela'];
+                        $historico['novo_valor_global'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $dado_historico['novo_valor_global'] : null;
+                        $historico['novo_num_parcelas'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $dado_historico['novo_num_parcelas'] : null;
+                        $historico['novo_valor_parcela'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $dado_historico['novo_valor_parcela'] : null;
+                        $historico['data_inicio_novo_valor'] = ($dado_historico['tipo_id'] == 'Apostilamento') ? $dado_historico['data_inicio_novo_valor'] : null;
+                        $historico['observacao'] = $dado_historico['observacao'];
+                        $historico['retroativo'] = ($dado_historico['retroativo'] == 'N') ? false : true;
+                        if ($dado_historico['retroativo'] == 'S') {
+                            $dtde = explode('-', $dado_historico['retroativo_mesref_de']);
+                            $dtate = explode('-', $dado_historico['retroativo_mesref_ate']);
+                            $historico['retroativo_mesref_de'] = $dtde[1];
+                            $historico['retroativo_anoref_de'] = $dtde[0];
+                            $historico['retroativo_mesref_ate'] = $dtate[1];
+                            $historico['retroativo_anoref_ate'] = $dtate[0];
+                            $historico['retroativo_vencimento'] = ($dado_historico['retroativo_vencimento']) ? $dado_historico['retroativo_vencimento'] : $dado_historico['retroativo_mesref_ate'];
+                            $historico['retroativo_valor'] = $dado_historico['retroativo_valor'];
+                            $historico['retroativo_soma_subtrai'] = $dado_historico['retroativo_soma_subtrai'];
+                        }
+                        $hist = new Contratohistorico();
+
+
+                        echo 'Preparando para inserir histórico';
+                        self::imprimirNaTela($historico);
+
+                        $historico_inserido = $hist->inserirContratohistoricoMigracaoConta($historico);
+
+                        self::imprimirNaTela('Contrato histórico inserido! id = ' . $historico_inserido->id);
+
+
+                    } else {
+                        self::imprimirNaTela('Nada será feito por enquanto com o contrato número: '.$dado['numero']);
+                    }
+
+
+
                 }
             }
         }
