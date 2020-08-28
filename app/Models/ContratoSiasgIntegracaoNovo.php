@@ -153,7 +153,7 @@ class ContratoSiasgIntegracaoNovo extends Model
                 }else{
                     $vlrinicial = $this->formataDecimalSiasg($aditivo->valorTotal);
                     $vlrglobal = $this->formataDecimalSiasg(($key == 0) ? ($vlrglobal - $vlrinicial) : ($aditivos[$key - 1]->valorTotal - $vlrinicial)) ;
-                    $numparcelas = (isset($aditivo->valorParcela) and $aditivo->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($vlrglobal) / $this->formataDecimalSiasg($aditivo->valorParcela)) : 1;
+                    $numparcelas = (isset($aditivo->valorParcela) and $aditivo->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($vlrinicial) / $this->formataDecimalSiasg($aditivo->valorParcela)) : 1;
                     $vlrparcela = $this->formataDecimalSiasg($aditivo->valorParcela);
                 }
             }
