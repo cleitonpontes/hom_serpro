@@ -54,6 +54,8 @@ class ConsultaTerceirizadosCrudController extends ConsultaContratoBaseCrudContro
         $this->crud->removeColumn('salario');
         $this->crud->removeColumn('nome');
         $this->crud->removeColumn('cpf');
+        $this->crud->removeColumn('aux_transporte');
+        $this->crud->removeColumn('vale_alimentacao');
 
         return $content;
     }
@@ -199,6 +201,41 @@ class ConsultaTerceirizadosCrudController extends ConsultaContratoBaseCrudContro
 //                },
 
             ],
+
+            [
+                'name' => 'formatAuxTransporte',
+                'label' => 'Auxílio Trasporte', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatAuxTransporte', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
+            ],
+
+            [
+                'name' => 'formatValeAlimentacao',
+                'label' => 'Vale Alimentação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatValeAlimentacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
+            ],
+
             [
                 'name' => 'getEscolaridade',
                 'label' => 'Escolaridade',
