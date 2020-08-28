@@ -45,7 +45,6 @@
     </div>
     <!-- ./wrapper -->
 
-
     @yield('before_scripts')
     @stack('before_scripts')
 

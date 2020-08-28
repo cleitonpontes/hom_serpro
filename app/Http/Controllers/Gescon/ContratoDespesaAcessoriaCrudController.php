@@ -357,7 +357,7 @@ class ContratoDespesaAcessoriaCrudController extends CrudController
         return [
             [
                 'name' => 'contrato_id',
-                'label' => "Contrato",
+                'label' => "Número do instrumento",
                 'type' => 'select2_from_array',
                 'options' => $contrato,
                 'allows_null' => false,
