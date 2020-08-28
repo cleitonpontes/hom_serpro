@@ -134,7 +134,7 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $dados = [];
 
-        foreach ($aditivos as $aditivo) {
+        foreach ($aditivos as $key => $aditivo) {
 
             $busca = $this->buscaAditivo($aditivo->nuTermo, $contrato);
 
@@ -144,14 +144,19 @@ class ContratoSiasgIntegracaoNovo extends Model
             if ($aditivo->dataFim != '00000000') {
                 $dtfim_old = $this->formataDataSiasg($aditivo->dataFim);
             }
-
             if ($aditivo->valorTotal != '0' or $aditivo->valorParcela != '0') {
-                $vlrinicial = $this->formataDecimalSiasg($aditivo->valorTotal);
-                $vlrglobal = $this->formataDecimalSiasg($aditivo->valorTotal);
-                $numparcelas = (isset($aditivo->valorParcela) and $aditivo->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($aditivo->valorTotal) / $this->formataDecimalSiasg($aditivo->valorParcela)) : 1;
-                $vlrparcela = $this->formataDecimalSiasg($aditivo->valorParcela);
+                if($aditivo->supressao == "N") {
+                    $vlrinicial = $this->formataDecimalSiasg($aditivo->valorTotal);
+                    $vlrglobal = $this->formataDecimalSiasg($aditivo->valorTotal);
+                    $numparcelas = (isset($aditivo->valorParcela) and $aditivo->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($aditivo->valorTotal) / $this->formataDecimalSiasg($aditivo->valorParcela)) : 1;
+                    $vlrparcela = $this->formataDecimalSiasg($aditivo->valorParcela);
+                }else{
+                    $vlrinicial = $this->formataDecimalSiasg($aditivo->valorTotal);
+                    $vlrglobal = $this->formataDecimalSiasg(($key == 0) ? ($vlrglobal - $vlrinicial) : ($aditivos[$key - 1]->valorTotal - $vlrinicial)) ;
+                    $numparcelas = (isset($aditivo->valorParcela) and $aditivo->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($vlrglobal) / $this->formataDecimalSiasg($aditivo->valorParcela)) : 1;
+                    $vlrparcela = $this->formataDecimalSiasg($aditivo->valorParcela);
+                }
             }
-
             $fornecedor = $this->buscaFornecedorCpfCnpjIdgener($aditivo->cpfCnpjFornecedor, $aditivo->nomeFornecedor, $siasgcontrato);
 
             $dados = [
@@ -178,6 +183,7 @@ class ContratoSiasgIntegracaoNovo extends Model
                 unset($dados['numero']);
                 unset($dados['contrato_id']);
                 unset($dados['tipo_id']);
+
                 $busca->update($dados);
             } else {
                 $contratohistorico = Contratohistorico::create($dados);
