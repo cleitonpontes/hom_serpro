@@ -236,7 +236,7 @@ Route::group(
              *
              */
             Route::get('/fatura', 'FaturaController@index')->name('apropriacao.fatura');
-            // Route::get('/fatura/{id}', 'ApropriacaoFaturaController@show')->name('apropriacao.fatura.relatorio');
+            Route::get('/fatura/{id}', 'ApropriacaoFaturaController@show')->name('apropriacao.fatura.relatorio');
             // Route::delete('/fatura/{id}', 'ApropriacaoFaturaController@destroy')->name('apropriacao.fatura.excluir');
         });
     }
