@@ -49,14 +49,5 @@ class MigracaoSistemaContaJob implements ShouldQueue
                 $retorno = $contrato->trataDadosMigracaoConta($dado);
             }
         }
-
-        // caso seja um teste local, ao processar o último contrato, vou parar aqui antes de voltar ao sistema.
-        if($this->url == 'http://localhost:8000/api/v1/contrato/486?token=base64:HMFwu3NCR6OZUipnpjNqiqvRK2w9afTl4Bjfb5Xik0M='){
-
-            echo "<script>alert('VERIFICAR SE VAI CONTINUAR');</script>";
-        }
-
-
-
     }
 }

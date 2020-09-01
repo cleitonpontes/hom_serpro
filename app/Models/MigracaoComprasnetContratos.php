@@ -57,6 +57,7 @@ class MigracaoComprasnetContratos extends Model
         $retorno = [];
         $base = new AdminController();
         $unidade = new Unidade();
+
         $contrato['numero'] = $dado['numero']; // já está vindo formatado da agu
         $contrato['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado['unidade_id']);
         $contrato['tipo_id'] = $this->buscarTipoId($dado);
@@ -95,7 +96,7 @@ class MigracaoComprasnetContratos extends Model
             self::imprimirNaTela('Tipo do histórico: ' . $tipoHistorico);
 
             // if ($dado_historico['tipo_id'] == 'Contrato') {
-            if ($dado_historico['tipo_id'] != 'Temo Aditivo' && $dado_historico['tipo_id'] != 'Temo de Apostilamento' && $dado_historico['tipo_id'] != 'Temo Rescisão') {
+            if ($dado_historico['tipo_id'] != 'Termo Aditivo' && $dado_historico['tipo_id'] != 'Termo de Apostilamento' && $dado_historico['tipo_id'] != 'Termo Rescisão') {
 
                 self::imprimirNaTela('Contrato inicial!');
 
@@ -124,7 +125,7 @@ class MigracaoComprasnetContratos extends Model
                 $contrato_inserido = $cont->inserirContratoMigracaoConta($contrato);
 
                 self::imprimirNaTela('Contrato inicial inserido: ');
-                self::imprimirNaTela($contrato);
+                self::imprimirNaTela($contrato_inserido);
 
 
             } else {
@@ -132,13 +133,21 @@ class MigracaoComprasnetContratos extends Model
 
                 if (isset($contrato_inserido->id)) {
 
-                    self::imprimirNaTela('Preparando para inserir contrato histórico...');
+                    self::imprimirNaTela('(***) Preparando para inserir contrato histórico...');
 
                     //historico
                     $con = Contrato::find($contrato_inserido->id);
+
+
+                    self::imprimirNaTela('Vai inserir histórico para o contrato abaixo:');
+                    self::imprimirNaTela($con);
+
+
                     $ano_historico = explode('-', $dado_historico['data_assinatura']);
                     $his_num = $dado_historico['numero'];
                     $historico['numero'] = $his_num;
+
+
                     $historico['contrato_id'] = $con->id;
                     // $historico['fornecedor_id'] = $dado_historico['fornecedor_id'];
 
@@ -190,6 +199,8 @@ class MigracaoComprasnetContratos extends Model
                     $historico_inserido = $hist->inserirContratohistoricoMigracaoConta($historico);
 
                     self::imprimirNaTela('Contrato histórico inserido! id = ' . $historico_inserido->id);
+                    self::imprimirNaTela($historico_inserido);
+
                 } else {
                     self::imprimirNaTela('Nada será feito por enquanto com o contrato número: '.$dado['numero'].', por não ser inicial.');
                 }
