@@ -37,6 +37,9 @@ class FaturaController extends Controller
      */
     public function __construct(Builder $htmlBuilder)
     {
+        // // // $this->middleware('auth');
+        // // $this->middleware('web');
+        // dd(backpack_auth()->check(), backpack_auth());
         backpack_auth()->check();
         $this->htmlBuilder = $htmlBuilder;
     }
@@ -49,6 +52,7 @@ class FaturaController extends Controller
      */
     public function index(Request $request)
     {
+        // $dados = ApropriacaoFaturas::retornaDadosListagem();
         $dados = $this->retornaDadosListagem();
 
         if ($request->ajax()) {
@@ -66,79 +70,8 @@ class FaturaController extends Controller
 
     private function retornaDadosListagem()
     {
-        $x = ApropriacoesFaturasContratofaturas::all();
-        dd($x);
-
-
-        // $f = ApropriacaoFaturas::first()->faturas()->get()->toArray();
-        $f = ApropriacaoFaturas::first()->faturas()->get()->modelKeys(); //->get()->toArray();
-        $g = implode(', ', $f);
-
-        // dd($f);
-
-        $dados = ApropriacaoFaturas::select(
-            'apropriacoes_faturas.id',
-            'C.numero AS contrato',
-            DB::raw("CONCAT(cpf_cnpj_idgener, ' - ', nome) AS fornecedor"),
-            'CF.numero AS fatura',
-            'CF.ateste',
-            'CF.vencimento',
-            /*
-            DB::raw("(
-                select
-                    string_agg(numero, ' / ') as faturas
-                from
-                    apropriacoes_faturas_contratofaturas
-                where
-                    visivel = true
-                    and id < 20
-                ) as faturas"),
-            */
-            'apropriacoes_faturas.valor',
-            'CI.descricao AS fase',
-        )
-            ->join('codigoitens AS CI', 'CI.id', '=', 'apropriacoes_faturas.fase_id')
-            ->join('apropriacoes_faturas_contratofaturas AS AC', 'AC.apropriacoes_faturas_id', '=', 'apropriacoes_faturas.id')
-            ->join('contratofaturas AS CF', 'CF.id', '=', 'AC.contratofaturas_id')
-            // ->join('contratofaturas AS CF', 'CF.id', '=', 'AC.contratofaturas_id')
-            ->join('contratos AS C', 'C.id', '=', 'CF.contrato_id')
-            ->join('fornecedores AS F', 'F.id', '=', 'C.fornecedor_id')
-            ->orderBy('apropriacoes_faturas.id', 'desc')
-        ;
-
-        /*
-        $d0 = ApropriacaoFaturas::first();
-        $d1 = $d0->faturas()->get(['numero'])->toArray();
-        $d01 = $d0->faturas()->pluck('numero')->toArray();
-        $d1 = implode($d01, ' / ');
-
-        $d1 = $d0->getFaturasAttribute();
-        */
-
-        /*
-        $dados = Contratofatura::where('C.unidade_id', session()->get('user_ug_id'))
-            ->join('contratos AS C', 'C.id', '=', 'contratofaturas.contrato_id')
-            ->join('fornecedores AS F', 'F.id', '=', 'C.fornecedor_id')
-            ->join('apropriacoes_faturas_contratofaturas AS AC', 'AC.contratofaturas_id', '=', 'contratofaturas.id')
-            ->join('apropriacoes_faturas AS AF', 'AF.id', '=', 'AC.apropriacoes_faturas_id')
-            ->select([
-                'contratofaturas.id',
-                'C.numero AS contrato',
-                'F.cpf_cnpj_idgener',
-                'F.nome',
-                DB::raw("CONCAT(cpf_cnpj_idgener, ' - ', nome) AS fornecedor"),
-                'contratofaturas.numero AS fatura',
-                'contratofaturas.ateste',
-                'contratofaturas.vencimento',
-                DB::raw("'1,2,3' AS faturas"),
-                'AF.valor AS valor_fatura',
-                'contratofaturas.valor as vr2',
-            ]);
-        */
-
-        // dd($d1, $dados->first()->toArray());
-        $d1 = $dados->get()->toArray();
-        dd('retornaDadosListagem', $f, $g, $d1);
+        $dados = ApropriacaoFaturas::retornaDadosListagem();
+        // dd($dados->get()->toArray());
 
         return $dados->get(); //->toArray();
     }
@@ -155,20 +88,51 @@ class FaturaController extends Controller
         $html->addColumn([
             'data' => 'numero',
             'name' => 'numero',
-            'title' => 'Número'
+            'title' => 'Contrato'
         ]);
 
         $html->addColumn([
-            'data' => 'observacoes',
-            'name' => 'observacoes',
-            'title' => 'Observações'
+            'data' => 'fornecedor',
+            'name' => 'fornecedor',
+            'title' => 'Fornecedor'
+        ]);
+
+        $html->addColumn([
+            'data' => 'ateste',
+            'name' => 'ateste',
+            'title' => 'Data Ateste'
+        ]);
+
+        $html->addColumn([
+            'data' => 'vencimento',
+            'name' => 'vencimento',
+            'title' => 'Data Vencimento'
+        ]);
+
+        $html->addColumn([
+            'data' => 'faturas',
+            'name' => 'faturas',
+            'title' => 'Faturas'
+        ]);
+
+        $html->addColumn([
+            'data' => 'total',
+            'name' => 'total',
+            'title' => 'Total',
+            'class' => 'text-right'
         ]);
 
         $html->addColumn([
             'data' => 'valor',
             'name' => 'valor',
-            'title' => 'Valor',
+            'title' => 'Valor informado',
             'class' => 'text-right'
+        ]);
+
+        $html->addColumn([
+            'data' => 'fase',
+            'name' => 'fase',
+            'title' => 'Fase'
         ]);
 
         $html->addColumn([
@@ -206,10 +170,42 @@ class FaturaController extends Controller
         $editar = 'E';
         $excluir = 'X';
 
+        // <a href="http://conta.sc/gescon/meus-contratos/2961/faturas/1052"
+        //    class="btn btn-xs btn-default"
+        //    title="Visualizar">
+        // <i class="fa fa-eye"></i>
+        // </a>
+
         $acoes = '';
-        $acoes .= '<div class="btn-group">';
-        $acoes .= " [$id] $conferencia / $editar / $excluir <i class='fa fa-play'></i></a> ";
-        $acoes .= '</div>';
+        // $acoes .= '<div class="btn-group text-nowrap">';
+
+        $acoes .= "[$id] ";
+
+        $acoes .= "<a href='#' ";
+        $acoes .= "   class='btn btn-xs btn-default' ";
+        $acoes .= "   alt='Ação' ";
+        $acoes .= "   title='Ação' ";
+        $acoes .= ">";
+        $acoes .= "    <i class='fa fa-play'></i> ";
+        $acoes .= "</a> ";
+
+        $acoes .= "<a href='#' ";
+        $acoes .= "   class='btn btn-xs btn-default' ";
+        $acoes .= "   alt='Ação' ";
+        $acoes .= "   title='Ação' ";
+        $acoes .= ">";
+        $acoes .= "    <i class='fa fa-play'></i> ";
+        $acoes .= "</a> ";
+
+        $acoes .= "<a href='#' ";
+        $acoes .= "   class='btn btn-xs btn-default' ";
+        $acoes .= "   alt='Ação' ";
+        $acoes .= "   title='Ação' ";
+        $acoes .= ">";
+        $acoes .= "    <i class='fa fa-play'></i> ";
+        $acoes .= "</a> ";
+
+        // $acoes .= '</div>';
 
         return $acoes;
     }
