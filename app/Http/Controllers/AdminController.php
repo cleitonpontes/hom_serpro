@@ -429,7 +429,6 @@ class AdminController extends Controller
     {
 //        phpinfo();
     }
-
     public function buscaDadosUrl($url)
     {
         $ch = curl_init();
@@ -438,15 +437,12 @@ class AdminController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
         $data = curl_exec($ch);
-
         curl_close($ch);
-
         return json_decode($data, true);
     }
 
     public function buscaDadosUrlMigracao($url)
     {
-        echo '<br>'.$url;
         return json_decode(file_get_contents($url), true);
     }
 
