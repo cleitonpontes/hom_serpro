@@ -39,6 +39,13 @@ Route::group([
     Route::get('/tokenacesso', 'LoginAcessoGov@tokenAcesso')->name('acessogov.tokenacesso');
 });
 
+Route::group([
+    'prefix' => 'soap',
+    'namespace' => 'Soap',
+], function () {
+    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
+});
+
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
 
