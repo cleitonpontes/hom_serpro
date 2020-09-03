@@ -19,20 +19,13 @@ class ApropriacaoFaturas extends Model
         );
     }
 
-    public function contratos()
-    {
-        // return $this;
-    }
-
-    /*
     public function getNumeroFaturasAttribute()
     {
         return implode(
-            ' / ',
+            ', ',
             $this->faturas()->pluck('numero')->toArray()
         );
     }
-    */
 
     public static function retornaDadosListagem()
     {
@@ -59,6 +52,7 @@ class ApropriacaoFaturas extends Model
             ->join('contratos AS C', 'C.id', '=', 'CF.contrato_id')
             ->join('codigoitens AS CI', 'CI.id', '=', 'apropriacoes_faturas.fase_id')
             ->join('fornecedores AS F', 'F.id', '=', 'C.fornecedor_id')
+            ->where('C.unidade_id', session()->get('user_ug_id'))
             ->orderBy('apropriacoes_faturas.id', 'desc');
     }
 }

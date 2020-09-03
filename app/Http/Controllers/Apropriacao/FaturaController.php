@@ -37,9 +37,6 @@ class FaturaController extends Controller
      */
     public function __construct(Builder $htmlBuilder)
     {
-        // // // $this->middleware('auth');
-        // // $this->middleware('web');
-        // dd(backpack_auth()->check(), backpack_auth());
         backpack_auth()->check();
         $this->htmlBuilder = $htmlBuilder;
     }
@@ -52,28 +49,26 @@ class FaturaController extends Controller
      */
     public function index(Request $request)
     {
-        // $dados = ApropriacaoFaturas::retornaDadosListagem();
-        $dados = $this->retornaDadosListagem();
+        $dados = ApropriacaoFaturas::retornaDadosListagem()->get();
 
         if ($request->ajax()) {
             return DataTables::of($dados)
                 ->addColumn('action', function ($registro) {
                     return $this->montaHtmlAcoes($registro->id);
                 })
+                ->editColumn('ateste', '{!!
+                    !is_null($ateste) ? date_format(date_create($ateste), "d/m/Y") : ""
+                !!}')
+                ->editColumn('vencimento', '{!!
+                    !is_null($vencimento) ? date_format(date_create($vencimento), "d/m/Y") : ""
+                !!}')
+                ->editColumn('total', '{!! number_format(floatval($total), 2, ",", ".") !!}')
                 ->editColumn('valor', '{!! number_format(floatval($valor), 2, ",", ".") !!}')
                 ->make(true);
         }
 
         $html = $this->retornaHtmlGrid();
         return view('backpack::mod.apropriacao.fatura', compact('html'));
-    }
-
-    private function retornaDadosListagem()
-    {
-        $dados = ApropriacaoFaturas::retornaDadosListagem();
-        // dd($dados->get()->toArray());
-
-        return $dados->get(); //->toArray();
     }
 
     /**
@@ -100,13 +95,13 @@ class FaturaController extends Controller
         $html->addColumn([
             'data' => 'ateste',
             'name' => 'ateste',
-            'title' => 'Data Ateste'
+            'title' => 'Dt. Ateste'
         ]);
 
         $html->addColumn([
             'data' => 'vencimento',
             'name' => 'vencimento',
-            'title' => 'Data Vencimento'
+            'title' => 'Dt. Vencimento'
         ]);
 
         $html->addColumn([
@@ -139,6 +134,7 @@ class FaturaController extends Controller
             'data' => 'action',
             'name' => 'action',
             'title' => 'Ações',
+            'class' => 'text-nowrap',
             'orderable' => false,
             'searchable' => false
         ]);
