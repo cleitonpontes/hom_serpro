@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use App\Models\ContratoBase as Model;
+use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratoarquivo extends Model
+
+class Encargo extends Model
 {
-    use CrudTrait;
-    use LogsActivity;
-    use SoftDeletes;
 
-    protected static $logFillable = true;
-    protected static $logName = 'contrato_arquivos';
+    protected $primaryKey = 'id';
+
+
+
+    use CrudTrait;
 
     /*
     |--------------------------------------------------------------------------
@@ -22,18 +21,13 @@ class Contratoarquivo extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contrato_arquivos';
+    protected $table = 'encargos';
+    // protected $primaryKey = 'id';
+    // public $timestamps = false;
+    // protected $guarded = ['id'];
     protected $fillable = [
-        'contrato_id',
-        'tipo',
-        'processo',
-        'sequencial_documento',
-        'descricao',
-        'arquivos',
-    ];
-
-    protected $casts = [
-        'arquivos' => 'array'
+        'tipo_id',
+        'percentual',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -44,26 +38,11 @@ class Contratoarquivo extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getContrato()
-    {
-        return $this->getContratoNumero();
-    }
-
-    public function getTipo()
-    {
-        return $this->codigoItem()->first()->descricao;
-    }
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function codigoItem()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo');
-    }
-
 
 
 
@@ -84,13 +63,17 @@ class Contratoarquivo extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-    public function setArquivosAttribute($value)
-    {
-        $attribute_name = "arquivos";
-        $disk = "local";
-        $contrato = Contrato::find($this->contrato_id);
-        $destination_path = "contrato/".$contrato->id."_".str_replace('/','_',$contrato->numero);
-
-        $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
+    public function getTipoIdAttribute($value){
+        $retorno = $this->formatarAtributoTipoId($value);
+        return $retorno;
     }
+
+    // Métodos que auxiliam os mutators
+    public function formatarAtributoTipoId($id){
+        $retorno = Codigoitem::find($id);
+        if($retorno){return $retorno->descricao;}
+        else {return null;}
+    }
+
+
 }

@@ -140,6 +140,8 @@ Route::group([
             CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
             CRUD::resource('indicador', 'IndicadorCrudController');
+            CRUD::resource('encargo', 'EncargoCrudController');
+
 
             Route::group([
                 'prefix' => 'siasg',
