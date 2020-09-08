@@ -22,7 +22,6 @@ class Encargo extends Model
     */
 
     protected $table = 'encargos';
-    // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
@@ -37,6 +36,15 @@ class Encargo extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getDescricaoCodigoItem(){
+        $objCodigoItem = Codigoitem::find($this->tipo_id);
+        return $descricao= $objCodigoItem->descricao;
+    }
+    public function formatPercentual()
+    {
+        return number_format($this->percentual, 2, ',', '.');
+    }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -63,17 +71,17 @@ class Encargo extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-    public function getTipoIdAttribute($value){
-        $retorno = $this->formatarAtributoTipoId($value);
-        return $retorno;
-    }
+    // public function getTipoIdAttribute($value){
+    //     $retorno = $this->formatarAtributoTipoId($value);
+    //     return $retorno;
+    // }
 
-    // Métodos que auxiliam os mutators
-    public function formatarAtributoTipoId($id){
-        $retorno = Codigoitem::find($id);
-        if($retorno){return $retorno->descricao;}
-        else {return null;}
-    }
+    // // Métodos que auxiliam os mutators
+    // public function formatarAtributoTipoId($id){
+    //     $retorno = Codigoitem::find($id);
+    //     if($retorno){return $retorno->descricao;}
+    //     else {return null;}
+    // }
 
 
 }

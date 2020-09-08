@@ -12,6 +12,8 @@ use App\Http\Requests\EncargoRequest as StoreRequest;
 use App\Http\Requests\EncargoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+
 
 
 /**
@@ -27,7 +29,12 @@ class EncargoCrudController extends CrudController
         // buscar os tipos de encargo em codigoitens para seleção
         $tiposDeEncargo = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Encargos');
-        })->pluck('descricao', 'id')->toArray();
+        })
+        ->orderBy('descricao')
+        ->pluck('descricao', 'id')
+        ->toArray();
+
+
 
         /*
         |--------------------------------------------------------------------------
@@ -38,10 +45,34 @@ class EncargoCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/encargo');
         $this->crud->setEntityNameStrings('encargo', 'encargos');
 
-        $this->crud->addColumns($this->colunas());
 
+
+        $this->crud->addClause('join', 'codigoitens',
+            'codigoitens.id', '=', 'encargos.tipo_id'
+        );
+
+        $this->crud->addClause('select', [
+            'codigoitens.*',
+            // Tabela principal deve ser sempre a última da listagem!
+            'encargos.*'
+        ]);
+
+
+
+        $this->crud->addColumns($this->colunas());
         $campos = $this->Campos($tiposDeEncargo);
         $this->crud->addFields($campos);
+
+
+
+
+
+
+        // TODO: remove setFromDb() and manually define Fields and Columns
+        // $this->crud->setFromDb();
+
+
+
 
         (backpack_user()->can('encargo_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('encargo_editar')) ? $this->crud->allowAccess('update') : null;
@@ -64,6 +95,9 @@ class EncargoCrudController extends CrudController
     }
     public function store(StoreRequest $request)
     {
+        // formatar o campo percentual
+        $percentual = str_replace(',', '.', str_replace('.', '', $request->input('percentual')));
+        $request->request->set('percentual', number_format(floatval($percentual), 2, '.', ''));
         // verificar se o encargo ainda não existe.
         if(self::verificarSeEncargoExiste($request)){
             // return Redirect::back()->withErrors(['msg', 'The Message']);
@@ -79,6 +113,9 @@ class EncargoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        // formatar o campo percentual
+        $percentual = str_replace(',', '.', str_replace('.', '', $request->input('percentual')));
+        $request->request->set('percentual', number_format(floatval($percentual), 2, '.', ''));
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -91,49 +128,76 @@ class EncargoCrudController extends CrudController
     {
         return [
             [
-                'name' => 'tipo_id',
-                'label' => 'Tipo',
-                'type' => 'text',
+                'name' => 'getDescricaoCodigoItem',
+                'label' => 'Tipo', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getDescricaoCodigoItem', // the method in your Model
                 'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                },
+
             ],
             [
-                'name' => 'percentual',
-                'label' => 'Percentual (%)',
-                'type' => 'text',
+                'name' => 'formatPercentual',
+                'label' => 'Percentual (%)', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'formatPercentual', // the method in your Model
                 'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
         ];
     }
-
 
     public function Campos($tiposDeEncargo)
     {
         $campos = [
             [
-                // select from array
+                // select_from_array
                 'name' => 'tipo_id',
                 'label' => "Tipo",
+                // 'type' => 'text',
                 'type' => 'select2_from_array',
                 'options' => $tiposDeEncargo,
-                'allows_null' => false,
             ],
-            [   // Number
+
+            [
+                // Number
                 'name' => 'percentual',
                 'label' => 'Percentual',
-                'type' => 'number',
+                'type' => 'money',
                 // optionals
-                'suffix' => " %",
-                'default' => 0,
+                'attributes' => [
+                    'id' => 'percentual',
+                ], // allow decimals
+                // 'prefix' => "R$",
+                // 'tab' => 'Vigência / Valores',
                 // 'suffix' => ".00",
             ],
+
+
+            // [   // Number
+            //     'name' => 'percentual',
+            //     'label' => 'Percentual',
+            //     'type' => 'money',
+            //     // optionals
+            //     'suffix' => " %",
+            //     'default' => 0,
+            //     // 'suffix' => ".00",
+            //     // optionals
+            //     'attributes' => [
+            //         "step" => "any",
+            //         "min" => '1',
+            //     ], // allow decimals
+
+            // ],
         ];
 
         return $campos;
