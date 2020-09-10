@@ -142,7 +142,6 @@ Route::group([
             CRUD::resource('indicador', 'IndicadorCrudController');
             CRUD::resource('encargo', 'EncargoCrudController');
 
-
             Route::group([
                 'prefix' => 'siasg',
                 'namespace' => 'Siasg',
@@ -159,6 +158,11 @@ Route::group([
             });
 
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
+
+
+                CRUD::resource('contratocontas', 'ContratocontaCrudController');
+
+
                 CRUD::resource('aditivos', 'AditivoCrudController');
                 CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
                 CRUD::resource('arquivos', 'ContratoarquivoCrudController');

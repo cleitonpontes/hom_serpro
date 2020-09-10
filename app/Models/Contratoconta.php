@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 
-class Encargo extends Model
+class Contratoconta extends Model
 {
 
     protected $primaryKey = 'id';
@@ -18,12 +18,12 @@ class Encargo extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'encargos';
+    protected $table = 'contratocontas';
+    // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'tipo_id',
-        'percentual',
+        'contrato_id', 'banco', 'conta', 'agencia', 'conta_corrente', 'fat_empresa'
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -33,23 +33,12 @@ class Encargo extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function getDescricaoCodigoItem(){
-        $objCodigoItem = Codigoitem::find($this->tipo_id);
-        return $descricao= $objCodigoItem->descricao;
-    }
-    public function formatPercentual()
-    {
-        return number_format($this->percentual, 2, ',', '.');
-    }
-
 
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -68,5 +57,4 @@ class Encargo extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-
 }

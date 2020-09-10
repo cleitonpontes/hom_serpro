@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Gescon;
 
+
 use App\Models\Codigoitem;
 use App\Models\Encargo;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\EncargoRequest as StoreRequest;
 use App\Http\Requests\EncargoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+
 
 
 

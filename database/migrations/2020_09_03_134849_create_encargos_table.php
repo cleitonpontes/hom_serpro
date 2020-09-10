@@ -22,7 +22,6 @@ class CreateEncargosTable extends Migration
             $table->foreign('tipo_id')->references('id')->on('codigoitens')->onDelete('cascade');
         });
     }
-
     /**
      * Reverse the migrations.
      *
