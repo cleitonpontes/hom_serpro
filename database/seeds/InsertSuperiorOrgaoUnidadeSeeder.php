@@ -16,6 +16,7 @@ class InsertSuperiorOrgaoUnidadeSeeder extends Seeder
      */
     public function run()
     {
+        $this->command->info('Processando, por favor aguarde');
         // Adiciono a extensão do postgres para retirar os acentos na comparação
         // Supported Versions do Postgresql: Current (12) / 11 / 10 / 9.6 / 9.5
         DB::select( DB::raw(" CREATE EXTENSION IF NOT EXISTS unaccent ") );
@@ -48,7 +49,7 @@ class InsertSuperiorOrgaoUnidadeSeeder extends Seeder
                 ]
             );
 
-            Unidade::firstOrCreate(
+            Unidade::updateOrCreate(
                 ['codigo' => $item->unidades_codigo],
                 [
                     'orgao_id' => $orgao->id,
