@@ -161,11 +161,11 @@ return [
     ],
 
     'ddp_nivel' => [
-        "A" => "A - Ativos",
-        "B" => "B - Aposentados e Pensionistas",
-        "C" => "C - ...",
-        "D" => "D - ...",
-        "E" => "E - Sem Vínculo",
+        "A" => "A - Ativo Civil",
+        "B" => "B - Aposentado e Pensionista Civil e Militar",
+        "C" => "C - Ativo Militar",
+        "D" => "D - Inativo Militar",
+        "E" => "E - Ativo CLT",
     ],
 
 
