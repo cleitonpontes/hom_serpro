@@ -391,7 +391,7 @@ class ContratoController extends Controller
                 'processo' => $arquivo->processo,
                 'sequencial_documento' => $arquivo->sequencial_documento,
                 'descricao' => $arquivo->descricao,
-                'arquivos' => $arquivo->arquivos,
+                'arquivos' => $arquivo->getListaArquivosComPath(),
             ];
 
         }
