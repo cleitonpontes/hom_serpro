@@ -170,7 +170,7 @@ class ContratoController extends Controller
         $garantias = $this->buscaGarantiasPorContratoId($contrato_id);
 
         foreach ($garantias as $garantia) {
-            
+
             $garantias_array[] = [
                 //'contrato_id' => $garantia->contrato_id,
                 'tipo' => $garantia->getTipo(),
@@ -180,7 +180,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($garantias_array);      
+        return json_encode($garantias_array);
     }
 
     //feito as cegas (faltou CATMATSER)
@@ -203,7 +203,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($itens_array);     
+        return json_encode($itens_array);
     }
 
     public function prepostosPorContratoId(int $contrato_id)
@@ -230,21 +230,21 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($prepostos_array);      
+        return json_encode($prepostos_array);
     }
 
     public function responsaveisPorContratoId(int $contrato_id)
     {
         $responsaveis_array = [];
         $responsaveis = $this->buscaResponsaveisPorContratoId($contrato_id);
-        
+
         foreach ($responsaveis as $responsavel) {
-            
+
             $responsaveis_array[] = [
 
                 //'contrato_id' => $responsavel->contrato_id,
                 //'user_id' => $responsavel->getUsuarioTransparencia(),
-                
+
                 'usuario' => $this->usuarioTransparencia($responsavel->user->name, $responsavel->user->cpf),
                 'funcao_id' => $responsavel->funcao->descricao,
                 'instalacao_id' => $responsavel->getInstalacao(),
@@ -259,7 +259,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($responsaveis_array);     
+        return json_encode($responsaveis_array);
     }
 
     public function despesasAcessoriasPorContratoId(int $contrato_id)
@@ -279,9 +279,9 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($despesasAcessorias_array);       
+        return json_encode($despesasAcessorias_array);
     }
-    
+
     public function faturasPorContratoId(int $contrato_id)
     {
         $faturas_array = [];
@@ -316,9 +316,9 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($faturas_array);      
+        return json_encode($faturas_array);
     }
-    
+
     public function ocorrenciasPorContratoId(int $contrato_id)
     {
         $ocorrencias_array = [];
@@ -336,7 +336,7 @@ class ContratoController extends Controller
                 'emailpreposto' => $ocorrencia->emailpreposto,
                 //Seria o mesmo que número?
                 'numeroocorrencia' => $ocorrencia->getNumeroOcorrencia(),
-                //possivel erro no formulário, nova situação não é salva 
+                //possivel erro no formulário, nova situação não é salva
                 'novasituacao' => $ocorrencia->getSituacaoNovaConsulta(),
                 'situacao' => $ocorrencia->ocorSituacao->descricao,
                 'arquivos' => $ocorrencia->arquivos,
@@ -344,7 +344,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($ocorrencias_array);       
+        return json_encode($ocorrencias_array);
     }
 
     public function terceirizadosPorContratoId(int $contrato_id)
@@ -376,7 +376,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($terceirizados_array);       
+        return json_encode($terceirizados_array);
     }
 
     public function arquivosPorContratoId(int $contrato_id)
@@ -396,7 +396,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($arquivos_array);     
+        return json_encode($arquivos_array);
     }
 
     private function buscaOrgaosComContratosAtivos()
@@ -529,6 +529,16 @@ class ContratoController extends Controller
         return $arquivos;
     }
 
+    /**
+     * @OA\Get(
+     *     tags={"course"},
+     *     summary="Returns a list of courses",
+     *     description="Returns a object of courses",
+     *     path="/V1/course",
+     *     @OA\Response(response="200", description="A list with courses"),
+     * ),
+     *
+     */
     public function contratoAtivoAll()
     {
         $contratos_array = [];
