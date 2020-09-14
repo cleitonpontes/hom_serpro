@@ -454,10 +454,10 @@ class UnidadeCrudController extends CrudController
                 'options' => [1 => 'Ativo', 0 => 'Inativo'],
                 'allows_null' => false,
             ],
-            [ // select_from_array
+            [
                 'name' => 'uf',
                 'label' => "Estado",
-                'type' => 'select_from_array',
+                'type' => 'select2_from_array',
                 'options' =>
                     [
                         12 => "Acre",
@@ -490,6 +490,7 @@ class UnidadeCrudController extends CrudController
                         99 => "Exterior"
                     ],
                 'allows_null' => true,
+                'default' => $this->estadoId()
             ],
             [ // select_from_array
                 'name' => 'municipio_id', // the column that contains the ID of that connected entity
@@ -660,6 +661,15 @@ class UnidadeCrudController extends CrudController
         }
 
         return redirect('admin/unidade');
+    }
+
+    private function estadoId()
+    {
+        $estado = '';
+        if ($this->crud->getActionMethod() === 'edit') {
+            $estado = $this->crud->getEntry($this->crud->getCurrentEntryId())->municipio->estado->id;
+        }
+        return $estado;
     }
 
 }
