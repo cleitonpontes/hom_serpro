@@ -2,6 +2,8 @@
 
 return [
 
+    'google_analytics' => env('GOOGLE_ANALYTICS',''),
+
     //contas contábeis empenhodetalhado
     'contas_contabeis_empenhodetalhado_exercicioatual' => [
         'empaliquidar' => '622920101', // 6.2.2.9.2.01.01 = EMPENHOS A LIQUIDAR
