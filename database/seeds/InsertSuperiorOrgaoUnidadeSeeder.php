@@ -52,11 +52,6 @@ class InsertSuperiorOrgaoUnidadeSeeder extends Seeder
             $unidade = Unidade::where('codigo',$item->unidades_codigo)->first();
 
             if (isset($unidade->id)) {
-                $unidade->codigosiasg = $item->unidades_codigo;
-                $unidade->nome = $item->unidades_nome;
-                $unidade->nomeresumido = $item->unidades_nomeresumido;
-                $unidade->tipo = 'E';
-                $unidade->situacao = true;
                 $unidade->municipio_id = $mun->id ?? null;
                 $unidade->save();
 

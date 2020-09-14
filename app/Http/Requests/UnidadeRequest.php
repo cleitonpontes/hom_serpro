@@ -39,6 +39,7 @@ class UnidadeRequest extends FormRequest
             'sisg' => 'required',
             'aderiu_siasg' => 'required',
             'utiliza_siafi' => 'required',
+            'municipio_id' => 'required',
             'situacao' => 'required',
         ];
     }
