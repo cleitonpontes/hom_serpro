@@ -352,7 +352,6 @@ class ContratoController extends Controller
     /**
      * @OA\Get(
      *     tags={"contratos"},
-     *     operationId="contrato",
      *     summary="Retorna uma lista com todos os terceirizados do contrato",
      *     description="Retorna um Json de terceirizados do contrato",
      *     path="/api/contrato/{contrato_id}/terceirizados",
@@ -365,29 +364,41 @@ class ContratoController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Lista de terceirizados do contrato retornada com sucesso",
-     *         @OA\JsonContent(
-     *              @OA\Items(ref="#/components/schemas/Terceirizados")
+     *         @OA\JsonContent(ref="#/components/schemas/Terceirizados")
      *         ),
      *     ),
      *     @OA\Components(
      *         @OA\Schema(
      *             schema="Terceirizados",
      *             type="object",
-     *             @OA\Property(properties="id",type="integer",format="int64"),
-     *             @OA\Property(properties="name",type="string")
+     *             @OA\Property(property="usuario",type="string",example="111.111.111-00 FULANO DE TAL"),
+     *             @OA\Property(property="funcao_id",type="string",example="Ajudante"),
+     *             @OA\Property(property="descricao_complementar",type="string",example="Ajudante de almoxarifado"),
+     *             @OA\Property(property="jornada",type="integer",example="40"),
+     *             @OA\Property(property="unidade",type="string",example="AGU-SEDE"),
+     *             @OA\Property(property="salario",type="number",example="1.200,25"),
+     *             @OA\Property(property="custo",type="number",example="3.200,25"),
+     *             @OA\Property(property="escolaridade_id",type="string",example="Superior completo"),
+     *             @OA\Property(property="data_inicio",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+     *             @OA\Property(property="data_fim",type="string",example="2020-01-31",format=" yyyy-mm-dd"),
+     *             @OA\Property(property="situacao",type="string",example="ativo",),
+     *             @OA\Property(property="telefone_fixo",type="string",example="61-4002-6325"),
+     *             @OA\Property(property="telefone_celular",type="string",example="61-94002-6325"),
+     *             @OA\Property(property="aux_transporte",type="number",example="190,00"),
+     *             @OA\Property(property="vale_alimentacao",type="number",example="560,00")
      *         )
      *     )
      * )
      */
+
     public function terceirizadosPorContratoId(int $contrato_id)
     {
-
-
 
         $terceirizados_array = [];
         $terceirizados = $this->buscaTerceirizadosPorContratoId($contrato_id);
 
         foreach ($terceirizados as $terceirizado) {
+;
             $terceirizados_array[] = [
                 //'contrato_id' => $terceirizado->contrato_id,
                 //'cpf' => $terceirizado->getCpf(),
@@ -408,7 +419,6 @@ class ContratoController extends Controller
                 'aux_transporte' => number_format($terceirizado->aux_transporte, 2, ',', '.'),
                 'vale_alimentacao' => number_format($terceirizado->vale_alimentacao, 2, ',', '.'),
              ];
-
         }
 
         return json_encode($terceirizados_array);
