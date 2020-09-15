@@ -8,7 +8,7 @@ return [
         |--------------------------------------------------------------------------
         */
 
-        'title' => 'Comprasnet - API',
+        'title' => 'Comprasnet Contratos - API',
     ],
 
     'routes' => [
@@ -222,6 +222,6 @@ return [
     |--------------------------------------------------------------------------
      */
     'constants' => [
-        'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'localhost:8080'),
+        'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'sc-treino.agu.gov.br'),
     ],
 ];
