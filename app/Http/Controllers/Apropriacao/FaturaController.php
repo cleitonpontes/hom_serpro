@@ -8,6 +8,7 @@
 namespace App\Http\Controllers\Apropriacao;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApropriacaoContratoFaturas;
 use App\Models\ApropriacaoFaturas;
 use App\Models\ApropriacoesFaturasContratofaturas;
 use App\Models\Contratofatura;
@@ -70,6 +71,61 @@ class FaturaController extends Controller
         $html = $this->retornaHtmlGrid();
         return view('backpack::mod.apropriacao.fatura', compact('html'));
     }
+
+    public function create($id)
+    {
+        // Validar se fatura(s) já não foi ou está em apropriação
+
+        DB::transaction(function () use ($id) {
+            $fatura = Contratofatura::findOrFail($id);
+
+            $apropriacao = ApropriacaoFaturas::create([
+                'valor' => $fatura->valorliquido,
+                'fase_id' => 1
+            ]);
+
+            $link = ApropriacaoContratoFaturas::create([
+                'apropriacoes_faturas_id' => $apropriacao->id,
+                'contratofaturas_id' => $fatura->id
+            ]);
+
+            return $link;
+        });
+
+        return redirect()->route('apropriacao.faturas');
+    }
+
+    public function createMany($ids)
+    {
+        // Validar se faturas já não foram ou estão em apropriação
+
+        DB::transaction(function () use ($ids) {
+            $fatura = Contratofatura::where('id', $ids);
+
+            $apropriacao = ApropriacaoFaturas::create([
+                'valor' => $fatura->valorliquido,
+                'fase_id' => 1
+            ]);
+
+            $link = ApropriacaoContratoFaturas::createMany([
+                // TODO trocar ...::create para ...::createMany
+                'apropriacoes_faturas_id' => $apropriacao->id,
+                'contratofaturas_id' => $fatura->id
+            ]);
+
+            return $link;
+        });
+
+        return redirect()->route('apropriacao.faturas');
+    }
+
+    public function validarFaturasSemApropriacao($ids)
+    {
+        // Gerar validação
+        return true;
+    }
+
+
 
     /**
      * Monta $html com definições para montagem do Grid
@@ -202,6 +258,8 @@ class FaturaController extends Controller
         $acoes .= "</a> ";
 
         // $acoes .= '</div>';
+
+        return '<p> ações </p>';
 
         return $acoes;
     }

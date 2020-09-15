@@ -22,9 +22,10 @@
 
         <div class="box-body">
             <div class="box-tools">
-                {!! Button::primary('<i class="fa fa-plus"></i> Nova apropriação')
-                    ->asLinkTo(route('folha.apropriacao.passo.1'))
-                !!}
+                <a class="btn btn-primary disabled" href="{{ route('folha.apropriacao.passo.1') }}">
+                    <i class="fa fa-plus"></i>
+                    Nova apropriação
+                </a>
                 <div class="btn-group">
                     {!! DropdownButton::normal('<i class="fa fa-gear"></i> Exportação')->withContents([
                         ['url' => '/admin/downloadapropriacao/xlsx', 'label' => '<i class="fa fa-file-excel-o"></i> xlsx '],
