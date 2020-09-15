@@ -197,9 +197,14 @@ Route::group([
             Route::get('/saldohistoricoitens/carregaritens/{tipo}/{contratohistorico_id}', 'SaldohistoricoitemCrudController@carregarItens');
 
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
-                CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
-                CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
                 CRUD::resource('faturas', 'ContratofaturaCrudController');
+                CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
+                CRUD::resource('servicos', 'ContratoServicoCrudController');
+                CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
+            });
+            Route::group(['prefix' => 'meus-servicos/{contratoitem_servico_id}'], function () {
+                CRUD::resource('indicadores', 'ContratoItemServicoIndicadorCrudController');
+                CRUD::resource('glosas', 'GlosaCrudController');
             });
 
 //            Route::get('/notificausers', 'ContratoCrudController@notificaUsers');
