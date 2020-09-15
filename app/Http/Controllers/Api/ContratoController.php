@@ -22,6 +22,7 @@ use App\Models\Contratoresponsavel;
 use App\Http\Controllers\Controller;
 use App\Models\Contratoterceirizado;
 use App\Models\Contratodespesaacessoria;
+use OpenApi\Annotations as OA;
 
 class ContratoController extends Controller
 {
@@ -347,8 +348,42 @@ class ContratoController extends Controller
         return json_encode($ocorrencias_array);
     }
 
+
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     operationId="contrato",
+     *     summary="Retorna uma lista com todos os terceirizados do contrato",
+     *     description="Retorna um Json de terceirizados do contrato",
+     *     path="/api/contrato/{contrato_id}/terceirizados",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de terceirizados do contrato retornada com sucesso",
+     *         @OA\JsonContent(
+     *              @OA\Items(ref="#/components/schemas/Terceirizados")
+     *         ),
+     *     ),
+     *     @OA\Components(
+     *         @OA\Schema(
+     *             schema="Terceirizados",
+     *             type="object",
+     *             @OA\Property(properties="id",type="integer",format="int64"),
+     *             @OA\Property(properties="name",type="string")
+     *         )
+     *     )
+     * )
+     */
     public function terceirizadosPorContratoId(int $contrato_id)
     {
+
+
+
         $terceirizados_array = [];
         $terceirizados = $this->buscaTerceirizadosPorContratoId($contrato_id);
 
@@ -529,16 +564,7 @@ class ContratoController extends Controller
         return $arquivos;
     }
 
-    /**
-     * @OA\Get(
-     *     tags={"course"},
-     *     summary="Returns a list of courses",
-     *     description="Returns a object of courses",
-     *     path="/V1/course",
-     *     @OA\Response(response="200", description="A list with courses"),
-     * ),
-     *
-     */
+
     public function contratoAtivoAll()
     {
         $contratos_array = [];
@@ -594,6 +620,7 @@ class ContratoController extends Controller
         return json_encode($contratos_array);
 
     }
+
 
     public function contratoAtivoPorUg(int $unidade)
     {

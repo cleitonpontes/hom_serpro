@@ -9,13 +9,22 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use OpenApi\Annotations\OpenApi;
 
 /**
+ *
  * @OA\Info(
  *     title="API Comprasnet",
  *     version="1.0",
  *     @OA\Contact (
  *                  email="heles.junior@agu.gov.br"
- *                 )
- *     )
+ *                 ),
+ *     @OA\License (
+ *                  name="Apache 2.0",
+ *                  url= "http://www.apache.org/licenses/LICENSE-2.0.html"
+ *                 ),
+ *     ),
+ *  @OA\Server(
+ *      url="http://localhost:8080",
+ *      description="API Server"
+ * )
  */
 
 class Controller extends BaseController
