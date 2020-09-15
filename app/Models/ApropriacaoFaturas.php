@@ -9,6 +9,11 @@ class ApropriacaoFaturas extends Model
 {
     protected $table = 'apropriacoes_faturas';
 
+    protected $fillable = [
+        'valor',
+        'fase_id'
+    ];
+
     public function faturas()
     {
         return $this->belongsToMany(

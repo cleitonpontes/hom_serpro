@@ -63,14 +63,6 @@ class ContratofaturaCrudController extends CrudController
             $this->crud->AllowAccess('delete');
         }
 
-
-
-
-
-
-
-        $this->crud->enableBulkActions();
-
         $this->crud->addButton(
             'line',
             'apropriacao_fatura',
@@ -78,24 +70,14 @@ class ContratofaturaCrudController extends CrudController
             'crud::buttons.apropriacao_fatura'
         );
 
+        $this->crud->enableBulkActions();
+
         $this->crud->addButton(
             'bottom',
             'apropriacao_fatura',
             'view',
             'crud::buttons.bulk_apropriacao_fatura'
         );
-
-        /*
-        $this->crud->addButton(
-            'line',
-            'fatura',
-            'view',
-            'crud::buttons.clone'
-            // 'end'
-        );
-        */
-
-
 
         /*
         |--------------------------------------------------------------------------

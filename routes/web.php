@@ -216,8 +216,11 @@ Route::group(
              * {sit}  = Situação
              *
              */
-            Route::get('/fatura', 'FaturaController@index')->name('apropriacao.fatura');
-            Route::get('/fatura/{id}', 'ApropriacaoFaturaController@show')->name('apropriacao.fatura.relatorio');
+            Route::get('/fatura', 'FaturaController@index')->name('apropriacao.faturas');
+            Route::get('/fatura/{id}', 'FaturaController@show')->name('apropriacao.fatura');
+            Route::get('/fatura/nova/{id}', 'FaturaController@create')->name('apropriacao.fatura.create');
+
+            Route::get('/fatura/{id}/relatorio', 'FaturaController@show')->name('apropriacao.fatura.relatorio');
             // Route::delete('/fatura/{id}', 'ApropriacaoFaturaController@destroy')->name('apropriacao.fatura.excluir');
         });
     }
