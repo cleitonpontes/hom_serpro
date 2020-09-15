@@ -11,7 +11,7 @@ use OpenApi\Annotations\OpenApi;
 /**
  *
  * @OA\Info(
- *     title="API Comprasnet",
+ *     title="API Comprasnet Contratos",
  *     version="1.0",
  *     @OA\Contact (
  *                  email="heles.junior@agu.gov.br"
@@ -22,7 +22,7 @@ use OpenApi\Annotations\OpenApi;
  *                 ),
  *     ),
  *  @OA\Server(
- *      url="http://localhost:8080",
+ *      url="http://contratos.comprasnet.gov.br",
  *      description="API Server"
  * )
  */
