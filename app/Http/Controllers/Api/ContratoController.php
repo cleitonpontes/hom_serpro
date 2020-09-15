@@ -22,6 +22,7 @@ use App\Models\Contratoresponsavel;
 use App\Http\Controllers\Controller;
 use App\Models\Contratoterceirizado;
 use App\Models\Contratodespesaacessoria;
+use OpenApi\Annotations as OA;
 
 class ContratoController extends Controller
 {
@@ -170,7 +171,7 @@ class ContratoController extends Controller
         $garantias = $this->buscaGarantiasPorContratoId($contrato_id);
 
         foreach ($garantias as $garantia) {
-            
+
             $garantias_array[] = [
                 //'contrato_id' => $garantia->contrato_id,
                 'tipo' => $garantia->getTipo(),
@@ -180,7 +181,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($garantias_array);      
+        return json_encode($garantias_array);
     }
 
     //feito as cegas (faltou CATMATSER)
@@ -203,7 +204,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($itens_array);     
+        return json_encode($itens_array);
     }
 
     public function prepostosPorContratoId(int $contrato_id)
@@ -230,21 +231,21 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($prepostos_array);      
+        return json_encode($prepostos_array);
     }
 
     public function responsaveisPorContratoId(int $contrato_id)
     {
         $responsaveis_array = [];
         $responsaveis = $this->buscaResponsaveisPorContratoId($contrato_id);
-        
+
         foreach ($responsaveis as $responsavel) {
-            
+
             $responsaveis_array[] = [
 
                 //'contrato_id' => $responsavel->contrato_id,
                 //'user_id' => $responsavel->getUsuarioTransparencia(),
-                
+
                 'usuario' => $this->usuarioTransparencia($responsavel->user->name, $responsavel->user->cpf),
                 'funcao_id' => $responsavel->funcao->descricao,
                 'instalacao_id' => $responsavel->getInstalacao(),
@@ -259,7 +260,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($responsaveis_array);     
+        return json_encode($responsaveis_array);
     }
 
     public function despesasAcessoriasPorContratoId(int $contrato_id)
@@ -279,9 +280,9 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($despesasAcessorias_array);       
+        return json_encode($despesasAcessorias_array);
     }
-    
+
     public function faturasPorContratoId(int $contrato_id)
     {
         $faturas_array = [];
@@ -316,9 +317,9 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($faturas_array);      
+        return json_encode($faturas_array);
     }
-    
+
     public function ocorrenciasPorContratoId(int $contrato_id)
     {
         $ocorrencias_array = [];
@@ -336,7 +337,7 @@ class ContratoController extends Controller
                 'emailpreposto' => $ocorrencia->emailpreposto,
                 //Seria o mesmo que número?
                 'numeroocorrencia' => $ocorrencia->getNumeroOcorrencia(),
-                //possivel erro no formulário, nova situação não é salva 
+                //possivel erro no formulário, nova situação não é salva
                 'novasituacao' => $ocorrencia->getSituacaoNovaConsulta(),
                 'situacao' => $ocorrencia->ocorSituacao->descricao,
                 'arquivos' => $ocorrencia->arquivos,
@@ -344,15 +345,60 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($ocorrencias_array);       
+        return json_encode($ocorrencias_array);
     }
+
+
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os terceirizados do contrato",
+     *     description="Retorna um Json de terceirizados do contrato",
+     *     path="/api/contrato/{contrato_id}/terceirizados",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de terceirizados do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Terceirizados")
+     *         ),
+     *     ),
+     *     @OA\Components(
+     *         @OA\Schema(
+     *             schema="Terceirizados",
+     *             type="object",
+     *             @OA\Property(property="usuario",type="string",example="111.111.111-00 FULANO DE TAL"),
+     *             @OA\Property(property="funcao_id",type="string",example="Ajudante"),
+     *             @OA\Property(property="descricao_complementar",type="string",example="Ajudante de almoxarifado"),
+     *             @OA\Property(property="jornada",type="integer",example="40"),
+     *             @OA\Property(property="unidade",type="string",example="AGU-SEDE"),
+     *             @OA\Property(property="salario",type="number",example="1.200,25"),
+     *             @OA\Property(property="custo",type="number",example="3.200,25"),
+     *             @OA\Property(property="escolaridade_id",type="string",example="Superior completo"),
+     *             @OA\Property(property="data_inicio",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+     *             @OA\Property(property="data_fim",type="string",example="2020-01-31",format=" yyyy-mm-dd"),
+     *             @OA\Property(property="situacao",type="string",example="ativo",),
+     *             @OA\Property(property="telefone_fixo",type="string",example="61-4002-6325"),
+     *             @OA\Property(property="telefone_celular",type="string",example="61-94002-6325"),
+     *             @OA\Property(property="aux_transporte",type="number",example="190,00"),
+     *             @OA\Property(property="vale_alimentacao",type="number",example="560,00")
+     *         )
+     *     )
+     * )
+     */
 
     public function terceirizadosPorContratoId(int $contrato_id)
     {
+
         $terceirizados_array = [];
         $terceirizados = $this->buscaTerceirizadosPorContratoId($contrato_id);
 
         foreach ($terceirizados as $terceirizado) {
+;
             $terceirizados_array[] = [
                 //'contrato_id' => $terceirizado->contrato_id,
                 //'cpf' => $terceirizado->getCpf(),
@@ -373,10 +419,9 @@ class ContratoController extends Controller
                 'aux_transporte' => number_format($terceirizado->aux_transporte, 2, ',', '.'),
                 'vale_alimentacao' => number_format($terceirizado->vale_alimentacao, 2, ',', '.'),
              ];
-
         }
 
-        return json_encode($terceirizados_array);       
+        return json_encode($terceirizados_array);
     }
 
     public function arquivosPorContratoId(int $contrato_id)
@@ -396,7 +441,7 @@ class ContratoController extends Controller
 
         }
 
-        return json_encode($arquivos_array);     
+        return json_encode($arquivos_array);
     }
 
     private function buscaOrgaosComContratosAtivos()
@@ -529,6 +574,7 @@ class ContratoController extends Controller
         return $arquivos;
     }
 
+
     public function contratoAtivoAll()
     {
         $contratos_array = [];
@@ -584,6 +630,7 @@ class ContratoController extends Controller
         return json_encode($contratos_array);
 
     }
+
 
     public function contratoAtivoPorUg(int $unidade)
     {
