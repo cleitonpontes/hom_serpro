@@ -22,7 +22,7 @@ use OpenApi\Annotations\OpenApi;
  *                 ),
  *     ),
  *  @OA\Server(
- *      url="http://contratos.comprasnet.gov.br",
+ *      url="https://contratos.comprasnet.gov.br",
  *      description="API Server"
  * )
  */

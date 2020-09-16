@@ -1,0 +1,123 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Comprasnet Contratos",
+        "contact": {
+            "email": "heles.junior@agu.gov.br"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "https://contratos.comprasnet.gov.br",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/contrato/{contrato_id}/terceirizados": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todos os terceirizados do contrato",
+                "description": "Retorna um Json de terceirizados do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::terceirizadosPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de terceirizados do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Terceirizados"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Terceirizados": {
+                "properties": {
+                    "usuario": {
+                        "type": "string",
+                        "example": "111.111.111-00 FULANO DE TAL"
+                    },
+                    "funcao_id": {
+                        "type": "string",
+                        "example": "Ajudante"
+                    },
+                    "descricao_complementar": {
+                        "type": "string",
+                        "example": "Ajudante de almoxarifado"
+                    },
+                    "jornada": {
+                        "type": "integer",
+                        "example": "40"
+                    },
+                    "unidade": {
+                        "type": "string",
+                        "example": "AGU-SEDE"
+                    },
+                    "salario": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    },
+                    "custo": {
+                        "type": "number",
+                        "example": "3.200,25"
+                    },
+                    "escolaridade_id": {
+                        "type": "string",
+                        "example": "Superior completo"
+                    },
+                    "data_inicio": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "data_fim": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-31"
+                    },
+                    "situacao": {
+                        "type": "string",
+                        "example": "ativo"
+                    },
+                    "telefone_fixo": {
+                        "type": "string",
+                        "example": "61-4002-6325"
+                    },
+                    "telefone_celular": {
+                        "type": "string",
+                        "example": "61-94002-6325"
+                    },
+                    "aux_transporte": {
+                        "type": "number",
+                        "example": "190,00"
+                    },
+                    "vale_alimentacao": {
+                        "type": "number",
+                        "example": "560,00"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}
