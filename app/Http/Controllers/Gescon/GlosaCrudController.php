@@ -57,6 +57,7 @@ class GlosaCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        dd($request->all());
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -82,9 +83,45 @@ class GlosaCrudController extends CrudController
                 'default' => $contratoitem_servico_indicador_id,
             ],
             [   // Range
-                'name' => 'range',
-                'label' => 'Range',
-                'type' => 'range'
+                'name' => 'slider',
+                'label' => 'Faixas de ajuste no pagamento',
+                'type' => 'slider'
+            ],
+            [   // Range
+                'name' => 'slider',
+                'label' => 'Faixas de ajuste no pagamento',
+                'type' => 'slider'
+            ],
+            [   // Number
+                'name' => 'from',
+                'label' => 'A partir de',
+                'type' => 'money',
+                // optionals
+                'attributes' => [
+                    'id' => 'from',
+                ], // allow decimals
+                'prefix' => "> =",
+//                'tab' => 'Dados do serviço',
+            ],
+
+            [   // Number
+                'name' => 'to',
+                'label' => 'Até',
+                'type' => 'money',
+                // optionals
+                'attributes' => [
+                    'id' => 'to',
+                ], // allow decimals
+                'prefix' => "<",
+//                'tab' => 'Dados do serviço',
+            ],
+            [   // Number
+                'name' => 'valor_glosa',
+                'label' => 'Valor da Glosa (%)',
+                'type' => 'money',
+                // optionals
+//                'prefix' => "<",
+//                'tab' => 'Dados do serviço',
             ],
 //            [ // select_from_array
 //                'name' => 'indicador_id',
@@ -97,10 +134,14 @@ class GlosaCrudController extends CrudController
 ////                'tab' => 'Dados do serviço',
 //            ],
             [
-                'name' => 'tipo_afericao',
-                'label' => 'Aferição',
+                'name' => 'escopo',
+                'label' => 'Escopo da Glosa',
                 'type' => 'radio',
-                'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
+                'options' => [
+                    0 => 'Serviço',
+                    1 => 'Fatura',
+                    2 => 'Contrato'
+                ],
                 'default' => 0,
                 'inline' => true,
 //                'tab' => 'Dados do serviço',

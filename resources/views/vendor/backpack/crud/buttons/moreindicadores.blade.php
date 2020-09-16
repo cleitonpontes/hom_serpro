@@ -8,7 +8,7 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right">
         <li><a href="/gescon/meus-servicos/{{$entry->contratoitem_servico_id}}/indicadores">&nbsp;&nbsp;&nbsp;<i
-                    class="fa fa-angle-right"></i>Indicadores</a></li>
+                    class="fa fa-angle-right"></i>Vincular indicadores</a></li>
 
     </ul>
 </div>

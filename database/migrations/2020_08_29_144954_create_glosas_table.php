@@ -20,8 +20,8 @@ class CreateGlosasTable extends Migration
             $table->foreign('contratoitem_servico_indicador_id')->references('id')
                 ->on('contratoitem_servico_indicador')->onDelete('cascade');
 
-            $table->decimal('valor_maior',17,2)->default(0);
-            $table->decimal('valor_menor',17,2)->default(0);
+            $table->decimal('from',17,2)->default(0);
+            $table->decimal('to',17,2)->default(0);
             $table->decimal('valor_glosa',17,2)->default(0);
 
             //TODO FALTA TIPO ESCOPO
