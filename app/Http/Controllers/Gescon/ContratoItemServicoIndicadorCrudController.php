@@ -32,6 +32,8 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 //        $this->crud->setRoute(config('backpack.base.route_prefix') . '/contratoitemservicoindicador');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-servicos/' . $contratoitem_servico_id . '/indicadores');
         $this->crud->setEntityNameStrings('indicador', 'indicadores');
+        $this->crud->removeButton('create');
+        $this->crud->addButtonFromView('top', 'vincular', 'vincularIndicador');
 
         //todo arrumar o botao voltar para o local correto
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
@@ -41,6 +43,12 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         $this->crud->allowAccess('show');
 
         $this->crud->addButtonFromView('line', 'moreglosas', 'moreglosas', 'end');
+
+
+        // Apenas ocorrencias deste contratoitem_servico_id
+        $this->crud->addClause('where', 'contratoitem_servico_indicador.contratoitem_servico_id', '=', $contratoitem_servico_id);
+
+
 
         /*
         |--------------------------------------------------------------------------
@@ -102,6 +110,25 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
                 'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
                 'default' => 0,
                 'inline' => true,
+//                'tab' => 'Dados do serviço',
+            ],
+            [   // Number
+                'name' => 'meta',
+                'label' => 'Meta',
+                'type' => 'money',
+                // optionals
+                'attributes' => [
+                    'id' => 'meta',
+                ], // allow decimals
+            ],
+            [ // select_from_array
+                'name' => 'periodicidade',
+                'label' => 'periodicidade',
+                'type' => 'select2_from_array',
+                'options' => ['Anual','Mensal','Semanal','Diária','Única'],
+                'allows_null' => false,
+                'placeholder' => 'Selecione',
+//                'allows_multiple' => true,
 //                'tab' => 'Dados do serviço',
             ],
 //            [
