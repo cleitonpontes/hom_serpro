@@ -34,7 +34,6 @@ class AditivoCrudController extends CrudController
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
             ->where('descricao', '=', 'Termo Aditivo')
-//            ->Where('descricao', '=', 'Termo de Apostilamento')
             ->first();
 
         /*

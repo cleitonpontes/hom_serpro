@@ -30,6 +30,7 @@ class ContratoObserve
         })
             ->where('descricao', '<>', 'Termo Aditivo')
             ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->where('descricao', '<>', 'Termo de Rescisão')
             ->orderBy('descricao')
             ->pluck('id')
             ->toArray();
