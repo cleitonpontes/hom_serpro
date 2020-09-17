@@ -180,11 +180,8 @@ class ContratoSiasgIntegracaoNovo extends Model
             ];
 
             if (isset($busca->id)) {
-                unset($dados['numero']);
-                unset($dados['contrato_id']);
-                unset($dados['tipo_id']);
-
-                $busca->update($dados);
+                $unidadeOrigem = ['unidadeorigem_id' => $contrato->unidade_id];
+                $busca->update($unidadeOrigem);
             } else {
                 $contratohistorico = Contratohistorico::create($dados);
             }
@@ -398,11 +395,10 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $dado = $this->montaArrayContrato($siasgcontrato, $fornecedor, $json);
 
-        unset($dado['categoria_id']);
-
+        $unidadeOrigem = ['unidadeorigem_id' => $dado['unidade_id']];
 
         $contrato = Contrato::find($contrato_alteracao->id);
-        $contrato->update($dado);
+        $contrato->update($unidadeOrigem);
 
         return $contrato;
 
