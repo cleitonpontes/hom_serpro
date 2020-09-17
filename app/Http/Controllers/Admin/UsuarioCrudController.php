@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Traits\Authorizes;
 use App\Jobs\UserMailPasswordJob;
 use App\Models\BackpackUser;
-use App\Models\Contratoresponsavel;
 use App\Models\Unidade;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -35,13 +34,11 @@ class UsuarioCrudController extends CrudController
         if (!backpack_user()->hasRole('Administrador')) {
             abort('403', config('app.erro_permissao'));
         }
-
-
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuario');
-        $this->crud->setEntityNameStrings('usuario', 'usuarios');
-
-
+        $this->crud->setEntityNameStrings('usuário', 'usuários');
+        $this->crud->addClause('select', 'users.*');
+        $this->crud->addClause('leftJoin', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -50,6 +47,7 @@ class UsuarioCrudController extends CrudController
         (backpack_user()->can('usuario_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('usuario_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('usuario_deletar')) ? $this->crud->allowAccess('delete') : null;
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Columns
@@ -64,7 +62,7 @@ class UsuarioCrudController extends CrudController
                 'label' => 'CPF',
                 'type' => 'text',
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('name', 'ilike', '%' . $searchTerm . '%');
+                    $query->orWhere('cpf', 'ilike', '%' . $searchTerm . '%');
                 }
             ],
             [
@@ -88,27 +86,24 @@ class UsuarioCrudController extends CrudController
                 'visibleInShow' => true,
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     if (strtolower($searchTerm) == 'inativo') {
-                        $query->orWhere('situacao', 0);
+                        $query->orWhere('users.situacao', 0);
                     }
 
                     if (strtolower($searchTerm) == 'ativo') {
-                        $query->orWhere('situacao', 1);
+                        $query->orWhere('users.situacao', 1);
                     }
                 }
             ],
             [
                 'name' => 'getUGPrimaria',
-                'label' => 'UG Primária', // Table column heading
+                'label' => 'UG/UASG Padrão',
                 'type' => 'model_function',
                 'function_name' => 'getUGPrimaria', // the method in your Model
                 'orderable' => true,
-//                'searchLogic' => function ($query, $column, $searchTerm) {
-//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
-//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
-//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
-//                            ->orWhereDate('depart_at', '=', date($searchTerm));
-//                    });
-//                },
+                'searchLogic' => function (Builder $q, $column, $searchTerm) {
+                    $q->orWhere('unidades.codigo', 'ilike', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+                    $q->orWhere('unidades.nomeresumido', 'ilike', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+               },
             ],
             [ // n-n relationship (with pivot table)
                 'label' => trans('backpack::permissionmanager.roles'), // Table column heading
@@ -127,7 +122,6 @@ class UsuarioCrudController extends CrudController
 //                'model' => config('permission.models.permission'), // foreign key model
 //            ],
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -179,7 +173,7 @@ class UsuarioCrudController extends CrudController
             ],
             [
                 // 1-n relationship
-                'label' => "UG Primária", // Table column heading
+                'label' => "UG/UASG Padrão", // Table column heading
                 'type' => "select2_from_ajax",
                 'name' => 'ugprimaria', // the column that contains the ID of that connected entity
                 'entity' => 'ugPrimariaRelation', // the method that defines the relationship in your Model
@@ -194,7 +188,7 @@ class UsuarioCrudController extends CrudController
             ],
             [
                 // n-n relationship
-                'label' => "UG´s Secundárias", // Table column heading
+                'label' => "Demais UGs/UASGs", // Table column heading
                 'type' => "select2_from_ajax_multiple",
                 'name' => 'unidades', // the column that contains the ID of that connected entity
                 'entity' => 'unidades', // the method that defines the relationship in your Model
@@ -210,7 +204,7 @@ class UsuarioCrudController extends CrudController
             ],
 //            [ // select2_from_array
 //                'name' => 'ugprimaria',
-//                'label' => 'UG Primária',
+//                'label' => 'UG/UASG Padrão',
 //                'type' => 'select2_from_array',
 //                'options' => $ugs,
 //                'allows_null' => true,
@@ -218,7 +212,7 @@ class UsuarioCrudController extends CrudController
 //                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
 //            ],
 //            [       // Select2Multiple = n-n relationship (with pivot table)
-//                'label' => 'UG´s Secundárias',
+//                'label' => 'Demais UGs/UASGs',
 //                'type' => 'select2_multiple',
 //                'name' => 'unidades', // the method that defines the relationship in your Model
 //                'entity' => 'unidades', // the method that defines the relationship in your Model
@@ -282,12 +276,10 @@ class UsuarioCrudController extends CrudController
 //            ],
         ]);
 
-
         // add asterisk for fields that are required in UsuarioRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
-
     }
 
     public function store(StoreRequest $request)
@@ -334,4 +326,5 @@ class UsuarioCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
+
 }

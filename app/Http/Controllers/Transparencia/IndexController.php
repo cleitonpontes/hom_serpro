@@ -64,14 +64,12 @@ class IndexController extends Controller
         $datas_anoref['fim_cronograma'] = $base->retornaDataMaisOuMenosQtdTipoFormato('Y','+','2', 'years', date('Y-m-d'));
         $graficoContratosCronograma = $this->geraGraficoContratosCronograma($filtro,$datas_anoref);
 
-
         $dt30 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','30', 'days', date('Y-m-d'));
         $dt60 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','60', 'days', date('Y-m-d'));
         $dt90 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','90', 'days', date('Y-m-d'));
         $dt180 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','180', 'days', date('Y-m-d'));
         $dt999 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','99', 'years', date('Y-m-d'));
         $dt000 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','-','99', 'years', date('Y-m-d'));
-
 
         $url_datas['dt30'] = '{"from":"'.$dt000.'","to":"'.$dt30.'"}';
         $url_datas['dt3060'] = '{"from":"'.$dt30.'","to":"'.$dt60.'"}';
@@ -81,15 +79,14 @@ class IndexController extends Controller
 
         $url_filtro = '';
         if (isset($filtro['orgao'])) {
-            $url_filtro .= 'orgao='.strval($filtro['orgao']).'&';
+            $url_filtro .= 'orgao=["' . strval($filtro['orgao']) . '"]&';
         }
         if (isset($filtro['unidade'])) {
-            $url_filtro .= 'unidade='.strval($filtro['unidade']).'&';
+            $url_filtro .= 'unidade=["' . strval($filtro['unidade']) . '"]&';
         }
         if (isset($filtro['fornecedor'])) {
-            $url_filtro .= 'fornecedor='.strval($filtro['fornecedor']).'&';
+            $url_filtro .= 'fornecedor=["' . strval($filtro['fornecedor']) . '"]&';
         }
-
 
         $this->data['contratos_total_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_TOTAL,
             $filtro);
@@ -104,6 +101,7 @@ class IndexController extends Controller
         $this->data['contratos_vencer180_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_180,
             $filtro, [$dt180]);
         $this->data['contratos_total_percentual'] = '100%';
+
         if ($this->data['contratos_total_numero'] > 0) {
             $this->data['contratos_vencer30_percentual'] = number_format($this->data['contratos_vencer30_numero'] / $this->data['contratos_total_numero'] * 100,
                     0, ',', '') . '%';
@@ -123,7 +121,6 @@ class IndexController extends Controller
             $this->data['contratos_vencer180_percentual'] = '0%';
         }
 
-
         return view('backpack::consultapublica', [
             'data' => $this->data,
             'form' => $form,
@@ -133,7 +130,6 @@ class IndexController extends Controller
             'anoref' => $datas_anoref,
             'url_filtro' => $url_filtro,
             'url_datas' => $url_datas
-
         ]);
     }
 
@@ -157,6 +153,7 @@ class IndexController extends Controller
         $referencias->groupBy(['anoref', 'mesref']);
         $referencias->orderBy('anoref', 'asc');
         $referencias->orderBy('mesref', 'asc');
+
         if (isset($filtro['orgao'])) {
             $referencias->where('orgaos.codigo', $filtro['orgao']);
         }
@@ -171,7 +168,6 @@ class IndexController extends Controller
         }
         $refs = $referencias->pluck('referencia')->toArray();
 
-
         $valores = DB::table('contratocronograma');
         $valores->select(DB::raw('sum(contratocronograma.valor)'));
         $valores->join('contratos', 'contratos.id', '=', 'contratocronograma.contrato_id');
@@ -184,6 +180,7 @@ class IndexController extends Controller
         $valores->groupBy(['anoref', 'mesref']);
         $valores->orderBy('anoref', 'asc');
         $valores->orderBy('mesref', 'asc');
+
         if (isset($filtro['orgao'])) {
             $valores->where('orgaos.codigo', $filtro['orgao']);
         }
@@ -242,7 +239,6 @@ class IndexController extends Controller
         }");
 
         return $chartjs;
-
     }
 
     private function geraGraficoContratosPorAno(array $filtro = null)
@@ -256,6 +252,7 @@ class IndexController extends Controller
         $anos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $anos->where('contratos.situacao', '=', true);
         $anos->orderBy('ano', 'desc');
+
         if (isset($filtro['orgao'])) {
             $anos->where('orgaos.codigo', $filtro['orgao']);
         }
@@ -270,7 +267,6 @@ class IndexController extends Controller
         }
         $anos = $anos->pluck('ano')->toArray();
 
-
         $contratos = DB::table('contratos');
         $contratos->select(DB::raw('extract(year from contratos.data_assinatura) as ano, count(contratos.numero)'));
         $contratos->join('unidades', 'unidades.id', '=', 'contratos.unidade_id');
@@ -279,6 +275,7 @@ class IndexController extends Controller
         $contratos->where('contratos.situacao', '=', true);
         $contratos->orderBy('ano', 'desc');
         $contratos->groupBy('ano');
+
         if (isset($filtro['orgao'])) {
             $contratos->where('orgaos.codigo', $filtro['orgao']);
         }
@@ -315,7 +312,6 @@ class IndexController extends Controller
             ]);
 
         return $chartjs;
-
     }
 
     private function buscaNumeroContratosPorPeriodoVencimento(string $tipo, array $filtro = null, array $datas = null)
@@ -368,6 +364,7 @@ class IndexController extends Controller
         $contratos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $contratos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $contratos->where('contratos.situacao', '=', true);
+
         if (isset($filtro['orgao'])) {
             $contratos->where('orgaos.codigo', $filtro['orgao']);
         }
@@ -434,6 +431,7 @@ class IndexController extends Controller
         $contratos->where('contratos.situacao', '=', true);
         $contratos->orderBy('categoria_id', 'asc');
         $contratos->groupBy('categoria_id');
+
         if (isset($filtro['orgao'])) {
             $contratos->where('orgaos.codigo', $filtro['orgao']);
         }
@@ -464,9 +462,7 @@ class IndexController extends Controller
             ]);
 
         return $chartjs;
-
     }
-
 
     private function trataDadosView(array $campos)
     {
@@ -512,7 +508,6 @@ class IndexController extends Controller
             'fornecedor' => $fornecedor,
             'contrato' => $contrato
         ];
-
     }
 
 }

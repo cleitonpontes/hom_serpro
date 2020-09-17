@@ -15,6 +15,19 @@
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+@php
+    $id_google = config('app.google_analytics');
+@endphp
+<script async src="https://www.googletagmanager.com/gtag/js?id={{$id_google}}"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '{{$id_google}}');
+</script>
+
 {{-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{ asset('vendor/adminlte') }}/bower_components/jquery/dist/jquery.min.js"><\/script>')</script> --}}
 
@@ -79,7 +92,7 @@
     }
 
     function mascaraContrato(element) {
-        $(element).mask("9999/9999");
+        $(element).mask("99999/9999");
     }
 
     $(document).ready(function() {

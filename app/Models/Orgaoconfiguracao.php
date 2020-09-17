@@ -44,6 +44,16 @@ class Orgaoconfiguracao extends Model
         return $orgao->codigo . ' - ' . $orgao->nome;
     }
 
+
+    public function getTipoMigracao()
+    {
+        if(!isset($this->tipomigracao)){
+            return '';
+        }
+
+        return ($this->tipomigracao == 'CONTA') ? 'Sistema Conta' : 'Comprasnet Contratos';
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

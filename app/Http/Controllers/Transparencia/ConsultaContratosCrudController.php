@@ -3,23 +3,15 @@
 namespace App\Http\Controllers\Transparencia;
 
 use App\Models\Codigoitem;
-use App\Models\Fornecedor;
-use App\Models\Orgao;
-use App\Models\Unidade;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
-
-// VALIDATION: change the requests to match your own file names if you need form validation
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use function foo\func;
 
 /**
  * Class ConsultaContratosCrudController
  * @package App\Http\Controllers\Admin
  * @property-read CrudPanel $crud
  */
-class ConsultaContratosCrudController extends CrudController
+class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
 {
     public function setup()
     {
@@ -28,28 +20,16 @@ class ConsultaContratosCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-        $orgao_cod = request()->input('orgao') ?? '';
 
         $this->crud->setModel('App\Models\Contrato');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/transparencia/contratos');
         $this->crud->setEntityNameStrings('Consulta Contrato', 'Consulta Contratos');
+
         $this->crud->addClause('select', 'contratos.*');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $this->crud->addClause('join', 'orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
-//        if (isset($orgao->id)) {
-//            $this->crud->addClause('where', 'orgaos.id', '=', $orgao->id);
-//        }
         $this->crud->addClause('where', 'contratos.situacao', '=', true);
-
-
-        $this->crud->enableExportButtons();
-        $this->crud->allowAccess('show');
-        $this->crud->denyAccess('create');
-//        $this->crud->denyAccess('revisions');
-        $this->crud->denyAccess('update');
-        $this->crud->denyAccess('delete');
-//        $this->crud->removeAllButtonsFromStack('line');
 
         /*
         |--------------------------------------------------------------------------
@@ -57,43 +37,51 @@ class ConsultaContratosCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $colunas = $this->Colunas();
-        $this->crud->addColumns($colunas);
+        $this->defineConfiguracaoPadrao();
 
-        $orgaos = Orgao::select(DB::raw("CONCAT(codigo,' - ',nome) AS nome"), 'codigo')
-            ->whereHas('unidades', function ($u) {
-                $u->whereHas('contratos', function ($c) {
-                    $c->where('situacao', true);
-                });
-            })
-            ->pluck('nome', "codigo")
-            ->toArray();
+    }
 
-        $unidades = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'codigo')
-            ->whereHas('contratos', function ($u) {
-                $u->where('situacao', true);
-            })
-            ->pluck('nome', "codigo")
-            ->toArray();
+    public function show($id)
+    {
+        $content = parent::show($id);
 
-        if ($orgao_cod) {
-            $unidades = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'codigo')
-                ->whereHas('contratos', function ($u) {
-                    $u->where('situacao', true);
-                })
-                ->whereHas('orgao', function ($o) use ($orgao_cod) {
-                    $o->where('codigo', $orgao_cod);
-                })
-                ->pluck('nome', "codigo")
-                ->toArray();
-        }
+        $this->crud->removeColumns([
+            'fornecedor_id',
+            'unidade_id',
+            'tipo_id',
+            'categoria_id',
+            'fundamento_legal',
+            'modalidade_id',
+            'licitacao_numero',
+            'data_assinatura',
+            'data_publicacao',
+            'valor_inicial',
+            'valor_global',
+            'valor_parcela',
+            'valor_acumulado',
+            'total_despesas_acessorias',
+            'receita_despesa',
+            'subcategoria_id',
+            'situacao_siasg',
+            'situacao',
+        ]);
 
-        $fonecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'cpf_cnpj_idgener')
-            ->whereHas('contratos', function ($u) {
-                $u->where('situacao', true);
-            })
-            ->pluck('nome', "cpf_cnpj_idgener")
-            ->toArray();
+        return $content;
+    }
+
+    protected function aplicaFiltrosEspecificos(): void
+    {
+        $this->crud->addFilter([
+            'name' => 'receita_despesa',
+            'type' => 'select2_multiple',
+            'label' => 'Receita / Despesa'
+        ], [
+            'R' => 'Receita',
+            'D' => 'Despesa',
+        ], function ($value) {
+            $this->crud->addClause('whereIn'
+                , 'contratos.receita_despesa', json_decode($value));
+        });
 
         $tipos = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
@@ -104,74 +92,31 @@ class ConsultaContratosCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
+        $this->crud->addFilter([
+            'name' => 'tipo_contrato',
+            'type' => 'select2_multiple',
+            'label' => 'Tipo'
+        ], $tipos
+            , function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'contratos.tipo_id', json_decode($value));
+            });
+
         $categorias = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Categoria Contrato');
         })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
-
-        $this->crud->addFilter([ // dropdown filter
-            'name' => 'orgao',
-            'type' => 'select2',
-            'label' => 'Órgão'
-        ], function () use ($orgaos) {
-            return $orgaos;
-        }, function ($value) {
-            $this->crud->addClause('where', 'orgaos.codigo', $value);
-        });
-
-        $this->crud->addFilter([ // dropdown filter
-            'name' => 'unidade',
-            'type' => 'select2',
-            'label' => 'Unidade Gestora'
-        ], function () use ($unidades) {
-            return $unidades;
-        }, function ($value) {
-            $this->crud->addClause('where', 'unidades.codigo', $value);
-        });
-
-        $this->crud->addFilter([ // dropdown filter
-            'name' => 'fornecedor',
-            'type' => 'select2',
-            'label' => 'Fornecedor'
-        ], function () use ($fonecedores) {
-            return $fonecedores;
-        }, function ($value) {
-            $this->crud->addClause('where', 'fornecedores.cpf_cnpj_idgener', $value);
-        });
-
-        $this->crud->addFilter([ // dropdown filter
-            'name' => 'receita_despesa',
-            'type' => 'dropdown',
-            'label' => 'Receita / Despesa'
-        ], [
-            'R' => 'Receita',
-            'D' => 'Despesa',
-        ], function ($value) { // if the filter is active
-            $this->crud->addClause('where', 'contratos.receita_despesa', $value);
-        });
-
-        $this->crud->addFilter([ // dropdown filter
-            'name' => 'tipo_contrato',
-            'type' => 'dropdown',
-            'label' => 'Tipo'
-        ], $tipos, function ($value) { // if the filter is active
-            $this->crud->addClause('where', 'contratos.tipo_id', $value);
-        });
-
-
-        $this->crud->addFilter([ // select2_multiple filter
+        $this->crud->addFilter([
             'name' => 'categorias',
             'type' => 'select2_multiple',
             'label' => 'Categorias'
-        ], function () use ($categorias) {
-            return $categorias;
-        }, function ($values) { // if the filter is active
-            foreach (json_decode($values) as $key => $value) {
-                $this->crud->addClause('where', 'contratos.categoria_id', $value);
-            }
-        });
+        ], $categorias
+            , function ($values) {
+                $this->crud->addClause('whereIn'
+                    , 'contratos.categoria_id', json_decode($values));
+            });
 
-        $this->crud->addFilter([ // daterange filter
+        $this->crud->addFilter([
             'type' => 'date_range',
             'name' => 'vigencia_inicio',
             'label' => 'Vigência Inicio'
@@ -183,7 +128,7 @@ class ConsultaContratosCrudController extends CrudController
                 $this->crud->addClause('where', 'contratos.vigencia_inicio', '<=', $dates->to . ' 23:59:59');
             });
 
-        $this->crud->addFilter([ // daterange filter
+        $this->crud->addFilter([
             'type' => 'date_range',
             'name' => 'vigencia_fim',
             'label' => 'Vigência Fim'
@@ -230,111 +175,98 @@ class ConsultaContratosCrudController extends CrudController
                     $this->crud->addClause('where', 'contratos.valor_parcela', '<=', (float)$range->to);
                 }
             });
-
-
     }
 
-    public function Colunas()
+    protected function adicionaColunasEspecificasNaListagem(): void
     {
-        $colunas = [
+        $this->crud->addColumns([
             [
-                'name' => 'getOrgao',
-                'label' => 'Órgão', // Table column heading
+                'name' => 'getUnidadeOrigem',
+                'label' => 'Unidade Gestora Origem',
                 'type' => 'model_function',
-                'function_name' => 'getOrgao', // the method in your Model
+                'function_name' => 'getUnidadeOrigem',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-            [
-                'name' => 'getUnidade',
-                'label' => 'Unidade Gestora', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getUnidade', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'getReceitaDespesa',
-                'label' => 'Receita / Despesa', // Table column heading
+                'label' => 'Receita / Despesa',
                 'type' => 'model_function',
-                'function_name' => 'getReceitaDespesa', // the method in your Model
+                'function_name' => 'getReceitaDespesa',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'numero',
                 'label' => 'Número Contrato',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'unidades_requisitantes',
                 'label' => 'Unidades Requisitantes',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'getTipo',
-                'label' => 'Tipo', // Table column heading
+                'label' => 'Tipo',
                 'type' => 'model_function',
-                'function_name' => 'getTipo', // the method in your Model
+                'function_name' => 'getTipo',
 
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'getCategoria',
-                'label' => 'Categoria', // Table column heading
+                'label' => 'Categoria',
                 'type' => 'model_function',
-                'function_name' => 'getCategoria', // the method in your Model
+                'function_name' => 'getCategoria',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'getSubCategoria',
-                'label' => 'Subcategoria', // Table column heading
+                'label' => 'Subcategoria',
                 'type' => 'model_function',
-                'function_name' => 'getSubCategoria', // the method in your Model
+                'function_name' => 'getSubCategoria',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'getFornecedor',
-                'label' => 'Fornecedor', // Table column heading
+                'label' => 'Fornecedor',
                 'type' => 'model_function',
-                'function_name' => 'getFornecedor', // the method in your Model
+                'function_name' => 'getFornecedor',
                 'orderable' => true,
                 'limit' => 1000,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
                     $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
@@ -345,10 +277,10 @@ class ConsultaContratosCrudController extends CrudController
                 'label' => 'Processo',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'objeto',
@@ -356,102 +288,111 @@ class ConsultaContratosCrudController extends CrudController
                 'type' => 'text',
                 'limit' => 1000,
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'info_complementar',
                 'label' => 'Informações Complementares',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'vigencia_inicio',
                 'label' => 'Vig. Início',
                 'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'vigencia_fim',
                 'label' => 'Vig. Fim',
                 'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatVlrGlobal',
-                'label' => 'Valor Global', // Table column heading
+                'label' => 'Valor Global',
                 'type' => 'model_function',
-                'function_name' => 'formatVlrGlobal', // the method in your Model
+                'function_name' => 'formatVlrGlobal',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'num_parcelas',
                 'label' => 'Núm. Parcelas',
                 'type' => 'number',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatVlrParcela',
-                'label' => 'Valor Parcela', // Table column heading
+                'label' => 'Valor Parcela',
                 'type' => 'model_function',
-                'function_name' => 'formatVlrParcela', // the method in your Model
+                'function_name' => 'formatVlrParcela',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatVlrAcumulado',
-                'label' => 'Valor Acumulado', // Table column heading
+                'label' => 'Valor Acumulado',
                 'type' => 'model_function',
-                'function_name' => 'formatVlrAcumulado', // the method in your Model
+                'function_name' => 'formatVlrAcumulado',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatTotalDespesasAcessorias',
-                'label' => 'Total Despesas Acessórias', // Table column heading
+                'label' => 'Total Despesas Acessórias',
                 'type' => 'model_function',
-                'function_name' => 'formatTotalDespesasAcessorias', // the method in your Model
+                'function_name' => 'formatTotalDespesasAcessorias',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'historico',
                 'label' => 'Histórico',
                 'type' => 'contratohistoricotable',
                 'visibleInTable' => false,
-                'visibleInModal' => false, // would make the modal too big
-                'visibleInExport' => false, // not important enough
+                'visibleInModal' => false,
+                'visibleInExport' => false,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'empenho',
+                'label' => 'Empenhos',
+                'type' => 'empenhotable',
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => false,
                 'visibleInShow' => true,
             ],
             [
@@ -460,43 +401,10 @@ class ConsultaContratosCrudController extends CrudController
                 'type' => 'arquivos',
                 'disk' => 'local',
                 'visibleInTable' => false,
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
+                'visibleInModal' => true,
+                'visibleInExport' => true,
                 'visibleInShow' => true,
             ]
-        ];
-
-        return $colunas;
-
-    }
-
-    public function show($id)
-    {
-        $content = parent::show($id);
-
-        $this->crud->removeColumns([
-            'fornecedor_id',
-            'unidade_id',
-            'tipo_id',
-            'categoria_id',
-            'fundamento_legal',
-            'modalidade_id',
-            'licitacao_numero',
-            'data_assinatura',
-            'data_publicacao',
-            'valor_inicial',
-            'valor_global',
-            'valor_parcela',
-            'valor_acumulado',
-            'total_despesas_acessorias',
-            'receita_despesa',
-            'subcategoria_id',
-            'situacao_siasg',
-            'situacao',
         ]);
-
-
-        return $content;
     }
-
 }

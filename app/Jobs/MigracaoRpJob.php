@@ -21,16 +21,16 @@ class MigracaoRpJob implements ShouldQueue
 
     public $timeout = 7200;
 
-    protected $ug_id;
+    protected $ug_codigo;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(string $ug_id)
+    public function __construct(string $ug_codigo)
     {
-        $this->ug_id = $ug_id;
+        $this->ug_codigo = $ug_codigo;
     }
 
     /**
@@ -40,16 +40,14 @@ class MigracaoRpJob implements ShouldQueue
      */
     public function handle()
     {
-        $unidade = Unidade::find($this->ug_id);
-        $rp_antigos = $this->atualizaEmpenhosRpsAntigos($this->ug_id);
+        $unidade = Unidade::where('codigo', $this->ug_codigo)->first();
+        $rp_antigos = $this->atualizaEmpenhosRpsAntigos($unidade->id);
 
         $ano = date('Y');
 
         $migracao_url = config('migracao.api_sta');
-        $url = $migracao_url . '/api/rp/ug/' . $unidade->codigo;
-        //        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
-//            true);
 
+        $url = $migracao_url . '/api/rp/ug/' . $unidade->codigo . '/dia';
 
         $dados = $this->buscaDadosUrl($url);
 
@@ -61,10 +59,9 @@ class MigracaoRpJob implements ShouldQueue
                 $pi = $this->buscaPi($d);
             }
 
+            $pi_id = null;
             if (isset($pi->id)) {
                 $pi_id = $pi->id;
-            } else {
-                $pi_id = null;
             }
 
             $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
@@ -121,6 +118,22 @@ class MigracaoRpJob implements ShouldQueue
         return $empenhos;
     }
 
+    public function buscaDadosUrl($url)
+    {
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1500);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1500);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode($data, true);
+
+    }
+
     public function buscaFornecedor($credor)
     {
 
@@ -128,14 +141,9 @@ class MigracaoRpJob implements ShouldQueue
             ->first();
 
         if (!$fornecedor) {
-            $tipo = 'JURIDICA';
-            if (strlen($credor['cpfcnpjugidgener']) == 14) {
-                $tipo = 'FISICA';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
-                $tipo = 'IDGENERICO';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
-                $tipo = 'UG';
-            };
+            $tipoFornecedor = [14 => 'FISICA', 9 => 'IDGENERICO', 6 => 'UG'];
+
+            $tipo = $tipoFornecedor[strlen($credor['cpfcnpjugidgener'])] ?? 'JURIDICA';
 
             $fornecedor = Fornecedor::create([
                 'tipo_fornecedor' => $tipo,
@@ -158,34 +166,18 @@ class MigracaoRpJob implements ShouldQueue
             ->first();
 
         if (!$planointerno) {
-            $planointerno = Planointerno::create([
+            return Planointerno::create([
                 'codigo' => $pi['picodigo'],
                 'descricao' => strtoupper($pi['pidescricao']),
                 'situacao' => true
             ]);
-        } else {
-            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
-                $planointerno->descricao = strtoupper($pi['pidescricao']);
-                $planointerno->save();
-            }
+        }
+
+        if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
+            $planointerno->descricao = strtoupper($pi['pidescricao']);
+            $planointerno->save();
         }
         return $planointerno;
-    }
-
-    public function buscaDadosUrl($url)
-    {
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 1500);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1500);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $data = curl_exec($ch);
-
-        curl_close($ch);
-
-        return json_decode($data, true);
-
     }
 
 }

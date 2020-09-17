@@ -29,6 +29,7 @@ class Contratohistorico extends ContratoBase
         'contrato_id',
         'fornecedor_id',
         'unidade_id',
+        'unidadeorigem_id',
         'tipo_id',
         'categoria_id',
         'subcategoria_id',
@@ -62,6 +63,7 @@ class Contratohistorico extends ContratoBase
         'retroativo_soma_subtrai',
         'unidades_requisitantes',
         'situacao',
+        'supressao'
     ];
 
     /*
@@ -127,10 +129,6 @@ class Contratohistorico extends ContratoBase
         $fornecedorNome = $this->fornecedor->nome;
 
         return $fornecedorCpfCnpj . ' - ' . $fornecedorNome;
-
-        $fornecedor = Fornecedor::find($this->fornecedor_id);
-
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
     }
 
     public function getModalidade()
@@ -191,6 +189,15 @@ class Contratohistorico extends ContratoBase
         $unidade = Unidade::find($this->unidade_id);
 
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+    }
+
+    public function getUnidadeOrigemHistorico()
+    {
+        if(!isset($this->unidadeorigem_id)){
+            return '';
+        }
+
+        return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
     }
 
     public function getOrgaoHistorico()
@@ -278,6 +285,15 @@ class Contratohistorico extends ContratoBase
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
     }
 
+    public function getUnidadeOrigem()
+    {
+        if(!isset($this->unidadeorigem_id)){
+            return '';
+        }
+
+        return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
+    }
+
     public function getOrgao()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
@@ -301,9 +317,9 @@ class Contratohistorico extends ContratoBase
     }
     */
 
-    public function categoria()
+    public function fornecedor()
     {
-        return $this->belongsTo(Codigoitem::class, 'categoria_id');
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
     }
 
     public function cronograma()
@@ -311,9 +327,14 @@ class Contratohistorico extends ContratoBase
         return $this->hasMany(Contratocronograma::class, 'contratohistorico_id');
     }
 
-    public function fornecedor()
+    public function unidadeorigem()
     {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+        return $this->belongsTo(Unidade::class, 'unidadeorigem_id');
+    }
+
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
     }
 
     public function modalidade()
@@ -329,11 +350,6 @@ class Contratohistorico extends ContratoBase
     public function saldosItens()
     {
         return $this->morphMany(Saldohistoricoitem::class, 'saldoable');
-    }
-
-    public function tipo()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_id');
     }
 
     public function unidade()

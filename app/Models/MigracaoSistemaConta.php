@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Http\Controllers\AdminController;
@@ -526,7 +525,6 @@ class MigracaoSistemaConta extends Model
     private function buscaFornecedor($cnpj, $nome)
     {
         $base = new AdminController();
-
         $tipo = 'JURIDICA';
         if (strlen($cnpj) == 11) {
             $tipo = 'FISICA';
@@ -535,7 +533,6 @@ class MigracaoSistemaConta extends Model
         } elseif (strlen($cnpj) == 6) {
             $tipo = 'UG';
         };
-
         $cpf_cnpj_idgener = $base->formataCnpjCpfTipo($cnpj, $tipo);
 
         $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $cpf_cnpj_idgener)
@@ -565,8 +562,6 @@ class MigracaoSistemaConta extends Model
         return $this->belongsTo(Orgao::class, 'orgao_id');
 
     }
-
-
 
 
 }

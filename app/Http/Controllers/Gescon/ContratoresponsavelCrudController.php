@@ -64,7 +64,7 @@ class ContratoresponsavelCrudController extends CrudController
         $this->crud->addColumns([
             [
                 'name' => 'getContrato',
-                'label' => 'Número Contrato', // Table column heading
+                'label' => 'Número do instrumento', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContrato', // the method in your Model
                 'orderable' => true,
@@ -97,6 +97,26 @@ class ContratoresponsavelCrudController extends CrudController
 //                            ->orWhereDate('depart_at', '=', date($searchTerm));
 //                    });
 //                },
+            ],
+            [
+                'name' => 'telefone_fixo',
+                'label' => 'Telefone Fixo',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'telefone_celular',
+                'label' => 'Telefone Celular',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'getFuncao',
@@ -203,7 +223,7 @@ class ContratoresponsavelCrudController extends CrudController
         $this->crud->addFields([
             [ // select_from_array
                 'name' => 'contrato_id',
-                'label' => "Número Contrato",
+                'label' => "Número do instrumento",
                 'type' => 'select_from_array',
                 'options' => $con,
                 'allows_null' => false,
@@ -218,6 +238,18 @@ class ContratoresponsavelCrudController extends CrudController
                 'allows_null' => true,
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'telefone_fixo',
+                'label' => 'Telefone Fixo',
+                'type' => 'telefone',
+                'allows_null' => false,
+            ],
+            [
+                'name' => 'telefone_celular',
+                'label' => 'Telefone Celular',
+                'type' => 'celular',
+                'allows_null' => false,
             ],
             [ // select_from_array
                 'name' => 'funcao_id',

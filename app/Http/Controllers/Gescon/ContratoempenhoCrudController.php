@@ -92,7 +92,7 @@ class ContratoempenhoCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'getContrato',
-                'label' => 'Contrato', // Table column heading
+                'label' => 'Número do instrumento', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContrato', // the method in your Model
                 'orderable' => true,
@@ -271,21 +271,26 @@ class ContratoempenhoCrudController extends CrudController
         $campos = [
             [ // select_from_array
                 'name' => 'contrato_id',
-                'label' => "Contrato",
+                'label' => "Número do instrumento",
                 'type' => 'select2_from_array',
                 'options' => $contrato,
                 'allows_null' => false,
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
-            [ // select_from_array
-                'name' => 'fornecedor_id',
-                'label' => "Favorecido",
-                'type' => 'select2_from_array',
-                'options' => $fornecedores,
-                'allows_null' => true,
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            [
+                // 1-n relationship
+                'label' => "Favorecido", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'fornecedor_id', // the column that contains the ID of that connected entity
+                'entity' => 'fornecedor', // the method that defines the relationship in your Model
+                'attribute' => "cpf_cnpj_idgener", // foreign key attribute that is shown to user
+                'attribute2' => "nome", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_fornecedor',
+                'model' => "App\Models\Fornecedor", // foreign key model
+                'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione o favorecido", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
             ],
             [ // select2_from_ajax: 1-n relationship
                 'name' => 'empenho_id', // the column that contains the ID of that connected entity
@@ -296,7 +301,7 @@ class ContratoempenhoCrudController extends CrudController
                 'attribute2' => 'aliquidar', // foreign key attribute that is shown to user
                 'process_results_template' => 'gescon.process_results', // foreign key attribute that is shown to user
                 'data_source' => url('api/empenho'), // url to controller search function (with /{id} should return model)
-                'placeholder' => 'Selecione o Empenho', // placeholder for the select
+                'placeholder' => 'Selecione o empenho', // placeholder for the select
                 'minimum_input_length' => 0, // minimum characters to type before querying results
                 'dependencies' => ['fornecedor_id'], // when a dependency changes, this select2 is reset to null
                 // ‘method'                    => ‘GET’, // optional - HTTP method to use for the AJAX call (GET, POST)

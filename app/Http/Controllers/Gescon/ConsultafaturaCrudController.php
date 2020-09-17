@@ -140,7 +140,7 @@ class ConsultafaturaCrudController extends CrudController
 
         $colunas[] = [
             'name' => 'contrato.numero',
-            'label' => 'Número Contrato',
+            'label' => 'Número do instrumento',
             'type' => 'string',
             'priority' => 1,
             'orderable' => true,
@@ -518,7 +518,7 @@ class ConsultafaturaCrudController extends CrudController
 
         $campos[] = [
             'name' => 'num_contrato',
-            'label' => 'Número Contrato',
+            'label' => 'Número do instrumento',
             'attributes' => [
                 'readonly'=>'readonly',
                 'style' => 'pointer-events: none;touch-action: none;',

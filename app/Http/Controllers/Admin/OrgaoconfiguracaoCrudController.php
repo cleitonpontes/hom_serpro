@@ -23,7 +23,7 @@ class OrgaoconfiguracaoCrudController extends CrudController
         $orgao_id = \Route::current()->parameter('orgao_id');
 
         $orgao = Orgao::find($orgao_id);
-        if (!$orgao or !(backpack_user()->hasRole('Administrador'))) {
+        if (!$orgao or (!(backpack_user()->hasRole('Administrador')) and (backpack_user()->hasRole('Administrador Órgão') and backpack_user()->unidade->sisg))) {
             abort('403', config('app.erro_permissao'));
         }
 
@@ -99,7 +99,7 @@ class OrgaoconfiguracaoCrudController extends CrudController
             ],
             [
                 'name' => 'api_migracao_conta_url',
-                'label' => 'URL API Migração Conta',
+                'label' => 'URL API Migração',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -109,7 +109,7 @@ class OrgaoconfiguracaoCrudController extends CrudController
             ],
             [
                 'name' => 'api_migracao_conta_token',
-                'label' => 'Token API Migração Conta',
+                'label' => 'Token API Migração',
                 'type' => 'text',
                 'limit' => 20,
                 'orderable' => true,
@@ -118,6 +118,18 @@ class OrgaoconfiguracaoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+            [
+                'name' => 'getTipoMigracao',
+                'label' => 'Tipo Migração', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getTipoMigracao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+
         ];
 
         return $colunas;
@@ -140,19 +152,28 @@ class OrgaoconfiguracaoCrudController extends CrudController
             ],
             [
                 'name' => 'api_migracao_conta_url',
-                'label' => 'URL API Migração Conta',
+                'label' => 'URL API Migração',
                 'type' => 'text',
                 'attributes' => [
                     'onkeyup' => "minusculo(this)"
                 ],
-                'tab' => 'Migração Conta',
+                'tab' => 'Migração',
             ],
             [
                 'name' => 'api_migracao_conta_token',
-                'label' => 'Token API Migração Conta',
+                'label' => 'Token API Migração',
                 'type' => 'text',
-                'tab' => 'Migração Conta',
+                'tab' => 'Migração',
             ],
+            [ // select_from_array
+                'name' => 'tipomigracao',
+                'label' => "Tipo Migração",
+                'type' => 'select_from_array',
+                'options' => ['CONTA' => 'Sistema Conta', "CCONTRATOS" => 'Comprasnet Contratos'],
+                'allows_null' => false,
+                'tab' => 'Migração',
+            ],
+
 
         ];
 

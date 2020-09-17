@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Contratodespesaacessoria extends Model
+class Contratodespesaacessoria extends ContratoBase
 {
     use CrudTrait;
     use LogsActivity;

@@ -101,6 +101,8 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
         $this->adicionaColunaUnidade();
         $this->adicionaColunaSalario();
         $this->adicionaColunaCusto();
+        $this->adicionaColunaValeAlimentacao();
+        $this->adicionaColunaAuxTransporte();
         $this->adicionaColunaEscolaridade();
     }
 
@@ -115,6 +117,8 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
         $this->aplicaFiltroNome();
         $this->aplicaFiltroFuncao();
         $this->aplicaFiltroSalario();
+        $this->aplicaFiltroValeAlimentacao();
+        $this->aplicaFiltroAuxilioTransporte();
         $this->aplicaFiltroEscolaridade();
     }
 
@@ -302,6 +306,38 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
         ]);
     }
 
+    public function adicionaColunaValeAlimentacao()
+    {
+        $this->crud->addColumn([
+            'name' => 'formatValeAlimentacao',
+            'label' => 'Vale Alimentação',
+            'type' => 'model_function',
+            'function_name' => 'formatValeAlimentacao',
+            'priority' => 19,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    public function adicionaColunaAuxTransporte()
+    {
+        $this->crud->addColumn([
+            'name' => 'formatAuxTransporte',
+            'label' => 'Auxilio Transporte',
+            'type' => 'model_function',
+            'function_name' => 'formatAuxTransporte',
+            'priority' => 20,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
     /**
      * Adiciona o filtro ao campo CPF
      *
@@ -404,6 +440,64 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
                 if ($range->to) {
                     $this->crud->addClause('where',
                         'contratoterceirizados.salario', '<=', (float)$range->to
+                    );
+                }
+            }
+        );
+    }
+
+    private function aplicaFiltroAuxilioTransporte()
+    {
+        $campo = [
+            'name' => 'aux_transporte',
+            'type' => 'range',
+            'label' => 'Auxílio Transporte'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $range = json_decode($value);
+
+                if ($range->from) {
+                    $this->crud->addClause('where',
+                        'contratoterceirizados.aux_transporte', '>=', (float)$range->from
+                    );
+                }
+
+                if ($range->to) {
+                    $this->crud->addClause('where',
+                        'contratoterceirizados.aux_transporte', '<=', (float)$range->to
+                    );
+                }
+            }
+        );
+    }
+
+    private function aplicaFiltroValeAlimentacao()
+    {
+        $campo = [
+            'name' => 'vale_alimentacao',
+            'type' => 'range',
+            'label' => 'Vale Alimentação'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+            null,
+            function ($value) {
+                $range = json_decode($value);
+
+                if ($range->from) {
+                    $this->crud->addClause('where',
+                        'contratoterceirizados.vale_alimentacao', '>=', (float)$range->from
+                    );
+                }
+
+                if ($range->to) {
+                    $this->crud->addClause('where',
+                        'contratoterceirizados.vale_alimentacao', '<=', (float)$range->to
                     );
                 }
             }

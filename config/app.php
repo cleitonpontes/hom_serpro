@@ -2,6 +2,8 @@
 
 return [
 
+    'google_analytics' => env('GOOGLE_ANALYTICS',''),
+
     //contas contábeis empenhodetalhado
     'contas_contabeis_empenhodetalhado_exercicioatual' => [
         'empaliquidar' => '622920101', // 6.2.2.9.2.01.01 = EMPENHOS A LIQUIDAR
@@ -57,6 +59,8 @@ return [
     'situacao_pco' => 'PCO',
     'situacao_despesa_anular' => 'DESPESA_ANULAR',
     'erro_permissao' => 'Acesso negado - você não possui a permissão necessária para acessar esta página.<br \> <a href="javascript:history.back()" \'="">Voltar</a>',
+    'erro_token' => 'Acesso negado - token informado está errado.<br \> <a href="javascript:history.back()" \'="">Voltar</a>',
+    'carga_inicial_siasg_token' => env('CARGA_INICIAL_SIASG_TOKEN'),
 
     'situacao_fatura' => [
         "PEN" => 'Pendente',
@@ -159,11 +163,11 @@ return [
     ],
 
     'ddp_nivel' => [
-        "A" => "A - Ativos",
-        "B" => "B - Aposentados e Pensionistas",
-        "C" => "C - ...",
-        "D" => "D - ...",
-        "E" => "E - Sem Vínculo",
+        "A" => "A - Ativo Civil",
+        "B" => "B - Aposentado e Pensionista Civil e Militar",
+        "C" => "C - Ativo Militar",
+        "D" => "D - Inativo Militar",
+        "E" => "E - Ativo CLT",
     ],
 
 

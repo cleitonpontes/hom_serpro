@@ -30,7 +30,8 @@ class BackpackUser extends User
         'ugprimaria',
         'password',
         'senhasiafi',
-        'situacao'
+        'situacao',
+        'acessogov'
     ];
 
     protected $table = 'users';
@@ -120,6 +121,11 @@ class BackpackUser extends User
     public function ugPrimariaRelation()
     {
         return $this->belongsTo(Unidade::class, 'ugprimaria');
+    }
+
+    public function contratoSfPadrao()
+    {
+        return $this->hasMany(Contratosfpadrao::class, 'user_id');
     }
 
 }

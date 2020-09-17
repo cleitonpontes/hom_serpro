@@ -3,8 +3,8 @@
 namespace App\XML;
 
 use App\Models\BackpackUser;
-use App\Models\Sfcentrocusto;
-use App\Models\Sfcertificado;
+use App\Models\SfCentroCusto;
+use App\Models\SfCertificado;
 use App\Models\SfDadosBasicos;
 use App\Models\SfDocOrigem;
 use App\Models\SfNonce;
@@ -411,7 +411,7 @@ class Execsiafi
     {
         $array = [];
 
-        $dados = Sfcentrocusto::where('sfpadrao_id', $sfpadrao_id)
+        $dados = SfCentroCusto::where('sfpadrao_id', $sfpadrao_id)
             ->get();
 
         if ($dados) {

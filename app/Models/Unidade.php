@@ -26,16 +26,34 @@ class Unidade extends Model
         'nomeresumido',
         'telefone',
         'tipo',
-        'situacao'
+        'situacao',
+        'sisg',
+        'municipio_id',
+        'esfera',
+        'poder',
+        'tipo_adm',
+        'aderiu_siasg',
+        'utiliza_siafi',
+        'codigo_siorg',
+
     ];
+
+    public function imprimirNaTela($valor)
+    {
+        echo '<pre>';
+        var_dump($valor);
+        echo '</pre>';
+    }
 
 
     public function buscaUnidadeExecutoraPorCodigo($codigo)
     {
+        self::imprimirNaTela('Vai buscar o id da unidade código = '.$codigo);
         $unidade = $this->where('codigo', $codigo)
             ->where('tipo', 'E')
             ->first();
 
+            self::imprimirNaTela('id = '.$unidade->id);
         return $unidade->id;
     }
 
@@ -64,9 +82,21 @@ class Unidade extends Model
             $tipo = "Setorial Contábil";
         }
 
-
         return $tipo;
 
+    }
+
+    public function getMunicipio()
+    {
+        if (!$this->municipio_id)
+            return '';
+        return $this->municipio->nome;
+    }
+    public function getUF()
+    {
+        if (!$this->municipio_id)
+            return '';
+        return $this->municipio->estado->sigla;
     }
 
     public function orgao()
@@ -81,16 +111,22 @@ class Unidade extends Model
 
     public function contratos()
     {
-
         return $this->hasMany(Contrato::class, 'unidade_id');
+    }
 
+    public function compras()
+    {
+        return $this->hasMany(Siasgcompra::class, 'unidade_id');
     }
 
     public function configuracao()
     {
-
         return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
+    }
 
+    public function municipio()
+    {
+        return $this->belongsTo(Municipio::class, 'municipio_id');
     }
 
 }

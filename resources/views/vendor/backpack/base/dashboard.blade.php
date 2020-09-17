@@ -4,12 +4,16 @@
     <section class="content-header">
         <h1>
             Início
-            <small>Comprasnet Contratos</small>
+            <small>
+                {{ $dataHoraAtualizacao ? 'Atualizado em: ' . $dataHoraAtualizacao : '' }}
+            </small>
         </h1>
+        @if((!is_null(session('user_ug'))))
         <ol class="breadcrumb">
             <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>
             <li class="active">Início</li>
         </ol>
+        @endif
     </section>
 @endsection
 
@@ -22,7 +26,12 @@
                 <div class="inner">
                     <h3>{{$html['novos']}}</h3>
 
-                    <p>Novos Contratos inseridos</p>
+                    <p>
+                        Novos contratos<br />
+                        <small>
+                            <em>(últimos 5 dias)</em>
+                        </small>
+                    </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-cloud-download"></i>
@@ -37,7 +46,12 @@
                 <div class="inner">
                     <h3>{{$html['atualizados']}}</h3>
 
-                    <p>Contratos Atualizados</p>
+                    <p>
+                        Contratos atualizados<br />
+                        <small>
+                            <em>(últimos 5 dias)</em>
+                        </small>
+                    </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-refresh"></i>
@@ -52,7 +66,10 @@
                 <div class="inner">
                     <h3>{{$html['vencidos']}}</h3>
 
-                    <p>Contratos vencidos</p>
+                    <p>
+                        Contratos vencidos<br />
+                        &nbsp;
+                    </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-close"></i>
@@ -69,7 +86,10 @@
             <div class="small-box bg-yellow">
                 <div class="inner">
                     <h3>{{$totalmsg}}</h3>
-                    <p>Mensagens pendentes</p>
+                        <p>
+                            Mensagens pendentes<br />
+                            &nbsp;
+                        </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-ios-email"></i>
@@ -95,6 +115,9 @@
                 </div>
                 <div class="box-body">
                     {!! $chartjs->render() !!}
+                    <div class="text-center">
+                        Total: {{ $chartjsTotal }}
+                    </div>
                 </div>
             </div>
         </section>
@@ -135,7 +158,7 @@
                     <div class="box box-solid">
                         <div class="box-header with-border">
                             <i class="fa fa-bar-chart"></i>
-                            <h3 class="box-title">Empenhos sem Contrato: {{ $ug }}</h3>
+                            <h3 class="box-title">Empenhos sem contratos vinculados UG: {{ $ug }}</h3>
 
                             <div class="box-tools pull-right">
                                 <button type="button" class="btn btn-box-tool" data-widget="collapse">
@@ -167,7 +190,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                     <h4 class="modal-title ">
-                        Empenhos sem Contrato: {{ $ug }}
+                        Empenhos sem contratos vinculados UG: {{ $ug }}
                     </h4>
                 </div>
                 <div class="modal-body">

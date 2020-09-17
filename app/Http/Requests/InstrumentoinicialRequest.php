@@ -51,6 +51,7 @@ class InstrumentoinicialRequest extends FormRequest
             'categoria_id' => 'required',
             'receita_despesa' => 'required',
             'unidade_id' => 'required',
+            'unidadeorigem_id' => 'required',
             'processo' => 'required',
             'objeto' => 'required',
             'modalidade_id' => 'required',

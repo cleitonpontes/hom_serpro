@@ -34,7 +34,7 @@ class SubrogacaoCrudController extends CrudController
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'subrogacoes.contrato_id');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
-        $this->crud->addClause('where', 'unidadeorigem_id', '=', session()->get('user_ug_id'));
+        $this->crud->addClause('where', 'subrogacoes.unidadeorigem_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'subrogacoes.*');
         $this->crud->orderBy('data_termo', 'desc');
 
@@ -75,7 +75,7 @@ class SubrogacaoCrudController extends CrudController
                 'visibleInExport' => true,
                 'visibleInShow' => true,
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhereHas('unidadeOrigem', function ($q) use ($column, $searchTerm) {
+                    $query->orWhereHas('unidadeOrigem2', function ($q) use ($column, $searchTerm) {
                         $q->orWhere('codigo', 'like', "%" . strtoupper($searchTerm) . "%");
                         $q->orWhere('nomeresumido', 'like', "%" . strtoupper($searchTerm) . "%");
                     });
@@ -84,7 +84,7 @@ class SubrogacaoCrudController extends CrudController
             ],
             [
                 'name' => 'getContrato',
-                'label' => 'Contrato - Fornecedor', // Table column heading
+                'label' => 'Número do instrumento - Fornecedor', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getContrato', // the method in your Model
                 'limit' => 150,
@@ -139,6 +139,7 @@ class SubrogacaoCrudController extends CrudController
             ->where('situacao',true)
             ->orderBy('contratos.numero', 'asc')->pluck('nome', 'id')->toArray();
 
+
         $ug = Unidade::find(session()->get('user_ug_id'));
 
         return [
@@ -156,7 +157,7 @@ class SubrogacaoCrudController extends CrudController
             ],
             [ // select_from_array
                 'name' => 'contrato_id',
-                'label' => "Contrato",
+                'label' => "Número do instrumento",
                 'type' => 'select2_from_array',
                 'options' => $contratos,
                 'allows_null' => true,

@@ -278,7 +278,7 @@ class ConsultaContratoBaseCrudController extends CrudController
     {
         $this->crud->addColumn([
             'name' => 'contrato.numero',
-            'label' => 'Número Contrato',
+            'label' => 'Número do instrumento',
             'type' => 'string',
             'priority' => 2,
             'orderable' => true,

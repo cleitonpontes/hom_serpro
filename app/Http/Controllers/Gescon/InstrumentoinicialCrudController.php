@@ -94,6 +94,7 @@ class InstrumentoinicialCrudController extends CrudController
         })
             ->where('descricao', '<>', 'Termo Aditivo')
             ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->where('descricao', '<>', 'Termo de Rescisão')
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
@@ -134,7 +135,7 @@ class InstrumentoinicialCrudController extends CrudController
             ],
             [
                 'name' => 'numero',
-                'label' => 'Número Contrato',
+                'label' => 'Número do instrumento',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -143,8 +144,19 @@ class InstrumentoinicialCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'getUnidadeOrigemHistorico',
+                'label' => 'Unidade Gestora Origem', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getUnidadeOrigemHistorico', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'getUnidadeHistorico',
-                'label' => 'Unidade Gestora', // Table column heading
+                'label' => 'Unidade Gestora Atual', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getUnidadeHistorico', // the method in your Model
                 'orderable' => true,
@@ -405,7 +417,7 @@ class InstrumentoinicialCrudController extends CrudController
             ],
             [
                 'name' => 'numero',
-                'label' => 'Número Contrato',
+                'label' => 'Número do instrumento',
                 'type' => 'numcontrato',
                 'tab' => 'Dados Gerais',
             ],
@@ -415,15 +427,45 @@ class InstrumentoinicialCrudController extends CrudController
                 'type' => 'numprocesso',
                 'tab' => 'Dados Gerais',
             ],
-            [ // select_from_array
-                'name' => 'fornecedor_id',
-                'label' => "Fornecedor",
-                'type' => 'select2_from_array',
-                'options' => $fornecedores,
-                'allows_null' => true,
+            [
+                // 1-n relationship
+                'label' => "Fornecedor", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'fornecedor_id', // the column that contains the ID of that connected entity
+                'entity' => 'fornecedor', // the method that defines the relationship in your Model
+                'attribute' => "cpf_cnpj_idgener", // foreign key attribute that is shown to user
+                'attribute2' => "nome", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_fornecedor',
+                'model' => "App\Models\Fornecedor", // foreign key model
+                'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione o fornecedor", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
                 'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+//            [ // select_from_array
+//                'name' => 'fornecedor_id',
+//                'label' => "Fornecedor",
+//                'type' => 'select2_from_array',
+//                'options' => $fornecedores,
+//                'allows_null' => true,
+//                'tab' => 'Dados Gerais',
+////                'default' => 'one',
+//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+//            ],
+            [
+                // 1-n relationship
+                'label' => "Unidade Gestora Origem", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
+                'entity' => 'unidadeorigem', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
+                'model' => "App\Models\Unidade", // foreign key model
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a Unidade", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+                'tab' => 'Dados Gerais',
             ],
             [ // select_from_array
                 'name' => 'unidade_id',

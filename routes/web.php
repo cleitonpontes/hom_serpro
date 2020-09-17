@@ -11,6 +11,8 @@
 |
 */
 
+Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
+
 Route::get('/', function () {
     return redirect('/inicio');
 });
@@ -28,6 +30,22 @@ Route::group([
     CRUD::resource('/faturas', 'ConsultaFaturasCrudController')->name('transparencia.consulta.faturas');
     CRUD::resource('/terceirizados', 'ConsultaTerceirizadosCrudController')->name('transparencia.consulta.terceirizados');
 });
+
+Route::group([
+    'prefix' => 'acessogov',
+    'namespace' => 'Acessogov',
+], function () {
+    Route::get('/autorizacao', 'LoginAcessoGov@autorizacao')->name('acessogov.autorizacao');
+    Route::get('/tokenacesso', 'LoginAcessoGov@tokenAcesso')->name('acessogov.tokenacesso');
+});
+
+Route::group([
+    'prefix' => 'soap',
+    'namespace' => 'Soap',
+], function () {
+    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
+});
+
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
 
@@ -92,7 +110,6 @@ Route::group(
         }
 
 
-
         // Módulo Folha de Pagamento
         Route::group([
             'prefix' => 'folha',
@@ -107,7 +124,7 @@ Route::group(
              **/
             Route::get('/apropriacao', 'ApropriacaoController@index')
                 ->name('apropriacao')
-                    ->middleware('permission:folha_apropriacao_acesso');
+                ->middleware('permission:folha_apropriacao_acesso');
             Route::get('/apropriacao/remove', function () {
                 return redirect('/folha/apropriacao');
             })

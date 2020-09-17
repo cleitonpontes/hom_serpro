@@ -13,7 +13,7 @@
 <section class="content-header">
 
     <h1>
-        Mudar UG
+        Mudar UG/UASG
     </h1>
 
     <ol class="breadcrumb">
@@ -23,7 +23,7 @@
         </li>
 
         <li>
-            <a href="{{ route('inicio.mudarug') }}">Mudar UG</a>
+            <a href="{{ route('inicio.mudarug') }}">Mudar UG/UASG</a>
         </li>
 
     </ol>

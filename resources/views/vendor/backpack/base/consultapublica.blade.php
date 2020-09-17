@@ -6,10 +6,12 @@
             Transparência
             <small>Comprasnet Contratos</small>
         </h1>
+@if((!is_null(session('user_ug'))))
         <ol class="breadcrumb">
             <li><a href="{{ backpack_url() }}">{{ config('backpack.base.project_name') }}</a></li>
-            <li class="active">Início</li>
+            <li class="active">Transparência</li>
         </ol>
+@endif
     </section>
 @endsection
 
@@ -70,8 +72,8 @@
             @include('backpack::inc.grafico_cronograma_contratos')
         </div>
     </div>
-
 @endsection
+
 @push('after_scripts')
     <script type="text/javascript">
         $(document).ready(function () {
@@ -231,6 +233,5 @@
                 }
             });
         });
-
     </script>
 @endpush

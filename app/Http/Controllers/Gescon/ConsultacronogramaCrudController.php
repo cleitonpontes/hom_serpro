@@ -50,7 +50,13 @@ class ConsultacronogramaCrudController extends CrudController
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratocronograma.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
-
+        $this->crud->addClause('select', [
+            'unidades.*',
+            'contratos.*',
+            'fornecedores.*',
+            // Tabela principal deve ser sempre a última da listagem!
+            'contratocronograma.*',
+        ]);
         // Apenas ocorrências da unidade atual
         $this->crud->addClause('where', 'unidades.codigo', '=', session('user_ug'));
 
@@ -106,7 +112,7 @@ class ConsultacronogramaCrudController extends CrudController
             ],
             [
                 'name' => 'contrato.numero',
-                'label' => 'Número Contrato',
+                'label' => 'Número do instrumento',
                 'type' => 'string',
                 'priority' => 1,
                 'orderable' => true,

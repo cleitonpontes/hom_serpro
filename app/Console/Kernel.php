@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Jobs\AlertaContratoJob;
 use App\Jobs\MigracaoempenhoJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -24,11 +23,27 @@ class Kernel extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-
-
-
     protected function schedule(Schedule $schedule)
     {
+        $schedule->call('App\Http\Controllers\Gescon\ContratosfpadraoCrudController@executaJobAtualizacaoSfPadrao')
+            ->weekdays()
+            ->timezone('America/Sao_Paulo')
+            ->everyMinute();
+
+        $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
+            ->weekdays()
+            ->timezone('America/Sao_Paulo')
+            ->everyMinute();
+
+        $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
+            ->weekdays()
+            ->timezone('America/Sao_Paulo')
+            ->everyMinute();
+
+        $schedule->call('App\Http\Controllers\Admin\AlertaContratoController@enviaEmails')
+            ->timezone('America/Sao_Paulo')
+            ->dailyAt('08:00');
+
         $schedule->call('App\Http\Controllers\Execfin\EmpenhoCrudController@executaAtualizacaoNd')
             ->weekdays()
             ->timezone('America/Sao_Paulo')
@@ -48,13 +63,6 @@ class Kernel extends ConsoleKernel
             ->weekdays()
             ->timezone('America/Sao_Paulo')
             ->at('09:00');
-            //->everyMinute();
-            
-
-        $schedule->job(new AlertaContratoJob)
-            ->timezone('America/Sao_Paulo')
-            ->dailyAt('08:00');
-
     }
 
     /**

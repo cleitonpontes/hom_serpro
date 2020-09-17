@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Contrato;
-use App\Models\Contratocronograma;
-use App\Models\Contratoempenho;
-use App\Models\Contratohistorico;
-use App\Models\Empenho;
-use App\Models\Fornecedor;
 use App\Models\Orgao;
-use App\Models\Unidade;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use function foo\func;
+use App\Models\Empenho;
+use App\Models\Unidade;
+use App\Models\Contrato;
+use App\Models\Fornecedor;
+use App\Models\Contratoitem;
+use Illuminate\Http\Request;
+use App\Models\Contratofatura;
+use App\Models\Contratoarquivo;
+use App\Models\Contratoempenho;
+use App\Models\Contratogarantia;
+use App\Models\Contratopreposto;
+use App\Models\Contratohistorico;
+use App\Models\Contratocronograma;
+use App\Models\Contratoocorrencia;
+use App\Models\Contratoresponsavel;
+use App\Http\Controllers\Controller;
+use App\Models\Contratoterceirizado;
+use App\Models\Contratodespesaacessoria;
+use OpenApi\Annotations as OA;
 
 class ContratoController extends Controller
 {
@@ -155,6 +165,285 @@ class ContratoController extends Controller
         return json_encode($historico_array);
     }
 
+    public function garantiasPorContratoId(int $contrato_id)
+    {
+        $garantias_array = [];
+        $garantias = $this->buscaGarantiasPorContratoId($contrato_id);
+
+        foreach ($garantias as $garantia) {
+
+            $garantias_array[] = [
+                //'contrato_id' => $garantia->contrato_id,
+                'tipo' => $garantia->getTipo(),
+                'valor' => number_format($garantia->valor, 2, ',', '.'),
+                'vencimento' => $garantia->vencimento,
+             ];
+
+        }
+
+        return json_encode($garantias_array);
+    }
+
+    //feito as cegas (faltou CATMATSER)
+    public function itensPorContratoId(int $contrato_id)
+    {
+        $itens_array = [];
+        $itens = $this->buscaItensPorContratoId($contrato_id);
+
+        foreach ($itens as $item) {
+            $itens_array[] = [
+                //'contrato_id' => $item->contrato_id,
+                'tipo_id' => $item->getTipo(),
+                'grupo_id' => $item->getCatmatsergrupo(),
+                'catmatseritem_id' => $item->getCatmatseritem(),
+                'descricao_complementar' => $item->descricao_complementar,
+                'quantidade' => $item->quantidade,
+                'valorunitario' => number_format($item->valorunitario, 2, ',', '.'),
+                'valortotal' => number_format($item->valortotal, 2, ',', '.'),
+             ];
+
+        }
+
+        return json_encode($itens_array);
+    }
+
+    public function prepostosPorContratoId(int $contrato_id)
+    {
+        $prepostos_array = [];
+        $prepostos = $this->buscaPrepostosPorContratoId($contrato_id);
+
+        foreach ($prepostos as $preposto) {
+            $prepostos_array[] = [
+                //'contrato_id' => $preposto->contrato_id,
+                //'user_id' => $preposto->user_id,
+                //'cpf' => $preposto->getCpf(),
+                //'nome' => $preposto->nome,
+                'usuario' => $this->usuarioTransparencia($preposto->nome, $preposto->cpf),
+                'email' => $preposto->email,
+                'telefonefixo' => $preposto->telefonefixo,
+                'celular' => $preposto->celular,
+                'doc_formalizacao' => $preposto->doc_formalizacao,
+                'informacao_complementar' => $preposto->informacao_complementar,
+                'data_inicio' => $preposto->data_inicio,
+                'data_fim' => $preposto->data_fim,
+                'situacao' => $preposto->situacao == true ? 'Ativo' : 'Inativo',
+             ];
+
+        }
+
+        return json_encode($prepostos_array);
+    }
+
+    public function responsaveisPorContratoId(int $contrato_id)
+    {
+        $responsaveis_array = [];
+        $responsaveis = $this->buscaResponsaveisPorContratoId($contrato_id);
+
+        foreach ($responsaveis as $responsavel) {
+
+            $responsaveis_array[] = [
+
+                //'contrato_id' => $responsavel->contrato_id,
+                //'user_id' => $responsavel->getUsuarioTransparencia(),
+
+                'usuario' => $this->usuarioTransparencia($responsavel->user->name, $responsavel->user->cpf),
+                'funcao_id' => $responsavel->funcao->descricao,
+                'instalacao_id' => $responsavel->getInstalacao(),
+                'portaria' => $responsavel->portaria,
+                'situacao' => $responsavel->situacao == true ? 'Ativo' : 'Inativo',
+                'data_inicio' => $responsavel->data_inicio,
+                'data_fim' => $responsavel->data_fim,
+                'telefone_fixo' => $responsavel->telefone_fixo,
+                'telefone_celular' => $responsavel->telefone_celular,
+
+            ];
+
+        }
+
+        return json_encode($responsaveis_array);
+    }
+
+    public function despesasAcessoriasPorContratoId(int $contrato_id)
+    {
+        $despesasAcessorias_array = [];
+        $despesasAcessorias = $this->buscaDespesasAcessoriasPorContratoId($contrato_id);
+
+        foreach ($despesasAcessorias as $despesaAcessoria) {
+            $despesasAcessorias_array[] = [
+                //'contrato_id' => $despesaAcessoria->contrato_id,
+                'tipo_id' => $despesaAcessoria->tipoDespesa->descricao,
+                'recorrencia_id' => $despesaAcessoria->recorrenciaDespesa->descricao,
+                'descricao_complementar' => $despesaAcessoria->descricao_complementar,
+                'vencimento' => $despesaAcessoria->vencimento,
+                'valor' => number_format($despesaAcessoria->valor, 2, ',', '.'),
+             ];
+
+        }
+
+        return json_encode($despesasAcessorias_array);
+    }
+
+    public function faturasPorContratoId(int $contrato_id)
+    {
+        $faturas_array = [];
+        $faturas = $this->buscaFaturasPorContratoId($contrato_id);
+
+        foreach ($faturas as $fatura) {
+            $faturas_array[] = [
+                //'contrato_id' => $fatura->contrato_id,
+                'tipolistafatura_id' => $fatura->tipolista->nome,
+                //sem dados para teste
+                'justificativafatura_id' => $fatura->getJustificativaFatura(),
+                //sem dados para teste
+                'sfadrao_id' => $fatura->getSfpadrao(),
+                'numero' => $fatura->numero,
+                'emissao' => $fatura->emissao,
+                'prazo' => $fatura->prazo,
+                'vencimento' => $fatura->vencimento,
+                'valor' => number_format($fatura->valor, 2, ',', '.'),
+                'juros' => number_format($fatura->juros, 2, ',', '.'),
+                'multa' => number_format($fatura->multa, 2, ',', '.'),
+                'glosa' => number_format($fatura->glosa, 2, ',', '.'),
+                'valorliquido' => number_format($fatura->valorliquido, 2, ',', '.'),
+                'processo' => $fatura->processo,
+                'protocolo' => $fatura->protocolo,
+                'ateste' => $fatura->ateste,
+                'repactuacao' => $fatura->repactuacao == true ? 'Sim' : 'Não',
+                'infcomplementar' => $fatura->infcomplementar,
+                'mesref' => $fatura->mesref,
+                'anoref' => $fatura->anoref,
+                'situacao' => $fatura->retornaSituacao(),
+            ];
+
+        }
+
+        return json_encode($faturas_array);
+    }
+
+    public function ocorrenciasPorContratoId(int $contrato_id)
+    {
+        $ocorrencias_array = [];
+        $ocorrencias = $this->buscaOcorrenciasPorContratoId($contrato_id);
+
+        foreach ($ocorrencias as $ocorrencia) {
+            $ocorrencias_array[] = [
+                'numero' => $ocorrencia->numero ,
+                //'contrato_id' => $ocorrencia->contrato_id,
+                //'user_id' => $ocorrencia->getUsuarioTransparencia(),
+                'usuario' => $this->usuarioTransparencia($ocorrencia->usuario->name, $ocorrencia->usuario->cpf),
+                'data' => $ocorrencia->data,
+                'ocorrencia' => $ocorrencia->ocorrencia,
+                'notificapreposto' => $ocorrencia->notificapreposto == true ? 'Sim' : 'Não',
+                'emailpreposto' => $ocorrencia->emailpreposto,
+                //Seria o mesmo que número?
+                'numeroocorrencia' => $ocorrencia->getNumeroOcorrencia(),
+                //possivel erro no formulário, nova situação não é salva
+                'novasituacao' => $ocorrencia->getSituacaoNovaConsulta(),
+                'situacao' => $ocorrencia->ocorSituacao->descricao,
+                'arquivos' => $ocorrencia->arquivos,
+             ];
+
+        }
+
+        return json_encode($ocorrencias_array);
+    }
+
+
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os terceirizados do contrato",
+     *     description="Retorna um Json de terceirizados do contrato",
+     *     path="/api/contrato/{contrato_id}/terceirizados",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de terceirizados do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Terceirizados")
+     *         ),
+     *     ),
+     *     @OA\Components(
+     *         @OA\Schema(
+     *             schema="Terceirizados",
+     *             type="object",
+     *             @OA\Property(property="usuario",type="string",example="111.111.111-00 FULANO DE TAL"),
+     *             @OA\Property(property="funcao_id",type="string",example="Ajudante"),
+     *             @OA\Property(property="descricao_complementar",type="string",example="Ajudante de almoxarifado"),
+     *             @OA\Property(property="jornada",type="integer",example="40"),
+     *             @OA\Property(property="unidade",type="string",example="AGU-SEDE"),
+     *             @OA\Property(property="salario",type="number",example="1.200,25"),
+     *             @OA\Property(property="custo",type="number",example="3.200,25"),
+     *             @OA\Property(property="escolaridade_id",type="string",example="Superior completo"),
+     *             @OA\Property(property="data_inicio",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+     *             @OA\Property(property="data_fim",type="string",example="2020-01-31",format=" yyyy-mm-dd"),
+     *             @OA\Property(property="situacao",type="string",example="ativo",),
+     *             @OA\Property(property="telefone_fixo",type="string",example="61-4002-6325"),
+     *             @OA\Property(property="telefone_celular",type="string",example="61-94002-6325"),
+     *             @OA\Property(property="aux_transporte",type="number",example="190,00"),
+     *             @OA\Property(property="vale_alimentacao",type="number",example="560,00")
+     *         )
+     *     )
+     * )
+     */
+
+    public function terceirizadosPorContratoId(int $contrato_id)
+    {
+
+        $terceirizados_array = [];
+        $terceirizados = $this->buscaTerceirizadosPorContratoId($contrato_id);
+
+        foreach ($terceirizados as $terceirizado) {
+;
+            $terceirizados_array[] = [
+                //'contrato_id' => $terceirizado->contrato_id,
+                //'cpf' => $terceirizado->getCpf(),
+                //'nome' => $terceirizado->nome,
+                'usuario' => $this->usuarioTransparencia($terceirizado->nome, $terceirizado->cpf),
+                'funcao_id' => $terceirizado->funcao->descricao,
+                'descricao_complementar' => $terceirizado->descricao_complementar,
+                'jornada' => $terceirizado->jornada,
+                'unidade' => $terceirizado->unidade,
+                'salario' =>  number_format($terceirizado->salario, 2, ',', '.'),
+                'custo' => number_format($terceirizado->custo, 2, ',', '.'),
+                'escolaridade_id' => $terceirizado->escolaridade->descricao,
+                'data_inicio' => $terceirizado->data_inicio,
+                'data_fim' => $terceirizado->data_fim,
+                'situacao' => $terceirizado->situacao == true ? 'Ativo' : 'Inativo',
+                'telefone_fixo' => $terceirizado->telefone_fixo,
+                'telefone_celular' => $terceirizado->telefone_celular,
+                'aux_transporte' => number_format($terceirizado->aux_transporte, 2, ',', '.'),
+                'vale_alimentacao' => number_format($terceirizado->vale_alimentacao, 2, ',', '.'),
+             ];
+        }
+
+        return json_encode($terceirizados_array);
+    }
+
+    public function arquivosPorContratoId(int $contrato_id)
+    {
+        $arquivos_array = [];
+        $arquivos = $this->buscaArquivosPorContratoId($contrato_id);
+
+        foreach ($arquivos as $arquivo) {
+            $arquivos_array[] = [
+                //'contrato_id' => $arquivo->contrato_id,
+                'tipo' => $arquivo->getTipo(),
+                'processo' => $arquivo->processo,
+                'sequencial_documento' => $arquivo->sequencial_documento,
+                'descricao' => $arquivo->descricao,
+                'arquivos' => $arquivo->getListaArquivosComPath(),
+            ];
+
+        }
+
+        return json_encode($arquivos_array);
+    }
+
     private function buscaOrgaosComContratosAtivos()
     {
         $orgaos = Orgao::select('codigo')
@@ -204,6 +493,88 @@ class ContratoController extends Controller
         return $historico;
     }
 
+    private function buscaGarantiasPorContratoId(int $contrato_id)
+    {
+        $garantias = Contratogarantia::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $garantias;
+    }
+
+    private function buscaItensPorContratoId(int $contrato_id)
+    {
+        $itens = Contratoitem::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $itens;
+    }
+
+    private function buscaPrepostosPorContratoId(int $contrato_id)
+    {
+        $prepostos = Contratopreposto::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $prepostos;
+    }
+
+    private function buscaResponsaveisPorContratoId(int $contrato_id)
+    {
+        $responsaveis = Contratoresponsavel::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $responsaveis;
+    }
+
+    private function buscaDespesasAcessoriasPorContratoId(int $contrato_id)
+    {
+        $despesas_acessorias = Contratodespesaacessoria::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $despesas_acessorias;
+    }
+
+    private function buscaFaturasPorContratoId(int $contrato_id)
+    {
+        $faturas = Contratofatura::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $faturas;
+    }
+
+    private function buscaOcorrenciasPorContratoId(int $contrato_id)
+    {
+        $ocorrencias = Contratoocorrencia::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $ocorrencias;
+    }
+
+    private function buscaTerceirizadosPorContratoId(int $contrato_id)
+    {
+        $terceirizados = Contratoterceirizado::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $terceirizados;
+    }
+
+    private function buscaArquivosPorContratoId(int $contrato_id)
+    {
+        $arquivos = Contratoarquivo::where('contrato_id', $contrato_id)
+            //->orderBy('data_assinatura')
+            ->get();
+
+        return $arquivos;
+    }
+
+
     public function contratoAtivoAll()
     {
         $contratos_array = [];
@@ -241,6 +612,15 @@ class ContratoController extends Controller
                 'link_historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
                 'link_empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
                 'link_cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
+                'link_garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
+                'link_itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
+                'link_prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
+                'link_responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
+                'link_despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
+                'link_faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
+                'link_ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
+                'link_terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
+                'link_arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
 
             ];
 
@@ -250,6 +630,7 @@ class ContratoController extends Controller
         return json_encode($contratos_array);
 
     }
+
 
     public function contratoAtivoPorUg(int $unidade)
     {
@@ -299,6 +680,15 @@ class ContratoController extends Controller
                     'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
                     'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
                     'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
+                    'garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
+                    'itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
+                    'prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
+                    'responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
+                    'despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
+                    'faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
+                    'ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
+                    'terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
+                    'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
                 ]
             ];
 
@@ -357,6 +747,15 @@ class ContratoController extends Controller
                     'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
                     'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
                     'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
+                    'garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
+                    'itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
+                    'prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
+                    'responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
+                    'despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
+                    'faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
+                    'ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
+                    'terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
+                    'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
                 ]
             ];
 
@@ -415,6 +814,15 @@ class ContratoController extends Controller
                     'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
                     'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
                     'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
+                    'garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
+                    'itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
+                    'prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
+                    'responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
+                    'despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
+                    'faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
+                    'ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
+                    'terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
+                    'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
                 ]
             ];
 
@@ -473,6 +881,15 @@ class ContratoController extends Controller
                     'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
                     'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
                     'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
+                    'garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
+                    'itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
+                    'prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
+                    'responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
+                    'despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
+                    'faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
+                    'ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
+                    'terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
+                    'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
                 ]
             ];
 
@@ -557,6 +974,13 @@ class ContratoController extends Controller
             ->get();
 
         return $contratos;
+    }
+
+    private function usuarioTransparencia(string $nome, string $cpf)
+    {
+        $cpf = '***' . substr($cpf,3,9) . '**';
+
+        return $cpf . ' - ' . $nome;
     }
 
 }

@@ -91,6 +91,7 @@ class UnidadeconfiguracaoRequest extends FormRequest
             'telefone1' => 'required',
             'email_diario_periodicidade' => 'required_if:email_diario,1',
             'email_mensal_dia' => 'required_if:email_mensal,1|numeric|min:1|max:20',
+            'padrao_processo_mascara' => "required",
         ];
 
 
@@ -125,6 +126,7 @@ class UnidadeconfiguracaoRequest extends FormRequest
             'user1_id.required' => 'O campo "Chefe Contratos" é obrigatório!',
             'email_diario_periodicidade.required_if' => 'O campo "Periodicidade E-mails" é obrigatório se "Rotina Diária E-mail" for "Sim"!',
             'email_mensal_dia.required_if' => 'O campo "Envia Extrato que dia do Mês?" é obrigatório se "Extrato Mensal" for "Sim"!',
+            'padrao_processo_marcara.required' => "O campo Padrão Processo Máscara é obrigatório!",
         ];
     }
 }

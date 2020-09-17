@@ -87,7 +87,6 @@ class ApostilamentoCrudController extends CrudController
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
             ->where('descricao', '=', 'Termo de Apostilamento')
-//            ->where('descricao', '<>', 'Termo de Apostilamento')
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
