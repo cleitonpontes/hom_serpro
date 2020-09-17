@@ -49,7 +49,6 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         $this->crud->addClause('where', 'contratoitem_servico_indicador.contratoitem_servico_id', '=', $contratoitem_servico_id);
 
 
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -58,7 +57,8 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
 //        $this->crud->setFromDb();
 
-        $this->crud->addColumns($this->colunas());
+        $this->colunas();
+//        $this->crud->addColumns($this->colunas());
         $this->crud->addFields($this->campos($contratoitem_servico_id, $indicadores));
 
         // add asterisk for fields that are required in ContratoItemServicoIndicadorRequest
@@ -125,7 +125,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
                 'name' => 'periodicidade',
                 'label' => 'periodicidade',
                 'type' => 'select2_from_array',
-                'options' => ['Anual','Mensal','Semanal','Diária','Única'],
+                'options' => ['Anual', 'Mensal', 'Semanal', 'Diária', 'Única'],
                 'allows_null' => false,
                 'placeholder' => 'Selecione',
 //                'allows_multiple' => true,
@@ -191,48 +191,15 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
     private function colunas(): array
     {
+        $this->setColumnIndicador();
+        $this->setColumnTipoAfericao();
+//        $this->setIndicador();
+//        $this->setIndicador();
+//        $this->setIndicador();
+
         return [
-//            [
-//                'name' => 'nome',
-//                'label' => 'Nome',
-//                'type' => 'text',
-//                'orderable' => true,
-//                'visibleInTable' => true,
-//                'visibleInModal' => true,
-//                'visibleInExport' => true,
-//                'visibleInShow' => true,
-//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('servicos.nome', 'ilike', "%" . $searchTerm . "%");
-//                },
-//            ],
-            [
-                'name' => 'getIndicador',
-                'label' => 'Indicador', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getIndicador', // the method in your Model
-                'orderable' => true,
-                'limit' => 1000,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('tipolistafatura.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-////                    $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-//                },
-            ],
-            [
-                'name' => 'tipo_afericao',
-                'label' => 'Tipo de Afericao',
-                'type' => 'boolean',
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                // optionally override the Yes/No texts
-                'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
-            ],
+
+
 //            [
 //                'name' => 'descricao_complementar',
 //                'label' => 'Item do Contrato',
@@ -272,4 +239,57 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 //            ],
         ];
     }
+
+    private function setColumnIndicador(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'getIndicador',
+            'label' => 'Indicador', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getIndicador', // the method in your Model
+            'orderable' => true,
+            'limit' => 1000,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+
+    }
+
+    private function setColumnTipoAfericao(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'tipo_afericao',
+            'label' => 'Tipo de Afericao',
+            'type' => 'boolean',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            // optionally override the Yes/No texts
+            'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
+        ]);
+    }
+
+//    private function set()
+//    {
+//        $this->crud->addColumn([]);
+//    }
+//
+//    private function set()
+//    {
+//        $this->crud->addColumn([]);
+//    }
+//
+//    private function set()
+//    {
+//        $this->crud->addColumn([]);
+//    }
+//
+//    private function set()
+//    {
+//        $this->crud->addColumn([]);
+//    }
 }
