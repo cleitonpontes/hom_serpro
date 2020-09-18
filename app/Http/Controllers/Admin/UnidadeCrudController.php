@@ -666,7 +666,9 @@ class UnidadeCrudController extends CrudController
     private function estadoId()
     {
         $estado = '';
-        if ($this->crud->getActionMethod() === 'edit') {
+        if ($this->crud->getActionMethod() === 'edit'
+            && $this->crud->getEntry($this->crud->getCurrentEntryId())->municipio !== null
+        ) {
             $estado = $this->crud->getEntry($this->crud->getCurrentEntryId())->municipio->estado->id;
         }
         return $estado;
