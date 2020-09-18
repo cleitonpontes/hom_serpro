@@ -60,6 +60,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         $this->colunas();
 //        $this->crud->addColumns($this->colunas());
         $this->crud->addFields($this->campos($contratoitem_servico_id, $indicadores));
+        $this->campos();
 
         // add asterisk for fields that are required in ContratoItemServicoIndicadorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -87,6 +88,8 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
     private function campos(string $contratoitem_servico_id
         , array $indicadores): array
     {
+        $this->setFieldIndicador();
+        $this->setFieldTipoAfericao();
         return [
             [   // Hidden
                 'name' => 'contratoitem_servico_id',
@@ -197,7 +200,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 //        $this->setIndicador();
 //        $this->setIndicador();
 
-        return [
+//        return [
 
 
 //            [
@@ -237,7 +240,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 //                'visibleInShow' => true,
 //                'options' => [0 => 'Inativo', 1 => 'Ativo']
 //            ],
-        ];
+//        ];
     }
 
     private function setColumnIndicador(): void
@@ -273,23 +276,30 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         ]);
     }
 
+    private function setFieldContratoItemServico($contratoitem_servico_id)
+    {
+        $this->crud->addField([   // Hidden
+            'name' => 'contratoitem_servico_id',
+            'type' => 'hidden',
+            'default' => $contratoitem_servico_id,
+        ]);
+    }
+
+    private function setFieldIndicador()
+    {
+        $this->crud->addField();
+    }
+    private function setFieldTipoAfericao()
+    {
+        $this->crud->addField();
+    }
 //    private function set()
 //    {
-//        $this->crud->addColumn([]);
+//        $this->crud->addField();
 //    }
-//
 //    private function set()
 //    {
-//        $this->crud->addColumn([]);
+//        $this->crud->addField();
 //    }
-//
-//    private function set()
-//    {
-//        $this->crud->addColumn([]);
-//    }
-//
-//    private function set()
-//    {
-//        $this->crud->addColumn([]);
-//    }
+
 }
