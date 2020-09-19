@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Traits\Formatador;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -11,6 +12,7 @@ class Contratoresponsavel extends ContratoBase
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
+    use Formatador;
 
     protected static $logFillable = true;
     protected static $logName = 'responsavel';
@@ -133,6 +135,26 @@ class Contratoresponsavel extends ContratoBase
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getMaskedCpfAttribute($value)
+    {
+        return $this->retornaMascaraCpf($this->user()->first()->cpf);
+    }
+
+    public function getUsuarioNomeAttribute($value)
+    {
+        return $this->user()->first()->name;
+    }
+
+    public function getUsuarioEmailAttribute($value)
+    {
+        return $this->user()->first()->name;
+    }
+
+    public function getDescricaoTipoAttribute($value)
+    {
+        return $this->funcao()->first()->descricao;
+    }
 
     /*
     |--------------------------------------------------------------------------
