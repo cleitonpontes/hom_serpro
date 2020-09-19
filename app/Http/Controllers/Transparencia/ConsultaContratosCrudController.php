@@ -227,7 +227,6 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                 'label' => 'Tipo',
                 'type' => 'model_function',
                 'function_name' => 'getTipo',
-
                 'orderable' => true,
                 'visibleInTable' => false,
                 'visibleInModal' => true,
@@ -270,7 +269,7 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
                     $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-                },
+                }
             ],
             [
                 'name' => 'processo',
@@ -387,9 +386,101 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                 'visibleInShow' => true,
             ],
             [
+                'name' => 'despesasacessorias',
+                'label' => 'Despesas Acessórias',
+                'type' => 'table',
+                'columns' => [
+                    'descricao_complementar' => 'Descrição',
+                    'vencimento' => 'Vencimento',
+                    'valor' => 'Valor'
+                ],
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => false,
+                'visibleInShow' => true,
+            ],
+            [
                 'name' => 'empenho',
                 'label' => 'Empenhos',
                 'type' => 'empenhotable',
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => false,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'faturas',
+                'label' => 'Faturas',
+                'type' => 'table',
+                'columns' => [
+                    'numero' => 'Número',
+                    'emissao' => 'Data Emissão',
+                    'processo' => 'Processo',
+                    'ateste' => 'Data Ateste',
+                    'valor_liquido' => 'Valor Líquido'
+                ],
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => false,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'garantias',
+                'label' => 'Garantias',
+                'type' => 'table',
+                'columns' => [
+                    'descricao_tipo' => 'Tipo',
+                    'vencimento' => 'Vencimento',
+                    'valor' => 'Valor'
+                ],
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => false,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'itens',
+                'label' => 'Itens',
+                'type' => 'table',
+                'columns' => [
+                    'descricao_complementar' => 'Descrição',
+                    'quantidade' => 'Quantidade',
+                    'valorunitario' => 'Valor Unitário',
+                    'valortotal' => 'Valor Total'
+                ],
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => false,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'prepostos',
+                'label' => 'Prepostos',
+                'type' => 'table',
+                'columns' => [
+                    'masked_cpf' => 'CPF',
+                    'nome' => 'Nome',
+                    'email' => 'E-mail',
+                    'telefonefixo' => 'Telefone'
+                    // , 'celular' => 'Celular'
+                ],
+                'visibleInTable' => false,
+                'visibleInModal' => false,
+                'visibleInExport' => false,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'responsaveis',
+                'label' => 'Responsáveis',
+                'type' => 'table',
+                'columns' => [
+                    'masked_cpf' => 'CPF',
+                    'usuario_nome' => 'Nome',
+                    'descricao_tipo' => 'Tipo',
+                    'usuario_email' => 'E-mail',
+                    'telefone_fixo' => 'Telefone'
+                    // , 'telefone_celular' => 'Celular'
+                ],
                 'visibleInTable' => false,
                 'visibleInModal' => false,
                 'visibleInExport' => false,
