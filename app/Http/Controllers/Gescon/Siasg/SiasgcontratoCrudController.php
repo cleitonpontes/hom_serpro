@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers\Gescon\Siasg;
 
-use App\Jobs\AtualizaSiasgCompraJob;
 use App\Jobs\AtualizaSiasgContratoJob;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
-use App\Models\ContratoSiasgIntegracao;
 use App\Models\ContratoSiasgIntegracaoNovo;
-use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
