@@ -655,7 +655,9 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltros()
     {
-        $this->aplicaFiltroFornecedor();
+        // TODO: Melhor consulta do filtro de fornecedores, para não buscar a base inteira, mas sim apenas
+        //       os fornecedores dos contratos da unidade ativa!
+        // $this->aplicaFiltroFornecedor();
         $this->aplicaFiltroReceitaDespesa();
         $this->aplicaFiltroTipo();
         $this->aplicaFiltroCategoria();
