@@ -417,7 +417,7 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                     'emissao' => 'Data Emissão',
                     'processo' => 'Processo',
                     'ateste' => 'Data Ateste',
-                    'valor_liquido' => 'Valor Líquido'
+                    'valor' => 'Valor'
                 ],
                 'visibleInTable' => false,
                 'visibleInModal' => false,
@@ -459,10 +459,7 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                 'type' => 'table',
                 'columns' => [
                     'masked_cpf' => 'CPF',
-                    'nome' => 'Nome',
-                    'email' => 'E-mail',
-                    'telefonefixo' => 'Telefone'
-                    // , 'celular' => 'Celular'
+                    'nome' => 'Nome'
                 ],
                 'visibleInTable' => false,
                 'visibleInModal' => false,
@@ -476,10 +473,7 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                 'columns' => [
                     'masked_cpf' => 'CPF',
                     'usuario_nome' => 'Nome',
-                    'descricao_tipo' => 'Tipo',
-                    'usuario_email' => 'E-mail',
-                    'telefone_fixo' => 'Telefone'
-                    // , 'telefone_celular' => 'Celular'
+                    'descricao_tipo' => 'Tipo'
                 ],
                 'visibleInTable' => false,
                 'visibleInModal' => false,
