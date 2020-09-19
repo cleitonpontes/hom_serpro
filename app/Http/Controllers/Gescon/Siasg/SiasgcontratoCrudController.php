@@ -10,6 +10,7 @@ use App\Models\ContratoSiasgIntegracao;
 use App\Models\ContratoSiasgIntegracaoNovo;
 use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
+use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -435,6 +436,104 @@ class SiasgcontratoCrudController extends CrudController
                 AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
             }
         }
+    }
+
+    public function importaManualmenteContratoSemCompra()
+    {
+        $file = fopen(env('CARGA_CONTRATOS_SISG'), "r");
+        $tipoconsulta = 'CONTRATOSISG';
+
+        while (!feof($file)) {
+            $line = fgets($file);
+
+            $contrato = (substr($line,0,23));
+            $unidade = substr($contrato,0,6);
+            $tipo_id = substr($contrato,6,2);
+            $numero = substr($contrato,8,5);
+            $ano = substr($contrato,13,4);
+            $subrogacao_id = substr($contrato,17,6);
+
+            $unidade_id = $this->buscaIdUnidadesPorNumeroUasg($unidade);
+
+            $dados = [
+                'unidade_id' => $unidade_id,
+                'tipo_id'    =>(int)$tipo_id,
+                'numero'     =>$numero,
+                'ano'        =>$ano,
+                'unidadesubrrogacao_id'=>($subrogacao_id == '000000')? null : $this->buscaIdUnidadesPorNumeroUasg($subrogacao_id),
+                "codigo_interno" => '',
+                'situacao'   => 'Pendente',
+                'sisg'       => 1
+            ];
+
+            ($unidade_id != 0) ? $this->insereContratoSiasg($dados) : '';
+
+
+        }
+        fclose($file);
+        die('Importação dos contratos sem compra realizada com sucesso!!');
+    }
+
+
+    public function importaManualmenteContratoNaoSisg()
+    {
+        $file = fopen(env('CARGA_CONTRATOS_NSISG'), "r");
+        $tipoconsulta = 'CONTRATONAOSISG';
+
+        while (!feof($file)) {
+            $line = fgets($file);
+
+            $contrato = (substr($line,0,27));
+            $unidade = substr($contrato,0,6);
+            $codigoInterno = substr($contrato,6,10);
+            $tipo_id = substr($contrato,16,2);
+            $numero = substr($contrato,18,5);
+            $ano = substr($contrato,23,4);
+            $unidade_id = $this->buscaIdUnidadesPorNumeroUasg($unidade);
+            $dados = [
+                'unidade_id' => $unidade_id,
+                'tipo_id'    =>(int)$tipo_id,
+                'numero'     =>$numero,
+                'ano'        =>$ano,
+                'codigo_interno'=>$codigoInterno,
+                'unidadesubrrogacao_id' => null,
+                'situacao'   => 'Pendente',
+                'sisg'       => 0
+            ];
+
+            ($unidade_id != 0) ? $this->insereContratoSiasg($dados) : '';
+
+        }
+        fclose($file);
+        die('Importação dos contratos NÃO SISG realizada com sucesso!!');
+    }
+
+    private function buscaIdUnidadesPorNumeroUasg(string $numero)
+    {
+        if(strlen($numero) < 6){
+            $numero = '0'.$numero;
+        }
+        $unidades = Unidade::where('codigo',$numero)->first();
+
+        (!is_null($unidades)) ? $id = $unidades->id : $id = null;
+
+        return $id;
+    }
+
+    public function insereContratoSiasg(array $dados)
+    {
+
+        $siasgContrato = new Siasgcontrato();
+        $siasgContrato->unidade_id = $dados['unidade_id'];
+        $siasgContrato->tipo_id = $dados['tipo_id'];
+        $siasgContrato->numero = $dados['numero'];
+        $siasgContrato->ano = $dados['ano'];
+        $siasgContrato->codigo_interno = $dados['codigo_interno'];
+        $siasgContrato->situacao = $dados['situacao'];
+        $siasgContrato->unidadesubrrogacao_id = $dados['unidadesubrrogacao_id'];
+        $siasgContrato->sisg = $dados['sisg'];
+        $siasgContrato->save();
+
     }
 
 }
