@@ -11,9 +11,10 @@ class Contratoitem extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'contratoitens';
-    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -22,9 +23,6 @@ class Contratoitem extends Model
     */
 
     protected $table = 'contratoitens';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
         'tipo_id',
@@ -35,8 +33,6 @@ class Contratoitem extends Model
         'valorunitario',
         'valortotal',
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
@@ -46,7 +42,6 @@ class Contratoitem extends Model
 
     public function atualizaSaldoContratoItem(Saldohistoricoitem $saldohistoricoitem)
     {
-
         $saldoitens = Saldohistoricoitem::where('contratoitem_id', $saldohistoricoitem->contratoitem_id)
             ->orderBy('created_at','ASC')
             ->get();
@@ -58,7 +53,6 @@ class Contratoitem extends Model
             $contratoitem->valortotal = $saldoitem->valortotal;
             $contratoitem->save();
         }
-
     }
 
     public function getContrato()
@@ -119,14 +113,10 @@ class Contratoitem extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
-    }
-
-    public function tipo()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_id');
     }
 
     public function grupo()
@@ -139,6 +129,10 @@ class Contratoitem extends Model
         return $this->belongsTo(Catmatseritem::class, 'catmatseritem_id');
     }
 
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -151,6 +145,21 @@ class Contratoitem extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getDescricaoGrupoAttribute($value)
+    {
+        return $this->grupo()->first()->descricao;
+    }
+
+    public function getDescricaoItemAttribute($value)
+    {
+        return $this->item()->first()->descricao;
+    }
+
+    public function getDescricaoTipoAttribute($value)
+    {
+        return $this->tipo()->first()->descricao;
+    }
 
     /*
     |--------------------------------------------------------------------------
