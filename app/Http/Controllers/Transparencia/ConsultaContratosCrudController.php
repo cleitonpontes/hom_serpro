@@ -444,9 +444,9 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                 'type' => 'table',
                 'columns' => [
                     'descricao_tipo' => 'Tipo',
-                    'descricao_grupo' => 'Grupo',
+                    // 'descricao_grupo' => 'Grupo',
                     'descricao_item' => 'Item',
-                    'descricao_complementar' => 'Descrição',
+                    // 'descricao_complementar' => 'Descrição',
                     'quantidade' => 'Quantidade',
                     'valorunitario' => 'Valor Unitário',
                     'valortotal' => 'Valor Total'
