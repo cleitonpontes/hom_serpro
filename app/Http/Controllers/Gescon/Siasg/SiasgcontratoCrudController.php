@@ -61,9 +61,9 @@ class SiasgcontratoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
-        (backpack_user()->can('contrato_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('contrato_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('contrato_deletar')) ? $this->crud->allowAccess('delete') : null;
+        (backpack_user()->can('importacao_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('importacao_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('importacao_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         $this->crud->enableExportButtons();
 
