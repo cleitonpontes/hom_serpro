@@ -440,7 +440,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['unidadeorigem_id'] = $siasgcontrato->unidade_id;
         $dado['unidade_id'] = ($siasgcontrato->unidadesubrrogacao_id != null) ? $siasgcontrato->unidadesubrrogacao_id : $siasgcontrato->unidade_id;
         $dado['tipo_id'] = $siasgcontrato->tipo_id;
-        $dado['categoria_id'] = 55;
+        $dado['categoria_id'] = 197; //a definir
         $dado['processo'] = $this->retornaNumeroProcessoFormatado($json->data->dadosContrato->numeroProcesso);
         $dado['objeto'] = mb_strtoupper(trim($json->data->dadosContrato->objeto), 'UTF-8');
         $dado['receita_despesa'] = 'D';
