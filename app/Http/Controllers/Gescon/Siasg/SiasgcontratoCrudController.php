@@ -466,8 +466,11 @@ class SiasgcontratoCrudController extends CrudController
                 'sisg' => 1
             ];
 
-            ($unidade_id != 0) ? $this->insereContratoSiasg($dados) : '';
+            $siasgcontrato = $this->verificaSiasgContratosExiste($dados);
 
+            dd($siasgcontrato);
+
+            ($unidade_id != 0 and !isset($siasgcontrato->id)) ? $this->insereContratoSiasg($dados) : '';
 
         }
         fclose($file);
@@ -501,11 +504,18 @@ class SiasgcontratoCrudController extends CrudController
                 'sisg' => 0
             ];
 
-            ($unidade_id != 0) ? $this->insereContratoSiasg($dados) : '';
+            $siasgcontrato = $this->verificaSiasgContratosExiste($dados);
+
+            ($unidade_id != 0 and !isset($siasgcontrato->id)) ? $this->insereContratoSiasg($dados) : '';
 
         }
         fclose($file);
         die('Importação dos contratos NÃO SISG realizada com sucesso!!');
+    }
+
+    private function verificaSiasgContratosExiste(array $dado)
+    {
+        return $siasgcontrato = Siasgcontrato::where($dado)->first();
     }
 
     private function buscaIdTipoContratos(string $descres)
