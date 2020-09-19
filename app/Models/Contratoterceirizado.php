@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Http\Traits\Formatador;
 use Backpack\CRUD\CrudTrait;
-// use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -66,25 +65,26 @@ class Contratoterceirizado extends ContratoBase
 
     public function getCpf()
     {
-        $cpf = '***' . substr($this->cpf,3,9) . '**';
-
-        return $cpf;
+        return $this->retornaMascaraCpf($this->cpf);
     }
 
     public function getNome()
     {
         return $this->nome;
     }
+
     public function getTelefoneFixo()
     {
         $telefone_fixo = $this->telefone_fixo;
         return $telefone_fixo;
     }
+
     public function getTelefoneCelular()
     {
         $telefone_celular = $this->telefone_celular;
         return $telefone_celular;
     }
+
     public function getEscolaridade()
     {
         return $this->escolaridade->descricao;

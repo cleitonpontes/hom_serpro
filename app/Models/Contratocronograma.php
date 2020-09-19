@@ -145,32 +145,34 @@ class Contratocronograma extends Model
 
             $valor = number_format($contratohistorico->valor_parcela,2,'.','');
 
-            if ($buscacron and ($contratohistorico->tipo_id == 65 or $contratohistorico->tipo_id == 68)) {
-                $v = $valor;
-                foreach ($buscacron as $b) {
-                    $v = number_format($v,2,'.', '') - number_format($b->valor,2,'.','');
+            if ($buscacron){
+                if ($contratohistorico->tipo_id == 65 or $contratohistorico->tipo_id == 68) {
+                    $v = $valor;
+                    foreach ($buscacron as $b) {
+                        $v = number_format($v,2,'.', '') - number_format($b->valor,2,'.','');
+                    }
+                    $dados[] = [
+                        'contrato_id' => $contratohistorico->contrato_id,
+                        'contratohistorico_id' => $contratohistorico->id,
+                        'receita_despesa' => $contratohistorico->receita_despesa,
+                        'mesref' => date('m', strtotime($ref)),
+                        'anoref' => date('Y', strtotime($ref)),
+                        'vencimento' => $vencimento,
+                        'valor' => number_format($v,2,'.', ''),
+                        'soma_subtrai' => ($v < 0) ? false : true,
+                    ];
+                } else {
+                    $dados[] = [
+                        'contrato_id' => $contratohistorico->contrato_id,
+                        'contratohistorico_id' => $contratohistorico->id,
+                        'receita_despesa' => $contratohistorico->receita_despesa,
+                        'mesref' => date('m', strtotime($ref)),
+                        'anoref' => date('Y', strtotime($ref)),
+                        'vencimento' => $vencimento,
+                        'valor' => $valor,
+                        'soma_subtrai' => ($valor < 0) ? false : true,
+                    ];
                 }
-                $dados[] = [
-                    'contrato_id' => $contratohistorico->contrato_id,
-                    'contratohistorico_id' => $contratohistorico->id,
-                    'receita_despesa' => $contratohistorico->receita_despesa,
-                    'mesref' => date('m', strtotime($ref)),
-                    'anoref' => date('Y', strtotime($ref)),
-                    'vencimento' => $vencimento,
-                    'valor' => number_format($v,2,'.', ''),
-                    'soma_subtrai' => ($v < 0) ? false : true,
-                ];
-            } else {
-                $dados[] = [
-                    'contrato_id' => $contratohistorico->contrato_id,
-                    'contratohistorico_id' => $contratohistorico->id,
-                    'receita_despesa' => $contratohistorico->receita_despesa,
-                    'mesref' => date('m', strtotime($ref)),
-                    'anoref' => date('Y', strtotime($ref)),
-                    'vencimento' => $vencimento,
-                    'valor' => $valor,
-                    'soma_subtrai' => ($valor < 0) ? false : true,
-                ];
             }
         }
 
