@@ -515,7 +515,7 @@ class SiasgcontratoCrudController extends CrudController
 
     private function verificaSiasgContratosExiste(array $dado)
     {
-        return $siasgcontrato = Siasgcontrato::contains($dado)->first();
+        return $siasgcontrato = Siasgcontrato::all()->contains($dado);
     }
 
     private function buscaIdTipoContratos(string $descres)
