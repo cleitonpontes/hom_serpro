@@ -461,7 +461,7 @@ class SiasgcontratoCrudController extends CrudController
                 'numero' => $numero,
                 'ano' => $ano,
                 'unidadesubrrogacao_id' => ($subrogacao_id == '000000') ? null : $this->buscaIdUnidadesPorNumeroUasg($subrogacao_id),
-                "codigo_interno" => '',
+                "codigo_interno" => '0000000000',
                 'situacao' => 'Pendente',
                 'sisg' => 1
             ];
