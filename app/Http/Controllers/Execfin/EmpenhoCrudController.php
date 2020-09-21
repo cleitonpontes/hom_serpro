@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Execfin;
 
+use Alert;
 use App\Http\Controllers\AdminController;
+use App\Http\Traits\Busca;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoempenhoJob;
@@ -31,6 +33,8 @@ use Illuminate\Support\Facades\DB;
  */
 class EmpenhoCrudController extends CrudController
 {
+    use Busca;
+
     public function setup()
     {
         /*
@@ -398,7 +402,7 @@ class EmpenhoCrudController extends CrudController
     public function executaMigracaoEmpenho()
     {
         $ano = date('Y');
-        if(date('md') == '0101' or date('md') == '0102'){
+        if (date('md') == '0101' or date('md') == '0102') {
             $ano = $ano - 1;
         }
 
@@ -406,7 +410,10 @@ class EmpenhoCrudController extends CrudController
         // CINCO DIAS A PARTIR DA DATA ENVIADA (PADRÃO HOJE)
         $url = config('migracao.api_sta')
             . '/api/unidade/empenho/' . date('Y');
-        $unidades = $this->buscaDadosUrl($url);
+
+        $unidades = (env('APP_ENV', 'production') === 'production')
+            ? $this->buscaDadosFileGetContents($url)
+            : $this->buscaDadosCurl($url);
 
         $unidadesAtivas =
             Unidade::whereHas('contratos', function ($c) {
@@ -425,7 +432,10 @@ class EmpenhoCrudController extends CrudController
         // CINCO DIAS A PARTIR DA DATA ENVIADA (PADRÃO HOJE)
         $url = config('migracao.api_sta')
             . '/api/unidade/rp';
-        $unidades = $this->buscaDadosUrl($url);
+
+        $unidades = (env('APP_ENV', 'production') === 'production')
+            ? $this->buscaDadosFileGetContents($url)
+            : $this->buscaDadosCurl($url);
 
         $unidadesAtivas =
             Unidade::whereHas('contratos', function ($c) {
@@ -441,7 +451,7 @@ class EmpenhoCrudController extends CrudController
         }
 
         if (backpack_user()) {
-            \Alert::success('Migração de Empenhos em Andamento!')->flash();
+            Alert::success('Migração de Empenhos em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
     }
@@ -452,7 +462,7 @@ class EmpenhoCrudController extends CrudController
         AtualizaNaturezaDespesasJob::dispatch();
 
         if (backpack_user()) {
-            \Alert::success('Atualização de ND em Andamento!')->flash();
+            Alert::success('Atualização de ND em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
     }
@@ -532,7 +542,7 @@ class EmpenhoCrudController extends CrudController
         }
 
         if (backpack_user()) {
-            \Alert::success('Atualização de Empenhos em Andamento!')->flash();
+            Alert::success('Atualização de Empenhos em Andamento!')->flash();
             return redirect('/execfin/empenho');
         }
     }
@@ -757,7 +767,7 @@ class EmpenhoCrudController extends CrudController
                 $tipo = 'IDGENERICO';
             } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
                 $tipo = 'UG';
-            };
+            }
 
             $fornecedor = Fornecedor::create([
                 'tipo_fornecedor' => $tipo,
