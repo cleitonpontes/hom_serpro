@@ -58,7 +58,9 @@
 
                         <div class="form-group">
                             <div>
-                                <button class="button-ok" type="submit" tabindex="2">{{ trans('backpack::base.login') }}</button>
+                                <button type="submit" class="btn btn-block btn-primary">
+                                    {{ trans('backpack::base.login') }}
+                                </button>
                             </div>
                             <div class="m-t-10">
                                 <button class="button-ok" type="button" id="acessogov" tabindex="2">Entrar com Acesso Gov</button>
