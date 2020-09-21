@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\AdminController;
-use Faker\ORM\Spot\EntityPopulator;
 use Illuminate\Support\Facades\DB;
-use function foo\func;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+
+use App\Http\Controllers\AdminController;
+use Faker\ORM\Spot\EntityPopulator;
+// use Illuminate\Database\Eloquent\SoftDeletes;
+use function foo\func;
 
 class Contrato extends Model
 {
@@ -440,12 +441,14 @@ class Contrato extends Model
 
     public function prepostos()
     {
-        return $this->hasMany(Contratopreposto::class, 'contrato_id');
+        return $this->hasMany(Contratopreposto::class, 'contrato_id')
+            ->where('situacao', true);
     }
 
     public function responsaveis()
     {
-        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
+        return $this->hasMany(Contratoresponsavel::class, 'contrato_id')
+            ->where('situacao', true);
     }
 
     public function terceirizados()

@@ -39,18 +39,18 @@ class Contratopreposto extends Model
         'data_fim',
         'situacao',
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function getContrato()
     {
         return $this->getContratoNumero();
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
