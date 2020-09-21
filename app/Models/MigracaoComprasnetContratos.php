@@ -59,17 +59,36 @@ class MigracaoComprasnetContratos extends Model
         $unidade = new Unidade();
 
         $contrato['numero'] = $dado['numero']; // já está vindo formatado da agu
+
+        $dadosFornecedor = $dado['fornecedor_id'];
+        $dadosFornecedorTratados = self::tratarDadosFornecedor($dadosFornecedor);
+        $cnpjFornecedor = $dadosFornecedorTratados['cnpj'];
+        $nomeFornecedor = $dadosFornecedorTratados['nome'];
+        $contrato['fornecedor_id'] = $this->buscaFornecedor($cnpjFornecedor, $nomeFornecedor);
         $contrato['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado['unidade_id']);
         $contrato['tipo_id'] = $this->buscarTipoId($dado);
         $contrato['categoria_id'] = $this->buscarCategoriaId($dado);
+        $contrato['receita_despesa'] = $dado['receita_despesa'];
+
         $contrato['processo'] = $dado['processo']; // já está vindo formatado da agu
         $contrato['objeto'] = $dado['objeto'];
         $contrato['info_complementar'] = $dado['info_complementar'];
-        $contrato['receita_despesa'] = $dado['receita_despesa'];
         $contrato['fundamento_legal'] = $dado['fundamento_legal'];
         $contrato['modalidade_id'] = $this->buscarModalidadeId($dado);
         $contrato['licitacao_numero'] = $dado['licitacao_numero']; // já está vindo formatado da agu
+        $contrato['data_assinatura'] = $dado['data_assinatura'];
+        $contrato['data_publicacao'] = $dado['data_publicacao'];
+        $contrato['vigencia_inicio'] = $dado['vigencia_inicio'];
+        $contrato['vigencia_fim'] = $dado['vigencia_fim'];
+        $contrato['valor_inicial'] = $dado['valor_inicial'];
+        $contrato['valor_global'] = $dado['valor_global'];
+        $contrato['num_parcelas'] = $dado['num_parcelas'];
+        $contrato['valor_parcela'] = $dado['valor_parcela'];
+        // valor acumulado é calculado
+        $contrato['situacao_siasg'] = $dado['situacao_siasg'];
         $contrato['situacao'] = $dado['situacao'];
+        $contrato['unidades_requisitantes'] = $dado['unidades_requisitantes'];
+        $contrato['total_despesas_acessorias'] = $dado['total_despesas_acessorias'];
 
         // verificar se algum contrato veio sem histórico
         $quantidadeHistoricos = $dado['contratohistoricos'];
@@ -77,17 +96,13 @@ class MigracaoComprasnetContratos extends Model
             self::imprimirNaTela('Atenção!!! Contrato sem histórico, número = '.$dado['numero']);
         }
 
-
-
         $dados_historico = [];
         foreach ($dado['contratohistoricos'] as $item) {
             $dados_historico[] = $base->buscaDadosUrlMigracao($item);
         }
 
-
         $quantidadeHistoricos = count($dados_historico);
         self::imprimirNaTela('Iniciando varredura dos históricos...' . $quantidadeHistoricos . ' históricos.');
-
 
         $contrato_inserido = null;
         foreach ($dados_historico as $dado_historico) {
@@ -100,11 +115,7 @@ class MigracaoComprasnetContratos extends Model
 
                 self::imprimirNaTela('Contrato inicial!');
 
-                //contrato inicial
-                // $contrato['fornecedor_id'] = $dado_historico['fornecedor_id'];
-
                 $dadosFornecedor = $dado_historico['fornecedor_id'];
-
                 $dadosFornecedorTratados = self::tratarDadosFornecedor($dadosFornecedor);
                 $cnpjFornecedor = $dadosFornecedorTratados['cnpj'];
                 $nomeFornecedor = $dadosFornecedorTratados['nome'];
@@ -118,39 +129,29 @@ class MigracaoComprasnetContratos extends Model
                 $contrato['valor_global'] = $dado_historico['valor_global'];
                 $contrato['num_parcelas'] = $dado_historico['num_parcelas'];
                 $contrato['valor_parcela'] = $dado_historico['valor_parcela'];
-                $contrato['valor_acumulado'] = $dado_historico['valor_acumulado'];
-
 
                 $cont = new Contrato();
                 $contrato_inserido = $cont->inserirContratoMigracaoConta($contrato);
+
 
                 self::imprimirNaTela('Contrato inicial inserido: ');
                 self::imprimirNaTela($contrato_inserido);
 
 
             } else {
-
-
                 if (isset($contrato_inserido->id)) {
-
                     self::imprimirNaTela('(***) Preparando para inserir contrato histórico...');
 
                     //historico
                     $con = Contrato::find($contrato_inserido->id);
 
-
                     self::imprimirNaTela('Vai inserir histórico para o contrato abaixo:');
                     self::imprimirNaTela($con);
-
 
                     $ano_historico = explode('-', $dado_historico['data_assinatura']);
                     $his_num = $dado_historico['numero'];
                     $historico['numero'] = $his_num;
-
-
                     $historico['contrato_id'] = $con->id;
-                    // $historico['fornecedor_id'] = $dado_historico['fornecedor_id'];
-
 
                     $dadosFornecedor = $dado_historico['fornecedor_id'];
                     $dadosFornecedorTratados = self::tratarDadosFornecedor($dadosFornecedor);
@@ -158,7 +159,6 @@ class MigracaoComprasnetContratos extends Model
                     $nomeFornecedor = $dadosFornecedorTratados['nome'];
 
                     $historico['fornecedor_id'] = $this->buscaFornecedor($cnpjFornecedor, $nomeFornecedor);
-                    // $historico['unidade_id'] = $dado_historico['unidade_id'];
                     $historico['unidade_id'] = $unidade->buscaUnidadeExecutoraPorCodigo($dado_historico['unidade_id']);
 
                     $tipoId = $this->buscarTipoId($dado);
@@ -227,6 +227,7 @@ class MigracaoComprasnetContratos extends Model
                 self::imprimirNaTela('Iniciando varredura dos responsáveis...');
 
                 foreach ($dados_responsaveis as $dado_responsavel) {
+
                     $user = explode('|', $dado_responsavel['user_id']);
                     $cpf_user = $user[0];
                     $usuario = BackpackUser::where('cpf', $cpf_user)
@@ -234,50 +235,65 @@ class MigracaoComprasnetContratos extends Model
 
                     self::imprimirNaTela('Varrendo responsável com user id = ' . $dado_responsavel['user_id'] . ' e cpf = ' . $cpf_user);
 
-                    if (!isset($usuario->id)) {
 
-                        self::imprimirNaTela('Usuário não existe na base!');
+                    // vamos verificar se não possui deleted_at
+                    $deleted_at = $dado_responsavel['deleted_at'];
 
-                        $array_user = [
-                            'cpf' => $cpf_user,
-                            'name' => $user[1],
-                            'email' => $user[2],
-                            'ugprimaria' => $con->unidade_id,
-                            'password' => bcrypt(substr(str_pad($user[0], 11, "0", STR_PAD_LEFT), 0, 6)),
-                            'perfil' => 'Responsável por Contrato',
-                        ];
+                    self::imprimirNaTela('Deleted_at = '.$deleted_at);
 
-                        $usuario = $this->inserirUsuario($array_user);
+                    if( $deleted_at == null ){
 
-                        self::imprimirNaTela('Usuário inserido: ');
-                        self::imprimirNaTela($usuario);
+                        self::imprimirNaTela(' -> OK.');
 
-                    }
+                        if (!isset($usuario->id)) {
 
-                    if ($usuario->ugprimaria != $con->unidade_id) {
-                        if (!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()) {
-                            $usuario->unidades()->attach($con->unidade_id);
+                            self::imprimirNaTela('Usuário não existe na base!');
+
+                            $array_user = [
+                                'cpf' => $cpf_user,
+                                'name' => $user[1],
+                                'email' => $user[2],
+                                'ugprimaria' => $con->unidade_id,
+                                'password' => bcrypt(substr(str_pad($user[0], 11, "0", STR_PAD_LEFT), 0, 6)),
+                                'perfil' => 'Responsável por Contrato',
+                            ];
+
+                            $usuario = $this->inserirUsuario($array_user);
+
+                            self::imprimirNaTela('Usuário inserido: ');
+                            self::imprimirNaTela($usuario);
+
                         }
+
+                        if ($usuario->ugprimaria != $con->unidade_id) {
+                            if (!$usuario->unidades()->where('unidade_id', $con->unidade_id)->first()) {
+                                $usuario->unidades()->attach($con->unidade_id);
+                            }
+                        }
+
+                        $responsavel['contrato_id'] = $con->id;
+                        $responsavel['user_id'] = $usuario->id;
+                        $responsavel['funcao_id'] = $this->buscaFuncaoResponsavel($dado_responsavel['funcao_id']);
+                        $responsavel['instalacao_id'] = null;
+                        $responsavel['portaria'] = $dado_responsavel['portaria'];
+                        $responsavel['situacao'] = $dado_responsavel['situacao'];
+                        $responsavel['data_inicio'] = $dado_responsavel['data_inicio'];
+                        $responsavel['data_fim'] = $dado_responsavel['data_fim'];
+
+                        self::imprimirNaTela('Preparando para inserir um contrato responsável...');
+
+                        $hist = new Contratoresponsavel();
+                        $historico_inserido = $hist->inserirContratoresponsavelMigracaoConta($responsavel);
+
+                        self::imprimirNaTela('Contrato responsável inserido:');
+                        self::imprimirNaTela($responsavel);
+
+                        self::imprimirNaTela('Histórico foi inserido!');
+                    } else {
+                        self::imprimirNaTela('!! -> Não vai salvar este responsável, pois está como deletado na base do TSE.');
                     }
 
-                    $responsavel['contrato_id'] = $con->id;
-                    $responsavel['user_id'] = $usuario->id;
-                    $responsavel['funcao_id'] = $this->buscaFuncaoResponsavel($dado_responsavel['funcao_id']);
-                    $responsavel['instalacao_id'] = null;
-                    $responsavel['portaria'] = $dado_responsavel['portaria'];
-                    $responsavel['situacao'] = $dado_responsavel['situacao'];
-                    $responsavel['data_inicio'] = $dado_responsavel['data_inicio'];
-                    $responsavel['data_fim'] = $dado_responsavel['data_fim'];
 
-                    self::imprimirNaTela('Preparando para inserir um contrato responsável...');
-
-                    $hist = new Contratoresponsavel();
-                    $historico_inserido = $hist->inserirContratoresponsavelMigracaoConta($responsavel);
-
-                    self::imprimirNaTela('Contrato responsável inserido:');
-                    self::imprimirNaTela($responsavel);
-
-                    self::imprimirNaTela('Histórico foi inserido!');
 
                 }
             }
@@ -743,10 +759,11 @@ class MigracaoComprasnetContratos extends Model
 
 
         $objeto = Codigoitem::where('descricao', $categoriaIdDado)->first();
+
         if ($objeto == null) {
 
-            self::imprimirNaTela( 'id = '.config('migracao.categoria_padrao') );
-
+            self::imprimirNaTela('Nao foi encontrada categoria = '.$categoriaIdDado.' -> será usada a categoria padrão.');
+            self::imprimirNaTela( 'id categoria padrão = '.config('migracao.categoria_padrao') );
 
             return config('migracao.categoria_padrao');
         } else {
