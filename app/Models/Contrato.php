@@ -440,12 +440,14 @@ class Contrato extends Model
 
     public function prepostos()
     {
-        return $this->hasMany(Contratopreposto::class, 'contrato_id');
+        return $this->hasMany(Contratopreposto::class, 'contrato_id')
+            ->where('situacao', true);
     }
 
     public function responsaveis()
     {
-        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
+        return $this->hasMany(Contratoresponsavel::class, 'contrato_id')
+            ->where('situacao', true);
     }
 
     public function terceirizados()
