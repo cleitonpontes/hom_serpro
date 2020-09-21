@@ -77,6 +77,11 @@ class Contratogarantia extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function getDescricaoTipoAttribute($value)
+    {
+        return $this->tipo()->first()->descricao;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS
