@@ -34,6 +34,6 @@ class CreateContratoitemServicoPivotTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contratoitem_servico_indicador');
+        Schema::dropIfExists('contratoitem_servico');
     }
 }

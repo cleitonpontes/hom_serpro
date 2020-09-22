@@ -26,7 +26,11 @@ class ServicoRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'contratoitem_id' => 'required',
+            'nome' => 'required',
+            'detalhe' => 'required',
+            'valor' => "required|min:0.01",
+            'situacao' => 'required',
         ];
     }
 
@@ -38,7 +42,11 @@ class ServicoRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'contratoitem_id' => 'Item do Contrato',
+            'nome' => 'Nome',
+            'detalhe' => 'Detalhe',
+            'valor' => 'Valor',
+            'situacao' => 'Situação',
         ];
     }
 

@@ -23,15 +23,12 @@ class CreateGlosasTable extends Migration
             $table->decimal('from',17,2)->default(0);
             $table->decimal('to',17,2)->default(0);
             $table->decimal('valor_glosa',17,2)->default(0);
-
-            //TODO FALTA TIPO ESCOPO
-
-//            $table->string('nome')->unique();
-//            $table->text('detalhe');
-//            $table->boolean('situacao')->default(true);
+            $table->integer('escopo_id')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('escopo_id')->references('id')->on('codigoitens')->onDelete('cascade');
         });
     }
 
@@ -42,6 +39,6 @@ class CreateGlosasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('servicos');
+        Schema::dropIfExists('glosas');
     }
 }

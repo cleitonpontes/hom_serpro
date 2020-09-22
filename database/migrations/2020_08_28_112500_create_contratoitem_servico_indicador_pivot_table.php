@@ -20,14 +20,14 @@ class CreateContratoitemServicoIndicadorPivotTable extends Migration
 
             $table->integer('indicador_id')->unsigned()->index();
             $table->foreign('indicador_id')->references('id')->on('indicadores')->onDelete('cascade');
-
+            $table->integer('periodicidade_id')->nullable();
             $table->boolean('tipo_afericao')->comment('false - Por Percentual, true - Por número de ocorrencias');
+            $table->decimal('vlrmeta',17,2)->default(0);
 
-            $table->decimal('vlrmeta',15,2)->nullable()->default(0)->change();
-            //TODO FALTA PERIODICIDADE
             $table->timestamps();
 //            $table->softDeletes();
 
+            $table->foreign('periodicidade_id')->references('id')->on('codigoitens')->onDelete('cascade');
             $table->unique(['contratoitem_servico_id', 'indicador_id']);
         });
     }

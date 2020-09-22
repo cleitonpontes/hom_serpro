@@ -40,9 +40,6 @@ class ContratoServicoCrudController extends CrudController
         $itens = $contrato->itens()->get()->pluck('descricao_complementar', 'id')->toArray();
 
         $indicadores = Indicador::all()->pluck('nome', 'id')->toArray();
-//        dd($indicadores);
-//        dd($contrato_id, $itens);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -95,30 +92,21 @@ class ContratoServicoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        $itens = $request->contratoitem_id;
-//        $indicadores = json_decode($request->indicadores);
-//        dd($request->indicadores, json_decode($request->indicadores, true));
+        // your additional operations before save here
 
-//        dd($request->all());
-//        $valor = str_replace(',', '.', str_replace('.', '', $request->input('valor')));
-//        dd($valor, $request->valor, $this->formatoValor($request->valor));
+        $itens = $request->contratoitem_id;
         $request->request->set('valor', $this->retornaFormatoAmericano($request->valor));
 
         try {
             // Begin a transaction
             DB::beginTransaction();
 
-// your additional operations before save here
             $redirect_location = parent::storeCrud($request);
-//        dd($this->data['entry'], $this->crud->entry);
-
 
             foreach ($itens as $item) {
-//            dd( $indicador->indicadores  );
                 ContratoitemServico::create([
                     'contratoitem_id' => $item,
                     'servico_id' => $this->crud->entry->id,
-//                    'tipo_afericao' => true
                 ]);
             }
             // Commit the transaction
@@ -131,7 +119,6 @@ class ContratoServicoCrudController extends CrudController
             throw $e;
         }
 
-
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
@@ -139,8 +126,10 @@ class ContratoServicoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $valor = str_replace(',', '.', str_replace('.', '', $request->input('valor')));
-        $request->request->set('valor', number_format(floatval($valor), 2, '.', ''));
+        //TODO FAZER O UPDATE DOS ITENS DO CONTRATO
+        $itens = $request->contratoitem_id;
+        $request->request->set('valor', $this->retornaFormatoAmericano($request->valor));
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
