@@ -440,15 +440,7 @@ class AdminController extends Controller
         curl_close($ch);
         return json_decode($data, true);
     }
-
-
-
-
-
     public function verificarSeLinkEstaNoAr($url){
-
-        echo '<br>Verificando '.$url.'...';
-
         $ch = curl_init();
 
         curl_setopt( $ch, CURLOPT_URL, $url );
@@ -459,11 +451,10 @@ class AdminController extends Controller
 
 		$content = curl_exec( $ch );
         $info = curl_getinfo( $ch );
-        if($info['http_code']==200){ echo ' -> OK!!'; return true;}
-
-        echo ' ------> FORA DO AR!!!!!!';
+        if($info['http_code']==200){
+            return true;
+        }
         return false;
-
     }
     public function buscaDadosUrlMigracao($url)
     {
@@ -476,13 +467,10 @@ class AdminController extends Controller
 
         $passou = false;
         while( !$passou ){
-            echo '<br>tentando...';
             if( $response = file_get_contents($url, false, stream_context_create($dargs)) ){
                 $passou = true;
             }
         }
-
-
         return json_decode($response, true);
         // return json_decode(file_get_contents($url), true);
     }

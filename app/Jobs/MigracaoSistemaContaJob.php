@@ -38,7 +38,6 @@ class MigracaoSistemaContaJob implements ShouldQueue
      */
     public function handle()
     {
-
         $base = new AdminController();
         $dados = $base->buscaDadosUrlMigracao($this->url);
         foreach ($dados as $dado){
@@ -50,24 +49,5 @@ class MigracaoSistemaContaJob implements ShouldQueue
                 $retorno = $contrato->trataDadosMigracaoConta($dado);
             }
         }
-
-        // // caso seja um teste local, ao processar o último contrato, vou parar aqui antes de voltar ao sistema.
-        // if($this->url == 'https://api-migra-ccontrato-dev.tse.jus.br/api/v1/contrato/523?token=base64:HVQS17hWtsejvO7igXFdWZP4DvW9XtXi9tRe76KT0bc='){
-
-        //     echo "<script>alert('FIM DA MIGRAÇÃO');</script>";
-        //     exit('fim!');
-        //     exit;
-        // }
-
-        // // caso seja um teste local, ao processar o último contrato, vou parar aqui antes de voltar ao sistema.
-        // if($this->url == 'http://localhost:8000/api/v1/contrato/14?token=base64:HMFwu3NCR6OZUipnpjNqiqvRK2w9afTl4Bjfb5Xik0M='){
-
-        //     echo "<script>alert('PAROU A MIGRACAO POIS CHEGOU NO 14');</script>";
-        //     exit('fim!');
-        //     exit;
-        // }
-
-
-
     }
 }
