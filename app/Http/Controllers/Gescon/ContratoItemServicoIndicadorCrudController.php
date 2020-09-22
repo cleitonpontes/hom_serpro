@@ -21,7 +21,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 {
     public function setup()
     {
-        $contratoitem_servico_id = Route::current()->parameter('contratoitem_servico_id');
+        $contratoitem_servico_id = Route::current()->parameter('cis_i_id');
         $indicadores = Indicador::all()->pluck('nome', 'id')->toArray();
         /*
         |--------------------------------------------------------------------------
@@ -59,8 +59,8 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
         $this->colunas();
 //        $this->crud->addColumns($this->colunas());
-        $this->crud->addFields($this->campos($contratoitem_servico_id, $indicadores));
-        $this->campos();
+//        $this->crud->addFields($this->campos($contratoitem_servico_id, $indicadores));
+        $this->campos($contratoitem_servico_id, $indicadores);
 
         // add asterisk for fields that are required in ContratoItemServicoIndicadorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -86,54 +86,14 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
     }
 
     private function campos(string $contratoitem_servico_id
-        , array $indicadores): array
+        , array $indicadores): void
     {
-        $this->setFieldIndicador();
+        $this->setFieldContratoItemServico($contratoitem_servico_id);
+        $this->setFieldIndicador($indicadores);
         $this->setFieldTipoAfericao();
-        return [
-            [   // Hidden
-                'name' => 'contratoitem_servico_id',
-                'type' => 'hidden',
-                'default' => $contratoitem_servico_id,
-            ],
-            [ // select_from_array
-                'name' => 'indicador_id',
-                'label' => 'Indicador',
-                'type' => 'select2_from_array',
-                'options' => $indicadores,
-                'allows_null' => false,
-                'placeholder' => 'Selecione',
-//                'allows_multiple' => true,
-//                'tab' => 'Dados do serviço',
-            ],
-            [
-                'name' => 'tipo_afericao',
-                'label' => 'Aferição',
-                'type' => 'radio',
-                'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
-                'default' => 0,
-                'inline' => true,
-//                'tab' => 'Dados do serviço',
-            ],
-            [   // Number
-                'name' => 'meta',
-                'label' => 'Meta',
-                'type' => 'money',
-                // optionals
-                'attributes' => [
-                    'id' => 'meta',
-                ], // allow decimals
-            ],
-            [ // select_from_array
-                'name' => 'periodicidade',
-                'label' => 'periodicidade',
-                'type' => 'select2_from_array',
-                'options' => ['Anual', 'Mensal', 'Semanal', 'Diária', 'Única'],
-                'allows_null' => false,
-                'placeholder' => 'Selecione',
-//                'allows_multiple' => true,
-//                'tab' => 'Dados do serviço',
-            ],
+        $this->setFieldMeta();
+        $this->setFieldPeriodicidade();
+//        return [
 //            [
 //                'name' => 'detalhe',
 //                'label' => 'Detalhe',
@@ -189,10 +149,10 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 //            ],
 
 
-        ];
+//        ];
     }
 
-    private function colunas(): array
+    private function colunas(): void
     {
         $this->setColumnIndicador();
         $this->setColumnTipoAfericao();
@@ -285,21 +245,56 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         ]);
     }
 
-    private function setFieldIndicador()
+    private function setFieldIndicador($indicadores)
     {
-        $this->crud->addField();
+        $this->crud->addField([ // select_from_array
+            'name' => 'indicador_id',
+            'label' => 'Indicador',
+            'type' => 'select2_from_array',
+            'options' => $indicadores,
+            'allows_null' => false,
+            'placeholder' => 'Selecione',
+//                'allows_multiple' => true,
+//                'tab' => 'Dados do serviço',
+        ]);
     }
+
     private function setFieldTipoAfericao()
     {
-        $this->crud->addField();
+        $this->crud->addField([
+            'name' => 'tipo_afericao',
+            'label' => 'Aferição',
+            'type' => 'radio',
+            'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
+            'default' => 0,
+            'inline' => true,
+//                'tab' => 'Dados do serviço',
+        ]);
     }
-//    private function set()
-//    {
-//        $this->crud->addField();
-//    }
-//    private function set()
-//    {
-//        $this->crud->addField();
-//    }
+
+    private function setFieldMeta()
+    {
+        $this->crud->addField([   // Number
+            'name' => 'meta',
+            'label' => 'Meta',
+            'type' => 'money',
+            'attributes' => [
+                'id' => 'meta',
+            ], // allow decimals
+        ]);
+    }
+    private function setFieldPeriodicidade()
+    {
+        $this->crud->addField([ // select_from_array
+            'name' => 'periodicidade',
+            'label' => 'periodicidade',
+            'type' => 'select2_from_array',
+            'options' => ['Anual', 'Mensal', 'Semanal', 'Diária', 'Única'],
+            'allows_null' => false,
+            'placeholder' => 'Selecione',
+//                'allows_multiple' => true,
+//                'tab' => 'Dados do serviço',
+        ]);
+    }
 
 }
