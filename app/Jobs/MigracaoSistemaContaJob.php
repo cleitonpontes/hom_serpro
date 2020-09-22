@@ -54,6 +54,7 @@ class MigracaoSistemaContaJob implements ShouldQueue
 
 
         // // caso seja um teste local, ao processar o último contrato, vou parar aqui antes de voltar ao sistema.
+        // // caso seja um teste local, ao processar o último contrato, vou parar aqui antes de voltar ao sistema.
         // if($this->url == 'https://api-migra-ccontrato-dev.tse.jus.br/api/v1/contrato/523?token=base64:HVQS17hWtsejvO7igXFdWZP4DvW9XtXi9tRe76KT0bc='){
 
         //     echo "<script>alert('FIM DA MIGRAÇÃO');</script>";
