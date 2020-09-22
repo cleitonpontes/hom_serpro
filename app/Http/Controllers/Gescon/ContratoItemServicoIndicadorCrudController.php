@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Models\Codigoitem;
 use App\Models\Indicador;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -23,6 +24,13 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
     {
         $contratoitem_servico_id = Route::current()->parameter('cis_i_id');
         $indicadores = Indicador::all()->pluck('nome', 'id')->toArray();
+
+        $periodicidade = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Periodicidade da Glosa');
+        })
+//            ->where('descricao', 'Saldo Alteracao Contrato Historico')
+            ->pluck('descricao', 'id');
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -60,7 +68,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         $this->colunas();
 //        $this->crud->addColumns($this->colunas());
 //        $this->crud->addFields($this->campos($contratoitem_servico_id, $indicadores));
-        $this->campos($contratoitem_servico_id, $indicadores);
+        $this->campos($contratoitem_servico_id, $indicadores, $periodicidade);
 
         // add asterisk for fields that are required in ContratoItemServicoIndicadorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -69,6 +77,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+//        dd($request->all());
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -86,13 +95,13 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
     }
 
     private function campos(string $contratoitem_servico_id
-        , array $indicadores): void
+        , array $indicadores, $periodicidade): void
     {
         $this->setFieldContratoItemServico($contratoitem_servico_id);
         $this->setFieldIndicador($indicadores);
         $this->setFieldTipoAfericao();
         $this->setFieldMeta();
-        $this->setFieldPeriodicidade();
+        $this->setFieldPeriodicidade($periodicidade);
 //        return [
 //            [
 //                'name' => 'detalhe',
@@ -275,21 +284,21 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
     private function setFieldMeta()
     {
         $this->crud->addField([   // Number
-            'name' => 'meta',
+            'name' => 'vlrmeta',
             'label' => 'Meta',
             'type' => 'money',
             'attributes' => [
-                'id' => 'meta',
+                'id' => 'vlrmeta',
             ], // allow decimals
         ]);
     }
-    private function setFieldPeriodicidade()
+    private function setFieldPeriodicidade($periodicidade)
     {
         $this->crud->addField([ // select_from_array
-            'name' => 'periodicidade',
+            'name' => 'periodicidade_id',
             'label' => 'periodicidade',
             'type' => 'select2_from_array',
-            'options' => ['Anual', 'Mensal', 'Semanal', 'Diária', 'Única'],
+            'options' => $periodicidade,
             'allows_null' => false,
             'placeholder' => 'Selecione',
 //                'allows_multiple' => true,

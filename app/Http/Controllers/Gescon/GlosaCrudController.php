@@ -269,8 +269,12 @@ class GlosaCrudController extends CrudController
             // optionals
             'attributes' => [
                 'id' => 'from',
+
             ], // allow decimals
-            'suffix' => "> =",
+            'prefix' => "> =",
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6'
+            ],
 //                'tab' => 'Dados do serviço',
         ]);
     }
@@ -286,6 +290,9 @@ class GlosaCrudController extends CrudController
                 'id' => 'to',
             ], // allow decimals
             'prefix' => "<",
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6'
+            ],
 //                'tab' => 'Dados do serviço',
         ]);
     }

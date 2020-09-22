@@ -25,8 +25,13 @@ class ContratoItemServicoIndicadorRequest extends FormRequest
      */
     public function rules()
     {
+//        return [];
         return [
-            // 'name' => 'required|min:5|max:255'
+            'contratoitem_servico_id' => 'required',
+            'indicador_id' => 'required',
+            'periodicidade_id' => 'required',
+            'tipo_afericao' => 'required',
+            'vlrmeta' => 'required',
         ];
     }
 
