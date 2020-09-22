@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Gescon;
+// namespace App\Http\Controllers\Gescon;
 
 use App\Models\Contrato;
 use App\Models\Contratoconta;
