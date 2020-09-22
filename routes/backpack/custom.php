@@ -204,7 +204,7 @@ Route::group([
                 CRUD::resource('servicos', 'ContratoServicoCrudController');
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
             });
-            Route::group(['prefix' => 'meus-servicos/{contratoitem_servico_id}'], function () {
+            Route::group(['prefix' => 'meus-servicos/{cis_i_id}'], function () {
                 CRUD::resource('indicadores', 'ContratoItemServicoIndicadorCrudController');
                 CRUD::resource('glosas', 'GlosaCrudController');
             });
