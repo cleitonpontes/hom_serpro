@@ -36,6 +36,9 @@ class ContratocontaCrudController extends CrudController
             abort('403', config('app.erro_permissao'));
         }
 
+        // $objContratoTerceirizado = Contratoterceirizado::where('contrato_id','=',$contrato_id)->first();
+        // $contratoterceirizado_id = $objContratoTerceirizado->id;
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -43,13 +46,12 @@ class ContratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/contratocontas');
-        $this->crud->setEntityNameStrings('contratoconta', 'contratocontas');
+        $this->crud->setEntityNameStrings('conta vinculada', 'Contas Vinculadas');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
-
         $this->crud->addButtonFromView('line', 'morecontratoconta', 'morecontratoconta', 'end');
 
-
+        $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
 
         $this->crud->allowAccess('show');
 
@@ -118,7 +120,6 @@ class ContratocontaCrudController extends CrudController
         $campos = [
             [   // Hidden
                 'name' => 'contrato_id',
-                'label' => 'Contrato', // Table column heading
                 'type' => 'hidden',
                 'default' => $contrato->id,
             ],

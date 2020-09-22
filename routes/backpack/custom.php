@@ -148,20 +148,18 @@ Route::group([
             ], function () {
                 CRUD::resource('compras', 'SiasgcompraCrudController');
                 CRUD::resource('contratos', 'SiasgcontratoCrudController');
-
-
                 Route::get('apisiasg', 'SiasgcompraCrudController@apisiasg');
                 Route::get('inserircompras', 'SiasgcompraCrudController@inserirComprasEmMassa');
                 Route::get('inserircontratos', 'SiasgcontratoCrudController@verificarContratosPendentes');
+            });
 
-
+            Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}'], function () {
+                CRUD::resource('movimentacaocontratoconta', 'MovimentacaocontratocontaCrudController');
+                CRUD::resource('depositocontratoconta', 'DepositocontratocontaCrudController');
             });
 
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
-
-
-                CRUD::resource('contratocontas', 'ContratocontaCrudController');
-
+                CRUD::resource('contratocontas', 'ContratocontaCrudController'); // conta vinculada
 
                 CRUD::resource('aditivos', 'AditivoCrudController');
                 CRUD::resource('apostilamentos', 'ApostilamentoCrudController');

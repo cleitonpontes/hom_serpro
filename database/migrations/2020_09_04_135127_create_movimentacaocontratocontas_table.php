@@ -14,24 +14,26 @@ class CreateMovimentacaocontratocontasTable extends Migration
     {
         Schema::create('movimentacaocontratocontas', function (Blueprint $table) {
             $table->increments('id');
+
             $table->integer('contratoconta_id');
+            $table->foreign('contratoconta_id')->references('id')->on('contratocontas')->onDelete('cascade');
+
             $table->integer('tipo_id');
-            $table->integer('contratoterceirizado_id');
-            $table->integer('encargo_id');
+            $table->foreign('tipo_id')->references('id')->on('codigoitens')->onDelete('cascade');
+
             $table->string('mes_competencia');
             $table->string('ano_competencia');
-            $table->integer('proporcionalidade');
-            $table->decimal('valor',15,2)->nullable();
 
-            $table->foreign('contratoconta_id')->references('id')->on('contratocontas')->onDelete('cascade');
-            $table->foreign('tipo_id')->references('id')->on('codigoitens')->onDelete('cascade');
-            $table->foreign('contratoterceirizado_id')->references('id')->on('contratoterceirizados')->onDelete('cascade');
-            $table->foreign('encargo_id')->references('id')->on('encargos')->onDelete('cascade');
+            $table->decimal('valor_total_mes_ano',15,2)->nullable();
+
+            $table->string('situacao_movimentacao');
+
+            $table->integer('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
 
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      *
