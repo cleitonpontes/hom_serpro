@@ -425,7 +425,7 @@ class EmpenhoCrudController extends CrudController
                 ->get();
 
         foreach ($unidadesAtivas as $unidade) {
-            MigracaoempenhoJob::dispatch($unidade->codigo);
+            MigracaoempenhoJob::dispatch($unidade->codigo, $ano);
         }
 
         // BUSCA AS UNIDADES COM RP CRIADOS NOS ULTIMOS
