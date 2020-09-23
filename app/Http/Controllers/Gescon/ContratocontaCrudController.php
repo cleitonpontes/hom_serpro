@@ -89,7 +89,6 @@ class ContratocontaCrudController extends CrudController
         if( Contratoconta::where('contrato_id', $contratoId)->count() > 0 ){return true;}
         return false;
     }
-
     public function store(StoreRequest $request)
     {
         // será permitida apenas uma conta por contrato. Vamos verificar
