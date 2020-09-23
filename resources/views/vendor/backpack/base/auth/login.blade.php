@@ -62,26 +62,8 @@
                                     {{ trans('backpack::base.login') }}
                                 </button>
                             </div>
-
                             <div class="m-t-10">
-                                <a href="/acessogov/autorizacao"
-                                   class="btn btn-block btn-info">
-                                    <img src="data:image/png;base64,
-                                         <?php echo base64_encode(file_get_contents("../public/img/govbr.png")) ?>"
-                                         width="55px"
-                                         alt="Entrar via Acesso Gov" />
-                                    Entrar com Acesso Gov
-                                </a>
-                                @if (session('warning'))
-                                    <div class="alert alert-warning">
-                                        {{ session('warning') }}
-                                    </div>
-                                @endif
-                                @if (session('error'))
-                                    <div class="alert alert-error">
-                                        {{ session('error') }}
-                                    </div>
-                                @endif
+                                <button class="button-ok" type="button" id="acessogov" tabindex="2">Entrar com Acesso Gov</button>
                             </div>
 
                         </div>
@@ -120,6 +102,11 @@
         <script type="text/javascript">
             $( document ).ready(function($) {
                 $('#{{ $username }}').mask('999.999.999-99');
+
+                $('#acessogov').click(function () {
+                    window.location.href = "{{ route('acessogov.autorizacao') }}";
+                })
+
             });
         </script>
     @endpush

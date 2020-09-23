@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Traits\Formatador;
 use App\Models\Orgao;
 use function foo\func;
-use App\Models\Empenho;
 use App\Models\Unidade;
 use App\Models\Contrato;
-use App\Models\Fornecedor;
 use App\Models\Contratoitem;
-use Illuminate\Http\Request;
 use App\Models\Contratofatura;
 use App\Models\Contratoarquivo;
 use App\Models\Contratoempenho;
@@ -23,6 +21,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Contratoterceirizado;
 use App\Models\Contratodespesaacessoria;
 use OpenApi\Annotations as OA;
+
+use App\Models\Empenho;
+use App\Models\Fornecedor;
+use Illuminate\Http\Request;
 
 class ContratoController extends Controller
 {
@@ -102,7 +104,6 @@ class ContratoController extends Controller
         }
 
         return json_encode($cronograma_array);
-
     }
     /**
      * @OA\Get(
@@ -139,12 +140,10 @@ class ContratoController extends Controller
                 'rpaliquidar' => number_format(@$e->empenho->rpaliquidar, 2, ',', '.'),
                 'rpliquidado' => number_format(@$e->empenho->rpliquidado, 2, ',', '.'),
                 'rppago' => number_format(@$e->empenho->rppago, 2, ',', '.'),
-
             ];
         }
 
         return json_encode($empenhos_array);
-
     }
     /**
      * @OA\Get(
@@ -254,11 +253,8 @@ class ContratoController extends Controller
                 'retroativo_anoref_ate' => $historico->retroativo_anoref_ate,
                 'retroativo_vencimento' => $historico->retroativo_vencimento,
                 'retroativo_valor' => number_format($historico->retroativo_valor, 2, ',', '.'),
-
             ];
-
         }
-
 
         return json_encode($historico_array);
     }
@@ -337,7 +333,6 @@ class ContratoController extends Controller
                 'valorunitario' => number_format($item->valorunitario, 2, ',', '.'),
                 'valortotal' => number_format($item->valortotal, 2, ',', '.'),
              ];
-
         }
 
         return json_encode($itens_array);
@@ -383,7 +378,6 @@ class ContratoController extends Controller
                 'data_fim' => $preposto->data_fim,
                 'situacao' => $preposto->situacao == true ? 'Ativo' : 'Inativo',
              ];
-
         }
 
         return json_encode($prepostos_array);
@@ -429,9 +423,7 @@ class ContratoController extends Controller
                 'data_fim' => $responsavel->data_fim,
                 'telefone_fixo' => $responsavel->telefone_fixo,
                 'telefone_celular' => $responsavel->telefone_celular,
-
             ];
-
         }
 
         return json_encode($responsaveis_array);
@@ -470,7 +462,6 @@ class ContratoController extends Controller
                 'vencimento' => $despesaAcessoria->vencimento,
                 'valor' => number_format($despesaAcessoria->valor, 2, ',', '.'),
              ];
-
         }
 
         return json_encode($despesasAcessorias_array);
@@ -526,7 +517,6 @@ class ContratoController extends Controller
                 'anoref' => $fatura->anoref,
                 'situacao' => $fatura->retornaSituacao(),
             ];
-
         }
 
         return json_encode($faturas_array);
@@ -574,7 +564,6 @@ class ContratoController extends Controller
                 'situacao' => $ocorrencia->ocorSituacao->descricao,
                 'arquivos' => $ocorrencia->getListaArquivosComPath(),
              ];
-
         }
 
         return json_encode($ocorrencias_array);
@@ -601,7 +590,6 @@ class ContratoController extends Controller
      *     )
      * )
      */
-
     public function terceirizadosPorContratoId(int $contrato_id)
     {
 
@@ -668,7 +656,6 @@ class ContratoController extends Controller
                 'descricao' => $arquivo->descricao,
                 'arquivos' => $arquivo->getListaArquivosComPath(),
             ];
-
         }
 
         return json_encode($arquivos_array);
@@ -864,14 +851,10 @@ class ContratoController extends Controller
                 'link_ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
                 'link_terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
                 'link_arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
-
             ];
-
         }
 
-
         return json_encode($contratos_array);
-
     }
 
 
@@ -954,12 +937,9 @@ class ContratoController extends Controller
                     'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
                 ]
             ];
-
         }
 
-
         return json_encode($contratos_array);
-
     }
     /**
      * @OA\Get(
@@ -1040,12 +1020,9 @@ class ContratoController extends Controller
                     'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
                 ]
             ];
-
         }
 
-
         return json_encode($contratos_array);
-
     }
 
     /**
@@ -1127,12 +1104,9 @@ class ContratoController extends Controller
                     'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
                 ]
             ];
-
         }
 
-
         return json_encode($contratos_array);
-
     }
     /**
      * @OA\Get(
@@ -1213,12 +1187,9 @@ class ContratoController extends Controller
                     'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
                 ]
             ];
-
         }
 
-
         return json_encode($contratos_array);
-
     }
 
     private function buscaContratosPorUg(string $unidade)
@@ -1299,7 +1270,7 @@ class ContratoController extends Controller
 
     private function usuarioTransparencia(string $nome, string $cpf)
     {
-        $cpf = '***' . substr($cpf,3,9) . '**';
+        $cpf = $this->retornaMascaraCpf($cpf);
 
         return $cpf . ' - ' . $nome;
     }
@@ -1651,5 +1622,3 @@ class ContratoController extends Controller
 */
 
 }
-
-

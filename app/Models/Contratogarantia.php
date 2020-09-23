@@ -11,10 +11,10 @@ class Contratogarantia extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
 
     protected static $logFillable = true;
     protected static $logName = 'garantia';
-    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -23,23 +23,19 @@ class Contratogarantia extends Model
     */
 
     protected $table = 'contratogarantias';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id',
         'tipo',
         'valor',
         'vencimento'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function getTipo()
     {
         return $this->tipo()->first()->descricao;
@@ -55,6 +51,7 @@ class Contratogarantia extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
@@ -76,6 +73,11 @@ class Contratogarantia extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getDescricaoTipoAttribute($value)
+    {
+        return $this->tipo()->first()->descricao;
+    }
 
     /*
     |--------------------------------------------------------------------------

@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Gescon\Siasg;
 
-use App\Jobs\AtualizaSiasgCompraJob;
 use App\Jobs\AtualizaSiasgContratoJob;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
-use App\Models\ContratoSiasgIntegracao;
 use App\Models\ContratoSiasgIntegracaoNovo;
-use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
+use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -42,7 +40,7 @@ class SiasgcontratoCrudController extends CrudController
         $this->crud->addClause('leftjoin', 'codigoitens', 'codigoitens.id', '=', 'siasgcontratos.tipo_id');
         $this->crud->addClause('leftjoin', 'unidades', 'unidades.id', '=', 'siasgcontratos.unidade_id');
         $this->crud->addClause('select', 'siasgcontratos.*');
-        $this->crud->orderBy('siasgcontratos.updated_at','desc');
+        $this->crud->orderBy('siasgcontratos.updated_at', 'desc');
 //        $this->crud->addClause('where', 'siasgcontratos.unidade_id', '=', session()->get('user_ug_id'));
 //        $this->crud->addClause('orwhere', 'siasgcontratos.unidadesubrrogacao_id', '=', session()->get('user_ug_id'));
 
@@ -60,9 +58,9 @@ class SiasgcontratoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
-        (backpack_user()->can('contrato_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('contrato_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('contrato_deletar')) ? $this->crud->allowAccess('delete') : null;
+        (backpack_user()->can('importacao_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('importacao_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('importacao_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         $this->crud->enableExportButtons();
 
@@ -354,9 +352,9 @@ class SiasgcontratoCrudController extends CrudController
     private function buscaContratos()
     {
         $contratos = Contrato::select(DB::raw("CONCAT(contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS numero"), 'contratos.id')
-            ->join('fornecedores','contratos.fornecedor_id','=','fornecedores.id')
+            ->join('fornecedores', 'contratos.fornecedor_id', '=', 'fornecedores.id')
             ->where('unidade_id', session()->get('user_ug_id'))
-            ->where('situacao',true)
+            ->where('situacao', true)
             ->orderBy('numero')
             ->pluck('numero', 'contratos.id')
             ->toArray();
@@ -400,18 +398,18 @@ class SiasgcontratoCrudController extends CrudController
                 $retorno = $apiSiasg->executaConsulta('DadosContrato', $dado);
             } else {
                 $dado = [
-                    'contratoNSisg' => $siasgcontrato->unidade->codigosiasg . str_pad($siasgcontrato->codigo_interno, 10 , " ") . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
+                    'contratoNSisg' => $siasgcontrato->unidade->codigosiasg . str_pad($siasgcontrato->codigo_interno, 10, " ") . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
                 ];
                 $retorno = $apiSiasg->executaConsulta('ContratoNaoSisg', $dado);
             }
 
             $siasgcontrato_atualizado = $siasgcontrato->atualizaJsonMensagemSituacao($siasgcontrato->id, $retorno);
 
-            if($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado'){
+            if ($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado') {
                 $contratoSiagIntegracao = new ContratoSiasgIntegracaoNovo();
                 $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
 
-                if(isset($contrato->id)){
+                if (isset($contrato->id)) {
                     $siasgcontrato_atualizado->contrato_id = $contrato->id;
                     $siasgcontrato_atualizado->save();
                 }
@@ -430,11 +428,130 @@ class SiasgcontratoCrudController extends CrudController
         $model = new Siasgcontrato;
         $siasgcontratos = $model->buscaContratosPendentes();
 
-        foreach ($siasgcontratos as $siasgcontrato){
-            if(isset($siasgcontrato->id)){
+        foreach ($siasgcontratos as $siasgcontrato) {
+            if (isset($siasgcontrato->id)) {
                 AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
             }
         }
+    }
+
+    public function importaManualmenteContratoSemCompra()
+    {
+        $file = fopen(env('CARGA_CONTRATOS_SISG'), "r");
+        $tipoconsulta = 'CONTRATOSISG';
+
+        while (!feof($file)) {
+            $line = fgets($file);
+
+            $contrato = (substr($line, 0, 23));
+            $unidade = substr($contrato, 0, 6);
+            $tipo_id = $this->buscaIdTipoContratos(substr($contrato, 6, 2));
+            $numero = substr($contrato, 8, 5);
+            $ano = substr($contrato, 13, 4);
+            $subrogacao_id = substr($contrato, 17, 6);
+
+            $unidade_id = $this->buscaIdUnidadesPorNumeroUasg($unidade);
+
+            $dados = [
+                'unidade_id' => $unidade_id,
+                'tipo_id' => $tipo_id,
+                'numero' => $numero,
+                'ano' => $ano,
+                'unidadesubrrogacao_id' => ($subrogacao_id == '000000') ? null : $this->buscaIdUnidadesPorNumeroUasg($subrogacao_id),
+                "codigo_interno" => '0000000000',
+                'situacao' => 'Pendente',
+                'sisg' => 1
+            ];
+
+            $siasgcontrato = $this->verificaSiasgContratosExiste($dados);
+
+            dd($siasgcontrato);
+
+            ($unidade_id != 0 and !isset($siasgcontrato->id)) ? $this->insereContratoSiasg($dados) : '';
+
+        }
+        fclose($file);
+        die('Importação dos contratos sem compra realizada com sucesso!!');
+    }
+
+
+    public function importaManualmenteContratoNaoSisg()
+    {
+        $file = fopen(env('CARGA_CONTRATOS_NSISG'), "r");
+        $tipoconsulta = 'CONTRATONAOSISG';
+
+        while (!feof($file)) {
+            $line = fgets($file);
+
+            $contrato = (substr($line, 0, 27));
+            $unidade = substr($contrato, 0, 6);
+            $codigoInterno = substr($contrato, 6, 10);
+            $tipo_id = $this->buscaIdTipoContratos(substr($contrato, 16, 2));
+            $numero = substr($contrato, 18, 5);
+            $ano = substr($contrato, 23, 4);
+            $unidade_id = $this->buscaIdUnidadesPorNumeroUasg($unidade);
+            $dados = [
+                'unidade_id' => $unidade_id,
+                'tipo_id' => $tipo_id,
+                'numero' => $numero,
+                'ano' => $ano,
+                'codigo_interno' => $codigoInterno,
+                'unidadesubrrogacao_id' => null,
+                'situacao' => 'Pendente',
+                'sisg' => 0
+            ];
+
+            $siasgcontrato = $this->verificaSiasgContratosExiste($dados);
+
+            ($unidade_id != 0 and !isset($siasgcontrato->id)) ? $this->insereContratoSiasg($dados) : '';
+
+        }
+        fclose($file);
+        die('Importação dos contratos NÃO SISG realizada com sucesso!!');
+    }
+
+    private function verificaSiasgContratosExiste(array $dado)
+    {
+        return $siasgcontrato = Siasgcontrato::all()->contains($dado);
+    }
+
+    private function buscaIdTipoContratos(string $descres)
+    {
+        $tipo = Codigoitem::whereHas('codigo', function ($c) {
+            $c->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descres', $descres)
+            ->first();
+
+        return $tipo->id;
+    }
+
+    private function buscaIdUnidadesPorNumeroUasg(string $numero)
+    {
+        if (strlen($numero) < 6) {
+            $numero = '0' . $numero;
+        }
+        $unidades = Unidade::where('codigo', $numero)->first();
+
+        (!is_null($unidades)) ? $id = $unidades->id : $id = null;
+
+        return $id;
+    }
+
+    public function insereContratoSiasg(array $dados)
+    {
+
+        $siasgContrato = new Siasgcontrato();
+        $siasgContrato->unidade_id = $dados['unidade_id'];
+        $siasgContrato->tipo_id = $dados['tipo_id'];
+        $siasgContrato->numero = $dados['numero'];
+        $siasgContrato->ano = $dados['ano'];
+        $siasgContrato->codigo_interno = $dados['codigo_interno'];
+        $siasgContrato->situacao = $dados['situacao'];
+        $siasgContrato->unidadesubrrogacao_id = $dados['unidadesubrrogacao_id'];
+        $siasgContrato->sisg = $dados['sisg'];
+        $siasgContrato->save();
+
     }
 
 }

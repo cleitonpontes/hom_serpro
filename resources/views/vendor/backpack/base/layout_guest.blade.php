@@ -2,6 +2,25 @@
 <html lang="{{ app()->getLocale() }}">
 <head>
     @include('backpack::inc.head')
+    <style>
+        .button-ok {
+            width: 100%;
+            height: 40px;
+            position:static;
+            top:50%;
+            left:50%;
+        }
+
+        .button-ok {
+            background: #1351B4 0 0 no-repeat padding-box;
+            box-shadow: 0 2px 3px #00000029;
+            border-radius: 24px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #FFFFFF;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body class="hold-transition {{ config('backpack.base.skin') }} fixed">
     <!-- Site wrapper -->
