@@ -21,6 +21,7 @@ class Glosa extends Model
     // protected $guarded = ['id'];
     protected $fillable = [
         'contratoitem_servico_indicador_id',
+        'escopo_id',
         'from',
         'to',
         'valor_glosa',

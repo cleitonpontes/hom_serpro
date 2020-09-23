@@ -22,7 +22,9 @@ class ContratoItemServicoIndicador extends Model
     protected $fillable = [
         'contratoitem_servico_id',
         'indicador_id',
+        'periodicidade_id',
         'tipo_afericao',
+        'vlrmeta',
     ];
     // protected $hidden = [];
     // protected $dates = [];

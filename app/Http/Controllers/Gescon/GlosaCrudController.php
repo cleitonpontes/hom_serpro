@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Http\Traits\Formatador;
+use App\Models\Codigoitem;
 use App\Models\ContratoItemServicoIndicador;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -25,7 +26,12 @@ class GlosaCrudController extends CrudController
     {
         $contratoitem_servico_indicador_id = Route::current()->parameter('cis_i_id');
         $contratoitem_servico_indicador = ContratoItemServicoIndicador::find($contratoitem_servico_indicador_id);
-//        dd ($contratoitem_servico_indicador->tipo_afericao);
+
+        $escopo_glosas = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Escopo da Glosa');
+        })
+            ->pluck('descricao', 'id')
+            ->toArray();
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -51,12 +57,8 @@ class GlosaCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        //  remove setFromDb() and manually define Fields and Columns
-//        $this->crud->setFromDb();
-        $this->colunas();
-        $this->campos($contratoitem_servico_indicador_id, $contratoitem_servico_indicador->tipo_afericao);
-
-//        $this->crud->addFields($this->campos($contratoitem_servico_indicador_id));
+        $this->columns($escopo_glosas);
+        $this->fields($contratoitem_servico_indicador_id, $contratoitem_servico_indicador->tipo_afericao, $escopo_glosas);
 
         // add asterisk for fields that are required in GlosaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -65,14 +67,9 @@ class GlosaCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-//        dd($request->all());
-
-        $request->request->set('from', $this->retornaFormatoAmericano($request->from));
-        $request->request->set('to', $this->retornaFormatoAmericano($request->to));
-
-
-//        dd($request->all());
         // your additional operations before save here
+        $this->setRequestFaixa($request);
+
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -82,100 +79,51 @@ class GlosaCrudController extends CrudController
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here
+        $this->setRequestFaixa($request);
+
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
 
-    private function campos(string $contratoitem_servico_indicador_id, bool $tipo_afericao): void
+    public function show($id)
     {
-        $this->setFieldContratoItemServicoIndicador($contratoitem_servico_indicador_id);
-//        $this->setFieldSlider($indicadores);
+        $content = parent::show($id);
 
-        if ($tipo_afericao) {
-            $this->setFieldFrom();
-            $this->setFieldTo();
-        } else {
-            $this->setFieldSlider();
-        }
+        $this->crud->removeColumn('contratoitem_servico_indicador_id');
 
-        $this->setFieldValorGlosa();
-        $this->setFieldEscopo();
-//        return [
-//            [ // select_from_array
-//                'name' => 'indicador_id',
-//                'label' => 'Indicador',
-//                'type' => 'select2_from_array',
-//                'options' => $indicadores,
-//                'allows_null' => false,
-//                'placeholder' => 'Selecione',
-////                'allows_multiple' => true,
-////                'tab' => 'Dados do serviço',
-//            ],
-//            [
-//                'name' => 'detalhe',
-//                'label' => 'Detalhe',
-//                'type' => 'textarea',
-//                'attributes' => [
-//                    'onfocusout' => "maiuscula(this)"
-//                ],
-////                'tab' => 'Dados do serviço',
-//            ],
-//            [   // Number
-//                'name' => 'valor',
-//                'label' => 'Valor',
-//                'type' => 'money',
-//                // optionals
-//                'attributes' => [
-//                    'id' => 'valor',
-//                ], // allow decimals
-//                'prefix' => "R$",
-////                'tab' => 'Dados do serviço',
-//            ],
-//            [
-//                'name' => 'situacao',
-//                'label' => "Situação",
-//                'type' => 'select2_from_array',
-//                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-//                'allows_null' => false,
-////                'tab' => 'Dados do serviço',
-//            ],
-//            [
-//                'name' => 'indicador',
-//                'label' => "Indicador",
-//                'type' => 'select2_from_array',
-//                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-//                'allows_null' => false,
-//                'tab' => 'Indicador Associado',
-//            ],
-//            [
-//                'name' => 'indicadores',
-//                'label' => 'Indicadores',
-//                'type' => 'table2',
-//                'indicadores' => $indicadores,
-//                'periodicidade' => [1 => 'Anual', 2 => 'Mensal', 3 => 'Semanal'],
-//                'entity_singular' => 'indicador', // used on the "Add X" button
-//                'columns' => [
-//                    'name' => 'Indicador',
-//                    'desc' => 'Tipo Aferição',
-//                    'meta' => 'Meta',
-//                    'price' => 'Periodicidade'
-//                ],
-//                'max' => 50,
-//                'min' => 0,
-//                'tab' => 'Indicador Associado',
-//            ],
-
-//        ];
+        return $content;
     }
 
-    private function colunas(): void
+    private function setRequestFaixa($request): void
+    {
+        if (isset($request->slider)) {
+            $faixa = explode(';', $request->slider);
+            $request->request->set('from', $faixa[0]);
+            $request->request->set('to', $faixa[1]);
+            return;
+        }
+
+        $request->request->set('from', $this->retornaFormatoAmericano($request->from));
+        $request->request->set('to', $this->retornaFormatoAmericano($request->to));
+
+    }
+
+    private function fields(string $contratoitem_servico_indicador_id, bool $tipo_afericao, array $escopo_glosas): void
+    {
+        $this->setFieldContratoItemServicoIndicador($contratoitem_servico_indicador_id);
+        $this->setFieldFaixa($tipo_afericao);
+        $this->setFieldValorGlosa();
+        $this->setFieldEscopo($escopo_glosas);
+    }
+
+    private function columns(array $escopo_glosas): void
     {
         $this->setColumnAPartirDe();
         $this->setColumnAte();
         $this->setColumnValorGlosa();
-        $this->setColumnEscopo();
+        $this->setColumnEscopo($escopo_glosas);
 
     }
 
@@ -222,17 +170,13 @@ class GlosaCrudController extends CrudController
         ]);
     }
 
-    private function setColumnEscopo(): void
+    private function setColumnEscopo(array $escopo_glosas): void
     {
         $this->crud->addColumn([
-            'name' => 'escopo',
+            'name' => 'escopo_id',
             'label' => 'Escopo',
             'type' => 'select_from_array',
-            'options' => [
-                0 => 'Serviço',
-                1 => 'Fatura',
-                2 => 'Contrato'
-            ],
+            'options' => $escopo_glosas,
             'orderable' => true,
             'visibleInTable' => true, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
@@ -240,6 +184,16 @@ class GlosaCrudController extends CrudController
             'visibleInShow' => true, // sure, why not
         ]);
 
+    }
+
+    private function setFieldFaixa(bool $tipo_afericao): void
+    {
+        if ($tipo_afericao) {
+            $this->setFieldFrom();
+            $this->setFieldTo();
+            return;
+        }
+        $this->setFieldSlider();
     }
 
     private function setFieldContratoItemServicoIndicador($contratoitem_servico_indicador_id): void
@@ -266,16 +220,13 @@ class GlosaCrudController extends CrudController
             'name' => 'from',
             'label' => 'A partir de',
             'type' => 'money',
-            // optionals
             'attributes' => [
                 'id' => 'from',
-
             ], // allow decimals
             'prefix' => "> =",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ],
-//                'tab' => 'Dados do serviço',
         ]);
     }
 
@@ -285,7 +236,6 @@ class GlosaCrudController extends CrudController
             'name' => 'to',
             'label' => 'Até',
             'type' => 'money',
-            // optionals
             'attributes' => [
                 'id' => 'to',
             ], // allow decimals
@@ -293,7 +243,6 @@ class GlosaCrudController extends CrudController
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ],
-//                'tab' => 'Dados do serviço',
         ]);
     }
 
@@ -303,26 +252,17 @@ class GlosaCrudController extends CrudController
             'name' => 'valor_glosa',
             'label' => 'Valor da Glosa (%)',
             'type' => 'money',
-            // optionals
-//                'prefix' => "<",
-//                'tab' => 'Dados do serviço',
         ]);
     }
 
-    private function setFieldEscopo(): void
+    private function setFieldEscopo(array $escopo_glosas): void
     {
         $this->crud->addField([
-            'name' => 'escopo',
+            'name' => 'escopo_id',
             'label' => 'Escopo da Glosa',
             'type' => 'radio',
-            'options' => [
-                0 => 'Serviço',
-                1 => 'Fatura',
-                2 => 'Contrato'
-            ],
-            'default' => 0,
+            'options' => $escopo_glosas,
             'inline' => true,
-//                'tab' => 'Dados do serviço',
         ]);
     }
 }
