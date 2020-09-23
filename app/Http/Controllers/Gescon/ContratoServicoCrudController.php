@@ -39,7 +39,6 @@ class ContratoServicoCrudController extends CrudController
 
         $itens = $contrato->itens()->get()->pluck('descricao_complementar', 'id')->toArray();
 
-        $indicadores = Indicador::all()->pluck('nome', 'id')->toArray();
 
         /*
         |--------------------------------------------------------------------------
@@ -47,7 +46,6 @@ class ContratoServicoCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Servico');
-//        $this->crud->setRoute(config('backpack.base.route_prefix') . '/servico');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/servicos');
         $this->crud->setEntityNameStrings('serviço', 'serviços');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
@@ -58,7 +56,6 @@ class ContratoServicoCrudController extends CrudController
 
         $this->crud->addButtonFromView('line', 'moreindicadores', 'moreindicadores', 'end');
 
-
         $this->crud->addClause('leftJoin'
             , 'contratoitem_servico', 'contratoitem_servico.servico_id', '=', 'servicos.id'
         );
@@ -66,7 +63,6 @@ class ContratoServicoCrudController extends CrudController
             , 'contratoitens', 'contratoitens.id', '=', 'contratoitem_servico.contratoitem_id'
         );
         $this->crud->addClause('select', [
-//            'contratos.*',
             DB::raw('contratoitem_servico.id as contratoitem_servico_id'),
             'contratoitens.descricao_complementar',
             // Tabela principal deve ser sempre a última da listagem!
@@ -79,11 +75,8 @@ class ContratoServicoCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        // TODO: remove setFromDb() and manually define Fields and Columns
-//        $this->crud->setFromDb();
-
-        $this->crud->addColumns($this->colunas());
-        $this->crud->addFields($this->campos($contrato_id, $itens, $indicadores));
+        $this->crud->addColumns($this->columns());
+        $this->crud->addFields($this->fields($contrato_id, $itens));
 
         // add asterisk for fields that are required in ServicoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -137,8 +130,8 @@ class ContratoServicoCrudController extends CrudController
         return $redirect_location;
     }
 
-    private function campos(string $contrato_id
-        , array $itens, array $indicadores): array
+    private function fields(string $contrato_id
+        , array $itens): array
     {
         return [
             [   // Hidden
@@ -146,7 +139,7 @@ class ContratoServicoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato_id,
             ],
-            [ // select_from_array
+            [
                 'name' => 'contratoitem_id',
                 'label' => 'Item do Contrato',
                 'type' => 'select2_from_array',
@@ -154,7 +147,6 @@ class ContratoServicoCrudController extends CrudController
                 'allows_null' => false,
                 'placeholder' => 'Selecione',
                 'allows_multiple' => true,
-//                'tab' => 'Dados do serviço',
             ],
             [
                 'name' => 'nome',
@@ -164,7 +156,6 @@ class ContratoServicoCrudController extends CrudController
                     'onfocusout' => "maiuscula(this)",
                     'maxlength' => "255",
                 ],
-//                'tab' => 'Dados do serviço',
             ],
             [
                 'name' => 'detalhe',
@@ -173,18 +164,15 @@ class ContratoServicoCrudController extends CrudController
                 'attributes' => [
                     'onfocusout' => "maiuscula(this)"
                 ],
-//                'tab' => 'Dados do serviço',
             ],
-            [   // Number
+            [
                 'name' => 'valor',
                 'label' => 'Valor',
                 'type' => 'money',
-                // optionals
                 'attributes' => [
                     'id' => 'valor',
                 ], // allow decimals
                 'prefix' => "R$",
-//                'tab' => 'Dados do serviço',
             ],
             [
                 'name' => 'situacao',
@@ -192,39 +180,13 @@ class ContratoServicoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => [1 => 'Ativo', 0 => 'Inativo'],
                 'allows_null' => false,
-//                'tab' => 'Dados do serviço',
             ],
-//            [
-//                'name' => 'indicador',
-//                'label' => "Indicador",
-//                'type' => 'select2_from_array',
-//                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-//                'allows_null' => false,
-//                'tab' => 'Indicador Associado',
-//            ],
-//            [
-//                'name' => 'indicadores',
-//                'label' => 'Indicadores',
-//                'type' => 'table2',
-//                'indicadores' => $indicadores,
-//                'periodicidade' => [1 => 'Anual', 2 => 'Mensal', 3 => 'Semanal'],
-//                'entity_singular' => 'indicador', // used on the "Add X" button
-//                'columns' => [
-//                    'name' => 'Indicador',
-//                    'desc' => 'Tipo Aferição',
-//                    'meta' => 'Meta',
-//                    'price' => 'Periodicidade'
-//                ],
-//                'max' => 50,
-//                'min' => 0,
-//                'tab' => 'Indicador Associado',
-//            ],
 
 
         ];
     }
 
-    private function colunas(): array
+    private function columns(): array
     {
         return [
             [
@@ -249,9 +211,9 @@ class ContratoServicoCrudController extends CrudController
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true,
-//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('servicos.nome', 'ilike', "%" . $searchTerm . "%");
-//                },
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('servicos.nome', 'ilike', "%" . $searchTerm . "%");
+                },
             ],
             [
                 'name' => 'detalhe',
@@ -265,6 +227,16 @@ class ContratoServicoCrudController extends CrudController
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('servicos.detalhe', 'ilike', "%" . $searchTerm . "%");
                 }
+            ],
+            [
+                'name' => 'valor',
+                'label' => 'Valor',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'situacao',

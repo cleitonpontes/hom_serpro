@@ -44,7 +44,7 @@
                 $("#example_id").ionRangeSlider({
                     grid: true,
                     type: "double",
-                    step: "0.01"
+                    step: "0.1"
                 });
             });
         </script>

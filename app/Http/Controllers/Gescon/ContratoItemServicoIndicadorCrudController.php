@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\Codigoitem;
 use App\Models\Indicador;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+use App\Http\Traits\Formatador;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoItemServicoIndicadorRequest as StoreRequest;
@@ -20,6 +21,8 @@ use Route;
  */
 class ContratoItemServicoIndicadorCrudController extends CrudController
 {
+    use Formatador;
+
     public function setup()
     {
         $contratoitem_servico_id = Route::current()->parameter('cis_i_id');
@@ -28,7 +31,6 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         $periodicidade = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Periodicidade da Glosa');
         })
-//            ->where('descricao', 'Saldo Alteracao Contrato Historico')
             ->pluck('descricao', 'id');
 
         /*
@@ -63,12 +65,9 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-//        $this->crud->setFromDb();
 
-        $this->colunas();
-//        $this->crud->addColumns($this->colunas());
-//        $this->crud->addFields($this->campos($contratoitem_servico_id, $indicadores));
-        $this->campos($contratoitem_servico_id, $indicadores, $periodicidade);
+        $this->columns($periodicidade);
+        $this->fields($contratoitem_servico_id, $indicadores, $periodicidade);
 
         // add asterisk for fields that are required in ContratoItemServicoIndicadorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -77,8 +76,9 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-//        dd($request->all());
         // your additional operations before save here
+        $request->request->set('vlrmeta', $this->retornaFormatoAmericano($request->vlrmeta));
+
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -94,7 +94,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         return $redirect_location;
     }
 
-    private function campos(string $contratoitem_servico_id
+    private function fields(string $contratoitem_servico_id
         , array $indicadores, $periodicidade): void
     {
         $this->setFieldContratoItemServico($contratoitem_servico_id);
@@ -102,114 +102,14 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         $this->setFieldTipoAfericao();
         $this->setFieldMeta();
         $this->setFieldPeriodicidade($periodicidade);
-//        return [
-//            [
-//                'name' => 'detalhe',
-//                'label' => 'Detalhe',
-//                'type' => 'textarea',
-//                'attributes' => [
-//                    'onfocusout' => "maiuscula(this)"
-//                ],
-////                'tab' => 'Dados do serviço',
-//            ],
-//            [   // Number
-//                'name' => 'valor',
-//                'label' => 'Valor',
-//                'type' => 'money',
-//                // optionals
-//                'attributes' => [
-//                    'id' => 'valor',
-//                ], // allow decimals
-//                'prefix' => "R$",
-////                'tab' => 'Dados do serviço',
-//            ],
-//            [
-//                'name' => 'situacao',
-//                'label' => "Situação",
-//                'type' => 'select2_from_array',
-//                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-//                'allows_null' => false,
-////                'tab' => 'Dados do serviço',
-//            ],
-//            [
-//                'name' => 'indicador',
-//                'label' => "Indicador",
-//                'type' => 'select2_from_array',
-//                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-//                'allows_null' => false,
-//                'tab' => 'Indicador Associado',
-//            ],
-//            [
-//                'name' => 'indicadores',
-//                'label' => 'Indicadores',
-//                'type' => 'table2',
-//                'indicadores' => $indicadores,
-//                'periodicidade' => [1 => 'Anual', 2 => 'Mensal', 3 => 'Semanal'],
-//                'entity_singular' => 'indicador', // used on the "Add X" button
-//                'columns' => [
-//                    'name' => 'Indicador',
-//                    'desc' => 'Tipo Aferição',
-//                    'meta' => 'Meta',
-//                    'price' => 'Periodicidade'
-//                ],
-//                'max' => 50,
-//                'min' => 0,
-//                'tab' => 'Indicador Associado',
-//            ],
-
-
-//        ];
     }
 
-    private function colunas(): void
+    private function columns($periodicidade): void
     {
         $this->setColumnIndicador();
         $this->setColumnTipoAfericao();
-//        $this->setIndicador();
-//        $this->setIndicador();
-//        $this->setIndicador();
-
-//        return [
-
-
-//            [
-//                'name' => 'descricao_complementar',
-//                'label' => 'Item do Contrato',
-//                'type' => 'text',
-//                'orderable' => true,
-//                'visibleInTable' => true,
-//                'visibleInModal' => true,
-//                'visibleInExport' => true,
-//                'visibleInShow' => true,
-////                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-////                    $query->orWhere('servicos.nome', 'ilike', "%" . $searchTerm . "%");
-////                },
-//            ],
-//            [
-//                'name' => 'detalhe',
-//                'label' => 'Detalhe',
-//                'type' => 'text',
-//                'orderable' => true,
-//                'visibleInTable' => true,
-//                'visibleInModal' => true,
-//                'visibleInExport' => true,
-//                'visibleInShow' => true,
-//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('servicos.detalhe', 'ilike', "%" . $searchTerm . "%");
-//                }
-//            ],
-//            [
-//                'name' => 'situacao',
-//                'label' => 'Situação',
-//                'type' => 'boolean',
-//                'orderable' => true,
-//                'visibleInTable' => true,
-//                'visibleInModal' => true,
-//                'visibleInExport' => true,
-//                'visibleInShow' => true,
-//                'options' => [0 => 'Inativo', 1 => 'Ativo']
-//            ],
-//        ];
+        $this->setColumnMeta();
+        $this->setColumnPeriodicidade($periodicidade);
     }
 
     private function setColumnIndicador(): void
@@ -245,6 +145,32 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         ]);
     }
 
+    private function setColumnMeta()
+    {
+        $this->crud->addColumn([
+            'name' => 'vlrmeta',
+            'label' => 'Meta',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
+        ]);
+    }
+
+    private function setColumnPeriodicidade($periodicidade)
+    {
+        $this->crud->addColumn([
+            'name' => 'periodicidade_id',
+            'label' => "Periodicidade",
+            'type' => 'select_from_array',
+            'options' => $periodicidade,
+            'allows_null' => false,
+        ]);
+    }
+
     private function setFieldContratoItemServico($contratoitem_servico_id)
     {
         $this->crud->addField([   // Hidden
@@ -263,8 +189,6 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'options' => $indicadores,
             'allows_null' => false,
             'placeholder' => 'Selecione',
-//                'allows_multiple' => true,
-//                'tab' => 'Dados do serviço',
         ]);
     }
 
@@ -277,7 +201,6 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
             'default' => 0,
             'inline' => true,
-//                'tab' => 'Dados do serviço',
         ]);
     }
 
@@ -292,17 +215,16 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             ], // allow decimals
         ]);
     }
+
     private function setFieldPeriodicidade($periodicidade)
     {
-        $this->crud->addField([ // select_from_array
+        $this->crud->addField([
             'name' => 'periodicidade_id',
             'label' => 'periodicidade',
             'type' => 'select2_from_array',
             'options' => $periodicidade,
             'allows_null' => false,
             'placeholder' => 'Selecione',
-//                'allows_multiple' => true,
-//                'tab' => 'Dados do serviço',
         ]);
     }
 
