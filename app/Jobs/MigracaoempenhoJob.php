@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Http\Traits\Busca;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
@@ -18,7 +17,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 
 class MigracaoempenhoJob implements ShouldQueue
 {
-    use Busca, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 7200;
 
@@ -48,9 +47,7 @@ class MigracaoempenhoJob implements ShouldQueue
 
         $url = $migracao_url . '/api/empenho/ano/' . $this->ano . '/ug/' . $unidade->codigo . '/dia';
 
-        $dados = (env('APP_ENV', 'production') === 'production')
-            ? $this->buscaDadosFileGetContents($url)
-            : $this->buscaDadosCurl($url);
+        $dados = $this->buscaDadosUrl($url);
 
         foreach ($dados as $d) {
 
@@ -109,6 +106,21 @@ class MigracaoempenhoJob implements ShouldQueue
         }
     }
 
+    public function buscaDadosUrl($url)
+    {
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1500);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1500);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode($data, true);
+
+    }
 
     public function buscaFornecedor($credor)
     {

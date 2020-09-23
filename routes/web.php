@@ -43,8 +43,7 @@ Route::group([
     'prefix' => 'soap',
     'namespace' => 'Soap',
 ], function () {
-    Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
-    Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialController@oficioPreview')->name('soap.oficio.preview');
+    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
 });
 
 
