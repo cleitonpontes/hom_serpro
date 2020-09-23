@@ -28,19 +28,62 @@ use Illuminate\Http\Request;
 
 class ContratoController extends Controller
 {
-
-    use Formatador;
-
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista de orgãos com contratos ativos",
+     *     description="Retorna um Json de orgãos com contratos ativos",
+     *     path="/api/contrato/orgaos",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de orgãos com contratos ativos retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Orgao_id")
+     *         ),
+     *     )
+     * )
+     */
     public function orgaosComContratosAtivos()
     {
         return json_encode($this->buscaOrgaosComContratosAtivos());
     }
-
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista de unidades com contratos ativos",
+     *     description="Retorna um Json de unidades com contratos ativos",
+     *     path="/api/contrato/unidades",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de unidades com contratos ativos retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Unidade")
+     *         ),
+     *     )
+     * )
+     */
     public function unidadesComContratosAtivos()
     {
         return json_encode($this->buscaUnidadesComContratosAtivos());
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna o cronograma do contrato",
+     *     description="Retorna um Json do cronograma do contrato",
+     *     path="/api/contrato/{contrato_id}/cronograma",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cronograma do contrato retornado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Cronograma")
+     *         ),
+     *     )
+     * )
+     */
     public function cronogramaPorContratoId(int $contrato_id)
     {
         $cronograma_array = [];
@@ -62,7 +105,20 @@ class ContratoController extends Controller
 
         return json_encode($cronograma_array);
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os empenhos",
+     *     description="Retorna um Json de empenhos",
+     *     path="/api/contrato/empenhos",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de empenhos retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Empenhos_id")
+     *         ),
+     *     )
+     * )
+     */
     public function empenhosPorContratos()
     {
         $empenhos_array = [];
@@ -89,7 +145,26 @@ class ContratoController extends Controller
 
         return json_encode($empenhos_array);
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os empenhos do contrato",
+     *     description="Retorna um Json de empenhos do contrato",
+     *     path="/api/contrato/{contrato_id}/empenhos",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de empenhos do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Empenhos")
+     *         ),
+     *     )
+     * )
+     */
     public function empenhosPorContratoId(int $contrato_id)
     {
         $empenhos_array = [];
@@ -116,6 +191,26 @@ class ContratoController extends Controller
         return json_encode($empenhos_array);
     }
 
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os historicos do contrato",
+     *     description="Retorna um Json de historicos do contrato",
+     *     path="/api/contrato/{contrato_id}/historico",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de historicos do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Historicos")
+     *         ),
+     *     )
+     * )
+     */
     public function historicoPorContratoId(int $contrato_id)
     {
         $historico_array = [];
@@ -163,7 +258,26 @@ class ContratoController extends Controller
 
         return json_encode($historico_array);
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas as garantias do contrato",
+     *     description="Retorna um Json de garantias do contrato",
+     *     path="/api/contrato/{contrato_id}/garantias",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de garantias do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Garantias")
+     *         ),
+     *     )
+     * )
+     */
     public function garantiasPorContratoId(int $contrato_id)
     {
         $garantias_array = [];
@@ -183,7 +297,26 @@ class ContratoController extends Controller
         return json_encode($garantias_array);
     }
 
-    //feito as cegas (faltou CATMATSER)
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os itens do contrato",
+     *     description="Retorna um Json de itens do contrato",
+     *     path="/api/contrato/{contrato_id}/itens",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de itens do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Itens")
+     *         ),
+     *     )
+     * )
+     */
     public function itensPorContratoId(int $contrato_id)
     {
         $itens_array = [];
@@ -204,7 +337,26 @@ class ContratoController extends Controller
 
         return json_encode($itens_array);
     }
-
+/**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os prepostos do contrato",
+     *     description="Retorna um Json de prepostos do contrato",
+     *     path="/api/contrato/{contrato_id}/prepostos",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de prepostos do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Prepostos")
+     *         ),
+     *     )
+     * )
+     */
     public function prepostosPorContratoId(int $contrato_id)
     {
         $prepostos_array = [];
@@ -230,7 +382,26 @@ class ContratoController extends Controller
 
         return json_encode($prepostos_array);
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os responsaveis do contrato",
+     *     description="Retorna um Json de responsaveis do contrato",
+     *     path="/api/contrato/{contrato_id}/responsaveis",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de responsaveis do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Responsaveis")
+     *         ),
+     *     )
+     * )
+     */
     public function responsaveisPorContratoId(int $contrato_id)
     {
         $responsaveis_array = [];
@@ -257,7 +428,26 @@ class ContratoController extends Controller
 
         return json_encode($responsaveis_array);
     }
-
+/**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas as despesas acessorias do contrato",
+     *     description="Retorna um Json de despesas acessorias do contrato",
+     *     path="/api/contrato/{contrato_id}/despesas_acessorias",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de despesas acessorias do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/DespesasAcessorias")
+     *         ),
+     *     )
+     * )
+     */
     public function despesasAcessoriasPorContratoId(int $contrato_id)
     {
         $despesasAcessorias_array = [];
@@ -276,7 +466,26 @@ class ContratoController extends Controller
 
         return json_encode($despesasAcessorias_array);
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas as faturas do contrato",
+     *     description="Retorna um Json de faturas do contrato",
+     *     path="/api/contrato/{contrato_id}/faturas",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de faturas do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Faturas")
+     *         ),
+     *     )
+     * )
+     */
     public function faturasPorContratoId(int $contrato_id)
     {
         $faturas_array = [];
@@ -313,6 +522,26 @@ class ContratoController extends Controller
         return json_encode($faturas_array);
     }
 
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas as ocorrencias do contrato",
+     *     description="Retorna um Json de ocorrencias do contrato",
+     *     path="/api/contrato/{contrato_id}/ocorrencias",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de ocorrencias do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Ocorrencias")
+     *         ),
+     *     )
+     * )
+     */
     public function ocorrenciasPorContratoId(int $contrato_id)
     {
         $ocorrencias_array = [];
@@ -333,7 +562,7 @@ class ContratoController extends Controller
                 //possivel erro no formulário, nova situação não é salva
                 'novasituacao' => $ocorrencia->getSituacaoNovaConsulta(),
                 'situacao' => $ocorrencia->ocorSituacao->descricao,
-                'arquivos' => $ocorrencia->arquivos,
+                'arquivos' => $ocorrencia->getListaArquivosComPath(),
              ];
         }
 
@@ -357,27 +586,6 @@ class ContratoController extends Controller
      *         response=200,
      *         description="Lista de terceirizados do contrato retornada com sucesso",
      *         @OA\JsonContent(ref="#/components/schemas/Terceirizados")
-     *         ),
-     *     ),
-     *     @OA\Components(
-     *         @OA\Schema(
-     *             schema="Terceirizados",
-     *             type="object",
-     *             @OA\Property(property="usuario",type="string",example="111.111.111-00 FULANO DE TAL"),
-     *             @OA\Property(property="funcao_id",type="string",example="Ajudante"),
-     *             @OA\Property(property="descricao_complementar",type="string",example="Ajudante de almoxarifado"),
-     *             @OA\Property(property="jornada",type="integer",example="40"),
-     *             @OA\Property(property="unidade",type="string",example="AGU-SEDE"),
-     *             @OA\Property(property="salario",type="number",example="1.200,25"),
-     *             @OA\Property(property="custo",type="number",example="3.200,25"),
-     *             @OA\Property(property="escolaridade_id",type="string",example="Superior completo"),
-     *             @OA\Property(property="data_inicio",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
-     *             @OA\Property(property="data_fim",type="string",example="2020-01-31",format=" yyyy-mm-dd"),
-     *             @OA\Property(property="situacao",type="string",example="ativo",),
-     *             @OA\Property(property="telefone_fixo",type="string",example="61-4002-6325"),
-     *             @OA\Property(property="telefone_celular",type="string",example="61-94002-6325"),
-     *             @OA\Property(property="aux_transporte",type="number",example="190,00"),
-     *             @OA\Property(property="vale_alimentacao",type="number",example="560,00")
      *         )
      *     )
      * )
@@ -414,7 +622,26 @@ class ContratoController extends Controller
 
         return json_encode($terceirizados_array);
     }
-
+/**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os arquivos do contrato",
+     *     description="Retorna um Json de arquivos do contrato",
+     *     path="/api/contrato/{contrato_id}/arquivos",
+     *     @OA\Parameter(
+     *         name="contrato_id",
+     *         in="path",
+     *         description="id do contrato",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de arquivos do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Arquivos")
+     *         ),
+     *     )
+     * )
+     */
     public function arquivosPorContratoId(int $contrato_id)
     {
         $arquivos_array = [];
@@ -564,6 +791,20 @@ class ContratoController extends Controller
         return $arquivos;
     }
 
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os contratos Ativos",
+     *     description="Retorna um Json de contratos Ativos",
+     *     path="/api/contrato/",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de contratos ativos retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Contratos")
+     *         ),
+     *     )
+     * )
+     */
     public function contratoAtivoAll()
     {
         $contratos_array = [];
@@ -617,6 +858,26 @@ class ContratoController extends Controller
     }
 
 
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os contratos ativos por UG",
+     *     description="Retorna um Json de contratos ativos da UG",
+     *     path="/api/contrato/ug/{unidade_codigo}",
+     *     @OA\Parameter(
+     *         name="unidade_codigo",
+     *         in="path",
+     *         description="codigo da unidade",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de contratos ativos da UG retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Contratos_ug")
+     *         ),
+     *     )
+     * )
+     */
     public function contratoAtivoPorUg(int $unidade)
     {
         $contratos_array = [];
@@ -680,7 +941,26 @@ class ContratoController extends Controller
 
         return json_encode($contratos_array);
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os contratos ativos por Orgao",
+     *     description="Retorna um Json de contratos ativos do orgao",
+     *     path="/api/contrato/orgao/{orgao}",
+     *     @OA\Parameter(
+     *         name="orgao",
+     *         in="path",
+     *         description="numero do orgao",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de contratos ativos do orgão retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Contratos_ug")
+     *         ),
+     *     )
+     * )
+     */
     public function contratoAtivoPorOrgao(int $orgao)
     {
         $contratos_array = [];
@@ -745,6 +1025,26 @@ class ContratoController extends Controller
         return json_encode($contratos_array);
     }
 
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os contratos inativos por UG",
+     *     description="Retorna um Json de contratos inativos da UG",
+     *     path="/api/contrato/inativo/ug/{unidade_codigo}",
+     *     @OA\Parameter(
+     *         name="unidade_codigo",
+     *         in="path",
+     *         description="codigo da unidade",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de contratos inativos da UG retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Contratos_ug")
+     *         ),
+     *     )
+     * )
+     */
     public function contratoInativoPorUg(int $unidade)
     {
         $contratos_array = [];
@@ -808,7 +1108,26 @@ class ContratoController extends Controller
 
         return json_encode($contratos_array);
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os contratos inativos por Orgao",
+     *     description="Retorna um Json de contratos inativos do orgao",
+     *     path="/api/contrato/inativo/orgao/{orgao}",
+     *     @OA\Parameter(
+     *         name="orgao",
+     *         in="path",
+     *         description="numero do orgao",
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de contratos inativos do orgão retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Contratos_ug")
+     *         ),
+     *     )
+     * )
+     */
     public function contratoInativoPorOrgao(int $orgao)
     {
         $contratos_array = [];
@@ -955,5 +1274,351 @@ class ContratoController extends Controller
 
         return $cpf . ' - ' . $nome;
     }
+
+/**
+* 
+* @OA\Components(
+*         @OA\Schema(
+*             schema="Contratos",
+*             type="object",
+*             @OA\Property(property="id",type="integer",example="1"),
+*             @OA\Property(property="receita_despesa",type="string",example="Despesa"),
+*             @OA\Property(property="numero",type="string",example="00420/2019"),
+*             @OA\Property(property="orgao_codigo",type="integer",example="63000"),
+*             @OA\Property(property="orgao_nome",type="string",example="ADVOCACIA-GERAL DA UNIÃO"),
+*             @OA\Property(property="unidade_codigo",type="integer",example="110161"),
+*             @OA\Property(property="unidade_nome_resumido",type="string",example="SAD/DF"),
+*             @OA\Property(property="unidade_nome",type="string",example="SUPERIN. DE ADM. NO DISTRITO FEDERAL"),
+*             @OA\Property(property="fornecedor_tipo",type="string",example="UG"),
+*             @OA\Property(property="fonecedor_cnpj_cpf_idgener",type="integer",example="803010"),
+*             @OA\Property(property="fornecedor_nome",type="string",example="SERPRO REGIONAL BRASILIA"),
+*             @OA\Property(property="tipo",type="string",example="Concessão"),
+*             @OA\Property(property="categoria",type="string",example="Informática"),
+*             @OA\Property(property="processo",type="string",example="50600.000501/2020-04"),
+*             @OA\Property(property="objeto",type="string",example="O PRESENTE CONTRATO TEM POR OBJETO REGULAR, EXCLUSIVAMENTE, SEGUNDO A ESTRUTURA DA TARIFA DO GRUPO B EM BAIXA TENSÃO, O FORNECIMENTO AO CONTRATANTE, PELA BOA VISTA ENERGIA S.A., DA ENERGIA ELÉTRICA NECESSÁRIA AO FUNCIONAMENTO DE SUAS INSTALAÇÕES, LOCALIZADAS NAS UNIDADES DA AGU NO ESTADO DE RORAIMA."),
+*             @OA\Property(property="informacao_complementar",type="string",example="null"),
+*             @OA\Property(property="modalidade",type="string",example="Adesão"),
+*             @OA\Property(property="licitacao_numero",type="string",example="00300/2019"),
+*             @OA\Property(property="data_assinatura",type="string",example="2020-07-31",format="yyyy-mm-dd"),
+*             @OA\Property(property="data_publicacao",type="string",example="2020-08-03",format="yyyy-mm-dd"),
+*             @OA\Property(property="vigencia_inicio",type="string",example="2020-08-04",format="yyyy-mm-dd"),
+*             @OA\Property(property="vigencia_fim",type="string",example="2020-08-28",format="yyyy-mm-dd"),
+*             @OA\Property(property="valor_inicial",type="number",example="1.000.000,00"),
+*             @OA\Property(property="valor_global",type="number",example="1.000.000,00"),
+*             @OA\Property(property="num_parcelas",type="integer",example="10"),
+*             @OA\Property(property="valor_parcela",type="number",example="100.000,00"),
+*             @OA\Property(property="valor_acumulado",type="number",example="1.000.000,00"),
+*             @OA\Property(property="link_historico",type="string",example="http://localhost:8000/api/contrato/1/historico"),
+*             @OA\Property(property="link_empenhos",type="string",example="http://localhost:8000/api/contrato/1/empenhos"),
+*             @OA\Property(property="link_cronograma",type="string",example="http://localhost:8000/api/contrato/1/cronograma"),
+*             @OA\Property(property="link_garantias",type="string",example="http://localhost:8000/api/contrato/1/garantias"),
+*             @OA\Property(property="link_itens",type="string",example="http://localhost:8000/api/contrato/1/itens"),
+*             @OA\Property(property="link_prepostos",type="string",example="http://localhost:8000/api/contrato/1/prepostos"),
+*             @OA\Property(property="link_responsaveis",type="string",example="http://localhost:8000/api/contrato/1/responsaveis"),
+*             @OA\Property(property="link_despesas_acessorias",type="string",example="http://localhost:8000/api/contrato/1/despesas_acessorias"),
+*             @OA\Property(property="link_faturas",type="string",example="http://localhost:8000/api/contrato/1/faturas"),
+*             @OA\Property(property="link_ocorrencias",type="string",example="http://localhost:8000/api/contrato/1/ocorrencias"),
+*             @OA\Property(property="link_terceirizados",type="string",example="http://localhost:8000/api/contrato/1/terceirizados"),
+*             @OA\Property(property="link_arquivos",type="string",example="http://localhost:8000/api/contrato/1/arquivos"),
+*         ),
+*
+*         @OA\Schema(
+*             schema="UG",
+*             type="object",
+*             @OA\Property(property="codigo",type="integer",example="110161"),*             
+*             @OA\Property(property="nome_resumido",type="string",example="SAD/DF/AGU"),
+*             @OA\Property(property="nome",type="string",example="SUPERINTENDENCIA DE ADM. NO DISTRITO FEDERAL"),
+*         ),
+*
+*         @OA\Schema(
+*             schema="Orgao",
+*             type="object",
+*             @OA\Property(property="codigo",type="integer",example="63000"),
+*             @OA\Property(property="nome",type="string",example="ADVOCACIA-GERAL DA UNIAO"),
+*             @OA\Property(property="unidade_gestora", type="object", ref="#/components/schemas/UG"),
+*         ),
+*
+*         @OA\Schema(
+*             schema="Contratante",
+*             type="object",
+*             @OA\Property(property="orgao", type="object", ref="#/components/schemas/Orgao")
+*         ),
+*
+*         @OA\Schema(
+*             schema="Fornecedor",
+*             type="object",
+*             @OA\Property(property="tipo",type="string",example="JURIDICA"),
+*             @OA\Property(property="cnpj_cpf_idgener",type="string",example="02.341.470/0001-44"),
+*             @OA\Property(property="nome", type="string", example="RORAIMA ENERGIA S.A"),
+*         ),
+*
+*         @OA\Schema(
+*             schema="Links",
+*             type="object",
+*             @OA\Property(property="historico",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/historico"),
+*             @OA\Property(property="empenhos",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/empenhos"),
+*             @OA\Property(property="cronograma",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/cronograma"),
+*             @OA\Property(property="garantias",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/garantias"),
+*             @OA\Property(property="itens",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/itens"),
+*             @OA\Property(property="prepostos",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/prepostos"),
+*             @OA\Property(property="responsaveis",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/responsaveis"),
+*             @OA\Property(property="despesas_acessorias",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/despesas_acessorias"),
+*             @OA\Property(property="faturas",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/faturas"),
+*             @OA\Property(property="ocorrencias",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/ocorrencias"),
+*             @OA\Property(property="terceirizados",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/terceirizados"),
+*             @OA\Property(property="arquivos",type="string",example="http://sc-treino.agu.gov.br/api/contrato/2957/arquivos"),
+*         ),
+*
+*         @OA\Schema(
+*             schema="Contratos_ug",
+*             type="object",
+*             @OA\Property(property="id",type="integer",example="2957"),
+*             @OA\Property(property="receita_despesa",type="string",example="Despesa"),
+*             @OA\Property(property="numero",type="string",example="00059/2009"),
+*             @OA\Property(property="contratante", type="object", ref="#/components/schemas/Contratante"),
+*             @OA\Property(property="fornecedor", type="object", ref="#/components/schemas/Fornecedor"),
+*             @OA\Property(property="tipo",type="string",example="Contrato"),
+*             @OA\Property(property="categoria",type="string",example="Compras"),
+*             @OA\Property(property="subcategoria",type="string",example="null"),
+*             @OA\Property(property="unidades_requisitantes",type="string",example="null"),
+*             @OA\Property(property="processo",type="string",example="00549.001460/2008-23"),
+*             @OA\Property(property="objeto",type="string",example="O PRESENTE CONTRATO TEM POR OBJETO REGULAR, EXCLUSIVAMENTE, SEGUNDO A ESTRUTURA DA TARIFA DO GRUPO B EM BAIXA TENSÃO, O FORNECIMENTO AO CONTRATANTE, PELA BOA VISTA ENERGIA S.A., DA ENERGIA ELÉTRICA NECESSÁRIA AO FUNCIONAMENTO DE SUAS INSTALAÇÕES, LOCALIZADAS NAS UNIDADES DA AGU NO ESTADO DE RORAIMA."),
+*             @OA\Property(property="informacao_complementar",type="string",example=""),
+*             @OA\Property(property="modalidade",type="string",example="Inexigibilidade"),
+*             @OA\Property(property="licitacao_numero",type="string",example="00022/2009"),
+*             @OA\Property(property="data_assinatura",type="string",example="2009-06-23",format="yyyy-mm-dd"),
+*             @OA\Property(property="data_publicacao",type="string",example="2009-06-23",format="yyyy-mm-dd"),
+*             @OA\Property(property="vigencia_inicio",type="string",example="2012-06-23",format="yyyy-mm-dd"),
+*             @OA\Property(property="vigencia_fim",type="string",example="2099-06-30",format="yyyy-mm-dd"),
+*             @OA\Property(property="valor_inicial",type="number",example="43.538,12"),
+*             @OA\Property(property="valor_global",type="number",example="102.000,00"),
+*             @OA\Property(property="num_parcelas",type="integer",example="12"),
+*             @OA\Property(property="valor_parcela",type="number",example="8.500,00"),
+*             @OA\Property(property="valor_acumulado",type="number",example="8.486.798,21"),
+*             @OA\Property(property="links", type="object", ref="#/components/schemas/Links"),
+*         ),
+*
+*         @OA\Schema(
+*             schema="Historicos",
+*             type="object",
+*             @OA\Property(property="receita_despesa",type="string",example="Despesa"),
+*             @OA\Property(property="numero",type="string",example="00420/2019"),
+*             @OA\Property(property="observacao",type="string",example="CELEBRAÇÃO DO CONTRATO: 0006/2017 DE ACORDO COM PROCESSO NÚMERO: 00589.000328/2016-38"),
+*             @OA\Property(property="ug",type="integer",example="110099"),
+*             @OA\Property(property="fornecedor", type="object", ref="#/components/schemas/Fornecedor"),
+*             @OA\Property(property="tipo",type="string",example="CONCESSÃO"),
+*             @OA\Property(property="categoria",type="string",example=""),
+*             @OA\Property(property="processo",type="string",example="00589.000328/2016-38"),
+*             @OA\Property(property="objeto",type="string",example="CONTRATAÇÃO DE SERVIÇOS DE PORTEIRO/VIGIA PARA AS UNIDADES DA AGU EM OSASCO, SP, PRESIDENTE PRUDENTE, SÃO JOSÉ DO RIO PRETO, RIBEIRÃO PRETO E MARILIA, CONFORME EDITAL E SEUS ANEXOS."),
+*             @OA\Property(property="informacao_complementar",type="string",example="UNIDADES PSF OSASCO, SAD SÃO PAULO (BACEUNAS), PSU PRESIDENTE PRUDENTE, PSU SÃO JOSÉ DO RIO PRETO, PSU RIBEIRÃO PRETO E PSU MARÍLIA. "),
+*             @OA\Property(property="modalidade",type="string",example="Adesão"),
+*             @OA\Property(property="licitacao_numero",type="string",example="00300/2019"),
+*             @OA\Property(property="data_assinatura",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="data_publicacao",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="vigencia_inicio",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="vigencia_fim",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="valor_inicial",type="number",example="1.200,25"),
+*             @OA\Property(property="valor_global",type="number",example="1.200,25"),
+*             @OA\Property(property="num_parcelas",type="integer",example="10"),
+*             @OA\Property(property="valor_parcela",type="number",example="1.200,25"),
+*             @OA\Property(property="novo_valor_global",type="number",example="1.200,25"),
+*             @OA\Property(property="novo_num_parcelas",type="integer",example="15"),
+*             @OA\Property(property="novo_valor_parcela",type="number",example="1.200,25"),
+*             @OA\Property(property="data_inicio_novo_valor",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="retroativo",type="string",example="Não"),
+*             @OA\Property(property="retroativo_mesref_de",type="integer",example="01"),
+*             @OA\Property(property="retroativo_anoref_de",type="integer",example="2020"),
+*             @OA\Property(property="retroativo_mesref_ate",type="integer",example="05"),
+*             @OA\Property(property="retroativo_anoref_ate",type="integer",example="2020"),
+*             @OA\Property(property="retroativo_vencimento",type="integer",example="04"),
+*             @OA\Property(property="retroativo_valor",type="number",example="1.200,25"),
+*         ),    
+*
+*          @OA\Schema(
+*             schema="Garantias",
+*             type="object",
+*             @OA\Property(property="tipo",type="string",example="Fiança Bancária"),
+*             @OA\Property(property="valor",type="number",example="70.200,25"),
+*             @OA\Property(property="vencimento",type="string",example="2021-01-01",format=" yyyy-mm-dd"),
+*         ),
+*
+*          @OA\Schema(
+*             schema="Itens",
+*             type="object",
+*             @OA\Property(property="tipo_id",type="string",example="Serviço"),
+*             @OA\Property(property="grupo_id",type="string",example="GRUPO GENERICO SERVICO"),
+*             @OA\Property(property="catmatseritem_id",type="string",example="8729 - PRESTACAO DE SERVICOS DE PORTARIA / RECEPCAO"),
+*             @OA\Property(property="descricao_complementar",type="string",example="null"),
+*             @OA\Property(property="quantidade",type="integer",example="20"),
+*             @OA\Property(property="valorunitario",type="number",example="7.163,26"),
+*             @OA\Property(property="valortotal",type="number",example="143.265,20"),
+*         ),
+*
+*          @OA\Schema(
+*             schema="Prepostos",
+*             type="object",
+*             @OA\Property(property="usuario",type="string",example="***.111.111-** FULANO DE TAL"),
+*             @OA\Property(property="email",type="string",example="email@emailpreposto.com"),
+*             @OA\Property(property="telefonefixo",type="string",example="(61) 9999-8888"),
+*             @OA\Property(property="celular",type="string",example="(61) 91234-5678"),
+*             @OA\Property(property="doc_formalizacao",type="string",example="200"),
+*             @OA\Property(property="informacao_complementar",type="string",example="Informações complementares"),
+*             @OA\Property(property="data_inicio",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="data_fim",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="situacao",type="string",example="Ativo"),
+*         ),
+*
+*          @OA\Schema(
+*             schema="Responsaveis",
+*             type="object",
+*             @OA\Property(property="usuario",type="string",example="***.111.111-** FULANO DE TAL"),
+*             @OA\Property(property="funcao_id",type="string",example="Fiscal Administrativo Substituto"),
+*             @OA\Property(property="instalacao_id",type="string",example="DF - Brasília - Sede I"),
+*             @OA\Property(property="portaria",type="string",example="PORTARIA Nº 80, DE 06 DE FEVEREIRO DE 2020"),
+*             @OA\Property(property="situacao",type="string",example="Ativo"),
+*             @OA\Property(property="data_inicio",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="data_fim",type="string",example="2021-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="telefone_fixo",type="string",example="(61) 9999-8888"),
+*             @OA\Property(property="telefone_celular",type="string",example="(61) 91234-5678"),
+*         ),
+*
+*          @OA\Schema(
+*             schema="DespesasAcessorias",
+*             type="object",
+*             @OA\Property(property="tipo_id",type="string",example="Garantia Estendida"),
+*             @OA\Property(property="recorrencia_id",type="string",example="Mensal"),
+*             @OA\Property(property="descricao_complementar",type="string",example="DESCRIÇÃO COMPLEMENTAR"),
+*             @OA\Property(property="vencimento",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="valor",type="number",example="1.200,25"),
+*         ),
+*
+*          @OA\Schema(
+*             schema="Faturas",
+*             type="object",
+*             @OA\Property(property="tipolistafatura_id",type="string",example="PRESTAÇÃO DE SERVIÇOS"),
+*             @OA\Property(property="justificativafatura_id",type="string",example="Ordem Lista: Seguindo a ordem cronológica da lista."),
+*             @OA\Property(property="sfadrao_id",type="string",example=""),
+*             @OA\Property(property="numero",type="string",example="0572PORT/PSUSSR05"),
+*             @OA\Property(property="emissao",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="prazo",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="vencimento",type="string",example="2021-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="valor",type="number",example="16.587,52"),
+*             @OA\Property(property="juros",type="number",example="0,00"),
+*             @OA\Property(property="multa",type="number",example="0,00"),
+*             @OA\Property(property="glosa",type="number",example="0,00"),
+*             @OA\Property(property="valorliquido",type="number",example="16.587,52"),
+*             @OA\Property(property="processo",type="string",example="50600.003651/2015-20"),
+*             @OA\Property(property="protocolo",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="ateste",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="repactuacao",type="string",example="Sim"),
+*             @OA\Property(property="infcomplementar",type="string",example="AUTOMÁTICA"),
+*             @OA\Property(property="mesref",type="string",example="01"),
+*             @OA\Property(property="anoref",type="string",example="2020"),
+*             @OA\Property(property="situacao",type="string",example="Pendente"),
+*         ),
+*
+*          @OA\Schema(
+*             schema="Ocorrencias",
+*             type="object",
+*             @OA\Property(property="numero",type="integer",example="10"),
+*             @OA\Property(property="usuario",type="string",example="***.111.111-** FULANO DE TAL"),
+*             @OA\Property(property="data",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="ocorrencia",type="string",example="EXTRATO DE CONTRATO"),
+*             @OA\Property(property="notificapreposto",type="string",example="Sim"),
+*             @OA\Property(property="emailpreposto",type="string",example="email@cconta.com"),
+*             @OA\Property(property="numeroocorrencia",type="integer",example="3"),
+*             @OA\Property(property="novasituacao",type="string",example="Atendida"),
+*             @OA\Property(property="situacao",type="string",example="Atendida Parcial"),
+*             @OA\Property(property="arquivos",type="array", @OA\Items(type="object", example="[{ 'arquivo_1': 'localhost:8000/storage/contrato/1_00420_2019/580e4da71ac02ec0ecf4f09728b51bc0.pdf'},{'arquivo_2': 'localhost:8000/storage/contrato/1_00420_2019/4e35d0c021543920a41402dfaa0ab89b.pdf'}]")),
+*         ),
+*
+*          @OA\Schema(
+*             schema="Terceirizados",
+*             type="object",
+*             @OA\Property(property="usuario",type="string",example="111.111.111-00 FULANO DE TAL"),
+*             @OA\Property(property="funcao_id",type="string",example="Ajudante"),
+*             @OA\Property(property="descricao_complementar",type="string",example="Ajudante de almoxarifado"),
+*             @OA\Property(property="jornada",type="integer",example="12"),
+*             @OA\Property(property="unidade",type="string",example="AGU-SEDE"),
+*             @OA\Property(property="salario",type="number",example="1.200,25"),
+*             @OA\Property(property="custo",type="number",example="0,00"),
+*             @OA\Property(property="escolaridade_id",type="string",example="Superior completo"),
+*             @OA\Property(property="data_inicio",type="string",example="2020-01-01",format=" yyyy-mm-dd"),
+*             @OA\Property(property="data_fim",type="string",example="2020-01-31",format=" yyyy-mm-dd"),
+*             @OA\Property(property="situacao",type="string",example="ativo",),
+*             @OA\Property(property="telefone_fixo",type="string",example="61-4002-6325"),
+*             @OA\Property(property="telefone_celular",type="string",example="61-94002-6325"),
+*             @OA\Property(property="aux_transporte",type="number",example="190,00"),
+*             @OA\Property(property="vale_alimentacao",type="number",example="560,00")
+*         ),
+*
+*          @OA\Schema(
+*             schema="Arquivos",
+*             type="object",
+*             @OA\Property(property="tipo",type="string",example="Contrato"),
+*             @OA\Property(property="processo",type="string",example="50600.000501/2020-04"),
+*             @OA\Property(property="sequencial_documento",type="integer",example="3"),
+*             @OA\Property(property="descricao",type="string",example="PUBLICAÇÃO DOU TERMO ADITIVO"),
+*             @OA\Property(property="arquivos",type="array", @OA\Items(type="object", example="[{ 'arquivo_1': 'localhost:8000/storage/contrato/1_00420_2019/580e4da71ac02ec0ecf4f09728b51bc0.pdf'},{'arquivo_2': 'localhost:8000/storage/contrato/1_00420_2019/4e35d0c021543920a41402dfaa0ab89b.pdf'}]"))
+*       ),
+*          @OA\Schema(
+*             schema="Empenhos",
+*             type="object",
+*             @OA\Property(property="numero",type="string",example="2019NE800022"),
+*             @OA\Property(property="credor",type="string",example="09.439.320/0001-17 - GLOBAL SERVICOS & COMERCIO LTDA"),
+*             @OA\Property(property="planointerno",type="string",example="AGU0047 - SERVICOS DE PORTARIA"),
+*             @OA\Property(property="naturezadespesa",type="string",example="339039 - OUTROS SERVICOS DE TERCEIROS - PESSOA JURIDICA"),
+*             @OA\Property(property="empenhado",type="number",example="1.361.640,02"),
+*             @OA\Property(property="aliquidar",type="number",example="231.667,64"),
+*             @OA\Property(property="liquidado",type="number",example="0,00"),
+*             @OA\Property(property="pago",type="number",example="1.129.972,38"),
+*             @OA\Property(property="rpinscrito",type="number",example="231.667,64"),
+*             @OA\Property(property="rpaliquidar",type="number",example="128.941,72"),
+*             @OA\Property(property="rpliquidado",type="number",example="128.941,72"),
+*             @OA\Property(property="rppago",type="number",example="102.725,92"),
+*       ),
+*          @OA\Schema(
+*             schema="Empenhos_id",
+*             type="object",
+*             @OA\Property(property="contrato_id",type="integer",example="3260"),
+*             @OA\Property(property="numero",type="string",example="2019NE800022"),
+*             @OA\Property(property="credor",type="string",example="09.439.320/0001-17 - GLOBAL SERVICOS & COMERCIO LTDA"),
+*             @OA\Property(property="planointerno",type="string",example="AGU0047 - SERVICOS DE PORTARIA"),
+*             @OA\Property(property="naturezadespesa",type="string",example="339039 - OUTROS SERVICOS DE TERCEIROS - PESSOA JURIDICA"),
+*             @OA\Property(property="empenhado",type="number",example="1.361.640,02"),
+*             @OA\Property(property="aliquidar",type="number",example="231.667,64"),
+*             @OA\Property(property="liquidado",type="number",example="0,00"),
+*             @OA\Property(property="pago",type="number",example="1.129.972,38"),
+*             @OA\Property(property="rpinscrito",type="number",example="231.667,64"),
+*             @OA\Property(property="rpaliquidar",type="number",example="128.941,72"),
+*             @OA\Property(property="rpliquidado",type="number",example="128.941,72"),
+*             @OA\Property(property="rppago",type="number",example="102.725,92"),
+*       ),
+*          @OA\Schema(
+*             schema="Cronograma",
+*             type="object",
+*             @OA\Property(property="tipo",type="string",example="Contrato"),
+*             @OA\Property(property="numero",type="string",example="00006/2017"),
+*             @OA\Property(property="receita_despesa",type="string",example="Despesa"),
+*             @OA\Property(property="observacao",type="string",example="CELEBRAÇÃO DO CONTRATO: 0006/2017 DE ACORDO COM PROCESSO NÚMERO: 00589.000328/2016-38"),      
+*             @OA\Property(property="mesref",type="integer",example="04"),
+*             @OA\Property(property="anoref",type="integer",example="2017"),
+*             @OA\Property(property="vencimento",type="string",example="2017-05-01",format="yyyy-mm-dd"),
+*             @OA\Property(property="retroativo",type="string",example="Não"),
+*             @OA\Property(property="valor",type="number",example="1.966.974,40"),
+*       ),
+*          @OA\Schema(
+*             schema="Orgao_id",
+*             type="object",
+*             @OA\Property(property="codigo",type="integer",example="14000"),
+*       ),
+*          @OA\Schema(
+*             schema="Unidade",
+*             type="object",
+*             @OA\Property(property="codigo",type="string",example="070001"),
+*       ),
+*     )
+* 
+*/
 
 }
