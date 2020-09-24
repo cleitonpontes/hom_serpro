@@ -85,32 +85,35 @@ class ContratoServicoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+//        dd($request->all());
         // your additional operations before save here
 
-        $itens = $request->contratoitem_id;
+//        $itens = $request->contratoitem_id;
         $request->request->set('valor', $this->retornaFormatoAmericano($request->valor));
+//
+//        try {
+//            // Begin a transaction
+//            DB::beginTransaction();
+//
+//            $redirect_location = parent::storeCrud($request);
+//
+//            foreach ($itens as $item) {
+//                ContratoitemServico::create([
+//                    'contratoitem_id' => $item,
+//                    'servico_id' => $this->crud->entry->id,
+//                ]);
+//            }
+//            // Commit the transaction
+//            DB::commit();
+//        } catch (Exception $e) {
+//            // An error occured; cancel the transaction...
+//            DB::rollback();
+//
+//            // and throw the error again.
+//            throw $e;
+//        }
 
-        try {
-            // Begin a transaction
-            DB::beginTransaction();
-
-            $redirect_location = parent::storeCrud($request);
-
-            foreach ($itens as $item) {
-                ContratoitemServico::create([
-                    'contratoitem_id' => $item,
-                    'servico_id' => $this->crud->entry->id,
-                ]);
-            }
-            // Commit the transaction
-            DB::commit();
-        } catch (Exception $e) {
-            // An error occured; cancel the transaction...
-            DB::rollback();
-
-            // and throw the error again.
-            throw $e;
-        }
+        $redirect_location = parent::storeCrud($request);
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -139,14 +142,23 @@ class ContratoServicoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato_id,
             ],
+//            [
+//                'name' => 'contratoitem_id',
+//                'label' => 'Item do Contrato',
+//                'type' => 'select2_from_array',
+//                'options' => $itens,
+//                'allows_null' => false,
+//                'placeholder' => 'Selecione',
+//                'allows_multiple' => true,
+//            ],
             [
-                'name' => 'contratoitem_id',
                 'label' => 'Item do Contrato',
-                'type' => 'select2_from_array',
-                'options' => $itens,
-                'allows_null' => false,
-                'placeholder' => 'Selecione',
-                'allows_multiple' => true,
+                'type' => 'select2_multiple',
+                'name' => 'contratoItens',
+                'entity' => 'Contratoitem',
+                'attribute' => 'descricao_complementar',
+                'model' => "App\Models\Contratoitem",
+                'pivot' => true,
             ],
             [
                 'name' => 'nome',

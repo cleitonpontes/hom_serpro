@@ -139,6 +139,11 @@ class Contratoitem extends Model
         return $this->belongsTo(Catmatseritem::class, 'catmatseritem_id');
     }
 
+    public function servicos()
+    {
+        return $this->belongsToMany( Servico::class, 'contratoitem_servico', 'contratoitem_id', 'servico_id' );
+
+    }
 
     /*
     |--------------------------------------------------------------------------
