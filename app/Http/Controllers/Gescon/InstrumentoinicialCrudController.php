@@ -37,6 +37,7 @@ class InstrumentoinicialCrudController extends CrudController
         })
             ->where('descricao', '=', 'Termo Aditivo')
             ->orWhere('descricao', '=', 'Termo de Apostilamento')
+            ->orWhere('descricao', '=', 'Termo de Rescisão')
             ->pluck('id')
             ->toArray();
 

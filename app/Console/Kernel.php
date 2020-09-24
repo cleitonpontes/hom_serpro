@@ -30,15 +30,15 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->everyMinute();
 
-        $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
-            ->weekdays()
-            ->timezone('America/Sao_Paulo')
-            ->everyMinute();
+//        $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
+//            ->weekdays()
+//            ->timezone('America/Sao_Paulo')
+//            ->everyMinute();
 
-        $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
-            ->weekdays()
-            ->timezone('America/Sao_Paulo')
-            ->everyMinute();
+//        $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
+//            ->weekdays()
+//            ->timezone('America/Sao_Paulo')
+//            ->everyMinute();
 
         $schedule->call('App\Http\Controllers\Admin\AlertaContratoController@enviaEmails')
             ->timezone('America/Sao_Paulo')
@@ -63,6 +63,18 @@ class Kernel extends ConsoleKernel
             ->weekdays()
             ->timezone('America/Sao_Paulo')
             ->at('09:00');
+
+//        $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
+//            ->weekdays()
+//            ->timezone('America/Sao_Paulo')
+//            ->everyMinute();
+
+//        $schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
+//            ->weekdays()
+//            ->timezone('America/Sao_Paulo')
+//            ->everyMinute();
+
+
     }
 
     /**

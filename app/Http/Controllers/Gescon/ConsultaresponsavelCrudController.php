@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\BackpackUser;
 use App\Models\Codigo;
 use App\Models\Codigoitem;
-use App\Models\Contratoresponsavel;
 use App\Models\Instalacao;
 use Illuminate\Support\Facades\DB;
 

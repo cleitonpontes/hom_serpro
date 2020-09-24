@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\ContratoSiasgIntegracao;
+use App\Models\ContratoSiasgIntegracaoNovo;
 use App\Models\Siasgcontrato;
 use App\XML\ApiSiasg;
 use Illuminate\Bus\Queueable;
@@ -34,7 +34,7 @@ class AtualizaSiasgContratoJob implements ShouldQueue
      */
     public function handle()
     {
-        $tipoconsulta = 'ContratoSisg';
+        $tipoconsulta = 'DadosContrato';
 
         $dado = [
             'contrato' => $this->siasgcontrato->unidade->codigosiasg . $this->siasgcontrato->tipo->descres . $this->siasgcontrato->numero . $this->siasgcontrato->ano
@@ -55,7 +55,7 @@ class AtualizaSiasgContratoJob implements ShouldQueue
         $siasgcontrato_atualizado = $this->siasgcontrato->atualizaJsonMensagemSituacao($this->siasgcontrato->id, $retorno);
 
         if($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado'){
-            $contratoSiagIntegracao = new ContratoSiasgIntegracao;
+            $contratoSiagIntegracao = new ContratoSiasgIntegracaoNovo;
             $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
 
             if(isset($contrato->id)){
