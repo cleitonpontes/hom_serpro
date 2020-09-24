@@ -440,10 +440,39 @@ class AdminController extends Controller
         curl_close($ch);
         return json_decode($data, true);
     }
+    public function verificarSeLinkEstaNoAr($url){
+        $ch = curl_init();
 
+        curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_HEADER, 1);
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 500 );
+		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );
+
+		$content = curl_exec( $ch );
+        $info = curl_getinfo( $ch );
+        if($info['http_code']==200){
+            return true;
+        }
+        return false;
+    }
     public function buscaDadosUrlMigracao($url)
     {
-        return json_decode(file_get_contents($url), true);
+
+        $verificacao = self::verificarSeLinkEstaNoAr($url);
+        while( !$verificacao ){
+            $verificacao = self::verificarSeLinkEstaNoAr($url);
+        }
+        $dargs=array("ssl"=>array("verify_peer"=>false,"verify_peer_name"=>false),"http"=>array('timeout' => 99999, 'user_agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/3.0.0.1'));
+
+        $passou = false;
+        while( !$passou ){
+            if( $response = file_get_contents($url, false, stream_context_create($dargs)) ){
+                $passou = true;
+            }
+        }
+        return json_decode($response, true);
+        // return json_decode(file_get_contents($url), true);
     }
 
     public function formataCnpjCpfTipo($dado, $tipo)
