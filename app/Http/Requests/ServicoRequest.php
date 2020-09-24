@@ -26,10 +26,10 @@ class ServicoRequest extends FormRequest
     public function rules()
     {
         return [
-            'contratoitem_id' => 'required',
+//            'contratoitem_id' => 'required',
             'nome' => 'required',
             'detalhe' => 'required',
-            'valor' => "required|min:0.01",
+            'valor' => "required|min:0.1",
             'situacao' => 'required',
         ];
     }

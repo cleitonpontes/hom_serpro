@@ -15,6 +15,7 @@ class Contratoitem extends Model
 
     protected static $logFillable = true;
     protected static $logName = 'contratoitens';
+    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -132,6 +133,11 @@ class Contratoitem extends Model
     public function tipo()
     {
         return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
+
+    public function servicos()
+    {
+        return $this->belongsToMany( Servico::class, 'contratoitem_servico', 'contratoitem_id', 'servico_id' );
     }
 
     /*
