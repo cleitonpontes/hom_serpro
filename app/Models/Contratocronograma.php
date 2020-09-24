@@ -127,10 +127,8 @@ class Contratocronograma extends Model
             $t = $contratohistorico->num_parcelas;
         }
 
-
         $mesref = date_format($data, 'Y-m');
         $mesrefnew = $mesref . "-01";
-
 
         $dados = [];
         for ($i = 1; $i <= $t; $i++) {
@@ -313,7 +311,6 @@ class Contratocronograma extends Model
     public function montaArrayTipoDescricaoNumeroInstrumento(string $contrato_id)
     {
         $array = [];
-
         $historico = Contratohistorico::where('contrato_id', '=', $contrato_id)
             ->orderBy('data_assinatura')
             ->get();
@@ -322,11 +319,8 @@ class Contratocronograma extends Model
             $array[$h->id] = implode('/', array_reverse(explode('-',
                     $h->data_assinatura))) . ' | ' . $h->tipo->descricao . ' - ' . $h->numero;
         }
-
         return $array;
-
     }
-
     public function buscaCronogramasPorUg(int $ug)
     {
         $cronogramas = $this->whereHas('contrato', function ($contrato) use ($ug) {

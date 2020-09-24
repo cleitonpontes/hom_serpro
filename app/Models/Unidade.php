@@ -37,23 +37,11 @@ class Unidade extends Model
         'codigo_siorg',
 
     ];
-
-    public function imprimirNaTela($valor)
-    {
-        echo '<pre>';
-        var_dump($valor);
-        echo '</pre>';
-    }
-
-
     public function buscaUnidadeExecutoraPorCodigo($codigo)
     {
-        self::imprimirNaTela('Vai buscar o id da unidade código = '.$codigo);
         $unidade = $this->where('codigo', $codigo)
             ->where('tipo', 'E')
             ->first();
-
-            self::imprimirNaTela('id = '.$unidade->id);
         return $unidade->id;
     }
 
