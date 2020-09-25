@@ -67,15 +67,15 @@ class DiarioOficialController extends BaseSoapController
         $dados ['dados']['UG'] = $contrato->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contrato->data_publicacao);
         $dados ['dados']['empenho'] = $this->retornaNumeroEmpenho($contrato);
-        $dados ['dados']['identificadorJornal'] = 1; //Diário Oficial Seção - 1 -> ConsultaJornais
-        $dados ['dados']['identificadorTipoPagamento'] = 149; //ISENTO -> ConsultaFormasPagamento
+        $dados ['dados']['identificadorJornal'] = 3; //Diário Oficial Seção - 1 -> ConsultaJornais
+        $dados ['dados']['identificadorTipoPagamento'] = 89; //ISENTO -> ConsultaFormasPagamento //89 - empenho
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = ''; //Número único de Processo relacionado à publicação NÃO OBRIGATÓRIO
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($texto);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134; //ConsultaNormas -> 134 Edital de Citação
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = 46; //código siorg AGU
         $dados ['dados']['motivoIsencao'] = 9;
         $dados ['dados']['siorgCliente'] = 46;
-
+//        dd($dados);
         return $dados;
 
     }
@@ -97,24 +97,37 @@ class DiarioOficialController extends BaseSoapController
 
     public function retornaTextoRtf(string $texto)
     {
-        $texto = "{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-                    {\*\generator Riched20 10.0.18362}\viewkind4\uc1
-                    \pard\sa200\sl276\slmult1\qc\b\f0\fs22\lang22 EXTRATO DE CONTRATO N\'ba 14/2020 - UASG 110099\par
 
-                    \pard\sa200\sl276\slmult1\b0\par
-                    \tab N\'ba Processo: 00589000389202081.\par
-                    \par
+        $file = fopen(env('DOU_CONTRATOS'), "r");
 
-                    \pard\sa200\sl276\slmult1\qj\tab PREG\'c3O SRP N\'ba 5/2019. Contratante: SUPERINTENDENCIA DE ADMINISTRACAO-NO ESTADO DE SAO PAUL. CNPJ Contratado: 18083458000117. Contratado : ARCOM COMERCIO E SERVICOS EIRELI -.Objeto: Contrata\'e7\'e3o de servi\'e7os de manuten\'e7\'e3o predial com e sem dedica\'e7\'e3o exclusiva de m\'e3o de obra para as Unidades da AGU em S\'e3o Paulo, Osasco e Guarulhos conforme edital e seus anexos. Fundamento Legal: Lei 10520/2002, Lei 8666/93, Decreto 7982/2013, Decreto 7892/2013 e Decreto 9507/2018, In 05/2017 . Vig\'eancia: 01/07/2020 a 01/07/2021. Valor Total: R$776.446,86. Fonte: 100000000 - 2020NE800828 Fonte: 100000000 - 2020 800829. Data de Assinatura: 19/06/2020.\par
+        while (!feof($file)) {
+            $line = fgets($file);
+            $texto = $texto.$line;
+        }
+        fclose($file);
+        dump($texto);
 
-                    \pard\sa200\sl276\slmult1\par
-                    (SICON - 10/09/2020)\par
-                    \par
-                    }";
+        $texto1 =
+                "{\\rtf1\ansi\ansicpg1252\deff0\\nouicompat\deflang1046{\\fonttbl{\\f0\fnil\\fcharset0 Calibri;}}
+                {\*\generator Riched20 10.0.18362}\\viewkind4\uc1
+                \pard\sa200\sl276\slmult1\qc\b\\f0\\fs22\lang22 EXTRATO DE CONTRATO N\'ba 14/2020 - UASG 110099\par
 
-//        $texto = "Nas linhas 19 a 24 se extrai o corpo do documento RTF, o corpo do documento é o que se repete, para extraí-lo primeiro obtemos o cabeçalho do documento, o cabeçalho fica determinado pela etiqueta rtf sectd. Um documento rtf termina sempre em }, com essa informação extraímos o corpo.";
+                \pard\sa200\sl276\slmult1\b0\par
+                \\tab N\'ba Processo: 00589000389202081.\par
+                \par
 
-        return $texto;
+                \pard\sa200\sl276\slmult1\qj\\tab PREG\'c3O SRP N\'ba 5/2019. Contratante: SUPERINTENDENCIA DE ADMINISTRACAO-NO ESTADO DE SAO PAUL. CNPJ Contratado: 18083458000117. Contratado : ARCOM COMERCIO E SERVICOS EIRELI -.Objeto: Contrata\'e7\'e3o de servi\'e7os de manuten\'e7\'e3o predial com e sem dedica\'e7\'e3o exclusiva de m\'e3o de obra para as Unidades da AGU em S\'e3o Paulo, Osasco e Guarulhos conforme edital e seus anexos. Fundamento Legal: Lei 10520/2002, Lei 8666/93, Decreto 7982/2013, Decreto 7892/2013 e Decreto 9507/2018, In 05/2017 . Vig\'eancia: 01/07/2020 a 01/07/2021. Valor Total: R$776.446,86. Fonte: 100000000 - 2020NE800828 Fonte: 100000000 - 2020 800829. Data de Assinatura: 19/06/2020.\par
+
+                \pard\sa200\sl276\slmult1\par
+                (SICON - 10/09/2020)\par
+                \par
+                }";
+        dump($texto1);
+        $texto2 = "{\\rtf1\ansi\deff0{\\fonttbl{\\f0 Times New Roman;}}";
+//        {\b Hello {\pard gentle } world !}";
+//        {\pard\sa200\sl276\slmult1\qc\b\\f0\\fs22\lang22 \b testse \par}";
+        dump($texto2);
+        return $texto2;
     }
 
 }
