@@ -54,8 +54,8 @@ class SaldohistoricoitemCrudController extends CrudController
         $this->crud->addButtonFromView('top', 'voltar', 'voltar', 'end');
 
         $this->crud->enableExportButtons();
-//        $this->crud->denyAccess('create');
-//        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
 
         (backpack_user()->can('saldohistoricoitens_inserir')) ? $this->crud->allowAccess('create') : null;
