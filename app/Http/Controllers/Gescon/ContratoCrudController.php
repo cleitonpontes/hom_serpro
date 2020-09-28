@@ -1510,6 +1510,7 @@ class ContratoCrudController extends CrudController
         return Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Categoria Contrato');
         })
+            ->where('descricao', '<>', 'A definir')
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
