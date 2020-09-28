@@ -84,7 +84,7 @@ class InstrumentoinicialCrudController extends CrudController
 
         $categorias = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Categoria Contrato');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+        })->where('descricao', '<>', 'A definir')->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $modalidades = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Modalidade Licitação');
