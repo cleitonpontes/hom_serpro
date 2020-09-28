@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratohistorico;
+use App\Models\Contratopublicacoes;
 
 class ContratoObserve
 {
@@ -20,6 +21,13 @@ class ContratoObserve
                 'contrato_id' => $contrato->id,
                 'observacao' => 'CELEBRAÇÃO DO CONTRATO: ' . $con->numero . ' DE ACORDO COM PROCESSO NÚMERO: ' . $con->processo,
             ]);
+
+        Contratopublicacoes::create([
+            'contrato_id' => $contrato->id,
+            'data_publicacao' => $contrato->data_publicacao,
+            'status' => 'Pendente',
+            'situacao' => 'Não Publicado'
+        ]);
 
     }
 

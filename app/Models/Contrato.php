@@ -458,6 +458,11 @@ class Contrato extends Model
         return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
     }
 
+    public function publicacao()
+    {
+        return $this->hasOne(Contratopublicacoes::class, 'contrato_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
