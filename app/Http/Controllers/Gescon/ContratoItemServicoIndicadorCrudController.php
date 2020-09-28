@@ -209,9 +209,10 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         $this->crud->addField([   // Number
             'name' => 'vlrmeta',
             'label' => 'Meta',
-            'type' => 'money',
+            'type' => 'number',
             'attributes' => [
                 'id' => 'vlrmeta',
+//                "max" => '10',
             ], // allow decimals
         ]);
     }

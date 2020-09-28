@@ -28,7 +28,7 @@ class CreateContratoitemServicoIndicadorPivotTable extends Migration
 //            $table->softDeletes();
 
             $table->foreign('periodicidade_id')->references('id')->on('codigoitens')->onDelete('cascade');
-            $table->unique(['contratoitem_servico_id', 'indicador_id']);
+//            $table->unique(['contratoitem_servico_id', 'indicador_id']);
         });
     }
 
