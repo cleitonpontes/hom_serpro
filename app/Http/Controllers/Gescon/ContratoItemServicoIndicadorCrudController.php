@@ -39,32 +39,33 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\ContratoItemServicoIndicador');
-//        $this->crud->setRoute(config('backpack.base.route_prefix') . '/contratoitemservicoindicador');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-servicos/' . $contratoitem_servico_id . '/indicadores');
         $this->crud->setEntityNameStrings('indicador', 'indicadores');
         $this->crud->removeButton('create');
         $this->crud->addButtonFromView('top', 'vincular', 'vincularIndicador');
 
-        //todo arrumar o botao voltar para o local correto
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
-        $this->crud->enableExportButtons();
 
-        //todo LEMBRAR DE FAZER OS ACESSOS
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
+
+        (backpack_user()->can('contrato_servico_indicador_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('contrato_servico_indicador_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('contrato_servico_indicador_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         $this->crud->addButtonFromView('line', 'moreglosas', 'moreglosas', 'end');
 
-
         // Apenas ocorrencias deste contratoitem_servico_id
         $this->crud->addClause('where', 'contratoitem_servico_indicador.contratoitem_servico_id', '=', $contratoitem_servico_id);
-
 
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
 
         $this->columns($periodicidade);
         $this->fields($contratoitem_servico_id, $indicadores, $periodicidade);
@@ -211,6 +212,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'type' => 'number',
             'attributes' => [
                 'id' => 'vlrmeta',
+                "step" => "any"
 //                "max" => '10',
             ], // allow decimals
         ]);

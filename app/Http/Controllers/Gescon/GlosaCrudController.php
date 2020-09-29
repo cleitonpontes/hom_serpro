@@ -44,12 +44,17 @@ class GlosaCrudController extends CrudController
         );
         $this->crud->setEntityNameStrings('glosa', 'glosas');
 
-        //todo arrumar o botao voltar para o local correto
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
-        $this->crud->enableExportButtons();
 
-        //todo LEMBRAR DE FAZER OS ACESSOS
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
+
+        (backpack_user()->can('glosa_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('glosa_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('glosa_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
         |--------------------------------------------------------------------------
@@ -210,7 +215,11 @@ class GlosaCrudController extends CrudController
         $this->crud->addField([   // Range
             'name' => 'slider',
             'label' => 'Faixas de ajuste no pagamento',
-            'type' => 'slider'
+            'type' => 'slider',
+            'min' => '0',
+            'max' => '100',
+            'step' => '0.1',
+            'grid' => true,
         ]);
     }
 

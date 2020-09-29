@@ -49,10 +49,16 @@ class ContratoServicoCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/servicos');
         $this->crud->setEntityNameStrings('serviço', 'serviços');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
-        $this->crud->enableExportButtons();
 
-        //LEMBRAR DE FAZER OS ACESSOS
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
+
+        (backpack_user()->can('contrato_servico_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('contrato_servico_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('contrato_servico_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         $this->crud->addButtonFromView('line', 'moreindicadores', 'moreindicadores', 'end');
 
@@ -76,7 +82,7 @@ class ContratoServicoCrudController extends CrudController
         */
 
         $this->crud->addColumns($this->columns());
-        $this->crud->addFields($this->fields($contrato_id, $itens));
+        $this->crud->addFields($this->fields($contrato_id));
 
         // add asterisk for fields that are required in ServicoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -85,33 +91,9 @@ class ContratoServicoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-//        dd($request->all());
         // your additional operations before save here
 
-//        $itens = $request->contratoitem_id;
         $request->request->set('valor', $this->retornaFormatoAmericano($request->valor));
-//
-//        try {
-//            // Begin a transaction
-//            DB::beginTransaction();
-//
-//            $redirect_location = parent::storeCrud($request);
-//
-//            foreach ($itens as $item) {
-//                ContratoitemServico::create([
-//                    'contratoitem_id' => $item,
-//                    'servico_id' => $this->crud->entry->id,
-//                ]);
-//            }
-//            // Commit the transaction
-//            DB::commit();
-//        } catch (Exception $e) {
-//            // An error occured; cancel the transaction...
-//            DB::rollback();
-//
-//            // and throw the error again.
-//            throw $e;
-//        }
 
         $redirect_location = parent::storeCrud($request);
 
@@ -122,8 +104,6 @@ class ContratoServicoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        //TODO FAZER O UPDATE DOS ITENS DO CONTRATO
-        $itens = $request->contratoitem_id;
         $request->request->set('valor', $this->retornaFormatoAmericano($request->valor));
 
         // your additional operations before save here
@@ -133,8 +113,7 @@ class ContratoServicoCrudController extends CrudController
         return $redirect_location;
     }
 
-    private function fields(string $contrato_id
-        , array $itens): array
+    private function fields(string $contrato_id): array
     {
         return [
             [   // Hidden
@@ -142,15 +121,6 @@ class ContratoServicoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato_id,
             ],
-//            [
-//                'name' => 'contratoitem_id',
-//                'label' => 'Item do Contrato',
-//                'type' => 'select2_from_array',
-//                'options' => $itens,
-//                'allows_null' => false,
-//                'placeholder' => 'Selecione',
-//                'allows_multiple' => true,
-//            ],
             [
                 'label' => 'Item do Contrato',
                 'type' => 'select2_multiple',
