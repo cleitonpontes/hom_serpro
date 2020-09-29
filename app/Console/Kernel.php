@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Jobs\MigracaoempenhoJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -133,12 +132,12 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobDefault()
     {
-        $this->executaCommand('default', '09:00', 7200, 6);
+        $this->executaCommand('default', '09:00', 1, 7200, 6);
     }
 
     protected function executarJobMigracaoSistemaConta()
     {
-        $this->executaCommand('migracaosistemaconta', '09:10', 7200);
+        $this->executaCommand('migracaosistemaconta', '09:10', 2, 7200);
     }
 
     // ************************************************************
@@ -146,17 +145,17 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobSfPadrao()
     {
-        $this->executaCommand('sfpadrao', '09:20', 90);
+        $this->executaCommand('sfpadrao', '09:20', 1, 90);
     }
 
     protected function executarJobAtualizaSaldoEmpenho()
     {
-        $this->executaCommand('atualizasaldone', '09:30', 7200, 3);
+        $this->executaCommand('atualizasaldone', '09:30', 10, 7200, 3);
     }
 
     protected function executarJobAlteraDocumentoHabil()
     {
-        $this->executaCommand('siafialteradh', '09:40', 720, 3);
+        $this->executaCommand('siafialteradh', '09:40', 1, 720, 3);
     }
 
     // ************************************************************
@@ -164,17 +163,17 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobSiasgContrato()
     {
-        $this->executaCommand('siasgcontrato', '09:50', 90);
+        $this->executaCommand('siasgcontrato', '09:50', 2, 90);
     }
 
     protected function executarJobSiasgCargaCompra()
     {
-        $this->executaCommand('cargasiasgcompra', '10:00', 900);
+        $this->executaCommand('cargasiasgcompra', '10:00', 2, 900);
     }
 
     protected function executarJobSiasgCompra()
     {
-        $this->executaCommand('siasgcompra', '10:10', 90);
+        $this->executaCommand('siasgcompra', '10:10', 1, 90);
     }
 
     // ************************************************************
@@ -182,25 +181,27 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobEmailDiario()
     {
-        $this->executaCommand('email_diario', '10:20', 600);
+        $this->executaCommand('email_diario', '10:20', 5, 600);
     }
 
     protected function executarJobEmailMensal()
     {
-        $this->executaCommand('email_mensal', '10:30', 600);
+        $this->executaCommand('email_mensal', '10:30', 5, 600);
     }
 
-    private function executaCommand($fila, $horario = '09:00', $timeout = 600, $tries = 1)
+    private function executaCommand($fila, $horario = '09:00', $quantidadeExecucoes = 1, $timeout = 600, $tries = 1)
     {
-        $this->schedule->command(
-            "php artisan queue:work
+        for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
+            $this->schedule->command(
+                "php artisan queue:work
                  --queue=$fila
                  --stop-when-empty
                  --timeout=$timeout
                  --tries=$tries"
-        )
-            ->timezone('America/Sao_Paulo')
-            // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
-            ->at($horario);
+            )
+                ->timezone('America/Sao_Paulo')
+                // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
+                ->at($horario);
+        }
     }
 }
