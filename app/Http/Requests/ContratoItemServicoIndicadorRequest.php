@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Rules\ValorMeta;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ContratoItemServicoIndicadorRequest extends FormRequest
@@ -25,13 +26,20 @@ class ContratoItemServicoIndicadorRequest extends FormRequest
      */
     public function rules()
     {
-//        return [];
         return [
             'contratoitem_servico_id' => 'required',
             'indicador_id' => 'required',
             'periodicidade_id' => 'required',
             'tipo_afericao' => 'required',
-            'vlrmeta' => 'required',
+            'vlrmeta' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if ($this->tipo_afericao === '0' && $value > 100) {
+                        $fail('Para a aferição percentual, a meta deve ser no máximo 100');
+                    }
+                },
+            ],
+
         ];
     }
 

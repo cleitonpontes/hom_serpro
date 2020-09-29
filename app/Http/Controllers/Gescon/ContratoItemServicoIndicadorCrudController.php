@@ -156,7 +156,6 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
-            'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
         ]);
     }
 
