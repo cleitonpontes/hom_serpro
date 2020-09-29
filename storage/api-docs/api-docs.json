@@ -1,0 +1,1672 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Comprasnet Contratos",
+        "contact": {
+            "email": "heles.junior@agu.gov.br"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "https://contratos.comprasnet.gov.br",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/contrato/orgaos": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista de orgãos com contratos ativos",
+                "description": "Retorna um Json de orgãos com contratos ativos",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::orgaosComContratosAtivos",
+                "responses": {
+                    "200": {
+                        "description": "Lista de orgãos com contratos ativos retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Orgao_id"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/unidades": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista de unidades com contratos ativos",
+                "description": "Retorna um Json de unidades com contratos ativos",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::unidadesComContratosAtivos",
+                "responses": {
+                    "200": {
+                        "description": "Lista de unidades com contratos ativos retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Unidade"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/cronograma": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna o cronograma do contrato",
+                "description": "Retorna um Json do cronograma do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::cronogramaPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cronograma do contrato retornado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cronograma"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/empenhos": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todos os empenhos",
+                "description": "Retorna um Json de empenhos",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::empenhosPorContratos",
+                "responses": {
+                    "200": {
+                        "description": "Lista de empenhos retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Empenhos_id"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/empenhos": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todos os empenhos do contrato",
+                "description": "Retorna um Json de empenhos do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::empenhosPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de empenhos do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Empenhos"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/historico": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas os historicos do contrato",
+                "description": "Retorna um Json de historicos do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::historicoPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de historicos do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Historicos"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/garantias": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas as garantias do contrato",
+                "description": "Retorna um Json de garantias do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::garantiasPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de garantias do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Garantias"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/itens": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas os itens do contrato",
+                "description": "Retorna um Json de itens do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::itensPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de itens do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Itens"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/prepostos": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas os prepostos do contrato",
+                "description": "Retorna um Json de prepostos do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::prepostosPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de prepostos do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Prepostos"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/responsaveis": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas os responsaveis do contrato",
+                "description": "Retorna um Json de responsaveis do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::responsaveisPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de responsaveis do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Responsaveis"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/despesas_acessorias": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas as despesas acessorias do contrato",
+                "description": "Retorna um Json de despesas acessorias do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::despesasAcessoriasPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de despesas acessorias do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DespesasAcessorias"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/faturas": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas as faturas do contrato",
+                "description": "Retorna um Json de faturas do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::faturasPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de faturas do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Faturas"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/ocorrencias": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas as ocorrencias do contrato",
+                "description": "Retorna um Json de ocorrencias do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::ocorrenciasPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de ocorrencias do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ocorrencias"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/terceirizados": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todos os terceirizados do contrato",
+                "description": "Retorna um Json de terceirizados do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::terceirizadosPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de terceirizados do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Terceirizados"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/{contrato_id}/arquivos": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas os arquivos do contrato",
+                "description": "Retorna um Json de arquivos do contrato",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::arquivosPorContratoId",
+                "parameters": [
+                    {
+                        "name": "contrato_id",
+                        "in": "path",
+                        "description": "id do contrato",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de arquivos do contrato retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Arquivos"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todos os contratos Ativos",
+                "description": "Retorna um Json de contratos Ativos",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::contratoAtivoAll",
+                "responses": {
+                    "200": {
+                        "description": "Lista de contratos ativos retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contratos"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/ug/{unidade_codigo}": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas os contratos ativos por UG",
+                "description": "Retorna um Json de contratos ativos da UG",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::contratoAtivoPorUg",
+                "parameters": [
+                    {
+                        "name": "unidade_codigo",
+                        "in": "path",
+                        "description": "codigo da unidade",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de contratos ativos da UG retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contratos_ug"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/orgao/{orgao}": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todos os contratos ativos por Orgao",
+                "description": "Retorna um Json de contratos ativos do orgao",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::contratoAtivoPorOrgao",
+                "parameters": [
+                    {
+                        "name": "orgao",
+                        "in": "path",
+                        "description": "numero do orgao",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de contratos ativos do orgão retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contratos_ug"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/inativo/ug/{unidade_codigo}": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todas os contratos inativos por UG",
+                "description": "Retorna um Json de contratos inativos da UG",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::contratoInativoPorUg",
+                "parameters": [
+                    {
+                        "name": "unidade_codigo",
+                        "in": "path",
+                        "description": "codigo da unidade",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de contratos inativos da UG retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contratos_ug"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contrato/inativo/orgao/{orgao}": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna uma lista com todos os contratos inativos por Orgao",
+                "description": "Retorna um Json de contratos inativos do orgao",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::contratoInativoPorOrgao",
+                "parameters": [
+                    {
+                        "name": "orgao",
+                        "in": "path",
+                        "description": "numero do orgao",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de contratos inativos do orgão retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contratos_ug"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Contratos": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "receita_despesa": {
+                        "type": "string",
+                        "example": "Despesa"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "00420/2019"
+                    },
+                    "orgao_codigo": {
+                        "type": "integer",
+                        "example": "63000"
+                    },
+                    "orgao_nome": {
+                        "type": "string",
+                        "example": "ADVOCACIA-GERAL DA UNIÃO"
+                    },
+                    "unidade_codigo": {
+                        "type": "integer",
+                        "example": "110161"
+                    },
+                    "unidade_nome_resumido": {
+                        "type": "string",
+                        "example": "SAD/DF"
+                    },
+                    "unidade_nome": {
+                        "type": "string",
+                        "example": "SUPERIN. DE ADM. NO DISTRITO FEDERAL"
+                    },
+                    "fornecedor_tipo": {
+                        "type": "string",
+                        "example": "UG"
+                    },
+                    "fonecedor_cnpj_cpf_idgener": {
+                        "type": "integer",
+                        "example": "803010"
+                    },
+                    "fornecedor_nome": {
+                        "type": "string",
+                        "example": "SERPRO REGIONAL BRASILIA"
+                    },
+                    "tipo": {
+                        "type": "string",
+                        "example": "Concessão"
+                    },
+                    "categoria": {
+                        "type": "string",
+                        "example": "Informática"
+                    },
+                    "processo": {
+                        "type": "string",
+                        "example": "50600.000501/2020-04"
+                    },
+                    "objeto": {
+                        "type": "string",
+                        "example": "O PRESENTE CONTRATO TEM POR OBJETO REGULAR, EXCLUSIVAMENTE, SEGUNDO A ESTRUTURA DA TARIFA DO GRUPO B EM BAIXA TENSÃO, O FORNECIMENTO AO CONTRATANTE, PELA BOA VISTA ENERGIA S.A., DA ENERGIA ELÉTRICA NECESSÁRIA AO FUNCIONAMENTO DE SUAS INSTALAÇÕES, LOCALIZADAS NAS UNIDADES DA AGU NO ESTADO DE RORAIMA."
+                    },
+                    "informacao_complementar": {
+                        "type": "string",
+                        "example": "null"
+                    },
+                    "modalidade": {
+                        "type": "string",
+                        "example": "Adesão"
+                    },
+                    "licitacao_numero": {
+                        "type": "string",
+                        "example": "00300/2019"
+                    },
+                    "data_assinatura": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2020-07-31"
+                    },
+                    "data_publicacao": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2020-08-03"
+                    },
+                    "vigencia_inicio": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2020-08-04"
+                    },
+                    "vigencia_fim": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2020-08-28"
+                    },
+                    "valor_inicial": {
+                        "type": "number",
+                        "example": "1.000.000,00"
+                    },
+                    "valor_global": {
+                        "type": "number",
+                        "example": "1.000.000,00"
+                    },
+                    "num_parcelas": {
+                        "type": "integer",
+                        "example": "10"
+                    },
+                    "valor_parcela": {
+                        "type": "number",
+                        "example": "100.000,00"
+                    },
+                    "valor_acumulado": {
+                        "type": "number",
+                        "example": "1.000.000,00"
+                    },
+                    "link_historico": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/historico"
+                    },
+                    "link_empenhos": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/empenhos"
+                    },
+                    "link_cronograma": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/cronograma"
+                    },
+                    "link_garantias": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/garantias"
+                    },
+                    "link_itens": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/itens"
+                    },
+                    "link_prepostos": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/prepostos"
+                    },
+                    "link_responsaveis": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/responsaveis"
+                    },
+                    "link_despesas_acessorias": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/despesas_acessorias"
+                    },
+                    "link_faturas": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/faturas"
+                    },
+                    "link_ocorrencias": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/ocorrencias"
+                    },
+                    "link_terceirizados": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/terceirizados"
+                    },
+                    "link_arquivos": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/contrato/1/arquivos"
+                    }
+                },
+                "type": "object"
+            },
+            "UG": {
+                "properties": {
+                    "codigo": {
+                        "type": "integer",
+                        "example": "110161"
+                    },
+                    "nome_resumido": {
+                        "type": "string",
+                        "example": "SAD/DF/AGU"
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "SUPERINTENDENCIA DE ADM. NO DISTRITO FEDERAL"
+                    }
+                },
+                "type": "object"
+            },
+            "Orgao": {
+                "properties": {
+                    "codigo": {
+                        "type": "integer",
+                        "example": "63000"
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "ADVOCACIA-GERAL DA UNIAO"
+                    },
+                    "unidade_gestora": {
+                        "$ref": "#/components/schemas/UG"
+                    }
+                },
+                "type": "object"
+            },
+            "Contratante": {
+                "properties": {
+                    "orgao": {
+                        "$ref": "#/components/schemas/Orgao"
+                    }
+                },
+                "type": "object"
+            },
+            "Fornecedor": {
+                "properties": {
+                    "tipo": {
+                        "type": "string",
+                        "example": "JURIDICA"
+                    },
+                    "cnpj_cpf_idgener": {
+                        "type": "string",
+                        "example": "02.341.470/0001-44"
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "RORAIMA ENERGIA S.A"
+                    }
+                },
+                "type": "object"
+            },
+            "Links": {
+                "properties": {
+                    "historico": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/historico"
+                    },
+                    "empenhos": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/empenhos"
+                    },
+                    "cronograma": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/cronograma"
+                    },
+                    "garantias": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/garantias"
+                    },
+                    "itens": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/itens"
+                    },
+                    "prepostos": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/prepostos"
+                    },
+                    "responsaveis": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/responsaveis"
+                    },
+                    "despesas_acessorias": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/despesas_acessorias"
+                    },
+                    "faturas": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/faturas"
+                    },
+                    "ocorrencias": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/ocorrencias"
+                    },
+                    "terceirizados": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/terceirizados"
+                    },
+                    "arquivos": {
+                        "type": "string",
+                        "example": "http://sc-treino.agu.gov.br/api/contrato/2957/arquivos"
+                    }
+                },
+                "type": "object"
+            },
+            "Contratos_ug": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": "2957"
+                    },
+                    "receita_despesa": {
+                        "type": "string",
+                        "example": "Despesa"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "00059/2009"
+                    },
+                    "contratante": {
+                        "$ref": "#/components/schemas/Contratante"
+                    },
+                    "fornecedor": {
+                        "$ref": "#/components/schemas/Fornecedor"
+                    },
+                    "tipo": {
+                        "type": "string",
+                        "example": "Contrato"
+                    },
+                    "categoria": {
+                        "type": "string",
+                        "example": "Compras"
+                    },
+                    "subcategoria": {
+                        "type": "string",
+                        "example": "null"
+                    },
+                    "unidades_requisitantes": {
+                        "type": "string",
+                        "example": "null"
+                    },
+                    "processo": {
+                        "type": "string",
+                        "example": "00549.001460/2008-23"
+                    },
+                    "objeto": {
+                        "type": "string",
+                        "example": "O PRESENTE CONTRATO TEM POR OBJETO REGULAR, EXCLUSIVAMENTE, SEGUNDO A ESTRUTURA DA TARIFA DO GRUPO B EM BAIXA TENSÃO, O FORNECIMENTO AO CONTRATANTE, PELA BOA VISTA ENERGIA S.A., DA ENERGIA ELÉTRICA NECESSÁRIA AO FUNCIONAMENTO DE SUAS INSTALAÇÕES, LOCALIZADAS NAS UNIDADES DA AGU NO ESTADO DE RORAIMA."
+                    },
+                    "informacao_complementar": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "modalidade": {
+                        "type": "string",
+                        "example": "Inexigibilidade"
+                    },
+                    "licitacao_numero": {
+                        "type": "string",
+                        "example": "00022/2009"
+                    },
+                    "data_assinatura": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2009-06-23"
+                    },
+                    "data_publicacao": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2009-06-23"
+                    },
+                    "vigencia_inicio": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2012-06-23"
+                    },
+                    "vigencia_fim": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2099-06-30"
+                    },
+                    "valor_inicial": {
+                        "type": "number",
+                        "example": "43.538,12"
+                    },
+                    "valor_global": {
+                        "type": "number",
+                        "example": "102.000,00"
+                    },
+                    "num_parcelas": {
+                        "type": "integer",
+                        "example": "12"
+                    },
+                    "valor_parcela": {
+                        "type": "number",
+                        "example": "8.500,00"
+                    },
+                    "valor_acumulado": {
+                        "type": "number",
+                        "example": "8.486.798,21"
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/Links"
+                    }
+                },
+                "type": "object"
+            },
+            "Historicos": {
+                "properties": {
+                    "receita_despesa": {
+                        "type": "string",
+                        "example": "Despesa"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "00420/2019"
+                    },
+                    "observacao": {
+                        "type": "string",
+                        "example": "CELEBRAÇÃO DO CONTRATO: 0006/2017 DE ACORDO COM PROCESSO NÚMERO: 00589.000328/2016-38"
+                    },
+                    "ug": {
+                        "type": "integer",
+                        "example": "110099"
+                    },
+                    "fornecedor": {
+                        "$ref": "#/components/schemas/Fornecedor"
+                    },
+                    "tipo": {
+                        "type": "string",
+                        "example": "CONCESSÃO"
+                    },
+                    "categoria": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "processo": {
+                        "type": "string",
+                        "example": "00589.000328/2016-38"
+                    },
+                    "objeto": {
+                        "type": "string",
+                        "example": "CONTRATAÇÃO DE SERVIÇOS DE PORTEIRO/VIGIA PARA AS UNIDADES DA AGU EM OSASCO, SP, PRESIDENTE PRUDENTE, SÃO JOSÉ DO RIO PRETO, RIBEIRÃO PRETO E MARILIA, CONFORME EDITAL E SEUS ANEXOS."
+                    },
+                    "informacao_complementar": {
+                        "type": "string",
+                        "example": "UNIDADES PSF OSASCO, SAD SÃO PAULO (BACEUNAS), PSU PRESIDENTE PRUDENTE, PSU SÃO JOSÉ DO RIO PRETO, PSU RIBEIRÃO PRETO E PSU MARÍLIA. "
+                    },
+                    "modalidade": {
+                        "type": "string",
+                        "example": "Adesão"
+                    },
+                    "licitacao_numero": {
+                        "type": "string",
+                        "example": "00300/2019"
+                    },
+                    "data_assinatura": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "data_publicacao": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "vigencia_inicio": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "vigencia_fim": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "valor_inicial": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    },
+                    "valor_global": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    },
+                    "num_parcelas": {
+                        "type": "integer",
+                        "example": "10"
+                    },
+                    "valor_parcela": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    },
+                    "novo_valor_global": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    },
+                    "novo_num_parcelas": {
+                        "type": "integer",
+                        "example": "15"
+                    },
+                    "novo_valor_parcela": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    },
+                    "data_inicio_novo_valor": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "retroativo": {
+                        "type": "string",
+                        "example": "Não"
+                    },
+                    "retroativo_mesref_de": {
+                        "type": "integer",
+                        "example": "01"
+                    },
+                    "retroativo_anoref_de": {
+                        "type": "integer",
+                        "example": "2020"
+                    },
+                    "retroativo_mesref_ate": {
+                        "type": "integer",
+                        "example": "05"
+                    },
+                    "retroativo_anoref_ate": {
+                        "type": "integer",
+                        "example": "2020"
+                    },
+                    "retroativo_vencimento": {
+                        "type": "integer",
+                        "example": "04"
+                    },
+                    "retroativo_valor": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    }
+                },
+                "type": "object"
+            },
+            "Garantias": {
+                "properties": {
+                    "tipo": {
+                        "type": "string",
+                        "example": "Fiança Bancária"
+                    },
+                    "valor": {
+                        "type": "number",
+                        "example": "70.200,25"
+                    },
+                    "vencimento": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2021-01-01"
+                    }
+                },
+                "type": "object"
+            },
+            "Itens": {
+                "properties": {
+                    "tipo_id": {
+                        "type": "string",
+                        "example": "Serviço"
+                    },
+                    "grupo_id": {
+                        "type": "string",
+                        "example": "GRUPO GENERICO SERVICO"
+                    },
+                    "catmatseritem_id": {
+                        "type": "string",
+                        "example": "8729 - PRESTACAO DE SERVICOS DE PORTARIA / RECEPCAO"
+                    },
+                    "descricao_complementar": {
+                        "type": "string",
+                        "example": "null"
+                    },
+                    "quantidade": {
+                        "type": "integer",
+                        "example": "20"
+                    },
+                    "valorunitario": {
+                        "type": "number",
+                        "example": "7.163,26"
+                    },
+                    "valortotal": {
+                        "type": "number",
+                        "example": "143.265,20"
+                    }
+                },
+                "type": "object"
+            },
+            "Prepostos": {
+                "properties": {
+                    "usuario": {
+                        "type": "string",
+                        "example": "***.111.111-** FULANO DE TAL"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "email@emailpreposto.com"
+                    },
+                    "telefonefixo": {
+                        "type": "string",
+                        "example": "(61) 9999-8888"
+                    },
+                    "celular": {
+                        "type": "string",
+                        "example": "(61) 91234-5678"
+                    },
+                    "doc_formalizacao": {
+                        "type": "string",
+                        "example": "200"
+                    },
+                    "informacao_complementar": {
+                        "type": "string",
+                        "example": "Informações complementares"
+                    },
+                    "data_inicio": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "data_fim": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "situacao": {
+                        "type": "string",
+                        "example": "Ativo"
+                    }
+                },
+                "type": "object"
+            },
+            "Responsaveis": {
+                "properties": {
+                    "usuario": {
+                        "type": "string",
+                        "example": "***.111.111-** FULANO DE TAL"
+                    },
+                    "funcao_id": {
+                        "type": "string",
+                        "example": "Fiscal Administrativo Substituto"
+                    },
+                    "instalacao_id": {
+                        "type": "string",
+                        "example": "DF - Brasília - Sede I"
+                    },
+                    "portaria": {
+                        "type": "string",
+                        "example": "PORTARIA Nº 80, DE 06 DE FEVEREIRO DE 2020"
+                    },
+                    "situacao": {
+                        "type": "string",
+                        "example": "Ativo"
+                    },
+                    "data_inicio": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "data_fim": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2021-01-01"
+                    },
+                    "telefone_fixo": {
+                        "type": "string",
+                        "example": "(61) 9999-8888"
+                    },
+                    "telefone_celular": {
+                        "type": "string",
+                        "example": "(61) 91234-5678"
+                    }
+                },
+                "type": "object"
+            },
+            "DespesasAcessorias": {
+                "properties": {
+                    "tipo_id": {
+                        "type": "string",
+                        "example": "Garantia Estendida"
+                    },
+                    "recorrencia_id": {
+                        "type": "string",
+                        "example": "Mensal"
+                    },
+                    "descricao_complementar": {
+                        "type": "string",
+                        "example": "DESCRIÇÃO COMPLEMENTAR"
+                    },
+                    "vencimento": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "valor": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    }
+                },
+                "type": "object"
+            },
+            "Faturas": {
+                "properties": {
+                    "tipolistafatura_id": {
+                        "type": "string",
+                        "example": "PRESTAÇÃO DE SERVIÇOS"
+                    },
+                    "justificativafatura_id": {
+                        "type": "string",
+                        "example": "Ordem Lista: Seguindo a ordem cronológica da lista."
+                    },
+                    "sfadrao_id": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "0572PORT/PSUSSR05"
+                    },
+                    "emissao": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "prazo": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "vencimento": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2021-01-01"
+                    },
+                    "valor": {
+                        "type": "number",
+                        "example": "16.587,52"
+                    },
+                    "juros": {
+                        "type": "number",
+                        "example": "0,00"
+                    },
+                    "multa": {
+                        "type": "number",
+                        "example": "0,00"
+                    },
+                    "glosa": {
+                        "type": "number",
+                        "example": "0,00"
+                    },
+                    "valorliquido": {
+                        "type": "number",
+                        "example": "16.587,52"
+                    },
+                    "processo": {
+                        "type": "string",
+                        "example": "50600.003651/2015-20"
+                    },
+                    "protocolo": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "ateste": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "repactuacao": {
+                        "type": "string",
+                        "example": "Sim"
+                    },
+                    "infcomplementar": {
+                        "type": "string",
+                        "example": "AUTOMÁTICA"
+                    },
+                    "mesref": {
+                        "type": "string",
+                        "example": "01"
+                    },
+                    "anoref": {
+                        "type": "string",
+                        "example": "2020"
+                    },
+                    "situacao": {
+                        "type": "string",
+                        "example": "Pendente"
+                    }
+                },
+                "type": "object"
+            },
+            "Ocorrencias": {
+                "properties": {
+                    "numero": {
+                        "type": "integer",
+                        "example": "10"
+                    },
+                    "usuario": {
+                        "type": "string",
+                        "example": "***.111.111-** FULANO DE TAL"
+                    },
+                    "data": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "ocorrencia": {
+                        "type": "string",
+                        "example": "EXTRATO DE CONTRATO"
+                    },
+                    "notificapreposto": {
+                        "type": "string",
+                        "example": "Sim"
+                    },
+                    "emailpreposto": {
+                        "type": "string",
+                        "example": "email@cconta.com"
+                    },
+                    "numeroocorrencia": {
+                        "type": "integer",
+                        "example": "3"
+                    },
+                    "novasituacao": {
+                        "type": "string",
+                        "example": "Atendida"
+                    },
+                    "situacao": {
+                        "type": "string",
+                        "example": "Atendida Parcial"
+                    },
+                    "arquivos": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "example": "[{ 'arquivo_1': 'localhost:8000/storage/contrato/1_00420_2019/580e4da71ac02ec0ecf4f09728b51bc0.pdf'},{'arquivo_2': 'localhost:8000/storage/contrato/1_00420_2019/4e35d0c021543920a41402dfaa0ab89b.pdf'}]"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Terceirizados": {
+                "properties": {
+                    "usuario": {
+                        "type": "string",
+                        "example": "111.111.111-00 FULANO DE TAL"
+                    },
+                    "funcao_id": {
+                        "type": "string",
+                        "example": "Ajudante"
+                    },
+                    "descricao_complementar": {
+                        "type": "string",
+                        "example": "Ajudante de almoxarifado"
+                    },
+                    "jornada": {
+                        "type": "integer",
+                        "example": "12"
+                    },
+                    "unidade": {
+                        "type": "string",
+                        "example": "AGU-SEDE"
+                    },
+                    "salario": {
+                        "type": "number",
+                        "example": "1.200,25"
+                    },
+                    "custo": {
+                        "type": "number",
+                        "example": "0,00"
+                    },
+                    "escolaridade_id": {
+                        "type": "string",
+                        "example": "Superior completo"
+                    },
+                    "data_inicio": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-01"
+                    },
+                    "data_fim": {
+                        "type": "string",
+                        "format": " yyyy-mm-dd",
+                        "example": "2020-01-31"
+                    },
+                    "situacao": {
+                        "type": "string",
+                        "example": "ativo"
+                    },
+                    "telefone_fixo": {
+                        "type": "string",
+                        "example": "61-4002-6325"
+                    },
+                    "telefone_celular": {
+                        "type": "string",
+                        "example": "61-94002-6325"
+                    },
+                    "aux_transporte": {
+                        "type": "number",
+                        "example": "190,00"
+                    },
+                    "vale_alimentacao": {
+                        "type": "number",
+                        "example": "560,00"
+                    }
+                },
+                "type": "object"
+            },
+            "Arquivos": {
+                "properties": {
+                    "tipo": {
+                        "type": "string",
+                        "example": "Contrato"
+                    },
+                    "processo": {
+                        "type": "string",
+                        "example": "50600.000501/2020-04"
+                    },
+                    "sequencial_documento": {
+                        "type": "integer",
+                        "example": "3"
+                    },
+                    "descricao": {
+                        "type": "string",
+                        "example": "PUBLICAÇÃO DOU TERMO ADITIVO"
+                    },
+                    "arquivos": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "example": "[{ 'arquivo_1': 'localhost:8000/storage/contrato/1_00420_2019/580e4da71ac02ec0ecf4f09728b51bc0.pdf'},{'arquivo_2': 'localhost:8000/storage/contrato/1_00420_2019/4e35d0c021543920a41402dfaa0ab89b.pdf'}]"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Empenhos": {
+                "properties": {
+                    "numero": {
+                        "type": "string",
+                        "example": "2019NE800022"
+                    },
+                    "credor": {
+                        "type": "string",
+                        "example": "09.439.320/0001-17 - GLOBAL SERVICOS & COMERCIO LTDA"
+                    },
+                    "planointerno": {
+                        "type": "string",
+                        "example": "AGU0047 - SERVICOS DE PORTARIA"
+                    },
+                    "naturezadespesa": {
+                        "type": "string",
+                        "example": "339039 - OUTROS SERVICOS DE TERCEIROS - PESSOA JURIDICA"
+                    },
+                    "empenhado": {
+                        "type": "number",
+                        "example": "1.361.640,02"
+                    },
+                    "aliquidar": {
+                        "type": "number",
+                        "example": "231.667,64"
+                    },
+                    "liquidado": {
+                        "type": "number",
+                        "example": "0,00"
+                    },
+                    "pago": {
+                        "type": "number",
+                        "example": "1.129.972,38"
+                    },
+                    "rpinscrito": {
+                        "type": "number",
+                        "example": "231.667,64"
+                    },
+                    "rpaliquidar": {
+                        "type": "number",
+                        "example": "128.941,72"
+                    },
+                    "rpliquidado": {
+                        "type": "number",
+                        "example": "128.941,72"
+                    },
+                    "rppago": {
+                        "type": "number",
+                        "example": "102.725,92"
+                    }
+                },
+                "type": "object"
+            },
+            "Empenhos_id": {
+                "properties": {
+                    "contrato_id": {
+                        "type": "integer",
+                        "example": "3260"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "2019NE800022"
+                    },
+                    "credor": {
+                        "type": "string",
+                        "example": "09.439.320/0001-17 - GLOBAL SERVICOS & COMERCIO LTDA"
+                    },
+                    "planointerno": {
+                        "type": "string",
+                        "example": "AGU0047 - SERVICOS DE PORTARIA"
+                    },
+                    "naturezadespesa": {
+                        "type": "string",
+                        "example": "339039 - OUTROS SERVICOS DE TERCEIROS - PESSOA JURIDICA"
+                    },
+                    "empenhado": {
+                        "type": "number",
+                        "example": "1.361.640,02"
+                    },
+                    "aliquidar": {
+                        "type": "number",
+                        "example": "231.667,64"
+                    },
+                    "liquidado": {
+                        "type": "number",
+                        "example": "0,00"
+                    },
+                    "pago": {
+                        "type": "number",
+                        "example": "1.129.972,38"
+                    },
+                    "rpinscrito": {
+                        "type": "number",
+                        "example": "231.667,64"
+                    },
+                    "rpaliquidar": {
+                        "type": "number",
+                        "example": "128.941,72"
+                    },
+                    "rpliquidado": {
+                        "type": "number",
+                        "example": "128.941,72"
+                    },
+                    "rppago": {
+                        "type": "number",
+                        "example": "102.725,92"
+                    }
+                },
+                "type": "object"
+            },
+            "Cronograma": {
+                "properties": {
+                    "tipo": {
+                        "type": "string",
+                        "example": "Contrato"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "00006/2017"
+                    },
+                    "receita_despesa": {
+                        "type": "string",
+                        "example": "Despesa"
+                    },
+                    "observacao": {
+                        "type": "string",
+                        "example": "CELEBRAÇÃO DO CONTRATO: 0006/2017 DE ACORDO COM PROCESSO NÚMERO: 00589.000328/2016-38"
+                    },
+                    "mesref": {
+                        "type": "integer",
+                        "example": "04"
+                    },
+                    "anoref": {
+                        "type": "integer",
+                        "example": "2017"
+                    },
+                    "vencimento": {
+                        "type": "string",
+                        "format": "yyyy-mm-dd",
+                        "example": "2017-05-01"
+                    },
+                    "retroativo": {
+                        "type": "string",
+                        "example": "Não"
+                    },
+                    "valor": {
+                        "type": "number",
+                        "example": "1.966.974,40"
+                    }
+                },
+                "type": "object"
+            },
+            "Orgao_id": {
+                "properties": {
+                    "codigo": {
+                        "type": "integer",
+                        "example": "14000"
+                    }
+                },
+                "type": "object"
+            },
+            "Unidade": {
+                "properties": {
+                    "codigo": {
+                        "type": "string",
+                        "example": "070001"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

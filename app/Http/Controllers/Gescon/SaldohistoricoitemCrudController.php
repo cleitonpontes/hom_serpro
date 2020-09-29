@@ -303,6 +303,7 @@ class SaldohistoricoitemCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+
         $valorunitario = str_replace(',', '.', str_replace('.', '', $request->input('valorunitario')));
         $request->request->set('valorunitario', number_format(floatval($valorunitario), 2, '.', ''));
 
@@ -310,23 +311,27 @@ class SaldohistoricoitemCrudController extends CrudController
         $request->request->set('valortotal', number_format(floatval($valortotal), 2, '.', ''));
 
         $saldoable_id = $request->input('saldoable_id');
-        $saldoable_type = $request->input('saldoable_type');
 
+        $saldoable_type = $request->input('saldoable_type');
 
         $contratohistorico = Contratohistorico::find($saldoable_id);
         $soma_cadastrados = Saldohistoricoitem::where('saldoable_id',$contratohistorico->id)
                 ->where('saldoable_type',$saldoable_type)
                 ->sum('valortotal') ?? 0;
-        $vlr_total = number_format(floatval($valortotal), 2, '.', '');
 
-        if(($soma_cadastrados+$vlr_total) > $contratohistorico->valor_global){
+        $contrato = Contrato::find($contratohistorico->contrato_id);
 
-            \Alert::error('O "Valor Total" Extrapola o "Valor Global" do Contrato Histórico!')->flash();
+        $vlr_global = number_format(floatval($contrato->valor_global), 2, '.', '');
+        $vlr_total = number_format(floatval($request->valortotal), 2, '.', '');
+
+        if(($soma_cadastrados > $vlr_global) || ($vlr_total > $vlr_global)){
+
+            \Alert::error('O "Valor Total" Extrapola o "Valor Global" do Contrato!')->flash();
 
             return redirect()->back();
         }
 
-        // your additional operations before save here
+        // additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry

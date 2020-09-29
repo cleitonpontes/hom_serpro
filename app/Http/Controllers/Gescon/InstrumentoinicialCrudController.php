@@ -37,6 +37,7 @@ class InstrumentoinicialCrudController extends CrudController
         })
             ->where('descricao', '=', 'Termo Aditivo')
             ->orWhere('descricao', '=', 'Termo de Apostilamento')
+            ->orWhere('descricao', '=', 'Termo de Rescisão')
             ->pluck('id')
             ->toArray();
 
@@ -83,7 +84,7 @@ class InstrumentoinicialCrudController extends CrudController
 
         $categorias = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Categoria Contrato');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+        })->where('descricao', '<>', 'A definir')->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $modalidades = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Modalidade Licitação');
@@ -94,6 +95,7 @@ class InstrumentoinicialCrudController extends CrudController
         })
             ->where('descricao', '<>', 'Termo Aditivo')
             ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->where('descricao', '<>', 'Termo de Rescisão')
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();

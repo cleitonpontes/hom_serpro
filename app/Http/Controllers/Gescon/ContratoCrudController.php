@@ -5,40 +5,42 @@ namespace App\Http\Controllers\Gescon;
 use App\Jobs\AlertaContratoJob;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
-use App\Models\Contratohistorico;
 use App\Models\Fornecedor;
-use App\Models\Unidade;
-use App\Notifications\RotinaAlertaContratoNotification;
 use App\PDF\Pdf;
-use App\XML\ApiSiasg;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
-use Backpack\CRUD\CrudPanel;
-use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
+// TODO: Apagar classes sem uso
+use App\Models\Contratohistorico;
+use App\Models\Unidade;
+use App\Notifications\RotinaAlertaContratoNotification;
+use App\XML\ApiSiasg;
+use Backpack\CRUD\CrudPanel;
+use Codedge\Fpdf\Fpdf\Fpdf;
+
 /**
  * Class ContratoCrudController
+ *
  * @package App\Http\Controllers\Admin
  * @property-read CrudPanell $crud
  */
 class ContratoCrudController extends CrudController
 {
-    /**
-     *
-     */
+    protected $tab = '';
+
     public function setup()
     {
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
+
         $this->crud->setModel('App\Models\Contrato');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato');
         $this->crud->setEntityNameStrings('Contrato', 'Contratos');
@@ -47,19 +49,20 @@ class ContratoCrudController extends CrudController
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratos.*');
 
-//        $this->crud->addButtonFromView('top', 'notificausers', 'notificausers', 'end');
+        // $this->crud->addButtonFromView('top', 'notificausers', 'notificausers', 'end');
 
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration Global
         |--------------------------------------------------------------------------
         */
+
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
-//        $this->crud->disableResponsiveTable();
+        // $this->crud->disableResponsiveTable();
 
-//        $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
+        // $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
         $this->crud->addButtonFromView('line', 'extratocontrato', 'extratocontrato', 'beginning');
         $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
         $this->crud->denyAccess('create');
@@ -72,611 +75,13 @@ class ContratoCrudController extends CrudController
 
         /*
         |--------------------------------------------------------------------------
-        | CrudPanel Configuration Collumns Table
+        | CrudPanel Custom
         |--------------------------------------------------------------------------
         */
 
-        $colunas = $this->Colunas();
-        $this->crud->addColumns($colunas);
-
-        /*
-        |--------------------------------------------------------------------------
-        | CrudPanel Configuration Campos Formulário
-        |--------------------------------------------------------------------------
-        */
-
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
-
-        $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
-
-        $categorias = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Categoria Contrato');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
-
-        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Modalidade Licitação');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
-
-        $tipos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '<>', 'Termo Aditivo')
-            ->where('descricao', '<>', 'Termo de Apostilamento')
-            ->where('descricao', '<>', 'Termo de Rescisão')
-            ->orderBy('descricao')
-            ->pluck('descricao', 'id')
-            ->toArray();
-
-        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos);
-        $this->crud->addFields($campos);
-    }
-
-    public function Colunas()
-    {
-        $colunas = array();
-
-        $colunas[] = [
-            'name' => 'getReceitaDespesa',
-            'label' => 'Receita / Despesa', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getReceitaDespesa', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'numero',
-            'label' => 'Número do instrumento',
-            'type' => 'text',
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'getUnidadeOrigem',
-            'label' => 'Unidade Gestora Origem', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getUnidadeOrigem', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'getUnidade',
-            'label' => 'Unidade Gestora Atual', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getUnidade', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'unidades_requisitantes',
-            'label' => 'Unidades Requisitantes',
-            'type' => 'text',
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'getTipo',
-            'label' => 'Tipo', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getTipo', // the method in your Model
-
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'subtipo',
-            'label' => 'Subtipo',
-            'type' => 'text',
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'getCategoria',
-            'label' => 'Categoria', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getCategoria', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'getSubCategoria',
-            'label' => 'Subcategoria', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getSubCategoria', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'getFornecedor',
-            'label' => 'Fornecedor', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getFornecedor', // the method in your Model
-            'orderable' => true,
-            'limit' => 50,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-            'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
-                $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-            },
-        ];
-
-        $colunas[] = [
-            'name' => 'processo',
-            'label' => 'Processo',
-            'type' => 'text',
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'objeto',
-            'label' => 'Objeto',
-            'type' => 'text',
-            'limit' => 1000,
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'info_complementar',
-            'label' => 'Informações Complementares',
-            'type' => 'text',
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'vigencia_inicio',
-            'label' => 'Vig. Início',
-            'type' => 'date',
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'vigencia_fim',
-            'label' => 'Vig. Fim',
-            'type' => 'date',
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'formatVlrGlobal',
-            'label' => 'Valor Global', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'formatVlrGlobal', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'num_parcelas',
-            'label' => 'Núm. Parcelas',
-            'type' => 'number',
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'formatVlrParcela',
-            'label' => 'Valor Parcela', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'formatVlrParcela', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'formatVlrAcumulado',
-            'label' => 'Valor Acumulado', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'formatVlrAcumulado', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'formatTotalDespesasAcessorias',
-            'label' => 'Total Despesas Acessórias', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'formatTotalDespesasAcessorias', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ];
-
-        $colunas[] = [
-            'name' => 'situacao',
-            'label' => 'Situação',
-            'type' => 'boolean',
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-            // optionally override the Yes/No texts
-            'options' => [0 => 'Inativo', 1 => 'Ativo']
-        ];
-
-        $colunas[] = [
-            'name' => 'created_at',
-            'label' => 'Criado em',
-            'type' => 'datetime',
-            'orderable' => true,
-            'visibleInTable' => false,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true,
-        ];
-
-        $colunas[] = [
-            'name' => 'updated_at',
-            'label' => 'Atualizado em',
-            'type' => 'datetime',
-            'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true,
-        ];
-
-        return $colunas;
-
-    }
-
-    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos)
-    {
-        $campos = array();
-
-        $campos[] = [
-            // 1-n relationship
-            'label' => "Fornecedor", // Table column heading
-            'type' => "select2_from_ajax",
-            'name' => 'fornecedor_id', // the column that contains the ID of that connected entity
-            'entity' => 'fornecedor', // the method that defines the relationship in your Model
-            'attribute' => "cpf_cnpj_idgener", // foreign key attribute that is shown to user
-            'attribute2' => "nome", // foreign key attribute that is shown to user
-            'process_results_template' => 'gescon.process_results_fornecedor',
-            'model' => "App\Models\Fornecedor", // foreign key model
-            'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
-            'placeholder' => "Selecione o fornecedor", // placeholder for the select
-            'minimum_input_length' => 2, // minimum characters to type before querying results
-            'tab' => 'Dados do contrato',
-        ];
-
-//        $campos[] = [
-//            // select_from_array
-//            'name' => 'fornecedor_id',
-//            'label' => "Fornecedor",
-//            'type' => 'select2_from_array',
-//            'options' => $fornecedores,
-//            'allows_null' => true,
-//            'tab' => 'Dados do contrato',
-////            'default' => 'one',
-//            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-//        ];
-
-        $campos[] = [
-            // Date
-            'name' => 'data_assinatura',
-            'label' => 'Data Assinatura',
-            'type' => 'date',
-            'tab' => 'Dados do contrato',
-        ];
-
-        $campos[] = [
-            // Date
-            'name' => 'data_publicacao',
-            'label' => 'Data Publicação',
-            'type' => 'date',
-            'tab' => 'Dados do contrato',
-        ];
-
-        $campos[] = [
-            'name' => 'objeto',
-            'label' => 'Objeto',
-            'type' => 'textarea',
-            'attributes' => [
-                'onkeyup' => "maiuscula(this)"
-            ],
-            'tab' => 'Dados do contrato',
-        ];
-
-        $campos[] = [
-            'name' => 'info_complementar',
-            'label' => 'Informações Complementares',
-            'type' => 'textarea',
-            'attributes' => [
-                'onkeyup' => "maiuscula(this)"
-            ],
-            'tab' => 'Dados do contrato',
-        ];
-
-        $campos[] = [
-            // select_from_array
-            'name' => 'modalidade_id',
-            'label' => "Modalidade Licitação",
-            'type' => 'select2_from_array',
-            'options' => $modalidades,
-            'allows_null' => true,
-            'tab' => 'Dados do contrato',
-//                'default' => 'one',
-            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-        ];
-
-        $campos[] = [
-            'name' => 'licitacao_numero',
-            'label' => 'Número Licitação',
-            'type' => 'numlicitacao',
-            'tab' => 'Dados do contrato',
-        ];
-
-        $campos[] = [
-            // select_from_array
-            'name' => 'receita_despesa',
-            'label' => "Receita / Despesa",
-            'type' => 'select_from_array',
-            'options' => [
-                'D' => 'Despesa',
-                'R' => 'Receita',
-            ],
-            'default' => 'D',
-            'allows_null' => false,
-            'tab' => 'Características do contrato',
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-//                'default' => 'one',
-            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-        ];
-
-        $campos[] = [
-            // select_from_array
-            'name' => 'tipo_id',
-            'label' => "Tipo",
-            'type' => 'select2_from_array',
-            'options' => $tipos,
-            'attributes' => [
-                'id' => 'tipo_contrato',
-            ],
-            'allows_null' => true,
-            'tab' => 'Características do contrato',
-//                'default' => 'one',
-            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-        ];
-
-        $campos[] = [
-            'name' => 'subtipo',
-            'label' => 'Subtipo',
-            'type' => 'textarea',
-            'attributes' => [
-                'onkeyup' => "maiuscula(this)"
-            ],
-            'tab' => 'Características do contrato',
-        ];
-
-        $campos[] = [
-            // select_from_array
-            'name' => 'categoria_id',
-            'label' => "Categoria",
-            'type' => 'select2_from_array',
-            'options' => $categorias,
-            'allows_null' => true,
-            'tab' => 'Características do contrato',
-        ];
-
-        $campos[] = [
-            // select2_from_ajax: 1-n relationship
-            'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
-            'label' => "Subcategoria", // Table column heading
-            'type' => 'select2_from_ajax',
-            'model' => 'App\Models\OrgaoSubcategoria',
-            'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
-            'attribute' => 'descricao', // foreign key attribute that is shown to user
-            'data_source' => url('api/orgaosubcategoria'), // url to controller search function (with /{id} should return model)
-            'placeholder' => 'Selecione...', // placeholder for the select
-            'minimum_input_length' => 0, // minimum characters to type before querying results
-            'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
-            'method' => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
-            'tab' => 'Características do contrato',
-        ];
-
-        $campos[] = [
-            'name' => 'numero',
-            'label' => 'Contrato',
-            'type' => 'numcontrato',
-            'tab' => 'Características do contrato',
-        ];
-
-        $campos[] = [
-            'name' => 'processo',
-            'label' => 'Número Processo',
-            'type' => 'numprocesso',
-            'tab' => 'Características do contrato',
-        ];
-
-        $campos[] = [
-            // 1-n relationship
-            'label' => "Unidade Gestora Origem", // Table column heading
-            'type' => "select2_from_ajax",
-            'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
-            'entity' => 'unidadeorigem', // the method that defines the relationship in your Model
-            'attribute' => "codigo", // foreign key attribute that is shown to user
-            'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
-            'process_results_template' => 'gescon.process_results_unidade',
-            'model' => "App\Models\Unidade", // foreign key model
-            'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
-            'placeholder' => "Selecione a Unidade", // placeholder for the select
-            'minimum_input_length' => 2, // minimum characters to type before querying results
-            'tab' => 'Características do contrato',
-        ];
-
-        $campos[] = [
-            // select_from_array
-            'name' => 'unidade_id',
-            'label' => "Unidade Gestora Atual",
-            'type' => 'select2_from_array',
-            'options' => $unidade,
-            'allows_null' => false,
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-            'tab' => 'Características do contrato',
-//                'default' => 'one',
-            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-        ];
-
-        $campos[] = [
-            'name' => 'unidades_requisitantes',
-            'label' => 'Unidades Requisitantes',
-            'type' => 'text',
-            'tab' => 'Características do contrato',
-        ];
-
-        $campos[] = [
-            // select_from_array
-            'name' => 'situacao',
-            'label' => "Situação",
-            'type' => 'select_from_array',
-            'options' => [1 => 'Ativo', 0 => 'Inativo'],
-            'allows_null' => false,
-            'tab' => 'Características do contrato',
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-//                'default' => 'one',
-            // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-        ];
-
-        $campos[] = [
-            // Date
-            'name' => 'vigencia_inicio',
-            'label' => 'Data Vig. Início',
-            'type' => 'date',
-            'tab' => 'Vigência / Valores',
-        ];
-
-        $campos[] = [
-            // Date
-            'name' => 'vigencia_fim',
-            'label' => 'Data Vig. Fim',
-            'type' => 'date',
-            'tab' => 'Vigência / Valores',
-        ];
-
-        $campos[] = [
-            // Number
-            'name' => 'valor_global',
-            'label' => 'Valor Global',
-            'type' => 'money',
-            // optionals
-            'attributes' => [
-                'id' => 'valor_global',
-            ], // allow decimals
-            'prefix' => "R$",
-            'tab' => 'Vigência / Valores',
-            // 'suffix' => ".00",
-        ];
-
-        $campos[] = [
-            // Number
-            'name' => 'num_parcelas',
-            'label' => 'Núm. Parcelas',
-            'type' => 'number',
-            // optionals
-            'attributes' => [
-                "step" => "any",
-                "min" => '1',
-            ], // allow decimals
-//                'prefix' => "R$",
-            'tab' => 'Vigência / Valores',
-            // 'suffix' => ".00",
-        ];
-
-        $campos[] = [
-            // Number
-            'name' => 'valor_parcela',
-            'label' => 'Valor Parcela',
-            'type' => 'money',
-            // optionals
-            'attributes' => [
-                'id' => 'valor_parcela',
-            ], // allow decimals
-            'prefix' => "R$",
-            'tab' => 'Vigência / Valores',
-            // 'suffix' => ".00",
-        ];
-
-        return $campos;
+        $this->adicionaCampos();
+        $this->adicionaColunas();
+        $this->aplicaFiltros();
     }
 
     public function store(StoreRequest $request)
@@ -687,11 +92,9 @@ class ContratoCrudController extends CrudController
         $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
-        // your additional operations before save here
+
         $redirect_location = parent::storeCrud($request);
 
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
 
@@ -703,11 +106,7 @@ class ContratoCrudController extends CrudController
         $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
 
-
-        // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
 
@@ -1172,7 +571,6 @@ class ContratoCrudController extends CrudController
         $nome_arquivo = str_replace('/', '', $contrato->numero) . ' - ' . str_replace(' ', '_', $contrato->fornecedor->nome) . '.pdf';
 
         $pdf->Output('D', $nome_arquivo);
-
     }
 
     private function calculaLinhasMultiCell($qtdcaracter, $ultimamedida)
@@ -1182,17 +580,939 @@ class ContratoCrudController extends CrudController
         $linha = $ndiv[0] + 2;
         $tam = $linha * 5;
         $tamanho = $ultimamedida + $tam;
+
         return $tamanho;
     }
 
     public function notificaUsers()
     {
-
         $alerta_mensal = new AlertaContratoJob();
-//        $alerta_mensal->emailDiario();
-//        $alerta_mensal->extratoMensal();
 
         return redirect()->back();
     }
 
+    protected function adicionaCampos()
+    {
+        $this->tab = 'Dados do contrato';
+
+        $this->adicionaCampoFornecedor();
+        $this->adicionaCampoDataAssinatura();
+        $this->adicionaCampoDataPublicacao();
+        $this->adicionaCampoObjeto();
+        $this->adicionaCampoInformacoesComplementares();
+        $this->adicionaCampoModalidades();
+        $this->adicionaCampoNumeroLicitacao();
+
+        $this->tab = 'Características do contrato';
+
+        $this->adicionaCampoReceitaDespesa();
+        $this->adicionaCampoTipo();
+        $this->adicionaCampoSubTipo();
+        $this->adicionaCampoCategoria();
+        $this->adicionaCampoSubCategoria();
+        $this->adicionaCampoNumeroContrato();
+        $this->adicionaCampoProcesso();
+        $this->adicionaCampoUnidadeGestoraOrigem();
+        $this->adicionaCampoUnidadeGestoraAtual();
+        $this->adicionaCampoUnidadeRequisitante();
+        $this->adicionaCampoSituacao();
+
+        $this->tab = 'Vigência / Valores';
+
+        $this->adicionaCampoDataVigenciaInicio();
+        $this->adicionaCampoDataVigenciaTermino();
+        $this->adicionaCampoValorGlobal();
+        $this->adicionaCampoNumeroParcelas();
+        $this->adicionaCampoValorParcela();
+    }
+
+    protected function adicionaColunas()
+    {
+        $this->adicionaColunaReceitaDespesa();
+        $this->adicionaColunaNumeroInstrumento();
+        $this->adicionaColunaUnidadeOrigem();
+        $this->adicionaColunaUnidadeGestora();
+        $this->adicionaColunaUnidadeRequisitante();
+        $this->adicionaColunaTipo();
+        $this->adicionaColunaSubTipo();
+        $this->adicionaColunaCategoria();
+        $this->adicionaColunaSubCategoria();
+        $this->adicionaColunaFornecedor();
+        $this->adicionaColunaProcesso();
+        $this->adicionaColunaObjeto();
+        $this->adicionaColunaInformacoesComplementares();
+        $this->adicionaColunaVigenciaInicio();
+        $this->adicionaColunaVigenciaTermino();
+        $this->adicionaColunaValorGlobal();
+        $this->adicionaColunaNumeroParcelas();
+        $this->adicionaColunaValorParcela();
+        $this->adicionaColunaValorAcumulado();
+        $this->adicionaColunaTotalDespesasAcessorias();
+        $this->adicionaColunaSituacao();
+        $this->adicionaColunaCriadoEm();
+        $this->adicionaColunaAtualizadoEm();
+    }
+
+    protected function aplicaFiltros()
+    {
+        // TODO: Melhor consulta do filtro de fornecedores, para não buscar a base inteira, mas sim apenas
+        //       os fornecedores dos contratos da unidade ativa!
+        // $this->aplicaFiltroFornecedor();
+        $this->aplicaFiltroReceitaDespesa();
+        $this->aplicaFiltroTipo();
+        $this->aplicaFiltroCategoria();
+        $this->aplicaFiltroDataVigenciaInicio();
+        $this->aplicaFiltroDataVigenciaTermino();
+        $this->aplicaFiltroValorGlobal();
+        $this->aplicaFiltroValorParcela();
+        $this->aplicaFiltroSituacao();
+    }
+
+    protected function adicionaCampoFornecedor()
+    {
+        $this->crud->addField([
+            'label' => "Fornecedor",
+            'type' => "select2_from_ajax",
+            'name' => 'fornecedor_id',
+            'entity' => 'fornecedor',
+            'attribute' => "cpf_cnpj_idgener",
+            'attribute2' => "nome",
+            'process_results_template' => 'gescon.process_results_fornecedor',
+            'model' => "App\Models\Fornecedor",
+            'data_source' => url("api/fornecedor"),
+            'placeholder' => "Selecione o fornecedor",
+            'minimum_input_length' => 2,
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoDataAssinatura()
+    {
+        $this->crud->addField([
+            'name' => 'data_assinatura',
+            'label' => 'Data Assinatura',
+            'type' => 'date',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoDataPublicacao()
+    {
+        $this->crud->addField([
+            'name' => 'data_publicacao',
+            'label' => 'Data Publicação',
+            'type' => 'date',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoObjeto()
+    {
+        $this->crud->addField([
+            'name' => 'objeto',
+            'label' => 'Objeto',
+            'type' => 'textarea',
+            'attributes' => [
+                'onkeyup' => "maiuscula(this)"
+            ],
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoInformacoesComplementares()
+    {
+        $this->crud->addField([
+            'name' => 'info_complementar',
+            'label' => 'Informações Complementares',
+            'type' => 'textarea',
+            'attributes' => [
+                'onkeyup' => "maiuscula(this)"
+            ],
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoModalidades()
+    {
+        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Modalidade Licitação');
+        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+
+        $this->crud->addField([
+            'name' => 'modalidade_id',
+            'label' => "Modalidade Licitação",
+            'type' => 'select2_from_array',
+            'options' => $modalidades,
+            'allows_null' => true,
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoNumeroLicitacao()
+    {
+        $this->crud->addField([
+            'name' => 'licitacao_numero',
+            'label' => 'Número Licitação',
+            'type' => 'numlicitacao',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoReceitaDespesa()
+    {
+        $this->crud->addField([
+            'name' => 'receita_despesa',
+            'label' => "Receita / Despesa",
+            'type' => 'select_from_array',
+            'options' => [
+                'D' => 'Despesa',
+                'R' => 'Receita',
+            ],
+            'default' => 'D',
+            'allows_null' => false,
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoTipo()
+    {
+        $this->crud->addField([
+            'name' => 'tipo_id',
+            'label' => "Tipo",
+            'type' => 'select2_from_array',
+            'options' => $this->retornaTipos(),
+            'attributes' => [
+                'id' => 'tipo_contrato',
+            ],
+            'allows_null' => true,
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoSubTipo()
+    {
+        $this->crud->addField([
+            'name' => 'subtipo',
+            'label' => 'Subtipo',
+            'type' => 'textarea',
+            'attributes' => [
+                'onkeyup' => "maiuscula(this)"
+            ],
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoCategoria()
+    {
+        $this->crud->addField([
+            'name' => 'categoria_id',
+            'label' => "Categoria",
+            'type' => 'select2_from_array',
+            'options' => $this->retornaCategorias(),
+            'allows_null' => true,
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoSubCategoria()
+    {
+        $this->crud->addField([
+            'name' => 'subcategoria_id',
+            'label' => "Subcategoria",
+            'type' => 'select2_from_ajax',
+            'model' => 'App\Models\OrgaoSubcategoria',
+            'entity' => 'orgaosubcategoria',
+            'attribute' => 'descricao',
+            'data_source' => url('api/orgaosubcategoria'),
+            'placeholder' => 'Selecione...',
+            'minimum_input_length' => 0,
+            'dependencies' => ['categoria_id'],
+            'method' => 'GET',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoNumeroContrato()
+    {
+        $this->crud->addField([
+            'name' => 'numero',
+            'label' => 'Contrato',
+            'type' => 'numcontrato',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoProcesso()
+    {
+        $this->crud->addField([
+            'name' => 'processo',
+            'label' => 'Número Processo',
+            'type' => 'numprocesso',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoUnidadeGestoraOrigem()
+    {
+        $this->crud->addField([
+            'label' => "Unidade Gestora Origem",
+            'type' => "select2_from_ajax",
+            'name' => 'unidadeorigem_id',
+            'entity' => 'unidadeorigem',
+            'attribute' => "codigo",
+            'attribute2' => "nomeresumido",
+            'process_results_template' => 'gescon.process_results_unidade',
+            'model' => "App\Models\Unidade",
+            'data_source' => url("api/unidade"),
+            'placeholder' => "Selecione a Unidade",
+            'minimum_input_length' => 2,
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoUnidadeGestoraAtual()
+    {
+        $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
+
+        $this->crud->addField([
+            'name' => 'unidade_id',
+            'label' => "Unidade Gestora Atual",
+            'type' => 'select2_from_array',
+            'options' => $unidade,
+            'allows_null' => false,
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoUnidadeRequisitante()
+    {
+        $this->crud->addField([
+            'name' => 'unidades_requisitantes',
+            'label' => 'Unidades Requisitantes',
+            'type' => 'text',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoSituacao()
+    {
+        $this->crud->addField([
+            'name' => 'situacao',
+            'label' => "Situação",
+            'type' => 'select_from_array',
+            'options' => [1 => 'Ativo', 0 => 'Inativo'],
+            'allows_null' => false,
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoDataVigenciaInicio()
+    {
+        $this->crud->addField([
+            'name' => 'vigencia_inicio',
+            'label' => 'Data Vig. Início',
+            'type' => 'date',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoDataVigenciaTermino()
+    {
+        $this->crud->addField([
+            'name' => 'vigencia_fim',
+            'label' => 'Data Vig. Fim',
+            'type' => 'date',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoValorGlobal()
+    {
+        $this->crud->addField([
+            'name' => 'valor_global',
+            'label' => 'Valor Global',
+            'type' => 'money',
+            'attributes' => [
+                'id' => 'valor_global',
+            ],
+            'prefix' => "R$",
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoNumeroParcelas()
+    {
+        $this->crud->addField([
+            'name' => 'num_parcelas',
+            'label' => 'Núm. Parcelas',
+            'type' => 'number',
+            'attributes' => [
+                "step" => "any",
+                "min" => '1',
+            ],
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoValorParcela()
+    {
+        $this->crud->addField([
+            'name' => 'valor_parcela',
+            'label' => 'Valor Parcela',
+            'type' => 'money',
+            'attributes' => [
+                'id' => 'valor_parcela',
+            ],
+            'prefix' => "R$",
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaColunaReceitaDespesa()
+    {
+        $this->crud->addColumn([
+            'name' => 'getReceitaDespesa',
+            'label' => 'Receita / Despesa',
+            'type' => 'model_function',
+            'function_name' => 'getReceitaDespesa',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaNumeroInstrumento()
+    {
+        $this->crud->addColumn([
+            'name' => 'numero',
+            'label' => 'Número do instrumento',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaUnidadeOrigem()
+    {
+        $this->crud->addColumn([
+            'name' => 'getUnidadeOrigem',
+            'label' => 'Unidade Gestora Origem',
+            'type' => 'model_function',
+            'function_name' => 'getUnidadeOrigem',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaUnidadeGestora()
+    {
+        $this->crud->addColumn([
+            'name' => 'getUnidade',
+            'label' => 'Unidade Gestora Atual',
+            'type' => 'model_function',
+            'function_name' => 'getUnidade',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaUnidadeRequisitante()
+    {
+        $this->crud->addColumn([
+            'name' => 'unidades_requisitantes',
+            'label' => 'Unidades Requisitantes',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaTipo()
+    {
+        $this->crud->addColumn([
+            'name' => 'getTipo',
+            'label' => 'Tipo',
+            'type' => 'model_function',
+            'function_name' => 'getTipo',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaSubTipo()
+    {
+        $this->crud->addColumn([
+            'name' => 'subtipo',
+            'label' => 'Subtipo',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaCategoria()
+    {
+        $this->crud->addColumn([
+            'name' => 'getCategoria',
+            'label' => 'Categoria',
+            'type' => 'model_function',
+            'function_name' => 'getCategoria',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaSubCategoria()
+    {
+        $this->crud->addColumn([
+            'name' => 'getSubCategoria',
+            'label' => 'Subcategoria',
+            'type' => 'model_function',
+            'function_name' => 'getSubCategoria',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaFornecedor()
+    {
+        $this->crud->addColumn([
+            'name' => 'getFornecedor',
+            'label' => 'Fornecedor',
+            'type' => 'model_function',
+            'function_name' => 'getFornecedor',
+            'orderable' => true,
+            'limit' => 50,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%" . strtoupper($searchTerm) . "%");
+                $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+            },
+        ]);
+    }
+
+    protected function adicionaColunaProcesso()
+    {
+        $this->crud->addColumn([
+            'name' => 'processo',
+            'label' => 'Processo',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaObjeto()
+    {
+        $this->crud->addColumn([
+            'name' => 'objeto',
+            'label' => 'Objeto',
+            'type' => 'text',
+            'limit' => 1000,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaInformacoesComplementares()
+    {
+        $this->crud->addColumn([
+            'name' => 'info_complementar',
+            'label' => 'Informações Complementares',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaVigenciaInicio()
+    {
+        $this->crud->addColumn([
+            'name' => 'vigencia_inicio',
+            'label' => 'Vig. Início',
+            'type' => 'date',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaVigenciaTermino()
+    {
+        $this->crud->addColumn([
+            'name' => 'vigencia_fim',
+            'label' => 'Vig. Fim',
+            'type' => 'date',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaValorGlobal()
+    {
+        $this->crud->addColumn([
+            'name' => 'formatVlrGlobal',
+            'label' => 'Valor Global',
+            'type' => 'model_function',
+            'function_name' => 'formatVlrGlobal',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaNumeroParcelas()
+    {
+        $this->crud->addColumn([
+            'name' => 'num_parcelas',
+            'label' => 'Núm. Parcelas',
+            'type' => 'number',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaValorParcela()
+    {
+        $this->crud->addColumn([
+            'name' => 'formatVlrParcela',
+            'label' => 'Valor Parcela',
+            'type' => 'model_function',
+            'function_name' => 'formatVlrParcela',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaValorAcumulado()
+    {
+        $this->crud->addColumn([
+            'name' => 'formatVlrAcumulado',
+            'label' => 'Valor Acumulado',
+            'type' => 'model_function',
+            'function_name' => 'formatVlrAcumulado',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaTotalDespesasAcessorias()
+    {
+        $this->crud->addColumn([
+            'name' => 'formatTotalDespesasAcessorias',
+            'label' => 'Total Despesas Acessórias',
+            'type' => 'model_function',
+            'function_name' => 'formatTotalDespesasAcessorias',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaSituacao()
+    {
+        $this->crud->addColumn([
+            'name' => 'situacao',
+            'label' => 'Situação',
+            'type' => 'boolean',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'options' => [0 => 'Inativo', 1 => 'Ativo']
+        ]);
+    }
+
+    protected function adicionaColunaCriadoEm()
+    {
+        $this->crud->addColumn([
+            'name' => 'created_at',
+            'label' => 'Criado em',
+            'type' => 'datetime',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    protected function adicionaColunaAtualizadoEm()
+    {
+        $this->crud->addColumn([
+            'name' => 'updated_at',
+            'label' => 'Atualizado em',
+            'type' => 'datetime',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    protected function aplicaFiltroFornecedor()
+    {
+        $this->crud->addFilter([
+            'name' => 'fornecedor',
+            'type' => 'select2_multiple',
+            'label' => 'Fornecedor'
+        ],
+            $this->retornaFornecedores(),
+            function ($value) {
+                $this->crud->addClause(
+                    'whereIn',
+                    'fornecedores.cpf_cnpj_idgener',
+                    json_decode($value)
+                );
+            }
+        );
+    }
+
+    protected function aplicaFiltroReceitaDespesa()
+    {
+        $this->crud->addFilter([
+            'name' => 'receita_despesa',
+            'type' => 'select2_multiple',
+            'label' => 'Receita / Despesa'
+        ], [
+            'R' => 'Receita',
+            'D' => 'Despesa',
+        ],
+            function ($value) {
+                $this->crud->addClause(
+                    'whereIn',
+                    'contratos.receita_despesa',
+                    json_decode($value)
+                );
+            }
+        );
+    }
+
+    protected function aplicaFiltroTipo()
+    {
+        $this->crud->addFilter([
+            'name' => 'tipo_contrato',
+            'type' => 'select2_multiple',
+            'label' => 'Tipo'
+        ],
+            $this->retornaTipos(),
+            function ($value) {
+                $this->crud->addClause(
+                    'whereIn',
+                    'contratos.tipo_id',
+                    json_decode($value)
+                );
+            }
+        );
+    }
+
+    protected function aplicaFiltroCategoria()
+    {
+        $this->crud->addFilter([
+            'name' => 'categorias',
+            'type' => 'select2_multiple',
+            'label' => 'Categorias'
+        ],
+            $this->retornaCategorias(),
+            function ($values) {
+                $this->crud->addClause(
+                    'whereIn',
+                    'contratos.categoria_id',
+                    json_decode($values)
+                );
+            }
+        );
+    }
+
+    protected function aplicaFiltroDataVigenciaInicio()
+    {
+        $this->crud->addFilter([
+            'type' => 'date_range',
+            'name' => 'vigencia_inicio',
+            'label' => 'Vigência Inicio'
+        ],
+            false,
+            function ($value) {
+                $dates = json_decode($value);
+
+                $this->crud->addClause('where', 'contratos.vigencia_inicio', '>=', $dates->from);
+                $this->crud->addClause('where', 'contratos.vigencia_inicio', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
+    protected function aplicaFiltroDataVigenciaTermino()
+    {
+        $this->crud->addFilter([
+            'type' => 'date_range',
+            'name' => 'vigencia_fim',
+            'label' => 'Vigência Fim'
+        ],
+            false,
+            function ($value) {
+                $dates = json_decode($value);
+
+                $this->crud->addClause('where', 'contratos.vigencia_fim', '>=', $dates->from);
+                $this->crud->addClause('where', 'contratos.vigencia_fim', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
+    protected function aplicaFiltroValorGlobal()
+    {
+        $this->crud->addFilter([
+            'name' => 'valor_global',
+            'type' => 'range',
+            'label' => 'Valor Global',
+            'label_from' => 'Vlr Mínimo',
+            'label_to' => 'Vlr Máximo'
+        ],
+            false,
+            function ($value) {
+                $range = json_decode($value);
+
+                if ($range->from) {
+                    $this->crud->addClause('where', 'contratos.valor_global', '>=', (float)$range->from);
+                }
+                if ($range->to) {
+                    $this->crud->addClause('where', 'contratos.valor_global', '<=', (float)$range->to);
+                }
+            }
+        );
+    }
+
+    protected function aplicaFiltroValorParcela()
+    {
+        $this->crud->addFilter([
+            'name' => 'valor_parcela',
+            'type' => 'range',
+            'label' => 'Valor Parcela',
+            'label_from' => 'Vlr Mínimo',
+            'label_to' => 'Vlr Máximo'
+        ],
+            false,
+            function ($value) {
+                $range = json_decode($value);
+
+                if ($range->from) {
+                    $this->crud->addClause('where', 'contratos.valor_parcela', '>=', (float)$range->from);
+                }
+                if ($range->to) {
+                    $this->crud->addClause('where', 'contratos.valor_parcela', '<=', (float)$range->to);
+                }
+            }
+        );
+    }
+
+    protected function aplicaFiltroSituacao()
+    {
+        $this->crud->addFilter([
+            'name' => 'situacao',
+            'type' => 'select2_multiple',
+            'label' => 'Situação'
+        ], [
+            '1' => 'Ativo',
+            '0' => 'Inativo',
+        ], function ($value) {
+            $this->crud->addClause('whereIn'
+                , 'contratos.situacao', json_decode($value));
+        });
+    }
+
+    private function retornaFornecedores()
+    {
+        return Fornecedor::select(
+            DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'cpf_cnpj_idgener'
+        )
+            ->whereHas(
+                'contratos',
+                function ($u) {
+                    $u->where('situacao', true);
+                }
+            )
+            ->pluck('nome', 'cpf_cnpj_idgener')
+            ->toArray();
+    }
+
+    private function retornaTipos()
+    {
+        return Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Termo Aditivo')
+            ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->where('descricao', '<>', 'Termo de Rescisão')
+            ->orderBy('descricao')
+            ->pluck('descricao', 'id')
+            ->toArray();
+    }
+
+    private function retornaCategorias()
+    {
+        return Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Categoria Contrato');
+        })
+            ->where('descricao', '<>', 'A definir')
+            ->orderBy('descricao')
+            ->pluck('descricao', 'id')
+            ->toArray();
+    }
 }

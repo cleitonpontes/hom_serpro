@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Traits\Formatador;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -11,6 +12,7 @@ class Contratoresponsavel extends ContratoBase
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
+    use Formatador;
 
     protected static $logFillable = true;
     protected static $logName = 'responsavel';
@@ -100,16 +102,9 @@ class Contratoresponsavel extends ContratoBase
     |--------------------------------------------------------------------------
     */
 
-    /*
     public function contrato()
     {
         return $this->belongsTo(Contrato::class, 'contrato_id');
-    }
-    */
-
-    public function user()
-    {
-        return $this->belongsTo(BackpackUser::class, 'user_id');
     }
 
     public function funcao()
@@ -120,6 +115,11 @@ class Contratoresponsavel extends ContratoBase
     public function instalacao()
     {
         return $this->belongsTo(Instalacao::class, 'instalacao_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(BackpackUser::class, 'user_id');
     }
 
     /*
@@ -133,6 +133,30 @@ class Contratoresponsavel extends ContratoBase
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getMaskedCpfAttribute($value)
+    {
+        $retorno = '';
+        if (isset($this->user()->first()->cpf)) {
+            $retorno = $this->retornaMascaraCpf($this->user()->first()->cpf);
+        }
+        return $retorno;
+    }
+
+    public function getUsuarioNomeAttribute($value)
+    {
+        return $this->user()->first()->name ?? '';
+    }
+
+    public function getUsuarioEmailAttribute($value)
+    {
+        return $this->user()->first()->email ?? '';
+    }
+
+    public function getDescricaoTipoAttribute($value)
+    {
+        return $this->funcao()->first()->descricao ?? '';
+    }
 
     /*
     |--------------------------------------------------------------------------

@@ -179,13 +179,7 @@ class ContratoSiasgIntegracaoNovo extends Model
                 'supressao' => $aditivo->supressao
             ];
 
-            if (isset($busca->id)) {
-                unset($dados['numero']);
-                unset($dados['contrato_id']);
-                unset($dados['tipo_id']);
-
-                $busca->update($dados);
-            } else {
+            if (!isset($busca->id)) {
                 $contratohistorico = Contratohistorico::create($dados);
             }
         }
@@ -398,11 +392,10 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $dado = $this->montaArrayContrato($siasgcontrato, $fornecedor, $json);
 
-        unset($dado['categoria_id']);
-
+        $unidadeOrigem = ['unidadeorigem_id' => $dado['unidadeorigem_id']];
 
         $contrato = Contrato::find($contrato_alteracao->id);
-        $contrato->update($dado);
+        $contrato->update($unidadeOrigem);
 
         return $contrato;
 
@@ -447,7 +440,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['unidadeorigem_id'] = $siasgcontrato->unidade_id;
         $dado['unidade_id'] = ($siasgcontrato->unidadesubrrogacao_id != null) ? $siasgcontrato->unidadesubrrogacao_id : $siasgcontrato->unidade_id;
         $dado['tipo_id'] = $siasgcontrato->tipo_id;
-        $dado['categoria_id'] = 55;
+        $dado['categoria_id'] = 197; //a definir
         $dado['processo'] = $this->retornaNumeroProcessoFormatado($json->data->dadosContrato->numeroProcesso);
         $dado['objeto'] = mb_strtoupper(trim($json->data->dadosContrato->objeto), 'UTF-8');
         $dado['receita_despesa'] = 'D';

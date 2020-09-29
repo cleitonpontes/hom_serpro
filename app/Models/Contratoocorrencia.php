@@ -240,7 +240,19 @@ class Contratoocorrencia extends Model
 
         return $descricao;
     }
-
+    public function getListaArquivosComPath()
+    {
+        $arquivos_array = [];
+        $i = 1;
+        foreach ($this->arquivos as $arquivo) {
+            
+            $arquivos_array[] = [
+                'arquivo_'.$i => env('APP_URL'). '/storage/'. $arquivo,
+            ];
+            $i++;
+        }
+        return $arquivos_array;
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

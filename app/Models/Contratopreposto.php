@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\ContratoBase as Model;
+use App\Http\Traits\Formatador;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -12,6 +13,7 @@ class Contratopreposto extends Model
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
+    use Formatador;
 
     protected static $logFillable = true;
     protected static $logName = 'contratopreposto';
@@ -37,18 +39,18 @@ class Contratopreposto extends Model
         'data_fim',
         'situacao',
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function getContrato()
     {
         return $this->getContratoNumero();
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -66,6 +68,11 @@ class Contratopreposto extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getMaskedCpfAttribute($value)
+    {
+        return $this->retornaMascaraCpf($this->cpf);
+    }
 
     /*
     |--------------------------------------------------------------------------

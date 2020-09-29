@@ -118,7 +118,7 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
         $this->aplicaFiltroFuncao();
         $this->aplicaFiltroSalario();
         $this->aplicaFiltroValeAlimentacao();
-        $this->aplicaFiltroAuxTransporte();
+        $this->aplicaFiltroAuxilioTransporte();
         $this->aplicaFiltroEscolaridade();
     }
 
@@ -445,7 +445,6 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             }
         );
     }
-
 
     private function aplicaFiltroAuxilioTransporte()
     {

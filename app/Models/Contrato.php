@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\AdminController;
-use Faker\ORM\Spot\EntityPopulator;
 use Illuminate\Support\Facades\DB;
-use function foo\func;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+
+use App\Http\Controllers\AdminController;
+use Faker\ORM\Spot\EntityPopulator;
+// use Illuminate\Database\Eloquent\SoftDeletes;
+use function foo\func;
 
 class Contrato extends Model
 {
@@ -73,7 +74,6 @@ class Contrato extends Model
 
     public function buscaListaContratosUg($filtro)
     {
-
         $unidade_user = Unidade::find(session()->get('user_ug_id'));
 
         $lista = $this->select([
@@ -373,9 +373,15 @@ class Contrato extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function historico()
+
+    public function arquivos()
     {
-        return $this->hasMany(Contratohistorico::class, 'contrato_id');
+        return $this->hasMany(Contratoarquivo::class, 'contrato_id');
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Codigoitem::class, 'categoria_id');
     }
 
     public function cronograma()
@@ -383,19 +389,9 @@ class Contrato extends Model
         return $this->hasMany(Contratocronograma::class, 'contrato_id');
     }
 
-    public function responsaveis()
+    public function despesasacessorias()
     {
-        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
-    }
-
-    public function garantias()
-    {
-        return $this->hasMany(Contratogarantia::class, 'contrato_id');
-    }
-
-    public function arquivos()
-    {
-        return $this->hasMany(Contratoarquivo::class, 'contrato_id');
+        return $this->hasMany(Contratodespesaacessoria::class, 'contrato_id');
     }
 
     public function empenhos()
@@ -403,14 +399,34 @@ class Contrato extends Model
         return $this->hasMany(Contratoempenho::class, 'contrato_id');
     }
 
+    public function faturas()
+    {
+        return $this->hasMany(Contratofatura::class, 'contrato_id');
+    }
+
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
+    public function garantias()
+    {
+        return $this->hasMany(Contratogarantia::class, 'contrato_id');
+    }
+
+    public function historico()
+    {
+        return $this->hasMany(Contratohistorico::class, 'contrato_id');
+    }
+
     public function itens()
     {
         return $this->hasMany(Contratoitem::class, 'contrato_id');
     }
 
-    public function faturas()
+    public function modalidade()
     {
-        return $this->hasMany(Contratofatura::class, 'contrato_id');
+        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
     }
 
     public function ocorrencias()
@@ -418,9 +434,31 @@ class Contrato extends Model
         return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
     }
 
+    public function orgaosubcategoria()
+    {
+        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
+    }
+
+    public function prepostos()
+    {
+        return $this->hasMany(Contratopreposto::class, 'contrato_id')
+            ->where('situacao', true);
+    }
+
+    public function responsaveis()
+    {
+        return $this->hasMany(Contratoresponsavel::class, 'contrato_id')
+            ->where('situacao', true);
+    }
+
     public function terceirizados()
     {
         return $this->hasMany(Contratoterceirizado::class, 'contrato_id');
+    }
+
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
     }
 
     public function unidade()
@@ -431,31 +469,6 @@ class Contrato extends Model
     public function unidadeorigem()
     {
         return $this->belongsTo(Unidade::class, 'unidadeorigem_id');
-    }
-
-    public function fornecedor()
-    {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
-    }
-
-    public function tipo()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_id');
-    }
-
-    public function categoria()
-    {
-        return $this->belongsTo(Codigoitem::class, 'categoria_id');
-    }
-
-    public function modalidade()
-    {
-        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
-    }
-
-    public function orgaosubcategoria()
-    {
-        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
     }
 
     /*
@@ -475,5 +488,4 @@ class Contrato extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-
 }

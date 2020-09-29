@@ -22,12 +22,12 @@ class SubrogacaoObserver
 
     private function atualizaContrato($unidadedestino,$contrato_id)
     {
-        $contrato = Contrato::find($contrato_id);
-        $contrato->unidade_id = $unidadedestino;
-        $contrato->save();
+        $sql_contrato = "UPDATE contratos SET unidade_id=".$unidadedestino." WHERE id=".$contrato_id;
+        DB::update($sql_contrato);
 
-        $sql = "UPDATE contratohistorico SET unidade_id='$unidadedestino' WHERE contrato_id='$contrato->id'";
-        $historico = DB::update($sql);
+
+        $sql = "UPDATE contratohistorico SET unidade_id=".$unidadedestino." WHERE contrato_id=".$contrato_id;
+        DB::update($sql);
 
     }
 
