@@ -17,7 +17,7 @@ class CreateAmparoLegalRestricoesTable extends Migration
             $table->increments('id');
             $table->integer('restricao_id');
             $table->integer('tipo_restricao_id');
-            $table->integer('codigo_restricao');
+            $table->string('codigo_restricao');
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
 
