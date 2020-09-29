@@ -56,6 +56,9 @@ class GlosaCrudController extends CrudController
         (backpack_user()->can('glosa_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('glosa_deletar')) ? $this->crud->allowAccess('delete') : null;
 
+        // Apenas ocorrencias deste contratoitem_servico_indicador_id
+        $this->crud->addClause('where', 'glosas.contratoitem_servico_indicador_id', '=', $contratoitem_servico_indicador_id);
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
