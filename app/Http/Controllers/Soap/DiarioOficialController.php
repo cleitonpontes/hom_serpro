@@ -33,7 +33,10 @@ class DiarioOficialController extends BaseSoapController
     public function consultaTodosFeriado(){
         try {
 
-            $response = $this->soapClient->__getTypes();
+            $params = array(
+                    'identificadorJornal' => '3'
+            );
+            $response = $this->soapClient->ConsultaNormas($params);
 
             dd($response);
         }
@@ -67,15 +70,15 @@ class DiarioOficialController extends BaseSoapController
         $dados ['dados']['UG'] = $contrato->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contrato->data_publicacao);
         $dados ['dados']['empenho'] = $this->retornaNumeroEmpenho($contrato);
-        $dados ['dados']['identificadorJornal'] = 3; //Diário Oficial Seção - 1 -> ConsultaJornais
-        $dados ['dados']['identificadorTipoPagamento'] = 290; //149 ISENTO -> ConsultaFormasPagamento //89 - empenho
+        $dados ['dados']['identificadorJornal'] = 3; //Diário Oficial Seção - 2 -> ConsultaJornais
+        $dados ['dados']['identificadorTipoPagamento'] = 149; //149 ISENTO -> ConsultaFormasPagamento //89 - empenho
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = ''; //Número único de Processo relacionado à publicação NÃO OBRIGATÓRIO
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($texto);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134; //ConsultaNormas -> 134 Edital de Citação
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = 46; //código siorg AGU
         $dados ['dados']['motivoIsencao'] = 9;
         $dados ['dados']['siorgCliente'] = 46;
-//        dd($dados);
+        dump($dados);
         return $dados;
 
     }

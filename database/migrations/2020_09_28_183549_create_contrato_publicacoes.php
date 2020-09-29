@@ -21,6 +21,7 @@ class CreateContratoPublicacoes extends Migration
             $table->string('hash')->nullable();
             $table->string('status')->nullable();
             $table->string('situacao')->nullable();
+            $table->timestamps();
 
             $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
         });
