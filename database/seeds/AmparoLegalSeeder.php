@@ -2,8 +2,6 @@
 
 use Illuminate\Database\Seeder;
 
-// composer require laracasts/testdummy
-
 class AmparoLegalSeeder extends Seeder
 {
     public function run()
