@@ -26,7 +26,8 @@ class GlosaRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+             'valor_glosa' => 'required',
+             'escopo_id' => 'required'
         ];
     }
 
