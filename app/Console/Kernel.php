@@ -79,7 +79,7 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
     }
 
-    public function criarJobEnviarEmailsAlertas()
+    protected function criarJobEnviarEmailsAlertas()
     {
         $this->schedule->call(
             'App\Http\Controllers\Admin\AlertaContratoController@enviaEmails'
