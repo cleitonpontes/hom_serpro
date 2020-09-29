@@ -24,7 +24,7 @@ class CreateAmparoLegalTable extends Migration
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
 
-            $table->foreign('modalidade_id')->references('id')->on('codigoitens'); // Código Itens = 13
+            $table->foreign('modalidade_id')->references('id')->on('codigoitens');
         });
     }
 

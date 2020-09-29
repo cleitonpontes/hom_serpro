@@ -15,14 +15,14 @@ class CreateAmparoLegalRestricoesTable extends Migration
     {
         Schema::create('amparo_legal_restricoes', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('restricao_id');
+            $table->integer('amparo_legal_id');
             $table->integer('tipo_restricao_id');
             $table->string('codigo_restricao');
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
 
-            $table->foreign('restricao_id')->references('id')->on('amparo_legal');
-            $table->foreign('tipo_restricao_id')->references('id')->on('codigoitens'); // Código Itens = xx
+            $table->foreign('amparo_legal_id')->references('id')->on('amparo_legal');
+            $table->foreign('tipo_restricao_id')->references('id')->on('codigoitens');
         });
     }
 
