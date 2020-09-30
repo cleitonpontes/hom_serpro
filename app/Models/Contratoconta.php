@@ -33,7 +33,86 @@ class Contratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getSaldoDepositoPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipo_id){
+        $saldoDeposito = \DB::table('lancamentos')
+            ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
 
+            ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
+            ->where('codigoitens.descricao','=','Depósito')
+
+            ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
+            ->where('codigos.descricao','=','Tipo Movimentação')
+
+            ->join('encargos', 'encargos.id', '=', 'lancamentos.encargo_id')
+            ->where('encargos.tipo_id', '=', $tipo_id)
+
+            ->where('lancamentos.contratoterceirizado_id','=',$idContratoTerceirizado)
+            ->sum('lancamentos.valor');
+        return $saldoDeposito = number_format(floatval($saldoDeposito), 2, '.', '');
+    }
+    public function getSaldoDepositoPorContratoTerceirizado($idContratoTerceirizado){
+        $saldoDeposito = \DB::table('lancamentos')
+            ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
+
+            ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
+            ->where('codigoitens.descricao','=','Depósito')
+
+            ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
+            ->where('codigos.descricao','=','Tipo Movimentação')
+
+            ->where('lancamentos.contratoterceirizado_id','=',$idContratoTerceirizado)
+            ->sum('lancamentos.valor');
+        return $saldoDeposito = number_format(floatval($saldoDeposito), 2, '.', '');
+    }
+    public function getSaldoRetiradaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipo_id){
+        $saldoRetirada = \DB::table('lancamentos')
+            ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
+
+            ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
+            ->where('codigoitens.descricao','=','Retirada')
+
+            ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
+            ->where('codigos.descricao','=','Tipo Movimentação')
+
+            ->join('encargos', 'encargos.id', '=', 'lancamentos.encargo_id')
+            ->where('encargos.tipo_id', '=', $tipo_id)
+
+            ->where('lancamentos.contratoterceirizado_id','=',$idContratoTerceirizado)
+            ->sum('lancamentos.valor');
+        return $saldoRetirada = number_format(floatval($saldoRetirada), 2, '.', '');
+    }
+    public function getSaldoRetiradaPorContratoTerceirizado($idContratoTerceirizado){
+        $saldoRetirada = \DB::table('lancamentos')
+            ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
+            ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
+            ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
+            ->where('codigos.descricao','=','Tipo Movimentação')
+            ->where('codigoitens.descricao','=','Retirada')
+            ->where('lancamentos.contratoterceirizado_id','=',$idContratoTerceirizado)
+            ->sum('lancamentos.valor');
+        return $saldoRetirada = number_format(floatval($saldoRetirada), 2, '.', '');
+    }
+    public function getSaldoContratoContaPorContratoTerceirizado($idContratoTerceirizado){
+        $saldoDeposito = self::getSaldoDepositoPorContratoTerceirizado($idContratoTerceirizado);
+        $saldoRetirada = self::getSaldoRetiradaPorContratoTerceirizado($idContratoTerceirizado);
+        return $saldo = ($saldoDeposito - $saldoRetirada);
+    }
+    public function getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipo_id){
+        $saldoDeposito = self::getSaldoDepositoPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipo_id);
+        $saldoRetirada = self::getSaldoRetiradaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipo_id);
+        return $saldo = ($saldoDeposito - $saldoRetirada);
+    }
+    public function getSaldoContratoContaParaColunas(){
+        $idContrato = $this->contrato_id;
+        $arrayTodosContratosTerceirizadosByIdContrato = Contratoterceirizado::where('contrato_id', $idContrato)->get();
+        $saldoTotal = 0;
+        foreach($arrayTodosContratosTerceirizadosByIdContrato as $objContratoTerceirizado){
+            $idContratoTerceirizado = $objContratoTerceirizado->id;
+            $saldoContratoTerceirizado = self::getSaldoContratoContaPorContratoTerceirizado($idContratoTerceirizado);
+            $saldoTotal = ( $saldoTotal + $saldoContratoTerceirizado );
+        }
+        return number_format($saldoTotal, 2, ',', '.');
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

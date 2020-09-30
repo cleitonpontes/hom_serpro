@@ -42,6 +42,8 @@ Route::group([
             Route::get('ocorrenciaconcluida', 'OcorrenciaconcluidaController@index');
             Route::get('ocorrenciaconcluida/{id}', 'OcorrenciaconcluidaController@show');
             Route::get('municipios', 'MunicipioController@index');
+
+            // Route::get('retiradascontratoterceirizado/{idContrato}', 'RetiradacontratocontaCrudController@getContratosTerceirizadosByIdContrato');
         });
 
         // if not otherwise configured, setup the dashboard routes
@@ -153,10 +155,26 @@ Route::group([
                 Route::get('inserircontratos', 'SiasgcontratoCrudController@verificarContratosPendentes');
             });
 
+
             Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}'], function () {
                 CRUD::resource('movimentacaocontratoconta', 'MovimentacaocontratocontaCrudController');
                 CRUD::resource('depositocontratoconta', 'DepositocontratocontaCrudController');
+                CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
+                // CRUD::resource('retiradacontratoconta2', 'RetiradacontratocontaCrudController');
+                CRUD::resource('funcionarioscontratoconta', 'FuncionarioscontratocontaCrudController');
             });
+
+            Route::group(['prefix' => 'contrato/contratoconta/movimentacaocontratoconta/{movimentacaocontratoconta_id}'], function () {
+                CRUD::resource('lancamento', 'LancamentoCrudController');
+            });
+
+
+            Route::group(['prefix' => 'contrato/contratoconta/contratoterceirizado/{contratoterceirizado_id}'], function () {
+                CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
+            });
+
+
+
 
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
                 CRUD::resource('contratocontas', 'ContratocontaCrudController'); // conta vinculada

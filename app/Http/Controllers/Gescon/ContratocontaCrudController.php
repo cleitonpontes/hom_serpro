@@ -56,6 +56,7 @@ class ContratocontaCrudController extends CrudController
         $this->crud->allowAccess('show');
 
 
+
         (backpack_user()->can('contratoconta_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('contratoconta_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('contratoconta_deletar')) ? $this->crud->allowAccess('delete') : null;
@@ -186,6 +187,21 @@ class ContratocontaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+            ],
+            [
+                'name' => 'getSaldoContratoContaParaColunas',
+                'label' => 'Saldo', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSaldoContratoContaParaColunas', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'prefix' => "R$ ",
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                // },
             ],
         ];
         return $colunas;

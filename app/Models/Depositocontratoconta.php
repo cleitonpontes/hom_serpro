@@ -22,11 +22,8 @@ class Depositocontratoconta extends Model
     protected $fillable = [
         'contratoconta_id',
         'tipo_id',
-        // 'contratoterceirizado_id',
-        // 'encargo_id',
         'mes_competencia',
         'ano_competencia',
-        // 'proporcionalidade',
         'valor_total_mes_ano',
         'situacao_movimentacao',
         'user_id'

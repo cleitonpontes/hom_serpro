@@ -4,10 +4,18 @@ namespace App\Http\Controllers\Gescon;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
+use App\Models\Contrato;
+use App\Models\Contratoconta;
+
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\MovimentacaocontratocontaRequest as StoreRequest;
 use App\Http\Requests\MovimentacaocontratocontaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+
+// inserido
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+
 
 /**
  * Class MovimentacaocontratocontaCrudController
@@ -18,7 +26,23 @@ class MovimentacaocontratocontaCrudController extends CrudController
 {
     public function setup()
     {
+
         $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+
+        $contratoConta = Contratoconta::where('id','=',$contratoconta_id)->first();
+        if(!$contratoConta){
+            abort('403', config('app.erro_permissao'));
+        }
+        $contrato_id = $contratoConta->contrato_id;
+        $contrato = Contrato::where('id','=',$contrato_id)
+            ->where('unidade_id','=',session()->get('user_ug_id'))->first();
+        if(!$contrato){
+            abort('403', config('app.erro_permissao'));
+        }
+
+        //vamos setar o contrato_id como parâmetro e utilizá-lo no botão
+        \Route::current()->setParameter('contrato_id', $contrato_id);
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -26,7 +50,32 @@ class MovimentacaocontratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Movimentacaocontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/movimentacaocontratoconta');
-        $this->crud->setEntityNameStrings('movimentacaocontratoconta', 'movimentacaocontratocontas');
+        $this->crud->setEntityNameStrings('movimentacaocontratoconta', 'Movimentações da conta');
+
+        $this->crud->addButtonFromView('line', 'moremovimentacaocontratoconta', 'moremovimentacaocontratoconta', 'end');
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontavinculada', 'end');
+        $this->crud->addButtonFromView('top', 'adicionardeposito', 'adicionardeposito', 'end');
+        $this->crud->addButtonFromView('top', 'adicionarretirada', 'adicionarretirada', 'end');
+        $this->crud->addButtonFromView('bottom', 'adicionardeposito', 'adicionardeposito', 'end');
+        $this->crud->addButtonFromView('bottom', 'adicionarretirada', 'adicionarretirada', 'end');
+
+        // $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        // $this->crud->denyAccess('delete');
+        // $this->crud->denyAccess('show');
+
+
+        // cláusulas para possibilitar buscas
+        $this->crud->addClause('select', 'movimentacaocontratocontas.*');
+        $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
+        $this->crud->addClause('where', 'movimentacaocontratocontas.contratoconta_id', '=', $contratoconta_id);
+        $this->crud->addClause('orderby', 'movimentacaocontratocontas.ano_competencia');
+        $this->crud->addClause('orderby', 'movimentacaocontratocontas.mes_competencia');
+
+
+        // dd($this->crud);
+
 
         /*
         |--------------------------------------------------------------------------
@@ -47,34 +96,20 @@ class MovimentacaocontratocontaCrudController extends CrudController
     public function Colunas()
     {
         $colunas = [
-            // [
-            //     'name' => 'getTipoMovimentacao',
-            //     'label' => 'Tipo', // Table column heading
-            //     'type' => 'model_function',
-            //     'function_name' => 'getTipoMovimentacao', // the method in your Model
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            //     'searchLogic' => function (Builder $query, $column, $searchTerm) {
-            //         $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
-            //     },
-            // ],
-            // [
-            //     'name' => 'getTipoEncargo',
-            //     'label' => 'Tipo', // Table column heading
-            //     'type' => 'model_function',
-            //     'function_name' => 'getTipoEncargo', // the method in your Model
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            //     'searchLogic' => function (Builder $query, $column, $searchTerm) {
-            //         $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
-            //     },
-            // ],
+            [
+                'name' => 'getTipoMovimentacao',
+                'label' => 'Tipo da movimentação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getTipoMovimentacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                },
+            ],
             [
                 'name'  => 'mes_competencia',
                 'label' => 'Mês',
@@ -90,22 +125,6 @@ class MovimentacaocontratocontaCrudController extends CrudController
                 'label' => 'Situação da movimentação',
                 'type'  => 'text',
             ],
-            // [
-            //     'name'  => 'proporcionalidade',
-            //     'label' => 'Proporcionalidade',
-            //     'type'  => 'text',
-            // ],
-            // [
-            //     'name' => 'formatValor',
-            //     'label' => 'Valor', // Table column heading
-            //     'type' => 'model_function',
-            //     'function_name' => 'formatValor', // the method in your Model
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            // ],
         ];
         return $colunas;
     }

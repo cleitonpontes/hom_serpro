@@ -16,6 +16,11 @@ use App\Http\Requests\DepositocontratocontaRequest as StoreRequest;
 use App\Http\Requests\DepositocontratocontaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 
+// inserido
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+
+
 /**
  * Class DepositocontratocontaCrudController
  * @package App\Http\Controllers\Admin
@@ -44,7 +49,7 @@ class DepositocontratocontaCrudController extends CrudController
         // $idContratoTerceirizado = $objContratoTerceirizado->id;
 
 
-        // buscar os tipos de movimentação em codigoitens para seleção
+        // buscar o tipo de movimentação em codigoitens = depósito
         $objTipoMovimentacaoDeposito = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Movimentação');
         })
@@ -61,9 +66,10 @@ class DepositocontratocontaCrudController extends CrudController
         $this->crud->setModel('App\Models\Depositocontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/depositocontratoconta');
         $this->crud->setEntityNameStrings('novo depósito', 'Depósitos');
+
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
-
+        // cláusulas para possibilitar buscas
         $this->crud->addClause('where', 'contratoconta_id', '=', $contratoconta_id);
         $this->crud->addClause('orderby', 'ano_competencia');
         $this->crud->addClause('orderby', 'mes_competencia');
@@ -90,16 +96,8 @@ class DepositocontratocontaCrudController extends CrudController
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
-
     public function Campos($idTipoMovimentacaoDeposito, $contratoconta_id, $contrato_id, $quantidadeContratosTerceirizados)
     {
-
-        // $dataInicio = $objContratoTerceirizado->data_inicio;
-        // $dataInicioMostrar = $dataInicio;
-        // $dataFim = $objContratoTerceirizado->data_fim;
-        // $dataFimMostrar = $dataFim;
-        // if($dataFimMostrar == ''){$dataFimMostrar = ' ------- ';}
-
         $campos = [
             [   // Hidden
                 'name' => 'proporcionalidade',
@@ -111,21 +109,6 @@ class DepositocontratocontaCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => 'Movimentação Criada',
             ],
-            // [   // Hidden
-            //     'name' => 'data_inicio',
-            //     'type' => 'hidden',
-            //     'default' => $dataInicio,
-            // ],
-            // [   // Hidden
-            //     'name' => 'data_fim',
-            //     'type' => 'hidden',
-            //     'default' => $dataFim,
-            // ],
-            // [   // Hidden
-            //     'name' => 'contratoterceirizado_id',
-            //     'type' => 'hidden',
-            //     'default' => $objContratoTerceirizado->id,
-            // ],
             [   // Hidden
                 'name' => 'tipo_id',
                 'type' => 'hidden',
@@ -152,55 +135,18 @@ class DepositocontratocontaCrudController extends CrudController
                 ], // allow decimals
                 'default' => $quantidadeContratosTerceirizados,
             ],
-
-            // [   // data
-            //     'name' => 'nome',
-            //     'label' => 'Funcionário',
-            //     'type' => 'text',
-            //     // optionals
-            //     'attributes' => [
-            //         'readonly' => 'readonly',
-            //         'style' => 'pointer-events: none;touch-action: none;'
-            //     ], // allow decimals
-            //     'default' => $objContratoTerceirizado->nome,
-            // ],
-            // [   // data
-            //     'name' => 'data_inicio_mostrar',
-            //     'label' => 'Data início funcionário',
-            //     'type' => 'date',
-            //     // optionals
-            //     'attributes' => [
-            //         'readonly' => 'readonly',
-            //         'style' => 'pointer-events: none;touch-action: none;'
-            //     ], // allow decimals
-            //     'default' => $dataInicioMostrar,
-            // ],
-            // [   // data
-            //     'name' => 'data_fim_mostrar',
-            //     'label' => 'Data saída funcionário',
-            //     'type' => 'date',
-            //     // optionals
-            //     'attributes' => [
-            //         'readonly' => 'readonly',
-            //         'style' => 'pointer-events: none;touch-action: none;'
-            //     ], // allow decimals
-            //     'default' => $dataFimMostrar,
-            // ],
-
-
-
             [ // select_from_array
                 'name' => 'mes_competencia',
                 'label' => "Mês Competência",
                 'type' => 'select2_from_array',
-                'options' => config('app.meses_referencia_fatura'),
+                'options' => config('app.meses_referencia_fatura'), // vai buscar em app.php o array meses_referencia_fatura
                 'allows_null' => false,
             ],
             [ // select_from_array
                 'name' => 'ano_competencia',
                 'label' => "Ano Competência",
                 'type' => 'select2_from_array',
-                'options' => config('app.anos_referencia_fatura'),
+                'options' => config('app.anos_referencia_fatura'), // vai buscar em app.php o array anos_referencia_fatura
                 'default' => date('Y'),
                 'allows_null' => false,
             ],
