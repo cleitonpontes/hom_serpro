@@ -32,6 +32,7 @@ class ConsultaFaturasCrudController extends ConsultaContratoBaseCrudController
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $this->crud->addClause('join', 'orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $this->crud->addClause('where', 'contratos.situacao', '=', true);
+        $this->crud->addClause('where', 'unidades.sigilo', '=', false);
         $this->crud->orderBy('contratofaturas.ateste', 'asc');
 
         /*
