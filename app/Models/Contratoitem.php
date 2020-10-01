@@ -140,11 +140,6 @@ class Contratoitem extends Model
         return $this->belongsTo(Codigoitem::class, 'tipo_id');
     }
 
-    public function servicos()
-    {
-        return $this->belongsToMany( Servico::class, 'contratoitem_servico', 'contratoitem_id', 'servico_id' );
-    }
-
     /*
     |--------------------------------------------------------------------------
     | SCOPES
