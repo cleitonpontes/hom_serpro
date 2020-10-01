@@ -36,8 +36,10 @@ class DiarioOficialController extends BaseSoapController
             $params = array(
                     'identificadorJornal' => '3'
             );
-            $response = $this->soapClient->ConsultaNormas($params);
 
+//            $response = $this->soapClient->ConsultaNormas($params);
+              $response = $this->soapClient->ConsultaFormasPagamento(array('cpf' => '70074402153'));
+//            $response = $this->soapClient->ConsultaTodosMotivosIsencao();
             dd($response);
         }
         catch(\Exception $e) {
@@ -63,10 +65,10 @@ class DiarioOficialController extends BaseSoapController
 
     public function montaOficioPreview(Contrato $contrato)
     {
-        dump($contrato);
+
         $texto = "";
 
-        $dados ['dados']['CPF'] = $this->retornaCpfResponsavel($contrato);
+        $dados ['dados']['CPF'] = $this->retornaCpfResponsavel($contrato); //SOLICITAR CPF CADASTRADO E ATIVO NO INCOM
         $dados ['dados']['UG'] = $contrato->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contrato->data_publicacao);
         $dados ['dados']['empenho'] = $this->retornaNumeroEmpenho($contrato);
@@ -75,10 +77,10 @@ class DiarioOficialController extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = ''; //Número único de Processo relacionado à publicação NÃO OBRIGATÓRIO
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($texto);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134; //ConsultaNormas -> 134 Edital de Citação
-        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = 46; //código siorg AGU
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = ''; //código siorg AGU
         $dados ['dados']['motivoIsencao'] = 9;
         $dados ['dados']['siorgCliente'] = 46;
-        dump($dados);
+
         return $dados;
 
     }
