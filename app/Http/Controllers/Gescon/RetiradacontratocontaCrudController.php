@@ -46,8 +46,12 @@ class RetiradacontratocontaCrudController extends CrudController
         ->get();
 
 
-        // $contratoconta_id = \Route::current()->parameter('contratoconta_id');
-        // $contratoConta = Contratoconta::where('id','=',$contratoconta_id)->first();
+        // $contrato_id = $objContratoTerceirizado->contrato_id;
+        // // $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+        // $objContratoConta = Contratoconta::where('contrato_id','=',$contrato_id)->first();
+        // $contratoconta_id = $objContratoConta->id;
+
+        // dd($contratoConta);
         // if(!$contratoConta){
         //     abort('403', config('app.erro_permissao'));
         // }
@@ -291,12 +295,28 @@ class RetiradacontratocontaCrudController extends CrudController
         if($objMovimentacaocontratoconta = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->delete()){return true;}
         else{return false;}
     }
+
+    public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
+        $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
+        $objMovimentacao->situacao_movimentacao = $statusMovimentacao;
+        if(!$objMovimentacao->save()){
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
+
     public function store(StoreRequest $request)
     {
-
-        // dd($request);
-
         /*
+
+            - salvar a movimentação de retirada
+
+            - salvar os lançamentos da movimentação
+
+
 
             - pegar o contratoterceirizado_id e buscar o contratoconta_id - ok
 
@@ -312,18 +332,21 @@ class RetiradacontratocontaCrudController extends CrudController
             - salvar o lançamento para o encargo / valor
 
         */
+
+        // salvar a movimentação
+        $idContratoTerceirizado = $request->input('contratoterceirizado_id');
+        $idContratoConta = self::getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado);
+
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
-        $idContratoTerceirizado = $request->input('contratoterceirizado_id');
+
         $valorRetirada = $request->input('valor');
         $valorRetirada = str_replace('.', '', $valorRetirada);
         $valorRetirada = str_replace(',', '.', $valorRetirada);
 
         $idContrato = self::getIdContratoByIdContratoTerceirizado($idContratoTerceirizado);
 
-
         // vamos buscar o contratoconta_id pelo contratoterceirizado_id
-        $idContratoConta = self::getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado);
         $request->request->set('contratoconta_id', $idContratoConta);
         // aqui quer dizer que ainda não existe a movimentação. Precisamos criá-la.
         if( !$idMovimentacao = self::criarMovimentacao($request) ){
@@ -334,6 +357,9 @@ class RetiradacontratocontaCrudController extends CrudController
         // aqui a movimentação já foi criada e já temos o $idMovimentacao - vamos atribuir seu valor ao request
         $request->request->set('movimentacao_id', $idMovimentacao);
 
+        // vamos alterar o status da movimentação
+        self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
+
         // vamos verificar o saldo total da conta
         $objContratoConta = new Contratoconta();
         $saldoContratoConta = $objContratoConta->getSaldoContratoContaPorContratoTerceirizado($idContratoTerceirizado);
@@ -341,12 +367,15 @@ class RetiradacontratocontaCrudController extends CrudController
         // vamos verificar o saldo por encargo
         $tipoIdEncargo = $request->input('tipo_id_encargo');
         $saldoContratoContaPorTipoEncargo = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipoIdEncargo);
+
+
         if( $valorRetirada > $saldoContratoContaPorTipoEncargo ){
             // aqui quer dizer que não existe saldo para esta retirada - vamos excluir a movimentação
             self::excluirMovimentacao($idMovimentacao);
             \Alert::error('Não existe saldo suficiente para esta retirada.')->flash();
             return redirect()->back();
         }
+
         // aqui quer dizer que está tudo certo para salvar a retirada
         $objMovimentacaoIdEncargo = new Movimentacaocontratoconta();
         $idEncargo = $objMovimentacaoIdEncargo->getIdEncargoByIdCodigoItens($tipoIdEncargo);
@@ -366,12 +395,11 @@ class RetiradacontratocontaCrudController extends CrudController
             return redirect()->back();
         }
 
+        // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
+        self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
 
         $linkLocation = '/gescon/contrato/'.$idContrato.'/contratocontas';
         return redirect($linkLocation)->with('msg', 'Testes!!!!!');
-
-
-
 
         // // your additional operations before save here
         // $redirect_location = parent::storeCrud($request);

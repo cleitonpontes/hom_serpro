@@ -9,6 +9,9 @@ use App\Http\Requests\LancamentoRequest as StoreRequest;
 use App\Http\Requests\LancamentoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 
+use App\Models\Movimentacaocontratoconta;
+
+
 /**
  * Class LancamentoCrudController
  * @package App\Http\Controllers\Admin
@@ -19,6 +22,13 @@ class LancamentoCrudController extends CrudController
     public function setup()
     {
         $movimentacaocontratoconta_id = \Route::current()->parameter('movimentacaocontratoconta_id');
+
+        $objMovimentacaoContratoConta = Movimentacaocontratoconta::where('id', '=', $movimentacaocontratoconta_id)->first();
+        $contratoconta_id = $objMovimentacaoContratoConta->contratoconta_id;
+
+
+        \Route::current()->setParameter('contratoconta_id', $contratoconta_id);
+
 
         /*
         |--------------------------------------------------------------------------
@@ -31,6 +41,15 @@ class LancamentoCrudController extends CrudController
 
         // adicionar cláusula para trabalharmos apenas com lançamentos da movimentação
         $this->crud->addClause('where', 'lancamentos.movimentacao_id', '=', $movimentacaocontratoconta_id);
+
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        // $this->crud->denyAccess('show');
+
+        $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
+
+
 
         /*
         |--------------------------------------------------------------------------

@@ -70,8 +70,9 @@ class MovimentacaocontratocontaCrudController extends CrudController
         $this->crud->addClause('select', 'movimentacaocontratocontas.*');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
         $this->crud->addClause('where', 'movimentacaocontratocontas.contratoconta_id', '=', $contratoconta_id);
-        $this->crud->addClause('orderby', 'movimentacaocontratocontas.ano_competencia');
-        $this->crud->addClause('orderby', 'movimentacaocontratocontas.mes_competencia');
+        $this->crud->addClause('orderby', 'movimentacaocontratocontas.ano_competencia', 'desc');
+        $this->crud->addClause('orderby', 'movimentacaocontratocontas.mes_competencia', 'desc');
+        $this->crud->addClause('orderby', 'movimentacaocontratocontas.id', 'desc');
 
 
         // dd($this->crud);
