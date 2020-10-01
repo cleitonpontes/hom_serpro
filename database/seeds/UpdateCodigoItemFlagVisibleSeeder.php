@@ -13,8 +13,8 @@ class UpdateCodigoItemFlagVisibleSeeder extends Seeder
      */
     public function run()
     {
-        $codigoitem = Codigoitem::where('descres', '=', 'SUPRIMENTO')
+        $values = array('SUPRIMENTO','CONSULTA');
+        $codigoitem = Codigoitem::wherein('descres',$values)
             ->update(['visivel' => false]);
-
     }
 }
