@@ -147,6 +147,7 @@ class IndexController extends Controller
         $referencias->join('unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $referencias->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $referencias->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
+        $referencias->where('unidades.sigilo', '=', false);
         $referencias->where('contratos.situacao', '=', true);
         $referencias->where('contratocronograma.deleted_at', '=', null );
         $referencias->whereIn('contratocronograma.anoref',$anoref);
@@ -174,6 +175,7 @@ class IndexController extends Controller
         $valores->join('unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $valores->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $valores->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
+        $valores->where('unidades.sigilo', '=', false);
         $valores->where('contratos.situacao', '=', true);
         $valores->where('contratocronograma.deleted_at', '=', null );
         $valores->whereIn('contratocronograma.anoref', $anoref);
@@ -251,6 +253,7 @@ class IndexController extends Controller
         $anos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $anos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $anos->where('contratos.situacao', '=', true);
+        $anos->where('unidades.sigilo', '=', false);
         $anos->orderBy('ano', 'desc');
 
         if (isset($filtro['orgao'])) {
@@ -273,6 +276,7 @@ class IndexController extends Controller
         $contratos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $contratos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $contratos->where('contratos.situacao', '=', true);
+        $contratos->where('unidades.sigilo', '=', false);
         $contratos->orderBy('ano', 'desc');
         $contratos->groupBy('ano');
 
@@ -321,6 +325,7 @@ class IndexController extends Controller
         $contratos->join('unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $contratos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $contratos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
+        $contratos->where('unidades.sigilo', '=', false);
         $contratos->where('contratos.situacao', '=', true);
         if (isset($filtro['orgao'])) {
             $contratos->where('orgaos.codigo', $filtro['orgao']);
@@ -364,6 +369,7 @@ class IndexController extends Controller
         $contratos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $contratos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $contratos->where('contratos.situacao', '=', true);
+        $contratos->where('unidades.sigilo', '=', false);
 
         if (isset($filtro['orgao'])) {
             $contratos->where('orgaos.codigo', $filtro['orgao']);
@@ -429,6 +435,7 @@ class IndexController extends Controller
         $contratos->join('orgaos', 'orgaos.id', '=', 'unidades.orgao_id');
         $contratos->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $contratos->where('contratos.situacao', '=', true);
+        $contratos->where('unidades.sigilo', '=', false);
         $contratos->orderBy('categoria_id', 'asc');
         $contratos->groupBy('categoria_id');
 
