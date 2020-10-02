@@ -368,6 +368,76 @@ class Contrato extends Model
         return 'R$ ' . number_format($this->total_despesas_acessorias, 2, ',', '.');
     }
 
+    public function contratoAPI()
+    {
+
+        return [
+            'id' => $this->id,
+            'receita_despesa' => ($this->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
+            'numero' => $this->numero,
+            'contratante' => [
+                'orgao_origem' => [
+                    'codigo' => $this->unidadeorigem->orgao->codigo,
+                    'nome' => $this->unidadeorigem->orgao->nome,
+                    'unidade_gestora_origem' => [
+                        'codigo' => $this->unidadeorigem->codigo,
+                        'nome_resumido' => $this->unidadeorigem->nomeresumido,
+                        'nome' => $this->unidadeorigem->nome,
+                        'sisg' => $this->unidadeorigem->sisg == true ? 'Sim' : 'Não'
+                    ],
+                ],
+                'orgao' => [
+                    'codigo' => $this->unidade->orgao->codigo,
+                    'nome' => $this->unidade->orgao->nome,
+                    'unidade_gestora' => [
+                        'codigo' => $this->unidade->codigo,
+                        'nome_resumido' => $this->unidade->nomeresumido,
+                        'nome' => $this->unidade->nome,
+                        'sisg' => $this->unidade->sisg == true ? 'Sim' : 'Não'
+                    ],
+                ],
+            ],
+            'fornecedor' => [
+                'tipo' => $this->fornecedor->tipo_fornecedor,
+                'cnpj_cpf_idgener' => $this->fornecedor->cpf_cnpj_idgener,
+                'nome' => $this->fornecedor->nome,
+            ],
+            'tipo' => $this->tipo->descricao,
+            'categoria' => $this->categoria->descricao,
+            'subcategoria' => @$this->orgaosubcategoria->descricao,
+            'unidades_requisitantes' => $this->unidades_requisitantes,
+            'processo' => $this->processo,
+            'objeto' => $this->objeto,
+            'informacao_complementar' => $this->info_complementar,
+            'modalidade' => $this->modalidade->descricao,
+            'licitacao_numero' => $this->licitacao_numero,
+            'data_assinatura' => $this->data_assinatura,
+            'data_publicacao' => $this->data_publicacao,
+            'vigencia_inicio' => $this->vigencia_inicio,
+            'vigencia_fim' => $this->vigencia_fim,
+            'valor_inicial' => number_format($this->valor_inicial, 2, ',', '.'),
+            'valor_global' => number_format($this->valor_global, 2, ',', '.'),
+            'num_parcelas' => $this->num_parcelas,
+            'valor_parcela' => number_format($this->valor_parcela, 2, ',', '.'),
+            'valor_acumulado' => number_format($this->valor_acumulado, 2, ',', '.'),
+            'links' => [
+                'historico' => url('/api/contrato/' . $this->id . '/historico/'),
+                'empenhos' => url('/api/contrato/' . $this->id . '/empenhos/'),
+                'cronograma' => url('/api/contrato/' . $this->id . '/cronograma/'),
+                'garantias' => url('/api/contrato/' . $this->id . '/garantias/'),
+                'itens' => url('/api/contrato/' . $this->id . '/itens/'),
+                'prepostos' => url('/api/contrato/' . $this->id . '/prepostos/'),
+                'responsaveis' => url('/api/contrato/' . $this->id . '/responsaveis/'),
+                'despesas_acessorias' => url('/api/contrato/' . $this->id . '/despesas_acessorias/'),
+                'faturas' => url('/api/contrato/' . $this->id . '/faturas/'),
+                'ocorrencias' => url('/api/contrato/' . $this->id . '/ocorrencias/'),
+                'terceirizados' => url('/api/contrato/' . $this->id . '/terceirizados/'),
+                'arquivos' => url('/api/contrato/' . $this->id . '/arquivos/'),
+            ]
+        ];
+
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

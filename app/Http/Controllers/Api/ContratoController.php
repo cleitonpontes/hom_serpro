@@ -857,6 +857,57 @@ class ContratoController extends Controller
         return json_encode($contratos_array);
     }
 
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna um contrato por sua UASG e pelo seu número",
+     *     description="Retorna um Json com o contrato por sua UASG e pelo seu número",
+     *     path="/api/contrato/ugorigem/{codigo_uasg}/numeroano/{numeroano_contrato}",
+     *     @OA\Parameter(
+     *         name="codigo_uasg",
+     *         in="path",
+     *         description="Codigo da UASG",
+     *         required=true,
+     *     ),
+     *     @OA\Parameter(
+     *         name="numeroano_contrato",
+     *         in="path",
+     *         description="Número e Ano do contrato devem ser inseridos concatenados, sem a barra e com os nove caracteres (utilizando zeros se necessário '000292020')",
+     *         required=true,
+     *         @OA\Schema(
+     *                 type="string",
+     *                 minLength=9,
+     *                 maxLength=9,
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Contrato por UASG e pelo número retornado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Contratos_ug")
+     *         ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="O parâmetro 'numeroano_contrato' foi enviado com um tamanho inválido. Número e Ano do contrato devem ser inseridos concatenados, sem a barra e com os nove caracteres (utilizando zeros se necessário '000292020')",
+     *         @OA\JsonContent(
+     *              @OA\Property(property="errors", type="string", example="O parametro 'numeroano_contrato' foi enviado com um tamanho invalido"),
+     *         )
+     *         ),
+     *   )
+     * )
+     */
+    public function contratoUASGeContratoAno(string $codigo_uasg, string $numeroano_contrato)
+    {
+        if(strlen($numeroano_contrato)!=9){
+            abort(response()->json(['errors' => "O parametro 'numeroano_contrato' foi enviado com um tamanho invalido",], 422));
+        }
+        $numeroano_contrato = substr_replace($numeroano_contrato, '/', 5, 0);
+        $contratos_array = [];
+        $contratos = $this->buscaContratoPorUASGeNumero($codigo_uasg, $numeroano_contrato);
+        foreach ($contratos as $contrato) {
+            $contratos_array[] = $contrato->contratoAPI();
+        }
+        return json_encode($contratos_array);
+    }
 
     /**
      * @OA\Get(
@@ -884,59 +935,7 @@ class ContratoController extends Controller
         $contratos = $this->buscaContratosPorUg($unidade);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = [
-                'id' => $contrato->id,
-                'receita_despesa' => ($contrato->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
-                'numero' => $contrato->numero,
-                'contratante' => [
-                    'orgao' => [
-                        'codigo' => $contrato->unidade->orgao->codigo,
-                        'nome' => $contrato->unidade->orgao->nome,
-                        'unidade_gestora' => [
-                            'codigo' => $contrato->unidade->codigo,
-                            'nome_resumido' => $contrato->unidade->nomeresumido,
-                            'nome' => $contrato->unidade->nome,
-                        ],
-                    ],
-                ],
-                'fornecedor' => [
-                    'tipo' => $contrato->fornecedor->tipo_fornecedor,
-                    'cnpj_cpf_idgener' => $contrato->fornecedor->cpf_cnpj_idgener,
-                    'nome' => $contrato->fornecedor->nome,
-                ],
-                'tipo' => $contrato->tipo->descricao,
-                'categoria' => $contrato->categoria->descricao,
-                'subcategoria' => @$contrato->orgaosubcategoria->descricao,
-                'unidades_requisitantes' => $contrato->unidades_requisitantes,
-                'processo' => $contrato->processo,
-                'objeto' => $contrato->objeto,
-                'informacao_complementar' => $contrato->info_complementar,
-                'modalidade' => $contrato->modalidade->descricao,
-                'licitacao_numero' => $contrato->licitacao_numero,
-                'data_assinatura' => $contrato->data_assinatura,
-                'data_publicacao' => $contrato->data_publicacao,
-                'vigencia_inicio' => $contrato->vigencia_inicio,
-                'vigencia_fim' => $contrato->vigencia_fim,
-                'valor_inicial' => number_format($contrato->valor_inicial, 2, ',', '.'),
-                'valor_global' => number_format($contrato->valor_global, 2, ',', '.'),
-                'num_parcelas' => $contrato->num_parcelas,
-                'valor_parcela' => number_format($contrato->valor_parcela, 2, ',', '.'),
-                'valor_acumulado' => number_format($contrato->valor_acumulado, 2, ',', '.'),
-                'links' => [
-                    'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
-                    'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
-                    'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
-                    'garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
-                    'itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
-                    'prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
-                    'responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
-                    'despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
-                    'faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
-                    'ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
-                    'terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
-                    'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
-                ]
-            ];
+            $contratos_array[] = $contrato->contratoAPI();
         }
 
         return json_encode($contratos_array);
@@ -967,59 +966,7 @@ class ContratoController extends Controller
         $contratos = $this->buscaContratosPorOrgao($orgao);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = [
-                'id' => $contrato->id,
-                'receita_despesa' => ($contrato->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
-                'numero' => $contrato->numero,
-                'contratante' => [
-                    'orgao' => [
-                        'codigo' => $contrato->unidade->orgao->codigo,
-                        'nome' => $contrato->unidade->orgao->nome,
-                        'unidade_gestora' => [
-                            'codigo' => $contrato->unidade->codigo,
-                            'nome_resumido' => $contrato->unidade->nomeresumido,
-                            'nome' => $contrato->unidade->nome,
-                        ],
-                    ],
-                ],
-                'fornecedor' => [
-                    'tipo' => $contrato->fornecedor->tipo_fornecedor,
-                    'cnpj_cpf_idgener' => $contrato->fornecedor->cpf_cnpj_idgener,
-                    'nome' => $contrato->fornecedor->nome,
-                ],
-                'tipo' => $contrato->tipo->descricao,
-                'categoria' => $contrato->categoria->descricao,
-                'subcategoria' => @$contrato->orgaosubcategoria->descricao,
-                'unidades_requisitantes' => $contrato->unidades_requisitantes,
-                'processo' => $contrato->processo,
-                'objeto' => $contrato->objeto,
-                'informacao_complementar' => $contrato->info_complementar,
-                'modalidade' => $contrato->modalidade->descricao,
-                'licitacao_numero' => $contrato->licitacao_numero,
-                'data_assinatura' => $contrato->data_assinatura,
-                'data_publicacao' => $contrato->data_publicacao,
-                'vigencia_inicio' => $contrato->vigencia_inicio,
-                'vigencia_fim' => $contrato->vigencia_fim,
-                'valor_inicial' => number_format($contrato->valor_inicial, 2, ',', '.'),
-                'valor_global' => number_format($contrato->valor_global, 2, ',', '.'),
-                'num_parcelas' => $contrato->num_parcelas,
-                'valor_parcela' => number_format($contrato->valor_parcela, 2, ',', '.'),
-                'valor_acumulado' => number_format($contrato->valor_acumulado, 2, ',', '.'),
-                'links' => [
-                    'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
-                    'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
-                    'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
-                    'garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
-                    'itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
-                    'prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
-                    'responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
-                    'despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
-                    'faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
-                    'ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
-                    'terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
-                    'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
-                ]
-            ];
+            $contratos_array[] = $contrato->contratoAPI();
         }
 
         return json_encode($contratos_array);
@@ -1051,59 +998,7 @@ class ContratoController extends Controller
         $contratos = $this->buscaContratosInativosPorUg($unidade);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = [
-                'id' => $contrato->id,
-                'receita_despesa' => ($contrato->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
-                'numero' => $contrato->numero,
-                'contratante' => [
-                    'orgao' => [
-                        'codigo' => $contrato->unidade->orgao->codigo,
-                        'nome' => $contrato->unidade->orgao->nome,
-                        'unidade_gestora' => [
-                            'codigo' => $contrato->unidade->codigo,
-                            'nome_resumido' => $contrato->unidade->nomeresumido,
-                            'nome' => $contrato->unidade->nome,
-                        ],
-                    ],
-                ],
-                'fornecedor' => [
-                    'tipo' => $contrato->fornecedor->tipo_fornecedor,
-                    'cnpj_cpf_idgener' => $contrato->fornecedor->cpf_cnpj_idgener,
-                    'nome' => $contrato->fornecedor->nome,
-                ],
-                'tipo' => $contrato->tipo->descricao,
-                'categoria' => $contrato->categoria->descricao,
-                'subcategoria' => @$contrato->orgaosubcategoria->descricao,
-                'unidades_requisitantes' => $contrato->unidades_requisitantes,
-                'processo' => $contrato->processo,
-                'objeto' => $contrato->objeto,
-                'informacao_complementar' => $contrato->info_complementar,
-                'modalidade' => $contrato->modalidade->descricao,
-                'licitacao_numero' => $contrato->licitacao_numero,
-                'data_assinatura' => $contrato->data_assinatura,
-                'data_publicacao' => $contrato->data_publicacao,
-                'vigencia_inicio' => $contrato->vigencia_inicio,
-                'vigencia_fim' => $contrato->vigencia_fim,
-                'valor_inicial' => number_format($contrato->valor_inicial, 2, ',', '.'),
-                'valor_global' => number_format($contrato->valor_global, 2, ',', '.'),
-                'num_parcelas' => $contrato->num_parcelas,
-                'valor_parcela' => number_format($contrato->valor_parcela, 2, ',', '.'),
-                'valor_acumulado' => number_format($contrato->valor_acumulado, 2, ',', '.'),
-                'links' => [
-                    'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
-                    'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
-                    'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
-                    'garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
-                    'itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
-                    'prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
-                    'responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
-                    'despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
-                    'faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
-                    'ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
-                    'terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
-                    'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
-                ]
-            ];
+            $contratos_array[] = $contrato->contratoAPI();
         }
 
         return json_encode($contratos_array);
@@ -1134,59 +1029,7 @@ class ContratoController extends Controller
         $contratos = $this->buscaContratosInativosPorOrgao($orgao);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = [
-                'id' => $contrato->id,
-                'receita_despesa' => ($contrato->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
-                'numero' => $contrato->numero,
-                'contratante' => [
-                    'orgao' => [
-                        'codigo' => $contrato->unidade->orgao->codigo,
-                        'nome' => $contrato->unidade->orgao->nome,
-                        'unidade_gestora' => [
-                            'codigo' => $contrato->unidade->codigo,
-                            'nome_resumido' => $contrato->unidade->nomeresumido,
-                            'nome' => $contrato->unidade->nome,
-                        ],
-                    ],
-                ],
-                'fornecedor' => [
-                    'tipo' => $contrato->fornecedor->tipo_fornecedor,
-                    'cnpj_cpf_idgener' => $contrato->fornecedor->cpf_cnpj_idgener,
-                    'nome' => $contrato->fornecedor->nome,
-                ],
-                'tipo' => $contrato->tipo->descricao,
-                'categoria' => $contrato->categoria->descricao,
-                'subcategoria' => @$contrato->orgaosubcategoria->descricao,
-                'unidades_requisitantes' => $contrato->unidades_requisitantes,
-                'processo' => $contrato->processo,
-                'objeto' => $contrato->objeto,
-                'informacao_complementar' => $contrato->info_complementar,
-                'modalidade' => $contrato->modalidade->descricao,
-                'licitacao_numero' => $contrato->licitacao_numero,
-                'data_assinatura' => $contrato->data_assinatura,
-                'data_publicacao' => $contrato->data_publicacao,
-                'vigencia_inicio' => $contrato->vigencia_inicio,
-                'vigencia_fim' => $contrato->vigencia_fim,
-                'valor_inicial' => number_format($contrato->valor_inicial, 2, ',', '.'),
-                'valor_global' => number_format($contrato->valor_global, 2, ',', '.'),
-                'num_parcelas' => $contrato->num_parcelas,
-                'valor_parcela' => number_format($contrato->valor_parcela, 2, ',', '.'),
-                'valor_acumulado' => number_format($contrato->valor_acumulado, 2, ',', '.'),
-                'links' => [
-                    'historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
-                    'empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
-                    'cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
-                    'garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
-                    'itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
-                    'prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
-                    'responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
-                    'despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
-                    'faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
-                    'ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
-                    'terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
-                    'arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
-                ]
-            ];
+            $contratos_array[] = $contrato->contratoAPI();
         }
 
         return json_encode($contratos_array);
@@ -1239,6 +1082,22 @@ class ContratoController extends Controller
         return $contratos;
     }
 
+    private function buscaContratoPorUASGeNumero(string $codigo_uasg, string $numeroano_contrato)
+    {
+        $contratos = Contrato::whereHas('unidade', function ($q) use ($codigo_uasg) {
+            $q->whereHas('orgao', function ($o) {
+                $o->where('situacao', true);
+            })
+                ->where('codigo', $codigo_uasg)
+                ->where('situacao', true);
+        })
+            ->where('numero', $numeroano_contrato)
+            ->orderBy('id')
+            ->get();
+
+        return $contratos;
+    }
+
     private function buscaContratosInativosPorOrgao(string $orgao)
     {
         $contratos = Contrato::whereHas('unidade', function ($q) use ($orgao) {
@@ -1270,7 +1129,7 @@ class ContratoController extends Controller
 
     private function usuarioTransparencia(string $nome, string $cpf)
     {
-        $cpf = $this->retornaMascaraCpf($cpf);
+        $cpf =  '***' . substr($cpf,3,9) . '**';
 
         return $cpf . ' - ' . $nome;
     }
