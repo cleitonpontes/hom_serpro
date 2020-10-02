@@ -14,6 +14,7 @@ class AmparoLegalSeeder extends Seeder
             'codigo_id' => Codigo::MODALIDADE_LICITACAO,
             'descres' => 'CONSULTA',
             'descricao' => 'Consulta',
+            'visivel' => false,
             'created_at' => now(),
             'updated_at' => now()
         ]);
@@ -23,6 +24,7 @@ class AmparoLegalSeeder extends Seeder
             'codigo_id' => 13,
             'descres' => 'SUPRIMENTO',
             'descricao' => 'Suprimento de Fundos',
+            'visivel' => false,
             'created_at' => now(),
             'updated_at' => now()
         ]);
