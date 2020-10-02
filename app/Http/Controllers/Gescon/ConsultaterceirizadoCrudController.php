@@ -538,7 +538,7 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
     {
         $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->where('codigo_id', Codigo::CODIGO_MAO_DE_OBRA);
+        $dados->where('codigo_id', Codigo::MAO_DE_OBRA);
         $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();
@@ -554,7 +554,7 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
     {
         $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->where('codigo_id', Codigo::CODIGO_ESCOLARIDADE);
+        $dados->where('codigo_id', Codigo::ESCOLARIDADE);
         $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();
