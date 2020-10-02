@@ -126,7 +126,7 @@ class ContratoServicoCrudController extends CrudController
                 'type' => 'select2_multiple',
                 'name' => 'contratoItens',
                 'entity' => 'Contratoitem',
-                'attribute' => 'descricao_complementar',
+                'attribute' => 'descricao_item',
                 'model' => "App\Models\Contratoitem",
                 'pivot' => true,
                 'options' => (function ($query) use ($contrato_id) {
