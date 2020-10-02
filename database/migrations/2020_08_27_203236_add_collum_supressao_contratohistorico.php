@@ -26,7 +26,7 @@ class AddCollumSupressaoContratohistorico extends Migration
     public function down()
     {
         Schema::table('supressao', function (Blueprint $table) {
-            //
+            $table->dropColumn(['supressao']);
         });
     }
 }
