@@ -237,9 +237,8 @@ Route::group(
              */
             Route::get('/fatura', 'FaturaController@index')->name('apropriacao.faturas');
             Route::get('/fatura/{id}', 'FaturaController@show')->name('apropriacao.fatura');
-            Route::get('/fatura/nova/{id}', 'FaturaController@create')->name('apropriacao.fatura.create');
-            // TODO: Checar e continuar, se ok
-            Route::put('/fatura/novas', 'FaturaController@create')->name('apropriacao.fatura.create');
+            Route::get('/fatura/nova/{id}/{contrato}', 'FaturaController@create')->name('apropriacao.fatura.create');
+            Route::put('/fatura/novas', 'FaturaController@createMany')->name('apropriacao.fatura.create.bulk');
 
             Route::get('/fatura/{id}/relatorio', 'FaturaController@show')->name('apropriacao.fatura.relatorio');
             // Route::delete('/fatura/{id}', 'ApropriacaoFaturaController@destroy')->name('apropriacao.fatura.excluir');

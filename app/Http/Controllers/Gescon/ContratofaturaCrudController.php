@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Gescon;
 
-use App\Http\Controllers\Apropriacao\FaturaController;
 use App\Models\Contrato;
 use App\Models\Empenho;
 use App\Models\Tipolistafatura;

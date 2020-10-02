@@ -20,6 +20,5 @@ class ApropriacoesFaturasContratofaturas extends Model
                 DB::raw('sum("C"."valorliquido") as total')
             )
             ->groupBy('A.apropriacoes_faturas_id');
-        // ->get()->toArray();
     }
 }

@@ -28,19 +28,18 @@
             {{-- var button = $(this); --}}
 
             if (confirm(message) == true) {
-                var ajax_calls = [];
-                // TODO: Alterar rota!
-                // TODO: Criar rotina para múltiplos ids
-                var delete_route = '{{ url($crud->route) }}/bulk-delete';
+                {{-- var ajax_calls = []; --}}
+                var route = '{{ route('apropriacao.fatura.create.bulk') }}';
+                console.log(route);
 
                 $.ajax({
-                    url: delete_route,
+                    url: route,
                     type: 'PUT',
                     data: { entries: crud.checkedItems },
                     success: function(result) {
                         new PNotify({
                             title: ('Apropriação de Faturas'),
-                            text: crud.checkedItems.length + ' aturas incluídas na apropriação.',
+                            text: crud.checkedItems.length + ' faturas incluídas na apropriação.',
                             type: "success"
                         });
 
@@ -48,6 +47,7 @@
                         crud.table.ajax.reload();
                     },
                     error: function(result) {
+                        console.log(result);
                         new PNotify({
                             title: 'Erro na Apropriação de Faturas',
                             text: 'Um ou mais itens não puderam ser apropriados',
@@ -56,9 +56,6 @@
                     }
                 });
             }
-
-            alert(message);
         }
     }
-</script>
 @endpush
