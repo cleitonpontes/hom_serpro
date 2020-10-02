@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class CreateAmparoLegalTable extends Migration
 {
@@ -15,6 +15,7 @@ class CreateAmparoLegalTable extends Migration
     {
         Schema::create('amparo_legal', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('codigo');
             $table->integer('modalidade_id');
             $table->string('ato_normativo')->nullable();
             $table->integer('artigo')->nullable();
