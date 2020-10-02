@@ -105,7 +105,6 @@
     }
 </script>
 
-
 <script type="text/javascript">
     $.fn.dataTable.ext.errMode = 'throw';
 </script>

@@ -16,6 +16,18 @@ class ApropriacaoContratoFaturas extends Model
     public $incrementing = false;
     public $timestamps = false;
 
+    public static function existeFatura($id)
+    {
+        return self::from(
+            'apropriacoes_faturas_contratofaturas as F'
+        )
+            ->leftJoin('apropriacoes_faturas AS A', 'A.id', '=', 'F.apropriacoes_faturas_id')
+            ->where('A.fase_id', '<>', 1)
+            ->where('F.contratofaturas_id', $id)
+            // ->get()->toArray();
+            ->exists();
+    }
+
     public function apropriacao()
     {
         return $this->belongsTo('App\Models\ApropriacaoFaturas', 'apropriacoes_faturas_id');
