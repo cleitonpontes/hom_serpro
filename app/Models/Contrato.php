@@ -377,13 +377,13 @@ class Contrato extends Model
             'numero' => $this->numero,
             'contratante' => [
                 'orgao_origem' => [
-                    'codigo' => $this->unidadeorigem->orgao->codigo,
-                    'nome' => $this->unidadeorigem->orgao->nome,
+                    'codigo' => @$this->unidadeorigem->orgao->codigo,
+                    'nome' => @$this->unidadeorigem->orgao->nome,
                     'unidade_gestora_origem' => [
-                        'codigo' => $this->unidadeorigem->codigo,
-                        'nome_resumido' => $this->unidadeorigem->nomeresumido,
-                        'nome' => $this->unidadeorigem->nome,
-                        'sisg' => $this->unidadeorigem->sisg == true ? 'Sim' : 'Não'
+                        'codigo' => @$this->unidadeorigem->codigo,
+                        'nome_resumido' => @$this->unidadeorigem->nomeresumido,
+                        'nome' => @$this->unidadeorigem->nome,
+                        'sisg' => @$this->unidadeorigem->sisg == true ? 'Sim' : 'Não'
                     ],
                 ],
                 'orgao' => [
