@@ -37,9 +37,6 @@ class ContratoServicoCrudController extends CrudController
             abort('403', config('app.erro_permissao'));
         }
 
-        $itens = $contrato->itens()->get()->pluck('descricao_complementar', 'id')->toArray();
-
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -56,18 +53,15 @@ class ContratoServicoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
-        (backpack_user()->can('contrato_servico_inserir')) ? $this->crud->allowAccess('create') : null;
-        (backpack_user()->can('contrato_servico_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('contrato_servico_deletar')) ? $this->crud->allowAccess('delete') : null;
-
-        $this->crud->addButtonFromView('line', 'moreindicadores', 'moreindicadores', 'end');
-
         $this->crud->addClause('leftJoin'
             , 'contratoitem_servico', 'contratoitem_servico.servico_id', '=', 'servicos.id'
         );
         $this->crud->addClause('leftJoin'
             , 'contratoitens', 'contratoitens.id', '=', 'contratoitem_servico.contratoitem_id'
         );
+        // Apenas ocorrencias deste contrato_id
+        $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
+
         $this->crud->addClause('select', [
             DB::raw('contratoitem_servico.id as contratoitem_servico_id'),
             'contratoitens.descricao_complementar',
@@ -80,6 +74,12 @@ class ContratoServicoCrudController extends CrudController
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
+
+        (backpack_user()->can('contrato_servico_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('contrato_servico_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('contrato_servico_deletar')) ? $this->crud->allowAccess('delete') : null;
+
+        $this->crud->addButtonFromView('line', 'moreindicadores', 'moreindicadores', 'end');
 
         $this->crud->addColumns($this->columns());
         $this->crud->addFields($this->fields($contrato_id));
@@ -129,6 +129,9 @@ class ContratoServicoCrudController extends CrudController
                 'attribute' => 'descricao_complementar',
                 'model' => "App\Models\Contratoitem",
                 'pivot' => true,
+                'options' => (function ($query) use ($contrato_id) {
+                    return $query->where('contrato_id',$contrato_id)->get();
+                }),
             ],
             [
                 'name' => 'nome',
