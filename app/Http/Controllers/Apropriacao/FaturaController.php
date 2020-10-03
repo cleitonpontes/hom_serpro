@@ -10,7 +10,7 @@ namespace App\Http\Controllers\Apropriacao;
 use App\Http\Controllers\Controller;
 use App\Models\ApropriacaoContratoFaturas;
 use App\Models\ApropriacaoFaturas;
-use App\Models\ApropriacoesFaturasContratofaturas;
+use App\Models\Contrato;
 use App\Models\Contratofatura;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,8 +28,12 @@ use Yajra\DataTables\Html\Builder;
  */
 class FaturaController extends Controller
 {
-
     private $htmlBuilder = '';
+    private $contratoId = 0;
+
+    private $msgErroFaturaDoContrato = 'Fatura não pertence ao contrato informado.';
+    private $msgErroFaturaEmApropriacao = 'Fatura já foi, ou está sendo, apropriada.';
+    private $msgErroFaturaInexistente = 'Nenhuma fatura válida foi encontrada para apropriação.';
 
     /**
      * Método construtor
@@ -72,124 +76,113 @@ class FaturaController extends Controller
         return view('backpack::mod.apropriacao.fatura', compact('html'));
     }
 
-
-
-
-
-
-
-
-
-
-
-    public function create($id, $contrato)
+    public function create(Contrato $contrato, Contratofatura $fatura)
     {
-        if (!$this->validarFaturasAApropriar($id)) {
-            return redirect("/gescon/meus-contratos/$contrato/faturas");
+        $this->contratoId = $contrato->id;
+        $faturaIds = (array) $fatura->id;
+
+        if ($this->validaFaturaDoContrato($fatura->contrato->id)) {
+            \Alert::warning('Fatura não pertence ao contrato informado.')->flash();
+            return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
         }
 
-        \Alert::success('Fatura incluída na apropriação')->flash();
-        return redirect()->route('apropriacao.faturas');
-
-
-
-
-        dd(
-            'App\Http\Controllers\Apropriacao\FaturaController',
-            'create',
-            $this->validarFaturasSemApropriacao($id),
-        );
-    }
-
-    public function createAntiga($id)
-    {
-        // Validar se fatura(s) já não foi ou está em apropriação
-        if ($this->validarFaturasAApropriar($id)) {
-            return json_decode(false);
+        if ($this->validaNaoApropriacaoDeFaturas($faturaIds)) {
+            \Alert::warning('Fatura já foi, ou está sendo, apropriada.')->flash();
+            return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
         }
 
-        DB::transaction(function () use ($id) {
-            $fatura = Contratofatura::findOrFail($id);
+        if ($this->validaExistenciaFaturas($faturaIds)) {
+            \Alert::warning('Nenhuma fatura válida foi encontrada para apropriação.')->flash();
+            return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
+        }
 
-            $apropriacao = ApropriacaoFaturas::create([
-                'valor' => $fatura->valorliquido,
-                'fase_id' => 1
-            ]);
+        $this->gerarApropriacaoFaturas($faturaIds);
 
-            $link = ApropriacaoContratoFaturas::create([
-                'apropriacoes_faturas_id' => $apropriacao->id,
-                'contratofaturas_id' => $fatura->id
-            ]);
-
-            return $link;
-        });
-
+        \Alert::success('Fatura(s) incluída(s) na apropriação')->flash();
         return redirect()->route('apropriacao.faturas');
     }
 
-    public function createMany(Request $request)
+
+
+
+
+
+
+
+
+
+    public function createMany()
     {
-        $entries = $request->entries;
-        dd($entries);
+        // $retorno['success'] = false;
+        $retorno['status'] = 'error';
+        $retorno['message'] = '';
 
-        return json_decode(true, $entries);
-        // createMany
-    }
+        $faturaIds = request()->entries;
 
+        if ($this->validaNaoApropriacaoDeFaturas($faturaIds)) {
+            $retorno['message'] = 'Fatura já foi, ou está sendo, apropriada.';
 
-
-
-
-
-
-
-
-
-    protected function validarFaturasAApropriar($id)
-    {
-        // Fatura não apropriada ou em apropriação (mas Ok para apropriações excluídas)
-        if (ApropriacaoContratoFaturas::existeFatura($id)) {
-            \Alert::warning('Xxxxxxxxxxxxxx')->flash();
-            return false;
+            return json_encode($retorno);
         }
 
-        return true;
+        if ($this->validaExistenciaFaturas($faturaIds)) {
+            $retorno['message'] = 'Nenhuma fatura válida foi encontrada para apropriação.';
+
+            return json_encode($retorno);
+        }
+
+
+
+
+
+
+
+        // $this->gerarApropriacaoFaturas($faturaIds);
+        return json_encode($retorno);
+
+
+        return json_encode(true);
+        return json_encode(true);
     }
 
 
 
 
 
+    
 
+    protected function validaFaturaDoContrato($faturaId)
+    {
+        return $this->contratoId != $faturaId;
+    }
 
+    protected function validaNaoApropriacaoDeFaturas($faturaIds)
+    {
+        return ApropriacaoContratoFaturas::existeFatura($faturaIds);
+    }
 
-
-
-
-
-
-
+    protected function validaExistenciaFaturas($faturaIds)
+    {
+        return Contratofatura::whereIn('id', $faturaIds)->doesntExist();
+    }
 
     protected function gerarApropriacaoFaturas($ids)
     {
-        // Apropriar faturas
-        foreach ($ids as $id) {
-            $fatura = Contratofatura::where($id);
+        $valorTotal = Contratofatura::whereIn('id', $ids)->sum('valorliquido');
 
-            if ($fatura) {
-                DB::transaction(function () use ($id, $fatura) {
-                    $apropriacao = ApropriacaoFaturas::create([
-                        'valor' => $fatura->valorliquido,
-                        'fase_id' => 1
-                    ]);
+        DB::transaction(function () use ($valorTotal, $ids) {
+            $apropriacao = ApropriacaoFaturas::create([
+                'valor' => $valorTotal,
+                'fase_id' => 1
+            ]);
 
-                    $link = ApropriacaoContratoFaturas::create([
-                        'apropriacoes_faturas_id' => $apropriacao->id,
-                        'contratofaturas_id' => $fatura->id
-                    ]);
-                });
+            foreach ($ids as $id) {
+                $link = ApropriacaoContratoFaturas::create([
+                    'apropriacoes_faturas_id' => $apropriacao->id,
+                    'contratofaturas_id' => $id
+                ]);
             }
-        }
+        });
 
         return true;
     }
