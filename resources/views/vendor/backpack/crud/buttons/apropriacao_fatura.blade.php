@@ -1,6 +1,5 @@
-{{-- Uso deste componente DEPENDE de bulk_apropriacao_fatura.blade.php --}}
 @if ($crud->hasAccess('update'))
-    <a href="{{ route('apropriacao.fatura.create', ['id' => $entry->getKey(), 'contrato' => $entry->contrato_id]) }}"
+    <a href="{{ route('apropriacao.fatura.create', ['contrato' => $entry->contrato_id, 'id' => $entry->getKey()]) }}"
        class="btn btn-xs btn-default"
        title="Apropriação de fatura"
     >
