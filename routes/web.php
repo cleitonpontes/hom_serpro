@@ -208,17 +208,9 @@ Route::group(
             'middleware' => 'auth',
             // 'middleware' = 'permission:apropriacao_fatura_passos'
         ], function () {
-            /**
-             *
-             * Apropriação da Fatura
-             * {apid} = Apropriação ID
-             * {id}   = Registro
-             * {sit}  = Situação
-             *
-             */
             Route::get('/fatura', 'FaturaController@index')->name('apropriacao.faturas');
             Route::get('/fatura/{id}', 'FaturaController@show')->name('apropriacao.fatura');
-            Route::get('/fatura/nova/{id}/{contrato}', 'FaturaController@create')->name('apropriacao.fatura.create');
+            Route::get('/contrato/{contrato}/fatura/{fatura}/nova', 'FaturaController@create')->name('apropriacao.fatura.create');
             Route::put('/fatura/novas', 'FaturaController@createMany')->name('apropriacao.fatura.create.bulk');
 
             Route::get('/fatura/{id}/relatorio', 'FaturaController@show')->name('apropriacao.fatura.relatorio');
