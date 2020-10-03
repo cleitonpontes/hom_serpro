@@ -52,8 +52,8 @@ class SiapeWs
                 new \SoapParam($credenciais['senha'], 'senha'),
                 new \SoapParam($cpf, 'cpf'),
                 new \SoapParam($orgao, 'codOrgao'),
-                new \SoapParam('a', 'parmExistPag'),
-                new \SoapParam('a', 'parmTipoVinculo')
+                new \SoapParam('b', 'parmExistPag'),
+                new \SoapParam('c', 'parmTipoVinculo')
             );
 
         } catch (\Exception $e) {
