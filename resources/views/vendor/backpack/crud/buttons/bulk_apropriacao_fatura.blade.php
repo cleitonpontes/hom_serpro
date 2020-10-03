@@ -23,20 +23,20 @@
                 return;
             }
 
-            var msgQuestao = 'Tem a certeza que quer apagar estes :number itens?';
+            var msgQuestao = 'Confirma a apropriação de :number fatura(s)?';
             var message = (msgQuestao).replace(":number", crud.checkedItems.length);
-            {{-- var button = $(this); --}}
 
             if (confirm(message) == true) {
-                {{-- var ajax_calls = []; --}}
                 var route = '{{ route('apropriacao.fatura.create.bulk') }}';
-                console.log(route);
 
                 $.ajax({
                     url: route,
                     type: 'PUT',
                     data: { entries: crud.checkedItems },
                     success: function(result) {
+                        alert('sucesso!');
+                        // console.log(result);
+
                         new PNotify({
                             title: ('Apropriação de Faturas'),
                             text: crud.checkedItems.length + ' faturas incluídas na apropriação.',
@@ -47,7 +47,9 @@
                         crud.table.ajax.reload();
                     },
                     error: function(result) {
-                        console.log(result);
+                        alert('erro!!!!!!');
+                        // console.log(result);
+
                         new PNotify({
                             title: 'Erro na Apropriação de Faturas',
                             text: 'Um ou mais itens não puderam ser apropriados',
@@ -55,7 +57,11 @@
                         });
                     }
                 });
+
+                alert(route);
+                alert('Fim...');
             }
         }
     }
+</script>
 @endpush
