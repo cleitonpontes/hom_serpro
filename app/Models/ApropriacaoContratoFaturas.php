@@ -22,8 +22,8 @@ class ApropriacaoContratoFaturas extends Model
             'apropriacoes_faturas_contratofaturas as F'
         )
             ->leftJoin('apropriacoes_faturas AS A', 'A.id', '=', 'F.apropriacoes_faturas_id')
-            ->where('A.fase_id', '<>', 1)
-            ->where('F.contratofaturas_id', $id)
+            ->whereNotIn('A.fase_id', [99])
+            ->whereIn('F.contratofaturas_id', $id)
             // ->get()->toArray();
             ->exists();
     }
