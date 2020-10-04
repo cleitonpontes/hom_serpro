@@ -16,6 +16,13 @@ class ApropriacaoContratoFaturas extends Model
     public $incrementing = false;
     public $timestamps = false;
 
+    /**
+     * Retorna se fatura está presente ou não em alguma apropriação que não cancelada
+     *
+     * @param array $id
+     * @return bool
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+     */
     public static function existeFatura($id)
     {
         return self::from(
