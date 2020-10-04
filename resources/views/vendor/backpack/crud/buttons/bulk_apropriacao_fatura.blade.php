@@ -34,32 +34,28 @@
                     type: 'PUT',
                     data: { entries: crud.checkedItems },
                     success: function(result) {
-                        alert('sucesso!');
-                        // console.log(result);
+                        var retorno = $.parseJSON(result)
+                        var msg = retorno.mensagem != '' ?
+                            retorno.mensagem :
+                            crud.checkedItems.length + ' faturas incluídas para apropriação.';
 
                         new PNotify({
-                            title: ('Apropriação de Faturas'),
-                            text: crud.checkedItems.length + ' faturas incluídas na apropriação.',
-                            type: "success"
+                            title: 'Apropriação de Faturas',
+                            text: msg,
+                            type: retorno.tipo
                         });
 
                         crud.checkedItems = [];
                         crud.table.ajax.reload();
                     },
                     error: function(result) {
-                        alert('erro!!!!!!');
-                        // console.log(result);
-
                         new PNotify({
-                            title: 'Erro na Apropriação de Faturas',
+                            title: 'Apropriação de Faturas',
                             text: 'Um ou mais itens não puderam ser apropriados',
-                            type: "warning"
+                            type: "error"
                         });
                     }
                 });
-
-                alert(route);
-                alert('Fim...');
             }
         }
     }
