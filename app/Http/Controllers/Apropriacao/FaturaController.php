@@ -30,15 +30,16 @@ class FaturaController extends Controller
 {
     private $htmlBuilder = '';
     private $contratoId = 0;
-
     private $msgErroFaturaDoContrato = 'Fatura não pertence ao contrato informado.';
-    private $msgErroFaturaEmApropriacao = 'Fatura já foi, ou está sendo, apropriada.';
+    private $msgErroFaturaEmApropriacao = 'Fatura já apropriada.';
+    private $msgErroFaturasEmApropriacao = 'Uma ou mais faturas já apropriadas.';
     private $msgErroFaturaInexistente = 'Nenhuma fatura válida foi encontrada para apropriação.';
 
     /**
      * Método construtor
      *
      * @param Builder $htmlBuilder
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
      */
     public function __construct(Builder $htmlBuilder)
     {
@@ -50,7 +51,8 @@ class FaturaController extends Controller
      * Apresenta o grid com a listagem das apropriações da fatura
      *
      * @param Request $request
-     * @return \Illuminate\View
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
      */
     public function index(Request $request)
     {
@@ -76,23 +78,31 @@ class FaturaController extends Controller
         return view('backpack::mod.apropriacao.fatura', compact('html'));
     }
 
+    /**
+     * Método para criação de registro de apropriação com única fatura
+     *
+     * @param Contrato $contrato
+     * @param Contratofatura $fatura
+     * @return \Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+     */
     public function create(Contrato $contrato, Contratofatura $fatura)
     {
         $this->contratoId = $contrato->id;
         $faturaIds = (array) $fatura->id;
 
         if ($this->validaFaturaDoContrato($fatura->contrato->id)) {
-            \Alert::warning('Fatura não pertence ao contrato informado.')->flash();
+            \Alert::warning($this->msgErroFaturaDoContrato)->flash();
             return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
         }
 
         if ($this->validaNaoApropriacaoDeFaturas($faturaIds)) {
-            \Alert::warning('Fatura já foi, ou está sendo, apropriada.')->flash();
+            \Alert::warning($this->msgErroFaturaEmApropriacao)->flash();
             return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
         }
 
         if ($this->validaExistenciaFaturas($faturaIds)) {
-            \Alert::warning('Nenhuma fatura válida foi encontrada para apropriação.')->flash();
+            \Alert::warning($this->msgErroFaturaInexistente)->flash();
             return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
         }
 
@@ -102,82 +112,92 @@ class FaturaController extends Controller
         return redirect()->route('apropriacao.faturas');
     }
 
-
-
-
-
-
-
-
-
-
+    /**
+     * Método para criação de registro de apropriação com uma ou mais faturas
+     *
+     * @return array
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+     */
     public function createMany()
     {
-        // $retorno['success'] = false;
-        $retorno['status'] = 'error';
-        $retorno['message'] = '';
+        $retorno['tipo'] = 'warning';
+        $retorno['mensagem'] = '';
 
         $faturaIds = request()->entries;
 
         if ($this->validaNaoApropriacaoDeFaturas($faturaIds)) {
-            $retorno['message'] = 'Fatura já foi, ou está sendo, apropriada.';
+            $retorno['mensagem'] = $this->msgErroFaturasEmApropriacao;
 
             return json_encode($retorno);
         }
 
         if ($this->validaExistenciaFaturas($faturaIds)) {
-            $retorno['message'] = 'Nenhuma fatura válida foi encontrada para apropriação.';
+            $retorno['mensagem'] = $this->msgErroFaturaInexistente;
 
             return json_encode($retorno);
         }
 
+        $this->gerarApropriacaoFaturas($faturaIds);
 
-
-
-
-
-
-        // $this->gerarApropriacaoFaturas($faturaIds);
+        $retorno['tipo'] = 'success';
         return json_encode($retorno);
-
-
-        return json_encode(true);
-        return json_encode(true);
     }
 
-
-
-
-
-    
-
+    /**
+     * Valida se fatura pertence ao contrato informado
+     *
+     * @param integer $faturaId
+     * @return bool
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+     */
     protected function validaFaturaDoContrato($faturaId)
     {
         return $this->contratoId != $faturaId;
     }
 
+    /**
+     * Valida se fatura está presente em alguma apropriação que não cancelada
+     *
+     * @param array $faturaIds
+     * @return bool
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+     */
     protected function validaNaoApropriacaoDeFaturas($faturaIds)
     {
         return ApropriacaoContratoFaturas::existeFatura($faturaIds);
     }
 
+    /**
+     * Valida se fatura existe
+     *
+     * @param array $faturaIds
+     * @return bool
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+     */
     protected function validaExistenciaFaturas($faturaIds)
     {
         return Contratofatura::whereIn('id', $faturaIds)->doesntExist();
     }
 
-    protected function gerarApropriacaoFaturas($ids)
+    /**
+     * Cria registro da apropriação
+     *
+     * @param array $faturaIds
+     * @return bool
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+     */
+    protected function gerarApropriacaoFaturas($faturaIds)
     {
-        $valorTotal = Contratofatura::whereIn('id', $ids)->sum('valorliquido');
+        $valorTotal = Contratofatura::whereIn('id', $faturaIds)->sum('valorliquido');
 
-        DB::transaction(function () use ($valorTotal, $ids) {
+        DB::transaction(function () use ($valorTotal, $faturaIds) {
             $apropriacao = ApropriacaoFaturas::create([
                 'valor' => $valorTotal,
-                'fase_id' => 1
+                'fase_id' => 0
             ]);
 
-            foreach ($ids as $id) {
-                $link = ApropriacaoContratoFaturas::create([
+            foreach ($faturaIds as $id) {
+                ApropriacaoContratoFaturas::create([
                     'apropriacoes_faturas_id' => $apropriacao->id,
                     'contratofaturas_id' => $id
                 ]);
@@ -203,6 +223,7 @@ class FaturaController extends Controller
      * Monta $html com definições para montagem do Grid
      *
      * @return \Yajra\DataTables\Html\Builder
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
      */
     private function retornaHtmlGrid()
     {
@@ -287,6 +308,18 @@ class FaturaController extends Controller
 
         return $html;
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     private function montaHtmlAcoes($id)
     {
