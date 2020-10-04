@@ -108,7 +108,6 @@ Route::group(
             Route::post('alterar-senha', 'Auth\MyAccountController@postChangePasswordForm');
         }
 
-
         // Módulo Folha de Pagamento
         Route::group([
             'prefix' => 'folha',
