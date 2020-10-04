@@ -321,6 +321,14 @@ class FaturaController extends Controller
 
 
 
+
+    /**
+     * Monta $html com definições da coluna Ações
+     *
+     * @param integer $id
+     * @return string
+     * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+     */
     private function montaHtmlAcoes($id)
     {
         $conferencia = 'C';
