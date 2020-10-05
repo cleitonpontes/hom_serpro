@@ -59,12 +59,16 @@ class ContratoServicoCrudController extends CrudController
         $this->crud->addClause('leftJoin'
             , 'contratoitens', 'contratoitens.id', '=', 'contratoitem_servico.contratoitem_id'
         );
+        $this->crud->addClause('leftJoin'
+            , 'catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id'
+        );
         // Apenas ocorrencias deste contrato_id
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
 
         $this->crud->addClause('select', [
             DB::raw('contratoitem_servico.id as contratoitem_servico_id'),
             'contratoitens.descricao_complementar',
+            'catmatseritens.descricao',
             // Tabela principal deve ser sempre a última da listagem!
             'servicos.*'
         ]);
@@ -188,7 +192,7 @@ class ContratoServicoCrudController extends CrudController
                 },
             ],
             [
-                'name' => 'descricao_complementar',
+                'name' => 'descricao',
                 'label' => 'Item do Contrato',
                 'type' => 'text',
                 'orderable' => true,
@@ -197,7 +201,7 @@ class ContratoServicoCrudController extends CrudController
                 'visibleInExport' => true,
                 'visibleInShow' => true,
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('servicos.nome', 'ilike', "%" . $searchTerm . "%");
+                    $query->orWhere('catmatseritens.descricao', 'ilike', "%" . $searchTerm . "%");
                 },
             ],
             [
