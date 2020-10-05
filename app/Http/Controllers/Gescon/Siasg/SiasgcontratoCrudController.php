@@ -41,8 +41,8 @@ class SiasgcontratoCrudController extends CrudController
         $this->crud->addClause('leftjoin', 'unidades', 'unidades.id', '=', 'siasgcontratos.unidade_id');
         $this->crud->addClause('select', 'siasgcontratos.*');
         $this->crud->orderBy('siasgcontratos.updated_at', 'desc');
-//        $this->crud->addClause('where', 'siasgcontratos.unidade_id', '=', session()->get('user_ug_id'));
-//        $this->crud->addClause('orwhere', 'siasgcontratos.unidadesubrrogacao_id', '=', session()->get('user_ug_id'));
+        $this->crud->addClause('where', 'siasgcontratos.unidade_id', '=', session()->get('user_ug_id'));
+        $this->crud->addClause('orwhere', 'siasgcontratos.unidadesubrrogacao_id', '=', session()->get('user_ug_id'));
 
 
         /*
@@ -69,6 +69,38 @@ class SiasgcontratoCrudController extends CrudController
 
         $campos = $this->campos();
         $this->crud->addFields($campos);
+
+
+        $this->crud->addFilter([ // simple filter
+            'type' => 'text',
+            'name' => 'numero',
+            'label' => 'Número'
+        ],
+            true,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('orWhere', 'siasgcontratos.numero', 'ilike', "%$value%");
+            });
+
+        $this->crud->addFilter([ // simple filter
+            'type' => 'text',
+            'name' => 'ano',
+            'label' => 'Ano'
+        ],
+            true,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('orWhere', 'siasgcontratos.ano', 'ilike', "%$value%");
+            });
+
+        $this->crud->addFilter([ // simple filter
+            'type' => 'text',
+            'name' => 'codigo_interno',
+            'label' => 'Código Interno'
+        ],
+            true,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('orWhere', 'siasgcontratos.codigo_interno', 'ilike', "%$value%");
+            });
+
 
 
         // add asterisk for fields that are required in SiasgcontratoRequest
