@@ -240,7 +240,8 @@ class Kernel extends ConsoleKernel
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
-                ->at($horario);
+                ->at($horario)
+                ->runInBackground();
         }
     }
 
@@ -256,7 +257,8 @@ class Kernel extends ConsoleKernel
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
-                ->cron("$minuto $hora $diasmes $meses $diassemana");
+                ->cron("$minuto $hora $diasmes $meses $diassemana")
+                ->runInBackground();
         }
     }
 
