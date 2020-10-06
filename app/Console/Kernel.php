@@ -63,10 +63,10 @@ class Kernel extends ConsoleKernel
     {
         //minutos
         $this->executarJobSfPadrao();
-        $this->executarJobDefault();
-        $this->executarJobSiasgCompra();
-        $this->executarJobSiasgContrato();
-        $this->executarJobAlteraDocumentoHabil();
+//        $this->executarJobDefault();
+//        $this->executarJobSiasgCompra();
+//        $this->executarJobSiasgContrato();
+//        $this->executarJobAlteraDocumentoHabil();
 
         //agendamentos
         $this->executarJobAtualizacaoND();
@@ -186,7 +186,7 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobSfPadrao()
     {
-        $this->executaCommandCron('siasgcsfpadraoompra', '3', 300, 1, '0,5,10,15,20,25,30,35,40,45,50,55', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('siasgcsfpadraoompra', '1', 300, 1, '0,5,10,15,20,25,30,35,40,45,50,55', '7-22', '*', '*', '1-5');
     }
 
 
