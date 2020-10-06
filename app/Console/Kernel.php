@@ -62,8 +62,8 @@ class Kernel extends ConsoleKernel
     protected function executarJobs()
     {
         //minutos
-        $this->executarJobSfPadrao();
-//        $this->executarJobDefault();
+//        $this->executarJobSfPadrao();
+        $this->executarJobDefault();
 //        $this->executarJobSiasgCompra();
 //        $this->executarJobSiasgContrato();
 //        $this->executarJobAlteraDocumentoHabil();
