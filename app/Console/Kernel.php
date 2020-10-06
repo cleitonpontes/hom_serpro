@@ -248,8 +248,8 @@ class Kernel extends ConsoleKernel
     private function executaCommandCron($fila, $quantidadeExecucoes = 1, $timeout = 600, $tries = 1, $minuto = '*', $hora = '*', $diasmes = '*', $meses = '*', $diassemana = '*')
     {
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
-            $this->schedule->exec(
-                "php artisan queue:work
+            $this->schedule->command(
+                "queue:work
                  --queue=$fila
                  --stop-when-empty
                  --timeout=$timeout
