@@ -232,11 +232,7 @@ class Kernel extends ConsoleKernel
     {
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->exec(
-                "php artisan queue:work
-                 --queue=$fila
-                 --stop-when-empty
-                 --timeout=$timeout
-                 --tries=$tries"
+                "php artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
@@ -248,12 +244,8 @@ class Kernel extends ConsoleKernel
     private function executaCommandCron($fila, $quantidadeExecucoes = 1, $timeout = 600, $tries = 1, $minuto = '*', $hora = '*', $diasmes = '*', $meses = '*', $diassemana = '*')
     {
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
-            $this->schedule->command(
-                "queue:work
-                 --queue=$fila
-                 --stop-when-empty
-                 --timeout=$timeout
-                 --tries=$tries"
+            $this->schedule->exec(
+                "php /var/www/contratos/artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
