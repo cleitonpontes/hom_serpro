@@ -232,7 +232,7 @@ class Kernel extends ConsoleKernel
     {
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->command(
-                "php artisan queue:work
+                "queue:work
                  --queue=$fila
                  --stop-when-empty
                  --timeout=$timeout
@@ -248,7 +248,7 @@ class Kernel extends ConsoleKernel
     {
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->command(
-                "php artisan queue:work
+                "queue:work
                  --queue=$fila
                  --stop-when-empty
                  --timeout=$timeout
