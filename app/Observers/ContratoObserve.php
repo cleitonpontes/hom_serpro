@@ -21,14 +21,6 @@ class ContratoObserve
                 'contrato_id' => $contrato->id,
                 'observacao' => 'CELEBRAÇÃO DO CONTRATO: ' . $con->numero . ' DE ACORDO COM PROCESSO NÚMERO: ' . $con->processo,
             ]);
-
-        Contratopublicacoes::create([
-            'contrato_id' => $contrato->id,
-            'data_publicacao' => $contrato->data_publicacao,
-            'status' => 'Pendente',
-            'situacao' => 'Não Publicado'
-        ]);
-
     }
 
     public function updated(Contrato $contrato)

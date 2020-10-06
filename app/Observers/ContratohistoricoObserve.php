@@ -7,6 +7,7 @@ use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
+use App\Models\ContratoPublicacoes;
 use Illuminate\Support\Facades\DB;
 
 class ContratohistoricoObserve
@@ -32,6 +33,13 @@ class ContratohistoricoObserve
         $this->contratocronograma->inserirCronogramaFromHistorico($contratohistorico);
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
+
+        Contratopublicacoes::create([
+            'contratohistorico_id' => $contratohistorico->id,
+            'data_publicacao' => $contratohistorico->data_publicacao,
+            'status' => 'Pendente',
+            'situacao' => 'Não Publicado'
+        ]);
 
     }
 

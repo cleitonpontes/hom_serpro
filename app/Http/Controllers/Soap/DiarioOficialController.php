@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Soap;
 use App\Models\BackpackUser;
 use App\Models\Contrato;
 use App\Models\Contratoempenho;
+use App\Models\Contratohistorico;
 use App\Models\Empenho;
 use SoapHeader;
 use SoapVar;
+use PHPRtfLite;
+use PHPRtfLite_Font;
+
 
 class DiarioOficialController extends BaseSoapController
 {
@@ -36,9 +40,9 @@ class DiarioOficialController extends BaseSoapController
             $params = array(
                     'identificadorJornal' => '3'
             );
-
+            $response = $this->soapClient->ConsultaTodosOrgaosPermitidos();
 //            $response = $this->soapClient->ConsultaNormas($params);
-              $response = $this->soapClient->ConsultaFormasPagamento(array('cpf' => '70074402153'));
+              //$response = $this->soapClient->ConsultaFormasPagamento(array('cpf' => '01895591111'));
 //            $response = $this->soapClient->ConsultaTodosMotivosIsencao();
             dd($response);
         }
@@ -51,53 +55,43 @@ class DiarioOficialController extends BaseSoapController
         try {
 
             $contrato = Contrato::find($contrato_id)->first();
+//            dd($contrato);
+            $contratoHistorico = $contrato->historico->last();
 
-            $arrayPreview = $this->montaOficioPreview($contrato);
+            $arrayPreview = $this->montaOficioPreview($contratoHistorico);
 
             $response = $this->soapClient->OficioPreview($arrayPreview);
-
             dd($response);
+//            dd($this->soapClient->__getLastRequest());
         }
         catch(\Exception $e) {
             return $e->getMessage();
         }
     }
 
-    public function montaOficioPreview(Contrato $contrato)
+    public function montaOficioPreview(Contratohistorico $contratoHistorico)
     {
 
-        $texto = "";
-
-        $dados ['dados']['CPF'] = $this->retornaCpfResponsavel($contrato); //SOLICITAR CPF CADASTRADO E ATIVO NO INCOM
-        $dados ['dados']['UG'] = $contrato->unidade->codigo;
-        $dados ['dados']['dataPublicacao'] = strtotime($contrato->data_publicacao);
-        $dados ['dados']['empenho'] = $this->retornaNumeroEmpenho($contrato);
+        $dados ['dados']['CPF'] = '01895591111';//usuário cadastrado no Incom
+        $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
+        $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
+        $dados ['dados']['empenho'] = $this->retornaNumeroEmpenho($contratoHistorico);
         $dados ['dados']['identificadorJornal'] = 3; //Diário Oficial Seção - 2 -> ConsultaJornais
         $dados ['dados']['identificadorTipoPagamento'] = 149; //149 ISENTO -> ConsultaFormasPagamento //89 - empenho
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = ''; //Número único de Processo relacionado à publicação NÃO OBRIGATÓRIO
-        $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($texto);
+        $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134; //ConsultaNormas -> 134 Edital de Citação
-        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = ''; //código siorg AGU
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg; //código siorg AGU
         $dados ['dados']['motivoIsencao'] = 9;
-        $dados ['dados']['siorgCliente'] = 46;
+        $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
         return $dados;
 
     }
 
-    public function retornaCpfResponsavel(Contrato $contrato)
+    public function retornaNumeroEmpenho(Contratohistorico $contratoHistorico)
     {
-        $cpf = BackpackUser::find($contrato->responsaveis[0]['user_id'])->cpf;
-
-        if(is_null($cpf)){
-            return false;
-        } 
-        return preg_replace('/[^0-9]/', '', $cpf);
-    }
-
-    public function retornaNumeroEmpenho(Contrato $contrato)
-    {
-
+        $contrato = $contratoHistorico->contrato;
         $empenho = Empenho::find($contrato->empenhos[0]['empenho_id'])->numero;
 
         if(!is_null($empenho))
@@ -105,18 +99,64 @@ class DiarioOficialController extends BaseSoapController
         return '';
     }
 
-    public function retornaTextoRtf(string $texto)
+    public function retornaTextoRtf(Contratohistorico $contratoHistorico)
     {
-
-        $file = fopen(env('DOU_CONTRATOS'), "r");
-
-        while (!feof($file)) {
-            $line = fgets($file);
-            $texto = $texto.$line;
+        $texto = "";
+        switch ($contratoHistorico->getTipo()){
+            case "Contrato":
+                $texto = $this->retornaTextoContrato($contratoHistorico);
+                break;
+            case "Termo Aditivo":
+                $texto = $this->retornaTextoAditivo($contratoHistorico);
+                break;
         }
-        fclose($file);
+        return $texto;
+    }
 
-        dump($texto);
+    public function retornaTextoContrato(Contratohistorico $contratoHistorico)
+    {
+        $contrato = $contratoHistorico->contrato;
+        $textoCabecalho = "{\\rtf1\ansi\ansicpg1252\deff0\\nouicompat\deflang1046\deflangfe1046\deftab708{\\fonttbl{\\f0\\fnil\\fcharset0 Calibri;}}
+                    {\colortbl ;\\red0\green0\blue255;}
+                    {\*\generator Riched20 10.0.17763}{\*\mmathPr\mdispDef1\mwrapIndent1440 }\\viewkind4\uc1 \pard\widctlpar\\f0\\fs18 \par";
+
+
+        $TextoModelo = "##ATO EXTRATO DE CONTRATO Nº ".$contratoHistorico->numero." - UASG ".$contratoHistorico->getUnidade()."
+        Nº Processo: ".$contrato->processo.".
+        ##TEX ".strtoupper($contrato->modalidade->descricao)." SRP Nº ".$contrato->licitacao_numero.". Contratante: ".$contrato->unidade->nome.".
+        CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.". Contratado : ".$contratoHistorico->fornecedor->nome." -.
+        Objeto: ".$contratoHistorico->objeto.".
+        Fundamento Legal: Lei 10520/2002, Lei 8666/93, Decreto 7982/2013, Decreto 7892/2013 e Decreto
+        9507/2018, In 05/2017 . Vigência: 01/07/2020 a 01/07/2021. Valor Total: R$776.446,86. Fonte:
+        100000000 - 2020NE800828 Fonte: 100000000 - 2020 800829. Data de Assinatura: 19/06/2020.";
+
+        $rtf = new PHPRtfLite();
+        $section =  $rtf->addSection();
+        $font = new PHPRtfLite_Font(9,'Calibri');
+        $parFormat = new \PHPRtfLite_ParFormat();
+        $section->writeText($TextoModelo, $font);
+        $texto = $rtf->getContent();
+        $texto = $textoCabecalho.substr($texto,strripos($texto, '##ATO'));
+
+        return $texto;
+    }
+
+    public function retornaTextoAditivo(Contratohistorico $contratoHistorico)
+    {
+        $contrato = $contratoHistorico->contrato;
+        $textoCabecalho = "{\\rtf1\ansi\ansicpg1252\deff0\\nouicompat\deflang1046\deflangfe1046\deftab708{\\fonttbl{\\f0\\fnil\\fcharset0 Calibri;}}
+                    {\colortbl ;\\red0\green0\blue255;}
+                    {\*\generator Riched20 10.0.17763}{\*\mmathPr\mdispDef1\mwrapIndent1440 }\\viewkind4\uc1 \pard\widctlpar\\f0\\fs18 \par";
+
+        $TextoModelo = "##ATO EXTRATO DE TERMO ADITIVO Nº ".$contratoHistorico->numero." - UASG ".$contratoHistorico->getUnidade()." Número do Contrato: ".$contrato->numero.". Nº Processo: ".$contrato->processo.".
+                        ##TEX ".strtoupper($contrato->modalidade->descricao)." Nº ".$contrato->licitacao_numero.". Contratante: ".$contrato->unidade->nome.". CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.". Contratado : ".$contratoHistorico->fornecedor->nome." -.Objeto: ".$contratoHistorico->objeto." Fundamento Legal: Art. 65,I, da Lei nº 8.666/93. Vigência: ".$contratoHistorico->getVigenciaInicio()." a ".$contratoHistorico->getVigenciaFim().". Fonte: 100000000 - 2019NE800903. Data de Assinatura: 01/04/2020.";
+
+        $rtf = new PHPRtfLite();
+        $section =  $rtf->addSection();
+        $font = new PHPRtfLite_Font(9,'Calibri');
+        $section->writeText($TextoModelo, $font);
+        $texto = $rtf->getContent();
+        $texto = $textoCabecalho.substr($texto,strripos($texto, '##ATO'));
 
         return $texto;
     }

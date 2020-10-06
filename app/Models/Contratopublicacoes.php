@@ -14,7 +14,7 @@ class ContratoPublicacoes extends ContratoBase
 
     protected static $logFillable = true;
     protected static $logName = 'contratopublicacoes';
-    
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -23,7 +23,7 @@ class ContratoPublicacoes extends ContratoBase
 
     protected $table = 'contratopublicacoes';
     protected $fillable = [
-        'contrato_id',
+        'contratohistorico_id',
         'data_publicacao',
         'texto_rtf',
         'hash',
@@ -37,15 +37,19 @@ class ContratoPublicacoes extends ContratoBase
     |--------------------------------------------------------------------------
     */
 
-  
-   
+
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    public function contratohistorico()
+    {
+        return $this->belongsTo(Contratohistorico::class, 'contratohistorico_id');
+    }
 
-   
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

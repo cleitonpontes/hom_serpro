@@ -37,7 +37,7 @@ class Contratohistorico extends ContratoBase
         'processo',
         'objeto',
         'info_complementar',
-        'fundamento_legal',
+        'amparo_legal_id',
         'modalidade_id',
         'licitacao_numero',
         'data_assinatura',
@@ -63,7 +63,8 @@ class Contratohistorico extends ContratoBase
         'retroativo_soma_subtrai',
         'unidades_requisitantes',
         'situacao',
-        'supressao'
+        'supressao',
+        'publicado'
     ];
 
     /*
@@ -355,6 +356,16 @@ class Contratohistorico extends ContratoBase
     public function unidade()
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');
+    }
+
+    public function publicacao()
+    {
+        return $this->hasOne(Contratopublicacoes::class, 'contratohistorico_id');
+    }
+
+    public function amparolegal()
+    {
+        return $this->hasMany(AmparoLegal::class, 'amparo_legal_id');
     }
 
     /*

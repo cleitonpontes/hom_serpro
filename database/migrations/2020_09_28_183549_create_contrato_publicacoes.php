@@ -15,7 +15,7 @@ class CreateContratoPublicacoes extends Migration
     {
         Schema::create('contratopublicacoes', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('contrato_id');
+            $table->integer('contratohistorico_id');
             $table->date('data_publicacao')->nullable();
             $table->string('texto_rtf')->nullable();
             $table->string('hash')->nullable();
@@ -23,7 +23,7 @@ class CreateContratoPublicacoes extends Migration
             $table->string('situacao')->nullable();
             $table->timestamps();
 
-            $table->foreign('contrato_id')->references('id')->on('contratos')->onDelete('cascade');
+            $table->foreign('contratohistorico_id')->references('id')->on('contratohistorico')->onDelete('cascade');
         });
     }
 
