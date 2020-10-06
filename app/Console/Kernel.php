@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         //
     ];
+    protected $path;
 
     /**
      * Define the application's command schedule.
@@ -27,6 +28,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $this->schedule = $schedule;
+        $this->path = env('APP_PATH');
 
         $this->criarJobs();
         $this->executarJobs();
@@ -201,12 +203,12 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobSiasgContrato()
     {
-        $this->executaCommandCron('siasgcontrato', '5', 300, 1, '*', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('siasgcontrato', '5', 300, 20, '0,15,30,45', '7-22', '*', '*', '1-5');
     }
 
     protected function executarJobSiasgCompra()
     {
-        $this->executaCommandCron('siasgcompra', '5', 300, 1, '*', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('siasgcompra', '5', 300, 10, '0,15,30,45', '7-22', '*', '*', '1-5');
     }
 
 //    protected function executarJobSiasgCargaCompra()
@@ -230,10 +232,9 @@ class Kernel extends ConsoleKernel
 
     private function executaCommand($fila, $horario = '09:00', $quantidadeExecucoes = 1, $timeout = 600, $tries = 1)
     {
-        $path = env('APP_PATH');
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->exec(
-                "php $path"."artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
+                "php $this->path"."artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
@@ -244,10 +245,9 @@ class Kernel extends ConsoleKernel
 
     private function executaCommandCron($fila, $quantidadeExecucoes = 1, $timeout = 600, $tries = 1, $minuto = '*', $hora = '*', $diasmes = '*', $meses = '*', $diassemana = '*')
     {
-        $path = env('APP_PATH');
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->exec(
-                "php $path"."artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
+                "php $this->path"."artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
