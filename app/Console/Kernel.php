@@ -62,11 +62,11 @@ class Kernel extends ConsoleKernel
     protected function executarJobs()
     {
         //minutos
-//        $this->executarJobSfPadrao();
+        $this->executarJobSfPadrao();
         $this->executarJobDefault();
-//        $this->executarJobSiasgCompra();
-//        $this->executarJobSiasgContrato();
-//        $this->executarJobAlteraDocumentoHabil();
+        $this->executarJobSiasgCompra();
+        $this->executarJobSiasgContrato();
+        $this->executarJobAlteraDocumentoHabil();
 
         //agendamentos
         $this->executarJobAtualizacaoND();
@@ -230,9 +230,10 @@ class Kernel extends ConsoleKernel
 
     private function executaCommand($fila, $horario = '09:00', $quantidadeExecucoes = 1, $timeout = 600, $tries = 1)
     {
+        $path = env('APP_PATH');
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->exec(
-                "php artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
+                "php $path"."artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
@@ -243,9 +244,10 @@ class Kernel extends ConsoleKernel
 
     private function executaCommandCron($fila, $quantidadeExecucoes = 1, $timeout = 600, $tries = 1, $minuto = '*', $hora = '*', $diasmes = '*', $meses = '*', $diassemana = '*')
     {
+        $path = env('APP_PATH');
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->exec(
-                "php /var/www/contratos/artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
+                "php $path"."artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
