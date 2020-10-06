@@ -63,7 +63,8 @@ class Contratohistorico extends ContratoBase
         'retroativo_soma_subtrai',
         'unidades_requisitantes',
         'situacao',
-        'supressao'
+        'supressao',
+        'unidadecompra_id'
     ];
 
     /*
@@ -356,6 +357,12 @@ class Contratohistorico extends ContratoBase
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');
     }
+
+    public function unidadecompra()
+    {
+        return $this->belongsTo(Unidade::class, 'unidadecompra_id');
+    }
+
 
     /*
     |--------------------------------------------------------------------------

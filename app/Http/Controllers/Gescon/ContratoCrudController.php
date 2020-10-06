@@ -600,6 +600,7 @@ class ContratoCrudController extends CrudController
         $this->adicionaCampoDataPublicacao();
         $this->adicionaCampoObjeto();
         $this->adicionaCampoInformacoesComplementares();
+        $this->adicionaCampoUnidadeCompra();
         $this->adicionaCampoModalidades();
         $this->adicionaCampoNumeroLicitacao();
 
@@ -870,6 +871,24 @@ class ContratoCrudController extends CrudController
         ]);
     }
 
+    protected function adicionaCampoUnidadeCompra()
+    {
+        $this->crud->addField([
+            'label' => "Unidade Compra",
+            'type' => "select2_from_ajax",
+            'name' => 'unidadecompra_id',
+            'entity' => 'unidadecompra',
+            'attribute' => "codigo",
+            'attribute2' => "nomeresumido",
+            'process_results_template' => 'gescon.process_results_unidade',
+            'model' => "App\Models\Unidade",
+            'data_source' => url("api/unidade"),
+            'placeholder' => "Selecione a Unidade",
+            'minimum_input_length' => 2,
+            'tab' => $this->tab
+        ]);
+    }
+
     protected function adicionaCampoUnidadeGestoraAtual()
     {
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
@@ -1004,6 +1023,21 @@ class ContratoCrudController extends CrudController
             'label' => 'Unidade Gestora Origem',
             'type' => 'model_function',
             'function_name' => 'getUnidadeOrigem',
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    protected function adicionaColunaUnidadeCompra()
+    {
+        $this->crud->addColumn([
+            'name' => 'getUnidadeCompra',
+            'label' => 'Unidade da Compra',
+            'type' => 'model_function',
+            'function_name' => 'getUnidadeCompra',
             'orderable' => true,
             'visibleInTable' => false,
             'visibleInModal' => true,

@@ -56,6 +56,7 @@ class Contrato extends Model
         'situacao_siasg',
         'situacao',
         'unidades_requisitantes',
+        'unidadecompra_id',
     ];
 
     /*
@@ -313,6 +314,15 @@ class Contrato extends Model
         return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
     }
 
+    public function getUnidadeCompra()
+    {
+        if(!isset($this->unidadecompra_id)){
+            return '';
+        }
+
+        return $this->unidadecompra->codigo . ' - ' . $this->unidadecompra->nomeresumido;
+    }
+
     public function getOrgao()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
@@ -539,6 +549,11 @@ class Contrato extends Model
     public function unidadeorigem()
     {
         return $this->belongsTo(Unidade::class, 'unidadeorigem_id');
+    }
+
+    public function unidadecompra()
+    {
+        return $this->belongsTo(Unidade::class, 'unidadecompra_id');
     }
 
     /*
