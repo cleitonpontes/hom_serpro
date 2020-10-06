@@ -134,7 +134,7 @@ class Kernel extends ConsoleKernel
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->everyMinute();
+            ->everyFifteenMinutes();
     }
 
     protected function criarJobAtualizacaoSiasgCompras()
@@ -142,7 +142,7 @@ class Kernel extends ConsoleKernel
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->everyMinute();
+            ->everyFifteenMinutes();
     }
 
     protected function criarJobLimparActivityLogs()
@@ -192,7 +192,6 @@ class Kernel extends ConsoleKernel
     }
 
 
-
     protected function executarJobAlteraDocumentoHabil()
     {
         $this->executaCommandCron('siafialteradh', '1', 900, 3, '*', '7-22', '*', '*', '1-5');
@@ -234,7 +233,7 @@ class Kernel extends ConsoleKernel
     {
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->exec(
-                "php $this->path"."artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
+                "php $this->path" . "artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!
@@ -247,7 +246,7 @@ class Kernel extends ConsoleKernel
     {
         for ($i = 1; $i <= $quantidadeExecucoes; $i++) {
             $this->schedule->exec(
-                "php $this->path"."artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
+                "php $this->path" . "artisan queue:work --queue=$fila --stop-when-empty --timeout=$timeout --tries=$tries"
             )
                 ->timezone('America/Sao_Paulo')
                 // ->weekdays() // Pode ser diário. Se não houver fila, nada será executado!

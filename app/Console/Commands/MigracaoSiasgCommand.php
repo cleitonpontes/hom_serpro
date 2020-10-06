@@ -31,7 +31,7 @@ class MigracaoSiasgCommand extends Command
             $this->line('As Opções "--tipo" e "--arquivo" são obrigatórias para esse Comando.');
         }
 
-        if ($this->option('tipo') == 'compras' or $this->option('tipo') == 'contratos') {
+        if ($this->option('tipo') == 'compras') {
             if(!file_exists ($this->option('arquivo'))){
                 $this->line('Arquivos não encontrado!');
                 return false;
