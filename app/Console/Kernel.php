@@ -186,7 +186,7 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobSfPadrao()
     {
-        $this->executaCommandCron('siasgcsfpadraoompra', '1', 300, 1, '0,5,10,15,20,25,30,35,40,45,50,55', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('sfpadrao', '1', 300, 1, '*', '7-22', '*', '*', '1-5');
     }
 
 
@@ -206,7 +206,7 @@ class Kernel extends ConsoleKernel
 
     protected function executarJobSiasgCompra()
     {
-        $this->executaCommandCron('siasgcompra', '5', 300, 1, '0,5,10,15,20,25,30,35,40,45,50,55', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('siasgcompra', '5', 300, 1, '*', '7-22', '*', '*', '1-5');
     }
 
 //    protected function executarJobSiasgCargaCompra()
