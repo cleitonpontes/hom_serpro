@@ -7,6 +7,26 @@ use Illuminate\Support\Facades\DB;
 
 class ApropriacoesFaturasContratofaturas extends Model
 {
+    public function apropriacoes()
+    {
+        return $this->belongsToMany(
+            ApropriacaoFaturas::class,
+            'apropriacoes_faturas',
+            'id',
+            'apropriacoes_faturas_id'
+        );
+    }
+
+    public function faturas()
+    {
+        return $this->belongsToMany(
+            Contratofatura::class,
+            'contratofaturas',
+            'id',
+            'contratofaturas_id'
+        );
+    }
+
     public static function retornaFaturasETotais()
     {
         return self::from(

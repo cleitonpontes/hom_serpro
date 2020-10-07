@@ -193,7 +193,7 @@ class FaturaController extends Controller
         DB::transaction(function () use ($valorTotal, $faturaIds) {
             $apropriacao = ApropriacaoFaturas::create([
                 'valor' => $valorTotal,
-                'fase_id' => 0
+                'fase_id' => 1
             ]);
 
             foreach ($faturaIds as $id) {
