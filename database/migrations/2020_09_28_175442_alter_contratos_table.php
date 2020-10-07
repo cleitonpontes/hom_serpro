@@ -14,7 +14,6 @@ class AlterContratosTable extends Migration
     public function up()
     {
         Schema::table('contratos', function (Blueprint $table) {
-            $table->dropColumn('fundamento_legal');
             $table->date('data_publicacao')->nullable(false)->change();
             $table->boolean('publicado')->default(false);
         });
@@ -28,10 +27,8 @@ class AlterContratosTable extends Migration
     public function down()
     {
         Schema::table('contratos', function (Blueprint $table) {
-            $table->string('fundamento_legal')->nullable()->change();
             $table->dropColumn('publicado');
             $table->date('data_publicacao')->nullable(true)->change();
-
         });
     }
 }

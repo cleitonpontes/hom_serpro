@@ -304,6 +304,28 @@ class Contratohistorico extends ContratoBase
         return $orgao->codigo . ' - ' . $orgao->nome;
     }
 
+    public function retornaAmparo()
+    {
+        $amparo = "";
+        $cont = count($this->amparolegal);
+        foreach ($this->amparolegal as $key => $value){
+            if($cont < 2){
+                $amparo = $value->ato_normativo;
+            }
+            if($key == 0 && $cont > 1){
+                $amparo .= $value->ato_normativo;
+            }
+            if($key > 0 && $cont > 1){
+                $amparo .= ", ".$value->ato_normativo;
+            }
+            if($key == ($cont - 1)){
+                $amparo .= " e ".$value->ato_normativo;
+            }
+        }
+        dd($amparo);
+        return $amparo;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -365,7 +387,12 @@ class Contratohistorico extends ContratoBase
 
     public function amparolegal()
     {
-        return $this->hasMany(AmparoLegal::class, 'amparo_legal_id');
+        return $this->belongsToMany(
+            'App\Models\AmparoLegal',
+            'amparo_legal_contratohistorico',
+            'contratohistorico_id',
+            'amparo_legal_id'
+        );
     }
 
     /*

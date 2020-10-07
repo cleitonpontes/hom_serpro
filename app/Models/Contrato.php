@@ -353,6 +353,28 @@ class Contrato extends Model
         return 'R$ ' . number_format($this->valor_parcela, 2, ',', '.');
     }
 
+    public function retornaAmparo()
+    {
+        $amparo = "";
+        $cont = count($this->amparolegal);
+        foreach ($this->amparolegal as $key => $value){
+            if($cont < 2){
+                $amparo = $value->ato_normativo;
+            }
+            if($key == 0 && $cont > 1){
+                $amparo .= $value->ato_normativo;
+            }
+            if($key > 0 && $cont > 1){
+                $amparo .= ", ".$value->ato_normativo;
+            }
+            if($key == ($cont - 1)){
+                $amparo .= " e ".$value->ato_normativo;
+            }
+        }
+
+        return $amparo;
+    }
+
     public function formatVlrGlobal()
     {
         return 'R$ ' . number_format($this->valor_global, 2, ',', '.');
@@ -460,7 +482,12 @@ class Contrato extends Model
 
     public function amparolegal()
     {
-        return $this->belongsToMany(AmparoLegal::class, 'amparo_legal_id');
+        return $this->belongsToMany(
+            'App\Models\AmparoLegal',
+            'amparo_legal_contrato',
+            'contrato_id',
+            'amparo_legal_id'
+        );
     }
 
 

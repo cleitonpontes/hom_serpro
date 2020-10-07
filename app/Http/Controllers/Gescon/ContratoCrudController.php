@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Jobs\AlertaContratoJob;
+use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratohistorico;
@@ -108,6 +109,8 @@ class ContratoCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
+        $modalidades = AmparoLegal::all()->pluck('ato_normativo', 'id')->toArray();
+        dd($modalidades);
         $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos);
         $this->crud->addFields($campos);
     }
@@ -478,6 +481,18 @@ class ContratoCrudController extends CrudController
             'label' => 'Número Licitação',
             'type' => 'numlicitacao',
             'tab' => 'Dados do contrato',
+        ];
+
+        $campos[] = [
+            'label' => 'Amparo Legal',
+            'type' => 'select2_multiple',
+            'name' => 'ato_normativo',
+            'entity' => 'AmparoLegal',
+            'attribute' => 'ato_normativo',
+            'model' => "App\Models\AmparoLegal",
+            'pivot' => true,
+            'tab' => 'Dados do contrato',
+            'options' =>  ''
         ];
 
         $campos[] = [

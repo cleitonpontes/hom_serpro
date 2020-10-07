@@ -31,4 +31,24 @@ class AmparoLegal extends Model
     {
         return $this->belongsTo(Codigoitem::class, 'modalidade_id');
     }
+
+    public function contrato()
+    {
+        return $this->belongsToMany(
+            'App\Models\Contrato',
+            'amparo_legal_contrato',
+            'contrato_id',
+            'amparo_legal_id'
+        );
+    }
+
+    public function contratohistorico()
+    {
+        return $this->belongsToMany(
+            'App\Models\Contratohistorico',
+            'amparo_legal_contrato',
+            'contratohistorico_id',
+            'amparo_legal_id'
+        );
+    }
 }
