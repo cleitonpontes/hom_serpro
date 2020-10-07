@@ -64,6 +64,15 @@ class InstrumentoinicialRequest extends FormRequest
                 }
                 return true;
             }),
+            'unidadecompra_id' => Rule::requiredIf(function () {
+                $modalidade = Codigoitem::find($this->modalidade_id);
+                if(isset($modalidade->descricao)){
+                    if(in_array($modalidade->descricao,config('app.modalidades_sem_exigencia'))){
+                        return false;
+                    }
+                }
+                return true;
+            }),
             'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:vigencia_inicio",
             'data_publicacao' => $data_publicacao,
             'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',

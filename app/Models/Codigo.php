@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -13,29 +13,33 @@ class Codigo extends Model
     use LogsActivity;
     use SoftDeletes;
 
-    protected static $logFillable = true;
-    protected static $logName = 'codigo';
-
-    const CODIGO_TIPO_UNIDADE = 1;
-    const CODIGO_ITENS_SIAFI = 2;
-    const CODIGO_TIPO_PREDOC = 3;
-    const CODIGO_TIPO_DOM_BANCARIO = 4;
-    const CODIGO_TIPO_REL_ITEM = 5;
-    const CODIGO_TIPO_REL_ITEM_VALOR = 6;
-    const CODIGO_CATEGORIAS_DOCS = 7;
-    const CODIGO_TIPO_GARANTIA = 8;
-    const CODIGO_TIPO_FORNECEDOR = 9;
-    const CODIGO_FUNÇAO_CONTRATO = 10;
-    const CODIGO_CATEGORIA_CONTRATO = 11;
-    const CODIGO_TIPO_DE_CONTRATO = 12;
-    const CODIGO_MODALIDADE_LICITACAO = 13;
-    const CODIGO_ESCOLARIDADE = 14;
-    const CODIGO_MAO_DE_OBRA = 15;
-    const CODIGO_SITUACAO_OCORRENCIA = 16;
-    const CODIGO_TIPO_ARQUIVOS_CONTRATO = 17;
-    const CODIGO_ABAS_SITUACOES = 18;
-    const CODIGO_TIPO_MATERIAL_SERVICO = 19;
-    const CODIGO_TIPO_SALDO_ITENS = 20;
+    const TIPO_UNIDADE = 1;
+    const ITENS_SIAFI = 2;
+    const TIPO_PREDOC = 3;
+    const TIPO_DOMICILIO_BANCARIO = 4;
+    const TIPO_REL_ITEM = 5;
+    const TIPO_REL_ITEM_VALOR = 6;
+    const CATEGORIAS_DOCS_PADROES = 7;
+    const TIPO_GARANTIA = 8;
+    const TIPO_FORNECEDOR = 9;
+    const FUNÇAO_CONTRATO = 10;
+    const CATEGORIA_CONTRATO = 11;
+    const TIPO_DE_CONTRATO = 12;
+    const MODALIDADE_LICITACAO = 13;
+    const ESCOLARIDADE = 14;
+    const MAO_DE_OBRA = 15;
+    const SITUACAO_OCORRENCIA = 16;
+    const TIPO_ARQUIVOS_CONTRATO = 17;
+    const ABAS_SITUACOES = 18;
+    const TIPO_MATERIAL_SERVICO = 19;
+    const TIPO_SALDO_ITENS = 20;
+    const TIPO_IMPORTACAO = 21;
+    const SITUACAO_ARQUIVO = 22;
+    const TIPO_DESPESA_ACESSORIA = 23;
+    const RECORRENCIA_DESPESA_ACESSORIA = 24;
+    const STATUS_PROCESSO = 25;
+    const REGIOES_PAIS = 26;
+    const AMPARO_LEGAL_RESTRICOES = 27;
 
     /*
     |--------------------------------------------------------------------------
@@ -43,13 +47,11 @@ class Codigo extends Model
     |--------------------------------------------------------------------------
     */
 
+    protected static $logFillable = true;
+    protected static $logName = 'codigo';
+
     protected $table = 'codigos';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = ['descricao', 'visivel'];
-    // protected $hidden = [];
-    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
@@ -59,18 +61,11 @@ class Codigo extends Model
 
     public function getVisivel()
     {
-        if ($this->visivel == true) {
-            $visivel = 'Sim';
-        } else {
-            $visivel = 'Não';
-        }
-
-        return $visivel;
+        return ($this->visivel == true) ? 'Sim' : 'Não';
     }
 
     public function codigoItens($crud = false)
     {
-
         $button = '<div class="btn-group">
                         <button type="button" title="Mais" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle-split"
                             data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false"><i class="fa fa-gears"></i>
@@ -116,5 +111,4 @@ class Codigo extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-
 }

@@ -30,5 +30,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RhSituacaoSeeder::class);
         $this->call(SituacaoXRubricaSeeder::class);
         $this->call(CentrocustoSeeder::class);
+        $this->call(PeriodicidadeSeeder::class);
+        $this->call(EscopoGlosaSeeder::class);
     }
 }

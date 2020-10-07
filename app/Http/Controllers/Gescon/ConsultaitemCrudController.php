@@ -181,7 +181,7 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
     {
         $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->where('codigo_id', Codigo::CODIGO_TIPO_MATERIAL_SERVICO);
+        $dados->where('codigo_id', Codigo::TIPO_MATERIAL_SERVICO);
         $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();

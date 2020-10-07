@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\AdminController;
-use Faker\ORM\Spot\EntityPopulator;
 use Illuminate\Support\Facades\DB;
-use function foo\func;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+
+use App\Http\Controllers\AdminController;
+use Faker\ORM\Spot\EntityPopulator;
+// use Illuminate\Database\Eloquent\SoftDeletes;
+use function foo\func;
 
 class Contrato extends Model
 {
@@ -55,6 +56,7 @@ class Contrato extends Model
         'situacao_siasg',
         'situacao',
         'unidades_requisitantes',
+        'unidadecompra_id',
     ];
 
     /*
@@ -73,7 +75,6 @@ class Contrato extends Model
 
     public function buscaListaContratosUg($filtro)
     {
-
         $unidade_user = Unidade::find(session()->get('user_ug_id'));
 
         $lista = $this->select([
@@ -313,6 +314,15 @@ class Contrato extends Model
         return $this->unidadeorigem->codigo . ' - ' . $this->unidadeorigem->nomeresumido;
     }
 
+    public function getUnidadeCompra()
+    {
+        if(!isset($this->unidadecompra_id)){
+            return '';
+        }
+
+        return $this->unidadecompra->codigo . ' - ' . $this->unidadecompra->nomeresumido;
+    }
+
     public function getOrgao()
     {
         $orgao = Orgao::whereHas('unidades', function ($query) {
@@ -390,14 +400,90 @@ class Contrato extends Model
         return 'R$ ' . number_format($this->total_despesas_acessorias, 2, ',', '.');
     }
 
+    public function contratoAPI()
+    {
+
+        return [
+            'id' => $this->id,
+            'receita_despesa' => ($this->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
+            'numero' => $this->numero,
+            'contratante' => [
+                'orgao_origem' => [
+                    'codigo' => @$this->unidadeorigem->orgao->codigo,
+                    'nome' => @$this->unidadeorigem->orgao->nome,
+                    'unidade_gestora_origem' => [
+                        'codigo' => @$this->unidadeorigem->codigo,
+                        'nome_resumido' => @$this->unidadeorigem->nomeresumido,
+                        'nome' => @$this->unidadeorigem->nome,
+                        'sisg' => @$this->unidadeorigem->sisg == true ? 'Sim' : 'Não'
+                    ],
+                ],
+                'orgao' => [
+                    'codigo' => $this->unidade->orgao->codigo,
+                    'nome' => $this->unidade->orgao->nome,
+                    'unidade_gestora' => [
+                        'codigo' => $this->unidade->codigo,
+                        'nome_resumido' => $this->unidade->nomeresumido,
+                        'nome' => $this->unidade->nome,
+                        'sisg' => $this->unidade->sisg == true ? 'Sim' : 'Não'
+                    ],
+                ],
+            ],
+            'fornecedor' => [
+                'tipo' => $this->fornecedor->tipo_fornecedor,
+                'cnpj_cpf_idgener' => $this->fornecedor->cpf_cnpj_idgener,
+                'nome' => $this->fornecedor->nome,
+            ],
+            'tipo' => $this->tipo->descricao,
+            'categoria' => $this->categoria->descricao,
+            'subcategoria' => @$this->orgaosubcategoria->descricao,
+            'unidades_requisitantes' => $this->unidades_requisitantes,
+            'processo' => $this->processo,
+            'objeto' => $this->objeto,
+            'informacao_complementar' => $this->info_complementar,
+            'modalidade' => $this->modalidade->descricao,
+            'licitacao_numero' => $this->licitacao_numero,
+            'data_assinatura' => $this->data_assinatura,
+            'data_publicacao' => $this->data_publicacao,
+            'vigencia_inicio' => $this->vigencia_inicio,
+            'vigencia_fim' => $this->vigencia_fim,
+            'valor_inicial' => number_format($this->valor_inicial, 2, ',', '.'),
+            'valor_global' => number_format($this->valor_global, 2, ',', '.'),
+            'num_parcelas' => $this->num_parcelas,
+            'valor_parcela' => number_format($this->valor_parcela, 2, ',', '.'),
+            'valor_acumulado' => number_format($this->valor_acumulado, 2, ',', '.'),
+            'links' => [
+                'historico' => url('/api/contrato/' . $this->id . '/historico/'),
+                'empenhos' => url('/api/contrato/' . $this->id . '/empenhos/'),
+                'cronograma' => url('/api/contrato/' . $this->id . '/cronograma/'),
+                'garantias' => url('/api/contrato/' . $this->id . '/garantias/'),
+                'itens' => url('/api/contrato/' . $this->id . '/itens/'),
+                'prepostos' => url('/api/contrato/' . $this->id . '/prepostos/'),
+                'responsaveis' => url('/api/contrato/' . $this->id . '/responsaveis/'),
+                'despesas_acessorias' => url('/api/contrato/' . $this->id . '/despesas_acessorias/'),
+                'faturas' => url('/api/contrato/' . $this->id . '/faturas/'),
+                'ocorrencias' => url('/api/contrato/' . $this->id . '/ocorrencias/'),
+                'terceirizados' => url('/api/contrato/' . $this->id . '/terceirizados/'),
+                'arquivos' => url('/api/contrato/' . $this->id . '/arquivos/'),
+            ]
+        ];
+
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function historico()
+
+    public function arquivos()
     {
-        return $this->hasMany(Contratohistorico::class, 'contrato_id');
+        return $this->hasMany(Contratoarquivo::class, 'contrato_id');
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Codigoitem::class, 'categoria_id');
     }
 
     public function cronograma()
@@ -405,19 +491,9 @@ class Contrato extends Model
         return $this->hasMany(Contratocronograma::class, 'contrato_id');
     }
 
-    public function responsaveis()
+    public function despesasacessorias()
     {
-        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
-    }
-
-    public function garantias()
-    {
-        return $this->hasMany(Contratogarantia::class, 'contrato_id');
-    }
-
-    public function arquivos()
-    {
-        return $this->hasMany(Contratoarquivo::class, 'contrato_id');
+        return $this->hasMany(Contratodespesaacessoria::class, 'contrato_id');
     }
 
     public function empenhos()
@@ -425,14 +501,34 @@ class Contrato extends Model
         return $this->hasMany(Contratoempenho::class, 'contrato_id');
     }
 
+    public function faturas()
+    {
+        return $this->hasMany(Contratofatura::class, 'contrato_id');
+    }
+
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
+    public function garantias()
+    {
+        return $this->hasMany(Contratogarantia::class, 'contrato_id');
+    }
+
+    public function historico()
+    {
+        return $this->hasMany(Contratohistorico::class, 'contrato_id');
+    }
+
     public function itens()
     {
         return $this->hasMany(Contratoitem::class, 'contrato_id');
     }
 
-    public function faturas()
+    public function modalidade()
     {
-        return $this->hasMany(Contratofatura::class, 'contrato_id');
+        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
     }
 
     public function ocorrencias()
@@ -440,9 +536,31 @@ class Contrato extends Model
         return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
     }
 
+    public function orgaosubcategoria()
+    {
+        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
+    }
+
+    public function prepostos()
+    {
+        return $this->hasMany(Contratopreposto::class, 'contrato_id')
+            ->where('situacao', true);
+    }
+
+    public function responsaveis()
+    {
+        return $this->hasMany(Contratoresponsavel::class, 'contrato_id')
+            ->where('situacao', true);
+    }
+
     public function terceirizados()
     {
         return $this->hasMany(Contratoterceirizado::class, 'contrato_id');
+    }
+
+    public function tipo()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_id');
     }
 
     public function unidade()
@@ -455,29 +573,9 @@ class Contrato extends Model
         return $this->belongsTo(Unidade::class, 'unidadeorigem_id');
     }
 
-    public function fornecedor()
+    public function unidadecompra()
     {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
-    }
-
-    public function tipo()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_id');
-    }
-
-    public function categoria()
-    {
-        return $this->belongsTo(Codigoitem::class, 'categoria_id');
-    }
-
-    public function modalidade()
-    {
-        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
-    }
-
-    public function orgaosubcategoria()
-    {
-        return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');
+        return $this->belongsTo(Unidade::class, 'unidadecompra_id');
     }
 
     public function amparolegal()
@@ -508,5 +606,4 @@ class Contrato extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-
 }

@@ -346,6 +346,18 @@ class UnidadeCrudController extends CrudController
 //                'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
             [
+                'name' => 'sigilo',
+                'label' => 'Sigilo',
+                'type' => 'boolean',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // optionally override the Yes/No texts
+                'options' => [0 => 'Não', 1 => 'Sim']
+            ],
+            [
                 'name' => 'situacao',
                 'label' => 'Situação',
                 'type' => 'boolean',
@@ -557,6 +569,13 @@ class UnidadeCrudController extends CrudController
                 'allows_null' => true
             ],
             [ // select_from_array
+                'name' => 'sigilo',
+                'label' => "Sigilo",
+                'type' => 'select_from_array',
+                'options' => [ 0 => 'Não', 1 => 'Sim',],
+                'allows_null' => false,
+            ],
+            [ // select_from_array
                 'name' => 'situacao',
                 'label' => "Situação",
                 'type' => 'select_from_array',
@@ -666,7 +685,9 @@ class UnidadeCrudController extends CrudController
     private function estadoId()
     {
         $estado = '';
-        if ($this->crud->getActionMethod() === 'edit') {
+        if ($this->crud->getActionMethod() === 'edit'
+            && $this->crud->getEntry($this->crud->getCurrentEntryId())->municipio !== null
+        ) {
             $estado = $this->crud->getEntry($this->crud->getCurrentEntryId())->municipio->estado->id;
         }
         return $estado;

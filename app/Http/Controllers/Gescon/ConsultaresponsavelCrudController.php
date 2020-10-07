@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\BackpackUser;
 use App\Models\Codigo;
 use App\Models\Codigoitem;
-use App\Models\Contratoresponsavel;
 use App\Models\Instalacao;
 use Illuminate\Support\Facades\DB;
 
@@ -392,7 +391,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
     {
         $dados = Codigoitem::select('descricao', 'id');
 
-        $dados->where('codigo_id', Codigo::CODIGO_FUNÇAO_CONTRATO);
+        $dados->where('codigo_id', Codigo::FUNÇAO_CONTRATO);
         $dados->orderBy('descricao');
 
         return $dados->pluck('descricao', 'id')->toArray();

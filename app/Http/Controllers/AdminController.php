@@ -10,6 +10,7 @@ use App\Models\Contrato;
 use App\Models\Siasgcontrato;
 use App\Models\Unidade;
 use App\Repositories\Empenho;
+use App\XML\SiapeWs;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -248,9 +249,9 @@ class AdminController extends Controller
         if (session()->get('user_ug_id')) {
             $unidade = Unidade::find(session()->get('user_ug_id'));
 
-            if(isset($unidade->configuracao->padrao_processo_mascara)){
+            if (isset($unidade->configuracao->padrao_processo_mascara)) {
                 session(['numprocmask' => $unidade->configuracao->padrao_processo_mascara]);
-            }else{
+            } else {
                 if (isset($unidade->orgao->configuracao->padrao_processo_marcara)) {
                     session(['numprocmask' => $unidade->orgao->configuracao->padrao_processo_marcara]);
                 }
@@ -429,6 +430,7 @@ class AdminController extends Controller
     {
 //        phpinfo();
     }
+
     public function buscaDadosUrl($url)
     {
         $ch = curl_init();
@@ -441,9 +443,41 @@ class AdminController extends Controller
         return json_decode($data, true);
     }
 
+    public function verificarSeLinkEstaNoAr($url)
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 500);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+
+        $content = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        if ($info['http_code'] == 200) {
+            return true;
+        }
+        return false;
+    }
+
     public function buscaDadosUrlMigracao($url)
     {
-        return json_decode(file_get_contents($url), true);
+
+        $verificacao = self::verificarSeLinkEstaNoAr($url);
+        while (!$verificacao) {
+            $verificacao = self::verificarSeLinkEstaNoAr($url);
+        }
+        $dargs = array("ssl" => array("verify_peer" => false, "verify_peer_name" => false), "http" => array('timeout' => 99999, 'user_agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/3.0.0.1'));
+
+        $passou = false;
+        while (!$passou) {
+            if ($response = file_get_contents($url, false, stream_context_create($dargs))) {
+                $passou = true;
+            }
+        }
+        return json_decode($response, true);
+        // return json_decode(file_get_contents($url), true);
     }
 
     public function formataCnpjCpfTipo($dado, $tipo)
@@ -644,6 +678,16 @@ class AdminController extends Controller
         }
 
         return $dataFormatada;
+    }
+
+    public function testeSiape()
+    {
+        $xml = new SiapeWs();
+        $retorno = $xml->consultaDadosPessoais('70074402153', '40106');
+//        $retorno = $xml->listaUorgs('40106','46');
+
+        dd($retorno);
+
     }
 
 }

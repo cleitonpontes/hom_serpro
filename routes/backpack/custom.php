@@ -152,6 +152,8 @@ Route::group([
                 Route::get('apisiasg', 'SiasgcompraCrudController@apisiasg');
                 Route::get('inserircompras', 'SiasgcompraCrudController@inserirComprasEmMassa');
                 Route::get('inserircontratos', 'SiasgcontratoCrudController@verificarContratosPendentes');
+                Route::get('inserircontratossisg', 'SiasgcontratoCrudController@importaManualmenteContratoSemCompra');
+                Route::get('inserircontratosnaosisg', 'SiasgcontratoCrudController@importaManualmenteContratoNaoSisg');
 
 
             });
@@ -197,9 +199,14 @@ Route::group([
             Route::get('/saldohistoricoitens/carregaritens/{tipo}/{contratohistorico_id}', 'SaldohistoricoitemCrudController@carregarItens');
 
             Route::group(['prefix' => 'meus-contratos/{contrato_id}'], function () {
-                CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
-                CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
                 CRUD::resource('faturas', 'ContratofaturaCrudController');
+                CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
+                CRUD::resource('servicos', 'ContratoServicoCrudController');
+                CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
+            });
+            Route::group(['prefix' => 'meus-servicos/{cis_i_id}'], function () {
+                CRUD::resource('indicadores', 'ContratoItemServicoIndicadorCrudController');
+                CRUD::resource('glosas', 'GlosaCrudController');
             });
 
 //            Route::get('/notificausers', 'ContratoCrudController@notificaUsers');

@@ -37,6 +37,7 @@ class Contratohistorico extends ContratoBase
         'processo',
         'objeto',
         'info_complementar',
+        'fundamento_legal',
         'amparo_legal_id',
         'modalidade_id',
         'licitacao_numero',
@@ -64,6 +65,7 @@ class Contratohistorico extends ContratoBase
         'unidades_requisitantes',
         'situacao',
         'supressao',
+        'unidadecompra_id',
         'publicado'
     ];
 
@@ -379,6 +381,12 @@ class Contratohistorico extends ContratoBase
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');
     }
+
+    public function unidadecompra()
+    {
+        return $this->belongsTo(Unidade::class, 'unidadecompra_id');
+    }
+
 
     public function publicacao()
     {
