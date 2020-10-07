@@ -201,6 +201,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
             'default' => 0,
             'inline' => true,
+            'title' => 'Utilizar Número de Ocorrências quando a quantidade de eventos for baixa (Exemplo: < 100 ocorrências)'
         ]);
     }
 
@@ -228,6 +229,18 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'allows_null' => false,
             'placeholder' => 'Selecione',
         ]);
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumns([
+            'contratoitem_servico_id',
+            'indicador_id',
+        ]);
+
+        return $content;
     }
 
 }
