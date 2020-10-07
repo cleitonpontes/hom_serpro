@@ -836,7 +836,7 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
      */
     private function retornaTiposParaCombo()
     {
-        return $this->retornaRegistrosCodigoItensParaCombo(Codigo::CODIGO_TIPO_DE_CONTRATO);
+        return $this->retornaRegistrosCodigoItensParaCombo(Codigo::TIPO_DE_CONTRATO);
     }
 
     /**
@@ -847,7 +847,7 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
      */
     private function retornaCategoriasParaCombo()
     {
-        return $this->retornaRegistrosCodigoItensParaCombo(Codigo::CODIGO_CATEGORIA_CONTRATO);
+        return $this->retornaRegistrosCodigoItensParaCombo(Codigo::CATEGORIA_CONTRATO);
     }
 
     /**
@@ -858,7 +858,7 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
      */
     private function retornaModalidadeParaCombo()
     {
-        return $this->retornaRegistrosCodigoItensParaCombo(Codigo::CODIGO_MODALIDADE_LICITACAO);
+        return $this->retornaRegistrosCodigoItensParaCombo(Codigo::MODALIDADE_LICITACAO);
     }
 
     /**

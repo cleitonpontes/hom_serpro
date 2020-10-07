@@ -425,7 +425,7 @@ class EmpenhoCrudController extends CrudController
                 ->get();
 
         foreach ($unidadesAtivas as $unidade) {
-            MigracaoempenhoJob::dispatch($unidade->codigo, $ano);
+            MigracaoempenhoJob::dispatch($unidade->codigo, $ano)->onQueue('migracaoempenho');
         }
 
         // BUSCA AS UNIDADES COM RP CRIADOS NOS ULTIMOS
@@ -447,7 +447,7 @@ class EmpenhoCrudController extends CrudController
                 ->get();
 
         foreach ($unidadesAtivas as $unidade) {
-            MigracaoRpJob::dispatch($unidade->codigo);
+            MigracaoRpJob::dispatch($unidade->codigo)->onQueue('migracaoempenho');
         }
 
         if (backpack_user()) {
@@ -459,7 +459,7 @@ class EmpenhoCrudController extends CrudController
     public function executaAtualizacaoNd()
     {
 //        $this->NdAtualizacao();
-        AtualizaNaturezaDespesasJob::dispatch();
+        AtualizaNaturezaDespesasJob::dispatch()->onQueue('atualizacaond');
 
         if (backpack_user()) {
             Alert::success('Atualização de ND em Andamento!')->flash();

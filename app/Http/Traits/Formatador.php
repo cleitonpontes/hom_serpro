@@ -143,4 +143,8 @@ trait Formatador
         return '***' . substr($cpf,3,9) . '**';
     }
 
+    public function retornaFormatoAmericano($valor)
+    {
+        return str_replace(',', '.', str_replace('.', '', $valor));
+    }
 }

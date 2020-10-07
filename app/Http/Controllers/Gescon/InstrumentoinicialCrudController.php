@@ -88,7 +88,7 @@ class InstrumentoinicialCrudController extends CrudController
 
         $modalidades = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Modalidade Licitação');
-        })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+        })->where('visivel',true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $tipos = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
@@ -529,6 +529,21 @@ class InstrumentoinicialCrudController extends CrudController
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"
                 ],
+                'tab' => 'Dados Contrato',
+            ],
+            [
+                // 1-n relationship
+                'label' => "Unidade Compra", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'unidadecompra_id', // the column that contains the ID of that connected entity
+                'entity' => 'unidadecompra', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
+                'model' => "App\Models\Unidade", // foreign key model
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a Unidade", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
                 'tab' => 'Dados Contrato',
             ],
             [

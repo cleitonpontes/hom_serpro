@@ -392,10 +392,13 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $dado = $this->montaArrayContrato($siasgcontrato, $fornecedor, $json);
 
-        $unidadeOrigem = ['unidadeorigem_id' => $dado['unidadeorigem_id']];
+        $novoDado = [
+            'unidadeorigem_id' => $dado['unidadeorigem_id'],
+            'unidadecompra_id' => $dado['unidadecompra_id']
+        ];
 
         $contrato = Contrato::find($contrato_alteracao->id);
-        $contrato->update($unidadeOrigem);
+        $contrato->update($novoDado);
 
         return $contrato;
 
@@ -438,6 +441,7 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $dado['numero'] = $this->formataNumeroContratoLicitacao($json->data->dadosContrato->numeroAno);
         $dado['unidadeorigem_id'] = $siasgcontrato->unidade_id;
+        $dado['unidadecompra_id'] = @$siasgcontrato->compra->unidade_id;
         $dado['unidade_id'] = ($siasgcontrato->unidadesubrrogacao_id != null) ? $siasgcontrato->unidadesubrrogacao_id : $siasgcontrato->unidade_id;
         $dado['tipo_id'] = $siasgcontrato->tipo_id;
         $dado['categoria_id'] = 197; //a definir

@@ -51,6 +51,8 @@ Route::group([
         Route::get('/{contrato_id}/terceirizados', 'ContratoController@terceirizadosPorContratoId');
         Route::get('/{contrato_id}/arquivos', 'ContratoController@arquivosPorContratoId');
 
+        Route::get('/ugorigem/{codigo_uasg}/numeroano/{numeroano_contrato}', 'ContratoController@contratoUASGeContratoAno');
+
         Route::get('/{contrato_id}/empenhos', 'ContratoController@empenhosPorContratoId');
         Route::get('/empenhos', 'ContratoController@empenhosPorContratos');
         Route::get('/{contrato_id}/cronograma', 'ContratoController@cronogramaPorContratoId');

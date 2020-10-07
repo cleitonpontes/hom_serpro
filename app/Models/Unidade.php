@@ -35,6 +35,7 @@ class Unidade extends Model
         'aderiu_siasg',
         'utiliza_siafi',
         'codigo_siorg',
+        'sigilo',
 
     ];
     public function buscaUnidadeExecutoraPorCodigo($codigo)
