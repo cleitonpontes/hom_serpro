@@ -162,7 +162,7 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobDefault()
     {
-        $this->executaCommandCron('default', '3', 900, 1, '*', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('default', '5', 150, 1, '*', '7-22', '*', '*', '1-5');
     }
 
     protected function executarJobMigracaoSistemaConta()
@@ -172,17 +172,17 @@ class Kernel extends ConsoleKernel
 
     protected function executarJobAtualizacaoND()
     {
-        $this->executaCommand('atualizacaond', '08:05', 3, 900);
+        $this->executaCommand('atualizacaond', '08:05', 3, 3600);
     }
 
     protected function executarJobMigracaoEmpenho()
     {
-        $this->executaCommand('migracaoempenho', '08:40', 10, 3600);
+        $this->executaCommand('migracaoempenho', '08:40', 10, 7200);
     }
 
     protected function executarJobAtualizaSaldoEmpenho()
     {
-        $this->executaCommand('atualizasaldone', '09:40', 20, 300, 3);
+        $this->executaCommand('atualizasaldone', '09:40', 20, 7200, 3);
     }
 
     // ************************************************************
@@ -196,7 +196,7 @@ class Kernel extends ConsoleKernel
 
     protected function executarJobAlteraDocumentoHabil()
     {
-        $this->executaCommandCron('siafialteradh', '1', 900, 3, '*', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('siafialteradh', '1', 300, 1, '*', '7-22', '*', '*', '1-5');
     }
 
     // ************************************************************
@@ -204,12 +204,12 @@ class Kernel extends ConsoleKernel
     // ************************************************************
     protected function executarJobSiasgContrato()
     {
-        $this->executaCommandCron('siasgcontrato', '5', 300, 20, '0,15,30,45', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('siasgcontrato', '20', 300, 1, '*', '7-22', '*', '*', '1-5');
     }
 
     protected function executarJobSiasgCompra()
     {
-        $this->executaCommandCron('siasgcompra', '5', 300, 10, '0,15,30,45', '7-22', '*', '*', '1-5');
+        $this->executaCommandCron('siasgcompra', '5', 300, 1, '*', '7-22', '*', '*', '1-5');
     }
 
 //    protected function executarJobSiasgCargaCompra()
