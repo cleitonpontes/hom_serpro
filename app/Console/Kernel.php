@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
         $this->path = env('APP_PATH');
 
         $this->criarJobs();
-        $this->executarJobs();
+//        $this->executarJobs();
     }
 
     /**
@@ -134,7 +134,7 @@ class Kernel extends ConsoleKernel
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->everyMinute()
+            ->everyFifteenMinutes()
             ->between('7:00', '22:00');
     }
 
@@ -143,7 +143,7 @@ class Kernel extends ConsoleKernel
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->everyMinute()
+            ->everyFifteenMinutes()
             ->between('7:00', '22:00');
     }
 
