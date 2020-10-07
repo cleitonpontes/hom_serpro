@@ -51,7 +51,6 @@ Route::group([
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
 
-
 Route::group(
     [
         'middleware' => ['web'],
@@ -86,7 +85,7 @@ Route::group(
             Route::get('dashboard', function () {
                 return redirect('/inicio');
             });
-//            Route::get('dashboard', 'AdminController@dashboard')->name('backpack.dashboard');
+            // Route::get('dashboard', 'AdminController@dashboard')->name('backpack.dashboard');
             Route::get('/', 'AdminController@redirect')->name('backpack');
         }
 
@@ -103,14 +102,13 @@ Route::group(
             Route::get('edit-account-info', function () {
                 return redirect('/meus-dados');
             });
-//            Route::get('edit-account-info',
-//                'Auth\MyAccountController@getAccountInfoForm')->name('backpack.account.info');
-//            Route::post('edit-account-info', 'Auth\MyAccountController@postAccountInfoForm');
+            // Route::get('edit-account-info',
+            //     'Auth\MyAccountController@getAccountInfoForm')->name('backpack.account.info');
+            // Route::post('edit-account-info', 'Auth\MyAccountController@postAccountInfoForm');
             Route::get('alterar-senha',
                 'Auth\MyAccountController@getChangePasswordForm')->name('alterar.senha');
             Route::post('alterar-senha', 'Auth\MyAccountController@postChangePasswordForm');
         }
-
 
         // Módulo Folha de Pagamento
         Route::group([
@@ -123,7 +121,7 @@ Route::group(
              *
              * Apropriação da Folha - Genéricos
              *
-             **/
+             */
             Route::get('/apropriacao', 'ApropriacaoController@index')
                 ->name('apropriacao')
                 ->middleware('permission:folha_apropriacao_acesso');
@@ -145,7 +143,7 @@ Route::group(
              * {id}   = Registro
              * {sit}  = Situação
              *
-             **/
+             */
 
             // Passo 1
             Route::get('/apropriacao/passo/1', 'Apropriacao\Passo1Controller@novo')
@@ -221,7 +219,22 @@ Route::group(
             Route::get('/apropriacao/siafi/dochabil/{apid}', 'ApropriacaoController@docHabilSiafi')
                 ->name('apropriacao.siafi.dochabil')
                 ->middleware('permission:folha_apropriacao_passo');
-
         });
 
-    });
+        // Módulo Apropriação da Fatura
+        Route::group([
+            'prefix' => 'apropriacao',
+            'namespace' => 'apropriacao',
+            'middleware' => 'auth',
+            // 'middleware' = 'permission:apropriacao_fatura_passos'
+        ], function () {
+            Route::get('/fatura', 'FaturaController@index')->name('apropriacao.faturas');
+            Route::get('/fatura/{id}', 'FaturaController@show')->name('apropriacao.fatura');
+            Route::get('/contrato/{contrato}/fatura/{fatura}/nova', 'FaturaController@create')->name('apropriacao.fatura.create');
+            Route::put('/fatura/novas', 'FaturaController@createMany')->name('apropriacao.fatura.create.bulk');
+
+            Route::get('/fatura/{id}/relatorio', 'FaturaController@show')->name('apropriacao.fatura.relatorio');
+            // Route::delete('/fatura/{id}', 'ApropriacaoFaturaController@destroy')->name('apropriacao.fatura.excluir');
+        });
+    }
+);
