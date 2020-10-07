@@ -134,7 +134,7 @@ class Kernel extends ConsoleKernel
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->everyFifteenMinutes()
+            ->everyMinute()
             ->between('7:00', '22:00');
     }
 
@@ -143,7 +143,7 @@ class Kernel extends ConsoleKernel
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->everyFifteenMinutes()
+            ->everyMinute()
             ->between('7:00', '22:00');
     }
 
