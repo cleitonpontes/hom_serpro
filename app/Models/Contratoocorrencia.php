@@ -87,8 +87,7 @@ class Contratoocorrencia extends Model
     {
         if ($this->user_id) {
             $user = BackpackUser::find($this->user_id);
-
-            return 'xxx' . substr($user->cpf,3,9) . 'xx - ' . $user->name;
+            return 'XXX' . substr($user->cpf,3,9) . 'XX' . ' - ' . $user->name;
         } else {
             return '';
         }
