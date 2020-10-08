@@ -83,6 +83,17 @@ class Contratoocorrencia extends Model
         }
     }
 
+    public function getUserCpfInibido()
+    {
+        if ($this->user_id) {
+            $user = BackpackUser::find($this->user_id);
+            $cpf = new Contratoterceirizado();
+            return $cpf->retornaMascaraCpf($user->cpf) . ' - ' . $user->name;
+        } else {
+            return '';
+        }
+    }
+
     /**
      * @return string
      * @deprecated Melhor utilizar getSituacaoConsulta()
@@ -245,7 +256,7 @@ class Contratoocorrencia extends Model
         $arquivos_array = [];
         $i = 1;
         foreach ($this->arquivos as $arquivo) {
-            
+
             $arquivos_array[] = [
                 'arquivo_'.$i => env('APP_URL'). '/storage/'. $arquivo,
             ];
