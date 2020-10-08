@@ -57,6 +57,7 @@ class Contrato extends Model
         'situacao',
         'unidades_requisitantes',
         'unidadecompra_id',
+        'amparo_legal_id',
     ];
 
     /*
@@ -367,18 +368,36 @@ class Contrato extends Model
     {
         $amparo = "";
         $cont = count($this->amparolegal);
+
         foreach ($this->amparolegal as $key => $value){
+
             if($cont < 2){
-                $amparo = $value->ato_normativo;
+                $amparo .= $value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
             }
             if($key == 0 && $cont > 1){
                 $amparo .= $value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
             }
-            if($key > 0 && $cont > 1){
+            if($key > 0 && $key < ($cont - 1)){
                 $amparo .= ", ".$value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
             }
             if($key == ($cont - 1)){
                 $amparo .= " e ".$value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
             }
         }
 
@@ -576,6 +595,11 @@ class Contrato extends Model
     public function unidadecompra()
     {
         return $this->belongsTo(Unidade::class, 'unidadecompra_id');
+    }
+
+    public function publicacao()
+    {
+        return $this->hasOne(Contratopublicacoes::class, 'contrato_id');
     }
 
     public function amparolegal()

@@ -603,6 +603,7 @@ class ContratoCrudController extends CrudController
         $this->adicionaCampoInformacoesComplementares();
         $this->adicionaCampoUnidadeCompra();
         $this->adicionaCampoModalidades();
+        $this->adicionaCampoAmparoLegal();
         $this->adicionaCampoNumeroLicitacao();
 
         $this->tab = 'Características do contrato';
@@ -758,6 +759,28 @@ class ContratoCrudController extends CrudController
             'type' => 'numlicitacao',
             'tab' => $this->tab
         ]);
+    }
+
+
+
+    protected function adicionaCampoAmparoLegal()
+    {
+
+        $this->crud->addField([
+            'label' => "Amparo Legal",
+            'type' => 'select2_from_ajax_multiple',
+            'name' => 'amparo_legal_id',
+            'entity' => 'amparo_legal',
+            'attribute' => 'amparo',
+            'model' => "App\Models\AmparoLegal",
+            'data_source' => url("api/amparolegal"),
+            'placeholder' => "Selecione o Amparo Legal",
+            'minimum_input_length' => 0,
+            'pivot' => false,
+            'tab' => $this->tab
+        ]);
+
+
     }
 
     protected function adicionaCampoReceitaDespesa()
