@@ -94,6 +94,9 @@ class DiarioOficialController extends BaseSoapController
             }
             $contratoPublicacoes->status = 'Oficio';
             $contratoPublicacoes->situacao = 'Confirmado';
+            $contratoPublicacoes->transacao_id = $arrayConfirmacao['dados']['IDTransacao'];
+            $contratoPublicacoes->materia_id = $responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDMateria;
+            $contratoPublicacoes->oficio_id = $responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDOficio;
             $contratoPublicacoes->save();
             \Alert::success('Enviado com sucesso - Aguarde Atualizacao !')->flash();
 
