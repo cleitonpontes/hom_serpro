@@ -348,7 +348,7 @@ class RetiradacontratocontaCrudController extends CrudController
         $situacaoFuncionario = $objContratoTerceirizado->situacao;
 
 
-        \Log::info('Situaçao do funcionário: '.$situacaoFuncionario);
+        // \Log::info('Situaçao do funcionário: '.$situacaoFuncionario);
 
         // Grupo A - vamos calcular o Grupo A, que é o percentual fat_empresa sobre o valor informado para retirada.
         $fat_empresa = $request->input('fat_empresa');  // Cáculo do grupo A, que é o fat_empresa da tab contratocontas

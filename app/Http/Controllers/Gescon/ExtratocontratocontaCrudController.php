@@ -64,7 +64,7 @@ class ExtratocontratocontaCrudController extends CrudController
 
         // cláusulas para possibilitar buscas
         // $this->crud->addClause('select', 'lancamentos.*');
-        $this->crud->addClause('select', 'lancamentos.*', 'contratoterceirizados.*', 'c1.descricao as nome_encargo', 'c2.descricao as nome_movimentacao');
+        $this->crud->addClause('select', 'lancamentos.*', 'lancamentos.created_at as data_lancamento', 'contratoterceirizados.*', 'c1.descricao as nome_encargo', 'c2.descricao as nome_movimentacao');
         $this->crud->addClause('join', 'movimentacaocontratocontas', 'movimentacaocontratocontas.id',  '=',  'lancamentos.movimentacao_id');
         $this->crud->addClause('join', 'contratoterceirizados', 'contratoterceirizados.id',  '=',  'lancamentos.contratoterceirizado_id');
         $this->crud->addClause('join', 'encargos', 'encargos.id',  '=',  'lancamentos.encargo_id');
@@ -152,6 +152,28 @@ class ExtratocontratocontaCrudController extends CrudController
                 'label' => 'Valor',
                 'type'  => 'text',
                 'prefix' => 'R$ '
+                // 'orderable' => true,
+                // 'visibleInTable' => true, // no point, since it's a large text
+                // 'visibleInModal' => true, // would make the modal too big
+                // 'visibleInExport' => true, // not important enough
+                // 'visibleInShow' => true, // sure, why not
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('lancamentos.valor', 'ilike', "%$searchTerm%");
+                // },
+
+            ],
+            [
+                'name'  => 'data_lancamento',
+                'label' => 'Data',
+                'type'  => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('lancamentos.created_at', 'ilike', "%$searchTerm%");
+                },
             ],
 
 

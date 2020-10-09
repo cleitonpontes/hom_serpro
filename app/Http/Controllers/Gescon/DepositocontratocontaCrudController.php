@@ -381,15 +381,15 @@ class DepositocontratocontaCrudController extends CrudController
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
 
         // vamos varrer os contratos terceirizados e para cada um, fazer os lançamentos
+        $depositoFeito = false; // verificar se algum depósito será feito
         foreach($arrayContratosTerceirizados as $objContratoTerceirizado){
             $idContratoTerceirizado = $objContratoTerceirizado->id;
             $numeroContrato = $objContratoTerceirizado->numero;
             $situacaoFuncionario = $objContratoTerceirizado->situacao;
-            $depositoFeito = false; // verificar se algum depósito será feito
+            // \Log::info('Situaçao do funcionárioxx: '.$situacaoFuncionario);
 
-            if($situacaoFuncionario){
+            if($situacaoFuncionario == true || $situacaoFuncionario == 't' || $situacaoFuncionario == 1){
                 $depositoFeito = true;
-
 
                 // vamos verificar se no mês/ano de competência, o funcionário já tinha iniciado
                 if(!self::verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado)){
