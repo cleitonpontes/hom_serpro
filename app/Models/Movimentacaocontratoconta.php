@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 
+use App\Models\Lancamento;
+
+
 class Movimentacaocontratoconta extends Model
 {
     use CrudTrait;
@@ -29,6 +32,17 @@ class Movimentacaocontratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getTotalMovimentacao(){
+        $objLancamento = new Lancamento();
+
+        $idMovimentacao= $this->id;
+
+
+        // vamos pegar todosos lançamentos da movimentacao e somá-los
+        return $valorTotal = $objLancamento->getValorTotalLancamentosByIdMovimentacao($idMovimentacao);
+
+
+    }
     public function getTipoMovimentacao(){
         $objCodigoItem = Codigoitem::find($this->tipo_id);
         return $descricao= $objCodigoItem->descricao;

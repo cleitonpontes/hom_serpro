@@ -30,6 +30,14 @@ class Lancamento extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getValorTotalLancamentosByIdMovimentacao($idMovimentacao){
+        $valorTotal = Lancamento::where('movimentacao_id', '=', $idMovimentacao)->sum('valor');
+
+                        \Log::info('total mov = '.$valorTotal);
+                        return $valorTotal;
+
+
+    }
     public function getSalarioContratoTerceirizado(){
         $objContratoTerceirizado = Contratoterceirizado::find($this->contratoterceirizado_id);
         return $objContratoTerceirizado->salario;

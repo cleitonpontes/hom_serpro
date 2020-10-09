@@ -191,7 +191,7 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'getSaldoContratoContaParaColunas',
-                'label' => 'Saldo', // Table column heading
+                'label' => 'Saldo da Conta', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getSaldoContratoContaParaColunas', // the method in your Model
                 'orderable' => true,

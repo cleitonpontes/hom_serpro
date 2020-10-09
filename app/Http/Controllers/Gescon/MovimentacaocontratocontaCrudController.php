@@ -96,6 +96,14 @@ class MovimentacaocontratocontaCrudController extends CrudController
     }
     public function Colunas()
     {
+
+
+        // $movimentacao_id = \Route::current()->parameter('movimentacao_id');
+
+        //         \Log::info('id mov = '.$movimentacao_id);
+
+
+
         $colunas = [
             [
                 'name' => 'getTipoMovimentacao',
@@ -126,6 +134,28 @@ class MovimentacaocontratocontaCrudController extends CrudController
                 'label' => 'Situação da movimentação',
                 'type'  => 'text',
             ],
+            // [
+            //     'name'  => 'id',
+            //     'label' => 'Id da movimentação',
+            //     'type'  => 'text',
+            // ],
+            [
+                'name' => 'getTotalMovimentacao',
+                'label' => 'Total movimentado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getTotalMovimentacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'prefix' => "R$ ",
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
+                // },
+            ],
+
+
         ];
         return $colunas;
     }
