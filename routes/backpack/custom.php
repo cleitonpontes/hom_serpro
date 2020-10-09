@@ -157,12 +157,13 @@ Route::group([
 
 
             Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}'], function () {
+                CRUD::resource('extratocontratoconta', 'ExtratocontratocontaCrudController');
                 CRUD::resource('movimentacaocontratoconta', 'MovimentacaocontratocontaCrudController');
                 CRUD::resource('depositocontratoconta', 'DepositocontratocontaCrudController');
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
-                // CRUD::resource('retiradacontratoconta2', 'RetiradacontratocontaCrudController');
                 CRUD::resource('funcionarioscontratoconta', 'FuncionarioscontratocontaCrudController');
             });
+
 
             Route::group(['prefix' => 'contrato/contratoconta/movimentacaocontratoconta/{movimentacaocontratoconta_id}'], function () {
                 CRUD::resource('lancamento', 'LancamentoCrudController');

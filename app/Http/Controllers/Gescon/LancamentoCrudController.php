@@ -19,6 +19,7 @@ use App\Models\Movimentacaocontratoconta;
  */
 class LancamentoCrudController extends CrudController
 {
+
     public function setup()
     {
         $movimentacaocontratoconta_id = \Route::current()->parameter('movimentacaocontratoconta_id');
@@ -45,7 +46,7 @@ class LancamentoCrudController extends CrudController
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
         $this->crud->addClause('where', 'lancamentos.movimentacao_id', '=', $movimentacaocontratoconta_id);
 
-        
+
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');

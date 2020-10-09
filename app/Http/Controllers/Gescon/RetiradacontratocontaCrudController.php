@@ -97,7 +97,6 @@ class RetiradacontratocontaCrudController extends CrudController
     }
 
     public function Campos($objContratoTerceirizado, $arrayObjetosEncargo, $idTipoMovimentacaoRetirada, $nomeFuncaoContratoTerceirizado, $arrayObjetosEncargoParaCombo, $objContratoConta){
-
         $campos = [
 
             [   // Hidden
@@ -202,7 +201,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 'name' => 'data_demissao',
                 'label' => "Data da demissão",
                 'type' => 'date',
-                // 'default' => date('d-m-Y'),
+                'default' => $objContratoTerceirizado->data_fim,
                 'allows_null' => false,
                 // optionals
                 'attributes' => [
@@ -218,10 +217,16 @@ class RetiradacontratocontaCrudController extends CrudController
             $nomeEncargo = $objEncargo->descricao;
             $tipoId = $objEncargo->tipo_id;
             $objContratoConta = new Contratoconta();
+
+
             $saldoEncargoContratoTerceirizado = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
+            $saldoEncargoContratoTerceirizado = number_format($saldoEncargoContratoTerceirizado, 2, '.', ',' );
 
             $saldoDepositoEncargoContratoTerceirizado = $objContratoConta->getSaldoDepositoPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
+            $saldoDepositoEncargoContratoTerceirizado = number_format($saldoDepositoEncargoContratoTerceirizado, 2, '.', ',' );
+
             $saldoRetiradaEncargoContratoTerceirizado = $objContratoConta->getSaldoRetiradaPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
+            $saldoRetiradaEncargoContratoTerceirizado = number_format($saldoRetiradaEncargoContratoTerceirizado, 2, '.', ',' );
 
             $campos[] = [   //
                 'name' => $nomeEncargo,
@@ -232,7 +237,8 @@ class RetiradacontratocontaCrudController extends CrudController
                     'readonly' => 'readonly',
                     'style' => 'pointer-events: none;touch-action: none;'
                 ], // allow decimals
-                'default' => '('.$saldoDepositoEncargoContratoTerceirizado.' - '.$saldoRetiradaEncargoContratoTerceirizado.') = '.$saldoEncargoContratoTerceirizado,
+                // 'default' => '('.$saldoDepositoEncargoContratoTerceirizado.' - '.$saldoRetiradaEncargoContratoTerceirizado.') = '.$saldoEncargoContratoTerceirizado,
+                'default' => $saldoEncargoContratoTerceirizado,
             ];
         }
 

@@ -384,79 +384,97 @@ class DepositocontratocontaCrudController extends CrudController
         foreach($arrayContratosTerceirizados as $objContratoTerceirizado){
             $idContratoTerceirizado = $objContratoTerceirizado->id;
             $numeroContrato = $objContratoTerceirizado->numero;
+            $situacaoFuncionario = $objContratoTerceirizado->situacao;
+            $depositoFeito = false; // verificar se algum depósito será feito
 
-            // vamos verificar se no mês/ano de competência, o funcionário já tinha iniciado
-            if(!self::verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado)){
-                $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do funcionário.';
-                \Alert::error($mensagem)->flash();
-                if( !self::excluirMovimentacao($idMovimentacao) ){
-                    \Alert::error('Problemas ao excluir a movimentação.')->flash();
-                }
-                return redirect()->back();
-            }
+            if($situacaoFuncionario){
+                $depositoFeito = true;
 
 
-            // verificar se tem proporcionalidade
-            $salario = $objContratoTerceirizado->salario;
-            $proporcionalidade = 0;
-
-            // precisamos verificar as datas de início e fim pra ver se tem proporcionalidade
-            $dataInicio = $objContratoTerceirizado->data_inicio;
-            $dataFim = $objContratoTerceirizado->data_fim;
-
-            $mesDataInicio = substr($dataInicio, 5, 2);
-            $anoDataInicio = substr($dataInicio, 0, 4);
-            $diaDataInicio = substr($dataInicio, 8, 2);
-
-            $mesDataFim = substr($dataFim, 5, 2);
-            $anoDataFim = substr($dataFim, 0, 4);
-            $diaDataFim = substr($dataFim, 8, 2);
-
-            $mesCompetencia = $request->input('mes_competencia');
-            $anoCompetencia = $request->input('ano_competencia');
-
-            if( $mesDataInicio == $mesCompetencia && $anoDataInicio == $anoCompetencia ){
-                // aqui o funcionário foi adimitido no mesmo mês / ano de competência.
-                $proporcionalidade = 30 - $diaDataInicio;
-            }
-            if( $mesDataFim == $mesCompetencia && $anoDataFim == $anoCompetencia ){ echo 'tem proporcionalidade 2!';exit;
-                // aqui o funcionário foi demitido no mesmo mês / ano de competência
-                $proporcionalidade = 30 - $diaDataFim;
-            }
-
-            // caso tenhamos proporcionalidade, vamos calculá-la baseado do salário
-            if($proporcionalidade > 0){
-                $salario = ( $salario / 30 ) * $proporcionalidade;
-            }
-
-            // vamos verrer os encargos e salvar em lancamentos.
-            foreach($arrayObjetosEncargos as $objEncargo){
-
-                // para cada encargo, calcularemos seu valor, pelo percentual
-                $percentualEncargo = $objEncargo->percentual;
-                $valorSalvar = ( $salario * $percentualEncargo) / 100;
-
-                $request->request->set('valor', $valorSalvar);
-
-                $encargo_id = $objEncargo->id;
-                $request->request->set('encargo_id', $encargo_id);
-
-                $objLancamento = new Lancamento();
-                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
-                $objLancamento->encargo_id = $encargo_id;
-                $objLancamento->valor = $valorSalvar;
-                $objLancamento->movimentacao_id = $idMovimentacao;
-                if( !$objLancamento->save() ){
-                    $mensagem = 'Erro ao salvar o lançamento.';
+                // vamos verificar se no mês/ano de competência, o funcionário já tinha iniciado
+                if(!self::verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado)){
+                    $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do funcionário.';
                     \Alert::error($mensagem)->flash();
                     if( !self::excluirMovimentacao($idMovimentacao) ){
                         \Alert::error('Problemas ao excluir a movimentação.')->flash();
                     }
                     return redirect()->back();
                 }
-                // your additional operations before save here
-                // $redirect_location = parent::storeCrud($request);
+
+
+                // verificar se tem proporcionalidade
+                $salario = $objContratoTerceirizado->salario;
+                $proporcionalidade = 0;
+
+                // precisamos verificar as datas de início e fim pra ver se tem proporcionalidade
+                $dataInicio = $objContratoTerceirizado->data_inicio;
+                $dataFim = $objContratoTerceirizado->data_fim;
+
+                $mesDataInicio = substr($dataInicio, 5, 2);
+                $anoDataInicio = substr($dataInicio, 0, 4);
+                $diaDataInicio = substr($dataInicio, 8, 2);
+
+                $mesDataFim = substr($dataFim, 5, 2);
+                $anoDataFim = substr($dataFim, 0, 4);
+                $diaDataFim = substr($dataFim, 8, 2);
+
+                $mesCompetencia = $request->input('mes_competencia');
+                $anoCompetencia = $request->input('ano_competencia');
+
+                if( $mesDataInicio == $mesCompetencia && $anoDataInicio == $anoCompetencia ){
+                    // aqui o funcionário foi adimitido no mesmo mês / ano de competência.
+                    $proporcionalidade = 30 - $diaDataInicio;
+                }
+                if( $mesDataFim == $mesCompetencia && $anoDataFim == $anoCompetencia ){ echo 'tem proporcionalidade 2!';exit;
+                    // aqui o funcionário foi demitido no mesmo mês / ano de competência
+                    $proporcionalidade = 30 - $diaDataFim;
+                }
+
+                // caso tenhamos proporcionalidade, vamos calculá-la baseado do salário
+                if($proporcionalidade > 0){
+                    $salario = ( $salario / 30 ) * $proporcionalidade;
+                }
+
+                // vamos verrer os encargos e salvar em lancamentos.
+                foreach($arrayObjetosEncargos as $objEncargo){
+
+                    // para cada encargo, calcularemos seu valor, pelo percentual
+                    $percentualEncargo = $objEncargo->percentual;
+                    $valorSalvar = ( $salario * $percentualEncargo) / 100;
+
+                    $request->request->set('valor', $valorSalvar);
+
+                    $encargo_id = $objEncargo->id;
+                    $request->request->set('encargo_id', $encargo_id);
+
+                    $objLancamento = new Lancamento();
+                    $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
+                    $objLancamento->encargo_id = $encargo_id;
+                    $objLancamento->valor = $valorSalvar;
+                    $objLancamento->movimentacao_id = $idMovimentacao;
+                    if( !$objLancamento->save() ){
+                        $mensagem = 'Erro ao salvar o lançamento.';
+                        \Alert::error($mensagem)->flash();
+                        if( !self::excluirMovimentacao($idMovimentacao) ){
+                            \Alert::error('Problemas ao excluir a movimentação.')->flash();
+                        }
+                        return redirect()->back();
+                    }
+                    // your additional operations before save here
+                    // $redirect_location = parent::storeCrud($request);
+                }
             }
+        }
+
+        if(!$depositoFeito){
+            // aqui quer dizer que nenhum depósito foi feito por conta da situação dos funcionários
+
+            $mensagem = 'Nenhum depósito foi feito. Verifique a situação dos funcionários.';
+            \Alert::error($mensagem)->flash();
+            if( !self::excluirMovimentacao($idMovimentacao) ){
+                \Alert::error('Problemas ao excluir a movimentação.')->flash();
+            }
+            return redirect()->back();
         }
 
         // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação

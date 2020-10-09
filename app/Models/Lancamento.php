@@ -14,7 +14,6 @@ class Lancamento extends Model
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
     protected $table = 'lancamentos';
     // protected $primaryKey = 'id';
     // public $timestamps = false;

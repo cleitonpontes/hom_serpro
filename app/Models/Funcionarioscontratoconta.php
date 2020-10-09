@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 
+use App\Http\Controllers\AdminController;
+
+
 class Funcionarioscontratoconta extends Model
 {
     use CrudTrait;
@@ -28,6 +31,11 @@ class Funcionarioscontratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getCpfFormatado(){
+        $base = new AdminController();
+        $cpf = $this->cpf;
+        return $cpf = $base->formataCnpjCpfTipo($cpf, 'FISICA');
+    }
     public function getSituacaoFuncionario(){
         $situacao = $this->situacao;
         if($situacao == 't'){return 'Admitido';}
@@ -63,7 +71,7 @@ class Funcionarioscontratoconta extends Model
     public function getSaldoContratoTerceirizado(){
         $totalDeposito = self::getTotalDeposito();
         $totalRetirada = self::getTotalRetirada();
-        return ($totalDeposito - $totalRetirada);
+        return  number_format(floatval(($totalDeposito - $totalRetirada)), 2, '.', '');
     }
     /*
     |--------------------------------------------------------------------------

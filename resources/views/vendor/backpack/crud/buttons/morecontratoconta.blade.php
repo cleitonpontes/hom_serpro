@@ -6,6 +6,9 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right">
         <li class="dropdown-header"><i class="fa fa-list"></i> Conta Vinculada:</li>
+        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/extratocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Extrato de Lançamentos</a></li>
+
+
         <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/movimentacaocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Movimentações</a></li>
         <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/depositocontratoconta/create">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Novo Depósito</a></li>
         <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcionarioscontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Nova Retirada</a></li>

@@ -12,6 +12,8 @@ use Backpack\CRUD\CrudPanel;
 use App\Models\Funcionarioscontratoconta;
 
 
+
+
 // inserido
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,18 +27,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
 {
     public function setup()
     {
-
         $contratoconta_id = \Route::current()->parameter('contratoconta_id');
-
-
-
-        // echo ' ==> '.\Route::current()->parameter('contratoterceirizado.id'); exit;
-        // echo ' ==> '.\Route::current()->parameter('id');
-
-        //vamos setar o contrato_id como parâmetro e utilizá-lo no botão
-        // \Route::current()->setParameter('contrato_id', $contrato_id);
-
-
 
         /*
         |--------------------------------------------------------------------------
@@ -46,7 +37,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
         $this->crud->setModel('App\Models\Funcionarioscontratoconta');
         // $this->crud->setRoute(config('backpack.base.route_prefix') . '/funcionarioscontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/funcionarioscontratoconta');
-        $this->crud->setEntityNameStrings('Funcionário', 'Selecione o funcionário');
+        $this->crud->setEntityNameStrings('Funcionário', 'Funcionários');
 
         // cláusulas para trazer apenas os contratos terceirizados do contratoconta_id
         $this->crud->addClause('select', 'contratoterceirizados.*');
@@ -103,14 +94,29 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
-                'name' => 'cpf',
-                'type' => 'text',
+                'name' => 'getCpfFormatado',
+                'label' => 'cpf', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getCpfFormatado', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                // 'prefix' => "R$ ",
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
+                // },
             ],
+            // [
+            //     'name' => 'cpf',
+            //     'type' => 'cpf',
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            // ],
             [
                 'name' => 'getSituacaoFuncionario',
                 'label' => 'Situação', // Table column heading
@@ -136,7 +142,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                // 'prefix' => "R$ ",
+                'prefix' => "R$ ",
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
                 // },
@@ -151,7 +157,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                // 'prefix' => "R$ ",
+                'prefix' => "R$ ",
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
                 // },
@@ -166,7 +172,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                // 'prefix' => "R$ ",
+                'prefix' => "R$ ",
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
                 // },

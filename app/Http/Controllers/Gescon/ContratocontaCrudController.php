@@ -94,7 +94,7 @@ class ContratocontaCrudController extends CrudController
     {
         // será permitida apenas uma conta por contrato. Vamos verificar
         if(self::verificarSeContratoJaPossuiConta($request)){
-            \Alert::error('Já existe uma conta para este contrato!')->flash();
+            \Alert::error('Já existe uma conta vinculada a este contrato!')->flash();
             return redirect()->back();
         }
 
@@ -142,7 +142,7 @@ class ContratocontaCrudController extends CrudController
                 'name' => 'fat_empresa',
                 'label' => 'Fat Empresa', // Table column heading
                 'type' => 'text',
-                'prefix' => "%",
+                'prefix' => "% ",
             ],
         ];
 
@@ -188,6 +188,7 @@ class ContratocontaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'prefix' => "% ",
             ],
             [
                 'name' => 'getSaldoContratoContaParaColunas',

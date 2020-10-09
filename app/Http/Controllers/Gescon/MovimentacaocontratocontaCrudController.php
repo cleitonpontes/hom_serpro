@@ -149,7 +149,7 @@ class MovimentacaocontratocontaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                // 'prefix' => "R$ ",
+                'prefix' => "R$ ",
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
                 // },
