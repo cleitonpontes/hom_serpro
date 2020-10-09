@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class AmparoLegalContrato extends Model
 {
-
-
     protected $table = 'amparo_legal_contrato';
     protected $primaryKey = ['contrato_id', 'amparo_legal_id'];
 

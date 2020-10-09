@@ -80,7 +80,7 @@ class ContratoRequest extends FormRequest
             'valor_global' => 'required',
             'num_parcelas' => 'required',
             'valor_parcela' => 'required',
-            'amparo_legal_id' => 'required',
+//            'amparo_legal_id' => 'required',
 //            'arquivos' => 'file|mimes:pdf',
             'situacao' => 'required',
         ];

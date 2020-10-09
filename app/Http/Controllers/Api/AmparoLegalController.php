@@ -14,14 +14,15 @@ class AmparoLegalController extends Controller
         $search_term = $request->input('q');
         $form = collect($request->input('form'))->pluck('value', 'name');
 
-        $options = AmparoLegal::select(
-            ['id',
-                DB::raw("ato_normativo ||
-                        case when (artigo is not null)  then ' - Artigo: ' || artigo else '' end ||
-                        case when (paragrafo is not null)  then ' - Parágrafo: ' || paragrafo else '' end ||
-                        case when (inciso is not null)  then ' - Inciso: ' || inciso else '' end ||
-                        case when (alinea is not null)  then ' - Alinea: ' || alinea else '' end
-                        as amparo")]);
+        $options = AmparoLegal::select([
+            'id',
+            DB::raw("ato_normativo ||
+                    case when (artigo is not null)  then ' - Artigo: ' || artigo else '' end ||
+                    case when (paragrafo is not null)  then ' - Parágrafo: ' || paragrafo else '' end ||
+                    case when (inciso is not null)  then ' - Inciso: ' || inciso else '' end ||
+                    case when (alinea is not null)  then ' - Alinea: ' || alinea else '' end
+                    as campo_api_amparo")
+        ]);
 
         // if no category has been selected, show no options
         if (!$form['modalidade_id']) {

@@ -309,7 +309,8 @@ class Contratohistorico extends ContratoBase
     public function retornaAmparo()
     {
         $amparo = "";
-        $cont = count($this->amparolegal);
+
+        $cont = (is_array($this->amparolegal)) ? count($this->amparolegal) : 0;
 
         foreach ($this->amparolegal as $key => $value){
 

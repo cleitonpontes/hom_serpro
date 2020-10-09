@@ -87,6 +87,7 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+//        dd($request->all());
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -761,26 +762,21 @@ class ContratoCrudController extends CrudController
         ]);
     }
 
-
-
     protected function adicionaCampoAmparoLegal()
     {
-
         $this->crud->addField([
-            'label' => "Amparo Legal",
+            'label' => 'Amparo Legal',
+            'name' => 'amparoslegais',
             'type' => 'select2_from_ajax_multiple',
-            'name' => 'amparo_legal_id',
-            'entity' => 'amparo_legal',
-            'attribute' => 'amparo',
-            'model' => "App\Models\AmparoLegal",
-            'data_source' => url("api/amparolegal"),
-            'placeholder' => "Selecione o Amparo Legal",
+            'entity' => 'amparoslegais',
+            'placeholder' => 'Selecione o Amparo Legal',
             'minimum_input_length' => 0,
-            'pivot' => false,
+            'data_source' => url('api/amparolegal'),
+            'model' => 'App\Models\AmparoLegal',
+            'attribute' => 'campo_api_amparo',
+            'pivot' => true,
             'tab' => $this->tab
         ]);
-
-
     }
 
     protected function adicionaCampoReceitaDespesa()

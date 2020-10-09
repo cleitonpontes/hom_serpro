@@ -37,8 +37,8 @@ class AmparoLegal extends Model
         return $this->belongsToMany(
             'App\Models\Contrato',
             'amparo_legal_contrato',
-            'contrato_id',
-            'amparo_legal_id'
+            'amparo_legal_id',
+            'contrato_id'
         );
     }
 

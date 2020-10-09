@@ -56,8 +56,7 @@ class Contrato extends Model
         'situacao_siasg',
         'situacao',
         'unidades_requisitantes',
-        'unidadecompra_id',
-        'amparo_legal_id',
+        'unidadecompra_id'
     ];
 
     /*
@@ -367,7 +366,7 @@ class Contrato extends Model
     public function retornaAmparo()
     {
         $amparo = "";
-        $cont = count($this->amparolegal);
+        $cont = (is_array($this->amparolegal)) ? count($this->amparolegal) : 0;
 
         foreach ($this->amparolegal as $key => $value){
 
@@ -602,7 +601,7 @@ class Contrato extends Model
         return $this->hasOne(Contratopublicacoes::class, 'contrato_id');
     }
 
-    public function amparolegal()
+    public function amparoslegais()
     {
         return $this->belongsToMany(
             'App\Models\AmparoLegal',
@@ -611,7 +610,6 @@ class Contrato extends Model
             'amparo_legal_id'
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
