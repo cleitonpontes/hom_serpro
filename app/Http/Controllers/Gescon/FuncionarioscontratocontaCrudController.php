@@ -9,6 +9,9 @@ use App\Http\Requests\FuncionarioscontratocontaRequest as StoreRequest;
 use App\Http\Requests\FuncionarioscontratocontaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 
+use App\Models\Funcionarioscontratoconta;
+
+
 // inserido
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -50,13 +53,13 @@ class FuncionarioscontratocontaCrudController extends CrudController
         $this->crud->addClause('join', 'contratos', 'contratos.id', 'contrato_id');
         $this->crud->addClause('join', 'contratocontas', 'contratocontas.contrato_id', 'contratos.id');
         $this->crud->addClause('where', 'contratocontas.id', '=', $contratoconta_id);
+        $this->crud->addClause('orderby', 'contratoterceirizados.nome');
 
         $this->crud->addButtonFromView('line', 'morefuncionarioscontratoconta', 'morefuncionarioscontratoconta', 'end');
 
         $this->crud->denyAccess('delete');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('create');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -74,10 +77,21 @@ class FuncionarioscontratocontaCrudController extends CrudController
         // add asterisk for fields that are required in FuncionarioscontratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+
+
+
+
+        // $objTeste = new Funcionarioscontratoconta();
+        // $testeSaldo = $objTeste->getSaldoDeposito();
+        // dd($teste);
+
+
+
     }
 
     public function Colunas()
     {
+        // $situacaoContratoTerceirizado = $this->situacao;
         $colunas = [
             [
                 'name' => 'nome',
@@ -97,6 +111,78 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+            [
+                'name' => 'getSituacaoFuncionario',
+                'label' => 'Situação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSituacaoFuncionario', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'prefix' => "R$ ",
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
+                // },
+            ],
+            [
+                'name' => 'getTotalDeposito',
+                'label' => 'Total depositado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getTotalDeposito', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'prefix' => "R$ ",
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
+                // },
+            ],
+            [
+                'name' => 'getTotalRetirada',
+                'label' => 'Total retirado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getTotalRetirada', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'prefix' => "R$ ",
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
+                // },
+            ],
+            [
+                'name' => 'getSaldoContratoTerceirizado',
+                'label' => 'Saldo da conta', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getSaldoContratoTerceirizado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'prefix' => "R$ ",
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
+                // },
+            ],
+
+
+
+            // [
+            //     'name' => 'situacao',
+            //     'type' => 'text',
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            // ],
             // [
             //     'name' => 'agencia',
             //     'type' => 'text',

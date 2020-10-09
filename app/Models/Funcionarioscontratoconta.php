@@ -28,7 +28,43 @@ class Funcionarioscontratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getSituacaoFuncionario(){
+        $situacao = $this->situacao;
+        if($situacao == 't'){return 'Admitido';}
+        else{return 'Demitido';}
+    }
+    public function getIdCodigoitensDeposito(){
 
+        // buscar os tipos de movimentação em codigoitens para seleção
+        $objTipoMovimentacaoRetirada = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo Movimentação');
+        })
+        ->where('descricao', '=', 'Depósito')
+        ->first();
+        return $idTipoMovimentacaoRetirada = $objTipoMovimentacaoRetirada->id;
+
+    }
+    public function getTotalDeposito(){
+        $idContratoTerceirizado = $this->id;
+        // $idCodigoitensDeposito = self::getIdCodigoitensDeposito();
+        $objContratoConta = new Contratoconta();
+        $saldo = $objContratoConta->getSaldoDepositoPorContratoTerceirizado($idContratoTerceirizado);
+        // \Log::info('saldo depósito = '.$saldoDeposito);
+        return $saldo;
+    }
+    public function getTotalRetirada(){
+        $idContratoTerceirizado = $this->id;
+        // $idCodigoitensDeposito = self::getIdCodigoitensDeposito();
+        $objContratoConta = new Contratoconta();
+        $saldo = $objContratoConta->getSaldoRetiradaPorContratoTerceirizado($idContratoTerceirizado);
+        // \Log::info('saldo depósito = '.$saldoDeposito);
+        return $saldo;
+    }
+    public function getSaldoContratoTerceirizado(){
+        $totalDeposito = self::getTotalDeposito();
+        $totalRetirada = self::getTotalRetirada();
+        return ($totalDeposito - $totalRetirada);
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -52,4 +88,5 @@ class Funcionarioscontratoconta extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
 }

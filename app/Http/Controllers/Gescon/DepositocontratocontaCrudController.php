@@ -69,6 +69,7 @@ class DepositocontratocontaCrudController extends CrudController
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
+
         // cláusulas para possibilitar buscas
         $this->crud->addClause('where', 'contratoconta_id', '=', $contratoconta_id);
         $this->crud->addClause('orderby', 'ano_competencia');
@@ -394,6 +395,8 @@ class DepositocontratocontaCrudController extends CrudController
                 return redirect()->back();
             }
 
+
+            // verificar se tem proporcionalidade
             $salario = $objContratoTerceirizado->salario;
             $proporcionalidade = 0;
 
@@ -465,7 +468,7 @@ class DepositocontratocontaCrudController extends CrudController
 
 
         $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
-        return redirect($linkLocation)->with('msg', 'Testes!!!!!');
+        return redirect($linkLocation);
 
 
         // your additional operations after save here

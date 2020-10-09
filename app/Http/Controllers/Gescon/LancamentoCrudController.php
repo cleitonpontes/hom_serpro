@@ -40,8 +40,12 @@ class LancamentoCrudController extends CrudController
         $this->crud->setEntityNameStrings('lancamento', 'lancamentos');
 
         // adicionar cláusula para trabalharmos apenas com lançamentos da movimentação
+        $this->crud->addClause('select', 'lancamentos.*', 'codigoitens.descricao');
+        $this->crud->addClause('join', 'movimentacaocontratocontas', 'movimentacaocontratocontas.id',  '=',  'lancamentos.movimentacao_id');
+        $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
         $this->crud->addClause('where', 'lancamentos.movimentacao_id', '=', $movimentacaocontratoconta_id);
 
+        
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
@@ -147,6 +151,15 @@ class LancamentoCrudController extends CrudController
             //     'label' => 'Proporcionalidade',
             //     'type'  => 'text',
             // ],
+
+            [
+                'name'  => 'descricao',
+                'label' => 'Tipo da movimentação',
+                'type'  => 'text',
+            ],
+
+
+
             [
                 'name' => 'formatValor',
                 'label' => 'Valor lançamento', // Table column heading

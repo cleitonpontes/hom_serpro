@@ -48,7 +48,7 @@ class ContratocontaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/contratocontas');
         $this->crud->setEntityNameStrings('conta vinculada', 'Contas Vinculadas');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-        $this->crud->enableExportButtons();
+        // $this->crud->enableExportButtons();
         $this->crud->addButtonFromView('line', 'morecontratoconta', 'morecontratoconta', 'end');
 
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
@@ -142,6 +142,7 @@ class ContratocontaCrudController extends CrudController
                 'name' => 'fat_empresa',
                 'label' => 'Fat Empresa', // Table column heading
                 'type' => 'text',
+                'prefix' => "%",
             ],
         ];
 

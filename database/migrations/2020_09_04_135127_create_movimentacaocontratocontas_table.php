@@ -5,6 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateMovimentacaocontratocontasTable extends Migration
 {
+
     /**
      * Run the migrations.
      *
@@ -29,7 +30,7 @@ class CreateMovimentacaocontratocontasTable extends Migration
             $table->string('situacao_movimentacao');
 
             $table->integer('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->timestamps();
         });

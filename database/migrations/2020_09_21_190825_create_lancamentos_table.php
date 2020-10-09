@@ -24,7 +24,7 @@ class CreateLancamentosTable extends Migration
             $table->decimal('valor',15,2)->nullable();
 
             $table->integer('movimentacao_id');
-            $table->foreign('movimentacao_id')->references('id')->on('movimentacaocontratocontas');
+            $table->foreign('movimentacao_id')->references('id')->on('movimentacaocontratocontas')->onDelete('cascade');
 
             $table->timestamps();
         });

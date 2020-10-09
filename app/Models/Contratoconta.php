@@ -33,6 +33,24 @@ class Contratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao){
+
+        $objContratoTerceirizado = Contratoterceirizado::where('id', '=', $idContratoTerceirizado)->first();
+        $objContratoTerceirizado->situacao = 'f';
+        $objContratoTerceirizado->data_fim = $dataDemissao;
+        if( $objContratoTerceirizado->save() ){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public function getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargo){
+        $tipoIdEncargo = self::getTipoIdEncargoByIdEncargo($idEncargo);
+        return $saldo = self::getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipoIdEncargo);
+    }
+    public function getTipoIdEncargoByIdEncargo($idEncargoInformado){
+        return $id = Encargo::where('id', '=', $idEncargoInformado)->first()->tipo_id;
+    }
     public function getSaldoDepositoPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipo_id){
         $saldoDeposito = \DB::table('lancamentos')
             ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
