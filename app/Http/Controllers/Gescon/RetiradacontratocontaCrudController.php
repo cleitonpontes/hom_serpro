@@ -47,6 +47,9 @@ class RetiradacontratocontaCrudController extends CrudController
 
         $contrato_id = $objContratoTerceirizado->contrato_id;
         $objContratoConta = Contratoconta::where('contrato_id','=',$contrato_id)->first();
+        $contratoconta_id = $objContratoConta->id;
+        \Route::current()->setParameter('contratoconta_id', $contratoconta_id);
+
 
         // buscar os tipos de movimentação em codigoitens para seleção
         $objTipoMovimentacaoRetirada = Codigoitem::whereHas('codigo', function ($query) {
@@ -59,6 +62,10 @@ class RetiradacontratocontaCrudController extends CrudController
         $objRetiradacontratoconta = new Retiradacontratoconta();
         $arrayObjetosEncargoParaCombo = $objRetiradacontratoconta->getEncargosParaCombo();
 
+
+        // dd( \Route::current()->getName() );
+
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -68,6 +75,13 @@ class RetiradacontratocontaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/contratoterceirizado/'.$contratoterceirizado_id.'/retiradacontratoconta');
         $this->crud->setEntityNameStrings('nova retirada', 'Retiradas');
         $this->crud->enableExportButtons();
+
+        // $this->crud->denyAccess('create');
+        // $this->crud->denyAccess('update');
+        // $this->crud->denyAccess('delete');
+        // $this->crud->denyAccess('show');
+        $this->crud->denyAccess('list');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -630,8 +644,15 @@ class RetiradacontratocontaCrudController extends CrudController
         $mensagem = 'Lançamento de retirada gerado com sucesso!';
         \Alert::success($mensagem)->flash();
 
-        $linkLocation = '/gescon/contrato/'.$idContrato.'/contratocontas';
+
+        // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
+        $linkLocation = '/gescon/contrato/contratoconta/'.$idContratoConta.'/movimentacaocontratoconta';
         return redirect($linkLocation);
+
+
+
+        // $linkLocation = '/gescon/contrato/'.$idContrato.'/contratocontas';
+        // return redirect($linkLocation);
 
         // // your additional operations before save here
         // $redirect_location = parent::storeCrud($request);

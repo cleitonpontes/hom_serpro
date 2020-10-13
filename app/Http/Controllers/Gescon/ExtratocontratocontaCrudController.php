@@ -9,6 +9,9 @@ use App\Http\Requests\ExtratocontratocontaRequest as StoreRequest;
 use App\Http\Requests\ExtratocontratocontaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 
+use App\Models\Contratoconta;
+
+
 // inserido
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,11 +25,11 @@ class ExtratocontratocontaCrudController extends CrudController
 {
     public function setup()
     {
-
-
         $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+        $objContratoConta = Contratoconta::where('id', '=', $contratoconta_id)->first();
+        $idContrato = $objContratoConta->contrato_id;
 
-
+        \Route::current()->setParameter('contrato_id', $idContrato);
 
         /*
         |--------------------------------------------------------------------------
@@ -41,6 +44,10 @@ class ExtratocontratocontaCrudController extends CrudController
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
         $this->crud->denyAccess('show');
+        // $this->crud->denyAccess('list');
+
+        $this->crud->addButtonFromView('top', 'voltarcontavinculada', 'voltarcontavinculada', 'end');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -55,47 +62,19 @@ class ExtratocontratocontaCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-
         // add asterisk for fields that are required in ExtratocontratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
 
-
-
         // cláusulas para possibilitar buscas
-        // $this->crud->addClause('select', 'lancamentos.*');
         $this->crud->addClause('select', 'lancamentos.*', 'lancamentos.created_at as data_lancamento', 'contratoterceirizados.*', 'c1.descricao as nome_encargo', 'c2.descricao as nome_movimentacao');
         $this->crud->addClause('join', 'movimentacaocontratocontas', 'movimentacaocontratocontas.id',  '=',  'lancamentos.movimentacao_id');
         $this->crud->addClause('join', 'contratoterceirizados', 'contratoterceirizados.id',  '=',  'lancamentos.contratoterceirizado_id');
         $this->crud->addClause('join', 'encargos', 'encargos.id',  '=',  'lancamentos.encargo_id');
         $this->crud->addClause('join', 'codigoitens as c1', 'c1.id',  '=',  'encargos.tipo_id');
-
         $this->crud->addClause('join', 'codigoitens as c2', 'c2.id',  '=',  'movimentacaocontratocontas.tipo_id');
-
-
-
         $this->crud->addClause('where', 'movimentacaocontratocontas.contratoconta_id', '=', $contratoconta_id);
-
         $this->crud->addClause('orderby', 'lancamentos.id', 'desc');
-
-
-
-        // // adicionar cláusula para trabalharmos apenas com lançamentos da movimentação
-        // $this->crud->addClause('select', 'lancamentos.*', 'codigoitens.descricao');
-        // $this->crud->addClause('join', 'movimentacaocontratocontas', 'movimentacaocontratocontas.id',  '=',  'lancamentos.movimentacao_id');
-        // $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
-        // $this->crud->addClause('where', 'lancamentos.movimentacao_id', '=', $movimentacaocontratoconta_id);
-
-
-
-
-        // $this->crud->addClause('where', 'movimentacaocontratocontas.contratoconta_id', '=', $contratoconta_id);
-        // $this->crud->addClause('orderby', 'movimentacaocontratocontas.ano_competencia', 'desc');
-        // $this->crud->addClause('orderby', 'movimentacaocontratocontas.mes_competencia', 'desc');
-        // $this->crud->addClause('orderby', 'movimentacaocontratocontas.id', 'desc');
-
-
-
 
     }
 
@@ -164,7 +143,7 @@ class ExtratocontratocontaCrudController extends CrudController
             ],
             [
                 'name'  => 'data_lancamento',
-                'label' => 'Data',
+                'label' => 'Data / Hora',
                 'type'  => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text

@@ -10,6 +10,8 @@ use App\Http\Requests\FuncionarioscontratocontaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 
 use App\Models\Funcionarioscontratoconta;
+use App\Models\Contratoconta;
+
 
 
 
@@ -28,6 +30,14 @@ class FuncionarioscontratocontaCrudController extends CrudController
     public function setup()
     {
         $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+        \Route::current()->setParameter('contratoconta_id', $contratoconta_id);
+
+        $contratoConta = Contratoconta::where('id','=',$contratoconta_id)->first();
+        if(!$contratoConta){
+            abort('403', config('app.erro_permissao'));
+        }
+        $contrato_id = $contratoConta->contrato_id;
+        \Route::current()->setParameter('contrato_id', $contrato_id);
 
         /*
         |--------------------------------------------------------------------------
@@ -47,6 +57,9 @@ class FuncionarioscontratocontaCrudController extends CrudController
         $this->crud->addClause('orderby', 'contratoterceirizados.nome');
 
         $this->crud->addButtonFromView('line', 'morefuncionarioscontratoconta', 'morefuncionarioscontratoconta', 'end');
+        // $this->crud->addButtonFromView('top', 'voltarcontavinculada', 'voltarcontavinculada', 'end');
+        $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
+
 
         $this->crud->denyAccess('delete');
         $this->crud->denyAccess('update');
@@ -104,19 +117,10 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 // 'prefix' => "R$ ",
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
-                // },
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('cpf', 'ilike', "%$searchTerm%");
+                },
             ],
-            // [
-            //     'name' => 'cpf',
-            //     'type' => 'cpf',
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            // ],
             [
                 'name' => 'getSituacaoFuncionario',
                 'label' => 'Situação', // Table column heading
@@ -178,59 +182,6 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 // },
             ],
 
-
-
-            // [
-            //     'name' => 'situacao',
-            //     'type' => 'text',
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            // ],
-            // [
-            //     'name' => 'agencia',
-            //     'type' => 'text',
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            // ],
-            // [
-            //     'name' => 'conta_corrente',
-            //     'type' => 'text',
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            // ],
-            // [
-            //     'name' => 'fat_empresa',
-            //     'type' => 'text',
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            // ],
-            // [
-            //     'name' => 'getSaldoContratoContaParaColunas',
-            //     'label' => 'Saldo', // Table column heading
-            //     'type' => 'model_function',
-            //     'function_name' => 'getSaldoContratoContaParaColunas', // the method in your Model
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            //     'prefix' => "R$ ",
-            //     // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-            //     //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
-            //     // },
-            // ],
         ];
         return $colunas;
     }

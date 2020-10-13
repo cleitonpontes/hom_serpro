@@ -45,6 +45,10 @@
 		    <div class="">
             @if(Route::current()->getName() == 'crud.contrato.create')
                 @include('crud::inc.form_aba_buttons')
+            @elseif(Route::current()->getName() == 'crud.retiradacontratoconta.create')
+                @include('crud::inc.form_retiradacontratoconta_buttons')
+            @elseif(Route::current()->getName() == 'crud.depositocontratoconta.create')
+                @include('crud::inc.form_depositocontratoconta_buttons')
             @else
                 @include('crud::inc.form_save_buttons')
             @endif

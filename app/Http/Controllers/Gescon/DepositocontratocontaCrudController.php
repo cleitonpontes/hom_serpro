@@ -31,12 +31,16 @@ class DepositocontratocontaCrudController extends CrudController
     public function setup()
     {
 
+
         $contratoconta_id = \Route::current()->parameter('contratoconta_id');
         $contratoConta = Contratoconta::where('id','=',$contratoconta_id)->first();
         if(!$contratoConta){
             abort('403', config('app.erro_permissao'));
         }
         $contrato_id = $contratoConta->contrato_id;
+        \Route::current()->setParameter('contrato_id', $contrato_id);
+
+
         $contrato = Contrato::where('id','=',$contrato_id)
             ->where('unidade_id','=',session()->get('user_ug_id'))->first();
         if(!$contrato){
@@ -74,6 +78,14 @@ class DepositocontratocontaCrudController extends CrudController
         $this->crud->addClause('where', 'contratoconta_id', '=', $contratoconta_id);
         $this->crud->addClause('orderby', 'ano_competencia');
         $this->crud->addClause('orderby', 'mes_competencia');
+
+
+        // $this->crud->denyAccess('create');
+        // $this->crud->denyAccess('update');
+        // $this->crud->denyAccess('delete');
+        // $this->crud->denyAccess('show');
+        $this->crud->denyAccess('list');
+
 
 
         /*
@@ -344,7 +356,7 @@ class DepositocontratocontaCrudController extends CrudController
     }
     public function store(StoreRequest $request)
     {
-
+        $contratoconta_id = \Route::current()->parameter('contratoconta_id');
         $contrato_id = $request->input('contrato_id');
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
@@ -484,8 +496,8 @@ class DepositocontratocontaCrudController extends CrudController
         $mensagem = 'Lançamentos gerados com sucesso!';
         \Alert::success($mensagem)->flash();
 
-
-        $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
+        // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
+        $linkLocation = '/gescon/contrato/contratoconta/'.$contratoconta_id.'/movimentacaocontratoconta';
         return redirect($linkLocation);
 
 

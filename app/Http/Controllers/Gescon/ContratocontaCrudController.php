@@ -46,7 +46,7 @@ class ContratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/contratocontas');
-        $this->crud->setEntityNameStrings('conta vinculada', 'Contas Vinculadas');
+        $this->crud->setEntityNameStrings('conta vinculada', 'Conta Vinculada');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         // $this->crud->enableExportButtons();
         $this->crud->addButtonFromView('line', 'morecontratoconta', 'morecontratoconta', 'end');
