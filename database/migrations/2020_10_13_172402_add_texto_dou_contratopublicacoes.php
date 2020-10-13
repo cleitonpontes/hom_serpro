@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFundamentolegalContratohistorico extends Migration
+class AddTextoDouContratopublicacoes extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddFundamentolegalContratohistorico extends Migration
      */
     public function up()
     {
-        Schema::table('contratohistorico', function (Blueprint $table) {
-            $table->integer('amparo_legal_id')->nullable();
+        Schema::table('contratopublicacoes', function (Blueprint $table) {
+            $table->text('texto_dou')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class AddFundamentolegalContratohistorico extends Migration
      */
     public function down()
     {
-        Schema::table('contratohistorico', function (Blueprint $table) {
-            $table->dropColumn('amparo_legal_id');
+        Schema::table('contratopublicacoes', function (Blueprint $table) {
+            $table->dropColumn('texto_dou');
         });
     }
 }

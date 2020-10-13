@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Soap;
 
-use App\Models\Contrato;
 use App\Models\Contratohistorico;
 use App\Models\ContratoPublicacoes;
 use App\Models\Empenho;
@@ -45,6 +44,7 @@ class DiarioOficialController extends BaseSoapController
         }
     }
 
+
     public function oficioPreview($contrato_id){
         try {
 
@@ -67,16 +67,19 @@ class DiarioOficialController extends BaseSoapController
                 \Alert::warning('Houve um erro ao enviar o Preview - Verifique o Log !')->flash();
                 return redirect()->back();
             }
+
             $contratoPublicacoes->status = 'Preview';
             $contratoPublicacoes->situacao = 'Enviado';
+            $contratoPublicacoes->texto_dou = $this->retornaTextoModelo($contratoHistorico);
             $contratoPublicacoes->save();
             $this->oficioConfirmacao($contratoHistorico,$contratoPublicacoes);
-//
+
         }
         catch(\Exception $e) {
             return $e->getMessage();
         }
     }
+
 
     public function oficioConfirmacao(Contratohistorico  $contratoHistorico,ContratoPublicacoes $contratoPublicacoes){
         try {
@@ -98,15 +101,16 @@ class DiarioOficialController extends BaseSoapController
             $contratoPublicacoes->materia_id = $responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDMateria;
             $contratoPublicacoes->oficio_id = $responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDOficio;
             $contratoPublicacoes->save();
-            \Alert::success('Enviado com sucesso - Aguarde Atualizacao !')->flash();
 
-            dd($responseConfirmacao);
+            \Alert::success('Enviado com sucesso - Aguarde Atualizacao !')->flash();
+            return redirect()->route('listar.historico',['contrato_id' => $contratoHistorico->contrato_id]);
 
         }
         catch(\Exception $e) {
             return $e->getMessage();
         }
     }
+
 
     public function montaOficioPreview(Contratohistorico $contratoHistorico)
     {
@@ -126,6 +130,7 @@ class DiarioOficialController extends BaseSoapController
         return $dados;
     }
 
+
     public function montaOficioConfirmacao(Contratohistorico $contratoHistorico)
     {
         $dados ['dados']['CPF'] = '01895591111';
@@ -142,8 +147,10 @@ class DiarioOficialController extends BaseSoapController
         $dados ['dados']['motivoIsencao'] = 9;
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
+
         return $dados;
     }
+
 
     public function retornaNumeroEmpenho(Contratohistorico $contratoHistorico)
     {
@@ -175,20 +182,6 @@ class DiarioOficialController extends BaseSoapController
         return $retorno;
     }
 
-    public function retornaTextoRtf(Contratohistorico $contratoHistorico)
-    {
-        $texto = "";
-
-        switch ($contratoHistorico->getTipo()){
-            case "Contrato":
-                $texto = $this->retornaTextoContrato($contratoHistorico);
-                break;
-            case "Termo Aditivo":
-                $texto = $this->retornaTextoAditivo($contratoHistorico);
-                break;
-        }
-        return $texto;
-    }
 
     public function retornaCabecalhoRtf()
     {
@@ -197,6 +190,7 @@ class DiarioOficialController extends BaseSoapController
                     {\*\generator Riched20 10.0.17763}{\*\mmathPr\mdispDef1\mwrapIndent1440 }\\viewkind4\uc1 \pard\widctlpar\\f0\\fs18 \par ";
         return $textoCabecalho;
     }
+
 
     public function converteTextoParaRtf(string $TextoModelo)
     {
@@ -209,41 +203,57 @@ class DiarioOficialController extends BaseSoapController
         return $texto;
     }
 
-    public function retornaTextoContrato(Contratohistorico $contratoHistorico)
+
+    public function retornaTextoRtf(Contratohistorico $contratoHistorico)
     {
 
-        $contrato = $contratoHistorico->contrato;
         $textoCabecalho = $this->retornaCabecalhoRtf();
 
+        $textomodelo = $this->retornaTextoModelo($contratoHistorico);
+        $texto = $this->converteTextoParaRtf($textomodelo);
+        $texto = $textoCabecalho.substr($texto,strripos($texto, '##ATO'));
+
+        return $texto;
+    }
+
+
+    public function retornaTextoModelo(Contratohistorico $contratoHistorico)
+    {
+        switch ($contratoHistorico->getTipo()){
+            case "Contrato":
+                $textomodelo = $this->retornaTextoModeloContrato($contratoHistorico);
+                break;
+            case "Termo Aditivo":
+                $textomodelo = $this->retornaTextoModelorAditivo($contratoHistorico);
+                break;
+        }
+        return $textomodelo;
+    }
+
+
+    public function retornaTextoModeloContrato(Contratohistorico $contratoHistorico)
+    {
+        $contrato = $contratoHistorico->contrato;
         $TextoModelo = "##ATO EXTRATO DE CONTRATO Nº ".$contratoHistorico->numero." - UASG ".$contratoHistorico->getUnidade()."
         Nº Processo: ".$contrato->processo.".
         ##TEX ".strtoupper($contrato->modalidade->descricao)." SRP Nº ".$contrato->licitacao_numero.". Contratante: ".$contrato->unidade->nome.".
         CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.". Contratado : ".$contratoHistorico->fornecedor->nome." -.
         Objeto: ".$contratoHistorico->objeto.".
         Fundamento Legal: ".$contrato->retornaAmparo()." . Vigência: ".$contratoHistorico->getVigenciaInicio()." a ".$contratoHistorico->getVigenciaFim() .
-        ". Valor Total: R$".$contratoHistorico->getValorGlobal().".".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].". Data de Assinatura: ".$contratoHistorico->data_assinatura.".";
+            ". Valor Total: R$".$contratoHistorico->getValorGlobal().".".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].". Data de Assinatura: ".$contratoHistorico->data_assinatura.".";
 
-        $texto = $this->converteTextoParaRtf($TextoModelo);
-        $texto = $textoCabecalho.substr($texto,strripos($texto, '##ATO'));
-
-        return $texto;
+        return $TextoModelo;
     }
 
-    public function retornaTextoAditivo(Contratohistorico $contratoHistorico)
+
+    public function retornaTextoModelorAditivo(Contratohistorico $contratoHistorico)
     {
-
         $contrato = $contratoHistorico->contrato;
-
-        $textoCabecalho = $this->retornaCabecalhoRtf();
-
         $textomodelo = "##ATO EXTRATO DE TERMO ADITIVO Nº ".$contratoHistorico->numero." - UASG ".$contratoHistorico->getUnidade()." Número do Contrato: ".$contrato->numero.". Nº Processo: ".$contrato->processo.".
                         ##TEX ".strtoupper($contrato->modalidade->descricao)." Nº ".$contrato->licitacao_numero.". Contratante: ".$contrato->unidade->nome.". CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.". Contratado : ".$contratoHistorico->fornecedor->nome." -.Objeto: ".$contratoHistorico->objeto." Fundamento Legal: ".$contrato->retornaAmparo().". Vigência: ".$contratoHistorico->getVigenciaInicio()." a ".$contratoHistorico->getVigenciaFim().". ".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].". Data de Assinatura: 01/04/2020.";
-
-        $texto = $this->converteTextoParaRtf($textomodelo);
-        $texto = $textoCabecalho.substr($texto,strripos($texto, '##ATO'));
-
-        return $texto;
+        return $textomodelo;
     }
+
 
     function generateRandonNumbers($length = 10)
     {
@@ -253,7 +263,6 @@ class DiarioOficialController extends BaseSoapController
         for ($i = 0; $i < $length; $i++) {
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
-
         return $randomString;
     }
 

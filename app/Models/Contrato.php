@@ -366,9 +366,9 @@ class Contrato extends Model
     public function retornaAmparo()
     {
         $amparo = "";
-        $cont = (is_array($this->amparolegal)) ? count($this->amparolegal) : 0;
+        $cont = (is_array($this->amparoslegais)) ? count($this->amparoslegais) : 0;
 
-        foreach ($this->amparolegal as $key => $value){
+        foreach ($this->amparoslegais as $key => $value){
 
             if($cont < 2){
                 $amparo .= $value->ato_normativo;

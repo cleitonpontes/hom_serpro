@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Jobs\AlertaContratoJob;
-use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Fornecedor;
@@ -87,7 +86,6 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-//        dd($request->all());
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
