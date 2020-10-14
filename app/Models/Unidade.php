@@ -11,10 +11,11 @@ class Unidade extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'unidade';
 
-    use SoftDeletes;
     protected $table = 'unidades';
 
     protected $fillable = [
@@ -38,6 +39,7 @@ class Unidade extends Model
         'sigilo',
 
     ];
+
     public function buscaUnidadeExecutoraPorCodigo($codigo)
     {
         $unidade = $this->where('codigo', $codigo)
@@ -72,7 +74,6 @@ class Unidade extends Model
         }
 
         return $tipo;
-
     }
 
     public function getMunicipio()
@@ -81,6 +82,7 @@ class Unidade extends Model
             return '';
         return $this->municipio->nome;
     }
+
     public function getUF()
     {
         if (!$this->municipio_id)
@@ -88,20 +90,11 @@ class Unidade extends Model
         return $this->municipio->estado->sigla;
     }
 
-    public function orgao()
-    {
-        return $this->belongsTo(Orgao::class, 'orgao_id');
-    }
-
-    public function users()
-    {
-        return $this->belongsToMany(BackpackUser::class, 'unidadesusers', 'unidade_id', 'user_id');
-    }
-
-    public function contratos()
-    {
-        return $this->hasMany(Contrato::class, 'unidade_id');
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
 
     public function compras()
     {
@@ -113,9 +106,29 @@ class Unidade extends Model
         return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
     }
 
+    public function contratos()
+    {
+        return $this->hasMany(Contrato::class, 'unidade_id');
+    }
+
+    public function minuta_empenhos()
+    {
+        return $this->hasMany(MinutaEmpenho::class);
+    }
+
     public function municipio()
     {
         return $this->belongsTo(Municipio::class, 'municipio_id');
+    }
+
+    public function orgao()
+    {
+        return $this->belongsTo(Orgao::class, 'orgao_id');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(BackpackUser::class, 'unidadesusers', 'unidade_id', 'user_id');
     }
 
 }
