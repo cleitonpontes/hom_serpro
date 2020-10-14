@@ -12,6 +12,7 @@ use App\Http\Requests\ContratoItemServicoIndicadorRequest as StoreRequest;
 use App\Http\Requests\ContratoItemServicoIndicadorRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Route;
 
 /**
@@ -58,8 +59,16 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
         $this->crud->addButtonFromView('line', 'moreglosas', 'moreglosas', 'end');
 
+        $this->crud->addClause('join', 'contratoitem_servico', 'contratoitem_servico.id', '=', 'contratoitem_servico_indicador.contratoitem_servico_id');
+        $this->crud->addClause('join', 'servicos', 'servicos.id','=','contratoitem_servico.servico_id');
         // Apenas ocorrencias deste contratoitem_servico_id
         $this->crud->addClause('where', 'contratoitem_servico_indicador.contratoitem_servico_id', '=', $contratoitem_servico_id);
+
+        $this->crud->addClause('select', [
+            DB::raw('servicos.nome as servico_nome'),
+            // Tabela principal deve ser sempre a última da listagem!
+            'contratoitem_servico_indicador.*'
+        ]);
 
         /*
         |--------------------------------------------------------------------------
@@ -107,10 +116,26 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
     private function columns($periodicidade): void
     {
+        $this->setColumnServico();
         $this->setColumnIndicador();
         $this->setColumnTipoAfericao();
         $this->setColumnMeta();
         $this->setColumnPeriodicidade($periodicidade);
+    }
+
+    private function setColumnServico(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'servico_nome',
+            'label' => 'Servico',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+
     }
 
     private function setColumnIndicador(): void
@@ -201,7 +226,9 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
             'default' => 0,
             'inline' => true,
-            'title' => 'Utilizar Número de Ocorrências quando a quantidade de eventos for baixa (Exemplo: < 100 ocorrências)'
+            'wrapperAttributes' => [
+                'title' => "Utilizar Número de Ocorrências quando a quantidade de eventos for baixa (Exemplo: < 100 ocorrências)"
+            ],
         ]);
     }
 
