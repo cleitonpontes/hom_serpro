@@ -27,6 +27,11 @@ class AmparoLegal extends Model
         'alinea'
     ];
 
+    public function minuta_empenhos()
+    {
+        return $this->hasMany(MinutaEmpenho::class);
+    }
+
     public function modalidade()
     {
         return $this->belongsTo(Codigoitem::class, 'modalidade_id');

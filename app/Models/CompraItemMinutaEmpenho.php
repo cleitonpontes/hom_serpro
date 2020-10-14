@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Fornecedor extends Model
+class CompraItemMinutaEmpenho extends Model
 {
     use CrudTrait;
     use LogsActivity;
@@ -20,16 +20,19 @@ class Fornecedor extends Model
     */
 
     protected static $logFillable = true;
-    protected static $logName = 'fornecedor';
+    protected static $logName = 'compra_item_minuta_empenho';
 
-    protected $table = 'fornecedores';
-
-    // protected $guarded = ['id'];
+    protected $table = 'compra_item_minuta_empenho';
+    protected $guarded = [
+        //
+    ];
 
     protected $fillable = [
-        'tipo_fornecedor',
-        'cpf_cnpj_idgener',
-        'nome',
+        'compra_item_id',   // Chave composta: 1/2
+        'minutaempenho_id', // Chave composta: 2/2
+        'subelemento_id',
+        'quantidade',
+        'valor'
     ];
 
     /*
@@ -38,48 +41,25 @@ class Fornecedor extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getTipo()
-    {
-        switch ($this->tipo_fornecedor) {
-            case 'FISICA':
-                return 'Pessoa Física';
-                break;
-            case 'JURIDICA':
-                return 'Pessoa Jurídica';
-                break;
-            case 'UG':
-                return 'UG Siafi';
-                break;
-            case 'IDGENERICO':
-                return 'ID Genérico';
-                break;
-        }
-    }
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
 
-    public function contratos()
+    public function compra_item()
     {
-        return $this->hasMany(Contrato::class);
+        return $this->belongsTo(CompraItem::class, 'compra_item_id');
     }
 
-    public function empenhos()
+    public function minutaempenho()
     {
-        return $this->hasMany(Empenhos::class);
+        return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
     }
 
-    public function minuta_empenhos_compra()
+    public function subelemento()
     {
-        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_compra_id');
-    }
-
-    public function minuta_empenhos()
-    {
-        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_empenho_id');
+        return $this->belongsTo(Naturezasubitem::class, 'subelemento_id');
     }
 
     /*

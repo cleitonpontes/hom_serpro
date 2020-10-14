@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Fornecedor extends Model
+class CompraItem extends Model
 {
     use CrudTrait;
     use LogsActivity;
@@ -20,16 +20,24 @@ class Fornecedor extends Model
     */
 
     protected static $logFillable = true;
-    protected static $logName = 'fornecedor';
+    protected static $logName = 'compra_items';
 
-    protected $table = 'fornecedores';
+    protected $table = 'compra_items';
 
-    // protected $guarded = ['id'];
+    protected $guarded = [
+        'id'
+    ];
 
     protected $fillable = [
-        'tipo_fornecedor',
-        'cpf_cnpj_idgener',
-        'nome',
+        'compra_id',
+        'tipo_item_id',
+        'catmatseritem_id',
+        'fornecedor_id',
+        'unidade_autorizada_id',
+        'descricaodetalhada',
+        'quantidade',
+        'valorunitario',
+        'valortotal'
     ];
 
     /*
@@ -38,48 +46,35 @@ class Fornecedor extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getTipo()
-    {
-        switch ($this->tipo_fornecedor) {
-            case 'FISICA':
-                return 'Pessoa Física';
-                break;
-            case 'JURIDICA':
-                return 'Pessoa Jurídica';
-                break;
-            case 'UG':
-                return 'UG Siafi';
-                break;
-            case 'IDGENERICO':
-                return 'ID Genérico';
-                break;
-        }
-    }
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
 
-    public function contratos()
+    public function catmatseritem()
     {
-        return $this->hasMany(Contrato::class);
+        return $this->belongsTo(Catmatseritem::class, 'catmatseritem_id');
     }
 
-    public function empenhos()
+    public function compra()
     {
-        return $this->hasMany(Empenhos::class);
+        return $this->belongsTo(Compra::class, 'compra_id');
     }
 
-    public function minuta_empenhos_compra()
+    public function fornecedor()
     {
-        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_compra_id');
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
     }
 
-    public function minuta_empenhos()
+    public function tipo_item()
     {
-        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_empenho_id');
+        return $this->belongsTo(Codigoitem::class, 'tipo_item_id');
+    }
+
+    public function unidade_autorizada()
+    {
+        return $this->belongsTo(Unidade::class, 'unidade_autorizada_id');
     }
 
     /*

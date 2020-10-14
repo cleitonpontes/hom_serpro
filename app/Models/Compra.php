@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Fornecedor extends Model
+class Compra extends Model
 {
     use CrudTrait;
     use LogsActivity;
@@ -20,16 +20,21 @@ class Fornecedor extends Model
     */
 
     protected static $logFillable = true;
-    protected static $logName = 'fornecedor';
+    protected static $logName = 'compras';
 
-    protected $table = 'fornecedores';
-
-    // protected $guarded = ['id'];
+    protected $table = 'compras';
+    protected $guarded = [
+        'id'
+    ];
 
     protected $fillable = [
-        'tipo_fornecedor',
-        'cpf_cnpj_idgener',
-        'nome',
+        'unidade_origem_id',
+        'unidade_subrrogada_id',
+        'modalidade_id',
+        'tipo_compra_id',
+        'numero_ano',
+        'inciso',
+        'lei'
     ];
 
     /*
@@ -38,48 +43,40 @@ class Fornecedor extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getTipo()
-    {
-        switch ($this->tipo_fornecedor) {
-            case 'FISICA':
-                return 'Pessoa Física';
-                break;
-            case 'JURIDICA':
-                return 'Pessoa Jurídica';
-                break;
-            case 'UG':
-                return 'UG Siafi';
-                break;
-            case 'IDGENERICO':
-                return 'ID Genérico';
-                break;
-        }
-    }
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
 
-    public function contratos()
+    public function compra_item()
     {
-        return $this->hasMany(Contrato::class);
-    }
-
-    public function empenhos()
-    {
-        return $this->hasMany(Empenhos::class);
-    }
-
-    public function minuta_empenhos_compra()
-    {
-        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_compra_id');
+        return $this->hasMany(CompraItem::class);
     }
 
     public function minuta_empenhos()
     {
-        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_empenho_id');
+        return $this->hasMany(MinutaEmpenho::class);
+    }
+
+    public function modalidade()
+    {
+        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
+    }
+
+    public function tipo_compra()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_compra_id');
+    }
+
+    public function unidade_origem()
+    {
+        return $this->belongsTo(Unidade::class, 'unidade_origem_id');
+    }
+
+    public function unidade_subrrogada()
+    {
+        return $this->belongsTo(Unidade::class, 'unidade_subrrogada_id');
     }
 
     /*

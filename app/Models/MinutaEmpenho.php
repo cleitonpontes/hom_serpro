@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Fornecedor extends Model
+class MinutaEmpenho extends Model
 {
     use CrudTrait;
     use LogsActivity;
@@ -20,16 +20,31 @@ class Fornecedor extends Model
     */
 
     protected static $logFillable = true;
-    protected static $logName = 'fornecedor';
+    protected static $logName = 'minuta_empenhos';
 
-    protected $table = 'fornecedores';
+    protected $table = 'minutaempenhos';
 
-    // protected $guarded = ['id'];
+    protected $guarded = [
+        'id'
+    ];
 
     protected $fillable = [
-        'tipo_fornecedor',
-        'cpf_cnpj_idgener',
-        'nome',
+        'compra_id',
+        'fornecedor_compra_id',
+        'fornecedor_empenho_id',
+        'saldo_contabil_id',
+        'tipo_empenho_id',
+        'amparo_legal_id',
+        'unidade_id',
+        'data_emissao',
+        'processo',
+        'numero_empenho_sequencial',
+        'taxa_cambio',
+        'informacao_complementar',
+        'local_entrega',
+        'descricao',
+        'passivo_anterior',
+        'conta_contabil_passivo_anterior'
     ];
 
     /*
@@ -38,48 +53,50 @@ class Fornecedor extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getTipo()
-    {
-        switch ($this->tipo_fornecedor) {
-            case 'FISICA':
-                return 'Pessoa Física';
-                break;
-            case 'JURIDICA':
-                return 'Pessoa Jurídica';
-                break;
-            case 'UG':
-                return 'UG Siafi';
-                break;
-            case 'IDGENERICO':
-                return 'ID Genérico';
-                break;
-        }
-    }
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
 
-    public function contratos()
+    public function amparo_legal()
     {
-        return $this->hasMany(Contrato::class);
+        return $this->belongsTo(AmparoLegal::class, 'amparo_legal_id');
     }
 
-    public function empenhos()
+    public function compra()
     {
-        return $this->hasMany(Empenhos::class);
+        return $this->belongsTo(Compra::class, 'compra_id');
     }
 
-    public function minuta_empenhos_compra()
+    public function empenho_dados()
     {
-        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_compra_id');
+        return $this->hasMany(SfOrcEmpenhoDados::class, 'minutaempenho_id');
     }
 
-    public function minuta_empenhos()
+    public function fornecedor_compra()
     {
-        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_empenho_id');
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_compra_id');
+    }
+
+    public function fornecedor_empenho()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_empenho_id');
+    }
+
+    public function saldo_contabil()
+    {
+        // return $this->belongsTo(SaldoContabil::class, 'saldo_contabil_id');
+    }
+
+    public function tipo_empenho()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_empenho_id');
+    }
+
+    public function unidade_id()
+    {
+        return $this->belongsTo(Unidade::class, 'unidade_id');
     }
 
     /*
