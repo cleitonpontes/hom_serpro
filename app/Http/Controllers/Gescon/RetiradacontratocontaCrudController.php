@@ -19,10 +19,8 @@ use App\Models\Encargo;
 
 use Backpack\CRUD\CrudPanel;
 
-// inserido
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
-
 
 /**
  * Class RetiradacontratocontaCrudController
@@ -62,10 +60,6 @@ class RetiradacontratocontaCrudController extends CrudController
         $objRetiradacontratoconta = new Retiradacontratoconta();
         $arrayObjetosEncargoParaCombo = $objRetiradacontratoconta->getEncargosParaCombo();
 
-
-        // dd( \Route::current()->getName() );
-
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -81,7 +75,6 @@ class RetiradacontratocontaCrudController extends CrudController
         // $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
         $this->crud->denyAccess('list');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -267,7 +260,6 @@ class RetiradacontratocontaCrudController extends CrudController
             ->first();
         $idContrato = $obj->contrato_id;
         return $idContrato;
-
     }
     public function getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado){
         $obj = \DB::table('contratoterceirizados')
@@ -278,7 +270,6 @@ class RetiradacontratocontaCrudController extends CrudController
             ->first();
         $idContratoConta = $obj->id;
         return $idContratoConta;
-
     }
     public function criarMovimentacao($request){
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
@@ -299,7 +290,6 @@ class RetiradacontratocontaCrudController extends CrudController
         if($objMovimentacaocontratoconta = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->delete()){return true;}
         else{return false;}
     }
-
     public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
         $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
         $objMovimentacao->situacao_movimentacao = $statusMovimentacao;
@@ -308,7 +298,6 @@ class RetiradacontratocontaCrudController extends CrudController
         } else {
             return true;
         }
-
     }
     // verificar se no ano/mês de competência, o funcionário já tinha iniciado.
     public function verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado){
@@ -649,16 +638,6 @@ class RetiradacontratocontaCrudController extends CrudController
         $linkLocation = '/gescon/contrato/contratoconta/'.$idContratoConta.'/movimentacaocontratoconta';
         return redirect($linkLocation);
 
-
-
-        // $linkLocation = '/gescon/contrato/'.$idContrato.'/contratocontas';
-        // return redirect($linkLocation);
-
-        // // your additional operations before save here
-        // $redirect_location = parent::storeCrud($request);
-        // // your additional operations after save here
-        // // use $this->data['entry'] or $this->crud->entry
-        // return $redirect_location;
     }
 
     public function update(UpdateRequest $request)

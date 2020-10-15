@@ -168,7 +168,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'getSaldoContratoTerceirizado',
-                'label' => 'Saldo da conta', // Table column heading
+                'label' => 'Saldo', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getSaldoContratoTerceirizado', // the method in your Model
                 'orderable' => true,
