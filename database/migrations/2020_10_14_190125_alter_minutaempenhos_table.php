@@ -14,21 +14,23 @@ class AlterMinutaempenhosTable extends Migration
     public function up()
     {
         Schema::table('minutaempenhos', function (Blueprint $table) {
-            $table->bigInteger('compra_id');
-            $table->bigInteger('fornecedor_compra_id');
-            $table->bigInteger('fornecedor_empenho_id');
-            $table->bigInteger('saldo_contabil_id');
-            $table->bigInteger('tipo_empenho_id');
-            $table->bigInteger('amparo_legal_id');
-            $table->date('data_emissao');
-            $table->string('processo');
-            $table->integer('numero_empenho_sequencial')->nullable();
-            $table->decimal('taxa_cambio',10,4)->default(0);
-            $table->string('informacao_complementar', 100);
-            $table->string('local_entrega', 250)->nullable();
-            $table->string('descricao', 468);
-            $table->boolean('passivo_anterior')->default(false);
-            $table->string('conta_contabil_passivo_anterior')->nullable();
+            $table->bigInteger('compra_id'); //tela01
+            $table->bigInteger('fornecedor_compra_id')->nullable(); //tela02
+            $table->bigInteger('fornecedor_empenho_id')->nullable(); //tela02 alterada pela tela06
+            $table->bigInteger('saldo_contabil_id')->nullable(); //tela04
+            $table->bigInteger('tipo_empenho_id')->nullable(); //tela 06
+            $table->bigInteger('amparo_legal_id')->nullable(); //tela 06
+            $table->date('data_emissao')->nullable(); //tela 06
+            $table->string('processo')->nullable(); //tela 06
+            $table->integer('numero_empenho_sequencial')->nullable(); //retorno numero empenho
+            $table->decimal('taxa_cambio',10,4)->default(0);//tela 06
+            $table->string('informacao_complementar', 100); //tela01
+            $table->string('local_entrega', 250)->nullable();//tela 06
+            $table->string('descricao', 468)->nullable();//tela 06
+            $table->boolean('passivo_anterior')->default(false); //tela 07
+            $table->string('conta_contabil_passivo_anterior')->nullable(); //tela 07
+            $table->string('mensagem_siafi')->nullable(); //gravar retorno do WS
+            $table->string('situacao')->default('Em andamento'); //Em andamento, Em processamento, Erro, Empenho Emitido, Empenho cancelado
 
             $table->foreign('compra_id')->references('id')->on('compras')->onDelete('cascade');
             $table->foreign('fornecedor_compra_id')->references('id')->on('fornecedores')->onDelete('cascade');
