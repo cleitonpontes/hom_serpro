@@ -222,4 +222,35 @@ Route::group(
 
         });
 
+
+        // Módulo Empenho
+        Route::group([
+            'prefix' => 'empenho',
+            'namespace' => 'Empenho\\',
+            'as' => 'empenho.',
+        ], function () {
+
+            /**
+             *
+             * Minuta Empenho - Genéricos
+             *
+             **/
+            Route::get('/listaempenhos', 'NovoEmpenhoController@index')
+                ->name('lista.empenhos')
+                ->middleware('permission:folha_apropriacao_acesso');
+
+            Route::get('/minuta/tela/1', 'Minuta\Tela1EmpenhoController@novo')
+                ->name('minuta.tela.1')
+                ->middleware('permission:folha_apropriacao_passo');
+
+            Route::post('/minuta/tela/1/gravar', 'Minuta\Tela1EmpenhoController@gravar')
+                ->name('minuta.tela.1.gravar')
+                ->middleware('permission:folha_apropriacao_passo');
+        });
+
+
+        Route::get('/tags', function() {
+            return view('tags');
+        });
+        Route::get('/tags/find', 'Select2Ajax\TagController@find');
     });

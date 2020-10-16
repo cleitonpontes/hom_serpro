@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Backpack\CRUD\CrudTrait;
+use Eduardokum\LaravelMailAutoEmbed\Models\EmbeddableEntity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -52,7 +53,29 @@ class MinutaEmpenho extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    /**
+     * Retorna dados da Minuta de Empenho para apresentação
+     *
+     * @return array
+     */
+    public function retornaListagem()
+    {
+        $ug = session('user_ug');
+        $listagem = MinutaEmpenho::where('id',1)->get();
 
+//        $listagem->select([
+//            'apropriacoes.id',
+//            'competencia',
+//            'nivel',
+//            'valor_liquido',
+//            'valor_bruto',
+//            'fase_id',
+//            'F.fase',
+//            'arquivos'
+//        ])->where('ug', $ug);
+
+        return $listagem;
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
