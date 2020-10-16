@@ -127,11 +127,13 @@ class ContratoServicoCrudController extends CrudController
                 'default' => $contrato_id,
             ],
             [
-                'label' => 'Item do Contrato',
+                'label' => 'Item do contrato',
                 'type' => 'select2_multiple',
                 'name' => 'contratoItens',
                 'entity' => 'Contratoitem',
                 'attribute' => 'descricao_item',
+                'attribute2' => 'descricao_complementar',
+                'attribute_separator' => ' - DESCRIÇÃO COMPLEMENTAR:  ',
                 'model' => "App\Models\Contratoitem",
                 'pivot' => true,
                 'options' => (function ($query) use ($contrato_id) {
@@ -194,7 +196,7 @@ class ContratoServicoCrudController extends CrudController
             ],
             [
                 'name' => 'descricao',
-                'label' => 'Item do Contrato',
+                'label' => 'Item do contrato',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true,
@@ -219,7 +221,7 @@ class ContratoServicoCrudController extends CrudController
                 }
             ],
             [
-                'name' => 'valor',
+                'name' => 'valor_formatado',
                 'label' => 'Valor',
                 'type' => 'text',
                 'orderable' => true,
@@ -240,5 +242,25 @@ class ContratoServicoCrudController extends CrudController
                 'options' => [0 => 'Inativo', 1 => 'Ativo']
             ],
         ];
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->addColumn([
+            'name' => 'descricao',
+            'label' => 'Itens do contrato',
+            'type' => 'select_multiple',
+
+            'entity' => 'contratoItens', // the method that defines the relationship in your Model
+            'attribute' => 'descricao_item', // foreign key attribute that is shown to user
+            'attribute2' => 'descricao_item', // foreign key attribute that is shown to user
+            'model' => "App\Models\Contratoitem", // foreign key model
+
+        ]);
+
+
+        return $content;
     }
 }
