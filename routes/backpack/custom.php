@@ -203,11 +203,15 @@ Route::group([
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
                 CRUD::resource('servicos', 'ContratoServicoCrudController');
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
+
             });
-            Route::group(['prefix' => 'meus-servicos/{cis_i_id}'], function () {
-                CRUD::resource('indicadores', 'ContratoItemServicoIndicadorCrudController');
-                CRUD::resource('glosas', 'GlosaCrudController');
-            });
+            Route::group(['prefix' => 'meus-servicos/{contrato_id}/{contratoitem_servico_id}']
+                , function () {
+                    CRUD::resource('indicadores', 'ContratoItemServicoIndicadorCrudController');
+                    Route::group(['prefix' => '{cisi_id}'], function () {
+                        CRUD::resource('glosas', 'GlosaCrudController');
+                    });
+                });
 
 //            Route::get('/notificausers', 'ContratoCrudController@notificaUsers');
         });

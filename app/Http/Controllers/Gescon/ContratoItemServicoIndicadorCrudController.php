@@ -26,7 +26,8 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
     public function setup()
     {
-        $contratoitem_servico_id = Route::current()->parameter('cis_i_id');
+        $contratoitem_servico_id = Route::current()->parameter('contratoitem_servico_id');
+        $contrato_id = Route::current()->parameter('contratoitem_servico_id');
         $indicadores = Indicador::all()->pluck('nome', 'id')->toArray();
 
         $periodicidade = Codigoitem::whereHas('codigo', function ($query) {
@@ -40,13 +41,12 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\ContratoItemServicoIndicador');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-servicos/' . $contratoitem_servico_id . '/indicadores');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-servicos/' . $contrato_id . '/' . $contratoitem_servico_id . '/indicadores');
         $this->crud->setEntityNameStrings('indicador', 'indicadores');
         $this->crud->removeButton('create');
         $this->crud->addButtonFromView('top', 'vincular', 'vincularIndicador');
 
-        $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
-
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarservico', 'end');
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -61,10 +61,12 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
         $this->crud->addClause('join', 'contratoitem_servico', 'contratoitem_servico.id', '=', 'contratoitem_servico_indicador.contratoitem_servico_id');
         $this->crud->addClause('join', 'servicos', 'servicos.id','=','contratoitem_servico.servico_id');
+        $this->crud->addClause('join', 'contratoitens', 'contratoitens.id','=','contratoitem_servico.contratoitem_id');
         // Apenas ocorrencias deste contratoitem_servico_id
         $this->crud->addClause('where', 'contratoitem_servico_indicador.contratoitem_servico_id', '=', $contratoitem_servico_id);
 
         $this->crud->addClause('select', [
+            DB::raw('contratoitens.contrato_id'),
             DB::raw('servicos.nome as servico_nome'),
             // Tabela principal deve ser sempre a última da listagem!
             'contratoitem_servico_indicador.*'

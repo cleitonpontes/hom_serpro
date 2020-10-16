@@ -25,7 +25,7 @@ class GlosaCrudController extends CrudController
 
     public function setup()
     {
-        $contratoitem_servico_indicador_id = Route::current()->parameter('cis_i_id');
+        $contratoitem_servico_indicador_id = Route::current()->parameter('cisi_id');
         $contratoitem_servico_indicador = ContratoItemServicoIndicador::find($contratoitem_servico_indicador_id);
 
         $escopo_glosas = Codigoitem::whereHas('codigo', function ($query) {
@@ -41,11 +41,14 @@ class GlosaCrudController extends CrudController
         $this->crud->setModel('App\Models\Glosa');
         $this->crud->setRoute(
             config('backpack.base.route_prefix')
-            . '/gescon/meus-servicos/' . $contratoitem_servico_indicador_id . '/glosas'
+            . '/gescon/meus-servicos/'
+            . Route::current()->parameter('contrato_id') . '/'
+            . Route::current()->parameter('contratoitem_servico_id') . '/'
+            . $contratoitem_servico_indicador_id . '/glosas'
         );
         $this->crud->setEntityNameStrings('glosa', 'glosas');
 
-        $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarmeusindicadores', 'end');
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -144,6 +147,7 @@ class GlosaCrudController extends CrudController
         , array $escopo_glosas): void
     {
         $this->setFieldmeta($contratoItemServicoIndicador->vlrmeta);
+        $this->setFieldTipoAfericao($contratoItemServicoIndicador->tipo_afericao);
         $this->setFieldContratoItemServicoIndicador($contratoItemServicoIndicador->id);
         $this->setFieldFaixa(
             $contratoItemServicoIndicador->tipo_afericao
@@ -247,6 +251,15 @@ class GlosaCrudController extends CrudController
         $this->setFieldSlider($vlrmeta);
     }
 
+    private function setFieldTipoAfericao( $tipo_afericao): void
+    {
+        $this->crud->addField([   // Hidden
+            'name' => 'tipo_afericao',
+            'type' => 'hidden',
+            'default' => (int)$tipo_afericao
+        ]);
+    }
+
     private function setFieldMeta(float $vlrmeta): void
     {
         $this->crud->addField([   // Hidden
@@ -265,15 +278,14 @@ class GlosaCrudController extends CrudController
         ]);
     }
 
-    private function setFieldSlider(float $max = 100): void
+    private function setFieldSlider(float $vlrmeta = 100): void
     {
-//        dump($max);
         $this->crud->addField([   // Range
             'name' => 'slider',
-            'label' => 'Faixas de ajuste no pagamento',
+            'label' => 'Faixa de ajuste no pagamento',
             'type' => 'slider',
             'min' => '0',
-            'max' => $max,
+            'max' => $vlrmeta-0.1,
             'step' => '0.1',
             'grid' => true,
         ]);
@@ -289,6 +301,7 @@ class GlosaCrudController extends CrudController
                 'id' => 'from',
             ], // allow decimals
             'prefix' => "> =",
+            'allowZero' => "true",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ],
@@ -305,6 +318,7 @@ class GlosaCrudController extends CrudController
                 'id' => 'to',
             ], // allow decimals
             'prefix' => "<",
+            'allowZero' => "true",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ],

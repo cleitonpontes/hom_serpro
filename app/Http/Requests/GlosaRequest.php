@@ -3,6 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Rules\NaoRepetirFaixa;
+use App\Rules\NaoRepetirFaixaSlider;
+use App\Rules\ValorMaximoFaixaAjuste;
+use App\Rules\ValorMaximoFaixaAjusteSlider;
+use App\Rules\AteMaiorQueAPartir;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GlosaRequest extends FormRequest
@@ -26,8 +31,17 @@ class GlosaRequest extends FormRequest
     public function rules()
     {
         return [
-             'valor_glosa' => 'required',
-             'escopo_id' => 'required'
+            'valor_glosa' => 'required',
+            'escopo_id' => 'required',
+            'to' => [
+                new AteMaiorQueAPartir($this->from),
+                new ValorMaximoFaixaAjuste($this->vlrmeta),
+                new NaoRepetirFaixa($this->contratoitem_servico_indicador_id, $this->from)
+            ],
+            'slider' => [
+                new ValorMaximoFaixaAjusteSlider($this->vlrmeta),
+                new NaoRepetirFaixaSlider($this->contratoitem_servico_indicador_id)
+            ]
         ];
     }
 

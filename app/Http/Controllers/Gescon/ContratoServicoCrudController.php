@@ -67,6 +67,7 @@ class ContratoServicoCrudController extends CrudController
 
         $this->crud->addClause('select', [
             DB::raw('contratoitem_servico.id as contratoitem_servico_id'),
+            'contratoitens.contrato_id',
             'contratoitens.descricao_complementar',
             'catmatseritens.descricao',
             // Tabela principal deve ser sempre a última da listagem!

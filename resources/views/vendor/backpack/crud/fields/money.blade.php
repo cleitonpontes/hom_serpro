@@ -29,6 +29,7 @@
                 allowNegative: false,
                 thousands: '.',
                 decimal: ',',
+                allowZero: {{$field['allowZero'] ?? 'false'}},
                 affixesStay: false
             }).attr('maxlength', maxLength).trigger('mask.maskMoney');
         });
