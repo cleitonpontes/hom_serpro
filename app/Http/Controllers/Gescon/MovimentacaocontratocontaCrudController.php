@@ -26,7 +26,6 @@ class MovimentacaocontratocontaCrudController extends CrudController
 {
     public function setup()
     {
-
         $contratoconta_id = \Route::current()->parameter('contratoconta_id');
 
         $contratoConta = Contratoconta::where('id','=',$contratoconta_id)->first();
@@ -65,18 +64,13 @@ class MovimentacaocontratocontaCrudController extends CrudController
         // $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
 
-
         // cláusulas para possibilitar buscas
         $this->crud->addClause('select', 'movimentacaocontratocontas.*');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
         $this->crud->addClause('where', 'movimentacaocontratocontas.contratoconta_id', '=', $contratoconta_id);
-        $this->crud->addClause('orderby', 'movimentacaocontratocontas.ano_competencia', 'desc');
-        $this->crud->addClause('orderby', 'movimentacaocontratocontas.mes_competencia', 'desc');
+        // $this->crud->addClause('orderby', 'movimentacaocontratocontas.ano_competencia', 'desc');
+        // $this->crud->addClause('orderby', 'movimentacaocontratocontas.mes_competencia', 'desc');
         $this->crud->addClause('orderby', 'movimentacaocontratocontas.id', 'desc');
-
-
-        // dd($this->crud);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -96,14 +90,6 @@ class MovimentacaocontratocontaCrudController extends CrudController
     }
     public function Colunas()
     {
-
-
-        // $movimentacao_id = \Route::current()->parameter('movimentacao_id');
-
-        //         \Log::info('id mov = '.$movimentacao_id);
-
-
-
         $colunas = [
             [
                 'name' => 'getTipoMovimentacao',
@@ -134,11 +120,6 @@ class MovimentacaocontratocontaCrudController extends CrudController
                 'label' => 'Situação da movimentação',
                 'type'  => 'text',
             ],
-            // [
-            //     'name'  => 'id',
-            //     'label' => 'Id da movimentação',
-            //     'type'  => 'text',
-            // ],
             [
                 'name' => 'getTotalMovimentacao',
                 'label' => 'Total movimentado', // Table column heading
@@ -154,8 +135,11 @@ class MovimentacaocontratocontaCrudController extends CrudController
                 //     $query->orWhere('situacao', 'ilike', "%$searchTerm%");
                 // },
             ],
-
-
+            [
+                'name'  => 'created_at',
+                'label' => 'Data / Hora',
+                'type'  => 'text',
+            ],
         ];
         return $colunas;
     }
@@ -167,7 +151,6 @@ class MovimentacaocontratocontaCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
-
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here

@@ -140,7 +140,7 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'fat_empresa',
-                'label' => 'Fat Empresa', // Table column heading
+                'label' => 'Encargos', // Table column heading
                 'type' => 'text',
                 'prefix' => "% ",
             ],
@@ -182,6 +182,7 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'fat_empresa',
+                'label' => 'Encargos',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text

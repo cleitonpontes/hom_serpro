@@ -151,7 +151,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'fat_empresa',
-                'label' => 'Percentual Grupo A',
+                'label' => 'Encargo',
                 'type' => 'text',
                 // optionals
                 'attributes' => [

@@ -106,7 +106,7 @@ class LancamentoCrudController extends CrudController
             ],
             [
                 'name' => 'getTipoEncargo',
-                'label' => 'Encargo', // Table column heading
+                'label' => 'Verba', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getTipoEncargo', // the method in your Model
                 'orderable' => true,
