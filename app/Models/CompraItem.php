@@ -45,7 +45,21 @@ class CompraItem extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function gravaCompraItem($params){
 
+        $this->compra_id = $params['compra_id'];
+        $this->tipo_item_id = $params['tipo_item_id'];
+        $this->catmatseritem_id = $params['catmatseritem_id'];
+        $this->fornecedor_id = $params['fornecedor_id'];
+        $this->unidade_autorizada_id = $params['unidade_autorizada_id'];
+        $this->descricaodetalhada = $params['descricaodetalhada'];
+        $this->quantidade = $params['quantidade'];
+        $this->valorunitario = $params['valorunitario'];
+        $this->valortotal = $params['valortotal'];
+
+        $this->save($params);
+        return $this->id;
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

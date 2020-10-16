@@ -42,7 +42,20 @@ class Compra extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function gravaCompra($params){
 
+        $this->unidade_origem_id = $params['unidade_origem_id'];
+        $this->unidade_subrrogada_id = $params['unidade_subrrogada_id'];
+        $this->modalidade_id = $params['modalidade_id'];
+        $this->tipo_compra_id = $params['tipo_compra_id'];
+        $this->numero_ano = $params['numero_ano'];
+        $this->inciso = $params['inciso'];
+        $this->lei = $params['lei'];
+
+        $this->save($params);
+
+        return $this->id;
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

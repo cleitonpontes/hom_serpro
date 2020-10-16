@@ -6,12 +6,14 @@ use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Http\Traits\Formatador;
 
 class Fornecedor extends Model
 {
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
+    use Formatador;
 
     /*
     |--------------------------------------------------------------------------
@@ -54,6 +56,13 @@ class Fornecedor extends Model
                 return 'ID Genérico';
                 break;
         }
+    }
+
+    public function buscaFornecedorPorNumero($numero){
+        $Numeroformatado = $this->formataCnpjCpf($numero);
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener',$Numeroformatado)->first();
+        return $fornecedor;
+
     }
 
     /*
