@@ -7,7 +7,6 @@ use App\Http\Traits\Formatador;
 use App\Models\Glosa;
 
 
-
 class NaoRepetirFaixa implements Rule
 {
     use Formatador;
@@ -23,7 +22,8 @@ class NaoRepetirFaixa implements Rule
     /**
      * Create a new rule instance.
      *
-     * @return void
+     * @param $contratoitem_servico_indicador_id
+     * @param $from
      */
     public function __construct($contratoitem_servico_indicador_id, $from)
     {
@@ -44,10 +44,10 @@ class NaoRepetirFaixa implements Rule
 
         $glosas = Glosa::where('contratoitem_servico_indicador_id'
             , $this->contratoitem_servico_indicador_id
-        )->where(function ($query)  {
+        )->where(function ($query) {
             $query->where('from', '<=', $this->from)
                 ->Where('to', '>=', $this->from)
-                ->orWhere(function ($query)  {
+                ->orWhere(function ($query) {
                     $query->where('from', '<=', $this->to)
                         ->Where('to', '>=', $this->to);
                 });

@@ -69,7 +69,7 @@ class Servico extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getValorFormatadoAttribute($value)
+    public function getValorFormatadoAttribute(): string
     {
         return 'R$ ' . number_format($this->valor, 2, ',', '.');
     }

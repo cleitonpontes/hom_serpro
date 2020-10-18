@@ -5,9 +5,12 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use App\Rules\ValorMeta;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Traits\Formatador;
 
 class ContratoItemServicoIndicadorRequest extends FormRequest
 {
+    use Formatador;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -34,7 +37,7 @@ class ContratoItemServicoIndicadorRequest extends FormRequest
             'vlrmeta' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if ($this->tipo_afericao === '0' && $value > 100) {
+                    if ($this->tipo_afericao === '0' && $this->retornaFormatoAmericano($value) > 100) {
                         $fail('Para a aferição percentual, a meta deve ser no máximo 100');
                     }
                 },

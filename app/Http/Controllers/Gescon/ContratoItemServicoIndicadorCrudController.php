@@ -7,11 +7,9 @@ use App\Models\Indicador;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Traits\Formatador;
 
-// VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoItemServicoIndicadorRequest as StoreRequest;
 use App\Http\Requests\ContratoItemServicoIndicadorRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Route;
 
@@ -60,8 +58,8 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         $this->crud->addButtonFromView('line', 'moreglosas', 'moreglosas', 'end');
 
         $this->crud->addClause('join', 'contratoitem_servico', 'contratoitem_servico.id', '=', 'contratoitem_servico_indicador.contratoitem_servico_id');
-        $this->crud->addClause('join', 'servicos', 'servicos.id','=','contratoitem_servico.servico_id');
-        $this->crud->addClause('join', 'contratoitens', 'contratoitens.id','=','contratoitem_servico.contratoitem_id');
+        $this->crud->addClause('join', 'servicos', 'servicos.id', '=', 'contratoitem_servico.servico_id');
+        $this->crud->addClause('join', 'contratoitens', 'contratoitens.id', '=', 'contratoitem_servico.contratoitem_id');
         // Apenas ocorrencias deste contratoitem_servico_id
         $this->crud->addClause('where', 'contratoitem_servico_indicador.contratoitem_servico_id', '=', $contratoitem_servico_id);
 
@@ -78,8 +76,8 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->columns($periodicidade);
-        $this->fields($contratoitem_servico_id, $indicadores, $periodicidade);
+        $this->colunas($periodicidade);
+        $this->campos($contratoitem_servico_id, $indicadores, $periodicidade);
 
         // add asterisk for fields that are required in ContratoItemServicoIndicadorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -106,88 +104,115 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         return $redirect_location;
     }
 
-    private function fields(string $contratoitem_servico_id
+    /**
+     * Configura os campos dos formulários de Inserir e Atualizar
+     *
+     * @param string $contratoitem_servico_id
+     * @param array $indicadores
+     * @param $periodicidade
+     */
+    private function campos(string $contratoitem_servico_id
         , array $indicadores, $periodicidade): void
     {
-        $this->setFieldContratoItemServico($contratoitem_servico_id);
-        $this->setFieldIndicador($indicadores);
-        $this->setFieldTipoAfericao();
-        $this->setFieldMeta();
-        $this->setFieldPeriodicidade($periodicidade);
+        $this->adicionaCampoContratoItemServico($contratoitem_servico_id);
+        $this->adicionaCampoIndicador($indicadores);
+        $this->adicionaCampoTipoAfericao();
+        $this->adicionaCampoMeta();
+        $this->adicionaCampoPeriodicidade($periodicidade);
     }
 
-    private function columns($periodicidade): void
+    /**
+     * Configura a grid de visualização
+     *
+     * @param $periodicidade
+     */
+    private function colunas($periodicidade): void
     {
-        $this->setColumnServico();
-        $this->setColumnIndicador();
-        $this->setColumnTipoAfericao();
-        $this->setColumnMeta();
-        $this->setColumnPeriodicidade($periodicidade);
+        $this->adicionaColunaServico();
+        $this->adicionaColunaIndicador();
+        $this->adicionaColunaTipoAfericao();
+        $this->adicionaColunaMeta();
+        $this->adicionaColunaPeriodicidade($periodicidade);
     }
 
-    private function setColumnServico(): void
+    /**
+     * Configura a coluna Servico
+     */
+    private function adicionaColunaServico(): void
     {
         $this->crud->addColumn([
             'name' => 'servico_nome',
             'label' => 'Servico',
             'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
         ]);
-
     }
 
-    private function setColumnIndicador(): void
+    /**
+     * Configura a coluna Indicador
+     */
+    private function adicionaColunaIndicador(): void
     {
         $this->crud->addColumn([
             'name' => 'getIndicador',
-            'label' => 'Indicador', // Table column heading
+            'label' => 'Indicador',
             'type' => 'model_function',
-            'function_name' => 'getIndicador', // the method in your Model
+            'function_name' => 'getIndicador',
             'orderable' => true,
             'limit' => 1000,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
         ]);
 
     }
 
-    private function setColumnTipoAfericao(): void
+    /**
+     * Configura a coluna Tipo Afericao
+     */
+    private function adicionaColunaTipoAfericao(): void
     {
         $this->crud->addColumn([
             'name' => 'tipo_afericao',
             'label' => 'Tipo de Afericao',
             'type' => 'boolean',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-            // optionally override the Yes/No texts
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
             'options' => [0 => 'Percentual', 1 => 'Número de Ocorrências'],
         ]);
     }
 
-    private function setColumnMeta()
+    /**
+     * Configura a coluna Meta
+     */
+    private function adicionaColunaMeta(): void
     {
         $this->crud->addColumn([
-            'name' => 'vlrmeta',
+            'name' => 'vlrmeta_formatado',
             'label' => 'Meta',
             'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
         ]);
     }
 
-    private function setColumnPeriodicidade($periodicidade)
+    /**
+     * Configura a coluna Peridiocidade
+     *
+     * @param $periodicidade
+     */
+    private function adicionaColunaPeriodicidade($periodicidade): void
     {
         $this->crud->addColumn([
             'name' => 'periodicidade_id',
@@ -198,7 +223,12 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         ]);
     }
 
-    private function setFieldContratoItemServico($contratoitem_servico_id)
+    /**
+     * Configura o campo escondido 'contratoitem_servico_id'
+     *
+     * @param $contratoitem_servico_id
+     */
+    private function adicionaCampoContratoItemServico($contratoitem_servico_id): void
     {
         $this->crud->addField([   // Hidden
             'name' => 'contratoitem_servico_id',
@@ -207,7 +237,12 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         ]);
     }
 
-    private function setFieldIndicador($indicadores)
+    /**
+     * Configura o campo Indicador
+     *
+     * @param $indicadores
+     */
+    private function adicionaCampoIndicador($indicadores): void
     {
         $this->crud->addField([ // select_from_array
             'name' => 'indicador_id',
@@ -219,7 +254,10 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         ]);
     }
 
-    private function setFieldTipoAfericao()
+    /**
+     * Configura o campo Afericao
+     */
+    private function adicionaCampoTipoAfericao(): void
     {
         $this->crud->addField([
             'name' => 'tipo_afericao',
@@ -234,25 +272,32 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         ]);
     }
 
-    private function setFieldMeta()
+    /**
+     * Configura o campo Meta
+     */
+    private function adicionaCampoMeta(): void
     {
         $this->crud->addField([   // Number
             'name' => 'vlrmeta',
             'label' => 'Meta',
-            'type' => 'number',
+            'type' => 'money',
             'attributes' => [
                 'id' => 'vlrmeta',
                 "step" => "any"
-//                "max" => '10',
-            ], // allow decimals
+            ],
         ]);
     }
 
-    private function setFieldPeriodicidade($periodicidade)
+    /**
+     * Configura o campo Periodicidade
+     *
+     * @param $periodicidade
+     */
+    private function adicionaCampoPeriodicidade($periodicidade): void
     {
         $this->crud->addField([
             'name' => 'periodicidade_id',
-            'label' => 'periodicidade',
+            'label' => 'Periodicidade',
             'type' => 'select2_from_array',
             'options' => $periodicidade,
             'allows_null' => false,

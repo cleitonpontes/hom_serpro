@@ -3,31 +3,38 @@
 namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
+use App\Http\Traits\Formatador;
 
 class AteMaiorQueAPartir implements Rule
 {
+    use Formatador;
+
+    /**
+     * @var string|string[]
+     */
     private $from;
+
 
     /**
      * Create a new rule instance.
      *
-     * @return void
+     * @param $from
      */
     public function __construct($from)
     {
-        $this->from = $from;
+        $this->from = $this->retornaFormatoAmericano($from);
     }
 
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed $value
      * @return bool
      */
-    public function passes($attribute, $value)
+    public function passes($attribute, $value): bool
     {
-        return $value > $this->from;
+        return $this->retornaFormatoAmericano($value) > $this->from;
     }
 
     /**

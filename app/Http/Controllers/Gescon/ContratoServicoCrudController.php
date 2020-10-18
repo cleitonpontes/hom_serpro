@@ -3,23 +3,19 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Models\Contrato;
-use App\Models\ContratoitemServico;
 use App\Http\Traits\Formatador;
-use App\Models\Indicador;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
-// VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ServicoRequest as StoreRequest;
 use App\Http\Requests\ServicoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Route;
 
 /**
- * Class ServicoCrudController
- * @package App\Http\Controllers\Admin
+ * Class ContratoServicoCrudController
+ * @package App\Http\Controllers\Gescon
  * @property-read CrudPanel $crud
  */
 class ContratoServicoCrudController extends CrudController
@@ -28,7 +24,6 @@ class ContratoServicoCrudController extends CrudController
 
     public function setup()
     {
-
         $contrato_id = Route::current()->parameter('contrato_id');
         $contrato = Contrato::where('id', '=', $contrato_id)
             ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
@@ -43,7 +38,11 @@ class ContratoServicoCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Servico');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/servicos');
+        $this->crud->setRoute(
+            config('backpack.base.route_prefix')
+            . '/gescon/meus-contratos/' . $contrato_id
+            . '/servicos'
+        );
         $this->crud->setEntityNameStrings('serviço', 'serviços');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
 
@@ -86,8 +85,8 @@ class ContratoServicoCrudController extends CrudController
 
         $this->crud->addButtonFromView('line', 'moreindicadores', 'moreindicadores', 'end');
 
-        $this->crud->addColumns($this->columns());
-        $this->crud->addFields($this->fields($contrato_id));
+        $this->colunas();
+        $this->campos($contrato_id);
 
         // add asterisk for fields that are required in ServicoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -118,96 +117,175 @@ class ContratoServicoCrudController extends CrudController
         return $redirect_location;
     }
 
-    private function fields(string $contrato_id): array
+    /**
+     * Configura os campos dos formulários de Inserir e Atualizar
+     *
+     * @param string $contrato_id
+     */
+    private function campos(string $contrato_id): void
     {
-        return [
-            [   // Hidden
-                'name' => 'contrato_id',
-                'type' => 'hidden',
-                'default' => $contrato_id,
-            ],
-            [
-                'label' => 'Item do contrato',
-                'type' => 'select2_multiple',
-                'name' => 'contratoItens',
-                'entity' => 'Contratoitem',
-                'attribute' => 'descricao_item',
-                'attribute2' => 'descricao_complementar',
-                'attribute_separator' => ' - DESCRIÇÃO COMPLEMENTAR:  ',
-                'model' => "App\Models\Contratoitem",
-                'pivot' => true,
-                'options' => (function ($query) use ($contrato_id) {
-                    return $query->where('contrato_id',$contrato_id)->get();
-                }),
-            ],
-            [
-                'name' => 'nome',
-                'label' => 'Nome',
-                'type' => 'text',
-                'attributes' => [
-                    'onfocusout' => "maiuscula(this)",
-                    'maxlength' => "255",
-                ],
-            ],
-            [
-                'name' => 'detalhe',
-                'label' => 'Detalhe',
-                'type' => 'textarea',
-                'attributes' => [
-                    'onfocusout' => "maiuscula(this)"
-                ],
-            ],
-            [
-                'name' => 'valor',
-                'label' => 'Valor',
-                'type' => 'money',
-                'attributes' => [
-                    'id' => 'valor',
-                ], // allow decimals
-                'prefix' => "R$",
-            ],
-            [
-                'name' => 'situacao',
-                'label' => "Situação",
-                'type' => 'select2_from_array',
-                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-                'allows_null' => false,
-            ],
-
-
-        ];
+        $this->adicionaCampoContrato($contrato_id);
+        $this->adicionaCampoItem($contrato_id);
+        $this->adicionaCampoNome();
+        $this->adicionaCampoDetalhe();
+        $this->adicionaCampoValor();
+        $this->adicionaCampoSituacao();
     }
 
-    private function columns(): array
+    /**
+     * Configura a grid de visualização
+     */
+    private function colunas(): void
     {
-        return [
-            [
-                'name' => 'nome',
-                'label' => 'Nome',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('servicos.nome', 'ilike', "%" . $searchTerm . "%");
-                },
+        $this->adicionaColunaNome();
+        $this->adicionaColunaItem();
+        $this->adicionaColunaDetalhe();
+        $this->adicionaColunaValor();
+        $this->adicionaColunaSituacao();
+    }
+
+    /**
+     * Configura o campo Contrato
+     * @param string $contrato_id
+     */
+    private function adicionaCampoContrato(string $contrato_id): void
+    {
+        $this->crud->addField([   // Hidden
+            'name' => 'contrato_id',
+            'type' => 'hidden',
+            'default' => $contrato_id,
+        ]);
+    }
+
+    /**
+     * Configura o campo Item
+     * @param string $contrato_id
+     */
+    private function adicionaCampoItem(string $contrato_id): void
+    {
+        $this->crud->addField([
+            'label' => 'Item do contrato',
+            'type' => 'select2_multiple',
+            'name' => 'contratoItens',
+            'entity' => 'Contratoitem',
+            'attribute' => 'descricao_item',
+            'attribute2' => 'descricao_complementar',
+            'attribute_separator' => ' - DESCRIÇÃO COMPLEMENTAR:  ',
+            'model' => "App\Models\Contratoitem",
+            'pivot' => true,
+            'options' => (function ($query) use ($contrato_id) {
+                return $query->where('contrato_id', $contrato_id)->get();
+            }),
+        ]);
+    }
+
+    /**
+     * Configura o campo Nome
+     */
+    private function adicionaCampoNome(): void
+    {
+        $this->crud->addField([
+            'name' => 'nome',
+            'label' => 'Nome',
+            'type' => 'text',
+            'attributes' => [
+                'onfocusout' => "maiuscula(this)",
+                'maxlength' => "255",
             ],
-            [
-                'name' => 'descricao',
-                'label' => 'Item do contrato',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('catmatseritens.descricao', 'ilike', "%" . $searchTerm . "%");
-                },
+        ]);
+    }
+
+    /**
+     * Configura o campo Detalhe
+     */
+    private function adicionaCampoDetalhe(): void
+    {
+        $this->crud->addField([
+            'name' => 'detalhe',
+            'label' => 'Detalhe',
+            'type' => 'textarea',
+            'attributes' => [
+                'onfocusout' => "maiuscula(this)"
             ],
-            [
+        ]);
+    }
+
+    /**
+     * Configura o campo Valor
+     */
+    private function adicionaCampoValor(): void
+    {
+        $this->crud->addField([
+            'name' => 'valor',
+            'label' => 'Valor',
+            'type' => 'money',
+            'attributes' => [
+                'id' => 'valor',
+            ], // allow decimals
+            'prefix' => "R$",
+        ]);
+    }
+
+    /**
+     * Configura o campo Situacao
+     */
+    private function adicionaCampoSituacao(): void
+    {
+        $this->crud->addField([
+            'name' => 'situacao',
+            'label' => "Situação",
+            'type' => 'select2_from_array',
+            'options' => [1 => 'Ativo', 0 => 'Inativo'],
+            'allows_null' => false,
+        ]);
+    }
+
+    /**
+     * Configura a coluna Nome
+     */
+    private function adicionaColunaNome(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'nome',
+            'label' => 'Nome',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('servicos.nome', 'ilike', "%" . $searchTerm . "%");
+            },
+        ]);
+    }
+
+    /**
+     * Configura a coluna Item
+     */
+    private function adicionaColunaItem(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'descricao',
+            'label' => 'Item do contrato',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('catmatseritens.descricao', 'ilike', "%" . $searchTerm . "%");
+            },
+        ]);
+    }
+
+    /**
+     * Configura a coluna Detalhe
+     */
+    private function adicionaColunaDetalhe(): void
+    {
+        $this->crud->addColumn([
                 'name' => 'detalhe',
                 'label' => 'Detalhe',
                 'type' => 'text',
@@ -219,8 +297,15 @@ class ContratoServicoCrudController extends CrudController
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('servicos.detalhe', 'ilike', "%" . $searchTerm . "%");
                 }
-            ],
-            [
+            ]);
+    }
+
+    /**
+     * Configura a coluna Valor
+     */
+    private function adicionaColunaValor(): void
+    {
+        $this->crud->addColumn([
                 'name' => 'valor_formatado',
                 'label' => 'Valor',
                 'type' => 'text',
@@ -229,20 +314,28 @@ class ContratoServicoCrudController extends CrudController
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true,
-            ],
-            [
-                'name' => 'situacao',
-                'label' => 'Situação',
-                'type' => 'boolean',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                'options' => [0 => 'Inativo', 1 => 'Ativo']
-            ],
-        ];
+            ]);
     }
+
+    /**
+     * Configura a coluna Situacao
+     */
+    private function adicionaColunaSituacao(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'situacao',
+            'label' => 'Situação',
+            'type' => 'boolean',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'options' => [0 => 'Inativo', 1 => 'Ativo']
+        ]);
+    }
+
+
 
     public function show($id)
     {
