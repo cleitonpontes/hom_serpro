@@ -52,6 +52,21 @@ class Glosa extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+    public function getFromFormatadoAttribute(): string
+    {
+        return number_format($this->from, 2, ',', '.');
+
+    }
+    public function getToFormatadoAttribute(): string
+    {
+        return number_format($this->to, 2, ',', '.');
+
+    }
+    public function getValorGlosaFormatadoAttribute(): string
+    {
+        return number_format($this->valor_glosa, 2, ',', '.');
+
+    }
 
     /*
     |--------------------------------------------------------------------------

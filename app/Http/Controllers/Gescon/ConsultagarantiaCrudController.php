@@ -188,7 +188,6 @@ class ConsultagarantiaCrudController extends CrudController
 
         $dados->where('codigo_id', Codigo::TIPO_GARANTIA);
         $dados->orderBy('descricao');
-//        dd($dados->pluck('descricao', 'id')->toArray());
 
         return $dados->pluck('descricao', 'id')->toArray();
 

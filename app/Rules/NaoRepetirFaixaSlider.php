@@ -8,7 +8,6 @@ use App\Models\Glosa;
 class NaoRepetirFaixaSlider implements Rule
 {
     private $contratoitem_servico_indicador_id;
-    private $faixa;
 
     /**
      * Create a new rule instance.
@@ -29,7 +28,6 @@ class NaoRepetirFaixaSlider implements Rule
      */
     public function passes($attribute, $value): bool
     {
-        $this->faixa = $value;
         $faixa = explode(";", $value);
         $glosas = Glosa::where('contratoitem_servico_indicador_id'
             , $this->contratoitem_servico_indicador_id

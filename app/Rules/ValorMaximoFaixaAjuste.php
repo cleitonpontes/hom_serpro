@@ -3,29 +3,37 @@
 namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
+use App\Http\Traits\Formatador;
 
 class ValorMaximoFaixaAjuste implements Rule
 {
+    use Formatador;
+
+    /**
+     * @var string|string[]
+     */
+    private $vlrmeta;
+
     /**
      * Create a new rule instance.
      *
-     * @return void
+     * @param $vlrmeta
      */
     public function __construct($vlrmeta)
     {
-        $this->vlrmeta = $vlrmeta;
+        $this->vlrmeta = $this->retornaFormatoAmericano($vlrmeta);
     }
 
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed $value
      * @return bool
      */
-    public function passes($attribute, $value)
+    public function passes($attribute, $value): bool
     {
-        return $this->vlrmeta > $value;
+        return $this->vlrmeta > $this->retornaFormatoAmericano($value);
     }
 
     /**
@@ -33,7 +41,7 @@ class ValorMaximoFaixaAjuste implements Rule
      *
      * @return string
      */
-    public function message()
+    public function message(): string
     {
         return 'O valor máximo da faixa de ajuste tem que ser menor do que o valor da Meta: ' . $this->vlrmeta;
     }
