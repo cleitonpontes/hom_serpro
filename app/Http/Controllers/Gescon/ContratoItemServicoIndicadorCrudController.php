@@ -39,7 +39,11 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\ContratoItemServicoIndicador');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-servicos/' . $contrato_id . '/' . $contratoitem_servico_id . '/indicadores');
+        $this->crud->setRoute(config('backpack.base.route_prefix') .
+            '/gescon/meus-servicos/' .
+            $contrato_id . '/' .
+            $contratoitem_servico_id .
+            '/indicadores');
         $this->crud->setEntityNameStrings('indicador', 'indicadores');
         $this->crud->removeButton('create');
         $this->crud->addButtonFromView('top', 'vincular', 'vincularIndicador');
@@ -57,11 +61,34 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
         $this->crud->addButtonFromView('line', 'moreglosas', 'moreglosas', 'end');
 
-        $this->crud->addClause('join', 'contratoitem_servico', 'contratoitem_servico.id', '=', 'contratoitem_servico_indicador.contratoitem_servico_id');
-        $this->crud->addClause('join', 'servicos', 'servicos.id', '=', 'contratoitem_servico.servico_id');
-        $this->crud->addClause('join', 'contratoitens', 'contratoitens.id', '=', 'contratoitem_servico.contratoitem_id');
+        $this->crud->addClause(
+            'join',
+            'contratoitem_servico',
+            'contratoitem_servico.id',
+            '=',
+            'contratoitem_servico_indicador.contratoitem_servico_id'
+        );
+        $this->crud->addClause(
+            'join',
+            'servicos',
+            'servicos.id',
+            '=',
+            'contratoitem_servico.servico_id'
+        );
+        $this->crud->addClause(
+            'join',
+            'contratoitens',
+            'contratoitens.id',
+            '=',
+            'contratoitem_servico.contratoitem_id'
+        );
         // Apenas ocorrencias deste contratoitem_servico_id
-        $this->crud->addClause('where', 'contratoitem_servico_indicador.contratoitem_servico_id', '=', $contratoitem_servico_id);
+        $this->crud->addClause(
+            'where',
+            'contratoitem_servico_indicador.contratoitem_servico_id',
+            '=',
+            $contratoitem_servico_id
+        );
 
         $this->crud->addClause('select', [
             DB::raw('contratoitens.contrato_id'),
@@ -111,8 +138,7 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
      * @param array $indicadores
      * @param $periodicidade
      */
-    private function campos(string $contratoitem_servico_id
-        , array $indicadores, $periodicidade): void
+    private function campos(string $contratoitem_servico_id, array $indicadores, $periodicidade): void
     {
         $this->adicionaCampoContratoItemServico($contratoitem_servico_id);
         $this->adicionaCampoIndicador($indicadores);
@@ -169,7 +195,6 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'visibleInExport' => true,
             'visibleInShow' => true,
         ]);
-
     }
 
     /**
@@ -267,7 +292,8 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
             'default' => 0,
             'inline' => true,
             'wrapperAttributes' => [
-                'title' => "Utilizar Número de Ocorrências quando a quantidade de eventos for baixa (Exemplo: < 100 ocorrências)"
+                'title' => "Utilizar Número de Ocorrências quando a quantidade de " .
+                    "eventos for baixa (Exemplo: < 100 ocorrências)"
             ],
         ]);
     }
@@ -316,5 +342,4 @@ class ContratoItemServicoIndicadorCrudController extends CrudController
 
         return $content;
     }
-
 }

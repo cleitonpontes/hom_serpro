@@ -42,13 +42,11 @@ class Servico extends Model
         }
 
         return '';
-
     }
 
     public function contratoItens()
     {
-        return $this->belongsToMany( Contratoitem::class, 'contratoitem_servico', 'servico_id', 'contratoitem_id' );
-
+        return $this->belongsToMany(Contratoitem::class, 'contratoitem_servico', 'servico_id', 'contratoitem_id');
     }
 
     /*

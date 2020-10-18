@@ -52,14 +52,26 @@ class ContratoServicoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
-        $this->crud->addClause('leftJoin'
-            , 'contratoitem_servico', 'contratoitem_servico.servico_id', '=', 'servicos.id'
+        $this->crud->addClause(
+            'leftJoin',
+            'contratoitem_servico',
+            'contratoitem_servico.servico_id',
+            '=',
+            'servicos.id'
         );
-        $this->crud->addClause('leftJoin'
-            , 'contratoitens', 'contratoitens.id', '=', 'contratoitem_servico.contratoitem_id'
+        $this->crud->addClause(
+            'leftJoin',
+            'contratoitens',
+            'contratoitens.id',
+            '=',
+            'contratoitem_servico.contratoitem_id'
         );
-        $this->crud->addClause('leftJoin'
-            , 'catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id'
+        $this->crud->addClause(
+            'leftJoin',
+            'catmatseritens',
+            'catmatseritens.id',
+            '=',
+            'contratoitens.catmatseritem_id'
         );
         // Apenas ocorrencias deste contrato_id
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
@@ -286,18 +298,18 @@ class ContratoServicoCrudController extends CrudController
     private function adicionaColunaDetalhe(): void
     {
         $this->crud->addColumn([
-                'name' => 'detalhe',
-                'label' => 'Detalhe',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('servicos.detalhe', 'ilike', "%" . $searchTerm . "%");
-                }
-            ]);
+            'name' => 'detalhe',
+            'label' => 'Detalhe',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('servicos.detalhe', 'ilike', "%" . $searchTerm . "%");
+            }
+        ]);
     }
 
     /**
@@ -306,15 +318,15 @@ class ContratoServicoCrudController extends CrudController
     private function adicionaColunaValor(): void
     {
         $this->crud->addColumn([
-                'name' => 'valor_formatado',
-                'label' => 'Valor',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-            ]);
+            'name' => 'valor_formatado',
+            'label' => 'Valor',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
     }
 
     /**
@@ -334,7 +346,6 @@ class ContratoServicoCrudController extends CrudController
             'options' => [0 => 'Inativo', 1 => 'Ativo']
         ]);
     }
-
 
 
     public function show($id)

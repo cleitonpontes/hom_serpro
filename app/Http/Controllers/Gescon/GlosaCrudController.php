@@ -60,11 +60,28 @@ class GlosaCrudController extends CrudController
         (backpack_user()->can('glosa_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('glosa_deletar')) ? $this->crud->allowAccess('delete') : null;
 
-        $this->crud->addClause('join', 'contratoitem_servico_indicador', 'contratoitem_servico_indicador.id', '=', 'glosas.contratoitem_servico_indicador_id');
-        $this->crud->addClause('join', 'indicadores', 'indicadores.id', '=', 'contratoitem_servico_indicador.indicador_id');
+        $this->crud->addClause(
+            'join',
+            'contratoitem_servico_indicador',
+            'contratoitem_servico_indicador.id',
+            '=',
+            'glosas.contratoitem_servico_indicador_id'
+        );
+        $this->crud->addClause(
+            'join',
+            'indicadores',
+            'indicadores.id',
+            '=',
+            'contratoitem_servico_indicador.indicador_id'
+        );
 
         // Apenas ocorrencias deste contratoitem_servico_indicador_id
-        $this->crud->addClause('where', 'glosas.contratoitem_servico_indicador_id', '=', $contratoitem_servico_indicador_id);
+        $this->crud->addClause(
+            'where',
+            'glosas.contratoitem_servico_indicador_id',
+            '=',
+            $contratoitem_servico_indicador_id
+        );
 
         $this->crud->addClause('select', [
             DB::raw('indicadores.nome as indicador_nome'),
@@ -80,8 +97,8 @@ class GlosaCrudController extends CrudController
         */
         $this->colunas($escopo_glosas);
         $this->campos(
-            $contratoitem_servico_indicador
-            , $escopo_glosas
+            $contratoitem_servico_indicador,
+            $escopo_glosas
         );
 
         // add asterisk for fields that are required in GlosaRequest
@@ -138,7 +155,6 @@ class GlosaCrudController extends CrudController
 
         $request->request->set('from', $this->retornaFormatoAmericano($request->from));
         $request->request->set('to', $this->retornaFormatoAmericano($request->to));
-
     }
 
     /**
@@ -148,15 +164,15 @@ class GlosaCrudController extends CrudController
      * @param array $escopo_glosas
      */
     private function campos(
-        ContratoItemServicoIndicador $contratoItemServicoIndicador
-        , array $escopo_glosas): void
-    {
+        ContratoItemServicoIndicador $contratoItemServicoIndicador,
+        array $escopo_glosas
+    ): void {
         $this->adicionaCampometa($contratoItemServicoIndicador->vlrmeta);
         $this->adicionaCampoTipoAfericao($contratoItemServicoIndicador->tipo_afericao);
         $this->adicionaCampoContratoItemServicoIndicador($contratoItemServicoIndicador->id);
         $this->adicionaCampoFaixa(
-            $contratoItemServicoIndicador->tipo_afericao
-            , $contratoItemServicoIndicador->vlrmeta
+            $contratoItemServicoIndicador->tipo_afericao,
+            $contratoItemServicoIndicador->vlrmeta
         );
         $this->adicionaCampoValorGlosa();
         $this->adicionaCampoEscopo($escopo_glosas);
@@ -175,7 +191,6 @@ class GlosaCrudController extends CrudController
         $this->adicionaColunaAte();
         $this->adicionaColunaValorGlosa();
         $this->adicionaColunaEscopo($escopo_glosas);
-
     }
 
 
@@ -194,7 +209,6 @@ class GlosaCrudController extends CrudController
             'visibleInExport' => true,
             'visibleInShow' => true,
         ]);
-
     }
 
 
@@ -213,7 +227,6 @@ class GlosaCrudController extends CrudController
             'visibleInExport' => true,
             'visibleInShow' => true,
         ]);
-
     }
 
     /**
@@ -269,7 +282,6 @@ class GlosaCrudController extends CrudController
             'visibleInExport' => true,
             'visibleInShow' => true,
         ]);
-
     }
 
     /**
