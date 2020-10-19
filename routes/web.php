@@ -246,6 +246,10 @@ Route::group(
             Route::post('/minuta/tela/1/gravar', 'Minuta\Tela1EmpenhoController@gravar')
                 ->name('minuta.tela.1.gravar')
                 ->middleware('permission:folha_apropriacao_passo');
+
+
+            CRUD::resource('/buscacompra', 'CompraSiasgCrudController')
+                ->name('busca.compra');
         });
 
 

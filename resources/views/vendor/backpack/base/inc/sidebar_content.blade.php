@@ -11,19 +11,19 @@
 </li>
 @endif
 {{-- ************************************************************************ --}}
-{{-- Empenho                                                                --}}
+{{-- Minuta Empenho                                                                --}}
 {{-- ************************************************************************ --}}
 <li class="treeview">
     <a href="#">
         <i class='fa fa-files-o'></i>
-        <span>Empenho</span>
+        <span>Empenhar Compra</span>
         <i class="fa fa-angle-left pull-right"></i>
     </a>
     <ul class="treeview-menu">
         <li>
-            <a href="{{ backpack_url('/empenho/listaempenhos') }}">
+            <a href="{{ backpack_url('/empenho/buscacompra/create') }}">
                 <i class="fa fa-file-o"></i>
-                <span>Empenhos</span>
+                <span>Buscar Compra</span>
             </a>
         </li>
     </ul>

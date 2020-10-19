@@ -7,34 +7,16 @@ use App\Models\CompraItem;
 use App\Models\Fornecedor;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
-use App\Forms\NovoEmepenhoTela1Form;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Empenho\Minuta\BaseController;
 
 
-class Tela1EmpenhoController extends BaseController
+
+class Etapa1EmpenhoController
 {
     const MATERIAL = 149;
     const SERVICO = 150;
     const SISPP = 1;
     const SISRP = 2;
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function novo()
-    {
-
-        $form = \FormBuilder::create(NovoEmepenhoTela1Form::class, [
-            'url' => route('empenho.minuta.tela.1.gravar'),
-            'method' => 'POST'
-        ]);
-
-        return view('backpack::mod.empenho.telas.tela1', compact('form'));
-    }
-
-
 
     /**
      * Show the form for creating a new resource.
