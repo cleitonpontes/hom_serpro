@@ -42,6 +42,8 @@ Route::group([
             Route::get('ocorrenciaconcluida', 'OcorrenciaconcluidaController@index');
             Route::get('ocorrenciaconcluida/{id}', 'OcorrenciaconcluidaController@show');
             Route::get('municipios', 'MunicipioController@index');
+            Route::get('amparolegal', 'AmparoLegalController@index');
+            Route::get('amparolegal/{id}', 'AmparoLegalController@show');
         });
 
         // if not otherwise configured, setup the dashboard routes
@@ -166,7 +168,7 @@ Route::group([
                 CRUD::resource('despesaacessoria', 'ContratoDespesaAcessoriaCrudController');
                 CRUD::resource('empenhos', 'ContratoempenhoCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
-                CRUD::resource('historico', 'ContratohistoricoCrudController');
+                CRUD::resource('historico', 'ContratohistoricoCrudController')->name('listar.historico');
                 CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
                 CRUD::resource('itens', 'ContratoitemCrudController');
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');

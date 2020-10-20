@@ -235,12 +235,24 @@ Route::group(
              * Minuta Empenho - Genéricos
              *
              **/
-            Route::get('/listaempenhos', 'NovoEmpenhoController@index')
-                ->name('lista.empenhos')
+
+//            CRUD::resource('/minutaempenho', 'MinutaEmpenhoCrudController')
+//                ->name('minuta.empenho');
+
+            Route::get('/minuta', 'MinutaEmpenhoCrudController@index')
+                ->name('lista.minuta')
                 ->middleware('permission:folha_apropriacao_acesso');
 
-            Route::get('/minuta/tela/1', 'Minuta\Tela1EmpenhoController@novo')
-                ->name('minuta.tela.1')
+            Route::Post('/minuta/search', 'MinutaEmpenhoCrudController@search')
+                ->name('lista.minuta.search')
+                ->middleware('permission:folha_apropriacao_acesso');
+
+//            Route::get('/listaminutaempenho', 'NovoEmpenhoController@index')
+//                ->name('lista.minuta.empenhos')
+//                ->middleware('permission:folha_apropriacao_acesso');
+
+            Route::get('fornecedor/{compra_id}', 'FornecedorEmpenhoController@index')
+                ->name('lista.empenho.fornecedor')
                 ->middleware('permission:folha_apropriacao_passo');
 
             Route::post('/minuta/tela/1/gravar', 'Minuta\Tela1EmpenhoController@gravar')

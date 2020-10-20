@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Empenho\Minuta;
 
+use App\Models\Codigoitem;
 use App\Models\Compra;
 use App\Models\CompraItem;
 use App\Models\Fornecedor;
@@ -17,6 +18,7 @@ class Etapa1EmpenhoController
     const SERVICO = 150;
     const SISPP = 1;
     const SISRP = 2;
+    const TIPOCOMPRASIASG = 29;
 
     /**
      * Show the form for creating a new resource.
@@ -25,28 +27,29 @@ class Etapa1EmpenhoController
      */
     public function gravar(Request $request)
     {
-        dd($request->all());
+
         $retorno = $this->consultaCompraSiasg($request);
 
         if(is_null($retorno->data)){
             return redirect('/empenho/minuta/tela/1')->with($retorno->messagem,'alert-warning');
         }
 
-        $params['unidade_origem_id'] = $request->get('uasg_compra');
-        $params['modalidade_id'] = $request->get('modalidade');
+        $params['unidade_origem_id'] = $request->get('unidade_origem_id');
+        $params['modalidade_id'] = $request->get('modalidade_id');
         $params['numero_ano'] = $request->get('numero_ano');
 
         $params = $this->montaParametrosCompra($retorno,$params);
 
         $novaCompra = new Compra();
+        dump('antes');
         $compra_id = $novaCompra->gravaCompra($params);
-
+        dump('depois');
         unset($params);
+
         $params['compra_id'] = $compra_id;
-        $params['unidade_autorizada_id'] = $request->get('uasg_compra');
+        $params['unidade_autorizada_id'] = $request->get('unidade_origem_id');
         $params = $this->montaParametroItensdaCompra($retorno,$params);
 
-       dd('die');
 
     }
 
@@ -57,7 +60,7 @@ class Etapa1EmpenhoController
         $apiSiasg = new ApiSiasg();
 
         $params = [
-            'modalidade' => $request->get('modalidade'),
+            'modalidade' => '05',//$request->get('modalidade_id'),
             'numeroAno' => $numero_ano[0].$numero_ano[1],
             'uasgCompra' => '110161',//$request->get('uasg_compra'),
             'uasgUsuario' => session('user_ug')
@@ -68,13 +71,14 @@ class Etapa1EmpenhoController
         return $retorno;
     }
 
-    public function montaParametrosCompra($compraSiasg,$params){
+    public function montaParametrosCompra($compraSiasg,$params)
+    {
 
         $unidade_subrogada = $compraSiasg->data->compraSispp->subrogada;
-        $params['unidade_origem_id'] = $this->buscaIdUnidade($params['unidade_origem_id']);
+        $params['unidade_origem_id'] = $params['unidade_origem_id'];
         $params['unidade_subrrogada_id'] = ($unidade_subrogada <> '000000') ? intval($this->buscaIdUnidade($unidade_subrogada)) : null;
-        $params['modalidade_id'] = intval('05');
-        $params['tipo_compra_id'] = $compraSiasg->data->compraSispp->tipoCompra;
+        $params['modalidade_id'] = $params['modalidade_id'];
+        $params['tipo_compra_id'] = $this->buscaTipoCompra($compraSiasg->data->compraSispp->tipoCompra);
         $params['inciso'] = $compraSiasg->data->compraSispp->inciso;
         $params['lei'] = $compraSiasg->data->compraSispp->lei;
 
@@ -129,6 +133,7 @@ class Etapa1EmpenhoController
 
     public function buscaIdUnidade($uasg)
     {
+        dd($uasg);
         $unidade = Unidade::where('codigo',$uasg)->first();
         return $unidade->id;
     }
@@ -136,11 +141,12 @@ class Etapa1EmpenhoController
 
     public function retornaUnidadeAutorizada($compraSiasg,$params)
     {
+
         $unidade_autorizada_id = null;
         $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
         $subrrogada = $compraSiasg->data->compraSispp->subrogada;
         if($tipoCompra == $this::SISPP){
-            ($subrrogada <> '000000') ? $unidade_autorizada_id = intval($this->buscaIdUnidade($subrrogada)) : $unidade_autorizada_id = intval($this->buscaIdUnidade($params['unidade_autorizada_id']));
+            ($subrrogada <> '000000') ? $unidade_autorizada_id = intval($this->buscaIdUnidade($subrrogada)) : $unidade_autorizada_id = $params['unidade_autorizada_id'];
         }
         if($tipoCompra == $this::SISRP){
             //tratar unidade autorizada SISRP - Aguardando Serviço ficar pronto
@@ -148,5 +154,16 @@ class Etapa1EmpenhoController
 
         return $unidade_autorizada_id;
     }
+
+
+    public function buscaTipoCompra($descres)
+    {
+        $tipocompra = Codigoitem::where('codigo_id',$this::TIPOCOMPRASIASG)
+            ->where('visivel',true)
+            ->where('descres','0'.$descres)
+            ->first();
+        return $tipocompra->id;
+    }
+
 
 }

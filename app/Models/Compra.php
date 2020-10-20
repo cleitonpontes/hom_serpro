@@ -51,11 +51,23 @@ class Compra extends Model
         $this->numero_ano = $params['numero_ano'];
         $this->inciso = $params['inciso'];
         $this->lei = $params['lei'];
-
+//        dd($params);
         $this->save($params);
 
         return $this->id;
     }
+
+    public function retornaForcedoresdaCompra()
+    {
+        $fornecedores = [];
+        foreach($this->compra_item()->get() as $key =>$value){
+            $fornecedores[$value->fornecedor->id] = $value->fornecedor->nome;
+        }
+
+        return $fornecedores;
+
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

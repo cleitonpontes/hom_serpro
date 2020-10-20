@@ -21,7 +21,7 @@
     </a>
     <ul class="treeview-menu">
         <li>
-            <a href="{{ backpack_url('/empenho/buscacompra/create') }}">
+            <a href="{{ backpack_url('/empenho/minuta') }}">
                 <i class="fa fa-file-o"></i>
                 <span>Buscar Compra</span>
             </a>
