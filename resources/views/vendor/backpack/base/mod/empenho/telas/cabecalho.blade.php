@@ -1,3 +1,6 @@
+{{--{{ dd(get_defined_vars()['__data']) }}--}}
+{{--{{dd( Request::url() )}}--}}
+
 @php
     // Busca url da rota
     $request = Request();
@@ -20,6 +23,15 @@
     $passos[5] = 'Informar Dados';
     $passos[6] = 'Persistir Dados';
     $passos[7] = 'Gerar XML';
+
+    $rotas[1] = 'empenho.compra.create';
+    $rotas[2] = '';
+    $rotas[3] = '';
+    $rotas[4] = '';
+    $rotas[5] = '';
+    $rotas[6] = '';
+    $rotas[7] = '';
+
 @endphp
 
 <div class="container-fluid spark-screen">
@@ -35,11 +47,7 @@
 						@php $cor = ($passo >= $num) ? 'azul' : ''; @endphp
     					<div class="btn btn-app" style="width: 108px;">
                             @if($cor=="azul")
-                                @if($num == 1)
-                                    <a href="empenho/minuta/tela/1">
-                                @else
-                                    <a href="empenho/minuta/tela/{{$num}}">
-                                @endif
+                                <a href="{{route($rotas[$num])}}">
                             @endif
                             <span class="circulo {{$cor}}">{{$num}}</span>
                             {!! $descricao !!}

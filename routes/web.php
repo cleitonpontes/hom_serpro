@@ -262,6 +262,9 @@ Route::group(
 
             CRUD::resource('/buscacompra', 'CompraSiasgCrudController')
                 ->name('busca.compra');
+
+            Route::get('minuta/tela/1/create', 'CompraSiasgCrudController@create')
+                ->name('compra.create');
         });
 
 

@@ -49,13 +49,14 @@ class CompraSiasgCrudController extends CrudController
             . '/empenho/buscacompra/create'
         );
         $this->crud->setEntityNameStrings('Buscar Compra', 'Buscar Compras');
+//        $this->crud->setCreateView('vendor.backpack.crud.create_compra');
 
-        $this->crud->denyAccess('create');
-        $this->crud->denyAccess('update');
-        $this->crud->denyAccess('delete');
-        $this->crud->denyAccess('show');
+//        $this->crud->denyAccess('create');
+//        $this->crud->denyAccess('update');
+//        $this->crud->denyAccess('delete');
+//        $this->crud->denyAccess('show');
 
-        (backpack_user()->can('glosa_inserir')) ? $this->crud->allowAccess('create') : null;
+//        (backpack_user()->can('glosa_inserir')) ? $this->crud->allowAccess('create') : null;
 
         /*
         |--------------------------------------------------------------------------
@@ -73,6 +74,7 @@ class CompraSiasgCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        dd(123);
         // your additional operations before save here
         $retorno = $this->consultaCompraSiasg($request);
 
