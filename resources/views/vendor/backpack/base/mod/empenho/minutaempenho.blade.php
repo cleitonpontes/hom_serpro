@@ -15,7 +15,14 @@
 @endsection
 
 @section('content')
-
+    @include('backpack::mod.empenho.telas.cabecalho')
+    <div class="flash-message">
+        @foreach (['danger', 'warning', 'success', 'info'] as $msg)
+            @if(Session::has('alert-' . $msg))
+                <p class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }}</p>
+            @endif
+        @endforeach
+    </div>
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
             <h3 class="box-title">Listagem - Minutas de Empenho</h3>

@@ -46,10 +46,10 @@ class CompraSiasgCrudController extends CrudController
         $this->crud->setModel('App\Models\Compra');
         $this->crud->setRoute(
             config('backpack.base.route_prefix')
-            . '/empenho/buscacompra/create'
+            . '/empenho/buscacompra'
         );
         $this->crud->setEntityNameStrings('Buscar Compra', 'Buscar Compras');
-//        $this->crud->setCreateView('vendor.backpack.crud.create_compra');
+        $this->crud->setCreateView('vendor.backpack.crud.create_compra');
 
 //        $this->crud->denyAccess('create');
 //        $this->crud->denyAccess('update');
@@ -74,7 +74,7 @@ class CompraSiasgCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        dd(123);
+
         // your additional operations before save here
         $retorno = $this->consultaCompraSiasg($request);
 
@@ -96,7 +96,8 @@ class CompraSiasgCrudController extends CrudController
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+//        return $redirect_location;
+        return redirect('/empenho/fornecedor/'.$this->crud->entry->id);
     }
 
     public function update(UpdateRequest $request)

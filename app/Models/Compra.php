@@ -61,11 +61,9 @@ class Compra extends Model
     {
         $fornecedores = [];
         foreach($this->compra_item()->get() as $key =>$value){
-            $fornecedores[$value->fornecedor->id] = $value->fornecedor->nome;
+            array_push($fornecedores,['id' => $value->fornecedor->id,'nome' => $value->fornecedor->cpf_cnpj_idgener. ' - '.$value->fornecedor->nome]);
         }
-
         return $fornecedores;
-
     }
 
     /*
