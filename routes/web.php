@@ -251,8 +251,8 @@ Route::group(
 //                ->name('lista.minuta.empenhos')
 //                ->middleware('permission:folha_apropriacao_acesso');
 
-            Route::get('fornecedor/{compra_id}', 'FornecedorEmpenhoController@index')
-                ->name('lista.empenho.fornecedor')
+            Route::get('minuta/etapa/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoController@index')
+                ->name('minuta.etapa.fornecedor')
                 ->middleware('permission:folha_apropriacao_passo');
 
             Route::post('/minuta/tela/1/gravar', 'Minuta\Tela1EmpenhoController@gravar')

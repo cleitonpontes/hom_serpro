@@ -87,7 +87,7 @@ class CompraSiasgCrudController extends CrudController
 
         if($this->verificaCompraExiste($request)){
             \Alert::warning('Compra já existe no sistema.')->flash();
-            return redirect('/empenho/buscacompra/create')->with('Compra já existe','alert-warning');
+            return redirect('/empenho/buscacompra/create');
         }
 
         $redirect_location = parent::storeCrud($request);
@@ -98,12 +98,8 @@ class CompraSiasgCrudController extends CrudController
         $this->gravaParametroItensdaCompra($retorno, $params);
 
         $minutaEmpenho = $this->gravaMinutaEmpenho(['compra_id'=> $this->crud->entry->id, 'unidade_origem_id' =>$this->crud->entry->unidade_origem_id ]);
-
-
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-//        return $redirect_location;
-        return redirect('/empenho/fornecedor/'.$this->crud->entry->id);
+        $etapa = $minutaEmpenho->etapa + 1;
+        return redirect('/empenho/minuta/etapa/'.$minutaEmpenho->etapa.'/'.$minutaEmpenho->id);
     }
 
     public function update(UpdateRequest $request)
@@ -209,14 +205,12 @@ class CompraSiasgCrudController extends CrudController
 
     public function gravaParametroItensdaCompra($compraSiasg,$params)
     {
-        $fornecedor = [];
         $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg,$params);
 
         if(!is_null($compraSiasg->data->itemCompraSisppDTO)){
 
             foreach($compraSiasg->data->itemCompraSisppDTO as $key => $item){
 
-//                $params['compra_id'] = $params['compra_id'];
                 $params['tipo_item_id'] = ($item->tipo <> 'S') ? $this::SERVICO : $this::MATERIAL;
                 $params['catmatseritem_id'] = intval($item->codigo);
                 $params['fornecedor_id'] = $this->retornaIdFornecedor($item);
@@ -251,7 +245,6 @@ class CompraSiasgCrudController extends CrudController
 
     public function buscaIdUnidade($uasg)
     {
-//        dd($uasg);
         $unidade = Unidade::where('codigo',$uasg)->first();
         return $unidade->id;
     }
@@ -285,7 +278,6 @@ class CompraSiasgCrudController extends CrudController
 
     public function gravaMinutaEmpenho($params)
     {
-//        dd($params);
         $minutaEmpenho = new MinutaEmpenho();
         $minutaEmpenho->unidade_id = $params['unidade_origem_id'];
         $minutaEmpenho->compra_id = $params['compra_id'];

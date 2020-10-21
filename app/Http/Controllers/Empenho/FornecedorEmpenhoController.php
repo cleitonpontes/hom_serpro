@@ -39,15 +39,16 @@ class FornecedorEmpenhoController extends BaseController
      */
     public function index(Request $request)
     {
-        $compra_id = \Route::current()->parameter('compra_id');
-        $modCompra = Compra::find($compra_id);
+        $minuta_id = \Route::current()->parameter('minuta_id');
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+        $modCompra = Compra::find($modMinuta->compra_id);
+
         $fornecedores = $modCompra->retornaForcedoresdaCompra();
 
         if ($request->ajax()) {
             return DataTables::of($fornecedores)->addColumn('action', function ($fornecedores) {
-
-                // Ações disponíveis
-                $acoes = $this->retornaAcoes();
+                $id = 1;
+                $acoes = $this->retornaAcoes($id);
 
                 return $acoes;
             })
@@ -111,32 +112,34 @@ class FornecedorEmpenhoController extends BaseController
     /**
      * Retorna html das ações disponíveis
      *
-     * @param number $Id
+     * @param number $id
      * @return string
      */
-    private function retornaAcoes()
+    private function retornaAcoes($id)
     {
-        $dochabil = $this->retornaBtnSelecionar();
+        $dochabil = $this->retornaBtnSelecionar($id);
 
         $acoes = '';
-        $acoes = '<div class="btn-group">';
-        $acoes .= 'Selecionar';
-        $acoes .= '</div>';
+        $acoes .= '<a href="/empenho/minuta/etapa/3/';
+        $acoes .= '"Selecionar ';
+        $acoes .= "class='btn btn-default btn-sm' ";
+        $acoes .= 'title="Selecione o fornecedor">';
+        $acoes .= '<i class="fa fa-check-circle"></i></a>';
 
-        return $acoes;
+        return $dochabil;
     }
 
 
-    private function retornaBtnSelecionar()
+    private function retornaBtnSelecionar($id)
     {
-        $relatorio = '';
-        $relatorio .= '<a href="/empenho/minuta/etapa2/';
-        $relatorio .= '" ';
-        $relatorio .= "class='btn btn-default btn-sm' ";
-        $relatorio .= 'title="Selecione o fornecedor">';
-        $relatorio .= '<i class="fa fa-file-o"></i></a>';
+        $selecionar = '';
+        $selecionar .= '<a href="/empenho/minuta/etapa2/';
+        $selecionar .= '"Selecionar ';
+        $selecionar .= "class='btn btn-default btn-sm' ";
+        $selecionar .= 'title="Selecione o fornecedor">';
+        $selecionar .= '<i class="fa fa-check-circle"></i></a>';
 
-        return $relatorio;
+        return $selecionar;
     }
 
 }
