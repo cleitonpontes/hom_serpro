@@ -29,7 +29,7 @@ class CompraSiasgCrudController extends CrudController
     const SERVICO = 150;
     const SISPP = 1;
     const SISRP = 2;
-    const TIPOCOMPRASIASG = 29;
+    const TIPOCOMPRASIASG = 37;
 
     public function setup()
     {
@@ -99,7 +99,7 @@ class CompraSiasgCrudController extends CrudController
 
         $minutaEmpenho = $this->gravaMinutaEmpenho(['compra_id'=> $this->crud->entry->id, 'unidade_origem_id' =>$this->crud->entry->unidade_origem_id ]);
         $etapa = $minutaEmpenho->etapa + 1;
-        return redirect('/empenho/minuta/etapa/'.$minutaEmpenho->etapa.'/'.$minutaEmpenho->id);
+        return redirect('/empenho/fornecedor/'.$etapa.'/'.$minutaEmpenho->id);
     }
 
     public function update(UpdateRequest $request)
@@ -200,6 +200,7 @@ class CompraSiasgCrudController extends CrudController
             ->where('visivel',true)
             ->where('descres','0'.$descres)
             ->first();
+//        dd($tipocompra);
         return $tipocompra->id;
     }
 

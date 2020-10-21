@@ -10,7 +10,13 @@
     $proc = array_search('tela', $partes);
 
     // Define o passo atual
-    $passo = (int) $partes[$proc +1];
+    //$passo = (int) $partes[$proc +1];
+
+    $passo = (int) Route::current()->parameter('etapa_id');
+    $minuta_id = (int) Route::current()->parameter('minuta_id');
+    $minuta = ($minuta_id ?: '' );
+
+    //dd($passo);
     session(['empenho_tela' => $passo]);
 
     // Itens do cabeçalho
@@ -24,46 +30,47 @@
     $passos[6] = 'Persistir Dados';
     $passos[7] = 'Gerar XML';
 
-    $rotas[1] = 'empenho.compra.create';
-    $rotas[2] = '';
+    $rotas[1] = 'buscacompra';
+    $rotas[2] = 'fornecedor';
     $rotas[3] = '';
     $rotas[4] = '';
     $rotas[5] = '';
     $rotas[6] = '';
-    $rotas[7] = '';
+    $rotas[7] = ''
 
 @endphp
 
 <div class="container-fluid spark-screen">
-	<div class="row">
-		<div class="box box-solid box-primary">
-			<div class="box-header with-border">
-				<h3 class="box-title"> Fluxo de Empenho </h3>
-			</div>
-			<div class="box-body">
-				<div class="row" align="center">
+    <div class="row">
+        <div class="box box-solid box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title"> Fluxo de Empenho </h3>
+            </div>
+            <div class="box-body">
+                <div class="row" align="center">
 
-					@foreach($passos as $num => $descricao)
-						@php $cor = ($passo >= $num) ? 'azul' : ''; @endphp
-    					<div class="btn btn-app" style="width: 108px;">
+                    @foreach($passos as $num => $descricao)
+                        @php $cor = ($passo >= $num) ? 'azul' : '' @endphp
+                        <div class="btn btn-app" style="width: 108px;">
                             @if($cor=="azul")
-                                <a href="{{route($rotas[$num])}}">
-                            @endif
-                            <span class="circulo {{$cor}}">{{$num}}</span>
-                            {!! $descricao !!}
-                            @if($cor=="azul")
+                                <a href="{{ backpack_url("/empenho/$rotas[$num]/$num/$minuta") }}">
+                                    {{--                                <a href="{{route('busca.compra', ['tela_id'=> '1'])}}">--}}
+                                    @endif
+                                    <span class="circulo {{$cor}}">{{$num}}</span>
+                                    {!! $descricao !!}
+                                    @if($cor=="azul")
                                 </a>
                             @endif
-    					</div>
-					@endforeach
+                        </div>
+                    @endforeach
 
-				</div>
-			</div>
+                </div>
+            </div>
 
-		</div>
-	</div>
+        </div>
+    </div>
 </div>
-<br />
+<br/>
 
 @push('after_scripts')
     <style type="text/css">

@@ -247,6 +247,49 @@ Route::group(
                 ->name('lista.minuta.search')
                 ->middleware('permission:folha_apropriacao_acesso');
 
+
+            //passo 1
+//            CRUD::resource('/buscacompra', 'CompraSiasgCrudController')
+//                ->name('busca.compra');
+
+            Route::get('buscacompra/{etapa_id}/{minuta_id?}', 'CompraSiasgCrudController@create')
+                ->name('minuta.etapa.compra');
+
+            Route::post('buscacompra', 'CompraSiasgCrudController@store');
+
+            //passo 2
+            Route::get('fornecedor/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoController@index')
+                ->name('minuta.etapa.fornecedor');
+
+
+
+            //passo 3
+
+
+            Route::get('item/{etapa_id}/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
+                ->name('minuta.etapa.item');
+
+            //passo 6
+
+
+            Route::get('item/{etapa_id}/{minuta_id}', 'DadosEmpenhoCrudController@create')
+                ->name('minuta.etapa.dadosempenho');
+
+            Route::post('item', 'CompraSiasgCrudController@store');
+
+            /**
+             *
+             * Minuta Empenho - Genéricos
+             *
+             **/
+
+//            CRUD::resource('/minutaempenho', 'MinutaEmpenhoCrudController')
+//                ->name('minuta.empenho');
+
+
+
+
+
 //            Route::get('/listaminutaempenho', 'NovoEmpenhoController@index')
 //                ->name('lista.minuta.empenhos')
 //                ->middleware('permission:folha_apropriacao_acesso');
@@ -260,8 +303,7 @@ Route::group(
                 ->middleware('permission:folha_apropriacao_passo');
 
 
-            CRUD::resource('/buscacompra', 'CompraSiasgCrudController')
-                ->name('busca.compra');
+
 
 //            Route::get('minuta/tela/1/create', 'CompraSiasgCrudController@create')
 //                ->name('compra.create');
