@@ -16,6 +16,7 @@ use DB;
 
 /**
  * Class ContratofaturaCrudController
+ *
  * @package App\Http\Controllers\Admin
  * @property-read CrudPanel $crud
  */
@@ -36,15 +37,18 @@ class ContratofaturaCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
+
         $this->crud->setModel('App\Models\Contratofatura');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/faturas');
         $this->crud->setEntityNameStrings('Fatura do Contrato', 'Faturas - Contrato');
         $this->crud->addClause('join', 'tipolistafatura', 'tipolistafatura.id', '=', 'contratofaturas.tipolistafatura_id');
-        $this->crud->addClause('select', 'contratofaturas.*');
-
+        $this->crud->addClause('leftJoin', 'apropriacoes_faturas_contratofaturas', 'apropriacoes_faturas_contratofaturas.contratofaturas_id', '=', 'contratofaturas.id');
+        $this->crud->addClause('select', 'contratofaturas.*', 'apropriacoes_faturas_contratofaturas.contratofaturas_id');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
+
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
         $this->crud->enableExportButtons();
+
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
@@ -62,6 +66,30 @@ class ContratofaturaCrudController extends CrudController
             $this->crud->AllowAccess('update');
             $this->crud->AllowAccess('delete');
         }
+
+        $this->crud->enableBulkActions();
+
+        $this->crud->addButton(
+            'line',
+            'apropriacao_fatura',
+            'view',
+            'crud::buttons.apropriacao_fatura',
+            'end'
+        );
+
+        $this->crud->addButton(
+            'bottom',
+            'apropriacao_fatura',
+            'view',
+            'crud::buttons.bulk_apropriacao_fatura'
+        );
+
+        $this->crud->addButton(
+            'bottom',
+            'del_apropriacao_fatura',
+            'view',
+            'crud::buttons.bulk_delete'
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -81,11 +109,9 @@ class ContratofaturaCrudController extends CrudController
             ->pluck('nome', 'id')
             ->toArray();
 
-
         $campos = $this->Campos($con, $tipolistafatura, $contrato_id);
         $this->crud->addFields($campos);
 
-        // add asterisk for fields that are required in ContratofaturaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
@@ -95,242 +121,187 @@ class ContratofaturaCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'getContrato',
-                'label' => 'Número do instrumento', // Table column heading
+                'label' => 'Contrato',
                 'type' => 'model_function',
-                'function_name' => 'getContrato', // the method in your Model
+                'function_name' => 'getContrato',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'getTipoListaFatura',
-                'label' => 'Tipo Lista Fatura', // Table column heading
+                'label' => 'Tipo Lista Fatura',
                 'type' => 'model_function',
-                'function_name' => 'getTipoListaFatura', // the method in your Model
+                'function_name' => 'getTipoListaFatura',
                 'orderable' => true,
                 'limit' => 1000,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('tipolistafatura.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-//                    $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
                 },
             ],
             [
                 'name' => 'getJustificativaFatura',
-                'label' => 'Justificativa', // Table column heading
+                'label' => 'Justificativa',
                 'type' => 'model_function',
-                'function_name' => 'getJustificativaFatura', // the method in your Model
+                'function_name' => 'getJustificativaFatura',
                 'limit' => 1000,
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('justificativafatura.nome', 'like', "%$searchTerm%");
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'getSfpadrao',
-                'label' => 'Doc. Origem Siafi', // Table column heading
+                'label' => 'Doc. Origem Siafi',
                 'type' => 'model_function',
-                'function_name' => 'getSfpadrao', // the method in your Model
+                'function_name' => 'getSfpadrao',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-//                    $query->orWhere('empenhos.numero', 'like', "%" . strtoupper($searchTerm) . "%");
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'numero',
-                'label' => 'Número', // Table column heading
+                'label' => 'Número',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'emissao',
-                'label' => 'Dt. Emissão', // Table column heading
+                'label' => 'Dt. Emissão',
                 'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'vencimento',
-                'label' => 'Dt. Vencimento', // Table column heading
+                'label' => 'Dt. Vencimento',
                 'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatValor',
-                'label' => 'Valor', // Table column heading
+                'label' => 'Valor',
                 'type' => 'model_function',
-                'function_name' => 'formatValor', // the method in your Model
+                'function_name' => 'formatValor',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatJuros',
-                'label' => 'Juros', // Table column heading
+                'label' => 'Juros',
                 'type' => 'model_function',
-                'function_name' => 'formatJuros', // the method in your Model
+                'function_name' => 'formatJuros',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatMulta',
-                'label' => 'Multa', // Table column heading
+                'label' => 'Multa',
                 'type' => 'model_function',
-                'function_name' => 'formatMulta', // the method in your Model
+                'function_name' => 'formatMulta',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatGlosa',
-                'label' => 'Glosa', // Table column heading
+                'label' => 'Glosa',
                 'type' => 'model_function',
-                'function_name' => 'formatGlosa', // the method in your Model
+                'function_name' => 'formatGlosa',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'formatValorLiquido',
-                'label' => 'Valor Líquido a pagar', // Table column heading
+                'label' => 'Valor Líquido a pagar',
                 'type' => 'model_function',
-                'function_name' => 'formatValorLiquido', // the method in your Model
+                'function_name' => 'formatValorLiquido',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'processo',
-                'label' => 'Processo', // Table column heading
+                'label' => 'Processo',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'protocolo',
-                'label' => 'Dt. Protocolo', // Table column heading
+                'label' => 'Dt. Protocolo',
                 'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'ateste',
-                'label' => 'Dt. Ateste', // Table column heading
+                'label' => 'Dt. Ateste',
                 'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'prazo',
-                'label' => 'Dt. Prazo Pagto.', // Table column heading
+                'label' => 'Dt. Prazo Pagto.',
                 'type' => 'date',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
-            [ // n-n relationship (with pivot table)
+            [
                 'name' => 'empenhos',
                 'label' => 'Empenhos',
                 'type' => 'select_multiple',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
                 'entity' => 'empenhos',
                 'attribute' => 'numero',
                 'model' => Empenho::class,
@@ -341,82 +312,64 @@ class ContratofaturaCrudController extends CrudController
                 'label' => 'Repactuação',
                 'type' => 'boolean',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                // optionally override the Yes/No texts
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
                 'options' => [0 => 'Não', 1 => 'Sim']
             ],
             [
                 'name' => 'infcomplementar',
-                'label' => 'Informações Complementares', // Table column heading
+                'label' => 'Informações Complementares',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'mesref',
-                'label' => 'Mês Referência', // Table column heading
+                'label' => 'Mês Referência',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'anoref',
-                'label' => 'Ano Referência', // Table column heading
+                'label' => 'Ano Referência',
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
             ],
             [
                 'name' => 'situacao',
                 'label' => 'Situação',
                 'type' => 'select_from_array',
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-                // optionally override the Yes/No texts
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
                 'options' => config('app.situacao_fatura')
             ],
-
-
         ];
 
         return $colunas;
-
     }
 
     public function Campos($contrato, $tipolistafatura, $contrato_id)
     {
-
         $con = Contrato::find($contrato_id);
 
         $campos = [
-            [ // select_from_array
+            [
                 'name' => 'contrato_id',
                 'label' => "Número do instrumento",
                 'type' => 'select_from_array',
@@ -425,106 +378,99 @@ class ContratofaturaCrudController extends CrudController
                 'attributes' => [
                     'readonly' => 'readonly',
                     'style' => 'pointer-events: none;touch-action: none;'
-                ], // chan
+                ],
                 'tab' => 'Dados Fatura',
             ],
-            [ // select_from_array
+            [
                 'name' => 'tipolistafatura_id',
                 'label' => "Tipo Lista Fatura",
                 'type' => 'select2_from_array',
                 'options' => $tipolistafatura,
                 'allows_null' => true,
                 'tab' => 'Dados Fatura',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
-            [ // select_from_array
+            [
                 'name' => 'numero',
                 'label' => "Número",
                 'type' => 'text',
                 'attributes' => [
                     'maxlength' => '17',
                     'onkeyup' => "maiuscula(this)",
-//                    'disabled'=>'disabled',
                 ],
                 'tab' => 'Dados Fatura',
             ],
-            [ // select_from_array
+            [
                 'name' => 'emissao',
                 'label' => "Dt. Emissão",
                 'type' => 'date',
                 'tab' => 'Dados Fatura',
             ],
-            [ // select_from_array
+            [
                 'name' => 'vencimento',
                 'label' => "Dt. Vencimento",
                 'type' => 'date',
                 'tab' => 'Dados Fatura',
             ],
 
-            [   // Number
+            [
                 'name' => 'valor',
                 'label' => 'Valor',
                 'type' => 'money_fatura',
-                // optionals
                 'attributes' => [
                     'id' => 'valor',
-                ], // allow decimals
+                ],
                 'prefix' => "R$",
                 'tab' => 'Dados Fatura',
             ],
-            [   // Number
+            [
                 'name' => 'juros',
                 'label' => 'Juros',
                 'type' => 'money_fatura',
-                // optionals
                 'attributes' => [
                     'id' => 'juros',
-                ], // allow decimals
+                ],
                 'prefix' => "R$",
                 'tab' => 'Dados Fatura',
             ],
-            [   // Number
+            [
                 'name' => 'multa',
                 'label' => 'Multa',
                 'type' => 'money_fatura',
-                // optionals
                 'attributes' => [
                     'id' => 'multa',
-                ], // allow decimals
+                ],
                 'prefix' => "R$",
                 'tab' => 'Dados Fatura',
             ],
-            [   // Number
+            [
                 'name' => 'glosa',
                 'label' => 'Glosa',
                 'type' => 'money_fatura',
-                // optionals
                 'attributes' => [
                     'id' => 'glosa',
-                ], // allow decimals
+                ],
                 'prefix' => "R$",
                 'tab' => 'Dados Fatura',
             ],
-            [ // select_from_array
+            [
                 'name' => 'processo',
                 'label' => "Processo",
                 'type' => 'numprocesso',
                 'tab' => 'Outras Informações',
             ],
-            [ // select_from_array
+            [
                 'name' => 'protocolo',
                 'label' => "Dt. Protocolo",
                 'type' => 'date',
                 'tab' => 'Outras Informações',
             ],
-            [ // select_from_array
+            [
                 'name' => 'ateste',
                 'label' => "Dt. Ateste",
                 'type' => 'date',
                 'tab' => 'Outras Informações',
             ],
-            [ // select_from_array
+            [
                 'name' => 'repactuacao',
                 'label' => "Repactuação?",
                 'type' => 'radio',
@@ -533,17 +479,16 @@ class ContratofaturaCrudController extends CrudController
                 'inline' => true,
                 'tab' => 'Outras Informações',
             ],
-            [ // select_from_array
+            [
                 'name' => 'infcomplementar',
                 'label' => "Informações Complementares",
                 'type' => 'text',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)",
-//                    'disabled'=>'disabled',
                 ],
                 'tab' => 'Outras Informações',
             ],
-            [ // select_from_array
+            [
                 'name' => 'mesref',
                 'label' => "Mês Referência",
                 'type' => 'select2_from_array',
@@ -551,7 +496,7 @@ class ContratofaturaCrudController extends CrudController
                 'allows_null' => false,
                 'tab' => 'Outras Informações',
             ],
-            [ // select_from_array
+            [
                 'name' => 'anoref',
                 'label' => "Ano Referência",
                 'type' => 'select2_from_array',
@@ -560,16 +505,14 @@ class ContratofaturaCrudController extends CrudController
                 'allows_null' => false,
                 'tab' => 'Outras Informações',
             ],
-            [       // Select2Multiple = n-n relationship (with pivot table)
+            [
                 'label' => "Empenhos",
                 'type' => 'select2_multiple',
-                'name' => 'empenhos', // the method that defines the relationship in your Model
-                'entity' => 'empenhos', // the method that defines the relationship in your Model
-                'attribute' => 'numero', // foreign key attribute that is shown to user
-//                'attribute2' => 'aliquidar', // foreign key attribute that is shown to user
-//                'attribute_separator' => ' - Valor a Liquidar: R$ ', // foreign key attribute that is shown to user
-                'model' => "App\Models\Empenho", // foreign key model
-                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+                'name' => 'empenhos',
+                'entity' => 'empenhos',
+                'attribute' => 'numero',
+                'model' => "App\Models\Empenho",
+                'pivot' => true,
                 'options' => (function ($query) use ($con) {
                     return $query->orderBy('numero', 'ASC')
                         ->select(['id', DB::raw('case
@@ -583,9 +526,8 @@ class ContratofaturaCrudController extends CrudController
                         ->get();
                 }),
                 'tab' => 'Outras Informações',
-                // 'select_all' => true, // show Select All and Clear buttons?
             ],
-            [ // select_from_array
+            [
                 'name' => 'situacao',
                 'label' => "Situação",
                 'type' => 'select_from_array',
@@ -598,7 +540,6 @@ class ContratofaturaCrudController extends CrudController
                 'allows_null' => false,
                 'tab' => 'Outras Informações',
             ],
-
         ];
 
         return $campos;
@@ -612,13 +553,11 @@ class ContratofaturaCrudController extends CrudController
         $g = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('glosa')))), 2, '.', '');
         $vl = number_format(floatval($v + $j + $m - $g), 2, '.', '');
 
-
         if ($request->input('vencimento')) {
-
             $request->request->set('prazo', $request->input('vencimento'));
-
         } else {
             $tipolistafatura = $request->input('tipolistafatura_id');
+
             if ($tipolistafatura == '5') {
                 $ateste = $request->input('ateste');
                 $request->request->set('prazo', date('Y-m-d', strtotime("+5 days", strtotime($ateste))));
@@ -636,7 +575,6 @@ class ContratofaturaCrudController extends CrudController
 
         $request->request->set('situacao', 'PEN');
 
-
         $redirect_location = parent::storeCrud($request);
 
         return $redirect_location;
@@ -648,7 +586,6 @@ class ContratofaturaCrudController extends CrudController
         $situacao = $request->input('situacao');
 
         if ($situacao == 'PEN') {
-
             $v = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('valor')))), 2, '.', '');
             $j = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('juros')))), 2, '.', '');
             $m = number_format(floatval(str_replace(',', '.', str_replace('.', '', $request->input('multa')))), 2, '.', '');
@@ -656,11 +593,10 @@ class ContratofaturaCrudController extends CrudController
             $vl = number_format(floatval($v + $j + $m - $g), 2, '.', '');
 
             if ($request->input('vencimento')) {
-
                 $request->request->set('prazo', $request->input('vencimento'));
-
             } else {
                 $tipolistafatura = $request->input('tipolistafatura_id');
+
                 if ($tipolistafatura == '5') {
                     $ateste = $request->input('ateste');
                     $request->request->set('prazo', date('Y-m-d', strtotime("+5 days", strtotime($ateste))));
@@ -680,13 +616,9 @@ class ContratofaturaCrudController extends CrudController
             return $redirect_location;
 
         } else {
-
             \Alert::error('Essa Fatura não pode ser alterada!')->flash();
             return redirect('/gescon/meus-contratos/' . $contrato_id . '/faturas');
-
         }
-
-
     }
 
     public function show($id)

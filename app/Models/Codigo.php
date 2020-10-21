@@ -40,6 +40,7 @@ class Codigo extends Model
     const STATUS_PROCESSO = 25;
     const REGIOES_PAIS = 26;
     const AMPARO_LEGAL_RESTRICOES = 27;
+    const APROPRIACAO_FATURA_FASES = 28;
 
     /*
     |--------------------------------------------------------------------------
