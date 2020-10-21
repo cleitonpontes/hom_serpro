@@ -32,7 +32,7 @@
 
     $rotas[1] = 'buscacompra';
     $rotas[2] = 'fornecedor';
-    $rotas[3] = '';
+    $rotas[3] = 'item';
     $rotas[4] = '';
     $rotas[5] = '';
     $rotas[6] = '';
@@ -50,10 +50,16 @@
                 <div class="row" align="center">
 
                     @foreach($passos as $num => $descricao)
+                        @php
+                            $fornecedor = ''
+                        @endphp
+                        @if($num === 3 )
+                            @php $fornecedor = Route::current()->parameter('fornecedor_id') @endphp
+                        @endif
                         @php $cor = ($passo >= $num) ? 'azul' : '' @endphp
                         <div class="btn btn-app" style="width: 108px;">
                             @if($cor=="azul")
-                                <a href="{{ backpack_url("/empenho/$rotas[$num]/$num/$minuta") }}">
+                                <a href="{{ backpack_url("/empenho/$rotas[$num]/$num/$minuta$fornecedor") }}">
                                     {{--                                <a href="{{route('busca.compra', ['tela_id'=> '1'])}}">--}}
                                     @endif
                                     <span class="circulo {{$cor}}">{{$num}}</span>

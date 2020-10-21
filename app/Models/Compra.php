@@ -42,7 +42,8 @@ class Compra extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function gravaCompra($params){
+    public function gravaCompra($params)
+    {
 
         $this->unidade_origem_id = $params['unidade_origem_id'];
         $this->unidade_subrrogada_id = $params['unidade_subrrogada_id'];
@@ -60,8 +61,10 @@ class Compra extends Model
     public function retornaForcedoresdaCompra()
     {
         $fornecedores = [];
-        foreach($this->compra_item()->get() as $key =>$value){
-            array_push($fornecedores,['id' => $value->fornecedor->id,'nome' => $value->fornecedor->cpf_cnpj_idgener. ' - '.$value->fornecedor->nome]);
+        foreach ($this->compra_item()->get() as $key => $value) {
+            $fornecedores[] = [
+                'id' => $value->fornecedor->id,
+                'nome' => $value->fornecedor->cpf_cnpj_idgener . ' - ' . $value->fornecedor->nome];
         }
         return $fornecedores;
     }
