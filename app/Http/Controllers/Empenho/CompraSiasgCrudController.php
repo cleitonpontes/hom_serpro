@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Empenho;
 use App\Http\Controllers\Empenho\Minuta\Etapa1EmpenhoController;
 use App\Http\Traits\Formatador;
 use App\Models\Codigoitem;
+use App\Models\Compra;
 use App\Models\CompraItem;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
@@ -84,7 +85,10 @@ class CompraSiasgCrudController extends CrudController
 
         $this->montaParametrosCompra($retorno,$request);
 
-        dd($this->verificaCompraExiste($request));
+        if($this->verificaCompraExiste($request)){
+            \Alert::warning('Compra já existe no sistema.')->flash();
+            return redirect('/empenho/buscacompra/create')->with('Compra já existe','alert-warning');
+        }
 
         $redirect_location = parent::storeCrud($request);
 
@@ -95,12 +99,11 @@ class CompraSiasgCrudController extends CrudController
 
         $minutaEmpenho = $this->gravaMinutaEmpenho(['compra_id'=> $this->crud->entry->id, 'unidade_origem_id' =>$this->crud->entry->unidade_origem_id ]);
 
-        dd($minutaEmpenho);
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
 //        return $redirect_location;
-        return redirect('/empenho/minuta/etapa/'.$this->crud->entry->id);
+        return redirect('/empenho/fornecedor/'.$this->crud->entry->id);
     }
 
     public function update(UpdateRequest $request)
@@ -270,18 +273,14 @@ class CompraSiasgCrudController extends CrudController
 
     public function verificaCompraExiste($request)
     {
-        dd($request->all());
-        $fornecedor = new Fornecedor();
-        $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
 
-        if(is_null($retorno)){
-            $fornecedor->tipo_fornecedor = $fornecedor->retornaTipoFornecedor($item->niFornecedor);
-            $fornecedor->cpf_cnpj_idgener = $fornecedor->formataCnpjCpf($item->niFornecedor);
-            $fornecedor->nome = $item->nomeFornecedor;
-            $fornecedor->save();
-            return $fornecedor->id;
-        }
-        return $retorno->id;
+       $compra = Compra::where('unidade_origem_id',$request->get('unidade_origem_id'))
+                    ->where('modalidade_id',$request->get('modalidade_id'))
+                    ->where('numero_ano',$request->get('numero_ano'))
+                    ->where('tipo_compra_id',$request->get('tipo_compra_id'))
+                    ->exists();
+
+        return $compra;
     }
 
     public function gravaMinutaEmpenho($params)
