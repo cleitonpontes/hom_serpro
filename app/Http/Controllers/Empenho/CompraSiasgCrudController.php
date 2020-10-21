@@ -91,7 +91,8 @@ class CompraSiasgCrudController extends CrudController
 
         $this->gravaParametroItensdaCompra($retorno, $params);
 
-        $this->gravaMinutaEmpenho(['compra_id'=> $this->crud->entry->id, 'unidade_origem_id' =>$this->crud->entry->unidade_origem_id ]);
+        $minutaEmpenho = $this->gravaMinutaEmpenho(['compra_id'=> $this->crud->entry->id, 'unidade_origem_id' =>$this->crud->entry->unidade_origem_id ]);
+
 
 
         // your additional operations after save here
@@ -268,16 +269,17 @@ class CompraSiasgCrudController extends CrudController
     public function gravaMinutaEmpenho($params)
     {
 //        dd($params);
-        $compraItem = new MinutaEmpenho();
-        $compraItem->unidade_id = $params['unidade_origem_id'];
-        $compraItem->compra_id = $params['compra_id'];
+        $minutaEmpenho = new MinutaEmpenho();
+        $minutaEmpenho->unidade_id = $params['unidade_origem_id'];
+        $minutaEmpenho->compra_id = $params['compra_id'];
 
         //todo RETIRAR A OBRIGATORIEDADE DA INFORMACAO COMPLEMENTAR
         //todo COLOCAR A ETAPA
         //todo COLOCAR O TIPO MINUTA EMPENHO
-        $compraItem->informacao_complementar = 'dfadsfadsfds';
+        $minutaEmpenho->informacao_complementar = 'dfadsfadsfds';
 
-        $compraItem->save();
+        $minutaEmpenho->save();
+        return $minutaEmpenho;
 
     }
 
