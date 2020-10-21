@@ -18,12 +18,12 @@
 @endphp
 @section('content')
     @include('backpack::mod.folha.apropriacao.cabecalho')
-    
+
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
             <h3 class="box-title">Persistir Dados</h3>
         </div>
-        
+
         <div class="box-body">
             <br />
             <table id="datatable" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
@@ -33,7 +33,7 @@
                         <th class='text-right'>Status</th>
                     </tr>
                 </thead>
-                
+
                 <tbody>
                     <tr>
                         <td><i>Preparação preliminar</i></td>
@@ -74,7 +74,7 @@
                 </tbody>
             </table>
             <br />
-            
+
             <div class="row">
             	<div class="col-md-12 text-center">
             		<button type="button"
@@ -90,14 +90,14 @@
                 	</button>
             	</div>
             </div>
-            
+
         </div>
         <br />
-        
+
     </div>
-    
+
     @include('backpack::mod.folha.apropriacao.botoes')
-    
+
     <input type='hidden' id='apid' value='<?php echo $apid; ?>' />
 @endsection
 
@@ -121,14 +121,14 @@
 			$('#btnProximo').attr('disabled', 'true');
 
         	var apid = $('#apid').val();
-        	$('#prp').html("<strong>Prepração preliminar em andamento...</strong>");
+        	$('#prp').html("<strong>Preparação preliminar em andamento...</strong>");
         	preparacaoInicial(apid);
 		});
 
 		$('#btnRelatorio').click(function() {
 			var apid = $('#apid').val();
 			var url = '/folha/apropriacao/relatorio/' + apid;
-			
+
 			window.open(url, '_blank');
 		});
 
@@ -142,9 +142,9 @@
 		    	},
 		    	url: '/folha/apropriacao/persistir/' + apid + '/PreparacaoInicial',
 		    	success: function(retorno) {
-		    		$('#prp').html("Prepração preliminar concluída");
-		    		$('#pdr').html("<strong>Prepração do registro 'SF - Padrão' em andamento...</strong>");
-		    		
+		    		$('#prp').html("Preparação preliminar concluída");
+		    		$('#pdr').html("<strong>Preparação do registro 'SF - Padrão' em andamento...</strong>");
+
 		    		atualizaPadrao(apid);
 		    	},
 		    	error: function(e) {
@@ -164,8 +164,8 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/Padrao',
 		    	success: function(retorno) {
 		    		$('#pdr').html("Registro 'SF - Padrão' gravado");
-		    		$('#bas').html("<strong>Prepração do registro 'SF - Dados básicos' em andamento...</strong>");
-		    		
+		    		$('#bas').html("<strong>Preparação do registro 'SF - Dados básicos' em andamento...</strong>");
+
 		    		atualizaDadosBasicos(apid);
 		    	},
 		    	error: function(e) {
@@ -185,7 +185,7 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/DadosBasicos',
 		    	success: function(retorno) {
 		    		$('#bas').html("Registro 'SF - Dados básicos' gravado");
-		    		$('#doc').html("<strong>Prepração do registro 'SF - Documento de origem' em andamento...</strong>");
+		    		$('#doc').html("<strong>Preparação do registro 'SF - Documento de origem' em andamento...</strong>");
 
 		    		atualizaDocumentoOrigem(apid);
 		    	},
@@ -206,7 +206,7 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/DocumentoOrigem',
 		    	success: function(retorno) {
 		    		$('#doc').html("Registro 'SF - Documento de origem' gravado");
-		    		$('#pco').html("<strong>Prepração do registro 'SF - PCO' em andamento...</strong>");
+		    		$('#pco').html("<strong>Preparação do registro 'SF - PCO' em andamento...</strong>");
 
 		    		atualizaPco(apid);
 		    	},
@@ -227,7 +227,7 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/Pco',
 		    	success: function(retorno) {
 		    		$('#pco').html("Registros 'SF - PCO' gravados");
-		    		$('#pci').html("<strong>Prepração do registro 'SF - PCO - Item' em andamento...</strong>");
+		    		$('#pci').html("<strong>Preparação do registro 'SF - PCO - Item' em andamento...</strong>");
 
 		    		atualizaPcoItem(apid);
 		    	},
@@ -248,7 +248,7 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/PcoItem',
 		    	success: function(retorno) {
 		    		$('#pci').html("Registros 'SF - PCO - Item' gravados");
-		    		$('#dsp').html("<strong>Prepração do registro 'SF - Despesa a anular' em andamento...</strong>");
+		    		$('#dsp').html("<strong>Preparação do registro 'SF - Despesa a anular' em andamento...</strong>");
 
 		    		atualizaDespesa(apid);
 		    	},
@@ -269,7 +269,7 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/Despesa',
 		    	success: function(retorno) {
 		    		$('#dsp').html("Registros 'SF - Despesa a anular' gravados");
-		    		$('#dsi').html("<strong>Prepração do registro 'SF - Despesa a anular - Item' em andamento...</strong>");
+		    		$('#dsi').html("<strong>Preparação do registro 'SF - Despesa a anular - Item' em andamento...</strong>");
 
 		    		atualizaDespesaItem(apid);
 		    	},
@@ -290,7 +290,7 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/DespesaItem',
 		    	success: function(retorno) {
 		    		$('#dsi').html("Registros 'SF - Despesa a anular - Item' gravados");
-		    		$('#rdi').html("<strong>Prepração do registro 'SF - Rel. Itens Desp. Anular e PCO' em andamento...</strong>");
+		    		$('#rdi').html("<strong>Preparação do registro 'SF - Rel. Itens Desp. Anular e PCO' em andamento...</strong>");
 
 		    		atualizaRelacionamentos(apid);
 		    	},
@@ -299,7 +299,7 @@
 		    	}
 	    	});
 		}
-		
+
 		function atualizaRelacionamentos(apid) {
 		    $.ajax({
 		    	type: 'PUT',
@@ -311,7 +311,7 @@
 		    	url: '/folha/apropriacao/persistir/' + apid + '/Relacionamentos',
 		    	success: function(retorno) {
 		    		$('#rdi').html("Registros 'SF - Rel. Itens Desp. Anular e PCO' gravados");
-		    		
+
 		    		$('#btnRelatorio').prop('disabled', false);
 		    		$('#btnProximo').prop('disabled', false);
 		    	},
