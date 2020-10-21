@@ -84,6 +84,8 @@ class CompraSiasgCrudController extends CrudController
 
         $this->montaParametrosCompra($retorno,$request);
 
+        dd($this->verificaCompraExiste($request));
+
         $redirect_location = parent::storeCrud($request);
 
         $params['compra_id'] = $this->crud->entry->id;
@@ -93,12 +95,12 @@ class CompraSiasgCrudController extends CrudController
 
         $minutaEmpenho = $this->gravaMinutaEmpenho(['compra_id'=> $this->crud->entry->id, 'unidade_origem_id' =>$this->crud->entry->unidade_origem_id ]);
 
-
+        dd($minutaEmpenho);
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
 //        return $redirect_location;
-        return redirect('/empenho/fornecedor/'.$this->crud->entry->id);
+        return redirect('/empenho/minuta/etapa/'.$this->crud->entry->id);
     }
 
     public function update(UpdateRequest $request)
@@ -266,15 +268,30 @@ class CompraSiasgCrudController extends CrudController
         return $retorno->id;
     }
 
+    public function verificaCompraExiste($request)
+    {
+        dd($request->all());
+        $fornecedor = new Fornecedor();
+        $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
+
+        if(is_null($retorno)){
+            $fornecedor->tipo_fornecedor = $fornecedor->retornaTipoFornecedor($item->niFornecedor);
+            $fornecedor->cpf_cnpj_idgener = $fornecedor->formataCnpjCpf($item->niFornecedor);
+            $fornecedor->nome = $item->nomeFornecedor;
+            $fornecedor->save();
+            return $fornecedor->id;
+        }
+        return $retorno->id;
+    }
+
     public function gravaMinutaEmpenho($params)
     {
 //        dd($params);
         $minutaEmpenho = new MinutaEmpenho();
         $minutaEmpenho->unidade_id = $params['unidade_origem_id'];
         $minutaEmpenho->compra_id = $params['compra_id'];
-
+        $minutaEmpenho->etapa = 1;
         //todo RETIRAR A OBRIGATORIEDADE DA INFORMACAO COMPLEMENTAR
-        //todo COLOCAR A ETAPA
         //todo COLOCAR O TIPO MINUTA EMPENHO
         $minutaEmpenho->informacao_complementar = 'dfadsfadsfds';
 
