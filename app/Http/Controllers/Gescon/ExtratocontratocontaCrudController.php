@@ -80,10 +80,7 @@ class ExtratocontratocontaCrudController extends CrudController
         $this->crud->addClause('join', 'codigoitens as c2', 'c2.id',  '=',  'movimentacaocontratocontas.tipo_id');
         $this->crud->addClause('where', 'movimentacaocontratocontas.contratoconta_id', '=', $contratoconta_id);
         $this->crud->addClause('orderby', 'lancamentos.id', 'desc');
-
-        // $this->crud->addClause('whereIn', 'contratoterceirizados.nome', '');
-
-
+        // filtros na listagem
         $this->adicionaFiltros();
 
 
