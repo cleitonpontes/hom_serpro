@@ -24,7 +24,7 @@ use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 
-class FornecedorEmpenhoControllerEmpenho extends BaseControllerEmpenho
+class FornecedorEmpenhoController extends BaseControllerEmpenho
 {
     /**
      * Display a listing of the resource.
