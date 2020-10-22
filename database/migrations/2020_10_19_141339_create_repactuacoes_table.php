@@ -25,6 +25,7 @@ class CreateRepactuacoesTable extends Migration
             $table->foreign('funcao_id')->references('id')->on('codigoitens')->onDelete('cascade');
 
             $table->decimal('salario_novo',15,2)->nullable();
+            // $table->decimal('salario_antigo',15,2)->nullable();    //não pode ter salario antigo, pois ele pode variar.
 
             $table->integer('jornada');
 

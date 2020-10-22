@@ -1,1 +1,1 @@
-<a href="/gescon/contrato/contratoconta/{{ \Route::current()->parameter('contratoconta_id') }}/funcionarioscontratoconta" class="btn btn-xs btn-default" title="Adicionar Retirada"><i class="fa fa-play">Adicionar Retirada</i></a>
+<a href="/gescon/contrato/contratoconta/{{ \Route::current()->parameter('contratoconta_id') }}/funcionarioscontratoconta" class="btn btn-xs btn-default" title="Retirada"><i class="fa fa-play">Retirada</i></a>

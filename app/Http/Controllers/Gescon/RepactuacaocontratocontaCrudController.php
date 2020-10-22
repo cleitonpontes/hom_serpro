@@ -52,6 +52,9 @@ class RepactuacaocontratocontaCrudController extends CrudController
         ->first();
         $idTipoMovimentacaoRepactuacao = $objTipoMovimentacaoRepactuacao->id;
 
+        // dd($this->crud->request->session('attributes');
+        // echo ' ===>> '.$saveAction['active']['value'];
+
 
         /*
         |--------------------------------------------------------------------------
@@ -59,13 +62,15 @@ class RepactuacaocontratocontaCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Repactuacaocontratoconta');
-        // $this->crud->setRoute(config('backpack.base.route_prefix') . '/repactuacaocontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/'. $funcao_id .'/repactuacaocontratoconta');
-
-        // http://localhost:8088/gescon/contrato/contratoconta/24/116/repactuacaocontratoconta/create
-
-
         $this->crud->setEntityNameStrings('Repactuação', 'Repactuação');
+
+        // $this->crud->denyAccess('create');
+        // $this->crud->denyAccess('update');
+        // $this->crud->denyAccess('delete');
+        // $this->crud->denyAccess('show');
+        $this->crud->denyAccess('list');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -321,11 +326,27 @@ class RepactuacaocontratocontaCrudController extends CrudController
 
         return $campos;
     }
+    public function salvarNovoSalario($idContratoTerceirizado, $novoSalario){
+        $objContratoTerceirizadoSalvarSalario = Contratoterceirizado::where('id', $idContratoTerceirizado)->first();
+        $objContratoTerceirizadoSalvarSalario->salario = $novoSalario;
+        $objContratoTerceirizadoSalvarSalario->save();
+        return true;
+    }
+    public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
+        $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
+        $objMovimentacao->situacao_movimentacao = $statusMovimentacao;
+        if(!$objMovimentacao->save()){
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
     public function criarMovimentacao($request){
         $dataHoje = time();
         $mesHoje = date("m", $dataHoje);
         $anoHoje = date("Y", $dataHoje);
-
 
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
         $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
@@ -336,7 +357,6 @@ class RepactuacaocontratocontaCrudController extends CrudController
         $objMovimentacaocontratoconta->situacao_movimentacao = $request->input('situacao_movimentacao');
         $objMovimentacaocontratoconta->user_id = $request->input('user_id');
 
-        // dd($objMovimentacaocontratoconta);
         if($objMovimentacaocontratoconta->save()){
             return $objMovimentacaocontratoconta->id;
         } else {
@@ -347,9 +367,9 @@ class RepactuacaocontratocontaCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         $quantidadeLancamentosGerados = 0;
-        // dd($request);
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
+        $idContratoConta = $request->input('contratoconta_id');
 
         // buscar todos os terceirizados pelo contrato e pela função
         $novoSalario = $request->input('novoSalario');
@@ -379,6 +399,9 @@ class RepactuacaocontratocontaCrudController extends CrudController
             }
             $request->request->set('movimentacao_id', $idMovimentacao);
 
+            // vamos alterar o status da movimentação
+            self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
+
             // varrer os contratos
             foreach( $arrayContratosTerceirizados as $objContratoTerceirizado ){
                 $jornadaContratoTerceirizado = $objContratoTerceirizado->jornada;
@@ -389,8 +412,8 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 if( $jornada == $jornadaContratoTerceirizado ){
                     // para cada terceirizado - buscar os lançamentos pela data
                     $idContratoTerceirizado = $objContratoTerceirizado->id;
-                    $arrayLancamentosTerceirizado = Lancamento::where('contratoterceirizado_id', $idContratoTerceirizado)
-                    ->get();
+
+                    $arrayLancamentosTerceirizado = self::getTodosLancamentosDepositoByIdContratoTerceirizado($idContratoTerceirizado);
 
                     // vamos varrer os lançamentos para verificar o mês / ano
                     foreach($arrayLancamentosTerceirizado as $objLancamentoExistente){
@@ -401,7 +424,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
                         $mesMovimentacaoLancamento = $objMovimentacaoLancamento->mes_competencia;
                         $anoMovimentacaoLancamento = $objMovimentacaoLancamento->ano_competencia;
 
-                        // verificar o mês da movimentação do lançamento
+                        // verificar o mês e ano início da movimentação do lançamento
                         $continuar = false;
                         if( $anoMovimentacaoLancamento >= $anoInicio ){
                             if( $anoMovimentacaoLancamento == $anoInicio ){
@@ -409,18 +432,34 @@ class RepactuacaocontratocontaCrudController extends CrudController
                                     $continuar = true;
                                 } else {
                                     // aqui não faz nada
+                                    $continuar = false;
                                 }
                             } elseif( $anoMovimentacaoLancamento > $anoInicio ){
                                 $continuar = true;
                             }
                         } else {
                             // aqui não faz nada
+                            $continuar = false;
+                        }
+                        // verificar o mês e ano fim
+                        if( $anoMovimentacaoLancamento <= $anoFim && $continuar == true  ){
+                            if( $anoMovimentacaoLancamento == $anoFim ){
+                                if( $mesMovimentacaoLancamento <= $mesFim ){
+                                    // aqui tudo certo
+                                } elseif( $mesMovimentacaoLancamento > $mesFim ){
+                                    $continuar = false;
+                                }
+                            } elseif( $anoMovimentacaoLancamento < $anoFim ){
+                                // aqui tudo certo
+                            }
+                        } else {
+                            $continuar = false;
                         }
 
 
+                        // verificar se está tudo certo pra continuar
                         if($continuar){
                             // aqui as verificações estão ok
-
                             $percentualEncargo = $objEncargo->percentual;
                             $valorSalvar = ( $diferencaEntreSalarios * $percentualEncargo) / 100;
 
@@ -444,17 +483,16 @@ class RepactuacaocontratocontaCrudController extends CrudController
                             }
                         }
                     }
+                    self::salvarNovoSalario($idContratoTerceirizado, $novoSalario);
                 }
             }
+            // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
+            self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
 
             // your additional operations before save here
             $redirect_location = parent::storeCrud($request);
             // your additional operations after save here
             // use $this->data['entry'] or $this->crud->entry
-
-
-
-
 
         } else {
             // aqui nenhum contrato terceirizado foi encontrado.
@@ -462,8 +500,41 @@ class RepactuacaocontratocontaCrudController extends CrudController
         }
 
 
+        if($quantidadeLancamentosGerados == 0){
+            // aqui quer dizer que nenhum lançamento foi gerado. vamos excluir a movimentação.
+
+            self::excluirMovimentacao($idMovimentacao);
+            \Alert::error('A movimentação não foi criada.')->flash();
+            // return redirect()->back();
+            \Alert::error($quantidadeLancamentosGerados.' lançamentos foram gerados.')->flash();
+
+            // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
+            $linkLocation = '/gescon/contrato/contratoconta/'.$idContratoConta.'/movimentacaocontratoconta';
+            return redirect($linkLocation);
+
+
+        }
+
         \Alert::success($quantidadeLancamentosGerados.' lançamentos foram gerados.')->flash();
-        return $redirect_location;
+
+        // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
+        $linkLocation = '/gescon/contrato/contratoconta/'.$idContratoConta.'/movimentacaocontratoconta';
+        return redirect($linkLocation);
+
+        // return $redirect_location;
+    }
+    public function excluirMovimentacao($idMovimentacao){
+        if($objMovimentacaocontratoconta = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->delete()){return true;}
+        else{return false;}
+    }
+    public function getTodosLancamentosDepositoByIdContratoTerceirizado($idContratoTerceirizado){
+        $array = \DB::table('lancamentos as l')
+        // ->select('encargos.*', 'codigoitens.descricao')
+        ->join('movimentacaocontratocontas as m', 'm.id', '=', 'l.movimentacao_id')
+        ->join('codigoitens as c', 'c.id', '=', 'm.tipo_id')
+        ->where('c.descricao', '=', 'Depósito')
+        ->get();
+        return $array;
     }
 
     public function update(UpdateRequest $request)

@@ -38,8 +38,6 @@ class FuncoescontratocontaCrudController extends CrudController
         \Route::current()->setParameter('contratoconta_id', $idContratoConta);
 
         $this->crud->addButtonFromView('line', 'morefuncoescontratoconta', 'morefuncoescontratoconta', 'end');
-        // $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
-
 
         $this->crud->denyAccess('delete');
         $this->crud->denyAccess('update');
@@ -53,6 +51,9 @@ class FuncoescontratocontaCrudController extends CrudController
         $this->crud->setModel('App\Models\Funcoescontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/funcoescontratoconta');
         $this->crud->setEntityNameStrings('funcoescontratoconta', 'Funções para Repactuação');
+
+        $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
