@@ -76,6 +76,12 @@ class MinutaEmpenho extends Model
 
         return $listagem;
     }
+
+    public function atualizaFornecedorCompra($fornecedor_id)
+    {
+        $this->fornecedor_compra_id = $fornecedor_id;
+        $this->update();
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

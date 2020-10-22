@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Yajra\DataTables\Html\Builder;
 
 
-class BaseController extends Controller
+class BaseControllerEmpenho extends Controller
 {
 
     /**

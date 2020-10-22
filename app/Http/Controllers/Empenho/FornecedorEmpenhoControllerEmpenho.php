@@ -8,33 +8,23 @@
 
 namespace App\Http\Controllers\Empenho;
 
-use App\Http\Controllers\Folha\Apropriacao\BaseController;
-use App\Jobs\ApropriaAlteracaoDhFolhaJob;
-use App\Models\Apropriacao;
-use App\Models\Apropriacaofases;
-use App\Models\Apropriacaoimportacao;
-use App\Models\Compra;
+
+use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\CompraItem;
-use App\Models\Execsfsituacao;
-use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
-use App\Models\SfCentroCusto;
-use App\Models\SfDadosBasicos;
-use App\Models\SfDocOrigem;
-use App\Models\SfPadrao;
-use App\Models\SfPco;
-use App\Models\SfDespesaAnular;
-use App\Models\SfPcoItem;
-use App\Models\Sfrelitemvlrcc;
-use App\XML\Execsiafi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Route;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
+use Yajra\DataTables\Html\Button;
+use Yajra\DataTables\Html\Column;
+use Yajra\DataTables\Html\Editor\Editor;
+use Yajra\DataTables\Html\Editor\Fields;
+use Yajra\DataTables\Services\DataTable;
 
 
-class FornecedorEmpenhoController extends BaseController
+class FornecedorEmpenhoControllerEmpenho extends BaseControllerEmpenho
 {
     /**
      * Display a listing of the resource.
@@ -49,14 +39,13 @@ class FornecedorEmpenhoController extends BaseController
             ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
             ->distinct()
-            ->select(['fornecedores.id','fornecedores.nome'])
+            ->select(['fornecedores.id','fornecedores.nome','fornecedores.cpf_cnpj_idgener'])
             ->get()
             ->toArray();
 
         if ($request->ajax()) {
             return DataTables::of($fornecedores)->addColumn('action', function ($fornecedores) use ($minuta_id) {
                 $acoes = $this->retornaAcoes($fornecedores['id'], $minuta_id);
-
                 return $acoes;
             })
                 ->make(true);
@@ -64,33 +53,38 @@ class FornecedorEmpenhoController extends BaseController
 
         $html = $this->retornaGrid();
 
-        return view('backpack::mod.empenho.minutaempenho', compact('html'));
+        return view('backpack::mod.empenho.Etapa2Fornecedor', compact('html'));
     }
 
     public function item(Request $request)
     {
         $etapa_id = Route::current()->parameter('etapa_id');
-        $minuta_id = Route::current()->parameter('minuta_id');
+        $modMinutaEmpenho = MinutaEmpenho::find(Route::current()->parameter('minuta_id'));
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
+        $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id);
 
         $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
             ->where('compra_items.fornecedor_id', $fornecedor_id)
-            ->select(['codigoitens.descricao', 'catmatseritem_id', 'descricaodetalhada', 'quantidade', 'valorunitario', 'valortotal'])
+            ->select(['compra_items.id','codigoitens.descricao', 'catmatseritem_id', 'descricaodetalhada', 'quantidade', 'valorunitario', 'valortotal'])
             ->get()
             ->toArray();
 
         if ($request->ajax()) {
-            return DataTables::of($itens)
-//                ->editColumn('valor_bruto', '{!! number_format(floatval($valor_bruto), 2, ",", ".") !!}')
-//                ->editColumn('valor_liquido', '{!! number_format(floatval($valor_liquido), 2, ",", ".") !!}')
+            return DataTables::of($itens)->addColumn('action', function ($itens) use ($modMinutaEmpenho) {
+            $acoes = $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id);
+
+                return $acoes;
+            })
+//                ->editColumn('valorunitario', '{!! number_format(floatval(valorunitario), 2, ",", ".") !!}')
+//                ->editColumn('valortotal', '{!! number_format(floatval(valortotal), 2, ",", ".") !!}')
                 ->make(true);
         }
 
 
         $html = $this->retornaGridItens();
 
-        return view('backpack::mod.empenho.minutaempenho', compact('html'));
+        return view('backpack::mod.empenho.Etapa3Itensdacompra', compact('html'));
     }
 
 
@@ -103,22 +97,22 @@ class FornecedorEmpenhoController extends BaseController
     {
 
         $html = $this->htmlBuilder
-//            ->addColumn([
-//                'data' => 'id',
-//                'name' => 'id',
-//                'title' => 'Id',
-//            ])
-            ->addColumn([
-                'data' => 'nome',
-                'name' => 'nome',
-                'title' => 'Fornecedor'
-            ])
             ->addColumn([
                 'data' => 'action',
                 'name' => 'action',
                 'title' => 'Ações',
                 'orderable' => false,
                 'searchable' => false
+            ])
+            ->addColumn([
+                'data' => 'cpf_cnpj_idgener',
+                'name' => 'cpf_cnpj_idgener',
+                'title' => 'CNPJ - CPF - Número',
+            ])
+            ->addColumn([
+                'data' => 'nome',
+                'name' => 'nome',
+                'title' => 'Fornecedor'
             ])
             ->parameters([
                 'processing' => true,
@@ -150,6 +144,13 @@ class FornecedorEmpenhoController extends BaseController
     {
 
         $html = $this->htmlBuilder
+            ->addColumn([
+                'data' => 'action',
+                'name' => 'action',
+                'title' => 'Ações',
+                'orderable' => false,
+                'searchable' => false
+            ])
             ->addColumn([
                 'data' => 'descricao',
                 'name' => 'descricao',
@@ -209,28 +210,33 @@ class FornecedorEmpenhoController extends BaseController
      */
     private function retornaAcoes($id, $minuta_id)
     {
-
         $acoes = '';
         $acoes .= '<a href="/empenho/item/3/' . $minuta_id . '/' . $id;
         $acoes .= '"Selecionar ';
         $acoes .= "class='btn btn-default btn-sm' ";
-        $acoes .= 'title="Selecione o fornecedor">';
+        $acoes .= 'title="Selecionar este fornecedor">';
         $acoes .= '<i class="fa fa-check-circle"></i></a>';
 
         return $acoes;
     }
 
 
-    private function retornaBtnSelecionar($id)
+    private function retornaItensAcoes($id, $minuta_id)
     {
-        $selecionar = '';
-        $selecionar .= '<a href="/empenho/minuta/etapa2/';
-        $selecionar .= '"Selecionar ';
-        $selecionar .= "class='btn btn-default btn-sm' ";
-        $selecionar .= 'title="Selecione o fornecedor">';
-        $selecionar .= '<i class="fa fa-check-circle"></i></a>';
+        $acoes = '';
+        $acoes .= $this->retornaRadioItens($id);
 
-        return $selecionar;
+        return $acoes;
     }
+
+    private function retornaRadioItens($id, $minuta_id)
+    {
+        $retorno = '';
+        $retorno .= '<input type="checkbox" id="'.$id.'" name="itens[]">';
+
+        return $retorno;
+    }
+
+
 
 }

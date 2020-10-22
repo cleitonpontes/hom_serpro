@@ -9,10 +9,10 @@ use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use App\Forms\NovoEmepenhoTela1Form;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Empenho\Minuta\BaseController;
+use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 
 
-class Tela1EmpenhoController extends BaseController
+class Tela1EmpenhoControllerEmpenho extends BaseControllerEmpenho
 {
     const MATERIAL = 149;
     const SERVICO = 150;

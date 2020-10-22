@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Empenho;
 
 use App\Http\Controllers\Empenho\Minuta\Etapa1EmpenhoController;
 use App\Http\Traits\Formatador;
+use App\Models\Codigo;
 use App\Models\Codigoitem;
 use App\Models\Compra;
 use App\Models\CompraItem;
@@ -29,7 +30,7 @@ class CompraSiasgCrudController extends CrudController
     const SERVICO = 150;
     const SISPP = 1;
     const SISRP = 2;
-    const TIPOCOMPRASIASG = 37;
+//    const TIPOCOMPRASIASG =
 
     public function setup()
     {
@@ -196,7 +197,8 @@ class CompraSiasgCrudController extends CrudController
 
     public function buscaTipoCompra($descres)
     {
-        $tipocompra = Codigoitem::where('codigo_id',$this::TIPOCOMPRASIASG)
+        $tipoCompraSiasg = Codigo::where('descricao','=','Tipo Compra Siasg')->first();
+        $tipocompra = Codigoitem::where('codigo_id',$tipoCompraSiasg->id)
             ->where('visivel',true)
             ->where('descres','0'.$descres)
             ->first();
