@@ -31,7 +31,7 @@ $totalPco = 0;
                 Relatório da Apropriação da fatura
             </h3>
             <div class="box-tools pull-right">
-                <a href="/folha/apropriacao" class="btn btn-box-tool" title="Voltar">
+                <a href="/apropriacao/fatura" class="btn btn-box-tool" title="Voltar">
                     <i class="fa fa-times"></i>
                 </a>
             </div>
