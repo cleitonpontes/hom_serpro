@@ -532,6 +532,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
         // ->select('encargos.*', 'codigoitens.descricao')
         ->join('movimentacaocontratocontas as m', 'm.id', '=', 'l.movimentacao_id')
         ->join('codigoitens as c', 'c.id', '=', 'm.tipo_id')
+        ->where('l.contratoterceirizado_id', '=', $idContratoTerceirizado)
         ->where('c.descricao', '=', 'Depósito')
         ->get();
         return $array;
