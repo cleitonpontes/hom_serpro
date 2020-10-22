@@ -266,8 +266,26 @@ Route::group(
             //passo 3
 
 
-            Route::get('item/{etapa_id}/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
+            Route::get('item/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoController@item')
                 ->name('minuta.etapa.item');
+
+            Route::post('buscacompra', 'CompraSiasgCrudController@store');
+
+            //passo 4
+
+
+            Route::get('saldo/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@index')
+                ->name('minuta.etapa.saldocontabil');
+
+            Route::post('saldo', 'SaldoContabilMinutaController@index');
+
+            //passo 5
+
+
+            Route::get('subelemento/{etapa_id}/{minuta_id}', 'SubelementoController@index')
+                ->name('minuta.etapa.subelemento');
+
+            Route::post('subelemento', 'SubelementoController@index');
 
             //passo 6
 
@@ -276,6 +294,13 @@ Route::group(
                 ->name('minuta.etapa.dadosempenho');
 
             Route::post('item', 'CompraSiasgCrudController@store');
+
+            //passo 7
+
+            Route::get('buscacompra/{etapa_id}/{minuta_id?}', 'CompraSiasgCrudController@create')
+                ->name('minuta.etapa.compra');
+
+            Route::post('buscacompra', 'CompraSiasgCrudController@store');
 
             /**
              *
