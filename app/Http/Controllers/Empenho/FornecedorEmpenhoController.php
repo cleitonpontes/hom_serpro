@@ -8,12 +8,14 @@
 
 namespace App\Http\Controllers\Empenho;
 
-
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\CompraItem;
+use App\Models\CompraItemMinutaEmpenho;
 use App\Models\MinutaEmpenho;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Route;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
@@ -22,7 +24,6 @@ use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-
 
 class FornecedorEmpenhoController extends BaseControllerEmpenho
 {
@@ -39,14 +40,13 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
             ->distinct()
-            ->select(['fornecedores.id','fornecedores.nome','fornecedores.cpf_cnpj_idgener'])
+            ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener'])
             ->get()
             ->toArray();
 
         if ($request->ajax()) {
             return DataTables::of($fornecedores)->addColumn('action', function ($fornecedores) use ($minuta_id) {
-                $acoes = $this->retornaAcoes($fornecedores['id'], $minuta_id);
-                return $acoes;
+                return $this->retornaAcoes($fornecedores['id'], $minuta_id);
             })
                 ->make(true);
         }
@@ -56,37 +56,23 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         return view('backpack::mod.empenho.Etapa2Fornecedor', compact('html'));
     }
 
-    public function item(Request $request)
+    /**
+     * Retorna html das ações disponíveis
+     *
+     * @param number $id
+     * @return string
+     */
+    private function retornaAcoes($id, $minuta_id)
     {
-        $etapa_id = Route::current()->parameter('etapa_id');
-        $modMinutaEmpenho = MinutaEmpenho::find(Route::current()->parameter('minuta_id'));
-        $fornecedor_id = Route::current()->parameter('fornecedor_id');
-        $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id);
+        $acoes = '';
+        $acoes .= '<a href="/empenho/item/3/' . $minuta_id . '/' . $id;
+        $acoes .= '"Selecionar ';
+        $acoes .= "class='btn btn-default btn-sm' ";
+        $acoes .= 'title="Selecionar este fornecedor">';
+        $acoes .= '<i class="fa fa-check-circle"></i></a>';
 
-        $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
-            ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
-            ->where('compra_items.fornecedor_id', $fornecedor_id)
-            ->select(['compra_items.id','codigoitens.descricao', 'catmatseritem_id', 'descricaodetalhada', 'quantidade', 'valorunitario', 'valortotal'])
-            ->get()
-            ->toArray();
-
-        if ($request->ajax()) {
-            return DataTables::of($itens)->addColumn('action', function ($itens) use ($modMinutaEmpenho) {
-            $acoes = $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id);
-
-                return $acoes;
-            })
-//                ->editColumn('valorunitario', '{!! number_format(floatval(valorunitario), 2, ",", ".") !!}')
-//                ->editColumn('valortotal', '{!! number_format(floatval(valortotal), 2, ",", ".") !!}')
-                ->make(true);
-        }
-
-
-        $html = $this->retornaGridItens();
-
-        return view('backpack::mod.empenho.Etapa3Itensdacompra', compact('html'));
+        return $acoes;
     }
-
 
     /**
      * Monta $html com definições do Grid
@@ -133,6 +119,48 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ]);
 
         return $html;
+    }
+
+    public function item(Request $request)
+    {
+        $etapa_id = Route::current()->parameter('etapa_id');
+        $modMinutaEmpenho = MinutaEmpenho::find(Route::current()->parameter('minuta_id'));
+        $fornecedor_id = Route::current()->parameter('fornecedor_id');
+        $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id);
+
+        $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
+            ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+            ->where('compra_items.fornecedor_id', $fornecedor_id)
+            ->select([
+                'compra_items.id',
+                'codigoitens.descricao',
+                'catmatseritem_id',
+                'descricaodetalhada',
+                'quantidade',
+                'valorunitario',
+                'valortotal'])
+            ->get()
+            ->toArray();
+
+        if ($request->ajax()) {
+            return DataTables::of($itens)->addColumn('action', function ($itens) use ($modMinutaEmpenho) {
+                return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id);
+            })
+                ->make(true);
+        }
+
+
+        $html = $this->retornaGridItens();
+
+        return view('backpack::mod.empenho.Etapa3Itensdacompra', compact('html'));
+    }
+
+    private function retornaRadioItens($id, $minuta_id)
+    {
+        $retorno = '';
+        $retorno .= " <input type='checkbox' id='$id' name='itens[][compra_item_id]' value='$id'> ";
+
+        return $retorno;
     }
 
     /**
@@ -202,24 +230,32 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         return $html;
     }
 
-    /**
-     * Retorna html das ações disponíveis
-     *
-     * @param number $id
-     * @return string
-     */
-    private function retornaAcoes($id, $minuta_id)
+    public function store(Request $request)
     {
-        $acoes = '';
-        $acoes .= '<a href="/empenho/item/3/' . $minuta_id . '/' . $id;
-        $acoes .= '"Selecionar ';
-        $acoes .= "class='btn btn-default btn-sm' ";
-        $acoes .= 'title="Selecionar este fornecedor">';
-        $acoes .= '<i class="fa fa-check-circle"></i></a>';
+        $minuta = MinutaEmpenho::find($request->minuta_id);
+        $minuta_id = $request->minuta_id;
+        $itens = $request->itens;
 
-        return $acoes;
+        $itens = array_map(
+            function ($itens) use ($minuta_id) {
+                $itens['minutaempenho_id'] = $minuta_id;
+                return $itens;
+            },
+            $itens
+        );
+
+        DB::beginTransaction();
+        try {
+            CompraItemMinutaEmpenho::insert($itens);
+            $minuta->etapa = 4;
+            $minuta->save();
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
+
+        return redirect()->route('empenho.minuta.etapa.saldocontabil', ['etapa_id' => 4, 'minuta_id' => $minuta_id]);
     }
-
 
     private function retornaItensAcoes($id, $minuta_id)
     {
@@ -228,15 +264,4 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         return $acoes;
     }
-
-    private function retornaRadioItens($id, $minuta_id)
-    {
-        $retorno = '';
-        $retorno .= '<input type="checkbox" id="'.$id.'" name="itens[]">';
-
-        return $retorno;
-    }
-
-
-
 }

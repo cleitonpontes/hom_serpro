@@ -1,3 +1,6 @@
+@php
+    $minuta_id = (int) Route::current()->parameter('minuta_id')
+@endphp
 @extends('backpack::layout')
 
 @section('header')
@@ -25,19 +28,24 @@
 
         <div class="box-body">
             <br/>
-            <form action="{{route('empenho.lista.minuta')}}" method="POST">
+            <form action="/empenho/item" method="POST">
+                <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
+            @csrf <!-- {{ csrf_field() }} -->
                 {!! $html->table() !!}
-            <div class="col-sm-12">
+                <div class="col-sm-12">
 
-            </div>
-            <div class="box-tools">
-                {!! Button::success('<i class="fa fa-arrow-left"></i> Voltar')
-                    ->asLinkTo(route('empenho.lista.minuta'))
-                !!}
-                {!! Button::primary(' Próxima Etapa <i class="fa fa-arrow-right"></i>')
-                    ->asLinkTo(route('empenho.lista.minuta'))
-                !!}
-            </div>
+                </div>
+                <div class="box-tools">
+                    <button type="submit" class="btn btn-success">
+                        <span class="fa fa-save" role="presentation" aria-hidden="true"></span> &nbsp;
+                    </button>
+                    {!! Button::success('<i class="fa fa-arrow-left"></i> Voltar')
+                        ->asLinkTo(route('empenho.lista.minuta'))
+                    !!}
+                    {!! Button::primary(' Próxima Etapa <i class="fa fa-arrow-right"></i>')
+                        ->asLinkTo(route('empenho.lista.minuta'))
+                    !!}
+                </div>
             </form>
         </div>
     </div>
