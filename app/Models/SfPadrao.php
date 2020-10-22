@@ -62,22 +62,20 @@ class SfPadrao extends Model
 
     public function retornaPadraoDaFatura($apropriacaoId)
     {
-        return $this->retornaSfPadraoPorApropriacao($apropriacaoId, 'EXECFATURAPADRAO');
+        $contratos = ApropriacoesFaturasContratofaturas::retornaContratosDaApropricao($apropriacaoId);
+
+        return $this::select('*')
+            ->where('categoriapadrao', 'EXECFATURAPADRAO')
+            ->whereIn('fk', $contratos)
+            ->distinct()
+            ->first();
     }
 
     public function retornaExecucaoDaFatura($apropriacaoId)
     {
-        return $this->retornaSfPadraoPorApropriacao($apropriacaoId, 'EXECFATURA');
-    }
-
-    public function retornaSfPadraoPorApropriacao($apropriacaoId, $categoria)
-    {
-        $contratos = ApropriacoesFaturasContratofaturas::retornaContratosDaApropricao($apropriacaoId);
-
-        // Checar se existe o DH - Documento Hábil
         return $this::select('*')
-            ->where('categoriapadrao', $categoria)
-            ->whereIn('fk', $contratos)
+            ->where('categoriapadrao', 'EXECFATURA')
+            ->where('fk', $apropriacaoId)
             ->distinct()
             ->first();
     }
