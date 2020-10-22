@@ -193,7 +193,13 @@ class FaturaController extends BaseController
      */
     public function show($id)
     {
-        dd($id);
+        $modelApropriacao = new ApropriacaoFaturas();
+        $identificacao = $modelApropriacao->retornaDadosIdentificacao($id)->first()->toArray();
+
+        $modelPco = new SfPco();
+        $pcos = $modelPco->retornaPcosProApropriacaoDaFatura($id)->get()->toArray();
+
+        return view('backpack::mod.apropriacao.relatorio', compact('identificacao', 'pcos'));
     }
 
     /**
@@ -332,6 +338,7 @@ class FaturaController extends BaseController
         $anoDh = ($sfPadrao->anodh == date('Y')) ? $sfPadrao->anodh : date('Y-m');
 
         $sfPadraoDuplicado = $sfPadrao->replicate();
+        $sfPadraoDuplicado->fk = $this->apropriacaoId;
         $sfPadraoDuplicado->categoriapadrao = 'EXECFATURA';
         $sfPadraoDuplicado->anodh = $anoDh;
         $sfPadraoDuplicado->tipo = '';
