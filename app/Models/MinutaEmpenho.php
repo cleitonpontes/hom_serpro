@@ -117,7 +117,7 @@ class MinutaEmpenho extends Model
 
     public function saldo_contabil()
     {
-        // return $this->belongsTo(SaldoContabil::class, 'saldo_contabil_id');
+         return $this->belongsTo(SaldoContabil::class, 'saldo_contabil_id');
     }
 
     public function tipo_empenho()

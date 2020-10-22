@@ -275,10 +275,11 @@ Route::group(
             //passo 4
 
 
-            Route::get('saldo/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@index')
+            Route::get('saldo/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@store')
                 ->name('minuta.etapa.saldocontabil');
 
-            Route::post('saldo', 'SaldoContabilMinutaController@index');
+            Route::get('saldo', 'SaldoContabilMinutaController@index')
+                ->name('minuta.listagem.saldocontabil');
 
             //passo 5
 
@@ -320,7 +321,7 @@ Route::group(
 //                ->name('lista.minuta.empenhos')
 //                ->middleware('permission:folha_apropriacao_acesso');
 
-            Route::get('minuta/etapa/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoController@index')
+            Route::get('minuta/etapa/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoControllerEmpenho@index')
                 ->name('minuta.etapa.fornecedor')
                 ->middleware('permission:folha_apropriacao_passo');
 
