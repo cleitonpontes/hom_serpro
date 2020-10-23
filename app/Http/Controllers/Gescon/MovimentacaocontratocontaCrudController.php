@@ -56,6 +56,7 @@ class MovimentacaocontratocontaCrudController extends CrudController
         $this->crud->addButtonFromView('top', 'adicionardeposito', 'adicionardeposito', 'end');
         $this->crud->addButtonFromView('top', 'adicionarretirada', 'adicionarretirada', 'end');
         $this->crud->addButtonFromView('top', 'adicionarrepactuacao', 'adicionarrepactuacao', 'end');
+        $this->crud->addButtonFromView('bottom', 'voltar', 'voltarcontavinculada', 'end');
         $this->crud->addButtonFromView('bottom', 'adicionardeposito', 'adicionardeposito', 'end');
         $this->crud->addButtonFromView('bottom', 'adicionarretirada', 'adicionarretirada', 'end');
         $this->crud->addButtonFromView('bottom', 'adicionarrepactuacao', 'adicionarrepactuacao', 'end');

@@ -375,6 +375,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
         $novoSalario = $request->input('novoSalario');
         $novoSalario = str_replace('.', '', $novoSalario);
         $novoSalario = str_replace(',', '.', $novoSalario);
+        $request->request->set('novo_salario', $novoSalario);
 
         $mesInicio = $request->input('mes_inicio');
         $mesFim = $request->input('mes_fim');
@@ -488,6 +489,8 @@ class RepactuacaocontratocontaCrudController extends CrudController
             }
             // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
             self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
+
+            // dd($request);
 
             // your additional operations before save here
             $redirect_location = parent::storeCrud($request);
