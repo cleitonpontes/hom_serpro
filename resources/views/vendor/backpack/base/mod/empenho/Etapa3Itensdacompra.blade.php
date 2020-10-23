@@ -1,5 +1,6 @@
 @php
-    $minuta_id = (int) Route::current()->parameter('minuta_id')
+    $minuta_id = Route::current()->parameter('minuta_id');
+    $fornecedor_id = Route::current()->parameter('fornecedor_id');
 @endphp
 @extends('backpack::layout')
 
@@ -30,21 +31,19 @@
             <br/>
             <form action="/empenho/item" method="POST">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
+                <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
             @csrf <!-- {{ csrf_field() }} -->
                 {!! $html->table() !!}
                 <div class="col-sm-12">
 
                 </div>
                 <div class="box-tools">
-                    <button type="submit" class="btn btn-success">
-                        <span class="fa fa-save" role="presentation" aria-hidden="true"></span> &nbsp;
-                    </button>
                     {!! Button::success('<i class="fa fa-arrow-left"></i> Voltar')
                         ->asLinkTo(route('empenho.lista.minuta'))
                     !!}
-                    {!! Button::primary(' Próxima Etapa <i class="fa fa-arrow-right"></i>')
-                        ->asLinkTo(route('empenho.lista.minuta'))
-                    !!}
+                    <button type="submit" class="btn btn-primary">
+                        Próxima Etapa <i class="fa fa-arrow-right"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -75,6 +74,14 @@
                 cache: true
             }
         });
+
+        function bloqueia(tipo){
+            $('input[type=checkbox]').each(function () {
+                    if (tipo != $(this).data('tipo')){
+                        this.checked = false;
+                    }
+            });
+        }
 
     </script>
 @endpush

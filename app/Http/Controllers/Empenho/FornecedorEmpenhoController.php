@@ -144,7 +144,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         if ($request->ajax()) {
             return DataTables::of($itens)->addColumn('action', function ($itens) use ($modMinutaEmpenho) {
-                return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id);
+                return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao']);
             })
                 ->make(true);
         }
@@ -155,10 +155,10 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         return view('backpack::mod.empenho.Etapa3Itensdacompra', compact('html'));
     }
 
-    private function retornaRadioItens($id, $minuta_id)
+    private function retornaRadioItens($id, $minuta_id, $descricao)
     {
         $retorno = '';
-        $retorno .= " <input type='checkbox' id='$id' name='itens[][compra_item_id]' value='$id'> ";
+        $retorno .= " <input  type='checkbox' id='$id' data-tipo='$descricao' name='itens[][compra_item_id]' value='$id'  onclick=\"bloqueia('$descricao')\" > ";
 
         return $retorno;
     }
@@ -234,7 +234,13 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     {
         $minuta = MinutaEmpenho::find($request->minuta_id);
         $minuta_id = $request->minuta_id;
+        $fornecedor_id = $request->fornecedor_id;
         $itens = $request->itens;
+
+        if (!isset($itens)){
+            \Alert::error('Escolha pelo menos 1 item da compra.')->flash();
+            return redirect("/empenho/item/3/$minuta_id/$fornecedor_id");
+        }
 
         $itens = array_map(
             function ($itens) use ($minuta_id) {
