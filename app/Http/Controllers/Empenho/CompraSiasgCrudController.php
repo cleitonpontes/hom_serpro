@@ -140,20 +140,34 @@ class CompraSiasgCrudController extends CrudController
 
         $this->montaParametrosCompra($retorno, $request);
 
-        if ($this->verificaCompraExiste($request)) {
-            Alert::warning('Compra já existe no sistema.')->flash();
-            return redirect('/empenho/buscacompra/create');
+        $compra = $this->verificaCompraExiste($request);
+
+//        dd($compra);
+        if (empty($compra)) {
+
+//            Alert::warning('Compra já existe no sistema.')->flash();
+//            return redirect('/empenho/buscacompra/create');
+
+            $redirect_location = parent::storeCrud($request);
+            $params['compra_id'] = $this->crud->entry->id;
+            $params['unidade_autorizada_id'] = $this->crud->entry->unidade_origem_id;
+
+            $this->gravaParametroItensdaCompra($retorno, $params);
+            $params['unidade_origem_id'] = $this->crud->entry->unidade_origem_id;
+
+        } else {
+
+            $params['compra_id'] = $compra->id;
+            $params['unidade_origem_id'] = $compra->unidade_origem_id;
         }
 
-        $redirect_location = parent::storeCrud($request);
+//        $compra_id = isset($params['compra_id']) ?: $compra->id;
 
-        $params['compra_id'] = $this->crud->entry->id;
-        $params['unidade_autorizada_id'] = $this->crud->entry->unidade_origem_id;
+//        dd($params);
 
-        $this->gravaParametroItensdaCompra($retorno, $params);
 
         $minutaEmpenho = $this->gravaMinutaEmpenho(
-            ['compra_id' => $this->crud->entry->id, 'unidade_origem_id' => $this->crud->entry->unidade_origem_id]
+            ['compra_id' => $params['compra_id'], 'unidade_origem_id' => $params['unidade_origem_id']]
         );
         $etapa = $minutaEmpenho->etapa + 1;
         return redirect('/empenho/fornecedor/' . $etapa . '/' . $minutaEmpenho->id);
@@ -197,25 +211,24 @@ class CompraSiasgCrudController extends CrudController
 
     public function buscaTipoCompra($descres)
     {
-        $tipoCompraSiasg = Codigo::where('descricao', '=', 'Tipo Compra')->first();
-        $tipocompra = Codigoitem::where('codigo_id', $tipoCompraSiasg->id)
+        $tipocompra = Codigoitem::wherehas('codigo',function ($q){
+            $q->where('descricao', '=', 'Tipo Compra');
+        })
             ->where('visivel', true)
             ->where('descres', '0' . $descres)
             ->first();
-//        dd($tipocompra);
         return $tipocompra->id;
     }
 
     public function verificaCompraExiste($request)
     {
 
-        $compra = Compra::where('unidade_origem_id', $request->get('unidade_origem_id'))
+        return Compra::where('unidade_origem_id', $request->get('unidade_origem_id'))
             ->where('modalidade_id', $request->get('modalidade_id'))
             ->where('numero_ano', $request->get('numero_ano'))
             ->where('tipo_compra_id', $request->get('tipo_compra_id'))
-            ->exists();
+            ->first();
 
-        return $compra;
     }
 
     public function gravaParametroItensdaCompra($compraSiasg, $params)
@@ -280,7 +293,7 @@ class CompraSiasgCrudController extends CrudController
         $minutaEmpenho->etapa = 1;
         //todo RETIRAR A OBRIGATORIEDADE DA INFORMACAO COMPLEMENTAR
         //todo COLOCAR O TIPO MINUTA EMPENHO
-        $minutaEmpenho->informacao_complementar = 'dfadsfadsfds';
+        $minutaEmpenho->informacao_complementar = '';
 
         $minutaEmpenho->save();
         return $minutaEmpenho;

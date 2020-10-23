@@ -3,8 +3,8 @@
 @section('header')
     <section class="content-header">
         <h1>
-            Itens
-            <small>da Compra</small>
+            Saldo Contábil
+            <small></small>
         </h1>
     </section>
 @endsection
@@ -20,23 +20,55 @@
     </div>
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
-            <h3 class="box-title">Itens da Compra</h3>
+            <h3 class="box-title">Saldos Contábeis</h3>
         </div>
 
         <div class="box-body">
+            <div class="box-tools" align="right">
+                <div class="row">
+                    <div class="col-md-3" align="left">
+{{--                        {!! form($form) !!}--}}
+                    </div>
+                    <div class="col-md-3">
+                        {!! Button::primary('Inserir célula orçamentária. <i class="fa fa-refresh"></i>')
+                            ->asLinkTo(route('empenho.lista.minuta'))
+                        !!}
+                    </div>
+                    <div class="col-md-3" align="right">
+
+                    </div>
+                    <div class="col-md-3" align="left">
+
+                    </div>
+                </div>
+            </div>
             <br/>
             <form action="{{route('empenho.lista.minuta')}}" method="POST">
                 {!! $html->table() !!}
             <div class="col-sm-12">
 
             </div>
-            <div class="box-tools">
-                {!! Button::success('<i class="fa fa-arrow-left"></i> Voltar')
-                    ->asLinkTo(route('empenho.lista.minuta'))
-                !!}
-                {!! Button::primary(' Próxima Etapa <i class="fa fa-arrow-right"></i>')
-                    ->asLinkTo(route('empenho.lista.minuta'))
-                !!}
+            <div class="box-tools" align="right">
+                <div class="row">
+                    <div class="col-md-3" align="left">
+                        {!! Button::primary('<i class="fa fa-arrow-left"></i> Voltar')
+                            ->asLinkTo(route('empenho.lista.minuta'))
+                        !!}
+                    </div>
+                    <div class="col-md-3">
+
+                    </div>
+                    <div class="col-md-3" align="right">
+                        {!! Button::primary('Atualizar todos os Saldos <i class="fa fa-refresh"></i>')
+                            ->asLinkTo(route('empenho.lista.minuta'))
+                        !!}
+                    </div>
+                    <div class="col-md-3" align="left">
+                        {!! Button::primary(' Próxima Etapa <i class="fa fa-arrow-right"></i>')
+                            ->asLinkTo(route('empenho.lista.minuta'))
+                        !!}
+                    </div>
+                </div>
             </div>
             </form>
         </div>

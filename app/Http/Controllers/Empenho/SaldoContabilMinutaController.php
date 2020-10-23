@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Empenho;
 
 
+use App\Forms\MudarUgForm;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\SaldoContabil;
 use App\Models\Unidade;
@@ -54,21 +55,15 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
                         ->toArray();
 
         if ($request->ajax()) {
-            return DataTables::of($saldosContabeis)
-                ->addColumn('intro', function ($saldosContabeis) use ($minuta_id) {
+            return DataTables::of($saldosContabeis)->addColumn('action', function ($saldosContabeis) use ($minuta_id) {
                     $acoes = $this->retornaAcoes($saldosContabeis['id'], $minuta_id);
                     return $acoes;
                 })
-                ->addColumn('action', function ($saldosContabeis) use ($minuta_id) {
-                    $btn = $this->retornaBtAtualizar($saldosContabeis['id'], $minuta_id);
-                    return $btn;
-                })
-
                 ->make(true);
         }
 
         $html = $this->retornaGrid();
-
+//        dd(session()->all());
         return view('backpack::mod.empenho.Etapa4SaldoContabil', compact('html'));
     }
 
@@ -93,6 +88,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             $this->gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo);
         }
 
+
         return redirect()->route('empenho.minuta.listagem.saldocontabil');
 
     }
@@ -106,6 +102,19 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         );
     }
 
+    public function mudarUg()
+    {
+        $ug = $this->buscaUg();
+
+        $form = \FormBuilder::create(MudarUgForm::class, [
+            'url' => route('#'),
+            'data' => ['ugs' => $ug],
+            'method' => 'PUT',
+//            'model' => $user,
+        ]);
+
+    }
+
 
     /**
      * Monta $html com definições do Grid
@@ -117,16 +126,10 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $html = $this->htmlBuilder
             ->addColumn([
-                'data' => 'action',
-                'name' => 'intro',
-                'title' => 'Selecionar',
-                'orderable' => false,
-                'searchable' => false
-            ])
-            ->addColumn([
                 'data' => 'esfera',
                 'name' => 'esfera',
                 'title' => 'Esfera',
+                'class' => 'text-center'
             ])
             ->addColumn([
                 'data' => 'ptrs',
@@ -160,7 +163,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             ])
             ->addColumn([
                 'data' => 'action',
-                'name' => 'action2',
+                'name' => 'action',
                 'title' => 'Ações',
                 'orderable' => false,
                 'searchable' => false
@@ -187,34 +190,22 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     }
 
 
-    /**
-     * Retorna html das ações disponíveis
-     *
-     * @param number $id
-     * @return string
-     */
-    private function retornaAcoes($id, $minuta_id)
+    private function retornaBtnSelecao($id, $minuta_id)
     {
-        $acoes = '';
-        $acoes .= '<a href="" ';
-        $acoes .= "class='btn btn-default btn-sm' ";
-        $acoes .= 'title="Selecionar este fornecedor">';
-        $acoes .= '<i class="fa fa-check-circle"></i></a>';
+        $btnsel = '';
+        $btnsel .= '<a href="empenho/minuta/subelemento/'.$id.'"';
+        $btnsel .= "class='btn btn-default btn-sm' ";
+        $btnsel .= 'title="Selecionar este fornecedor">';
+        $btnsel .= '<i class="fa fa-check-circle"></i></a>';
 
-        return $acoes;
+        return $btnsel;
     }
 
-    /**
-     * Retorna html das ações disponíveis
-     *
-     * @param number $id
-     * @return string
-     */
+
     private function retornaBtAtualizar($id, $minuta_id)
     {
         $btn = '';
-        $btn .= '<a href="#"';
-        $btn .= '"Selecionar ';
+        $btn .= '<a href="empenho/atualiza/saldo/'.$id.'"';
         $btn .= "class='btn btn-default btn-sm' ";
         $btn .= 'title="Atualizar Saldo">';
         $btn .= '<i class="fa fa-refresh"></i></a>';
@@ -223,6 +214,20 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     }
 
 
+    private function retornaAcoes($id, $minuta_id)
+    {
+        $selecionar = $this->retornaBtnSelecao($id, $minuta_id);
+        $atualizar = $this->retornaBtAtualizar($id, $minuta_id);
+
+        $botoes = $selecionar .'  '.$atualizar;
+
+        $acoes = '';
+        $acoes .= '<div class="btn-group">';
+        $acoes .= $botoes;
+        $acoes .= '</div>';
+
+        return $acoes;
+    }
 
 
 }
