@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Empenho;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\CompraItem;
 use App\Models\MinutaEmpenho;
+use App\Models\Naturezasubitem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Route;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
@@ -45,45 +47,72 @@ class SubelementoController extends BaseControllerEmpenho
                 '=',
                 'compra_items.tipo_item_id'
             )
+            //todo VERIFICAR SE É PARA BUSCAR A NATUREZADESPESA NA TELA ANTERIOR OU A PARTIR DO JOIN COM OS ITENS ( catmatseritens )
+            ->join(
+                'catmatseritens',
+                'catmatseritens.id',
+                '=',
+                'compra_items.catmatseritem_id'
+            )
+            ->join(
+                'naturezadespesa',
+                DB::raw('naturezadespesa.codigo::BIGINT'),
+                '=',
+                'catmatseritens.codigo_siasg'
+            )
             ->where('minutaempenhos.id', $minuta_id)
             ->select(
                 [
+                    'compra_item_minuta_empenho.compra_item_id',
                     'codigoitens.descricao',
                     'catmatseritem_id',
                     'descricaodetalhada',
-                    'compra_items.quantidade',
+                    'compra_items.quantidade as qtd_item',
                     'valorunitario',
-                    'subelemento_id']
+                    'codigo',
+                    'naturezadespesa.id as naturezadespesa_id']
             )
             ->get()
             ->toArray();
-//        dd($itens);
 
         if ($request->ajax()) {
             return DataTables::of($itens)
                 ->addColumn(
-                    'action',
-                    function ($itens) use ($modMinutaEmpenho) {
+                    'ci_id',
+                    function ($item) use ($modMinutaEmpenho) {
 
                         //                    return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao']);
-                        return $this->retornaRadioItens();
+                        return $this->addColunaCompraItemId($item);
                     }
                 )
                 ->addColumn(
-                    'operations',
-                    function ($itens) {
-                        return $this->addNovaColuna();
+                    'subitem',
+                    function ($item) use ($modMinutaEmpenho) {
+
+                        //                    return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao']);
+                        return $this->addColunaSubItem($item);
                     }
                 )
-                ->rawColumns(['action', 'operations'])
-
+                ->addColumn(
+                    'quantidade',
+                    function ($item) {
+                        return $this->addColunaQuantidade();
+                    }
+                )
+                ->addColumn(
+                    'valor_total',
+                    function ($item) {
+                        return $this->addColunaValorTotal();
+                    }
+                )
+                ->rawColumns(['ci_id','subitem', 'quantidade', 'valor_total'])
                 ->make(true);
         }
 
 
         $html = $this->retornaGridItens();
 
-        return view('backpack::mod.empenho.Etapa3Itensdacompra', compact('html'));
+        return view('backpack::mod.empenho.Etapa5SubElemento', compact('html'));
     }
 
     /**
@@ -97,20 +126,12 @@ class SubelementoController extends BaseControllerEmpenho
         $html = $this->htmlBuilder
             ->addColumn(
                 [
-                    'data' => 'action',
-                    'name' => 'action',
-                    'title' => 'Ações',
+                    'data' => 'ci_id',
+                    'name' => 'ci_id',
+                    'title' => '',
                     'orderable' => false,
-                    'searchable' => false
-                ]
-            )
-            ->addColumn(
-                [
-                    'data' => 'operations',
-                    'name' => 'operations',
-                    'title' => 'teste',
-                    'orderable' => false,
-                    'searchable' => false
+                    'searchable' => false,
+                    'visible' => false
                 ]
             )
             ->addColumn(
@@ -138,8 +159,8 @@ class SubelementoController extends BaseControllerEmpenho
             )
             ->addColumn(
                 [
-                    'data' => 'quantidade',
-                    'name' => 'quantidade',
+                    'data' => 'qtd_item',
+                    'name' => 'qtd_item',
                     'title' => 'Qtd. de Item',
                 ]
             )
@@ -152,9 +173,36 @@ class SubelementoController extends BaseControllerEmpenho
             )
             ->addColumn(
                 [
-                    'data' => 'subelemento_id',
-                    'name' => 'subelemento_id',
-                    'title' => 'Subelemento',
+                    'data' => 'codigo',
+                    'name' => 'codigo',
+                    'title' => 'Natureza da Despesa',
+                ]
+            )
+            ->addColumn(
+                [
+                    'data' => 'subitem',
+                    'name' => 'subitem',
+                    'title' => 'Subitem',
+                    'orderable' => false,
+                    'searchable' => false
+                ]
+            )
+            ->addColumn(
+                [
+                    'data' => 'quantidade',
+                    'name' => 'quantidade',
+                    'title' => 'Qtd',
+                    'orderable' => false,
+                    'searchable' => false
+                ]
+            )
+            ->addColumn(
+                [
+                    'data' => 'valor_total',
+                    'name' => 'valor_total',
+                    'title' => 'Valor Total',
+                    'orderable' => false,
+                    'searchable' => false
                 ]
             )
             ->parameters(
@@ -173,7 +221,9 @@ class SubelementoController extends BaseControllerEmpenho
                     'lengthChange' => true,
                     'language' => [
                         'url' => asset('/json/pt_br.json')
-                    ]
+                    ],
+                    'initComplete' => 'function() { $(\'.subitem\').select2() }'
+
                 ]
             );
 
@@ -181,23 +231,41 @@ class SubelementoController extends BaseControllerEmpenho
     }
 
 //    private function retornaRadioItens($id, $minuta_id, $descricao)
-    private function retornaRadioItens()
+    private function addColunaSubItem($item)
     {
-        $retorno = '';
-        $retorno .= " <input  type='text' >";
-//        $retorno .= " <input  type='text' id='$id' data-tipo='$descricao'" .
-//            "name='itens[][compra_item_id]' value='$id'  onclick=\"bloqueia('$descricao')\" > ";
 
-        return $retorno;
+        $subItens = Naturezasubitem::where('naturezadespesa_id', $item['naturezadespesa_id'])
+            ->get()->pluck('codigo_descricao', 'id');
+
+        $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
+//        $retorno = '<select name="item[][\'subitem\']" id="subitem" class="subitem">';
+        foreach ($subItens as $key => $subItem) {
+            $retorno .= "<option value='$key'>$subItem</option>";
+        }
+        $retorno .= '</select>';
+        return $this->addColunaCompraItemId($item).$retorno;
     }
 
-    private function addNovaColuna()
+    private function addColunaQuantidade()
     {
-        return '<select name="cars" id="cars">
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="mercedes">Mercedes</option>
-  <option value="audi">Audi</option>
-</select>';
+//        return " <input  type='text' id='' data-tipo='' name=\"item[]['qtd']\" value=''   > ";
+        return " <input  type='text' id='' data-tipo='' name='qtd[]' value=''   > ";
+    }
+
+    private function addColunaValorTotal()
+    {
+//        return " <input  type='text' id='' data-tipo='' name=\"item[]['valor_total']\" value=''   > ";
+        return " <input  type='text' id='' data-tipo='' name='valor_total[]' value=''   > ";
+    }
+
+    private function addColunaCompraItemId($item)
+    {
+//        return " <input  type='hidden' id='' data-tipo='' name=\"item[]['compra_item_id']\" value='" . $item['compra_item_id'] . "'   > ";
+        return " <input  type='hidden' id='' data-tipo='' name='compra_item_id[]' value='" . $item['compra_item_id'] . "'   > ";
+    }
+
+    public function store(Request $request)
+    {
+        dd($request->all());
     }
 }

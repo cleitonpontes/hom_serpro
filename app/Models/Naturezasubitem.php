@@ -22,20 +22,20 @@ class Naturezasubitem extends Model
 
     public function buscaNaturezaSubitem(array $dado, Naturezadespesa $naturezadespesa)
     {
-        $subitem = $this->whereHas('naturezadespesa', function ($nd) use ($naturezadespesa){
-            $nd->where('codigo',$naturezadespesa->codigo);
+        $subitem = $this->whereHas('naturezadespesa', function ($nd) use ($naturezadespesa) {
+            $nd->where('codigo', $naturezadespesa->codigo);
         })
-            ->where('codigo',$dado['codigo_subitem'])
+            ->where('codigo', $dado['codigo_subitem'])
             ->first();
 
-        if(!isset($subitem->id)){
+        if (!isset($subitem->id)) {
             $subitem = new Naturezasubitem();
             $subitem->naturezadespesa_id = $naturezadespesa->id;
             $subitem->codigo = $dado['codigo_subitem'];
             $subitem->descricao = $dado['descricao_subitem'];
             $subitem->situacao = true;
             $subitem->save();
-        }else{
+        } else {
             $subitem->descricao = $dado['descricao_subitem'];
             $subitem->save();
         }
@@ -66,13 +66,23 @@ class Naturezasubitem extends Model
 
         $dados = DB::select($sql);
 
-        foreach ($dados as $ds){
-            $retorno [$ds->id] =  $ds->nome;
+        foreach ($dados as $ds) {
+            $retorno [$ds->id] = $ds->nome;
         }
 
         return $retorno;
-
     }
 
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESORS
+    |--------------------------------------------------------------------------
+    */
+
+    public function getCodigoDescricaoAttribute()
+    {
+        return $this->codigo . ' - ' . $this->descricao;
+    }
 }
