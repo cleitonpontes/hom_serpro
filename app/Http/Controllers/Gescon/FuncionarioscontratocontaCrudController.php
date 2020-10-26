@@ -60,7 +60,6 @@ class FuncionarioscontratocontaCrudController extends CrudController
         // $this->crud->addButtonFromView('top', 'voltarcontavinculada', 'voltarcontavinculada', 'end');
         $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
 
-
         $this->crud->denyAccess('delete');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('create');
@@ -77,19 +76,9 @@ class FuncionarioscontratocontaCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-
         // add asterisk for fields that are required in FuncionarioscontratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
-
-
-
-
-        // $objTeste = new Funcionarioscontratoconta();
-        // $testeSaldo = $objTeste->getSaldoDeposito();
-        // dd($teste);
-
-
 
     }
 
@@ -120,6 +109,17 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('cpf', 'ilike', "%$searchTerm%");
                 },
+            ],
+            [
+                'name' => 'salario',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'prefix' => "R$ ",
+
             ],
             [
                 'name' => 'getSituacaoFuncionario',

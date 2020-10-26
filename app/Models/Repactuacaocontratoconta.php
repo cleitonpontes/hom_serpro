@@ -21,11 +21,8 @@ class Repactuacaocontratoconta extends Model
     // protected $guarded = ['id'];
     protected $fillable = [
         'contratoconta_id',
-        'movimentacao_id',
         'funcao_id',
-        'salario_antigo',
         'salario_novo',
-        'percentual_aplicado',
         'mes_inicio',
         'ano_inicio',
         'mes_fim',

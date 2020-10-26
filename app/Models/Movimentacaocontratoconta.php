@@ -32,6 +32,16 @@ class Movimentacaocontratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
+        $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
+        $objMovimentacao->situacao_movimentacao = $statusMovimentacao;
+        if(!$objMovimentacao->save()){
+            return false;
+        } else {
+            return true;
+        }
+
+    }
     public function getTotalMovimentacao(){
         $objLancamento = new Lancamento();
         $idMovimentacao= $this->id;

@@ -75,6 +75,7 @@ class FuncoescontratocontaCrudController extends CrudController
         $this->crud->addClause('select', 'ci.*')->distinct();
         $this->crud->addClause('join', 'codigoitens as ci', 'ci.id',  '=',  'contratoterceirizados.funcao_id');
         $this->crud->addClause('where', 'contratoterceirizados.contrato_id', '=', $idContrato);
+        $this->crud->addClause('where', 'contratoterceirizados.situacao', '=', 't');
 
 
         // $this->crud->addClause('select', 'lancamentos.*', 'lancamentos.created_at as data_lancamento', 'contratoterceirizados.*', 'c1.descricao as nome_encargo', 'c2.descricao as nome_movimentacao', 'movimentacaocontratocontas.*');

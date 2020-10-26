@@ -333,30 +333,23 @@ class RepactuacaocontratocontaCrudController extends CrudController
         return true;
     }
     public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
-        $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
-        $objMovimentacao->situacao_movimentacao = $statusMovimentacao;
-        if(!$objMovimentacao->save()){
-            return false;
-        } else {
+        $objMovimentacao = new Movimentacaocontratoconta();
+        if($objMovimentacao->alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao)){
             return true;
         }
-
+        return false;
     }
 
     public function criarMovimentacao($request){
         $dataHoje = time();
-        $mesHoje = date("m", $dataHoje);
-        $anoHoje = date("Y", $dataHoje);
-
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
         $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
         $objMovimentacaocontratoconta->tipo_id = $request->input('tipo_id');
-        $objMovimentacaocontratoconta->mes_competencia = $mesHoje;
-        $objMovimentacaocontratoconta->ano_competencia = $anoHoje;
+        $objMovimentacaocontratoconta->mes_competencia = $request->input('mes_competencia');
+        $objMovimentacaocontratoconta->ano_competencia = $request->input('ano_competencia');
         $objMovimentacaocontratoconta->valor_total_mes_ano = 0;
         $objMovimentacaocontratoconta->situacao_movimentacao = $request->input('situacao_movimentacao');
         $objMovimentacaocontratoconta->user_id = $request->input('user_id');
-
         if($objMovimentacaocontratoconta->save()){
             return $objMovimentacaocontratoconta->id;
         } else {
@@ -375,7 +368,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
         $novoSalario = $request->input('novoSalario');
         $novoSalario = str_replace('.', '', $novoSalario);
         $novoSalario = str_replace(',', '.', $novoSalario);
-        $request->request->set('novo_salario', $novoSalario);
+        $request->request->set('salario_novo', $novoSalario);
 
         $mesInicio = $request->input('mes_inicio');
         $mesFim = $request->input('mes_fim');
@@ -392,18 +385,9 @@ class RepactuacaocontratocontaCrudController extends CrudController
         ->get();
 
         if(count($arrayContratosTerceirizados) > 0){
-            // Criar a movimentação
-            if( !$idMovimentacao = self::criarMovimentacao($request) ){
-                $mensagem = 'Problemas ao criar a movimentação.';
-                \Alert::error($mensagem)->flash();
-                return redirect()->back();
-            }
-            $request->request->set('movimentacao_id', $idMovimentacao);
-
-            // vamos alterar o status da movimentação
-            self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
 
             // varrer os contratos
+            $arrayIdsMovimentacoesGeradas = array();
             foreach( $arrayContratosTerceirizados as $objContratoTerceirizado ){
                 $jornadaContratoTerceirizado = $objContratoTerceirizado->jornada;
                 $salarioAtual = $objContratoTerceirizado->salario;
@@ -417,6 +401,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
                     $arrayLancamentosTerceirizado = self::getTodosLancamentosDepositoByIdContratoTerceirizado($idContratoTerceirizado);
 
                     // vamos varrer os lançamentos para verificar o mês / ano
+                    $idMovimentacaoAux = null;
                     foreach($arrayLancamentosTerceirizado as $objLancamentoExistente){
                         $encargo_id = $objLancamentoExistente->encargo_id;
                         $objEncargo = Encargo::where('id', $encargo_id)->first();
@@ -425,6 +410,40 @@ class RepactuacaocontratocontaCrudController extends CrudController
                         $mesMovimentacaoLancamento = $objMovimentacaoLancamento->mes_competencia;
                         $anoMovimentacaoLancamento = $objMovimentacaoLancamento->ano_competencia;
 
+                        // vamos verificar se é o caso de criarmos uma nova movimentação
+                        if( $idMovimentacaoAux != $idMovimentacaoLancamento ){
+
+                            // vamos finalizar a movimentação anterior
+                            if($idMovimentacaoAux!=null){
+                                // aqui os lançamentos já foram gerados e entraremos em uma nova movimentação.
+                                self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
+                            }
+
+                            // Criar a nova movimentação
+                            $request->request->set('mes_competencia', $mesMovimentacaoLancamento); // será utilizado na nova mov.
+                            $request->request->set('ano_competencia', $anoMovimentacaoLancamento); // será utilizado na nova mov.
+                            if( !$idMovimentacao = self::criarMovimentacao($request) ){
+                                $mensagem = 'Problemas ao criar a movimentação.';
+                                \Alert::error($mensagem)->flash();
+                                return redirect()->back();
+                            }
+
+                            // aqui a movimentação foi criada.
+                            array_push($arrayIdsMovimentacoesGeradas, $idMovimentacao);
+                            $request->request->set('movimentacao_id', $idMovimentacao);
+
+                            // vamos alterar o status da movimentação
+                            self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
+
+                            //
+                            $idMovimentacaoAux = $idMovimentacaoLancamento;
+                        }
+
+
+
+
+
+                        // início transformar em método
                         // verificar o mês e ano início da movimentação do lançamento
                         $continuar = false;
                         if( $anoMovimentacaoLancamento >= $anoInicio ){
@@ -456,10 +475,14 @@ class RepactuacaocontratocontaCrudController extends CrudController
                         } else {
                             $continuar = false;
                         }
+                        // fim transformar em método
+
+
 
 
                         // verificar se está tudo certo pra continuar
                         if($continuar){
+                            // início transformar em método
                             // aqui as verificações estão ok
                             $percentualEncargo = $objEncargo->percentual;
                             $valorSalvar = ( $diferencaEntreSalarios * $percentualEncargo) / 100;
@@ -482,15 +505,16 @@ class RepactuacaocontratocontaCrudController extends CrudController
                             } else {
                                 $quantidadeLancamentosGerados ++;
                             }
+                            // fim transformar em método
                         }
                     }
                     self::salvarNovoSalario($idContratoTerceirizado, $novoSalario);
                 }
             }
-            // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
+            // precisamos finalizar a última movimentação
             self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
-
-            // dd($request);
+            // vamos verificar se alguma movimentação foi gerada sem nenhum lançamento - excluí-la se for o caso.
+            self::verificarNecessidadeDeExcluirMovimentacao($arrayIdsMovimentacoesGeradas);
 
             // your additional operations before save here
             $redirect_location = parent::storeCrud($request);
@@ -501,30 +525,25 @@ class RepactuacaocontratocontaCrudController extends CrudController
             // aqui nenhum contrato terceirizado foi encontrado.
             \Alert::error('Nenhum contrato terceirizado foi encontrado.')->flash();
         }
-
-
-        if($quantidadeLancamentosGerados == 0){
-            // aqui quer dizer que nenhum lançamento foi gerado. vamos excluir a movimentação.
-
-            self::excluirMovimentacao($idMovimentacao);
-            \Alert::error('A movimentação não foi criada.')->flash();
-            // return redirect()->back();
-            \Alert::error($quantidadeLancamentosGerados.' lançamentos foram gerados.')->flash();
-
-            // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
-            $linkLocation = '/gescon/contrato/contratoconta/'.$idContratoConta.'/movimentacaocontratoconta';
-            return redirect($linkLocation);
-
-
-        }
-
-        \Alert::success($quantidadeLancamentosGerados.' lançamentos foram gerados.')->flash();
-
-        // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
         $linkLocation = '/gescon/contrato/contratoconta/'.$idContratoConta.'/movimentacaocontratoconta';
         return redirect($linkLocation);
-
-        // return $redirect_location;
+    }
+    public function verificarNecessidadeDeExcluirMovimentacao($arrayIdsMovimentacoesGeradas){
+        foreach( $arrayIdsMovimentacoesGeradas as $idMovimentacaoVerificar ){
+            $excluir = false;
+            // se o valor total gerado para a movimentação for zero, deverá ser excluída.
+            if( !self::verificarSeExitemValoresLancadosParaEstaMovimentacao($idMovimentacaoVerificar) ){$excluir = true;}
+            // vamos verificar se é necessário excluir a movimentação
+            if($excluir){self::excluirMovimentacao($idMovimentacaoVerificar);}
+        }
+        return true;
+    }
+    public function verificarSeExitemValoresLancadosParaEstaMovimentacao($idMovimentacao){
+        $objLancamento = new Lancamento();
+        if($objLancamento->getValorTotalLancamentosByIdMovimentacao($idMovimentacao) == 0){
+            return false;
+        }
+        return true;
     }
     public function excluirMovimentacao($idMovimentacao){
         if($objMovimentacaocontratoconta = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->delete()){return true;}

@@ -18,8 +18,8 @@ class CreateRepactuacoesTable extends Migration
             $table->integer('contratoconta_id');
             $table->foreign('contratoconta_id')->references('id')->on('contratocontas')->onDelete('cascade');
 
-            $table->integer('movimentacao_id');
-            $table->foreign('movimentacao_id')->references('id')->on('movimentacaocontratocontas')->onDelete('cascade');
+            // $table->integer('movimentacao_id');
+            // $table->foreign('movimentacao_id')->references('id')->on('movimentacaocontratocontas')->onDelete('cascade');
 
             $table->integer('funcao_id');
             $table->foreign('funcao_id')->references('id')->on('codigoitens')->onDelete('cascade');
