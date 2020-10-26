@@ -29,7 +29,7 @@
 
         <div class="box-body">
             <br/>
-            <form action="/empenho/item" method="POST">
+            <form action="/empenho/subelemento" method="POST">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
             @csrf <!-- {{ csrf_field() }} -->
@@ -54,26 +54,9 @@
 @push('after_scripts')
     {!! $html->scripts() !!}
     <script type="text/javascript">
+        // alert(123);
 
-        $('#uasg_compra').select2({
-            placeholder: "Choose tags...",
-            minimumInputLength: 2,
-            ajax: {
-                url: '/tags/find',
-                dataType: 'json',
-                data: function (params) {
-                    return {
-                        q: $.trim(params.term)
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data
-                    };
-                },
-                cache: true
-            }
-        });
+        // $('#subitem').select2();
 
         function bloqueia(tipo){
             $('input[type=checkbox]').each(function () {
