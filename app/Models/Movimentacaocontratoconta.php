@@ -32,6 +32,23 @@ class Movimentacaocontratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function criarMovimentacao($request){
+        $dataHoje = time();
+        $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
+        $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
+        $objMovimentacaocontratoconta->tipo_id = $request->input('tipo_id');
+        $objMovimentacaocontratoconta->mes_competencia = $request->input('mes_competencia');
+        $objMovimentacaocontratoconta->ano_competencia = $request->input('ano_competencia');
+        $objMovimentacaocontratoconta->valor_total_mes_ano = 0;
+        $objMovimentacaocontratoconta->situacao_movimentacao = $request->input('situacao_movimentacao');
+        $objMovimentacaocontratoconta->user_id = $request->input('user_id');
+        if($objMovimentacaocontratoconta->save()){
+            return $objMovimentacaocontratoconta->id;
+        } else {
+            echo false;
+        }
+    }
+
     public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
         $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
         $objMovimentacao->situacao_movimentacao = $statusMovimentacao;
@@ -40,7 +57,6 @@ class Movimentacaocontratoconta extends Model
         } else {
             return true;
         }
-
     }
     public function getTotalMovimentacao(){
         $objLancamento = new Lancamento();

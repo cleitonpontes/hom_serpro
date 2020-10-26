@@ -18,6 +18,7 @@ use App\Models\Contratoterceirizado;
 use App\Models\Movimentacaocontratoconta;
 use App\Models\Encargo;
 use App\Models\Lancamento;
+use App\Models\Funcionarioscontratoconta;
 
 
 /**
@@ -327,10 +328,11 @@ class RepactuacaocontratocontaCrudController extends CrudController
         return $campos;
     }
     public function salvarNovoSalario($idContratoTerceirizado, $novoSalario){
-        $objContratoTerceirizadoSalvarSalario = Contratoterceirizado::where('id', $idContratoTerceirizado)->first();
-        $objContratoTerceirizadoSalvarSalario->salario = $novoSalario;
-        $objContratoTerceirizadoSalvarSalario->save();
-        return true;
+        $objFuncionariocontratoconta = new Funcionarioscontratoconta();
+        if($objFuncionariocontratoconta->salvarNovoSalario($idContratoTerceirizado, $novoSalario)){
+            return true;
+        }
+        return false;
     }
     public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
         $objMovimentacao = new Movimentacaocontratoconta();
@@ -339,22 +341,28 @@ class RepactuacaocontratocontaCrudController extends CrudController
         }
         return false;
     }
-
     public function criarMovimentacao($request){
-        $dataHoje = time();
+
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
-        $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
-        $objMovimentacaocontratoconta->tipo_id = $request->input('tipo_id');
-        $objMovimentacaocontratoconta->mes_competencia = $request->input('mes_competencia');
-        $objMovimentacaocontratoconta->ano_competencia = $request->input('ano_competencia');
-        $objMovimentacaocontratoconta->valor_total_mes_ano = 0;
-        $objMovimentacaocontratoconta->situacao_movimentacao = $request->input('situacao_movimentacao');
-        $objMovimentacaocontratoconta->user_id = $request->input('user_id');
-        if($objMovimentacaocontratoconta->save()){
-            return $objMovimentacaocontratoconta->id;
-        } else {
-            echo false;
+        if( $idMovimentacao = $objMovimentacaocontratoconta->criarMovimentacao($request) ){
+            return $idMovimentacao;
         }
+        return false;
+
+        // $dataHoje = time();
+        // $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
+        // $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
+        // $objMovimentacaocontratoconta->tipo_id = $request->input('tipo_id');
+        // $objMovimentacaocontratoconta->mes_competencia = $request->input('mes_competencia');
+        // $objMovimentacaocontratoconta->ano_competencia = $request->input('ano_competencia');
+        // $objMovimentacaocontratoconta->valor_total_mes_ano = 0;
+        // $objMovimentacaocontratoconta->situacao_movimentacao = $request->input('situacao_movimentacao');
+        // $objMovimentacaocontratoconta->user_id = $request->input('user_id');
+        // if($objMovimentacaocontratoconta->save()){
+        //     return $objMovimentacaocontratoconta->id;
+        // } else {
+        //     echo false;
+        // }
     }
 
     public function store(StoreRequest $request)

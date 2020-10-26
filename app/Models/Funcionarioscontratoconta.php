@@ -31,6 +31,13 @@ class Funcionarioscontratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function salvarNovoSalario($idContratoTerceirizado, $novoSalario){
+        $objContratoTerceirizadoSalvarSalario = Funcionarioscontratoconta::where('id', $idContratoTerceirizado)->first();
+        $objContratoTerceirizadoSalvarSalario->salario = $novoSalario;
+        $objContratoTerceirizadoSalvarSalario->save();
+        return true;
+    }
+
     public function getCpfFormatado(){
         $base = new AdminController();
         $cpf = $this->cpf;
