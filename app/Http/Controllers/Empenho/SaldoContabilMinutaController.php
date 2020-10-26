@@ -47,7 +47,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
                     'action',
                     function ($saldosContabeis) use ($minuta_id)
                     {
-                        return $this->retornaAcoes($saldosContabeis['id'], $minuta_id);
+                        return $this->retornaBtnSelecao($saldosContabeis['id'], $minuta_id);
                     }
                 )
                 ->addColumn(
@@ -90,7 +90,8 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $saldosContabeis = json_encode($this->consultaApiSta($ano,$ug,$gestao,$contacontabil));
 
         foreach (json_decode($saldosContabeis) as $key => $saldo){
-            SaldoContabil::gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo);
+            $saldocontabil = new SaldoContabil();
+            $saldocontabil->gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo);
         }
 
         return redirect()->route('empenho.minuta.listagem.saldocontabil',['etapa_id' => ($etapa_id + 1), 'minuta_id' => $minuta_id]);
@@ -98,13 +99,13 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     }
 
 
-    public function gravaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)
-    {
-        $saldoContabil = SaldoContabil::updateOrCreate(
-            ['ano'=> $ano,'unidade_id' => $unidade_id,'conta_corrente' => $contacorrente,'conta_contabil' => $contacontabil],
-            ['saldo' => $saldo]
-        );
-    }
+//    public function gravaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)
+//    {
+//        $saldoContabil = SaldoContabil::updateOrCreate(
+//            ['ano'=> $ano,'unidade_id' => $unidade_id,'conta_corrente' => $contacorrente,'conta_contabil' => $contacontabil],
+//            ['saldo' => $saldo]
+//        );
+//    }
 
 
     public function atualizaMinuta(Request $request)
@@ -199,7 +200,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
                 'responsive' => true,
                 'info' => true,
                 'order' => [
-                    0,
+                    7,
                     'desc'
                 ],
                 'autoWidth' => false,

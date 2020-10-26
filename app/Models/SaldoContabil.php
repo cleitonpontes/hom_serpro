@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Http\Traits\Formatador;
 
 class SaldoContabil extends Model
 {
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
-
+    use Formatador;
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -56,12 +57,12 @@ class SaldoContabil extends Model
                 'saldo_contabil.saldo',
             ])
             ->where(DB::raw("SUBSTRING(saldo_contabil.conta_corrente,22,2)"),'<>','00')
-            ->orderby('saldo_contabil.saldo','DESC')
             ->get()
             ->toArray();
+
     }
 
-    public static function gravaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)
+    public function gravaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)
     {
         $saldoContabil = SaldoContabil::updateOrCreate(
             ['ano'=> $ano,'unidade_id' => $unidade_id,'conta_corrente' => $contacorrente,'conta_contabil' => $contacontabil],

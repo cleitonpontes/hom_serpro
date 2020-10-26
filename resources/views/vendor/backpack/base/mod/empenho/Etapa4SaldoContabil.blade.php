@@ -59,9 +59,7 @@
                         !!}
                     </div>
                     <div class="col-md-3">
-{{--                        {!! Button::primary('<i class="fa fa-arrow-right"></i> Próxima Etapa')--}}
-{{--                            ->asLinkTo(route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => $etapa_id, 'minuta_id' => $minuta_id]))--}}
-{{--                        !!}--}}
+
                     </div>
                     <div class="col-md-3" align="right">
                         <button type="button" class="btn btn-primary" id="atualiza_saldo">
@@ -93,15 +91,18 @@
 
 
 
-        function atualizaSaldos(event){
+        function atualizaTabeladeSaldos(event){
             var url = "{{route('atualiza.saldos.unidade','110161')}}";
             // Inicia requisição AJAX com o axios
             axios.request(url)
                 .then(response => {
                     dados = response.data
                     if(dados.resultado){
-                        var table = $('#dataTableBuilder_wrapper').DataTable();
-                        table.ajax.reload();
+                        console.log(dados.resultado);
+                        // var table = $().DataTable();
+                        // console.log(table.data());
+                        // table.ajax.reload();
+                       // alert("Saldos Atualizados com sucesso!");
                     }
                 })
                 .catch(error => {
@@ -113,27 +114,43 @@
 
         }
 
-        var example_table = $('#example_table').DataTable({
-            'ajax': {
-                "type"   : "POST",
-                "url"    : '/path/to/your/URL',
-                "data"   : function( d ) {
-                    d.example_key1= $('#example_input1').val();
-                    d.example_key2= $('#example_input2').val();
-                    d.example_key3= $('#example_input3').val();
+
+        function atualizaSaldos(){
+            var example_table = $().DataTable({
+                'ajax': {
+                    "type"   : "GET",
+                    "url"    : '{{route('atualiza.saldos.unidade','110161')}}'
+                    }
+            });
+
+            example_table.ajax.reload()
+        }
+
+
+        function atualizaLinhaSaldo(){
+            var example_table = $().DataTable({
+                'ajax': {
+                    "type"   : "GET",
+                    "url"    : '{{route('atualiza.saldos.unidade','110161')}}',
+                    "data"   : function( d ) {
+                        d.example_key1= $('#example_input1').val();
+                        d.example_key2= $('#example_input2').val();
+                        d.example_key3= $('#example_input3').val();
+                    },
+                    "dataSrc": ""
                 },
-                "dataSrc": ""
-            },
-            'columns': [
-                {"data" : "metric_name"},
-                {"data" : "metric_type"},
-                {"data" : "metric_timestamp"},
-                {"data" : "metric_duration"}
-            ]
-        });
-        //To Reload The Ajax
-        //See DataTables.net for more information about the reload method
-        example_table.ajax.reload()
+                'columns': [
+                    {"data" : "metric_name"},
+                    {"data" : "metric_type"},
+                    {"data" : "metric_timestamp"},
+                    {"data" : "metric_duration"}
+                ]
+            });
+            //To Reload The Ajax
+            //See DataTables.net for more information about the reload method
+            example_table.ajax.reload()
+        }
+
 
     </script>
 @endpush

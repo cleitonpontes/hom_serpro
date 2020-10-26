@@ -124,9 +124,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     public function item(Request $request)
     {
         $etapa_id = Route::current()->parameter('etapa_id');
+        $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find(Route::current()->parameter('minuta_id'));
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
-        $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id);
+        (!is_null($modMinutaEmpenho))?$modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id):'';
+
 
         $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')

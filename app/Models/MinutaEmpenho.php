@@ -82,6 +82,7 @@ class MinutaEmpenho extends Model
     public function atualizaFornecedorCompra($fornecedor_id)
     {
         $this->fornecedor_compra_id = $fornecedor_id;
+        $this->fornecedor_empenho_id = $fornecedor_id;
         $this->update();
     }
     /*
