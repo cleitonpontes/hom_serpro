@@ -287,7 +287,8 @@ Route::group(
             Route::get('subelemento/{etapa_id}/{minuta_id}', 'SubelementoController@index')
                 ->name('minuta.etapa.subelemento');
 
-            Route::post('subelemento', 'SubelementoController@index');
+            Route::post('subelemento', 'SubelementoController@store')
+            ->name('subelemento.store');
 
             //passo 6
 

@@ -3,17 +3,18 @@
 use App\Models\Codigo;
 use Illuminate\Database\Seeder;
 
-// composer require laracasts/testdummy
-use Laracasts\TestDummy\Factory as TestDummy;
-
-class TipoMinutaEmpenhoSeeder extends Seeder
+class TipoCompraSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
     public function run()
     {
 
-
         DB::table('codigos')->insert([
-            'descricao' => 'Tipo Minuta Empenho',
+            'descricao' => 'Tipo Compra',
             'visivel' => false,
             'created_at' => now(),
             'updated_at' => now()
@@ -23,8 +24,8 @@ class TipoMinutaEmpenhoSeeder extends Seeder
 
         DB::table('codigoitens')->insert([
             'codigo_id' => $itemCodigo,
-            'descres' => '1',
-            'descricao' => 'Ordinário',
+            'descres' => '01',
+            'descricao' => 'SISPP',
             'visivel' => false,
             'created_at' => now(),
             'updated_at' => now()
@@ -32,22 +33,12 @@ class TipoMinutaEmpenhoSeeder extends Seeder
 
         DB::table('codigoitens')->insert([
             'codigo_id' => $itemCodigo,
-            'descres' => '2',
-            'descricao' => 'Estimativo',
+            'descres' => '02',
+            'descricao' => 'SISRP',
             'visivel' => false,
             'created_at' => now(),
             'updated_at' => now()
         ]);
-
-        DB::table('codigoitens')->insert([
-            'codigo_id' => $itemCodigo,
-            'descres' => '3',
-            'descricao' => 'Global',
-            'visivel' => false,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
 
     }
 }
