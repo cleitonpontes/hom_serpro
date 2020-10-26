@@ -66,5 +66,14 @@
             });
         }
 
+        function calculaValorTotal(obj){
+
+            console.log(obj.value)
+            console.log(obj.dataset.valor_unitario)
+            $('#').val();
+            console.log(obj)
+
+        }
+
     </script>
 @endpush

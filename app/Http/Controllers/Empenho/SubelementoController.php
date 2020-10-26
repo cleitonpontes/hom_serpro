@@ -42,38 +42,61 @@ class SubelementoController extends BaseControllerEmpenho
                 'compra_item_minuta_empenho.compra_item_id'
             )
             ->join(
+                'compras',
+                'compras.id',
+                '=',
+                'compra_items.compra_id'
+            )
+            ->join(
+                'codigoitens as tipo_compra',
+                'tipo_compra.id',
+                '=',
+                'compras.tipo_compra_id'
+            )
+            ->join(
                 'codigoitens',
                 'codigoitens.id',
                 '=',
                 'compra_items.tipo_item_id'
             )
-            //todo VERIFICAR SE É PARA BUSCAR A NATUREZADESPESA NA TELA ANTERIOR OU A PARTIR DO JOIN COM OS ITENS ( catmatseritens )
             ->join(
-                'catmatseritens',
-                'catmatseritens.id',
+                'saldo_contabil',
+                'saldo_contabil.id',
                 '=',
-                'compra_items.catmatseritem_id'
+                'minutaempenhos.saldo_contabil_id',
             )
             ->join(
                 'naturezadespesa',
-                DB::raw('naturezadespesa.codigo::BIGINT'),
+                'naturezadespesa.codigo',
                 '=',
-                'catmatseritens.codigo_siasg'
+                DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
             )
             ->where('minutaempenhos.id', $minuta_id)
             ->select(
                 [
                     'compra_item_minuta_empenho.compra_item_id',
+                    'tipo_compra.descricao as tipo_compra',
                     'codigoitens.descricao',
-                    'catmatseritem_id',
-                    'descricaodetalhada',
+                    'compra_items.catmatseritem_id',
+                    'compra_items.descricaodetalhada',
                     'compra_items.quantidade as qtd_item',
-                    'valorunitario',
-                    'codigo',
-                    'naturezadespesa.id as naturezadespesa_id']
+                    'compra_items.valorunitario',
+                    'naturezadespesa.codigo as natureza_despesa',
+                    'naturezadespesa.id as natureza_despesa_id',
+                    'compra_items.valortotal',
+
+
+                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa"),
+//                    'naturezadespesa.id as naturezadespesa_id'
+                ]
             )
             ->get()
             ->toArray();
+
+//        dd($itens);
+//        ;
+
+//        dd($itens->getBindings(), $itens->toSql());
 
         if ($request->ajax()) {
             return DataTables::of($itens)
@@ -96,16 +119,17 @@ class SubelementoController extends BaseControllerEmpenho
                 ->addColumn(
                     'quantidade',
                     function ($item) {
-                        return $this->addColunaQuantidade();
+                        return $this->addColunaQuantidade($item);
                     }
                 )
                 ->addColumn(
                     'valor_total',
                     function ($item) {
-                        return $this->addColunaValorTotal();
+                        return $this->addColunaValorTotal($item);
                     }
                 )
-                ->rawColumns(['ci_id','subitem', 'quantidade', 'valor_total'])
+//                ->rawColumns(['ci_id','subitem', 'quantidade', 'valor_total'])
+                ->rawColumns(['subitem', 'quantidade', 'valor_total'])
                 ->make(true);
         }
 
@@ -173,8 +197,8 @@ class SubelementoController extends BaseControllerEmpenho
             )
             ->addColumn(
                 [
-                    'data' => 'codigo',
-                    'name' => 'codigo',
+                    'data' => 'natureza_despesa',
+                    'name' => 'natureza_despesa',
                     'title' => 'Natureza da Despesa',
                 ]
             )
@@ -233,35 +257,47 @@ class SubelementoController extends BaseControllerEmpenho
 //    private function retornaRadioItens($id, $minuta_id, $descricao)
     private function addColunaSubItem($item)
     {
-
-        $subItens = Naturezasubitem::where('naturezadespesa_id', $item['naturezadespesa_id'])
+//        dd($item);
+        $subItens = Naturezasubitem::where('naturezadespesa_id', $item['natureza_despesa_id'])
             ->get()->pluck('codigo_descricao', 'id');
+//        dd($subItens);
 
-        $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
-//        $retorno = '<select name="item[][\'subitem\']" id="subitem" class="subitem">';
+//        $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
+        $retorno = '<select name="item[][\'subitem\'][]" id="subitem" class="subitem">';
         foreach ($subItens as $key => $subItem) {
             $retorno .= "<option value='$key'>$subItem</option>";
         }
         $retorno .= '</select>';
         return $this->addColunaCompraItemId($item).$retorno;
+//        return $retorno;
     }
 
-    private function addColunaQuantidade()
+    private function addColunaQuantidade($item)
     {
-//        return " <input  type='text' id='' data-tipo='' name=\"item[]['qtd']\" value=''   > ";
-        return " <input  type='text' id='' data-tipo='' name='qtd[]' value=''   > ";
+//        dd($item);
+        if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço' ){
+            return " <input  type='text' id='' data-tipo='' name=\"item[]['qtd'][]\" value='' disabled  > ";
+        }
+        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd_" . $item['compra_item_id']
+            . "' data-compra_item_id='" . $item['compra_item_id']
+            . "' data-valor_unitario='" . $item['valorunitario'] . "' name=\"item[]['qtd'][]\""
+            . "value='' onchange='calculaValorTotal(this)'  > ";
+//        dd($item);
+//        return " <input  type='text' id='' data-tipo='' name='qtd[]' value=''   > ";
     }
 
-    private function addColunaValorTotal()
+    private function addColunaValorTotal($item)
     {
-//        return " <input  type='text' id='' data-tipo='' name=\"item[]['valor_total']\" value=''   > ";
-        return " <input  type='text' id='' data-tipo='' name='valor_total[]' value=''   > ";
+        if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço' ){
+            return " <input  type='text' id='vrtotal_" . $item['compra_item_id'] . "' data-tipo='' name='valor_total[]' value=''   > ";
+        }
+        return " <input  type='text' id='' data-tipo='' name='valor_total[]' value='' disabled  > ";
     }
 
     private function addColunaCompraItemId($item)
     {
-//        return " <input  type='hidden' id='' data-tipo='' name=\"item[]['compra_item_id']\" value='" . $item['compra_item_id'] . "'   > ";
-        return " <input  type='hidden' id='' data-tipo='' name='compra_item_id[]' value='" . $item['compra_item_id'] . "'   > ";
+//        dd($item);
+        return " <input  type='hidden' id='" . '' . "' data-tipo='' name='compra_item_id[]' value='" . $item['compra_item_id'] . "'   > ";
     }
 
     public function store(Request $request)
