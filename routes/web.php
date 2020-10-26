@@ -263,23 +263,25 @@ Route::group(
 
             //passo 3
 
-
-            Route::get('item/{etapa_id}/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
-                ->name('minuta.etapa.item');
-
             Route::post('item', 'FornecedorEmpenhoController@store')
                 ->name('minuta.etapa.item.store')
                 ;
 
+            Route::get('item/{etapa_id}/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
+                ->name('minuta.etapa.item');
+
 
             //passo 4
 
-
-            Route::get('saldo/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@store')
-                ->name('minuta.etapa.saldocontabil');
-
-            Route::get('saldo', 'SaldoContabilMinutaController@index')
+            Route::get('saldo/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@index')
                 ->name('minuta.listagem.saldocontabil');
+
+            Route::get('saldo/gravar/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@store')
+                ->name('minuta.gravar.saldocontabil');
+
+            Route::post('saldo/gravar/saldo/minuta', 'SaldoContabilMinutaController@atualizaMinuta')
+                ->name('minuta.atualizar.saldo');
+
 
             //passo 5
 

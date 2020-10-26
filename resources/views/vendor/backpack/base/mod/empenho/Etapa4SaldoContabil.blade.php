@@ -43,11 +43,14 @@
                 </div>
             </div>
             <br/>
-            <form action="{{route('empenho.lista.minuta')}}" method="POST">
+            <form action="{{route('empenho.minuta.atualizar.saldo')}}" method="post">
+                @csrf <!-- {{ csrf_field() }} -->
+                <div class="col-sm-12">
+                    <input type="hidden" id="etapa_id" name="etapa_id" value="{{$etapa_id}}">
+                    <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
+                </div>
                 {!! $html->table() !!}
-            <div class="col-sm-12">
 
-            </div>
             <div class="box-tools" align="right">
                 <div class="row">
                     <div class="col-md-3" align="left">
@@ -56,17 +59,19 @@
                         !!}
                     </div>
                     <div class="col-md-3">
-
+{{--                        {!! Button::primary('<i class="fa fa-arrow-right"></i> Próxima Etapa')--}}
+{{--                            ->asLinkTo(route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => $etapa_id, 'minuta_id' => $minuta_id]))--}}
+{{--                        !!}--}}
                     </div>
                     <div class="col-md-3" align="right">
-                        {!! Button::primary('Atualizar todos os Saldos <i class="fa fa-refresh"></i>')
-                            ->asLinkTo(route('empenho.lista.minuta'))
-                        !!}
+                        <button type="button" class="btn btn-primary" id="atualiza_saldo">
+                            Atualizar todos os Saldos  <i class="fa fa-refresh"></i>
+                        </button>
                     </div>
                     <div class="col-md-3" align="left">
-                        {!! Button::primary(' Próxima Etapa <i class="fa fa-arrow-right"></i>')
-                            ->asLinkTo(route('empenho.lista.minuta'))
-                        !!}
+                        <button type="submit" class="btn btn-primary">
+                            Próxima Etapa  <i class="fa fa-arrow-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -75,30 +80,60 @@
     </div>
 
 @endsection
-
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 @push('after_scripts')
     {!! $html->scripts() !!}
     <script type="text/javascript">
 
-        $('#uasg_compra').select2({
-            placeholder: "Choose tags...",
-            minimumInputLength: 2,
-            ajax: {
-                url: '/tags/find',
-                dataType: 'json',
-                data: function (params) {
-                    return {
-                        q: $.trim(params.term)
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data
-                    };
-                },
-                cache: true
-            }
+        $(document).ready(function(){
+            $('body').on('click','#atualiza_saldo', function(event){
+                atualizaSaldos(event);
+            });
         });
+
+
+
+        function atualizaSaldos(event){
+            var url = "{{route('atualiza.saldos.unidade','110161')}}";
+            // Inicia requisição AJAX com o axios
+            axios.request(url)
+                .then(response => {
+                    dados = response.data
+                    if(dados.resultado){
+                        var table = $('#dataTableBuilder_wrapper').DataTable();
+                        table.ajax.reload();
+                    }
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+
+            event.preventDefault()
+
+        }
+
+        var example_table = $('#example_table').DataTable({
+            'ajax': {
+                "type"   : "POST",
+                "url"    : '/path/to/your/URL',
+                "data"   : function( d ) {
+                    d.example_key1= $('#example_input1').val();
+                    d.example_key2= $('#example_input2').val();
+                    d.example_key3= $('#example_input3').val();
+                },
+                "dataSrc": ""
+            },
+            'columns': [
+                {"data" : "metric_name"},
+                {"data" : "metric_type"},
+                {"data" : "metric_timestamp"},
+                {"data" : "metric_duration"}
+            ]
+        });
+        //To Reload The Ajax
+        //See DataTables.net for more information about the reload method
+        example_table.ajax.reload()
 
     </script>
 @endpush

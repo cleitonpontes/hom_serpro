@@ -260,7 +260,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             DB::rollback();
         }
 
-        return redirect()->route('empenho.minuta.etapa.saldocontabil', ['etapa_id' => 4, 'minuta_id' => $minuta_id]);
+        return redirect()->route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => 4, 'minuta_id' => $minuta_id]);
     }
 
     private function retornaItensAcoes($id, $minuta_id)

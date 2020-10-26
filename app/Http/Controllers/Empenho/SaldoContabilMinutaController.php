@@ -38,33 +38,34 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     {
 
         $minuta_id = Route::current()->parameter('minuta_id');
-
-        $saldosContabeis = SaldoContabil::join('unidades', 'unidades.id', '=', 'saldo_contabil.unidade_id')
-                        ->select([
-                                    'saldo_contabil.id',
-                                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,1,1) AS esfera"),
-                                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,2,6) AS ptrs"),
-                                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,8,10) AS fonte"),
-                                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS nd"),
-                                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,24,8) AS ugr"),
-                                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,32,11) AS plano_interno"),
-                                    'saldo_contabil.saldo',
-                        ])
-                        ->where(DB::raw("SUBSTRING(saldo_contabil.conta_corrente,22,2)"),'<>','00')
-                        ->get()
-                        ->toArray();
+        $etapa_id = Route::current()->parameter('etapa_id');
+        $saldosContabeis = SaldoContabil::retornaSaldos();
 
         if ($request->ajax()) {
-            return DataTables::of($saldosContabeis)->addColumn('action', function ($saldosContabeis) use ($minuta_id) {
-                    $acoes = $this->retornaAcoes($saldosContabeis['id'], $minuta_id);
-                    return $acoes;
-                })
+            return DataTables::of($saldosContabeis)
+                ->addColumn(
+                    'action',
+                    function ($saldosContabeis) use ($minuta_id)
+                    {
+                        return $this->retornaAcoes($saldosContabeis['id'], $minuta_id);
+                    }
+                )
+                ->addColumn(
+                    'btn_atualizar',
+                    function ($saldosContabeis) use ($minuta_id)
+                    {
+                        return $this->retornaBtAtualizar($saldosContabeis['id'], $minuta_id);
+                    }
+                )
+                ->rawColumns(['action','btn_atualizar'])
                 ->make(true);
         }
 
         $html = $this->retornaGrid();
-//        dd(session()->all());
-        return view('backpack::mod.empenho.Etapa4SaldoContabil', compact('html'));
+
+        return view('backpack::mod.empenho.Etapa4SaldoContabil', compact('html'))
+            ->with('minuta_id', $minuta_id)
+            ->with('etapa_id',$etapa_id);
     }
 
 
@@ -76,6 +77,10 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     }
 
     public function store(){
+
+        $minuta_id = Route::current()->parameter('minuta_id');
+        $etapa_id = Route::current()->parameter('etapa_id');
+
         $unidade = Unidade::where('codigo',session('user_ug'))->first();
         $ano = date('Y');
         $ug = $unidade->codigo;
@@ -85,11 +90,10 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $saldosContabeis = json_encode($this->consultaApiSta($ano,$ug,$gestao,$contacontabil));
 
         foreach (json_decode($saldosContabeis) as $key => $saldo){
-            $this->gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo);
+            SaldoContabil::gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo);
         }
 
-
-        return redirect()->route('empenho.minuta.listagem.saldocontabil');
+        return redirect()->route('empenho.minuta.listagem.saldocontabil',['etapa_id' => ($etapa_id + 1), 'minuta_id' => $minuta_id]);
 
     }
 
@@ -100,6 +104,22 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             ['ano'=> $ano,'unidade_id' => $unidade_id,'conta_corrente' => $contacorrente,'conta_contabil' => $contacontabil],
             ['saldo' => $saldo]
         );
+    }
+
+
+    public function atualizaMinuta(Request $request)
+    {
+
+        $minuta_id = $request->get('minuta_id');
+        $etapa_id = $request->get('etapa_id');
+        $saldo_contabil_id = $request->get('saldo');
+
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+        $modMinuta->etapa = $etapa_id;
+        $modMinuta->saldo_contabil_id = $saldo_contabil_id;
+        $modMinuta->save();
+        return redirect()->route('empenho.minuta.etapa.subelemento',['etapa_id' => ($etapa_id + 1), 'minuta_id' => $minuta_id]);
+
     }
 
     public function mudarUg()
@@ -125,6 +145,11 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     {
 
         $html = $this->htmlBuilder
+            ->addColumn([
+                'data' => 'btn_atualizar',
+                'name' => 'btn_atualizar',
+                'title' => 'Selecione'
+            ])
             ->addColumn([
                 'data' => 'esfera',
                 'name' => 'esfera',
@@ -205,11 +230,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     private function retornaBtAtualizar($id, $minuta_id)
     {
         $btn = '';
-        $btn .= '<a href="empenho/atualiza/saldo/'.$id.'"';
-        $btn .= "class='btn btn-default btn-sm' ";
-        $btn .= 'title="Atualizar Saldo">';
-        $btn .= '<i class="fa fa-refresh"></i></a>';
-
+        $btn .= "<input type='radio' class='custom-control-input' id=saldo_".$id." name='saldo' value=".$id.">";
         return $btn;
     }
 
@@ -217,9 +238,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     private function retornaAcoes($id, $minuta_id)
     {
         $selecionar = $this->retornaBtnSelecao($id, $minuta_id);
-        $atualizar = $this->retornaBtAtualizar($id, $minuta_id);
-
-        $botoes = $selecionar .'  '.$atualizar;
+        $botoes = $selecionar;
 
         $acoes = '';
         $acoes .= '<div class="btn-group">';
