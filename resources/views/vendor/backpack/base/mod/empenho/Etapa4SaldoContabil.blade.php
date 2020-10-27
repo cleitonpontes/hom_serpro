@@ -66,7 +66,7 @@
                 <div class="row">
                     <div class="col-md-3" align="left">
                         {!! Button::primary('<i class="fa fa-arrow-left"></i> Voltar')
-                            ->asLinkTo(route('empenho.lista.minuta'))
+                            ->asLinkTo(route('empenho.minuta.etapa.item',['etapa_id'=> ($etapa_id - 1),'minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id]))
                         !!}
                     </div>
                     <div class="col-md-3">
@@ -78,9 +78,9 @@
                         </button>
                     </div>
                     <div class="col-md-3" align="left">
-                        <button type="submit" class="btn btn-primary">
-                            Próxima Etapa  <i class="fa fa-arrow-right"></i>
-                        </button>
+                        {!! Button::primary('<i class="fa fa-arrow-right"></i> Próxima Etapa')
+                            ->asLinkTo(route('empenho.minuta.etapa.subelemento',['etapa_id'=> ($etapa_id + 1),'minuta_id' => $minuta_id]))
+                        !!}
                     </div>
                 </div>
             </div>
@@ -114,9 +114,11 @@
     </div>
 
 @endsection
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 @push('after_scripts')
     {!! $html->scripts() !!}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script type="text/javascript">
 
         $(document).ready(function(){
@@ -126,12 +128,15 @@
                 atualizaTabeladeSaldos(event);
             });
 
+            $('body').on('click','#atualiza_saldo_acao', function(event){
+                atualizaTabeladeSaldos(event);
+            });
+
             $('body').on('change','#cb_unidade', function(event){
                 recarregaTabeladeSaldos(event);
             });
 
             $('body').on('click','#btn_inserir', function(event){
-
                 if(valida_form()){
                     $('#form_modal').submit();
                 }
@@ -236,32 +241,26 @@
             var vazio2 = null_or_empty("#ptrs");
             var vazio3 = null_or_empty("#fonte");
             var vazio4 = null_or_empty("#natureza_despesa");
-            // var vazio5 = null_or_empty("#ugr");
             var vazio6 = null_or_empty("#plano_interno");
-            var vazio7 = null_or_empty("#valor");
 
             if (!vazio1) {
-                alert('Esfera não pode ser em vazio.');
+                Swal.fire('Alerta!','O campo Esfera é obrigatório!','warning');
                 return false;
             }
             if (!vazio2) {
-                alert('PTRS não pode ser em vazio.');
+                Swal.fire('Alerta!','O campo PTRS é obrigatório!','warning');
                 return false;
             }
             if (!vazio3) {
-                alert('Fonte não pode ser em vazia.');
+                Swal.fire('Alerta!','O campo Fonte é obrigatório!','warning');
                 return false;
             }
             if (!vazio4) {
-                alert('Natureza de Despesa não pode ser em vazia.');
+                Swal.fire('Alerta!','O campo Natureza de Despesa é obrigatório!','warning');
                 return false;
             }
             if (!vazio6) {
-                alert('Plano Interno não pode ser em vazio.');
-                return false;
-            }
-            if (!vazio7) {
-                alert('Valor não pode ser em vazio.');
+                Swal.fire('Alerta!','O campo Plano Interno é obrigatório!','warning');
                 return false;
             }
             return true;

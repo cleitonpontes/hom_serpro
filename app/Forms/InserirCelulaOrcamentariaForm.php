@@ -1,9 +1,6 @@
 <?php
 namespace App\Forms;
 
-use App\Models\Codigoitem;
-use App\Models\Unidade;
-use Illuminate\Support\Facades\DB;
 use Kris\LaravelFormBuilder\Form;
 
 class InserirCelulaOrcamentariaForm extends Form
@@ -15,6 +12,7 @@ class InserirCelulaOrcamentariaForm extends Form
         $this
         ->add('esfera', 'text',[
             'label' => 'Esfera',
+            'rules' => 'required|min:1',
                 'attr' => [
                     'id'=>'esfera',
                     'maxlength' => 1,
@@ -23,6 +21,7 @@ class InserirCelulaOrcamentariaForm extends Form
             ])
         ->add('ptrs','text',[
             'label' => 'PTRS',
+            'required ' => true,
                 'attr' => [
                     'id'=>'ptrs',
                     'maxlength' => 6,
@@ -34,6 +33,7 @@ class InserirCelulaOrcamentariaForm extends Form
                 'attr' => [
                     'id'=>'fonte',
                     'maxlength' => 10,
+                    'required ' => true,
                     'onkeypress' => 'return somenteNumeros(event)'
                 ]
             ])
@@ -42,6 +42,7 @@ class InserirCelulaOrcamentariaForm extends Form
                 'attr' => [
                     'id'=>'natureza_despesa',
                     'maxlength' => 6,
+                    'required ' => true,
                     'onkeypress' => 'return somenteNumeros(event)'
                     ]
             ])
@@ -58,12 +59,13 @@ class InserirCelulaOrcamentariaForm extends Form
                     'attr' => [
                         'id'=>'plano_interno',
                         'maxlength' => 11,
+                        'required ' => true,
                         'oninput' => 'handleInput(event)'
                     ]
             ])
         ->add('valor', 'text',[
                 'label' => 'Valor',
-                'attr' => ['id'=>'valor']
+                'attr' => ['id'=>'valor', 'required ' => true,]
             ])
         ->add('cancelar', 'button', [
             'label' => '<i class="fa fa-reply"></i> Cancelar',

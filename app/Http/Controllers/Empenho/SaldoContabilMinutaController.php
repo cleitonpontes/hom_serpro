@@ -23,13 +23,13 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use App\STA\ConsultaApiSta;
 use App\Http\Traits\Users;
-
+use App\Http\Traits\Formatador;
 
 
 class SaldoContabilMinutaController extends BaseControllerEmpenho
 {
     use Users;
-
+    use Formatador;
     /**
      * Display a listing of the resource.
      *
@@ -39,6 +39,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     {
 
         $minuta_id = Route::current()->parameter('minuta_id');
+        $modMinuta = MinutaEmpenho::find($minuta_id);
         $etapa_id = Route::current()->parameter('etapa_id');
 
         $unidade_id = session('user_ug_id');
@@ -53,19 +54,19 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             return DataTables::of($saldosContabeis)
                 ->addColumn(
                     'action',
-                    function ($saldosContabeis) use ($minuta_id)
+                    function ($saldosContabeis) use ($modUnidade)
                     {
-                        return $this->retornaBtnSelecao($saldosContabeis['id'], $minuta_id);
+                        return $this->retornaBtnAtualizar($saldosContabeis['id'],$modUnidade->codigo);
                     }
                 )
                 ->addColumn(
-                    'btn_atualizar',
+                    'btn_selecionar',
                     function ($saldosContabeis) use ($minuta_id)
                     {
-                        return $this->retornaBtAtualizar($saldosContabeis['id'], $minuta_id);
+                        return $this->retornaBtSelecionar($saldosContabeis['id'],$minuta_id);
                     }
                 )
-                ->rawColumns(['action','btn_atualizar'])
+                ->rawColumns(['action','btn_selecionar'])
                 ->make(true);
         }
 
@@ -74,8 +75,9 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $form = $this->retonaFormModal($modUnidade->id,$minuta_id,$etapa_id);
 
         return view('backpack::mod.empenho.Etapa4SaldoContabil', compact(['html','form']))
-            ->with('minuta_id', $minuta_id)
+            ->with('minuta_id', $modMinuta->id)
             ->with('etapa_id',$etapa_id)
+            ->with('fornecedor_id',$modUnidade->fornecedor_compra_id)
             ->with('unidades',$this->buscaUg())
             ->with('modUnidade',$modUnidade);
     }
@@ -140,13 +142,12 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $unidade_id = $request->get('unidade_id');
         $ano = date('Y');
         $contacontabil = config('app.conta_contabil_credito_disponivel');
-
         $modSaldo = new SaldoContabil();
         $modSaldo->unidade_id = $unidade_id;
         $modSaldo->ano = $ano;
         $modSaldo->conta_contabil = $contacontabil;
         $modSaldo->conta_corrente = $conta_corrente;
-        $modSaldo->saldo = doubleval($saldo);
+        $modSaldo->saldo = $this->retornaFormatoAmericano($saldo);
         $modSaldo->save();
 
         return redirect()->route(
@@ -173,19 +174,6 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         return $conta_corrente;
     }
 
-    public function mudarUg()
-    {
-        $ug = $this->buscaUg();
-
-        $form = \FormBuilder::create(MudarUgForm::class, [
-            'url' => route('#'),
-            'data' => ['ugs' => $ug],
-            'method' => 'PUT',
-//            'model' => $user,
-        ]);
-
-    }
-
 
     /**
      * Monta $html com definições do Grid
@@ -197,8 +185,8 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $html = $this->htmlBuilder
             ->addColumn([
-                'data' => 'btn_atualizar',
-                'name' => 'btn_atualizar',
+                'data' => 'btn_selecionar',
+                'name' => 'btn_selecionar',
                 'title' => 'Selecione'
             ])
             ->addColumn([
@@ -266,19 +254,17 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     }
 
 
-    private function retornaBtnSelecao($id, $minuta_id)
+    private function retornaBtnAtualizar($id, $codigo)
     {
         $btnsel = '';
-        $btnsel .= '<a href="empenho/minuta/subelemento/'.$id.'"';
-        $btnsel .= "class='btn btn-default btn-sm' ";
-        $btnsel .= 'title="Selecionar este fornecedor">';
-        $btnsel .= '<i class="fa fa-check-circle"></i></a>';
+        $btnsel .= '<button type="button" class="btn btn-primary btn-sm" id="atualiza_saldo_acao">';
+        $btnsel .= '<i class="fa fa-refresh"></i></button>';
 
         return $btnsel;
     }
 
 
-    private function retornaBtAtualizar($id, $minuta_id)
+    private function retornaBtSelecionar($id, $minuta_id)
     {
         $btn = '';
         $btn .= "<input type='radio' class='custom-control-input' id=saldo_".$id." name='saldo' value=".$id.">";
@@ -288,7 +274,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
     private function retornaAcoes($id, $minuta_id)
     {
-        $selecionar = $this->retornaBtnSelecao($id, $minuta_id);
+        $selecionar = $this->retornaBtnAtualizar($id, $minuta_id);
         $botoes = $selecionar;
 
         $acoes = '';
