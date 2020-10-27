@@ -43,6 +43,7 @@ class ConsultaApiSta
     {
         $base = new AdminController();
         $url = $this->host_sta . '/api/saldocontabil/ano/' . $ano . '/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil;
+
         $dados = $base->buscaDadosUrl($url);
 
         $retorno = [];

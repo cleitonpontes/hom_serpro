@@ -45,8 +45,9 @@ class SaldoContabil extends Model
     |--------------------------------------------------------------------------
     */
 
-    public static function retornaSaldos(){
-        return SaldoContabil::select([
+    public static function retornaSaldos($unidade_id){
+        return  SaldoContabil::join('unidades', 'unidades.id', '=', 'saldo_contabil.unidade_id')
+            ->select([
                 'saldo_contabil.id',
                 DB::raw("SUBSTRING(saldo_contabil.conta_corrente,1,1) AS esfera"),
                 DB::raw("SUBSTRING(saldo_contabil.conta_corrente,2,6) AS ptrs"),
@@ -57,9 +58,10 @@ class SaldoContabil extends Model
                 'saldo_contabil.saldo',
             ])
             ->where(DB::raw("SUBSTRING(saldo_contabil.conta_corrente,22,2)"),'<>','00')
+            ->where('saldo_contabil.unidade_id',$unidade_id)
             ->get()
             ->toArray();
-
+//        dd($teste->getBindings(),$teste->toSql());
     }
 
     public function gravaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)

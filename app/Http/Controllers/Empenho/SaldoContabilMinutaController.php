@@ -11,6 +11,7 @@ namespace App\Http\Controllers\Empenho;
 
 use App\Forms\MudarUgForm;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
+use App\Models\BackpackUser;
 use App\Models\SaldoContabil;
 use App\Models\Unidade;
 use App\Models\MinutaEmpenho;
@@ -24,11 +25,14 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use App\STA\ConsultaApiSta;
+use App\Http\Traits\Users;
 
 
 
 class SaldoContabilMinutaController extends BaseControllerEmpenho
 {
+    use Users;
+
     /**
      * Display a listing of the resource.
      *
@@ -39,7 +43,15 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $minuta_id = Route::current()->parameter('minuta_id');
         $etapa_id = Route::current()->parameter('etapa_id');
-        $saldosContabeis = SaldoContabil::retornaSaldos();
+
+        $unidade_id = session('user_ug_id');
+//        dump($unidade_id);
+        if((session('unidade_ajax_id') !== null)){
+//            dd(session('unidade_ajax_id'));
+            $unidade_id = session('unidade_ajax_id');
+        }
+
+        $saldosContabeis = SaldoContabil::retornaSaldos($unidade_id);
 
         if ($request->ajax()) {
             return DataTables::of($saldosContabeis)
@@ -65,7 +77,9 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         return view('backpack::mod.empenho.Etapa4SaldoContabil', compact('html'))
             ->with('minuta_id', $minuta_id)
-            ->with('etapa_id',$etapa_id);
+            ->with('etapa_id',$etapa_id)
+            ->with('unidades',$this->buscaUg())
+            ->with('user_ug_id',session('user_ug_id'));
     }
 
 
@@ -94,18 +108,15 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             $saldocontabil->gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo);
         }
 
-        return redirect()->route('empenho.minuta.listagem.saldocontabil',['etapa_id' => ($etapa_id + 1), 'minuta_id' => $minuta_id]);
+        return redirect()->route(
+            'empenho.minuta.listagem.saldocontabil',
+                [
+                'etapa_id' => ($etapa_id + 1),
+                'minuta_id' => $minuta_id
+                ]
+        );
 
     }
-
-
-//    public function gravaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)
-//    {
-//        $saldoContabil = SaldoContabil::updateOrCreate(
-//            ['ano'=> $ano,'unidade_id' => $unidade_id,'conta_corrente' => $contacorrente,'conta_contabil' => $contacontabil],
-//            ['saldo' => $saldo]
-//        );
-//    }
 
 
     public function atualizaMinuta(Request $request)
