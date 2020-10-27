@@ -172,6 +172,8 @@ class ContratoController extends Controller
 
         foreach ($empenhos as $e) {
             $empenhos_array[] = [
+                'unidade_gestora' => @$e->empenho->unidade->codigo,
+                'gestao' => @$e->empenho->unidade->gestao,
                 'numero' => @$e->empenho->numero,
                 'credor' => @$e->fornecedor->cpf_cnpj_idgener . ' - ' . @$e->fornecedor->nome ?? '',
                 'planointerno' => @$e->empenho->planointerno->codigo . ' - ' . @$e->empenho->planointerno->descricao ?? '',
@@ -1135,7 +1137,7 @@ class ContratoController extends Controller
     }
 
 /**
-* 
+*
 * @OA\Components(
 *         @OA\Schema(
 *             schema="Contratos",
@@ -1184,7 +1186,7 @@ class ContratoController extends Controller
 *         @OA\Schema(
 *             schema="UG",
 *             type="object",
-*             @OA\Property(property="codigo",type="integer",example="110161"),*             
+*             @OA\Property(property="codigo",type="integer",example="110161"),*
 *             @OA\Property(property="nome_resumido",type="string",example="SAD/DF/AGU"),
 *             @OA\Property(property="nome",type="string",example="SUPERINTENDENCIA DE ADM. NO DISTRITO FEDERAL"),
 *         ),
@@ -1291,7 +1293,7 @@ class ContratoController extends Controller
 *             @OA\Property(property="retroativo_anoref_ate",type="integer",example="2020"),
 *             @OA\Property(property="retroativo_vencimento",type="integer",example="04"),
 *             @OA\Property(property="retroativo_valor",type="number",example="1.200,25"),
-*         ),    
+*         ),
 *
 *          @OA\Schema(
 *             schema="Garantias",
@@ -1459,7 +1461,7 @@ class ContratoController extends Controller
 *             @OA\Property(property="tipo",type="string",example="Contrato"),
 *             @OA\Property(property="numero",type="string",example="00006/2017"),
 *             @OA\Property(property="receita_despesa",type="string",example="Despesa"),
-*             @OA\Property(property="observacao",type="string",example="CELEBRAÇÃO DO CONTRATO: 0006/2017 DE ACORDO COM PROCESSO NÚMERO: 00589.000328/2016-38"),      
+*             @OA\Property(property="observacao",type="string",example="CELEBRAÇÃO DO CONTRATO: 0006/2017 DE ACORDO COM PROCESSO NÚMERO: 00589.000328/2016-38"),
 *             @OA\Property(property="mesref",type="integer",example="04"),
 *             @OA\Property(property="anoref",type="integer",example="2017"),
 *             @OA\Property(property="vencimento",type="string",example="2017-05-01",format="yyyy-mm-dd"),
@@ -1477,7 +1479,7 @@ class ContratoController extends Controller
 *             @OA\Property(property="codigo",type="string",example="070001"),
 *       ),
 *     )
-* 
+*
 */
 
 }
