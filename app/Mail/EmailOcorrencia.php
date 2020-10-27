@@ -32,6 +32,8 @@ class EmailOcorrencia extends Mailable
     {
         $anexos = $this->dadosocorrencia['arquivos'];
 
+
+
         $mensagem = $this->markdown('emails.notificaOcorrencia')
             ->subject(config('app.name') . ' - Notificação de Ocorrência')
             ->with([
@@ -40,7 +42,9 @@ class EmailOcorrencia extends Mailable
 
         $path = env('APP_PATH')."storage/app/";
 
-        if(count($anexos)){
+        $pkCount = (is_array($anexos) ? count($anexos) : 0);
+
+        if($pkCount > 0){
             foreach ($anexos as $anexo){
                 $mensagem->attach($path.$anexo);
             }

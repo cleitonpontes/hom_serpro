@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -11,8 +11,6 @@ class Fornecedor extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    protected static $logFillable = true;
-    protected static $logName = 'fornecedor';
     use SoftDeletes;
 
     /*
@@ -21,25 +19,25 @@ class Fornecedor extends Model
     |--------------------------------------------------------------------------
     */
 
+    protected static $logFillable = true;
+    protected static $logName = 'fornecedor';
+
     protected $table = 'fornecedores';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
+
     // protected $guarded = ['id'];
+
     protected $fillable = [
         'tipo_fornecedor',
         'cpf_cnpj_idgener',
         'nome',
     ];
 
-
-    // protected $hidden = [];
-    // protected $dates = [];
-
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function getTipo()
     {
         switch ($this->tipo_fornecedor) {
@@ -57,20 +55,33 @@ class Fornecedor extends Model
                 break;
         }
     }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function empenhos()
-    {
-        return $this->hasMany(Empenhos::class);
-    }
 
     public function contratos()
     {
         return $this->hasMany(Contrato::class);
     }
+
+    public function empenhos()
+    {
+        return $this->hasMany(Empenhos::class);
+    }
+
+    public function minuta_empenhos_compra()
+    {
+        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_compra_id');
+    }
+
+    public function minuta_empenhos()
+    {
+        return $this->hasMany(MinutaEmpenho::class, 'fornecedor_empenho_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

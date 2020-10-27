@@ -240,7 +240,7 @@ class ContratoocorrenciaCrudController extends CrudController
         $orgao = $contrato->getOrgao();
         $unidade = $contrato->getUnidade();
         $fornecedor = $contrato->getFornecedor();
-        $usuario = $ocorrencia->getUser();
+        $usuario = $ocorrencia->getUserCpfInibido();
         $situacao = $ocorrencia->getSituacao();
         $arquivos = $ocorrencia->getArquivos();
 

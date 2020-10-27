@@ -11,6 +11,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\GlosaRequest as StoreRequest;
 use App\Http\Requests\GlosaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use Illuminate\Support\Facades\DB;
 use Route;
 
 /**
@@ -24,7 +25,7 @@ class GlosaCrudController extends CrudController
 
     public function setup()
     {
-        $contratoitem_servico_indicador_id = Route::current()->parameter('cis_i_id');
+        $contratoitem_servico_indicador_id = Route::current()->parameter('cisi_id');
         $contratoitem_servico_indicador = ContratoItemServicoIndicador::find($contratoitem_servico_indicador_id);
 
         $escopo_glosas = Codigoitem::whereHas('codigo', function ($query) {
@@ -40,11 +41,14 @@ class GlosaCrudController extends CrudController
         $this->crud->setModel('App\Models\Glosa');
         $this->crud->setRoute(
             config('backpack.base.route_prefix')
-            . '/gescon/meus-servicos/' . $contratoitem_servico_indicador_id . '/glosas'
+            . '/gescon/meus-servicos/'
+            . Route::current()->parameter('contrato_id') . '/'
+            . Route::current()->parameter('contratoitem_servico_id') . '/'
+            . $contratoitem_servico_indicador_id . '/glosas'
         );
         $this->crud->setEntityNameStrings('glosa', 'glosas');
 
-        $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarmeusindicadores', 'end');
 
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
@@ -56,17 +60,46 @@ class GlosaCrudController extends CrudController
         (backpack_user()->can('glosa_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('glosa_deletar')) ? $this->crud->allowAccess('delete') : null;
 
+        $this->crud->addClause(
+            'join',
+            'contratoitem_servico_indicador',
+            'contratoitem_servico_indicador.id',
+            '=',
+            'glosas.contratoitem_servico_indicador_id'
+        );
+        $this->crud->addClause(
+            'join',
+            'indicadores',
+            'indicadores.id',
+            '=',
+            'contratoitem_servico_indicador.indicador_id'
+        );
+
         // Apenas ocorrencias deste contratoitem_servico_indicador_id
-        $this->crud->addClause('where', 'glosas.contratoitem_servico_indicador_id', '=', $contratoitem_servico_indicador_id);
+        $this->crud->addClause(
+            'where',
+            'glosas.contratoitem_servico_indicador_id',
+            '=',
+            $contratoitem_servico_indicador_id
+        );
+
+        $this->crud->addClause('select', [
+            DB::raw('indicadores.nome as indicador_nome'),
+            'contratoitem_servico_indicador.vlrmeta',
+            // Tabela principal deve ser sempre a última da listagem!
+            'glosas.*'
+        ]);
 
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
-        $this->columns($escopo_glosas);
-        $this->fields($contratoitem_servico_indicador_id, $contratoitem_servico_indicador->tipo_afericao, $escopo_glosas);
+        $this->colunas($escopo_glosas);
+        $this->campos(
+            $contratoitem_servico_indicador,
+            $escopo_glosas
+        );
 
         // add asterisk for fields that are required in GlosaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -77,6 +110,7 @@ class GlosaCrudController extends CrudController
     {
         // your additional operations before save here
         $this->setRequestFaixa($request);
+        $request->request->set('valor_glosa', $this->retornaFormatoAmericano($request->valor_glosa));
 
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
@@ -88,6 +122,7 @@ class GlosaCrudController extends CrudController
     {
         // your additional operations before save here
         $this->setRequestFaixa($request);
+        $request->request->set('valor_glosa', $this->retornaFormatoAmericano($request->valor_glosa));
 
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -104,6 +139,11 @@ class GlosaCrudController extends CrudController
         return $content;
     }
 
+    /**
+     * Configura o tipo de faixa (slider ou "from to" ) para salvar corretamente
+     *
+     * @param $request
+     */
     private function setRequestFaixa($request): void
     {
         if (isset($request->slider)) {
@@ -115,70 +155,121 @@ class GlosaCrudController extends CrudController
 
         $request->request->set('from', $this->retornaFormatoAmericano($request->from));
         $request->request->set('to', $this->retornaFormatoAmericano($request->to));
-
     }
 
-    private function fields(string $contratoitem_servico_indicador_id, bool $tipo_afericao, array $escopo_glosas): void
+    /**
+     * Configura os campos dos formulários de Inserir e Atualizar
+     *
+     * @param ContratoItemServicoIndicador $contratoItemServicoIndicador
+     * @param array $escopo_glosas
+     */
+    private function campos(
+        ContratoItemServicoIndicador $contratoItemServicoIndicador,
+        array $escopo_glosas
+    ): void {
+        $this->adicionaCampometa($contratoItemServicoIndicador->vlrmeta);
+        $this->adicionaCampoTipoAfericao($contratoItemServicoIndicador->tipo_afericao);
+        $this->adicionaCampoContratoItemServicoIndicador($contratoItemServicoIndicador->id);
+        $this->adicionaCampoFaixa(
+            $contratoItemServicoIndicador->tipo_afericao,
+            $contratoItemServicoIndicador->vlrmeta
+        );
+        $this->adicionaCampoValorGlosa();
+        $this->adicionaCampoEscopo($escopo_glosas);
+    }
+
+
+    /**
+     * Configura a grid de visualização
+     *
+     * @param array $escopo_glosas
+     */
+    private function colunas(array $escopo_glosas): void
     {
-        $this->setFieldContratoItemServicoIndicador($contratoitem_servico_indicador_id);
-        $this->setFieldFaixa($tipo_afericao);
-        $this->setFieldValorGlosa();
-        $this->setFieldEscopo($escopo_glosas);
+        $this->adicionaColunaIndicador();
+        $this->adicionaColunaAPartirDe();
+        $this->adicionaColunaAte();
+        $this->adicionaColunaValorGlosa();
+        $this->adicionaColunaEscopo($escopo_glosas);
     }
 
-    private function columns(array $escopo_glosas): void
-    {
-        $this->setColumnAPartirDe();
-        $this->setColumnAte();
-        $this->setColumnValorGlosa();
-        $this->setColumnEscopo($escopo_glosas);
 
-    }
-
-    private function setColumnAPartirDe(): void
+    /**
+     * Configura a coluna indicador
+     */
+    private function adicionaColunaIndicador(): void
     {
         $this->crud->addColumn([
-            'name' => 'from',
+            'name' => 'indicador_nome',
+            'label' => 'Indicador',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+
+    /**
+     * Cofigura a coluna "A Partir de"
+     */
+    private function adicionaColunaAPartirDe(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'from_formatado',
             'label' => 'A Partir de',
             'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
         ]);
-
     }
 
-    private function setColumnAte(): void
+    /**
+     * Configura a coluna "Até"
+     */
+    private function adicionaColunaAte(): void
     {
         $this->crud->addColumn([
-            'name' => 'to',
+            'name' => 'to_formatado',
             'label' => 'Até',
             'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
         ]);
     }
 
-    private function setColumnValorGlosa(): void
+
+    /**
+     * Configura a coluna 'Valor da Glosa (%)',
+     */
+    private function adicionaColunaValorGlosa(): void
     {
         $this->crud->addColumn([
-            'name' => 'valor_glosa',
+            'name' => 'valor_glosa_formatado',
             'label' => 'Valor da Glosa (%)',
             'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
         ]);
     }
 
-    private function setColumnEscopo(array $escopo_glosas): void
+    /**
+     * Configura a coluna 'Escopo'
+     *
+     * @param array $escopo_glosas
+     */
+    private function adicionaColunaEscopo(array $escopo_glosas): void
     {
         $this->crud->addColumn([
             'name' => 'escopo_id',
@@ -186,49 +277,95 @@ class GlosaCrudController extends CrudController
             'type' => 'select_from_array',
             'options' => $escopo_glosas,
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
         ]);
-
     }
 
-    private function setFieldFaixa(bool $tipo_afericao): void
+    /**
+     * Configura a Faixa dependendo do tipo de aferição
+     *
+     * @param bool $tipo_afericao
+     * @param float $vlrmeta
+     */
+    private function adicionaCampoFaixa(bool $tipo_afericao, float $vlrmeta): void
     {
         if ($tipo_afericao) {
-            $this->setFieldFrom();
-            $this->setFieldTo();
+            $this->adicionaCampoFrom();
+            $this->adicionaCampoTo();
             return;
         }
-        $this->setFieldSlider();
+        $this->adicionaCampoSlider($vlrmeta);
     }
 
-    private function setFieldContratoItemServicoIndicador($contratoitem_servico_indicador_id): void
+    /**
+     * Configura o campo escondido "tipo_afericao"
+     *
+     * @param $tipo_afericao
+     */
+    private function adicionaCampoTipoAfericao($tipo_afericao): void
     {
-        $this->crud->addField([   // Hidden
+        $this->crud->addField([
+            'name' => 'tipo_afericao',
+            'type' => 'hidden',
+            'default' => (int)$tipo_afericao
+        ]);
+    }
+
+    /**
+     * Configura o campo escondido "vlrmeta"
+     *
+     * @param float $vlrmeta
+     */
+    private function adicionaCampoMeta(float $vlrmeta): void
+    {
+        $this->crud->addField([
+            'name' => 'vlrmeta',
+            'type' => 'hidden',
+            'default' => $vlrmeta
+        ]);
+    }
+
+    /**
+     * Configura o campo escondido "contratoitem_servico_indicador_id"
+     *
+     * @param $contratoitem_servico_indicador_id
+     */
+    private function adicionaCampoContratoItemServicoIndicador($contratoitem_servico_indicador_id): void
+    {
+        $this->crud->addField([
             'name' => 'contratoitem_servico_indicador_id',
             'type' => 'hidden',
             'default' => $contratoitem_servico_indicador_id,
         ]);
     }
 
-    private function setFieldSlider(): void
+    /**
+     * Configura o campo 'Faixa de ajuste no pagamento'
+     *
+     * @param float|int $vlrmeta
+     */
+    private function adicionaCampoSlider(float $vlrmeta = 100): void
     {
         $this->crud->addField([   // Range
             'name' => 'slider',
-            'label' => 'Faixas de ajuste no pagamento',
+            'label' => 'Faixa de ajuste no pagamento',
             'type' => 'slider',
             'min' => '0',
-            'max' => '100',
+            'max' => $vlrmeta - 0.1,
             'step' => '0.1',
             'grid' => true,
         ]);
     }
 
-    private function setFieldFrom(): void
+    /**
+     * Configura o campo 'A partir de'
+     */
+    private function adicionaCampoFrom(): void
     {
-        $this->crud->addField([   // Number
+        $this->crud->addField([
             'name' => 'from',
             'label' => 'A partir de',
             'type' => 'money',
@@ -236,13 +373,17 @@ class GlosaCrudController extends CrudController
                 'id' => 'from',
             ], // allow decimals
             'prefix' => "> =",
+            'allowZero' => "true",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ],
         ]);
     }
 
-    private function setFieldTo(): void
+    /**
+     * Configura o campo "Até"
+     */
+    private function adicionaCampoTo(): void
     {
         $this->crud->addField([   // Number
             'name' => 'to',
@@ -252,22 +393,35 @@ class GlosaCrudController extends CrudController
                 'id' => 'to',
             ], // allow decimals
             'prefix' => "<",
+            'allowZero' => "true",
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ],
         ]);
     }
 
-    private function setFieldValorGlosa(): void
+    /**
+     * Configura o campo 'Valor da Glosa (%)'
+     */
+    private function adicionaCampoValorGlosa(): void
     {
         $this->crud->addField([   // Number
             'name' => 'valor_glosa',
             'label' => 'Valor da Glosa (%)',
             'type' => 'money',
+            'attributes' => [
+                'id' => 'valor_glosa',
+            ], // allow decimals
+            'allowZero' => "true",
         ]);
     }
 
-    private function setFieldEscopo(array $escopo_glosas): void
+    /**
+     * Configura o campo 'Escopo da Glosa'
+     *
+     * @param array $escopo_glosas
+     */
+    private function adicionaCampoEscopo(array $escopo_glosas): void
     {
         $this->crud->addField([
             'name' => 'escopo_id',

@@ -63,6 +63,11 @@ class ContratoItemServicoIndicador extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function getVlrmetaFormatadoAttribute(): string
+    {
+        return number_format($this->vlrmeta, 2, ',', '.');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS

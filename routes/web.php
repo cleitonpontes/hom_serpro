@@ -43,9 +43,9 @@ Route::group([
     'prefix' => 'soap',
     'namespace' => 'Soap',
 ], function () {
+    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
     Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
     Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialController@oficioPreview')->name('soap.oficio.preview');
-
 });
 
 
@@ -226,15 +226,15 @@ Route::group(
             'prefix' => 'apropriacao',
             'namespace' => 'apropriacao',
             'middleware' => 'auth',
-            // 'middleware' = 'permission:apropriacao_fatura_passos'
+            // 'middleware' = 'permission:apropriacao_fatura'
         ], function () {
-            Route::get('/fatura', 'FaturaController@index')->name('apropriacao.faturas');
-            Route::get('/fatura/{id}', 'FaturaController@show')->name('apropriacao.fatura');
-            Route::get('/contrato/{contrato}/fatura/{fatura}/nova', 'FaturaController@create')->name('apropriacao.fatura.create');
-            Route::put('/fatura/novas', 'FaturaController@createMany')->name('apropriacao.fatura.create.bulk');
-
-            Route::get('/fatura/{id}/relatorio', 'FaturaController@show')->name('apropriacao.fatura.relatorio');
-            // Route::delete('/fatura/{id}', 'ApropriacaoFaturaController@destroy')->name('apropriacao.fatura.excluir');
+            Route::get('/fatura', 'FaturaController@index')->name('apropriacao.faturas');                                               // Pronto
+            Route::get('/contrato/{contrato}/fatura/{fatura}/nova', 'FaturaController@create')->name('apropriacao.fatura.create');      // Pronto
+            Route::put('/fatura/novas', 'FaturaController@createMany')->name('apropriacao.fatura.create.bulk');                         // Pronto
+            Route::delete('/fatura/{apropriacaoFatura}', 'FaturaController@destroy');                                                   // Pronto
+            Route::get('/fatura/{id}', 'FaturaController@show')->name('apropriacao.fatura');                                            // ...
+            Route::get('/fatura/{id}/manual', 'FaturaController@editar')->name('apropriacao.fatura.editar');                            // ...
+            Route::get('/fatura/{apropriacaoFatura}/dochabil', 'FaturaController@documentoHabil')->name('apropriacao.fatura.dochabil'); // Pronto
         });
     }
 );
