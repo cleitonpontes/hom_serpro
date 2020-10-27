@@ -278,8 +278,7 @@ Route::group(
             //passo 3
 
             Route::post('item', 'FornecedorEmpenhoController@store')
-                ->name('minuta.etapa.item.store')
-            ;
+                ->name('minuta.etapa.item.store');
 
             Route::get('item/{etapa_id}/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
                 ->name('minuta.etapa.item');
@@ -331,9 +330,6 @@ Route::group(
 //                ->name('minuta.empenho');
 
 
-
-
-
 //            Route::get('/listaminutaempenho', 'NovoEmpenhoController@index')
 //                ->name('lista.minuta.empenhos')
 //                ->middleware('permission:folha_apropriacao_acesso');
@@ -347,13 +343,11 @@ Route::group(
                 ->middleware('permission:folha_apropriacao_passo');
 
 
-
-
 //            Route::get('minuta/tela/1/create', 'CompraSiasgCrudController@create')
 //                ->name('compra.create');
         });
 
-        Route::get('/tags', function() {
+        Route::get('/tags', function () {
             return view('tags');
         });
         Route::get('/tags/find', 'Select2Ajax\TagController@find');
