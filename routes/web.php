@@ -295,6 +295,8 @@ Route::group(
             Route::post('saldo/gravar/saldo/minuta', 'SaldoContabilMinutaController@atualizaMinuta')
                 ->name('minuta.atualizar.saldo');
 
+            Route::post('saldo/inserir/celula', 'SaldoContabilMinutaController@inserirCelulaOrcamentaria')
+                ->name('saldo.inserir.modal');
 
             //passo 5
 

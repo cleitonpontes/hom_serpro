@@ -108,12 +108,6 @@
                     </fieldset>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        Fechar
-                    </button>
-                    <a href="#" class="btn btn-success" id="btnSalvar">
-                        <i class="fa fa-save"></i> Salvar
-                    </a>
                 </div>
             </div>
         </div>
@@ -126,6 +120,8 @@
     <script type="text/javascript">
 
         $(document).ready(function(){
+            var maxLength = '000.000.000.000.000,00'.length;
+
             $('body').on('click','#atualiza_saldo', function(event){
                 atualizaTabeladeSaldos(event);
             });
@@ -133,6 +129,33 @@
             $('body').on('change','#cb_unidade', function(event){
                 recarregaTabeladeSaldos(event);
             });
+
+            $('body').on('click','#btn_inserir', function(event){
+
+                if(valida_form()){
+                    $('#form_modal').submit();
+                }
+                event.preventDefault();
+            });
+
+
+            $('#inserir_celular_orcamentaria').on('show.bs.modal', function(event) {
+                var unidade_id = $('#cb_unidade :selected').val();
+                $('#unidade_id').val(unidade_id);
+
+                var botao = $(event.relatedTarget);
+                var link = botao.data('link');
+
+                $('#btnExcluir').attr('href', link);
+            });
+
+            $('#valor').maskMoney({
+                allowNegative: false,
+                thousands: '.',
+                decimal: ',',
+                affixesStay: false
+            }).attr('maxlength', maxLength).trigger('mask.maskMoney');
+
         });
 
         function atualizaTabeladeSaldos(event){
@@ -141,7 +164,6 @@
 
             var url = "{{route('atualiza.saldos.unidade',':cod_unidade')}}";
             url = url.replace(':cod_unidade',unidade);
-            // Inicia requisição AJAX com o axios
             axios.request(url)
                 .then(response => {
                     dados = response.data
@@ -164,7 +186,6 @@
 
             var url = "{{route('atualiza.saldos.unidade',':cod_unidade')}}";
             url = url.replace(':cod_unidade',unidade);
-            // Inicia requisição AJAX com o axios
             axios.request(url)
                 .then(response => {
                     dados = response.data
@@ -178,15 +199,6 @@
                 .finally()
             event.preventDefault()
         }
-
-
-        $('#inserir_celular_orcamentaria').on('show.bs.modal', function(event) {
-            $('#esfera').focus();
-            var botao = $(event.relatedTarget);
-            var link = botao.data('link');
-
-            $('#btnExcluir').attr('href', link);
-        });
 
         function somenteNumeros(e) {
             var charCode = e.charCode ? e.charCode : e.keyCode;
@@ -207,6 +219,52 @@
             e.target.value = e.target.value.toUpperCase();
             e.target.selectionStart = ss;
             e.target.selectionEnd = se;
+        }
+
+
+        function null_or_empty(str) {
+            var v = $(str).val();
+            if(v == null || v == ""){
+                return false;
+            }
+            return true;
+        }
+
+        function valida_form(event) {
+
+            var vazio1 = null_or_empty("#esfera");
+            var vazio2 = null_or_empty("#ptrs");
+            var vazio3 = null_or_empty("#fonte");
+            var vazio4 = null_or_empty("#natureza_despesa");
+            // var vazio5 = null_or_empty("#ugr");
+            var vazio6 = null_or_empty("#plano_interno");
+            var vazio7 = null_or_empty("#valor");
+
+            if (!vazio1) {
+                alert('Esfera não pode ser em vazio.');
+                return false;
+            }
+            if (!vazio2) {
+                alert('PTRS não pode ser em vazio.');
+                return false;
+            }
+            if (!vazio3) {
+                alert('Fonte não pode ser em vazia.');
+                return false;
+            }
+            if (!vazio4) {
+                alert('Natureza de Despesa não pode ser em vazia.');
+                return false;
+            }
+            if (!vazio6) {
+                alert('Plano Interno não pode ser em vazio.');
+                return false;
+            }
+            if (!vazio7) {
+                alert('Valor não pode ser em vazio.');
+                return false;
+            }
+            return true;
         }
     </script>
 @endpush

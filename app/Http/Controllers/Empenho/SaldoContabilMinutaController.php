@@ -1,9 +1,9 @@
 <?php
 /**
- * Controller com métodos e funções da Apropriação da Folha
+ * Controller com métodos para Saldo Contábil da Minuta de Empenho
  *
- * @author Basis Tecnologia da Informação
- * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+ * @author Data-Info
+ * @author Franklin Justiniano <frnaklin.linux@gmail.com>
  */
 
 namespace App\Http\Controllers\Empenho;
@@ -11,13 +11,10 @@ namespace App\Http\Controllers\Empenho;
 
 use App\Forms\InserirCelulaOrcamentariaForm;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
-use App\Models\BackpackUser;
 use App\Models\SaldoContabil;
 use App\Models\Unidade;
 use App\Models\MinutaEmpenho;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Route;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
@@ -74,10 +71,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $html = $this->retornaGrid();
 
-        $form = \FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
-            'url' => route('empenho.minuta.tela.1.gravar'),
-            'method' => 'POST'
-        ]);
+        $form = $this->retonaFormModal($modUnidade->id,$minuta_id,$etapa_id);
 
         return view('backpack::mod.empenho.Etapa4SaldoContabil', compact(['html','form']))
             ->with('minuta_id', $minuta_id)
@@ -87,12 +81,14 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     }
 
 
+
     public function consultaApiSta($ano,$ug,$gestao,$contacontabil)
     {
         $apiSta = new ConsultaApiSta();
         $saldoContabil = $apiSta->saldocontabilAnoUgGestaoContacontabil($ano,$ug,$gestao,$contacontabil);
         return $saldoContabil;
     }
+
 
     public function store(){
 
@@ -122,10 +118,8 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
     }
 
-
     public function atualizaMinuta(Request $request)
     {
-
         $minuta_id = $request->get('minuta_id');
         $etapa_id = $request->get('etapa_id');
         $saldo_contabil_id = $request->get('saldo');
@@ -134,8 +128,49 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $modMinuta->etapa = $etapa_id;
         $modMinuta->saldo_contabil_id = $saldo_contabil_id;
         $modMinuta->save();
+
         return redirect()->route('empenho.minuta.etapa.subelemento',['etapa_id' => ($etapa_id + 1), 'minuta_id' => $minuta_id]);
 
+    }
+
+    public function inserirCelulaOrcamentaria(Request $request)
+    {
+        $conta_corrente = $this->retornaContaCorrente($request);
+        $saldo = $request->get('valor');
+        $unidade_id = $request->get('unidade_id');
+        $ano = date('Y');
+        $contacontabil = config('app.conta_contabil_credito_disponivel');
+
+        $modSaldo = new SaldoContabil();
+        $modSaldo->unidade_id = $unidade_id;
+        $modSaldo->ano = $ano;
+        $modSaldo->conta_contabil = $contacontabil;
+        $modSaldo->conta_corrente = $conta_corrente;
+        $modSaldo->saldo = doubleval($saldo);
+        $modSaldo->save();
+
+        return redirect()->route(
+            'empenho.minuta.listagem.saldocontabil',
+            [
+                'etapa_id' => ($request->get('etapa_id') + 1),
+                'minuta_id' => $request->get('minuta_id')
+            ]
+        );
+
+
+    }
+
+    public function retornaContaCorrente(Request $request)
+    {
+        $conta_corrente = '';
+        $conta_corrente .= $request->get('esfera');
+        $conta_corrente .= $request->get('ptrs');
+        $conta_corrente .= $request->get('fonte');
+        $conta_corrente .= $request->get('natureza_despesa');
+        $conta_corrente .= (!empty($request->get('ugr'))) ? $request->get('ugr') : '        ';
+        $conta_corrente .= $request->get('plano_interno');
+
+        return $conta_corrente;
     }
 
     public function mudarUg()
@@ -264,5 +299,29 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         return $acoes;
     }
 
+    public function retonaFormModal($unidade_id,$minuta_id,$etapa_id)
+    {
+        return $form = \FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
+            'url' => route('empenho.saldo.inserir.modal'),
+            'method' => 'POST',
+             'id' => 'form_modal'
+
+        ])->add('unidade_id', 'hidden',[
+            'value' => $unidade_id,
+            'attr' => [
+                'id'=>'unidade_id'
+            ]
+        ])->add('minuta_id', 'hidden',[
+            'value' => $minuta_id,
+            'attr' => [
+                'id'=>'minuta_id'
+            ]
+        ])->add('etapa_id', 'hidden',[
+            'value' => $etapa_id,
+            'attr' => [
+                'id'=>'etapa_id'
+            ]
+        ]);
+    }
 
 }

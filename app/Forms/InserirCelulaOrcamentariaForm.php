@@ -9,16 +9,10 @@ use Kris\LaravelFormBuilder\Form;
 class InserirCelulaOrcamentariaForm extends Form
 {
 
-    // protected $name = 'importacao';
     public function buildForm()
     {
 
         $this
-//        ->add('modalidade', 'select', [
-//            'choices' => $this->getModalidades(),
-//            'selected' => '',
-//            'empty_value' => 'Selecione a modalidade...'
-//        ])
         ->add('esfera', 'text',[
             'label' => 'Esfera',
                 'attr' => [
@@ -71,43 +65,20 @@ class InserirCelulaOrcamentariaForm extends Form
                 'label' => 'Valor',
                 'attr' => ['id'=>'valor']
             ])
-//            ->add('uasg_compra', 'select', [
-//                'choices' => $this->getUasgs(),
-//                'selected' => '',
-//                'attr' => ['multiple' => false],
-//                'empty_value' => 'Selecione a Uasg da Compra...'
-//            ])
-//        ->add('cancelar', 'button', [
-//            'label' => '<i class="fa fa-reply"></i> Cancelar',
-//            'attr' => [
-//                'class' => 'btn btn-danger',
-//                'onclick' => 'window.location="/empenho/listaempenhos";'
-//            ]
-//        ])
-        ->add('inserir', 'submit', [
+        ->add('cancelar', 'button', [
+            'label' => '<i class="fa fa-reply"></i> Cancelar',
+            'attr' => [
+                'class' => 'btn btn-danger',
+                'data-dismiss' => 'modal'
+            ]
+        ])
+        ->add('inserir', 'button', [
             'label' => '<i class="fa fa-save"></i> Salvar',
             'attr' => [
-                'class' => 'btn btn-success'
+                'class' => 'btn btn-success',
+                'id'=>'btn_inserir'
             ]
         ]);
     }
 
-    public function getModalidades()
-    {
-        $modalidades = Codigoitem::where('codigo_id',13)
-                                ->where('visivel',true)
-                                ->pluck('descricao','descres')
-                                ->toArray();
-        return $modalidades;
-    }
-
-    public function getUasgs()
-    {
-        $uasgCompra = Unidade::select('unidades.codigo',
-                        DB::raw("CONCAT(unidades.codigo,'-',unidades.nomeresumido) AS unidadecompra")
-                    )
-                    ->pluck('unidadecompra','codigo')
-                    ->toArray();
-        return $uasgCompra;
-    }
 }
