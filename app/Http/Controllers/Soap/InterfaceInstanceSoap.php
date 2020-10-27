@@ -6,7 +6,5 @@ namespace App\Http\Controllers\Soap;
 
 interface InterfaceInstanceSoap
 {
-    public static function init();
-
-    public static function montaCabecalho();
+    public static function init(\SoapHeader $header);
 }

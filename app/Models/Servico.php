@@ -42,13 +42,11 @@ class Servico extends Model
         }
 
         return '';
-
     }
 
     public function contratoItens()
     {
-        return $this->belongsToMany( Contratoitem::class, 'contratoitem_servico', 'servico_id', 'contratoitem_id' );
-
+        return $this->belongsToMany(Contratoitem::class, 'contratoitem_servico', 'servico_id', 'contratoitem_id');
     }
 
     /*
@@ -68,6 +66,11 @@ class Servico extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getValorFormatadoAttribute(): string
+    {
+        return 'R$ ' . number_format($this->valor, 2, ',', '.');
+    }
 
     /*
     |--------------------------------------------------------------------------

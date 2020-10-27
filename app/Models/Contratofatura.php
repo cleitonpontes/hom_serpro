@@ -130,7 +130,7 @@ class Contratofatura extends Model
      */
     public function getJustificativa()
     {
-        if($this->justificativafatura_id){
+        if ($this->justificativafatura_id) {
             $justificativa = Justificativafatura::find($this->justificativafatura_id);
             return $justificativa->nome;
         }
@@ -145,12 +145,15 @@ class Contratofatura extends Model
      */
     public function getContrato()
     {
+        return $this->contrato->numero ?? '';
+        /*
         if ($this->contrato_id) {
             $contrato = Contrato::find($this->contrato_id);
             return $contrato->numero;
         } else {
             return '';
         }
+        */
     }
 
     /**
@@ -174,20 +177,7 @@ class Contratofatura extends Model
      */
     public function getTipoListaFatura()
     {
-        // $this->tipolista vem de:
-        // public function tipolista()
-        // Que, por sua vez, contém $this->belongsTo(...);
         return $this->tipolista->nome;
-
-        // Faz desnecessário essa busca Class:find(...)
-        /*
-        if ($this->tipolistafatura_id) {
-            $tipolistafatura = Tipolistafatura::find($this->tipolistafatura_id);
-            return $tipolistafatura->nome;
-        } else {
-            return '';
-        }
-        */
     }
 
     /**
@@ -336,9 +326,14 @@ class Contratofatura extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function empenhos()
+    public function apropriacoes()
     {
-        return $this->belongsToMany(Empenho::class, 'contratofatura_empenhos', 'contratofatura_id', 'empenho_id');
+        return $this->belongsToMany(
+            'App\Models\ApropriacaoFaturas',
+            'apropriacoes_faturas_contratofaturas',
+            'contratofaturas_id',
+            'apropriacoes_faturas_id'
+        );
     }
 
     public function contrato()
@@ -346,14 +341,19 @@ class Contratofatura extends Model
         return $this->belongsTo(Contrato::class, 'contrato_id');
     }
 
-    public function tipolista()
+    public function empenhos()
     {
-        return $this->belongsTo(Tipolistafatura::class, 'tipolistafatura_id');
+        return $this->belongsToMany(Empenho::class, 'contratofatura_empenhos', 'contratofatura_id', 'empenho_id');
     }
 
     public function justificativa()
     {
         return $this->belongsTo(Justificativafatura::class, 'justificativafatura_id');
+    }
+
+    public function tipolista()
+    {
+        return $this->belongsTo(Tipolistafatura::class, 'tipolistafatura_id');
     }
 
     /*

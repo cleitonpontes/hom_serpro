@@ -602,6 +602,7 @@ dd(session()->all());
         $this->adicionaCampoInformacoesComplementares();
         $this->adicionaCampoUnidadeCompra();
         $this->adicionaCampoModalidades();
+        $this->adicionaCampoAmparoLegal();
         $this->adicionaCampoNumeroLicitacao();
 
         $this->tab = 'Características do contrato';
@@ -755,6 +756,23 @@ dd(session()->all());
             'name' => 'licitacao_numero',
             'label' => 'Número Licitação',
             'type' => 'numlicitacao',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoAmparoLegal()
+    {
+        $this->crud->addField([
+            'label' => 'Amparo Legal',
+            'name' => 'amparoslegais',
+            'type' => 'select2_from_ajax_multiple',
+            'entity' => 'amparoslegais',
+            'placeholder' => 'Selecione o Amparo Legal',
+            'minimum_input_length' => 0,
+            'data_source' => url('api/amparolegal'),
+            'model' => 'App\Models\AmparoLegal',
+            'attribute' => 'campo_api_amparo',
+            'pivot' => true,
             'tab' => $this->tab
         ]);
     }

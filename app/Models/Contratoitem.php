@@ -44,10 +44,10 @@ class Contratoitem extends Model
     public function atualizaSaldoContratoItem(Saldohistoricoitem $saldohistoricoitem)
     {
         $saldoitens = Saldohistoricoitem::where('contratoitem_id', $saldohistoricoitem->contratoitem_id)
-            ->orderBy('created_at','ASC')
+            ->orderBy('created_at', 'ASC')
             ->get();
 
-        foreach ($saldoitens as $saldoitem){
+        foreach ($saldoitens as $saldoitem) {
             $contratoitem = Contratoitem::find($saldoitem->contratoitem_id);
             $contratoitem->quantidade = $saldoitem->quantidade;
             $contratoitem->valorunitario = $saldoitem->valorunitario;
@@ -132,7 +132,7 @@ class Contratoitem extends Model
 
     public function servicos()
     {
-        return $this->belongsToMany( Servico::class, 'contratoitem_servico', 'contratoitem_id', 'servico_id' );
+        return $this->belongsToMany(Servico::class, 'contratoitem_servico', 'contratoitem_id', 'servico_id');
     }
 
     public function tipo()

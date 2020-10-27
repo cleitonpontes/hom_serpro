@@ -35,7 +35,7 @@ class ContratoRequest extends FormRequest
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
-        $data_publicacao = ($this->data_publicacao) ? "date|after:{$this->data_limiteinicio}|after_or_equal:data_assinatura" : "" ;
+        $data_publicacao = "required|date|after:{$this->data_limiteinicio}|after_or_equal:data_assinatura";
 
 
         return [
@@ -80,6 +80,7 @@ class ContratoRequest extends FormRequest
             'valor_global' => 'required',
             'num_parcelas' => 'required',
             'valor_parcela' => 'required',
+            'amparoslegais' => 'required',
 //            'arquivos' => 'file|mimes:pdf',
             'situacao' => 'required',
         ];

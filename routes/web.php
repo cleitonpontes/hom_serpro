@@ -44,11 +44,12 @@ Route::group([
     'namespace' => 'Soap',
 ], function () {
     Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
+    Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
+    Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialController@oficioPreview')->name('soap.oficio.preview');
 });
 
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
-
 
 Route::group(
     [
@@ -84,7 +85,7 @@ Route::group(
             Route::get('dashboard', function () {
                 return redirect('/inicio');
             });
-//            Route::get('dashboard', 'AdminController@dashboard')->name('backpack.dashboard');
+            // Route::get('dashboard', 'AdminController@dashboard')->name('backpack.dashboard');
             Route::get('/', 'AdminController@redirect')->name('backpack');
         }
 
@@ -101,14 +102,13 @@ Route::group(
             Route::get('edit-account-info', function () {
                 return redirect('/meus-dados');
             });
-//            Route::get('edit-account-info',
-//                'Auth\MyAccountController@getAccountInfoForm')->name('backpack.account.info');
-//            Route::post('edit-account-info', 'Auth\MyAccountController@postAccountInfoForm');
+            // Route::get('edit-account-info',
+            //     'Auth\MyAccountController@getAccountInfoForm')->name('backpack.account.info');
+            // Route::post('edit-account-info', 'Auth\MyAccountController@postAccountInfoForm');
             Route::get('alterar-senha',
                 'Auth\MyAccountController@getChangePasswordForm')->name('alterar.senha');
             Route::post('alterar-senha', 'Auth\MyAccountController@postChangePasswordForm');
         }
-
 
         // Módulo Folha de Pagamento
         Route::group([
@@ -121,7 +121,7 @@ Route::group(
              *
              * Apropriação da Folha - Genéricos
              *
-             **/
+             */
             Route::get('/apropriacao', 'ApropriacaoController@index')
                 ->name('apropriacao')
                 ->middleware('permission:folha_apropriacao_acesso');
@@ -143,7 +143,7 @@ Route::group(
              * {id}   = Registro
              * {sit}  = Situação
              *
-             **/
+             */
 
             // Passo 1
             Route::get('/apropriacao/passo/1', 'Apropriacao\Passo1Controller@novo')
@@ -219,9 +219,23 @@ Route::group(
             Route::get('/apropriacao/siafi/dochabil/{apid}', 'ApropriacaoController@docHabilSiafi')
                 ->name('apropriacao.siafi.dochabil')
                 ->middleware('permission:folha_apropriacao_passo');
-
         });
 
+        // Módulo Apropriação da Fatura
+        Route::group([
+            'prefix' => 'apropriacao',
+            'namespace' => 'apropriacao',
+            'middleware' => 'auth',
+            // 'middleware' = 'permission:apropriacao_fatura'
+        ], function () {
+            Route::get('/fatura', 'FaturaController@index')->name('apropriacao.faturas');                                               // Pronto
+            Route::get('/contrato/{contrato}/fatura/{fatura}/nova', 'FaturaController@create')->name('apropriacao.fatura.create');      // Pronto
+            Route::put('/fatura/novas', 'FaturaController@createMany')->name('apropriacao.fatura.create.bulk');                         // Pronto
+            Route::delete('/fatura/{apropriacaoFatura}', 'FaturaController@destroy');                                                   // Pronto
+            Route::get('/fatura/{id}', 'FaturaController@show')->name('apropriacao.fatura');                                            // ...
+            Route::get('/fatura/{id}/manual', 'FaturaController@editar')->name('apropriacao.fatura.editar');                            // ...
+            Route::get('/fatura/{apropriacaoFatura}/dochabil', 'FaturaController@documentoHabil')->name('apropriacao.fatura.dochabil'); // Pronto
+        });
 
         // Módulo Empenho
         Route::group([
@@ -265,7 +279,7 @@ Route::group(
 
             Route::post('item', 'FornecedorEmpenhoController@store')
                 ->name('minuta.etapa.item.store')
-                ;
+            ;
 
             Route::get('item/{etapa_id}/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
                 ->name('minuta.etapa.item');
@@ -290,7 +304,7 @@ Route::group(
                 ->name('minuta.etapa.subelemento');
 
             Route::post('subelemento', 'SubelementoController@store')
-            ->name('subelemento.store');
+                ->name('subelemento.store');
 
             //passo 6
 
@@ -339,9 +353,9 @@ Route::group(
 //                ->name('compra.create');
         });
 
-
         Route::get('/tags', function() {
             return view('tags');
         });
         Route::get('/tags/find', 'Select2Ajax\TagController@find');
-    });
+    }
+);

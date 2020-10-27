@@ -38,6 +38,7 @@ class Contratohistorico extends ContratoBase
         'objeto',
         'info_complementar',
         'fundamento_legal',
+        'amparo_legal_id',
         'modalidade_id',
         'licitacao_numero',
         'data_assinatura',
@@ -64,7 +65,8 @@ class Contratohistorico extends ContratoBase
         'unidades_requisitantes',
         'situacao',
         'supressao',
-        'unidadecompra_id'
+        'unidadecompra_id',
+        'publicado'
     ];
 
     /*
@@ -304,6 +306,47 @@ class Contratohistorico extends ContratoBase
         return $orgao->codigo . ' - ' . $orgao->nome;
     }
 
+    public function retornaAmparo()
+    {
+        $amparo = "";
+
+        $cont = (is_array($this->amparolegal)) ? count($this->amparolegal) : 0;
+
+        foreach ($this->amparolegal as $key => $value){
+
+            if($cont < 2){
+                $amparo .= $value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
+            }
+            if($key == 0 && $cont > 1){
+                $amparo .= $value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
+            }
+            if($key > 0 && $key < ($cont - 1)){
+                $amparo .= ", ".$value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
+            }
+            if($key == ($cont - 1)){
+                $amparo .= " e ".$value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
+            }
+        }
+
+        return $amparo;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -363,6 +406,21 @@ class Contratohistorico extends ContratoBase
         return $this->belongsTo(Unidade::class, 'unidadecompra_id');
     }
 
+
+    public function publicacao()
+    {
+        return $this->hasOne(Contratopublicacoes::class, 'contratohistorico_id');
+    }
+
+    public function amparolegal()
+    {
+        return $this->belongsToMany(
+            'App\Models\AmparoLegal',
+            'amparo_legal_contratohistorico',
+            'contratohistorico_id',
+            'amparo_legal_id'
+        );
+    }
 
     /*
     |--------------------------------------------------------------------------

@@ -45,7 +45,6 @@ Route::group([
             Route::get('amparolegal', 'AmparoLegalController@index');
             Route::get('amparolegal/{id}', 'AmparoLegalController@show');
             Route::get('atualizasaldos/unidade/{cod_unidade}', 'SaldoContabilController@atualizaSaldosPorUnidade')->name('atualiza.saldos.unidade');
-
         });
 
         // if not otherwise configured, setup the dashboard routes
@@ -207,11 +206,15 @@ Route::group([
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
                 CRUD::resource('servicos', 'ContratoServicoCrudController');
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
+
             });
-            Route::group(['prefix' => 'meus-servicos/{cis_i_id}'], function () {
-                CRUD::resource('indicadores', 'ContratoItemServicoIndicadorCrudController');
-                CRUD::resource('glosas', 'GlosaCrudController');
-            });
+            Route::group(['prefix' => 'meus-servicos/{contrato_id}/{contratoitem_servico_id}']
+                , function () {
+                    CRUD::resource('indicadores', 'ContratoItemServicoIndicadorCrudController');
+                    Route::group(['prefix' => '{cisi_id}'], function () {
+                        CRUD::resource('glosas', 'GlosaCrudController');
+                    });
+                });
 
 //            Route::get('/notificausers', 'ContratoCrudController@notificaUsers');
         });
