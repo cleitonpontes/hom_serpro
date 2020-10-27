@@ -37,7 +37,7 @@
                         <label for="cb_unidade"> UG Emitente </label>
                         <select name="cb_unidade" id="cb_unidade">
                             @foreach($unidades as $key => $unidade)
-                                @if($key == $user_ug_id)
+                                @if($key == $modUnidade->id)
                                     <option value="{{$key}}" selected>{{$unidade}}</option>
                                 @else
                                     <option value="{{$key}}">{{$unidade}}</option>
@@ -46,9 +46,9 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        {!! Button::primary('Inserir célula orçamentária. <i class="fa fa-refresh"></i>')
-                            ->asLinkTo(route('empenho.lista.minuta'))
-                        !!}
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#inserir_celular_orcamentaria">
+                            Inserir Célula Orçamentária <i class="fa fa-plus"></i>
+                        </button>
                     </div>
                     <div class="col-md-3" align="right">
 
@@ -88,6 +88,37 @@
         </div>
     </div>
 
+    <!-- Janela modal para inserção de registros -->
+    <div id="inserir_celular_orcamentaria" tabindex="-1" class="modal fade"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        Inserir Célula Orçamentária
+                    </h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="textoModal">
+                    <fieldset class="form-group">
+                        {!! form($form) !!}
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Fechar
+                    </button>
+                    <a href="#" class="btn btn-success" id="btnSalvar">
+                        <i class="fa fa-save"></i> Salvar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 @push('after_scripts')
@@ -103,7 +134,6 @@
                 recarregaTabeladeSaldos(event);
             });
         });
-
 
         function atualizaTabeladeSaldos(event){
 
@@ -150,30 +180,33 @@
         }
 
 
-        {{--function atualizaLinhaSaldo(){--}}
-        {{--    var example_table = $().DataTable({--}}
-        {{--        'ajax': {--}}
-        {{--            "type"   : "GET",--}}
-        {{--            "url"    : '{{route('atualiza.saldos.unidade','110161')}}',--}}
-        {{--            "data"   : function( d ) {--}}
-        {{--                d.example_key1= $('#example_input1').val();--}}
-        {{--                d.example_key2= $('#example_input2').val();--}}
-        {{--                d.example_key3= $('#example_input3').val();--}}
-        {{--            },--}}
-        {{--            "dataSrc": ""--}}
-        {{--        },--}}
-        {{--        'columns': [--}}
-        {{--            {"data" : "metric_name"},--}}
-        {{--            {"data" : "metric_type"},--}}
-        {{--            {"data" : "metric_timestamp"},--}}
-        {{--            {"data" : "metric_duration"}--}}
-        {{--        ]--}}
-        {{--    });--}}
-        {{--    //To Reload The Ajax--}}
-        {{--    //See DataTables.net for more information about the reload method--}}
-        {{--    example_table.ajax.reload()--}}
-        {{--}--}}
+        $('#inserir_celular_orcamentaria').on('show.bs.modal', function(event) {
+            $('#esfera').focus();
+            var botao = $(event.relatedTarget);
+            var link = botao.data('link');
 
+            $('#btnExcluir').attr('href', link);
+        });
 
+        function somenteNumeros(e) {
+            var charCode = e.charCode ? e.charCode : e.keyCode;
+            // charCode 8 = backspace
+            // charCode 9 = tab
+            if (charCode != 8 && charCode != 9) {
+                // charCode 48 equivale a 0
+                // charCode 57 equivale a 9
+                if (charCode < 48 || charCode > 57) {
+                    return false;
+                }
+            }
+        }
+
+        function handleInput(e) {
+            var ss = e.target.selectionStart;
+            var se = e.target.selectionEnd;
+            e.target.value = e.target.value.toUpperCase();
+            e.target.selectionStart = ss;
+            e.target.selectionEnd = se;
+        }
     </script>
 @endpush

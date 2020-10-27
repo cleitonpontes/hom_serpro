@@ -7,7 +7,7 @@ use App\Models\CompraItem;
 use App\Models\Fornecedor;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
-use App\Forms\NovoEmepenhoTela1Form;
+use App\Forms\InserirCelulaOrcamentariaForm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 
@@ -26,7 +26,7 @@ class Tela1EmpenhoControllerEmpenho extends BaseControllerEmpenho
     public function novo()
     {
 
-        $form = \FormBuilder::create(NovoEmepenhoTela1Form::class, [
+        $form = \FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
             'url' => route('empenho.minuta.tela.1.gravar'),
             'method' => 'POST'
         ]);

@@ -9,7 +9,7 @@
 namespace App\Http\Controllers\Empenho;
 
 
-use App\Forms\MudarUgForm;
+use App\Forms\InserirCelulaOrcamentariaForm;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\BackpackUser;
 use App\Models\SaldoContabil;
@@ -45,11 +45,10 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $etapa_id = Route::current()->parameter('etapa_id');
 
         $unidade_id = session('user_ug_id');
-//        dump($unidade_id);
         if((session('unidade_ajax_id') !== null)){
-//            dd(session('unidade_ajax_id'));
             $unidade_id = session('unidade_ajax_id');
         }
+        $modUnidade = Unidade::find($unidade_id);
 
         $saldosContabeis = SaldoContabil::retornaSaldos($unidade_id);
 
@@ -75,11 +74,16 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $html = $this->retornaGrid();
 
-        return view('backpack::mod.empenho.Etapa4SaldoContabil', compact('html'))
+        $form = \FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
+            'url' => route('empenho.minuta.tela.1.gravar'),
+            'method' => 'POST'
+        ]);
+
+        return view('backpack::mod.empenho.Etapa4SaldoContabil', compact(['html','form']))
             ->with('minuta_id', $minuta_id)
             ->with('etapa_id',$etapa_id)
             ->with('unidades',$this->buscaUg())
-            ->with('user_ug_id',session('user_ug_id'));
+            ->with('modUnidade',$modUnidade);
     }
 
 
