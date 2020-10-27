@@ -84,10 +84,10 @@ class SubelementoController extends BaseControllerEmpenho
                     'naturezadespesa.codigo as natureza_despesa',
                     'naturezadespesa.id as natureza_despesa_id',
                     'compra_items.valortotal',
-
+                    'saldo_contabil.saldo',
 
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa"),
-//                    'naturezadespesa.id as naturezadespesa_id'
+                //                    'naturezadespesa.id as naturezadespesa_id'
                 ]
             )
             ->get()
@@ -136,7 +136,7 @@ class SubelementoController extends BaseControllerEmpenho
 
         $html = $this->retornaGridItens();
 
-        return view('backpack::mod.empenho.Etapa5SubElemento', compact('html'));
+        return view('backpack::mod.empenho.Etapa5SubElemento', compact('html'))->with('bla',$itens[0]['saldo']);
     }
 
     /**
@@ -268,17 +268,17 @@ class SubelementoController extends BaseControllerEmpenho
             $retorno .= "<option value='$key'>$subItem</option>";
         }
         $retorno .= '</select>';
-        return $this->addColunaCompraItemId($item).$retorno;
+        return $this->addColunaCompraItemId($item) . $retorno;
 //        return $retorno;
     }
 
     private function addColunaQuantidade($item)
     {
 //        dd($item);
-        if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço' ){
-            return " <input  type='text' id='' data-tipo='' name=\"item[]['qtd'][]\" value='' disabled  > ";
+        if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+            return " <input  type='text' class='qtd". $item['compra_item_id'] ."' id='qtd". $item['compra_item_id'] ."' data-tipo='' name=\"item[]['qtd'][]\" value='' disabled  > ";
         }
-        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd_" . $item['compra_item_id']
+        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
             . "' data-compra_item_id='" . $item['compra_item_id']
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name=\"item[]['qtd'][]\""
             . "value='' onchange='calculaValorTotal(this)'  > ";
@@ -288,10 +288,20 @@ class SubelementoController extends BaseControllerEmpenho
 
     private function addColunaValorTotal($item)
     {
-        if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço' ){
-            return " <input  type='text' id='vrtotal_" . $item['compra_item_id'] . "' data-tipo='' name='valor_total[]' value=''   > ";
+//        dd($item);
+        if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+            return " <input  type='text' class='valor_total vrtotal".$item['compra_item_id']."'"
+                ."id='vrtotal" . $item['compra_item_id']
+                . "' data-qtd_item='". $item['qtd_item'] ."' name='valor_total[]' value=''"
+//                . "data-compra_item_id="
+
+                . " data-compra_item_id='" . $item['compra_item_id'] . "'"
+                . " data-valor_unitario='" . $item['valorunitario'] . "'"
+                . " onchange='calculaQuantidade(this)' >";
         }
-        return " <input  type='text' id='' data-tipo='' name='valor_total[]' value='' disabled  > ";
+        return " <input  type='text' class='valor_total vrtotal".$item['compra_item_id']."'"
+            . "id='vrtotal" . $item['compra_item_id']
+            . "' data-tipo='' name='valor_total[]' value='' disabled > ";
     }
 
     private function addColunaCompraItemId($item)

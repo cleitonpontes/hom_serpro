@@ -1,6 +1,6 @@
 @php
     $minuta_id = Route::current()->parameter('minuta_id');
-    $fornecedor_id = Route::current()->parameter('fornecedor_id');
+    $fornecedor_id = Route::current()->parameter('fornecedor_id')
 @endphp
 @extends('backpack::layout')
 
@@ -26,6 +26,38 @@
         <div class="box-header with-border">
             <h3 class="box-title">Itens da Compra</h3>
         </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-2">
+                    Crédito orçamentário:
+                </div>
+                <div class="col-md-10" id="">
+                    {{$bla}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    Utilizado:
+                </div>
+                <div class="col-md-10" id="utilizado">
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    Saldo:
+                </div>
+                <div class="col-md-10" id="test3">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box box-solid box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">Itens da Compra</h3>
+        </div>
 
         <div class="box-body">
             <br/>
@@ -33,6 +65,13 @@
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
             @csrf <!-- {{ csrf_field() }} -->
+
+
+                {{--                <p id="test1">This is a paragraph.</p>--}}
+                {{--                <p id="test2">This is another paragraph.</p>--}}
+
+                {{--                <p>Input field: <input type="text" id="test3" value="ttteste"></p>--}}
+
                 {!! $html->table() !!}
                 <div class="col-sm-12">
 
@@ -58,22 +97,121 @@
 
         // $('#subitem').select2();
 
-        function bloqueia(tipo){
+        function bloqueia(tipo) {
             $('input[type=checkbox]').each(function () {
-                    if (tipo != $(this).data('tipo')){
-                        this.checked = false;
-                    }
+                if (tipo != $(this).data('tipo')) {
+                    this.checked = false;
+                }
             });
         }
 
-        function calculaValorTotal(obj){
+        function calculaValorTotal(obj) {
 
-            console.log(obj.value)
-            console.log(obj.dataset.valor_unitario)
-            $('#').val();
-            console.log(obj)
+            // $("#test1").text("Hello world!");
+            // $("#test2").html("<b>Hello world!</b>");
+            // $("#test3").val("Dolly Duck");
+            // $("#vrtotal_75").val("9");
+            // $(".vrtotal75").val("654");
+            // $("#vrtotal75").val("654");
+
+            // var tables = $('#dataTableBuilder').DataTable();
+            //
+            // tables.ajax.reload();
+
+
+            // alert(1212);
+
+
+            // console.log(obj.value)
+            // console.log(obj.dataset.valor_unitario)
+            // console.log(obj.dataset.compra_item_id)
+            var compra_item_id = obj.dataset.compra_item_id;
+            var valor_total = obj.value * obj.dataset.valor_unitario;
+            $(".vrtotal" + compra_item_id)
+                .val(valor_total)
+                .trigger("change")
+            // console.log($('.vrtotal75').val());
+
+            // $(".myTextBox").val("New value").trigger("change");
+
+
+            // $('#vrtotal_75').val('123');
+            // console.log($('#vrtotal_75'))
+            // alert($('#vrtotal_75').val());
+            // $('#vrtotal_75').attr('value', '456');
+            // alert($('#vrtotal_75').val());
+
+
+            // console.log($('#vrtotal_75'))
+            // console.log($('#vrtotal_75').val());
+            // console.log(obj)
 
         }
+
+        function calculaQuantidade(obj) {
+
+            $("#test1").text("Hello world!");
+            // $("#test2").html("<b>Hello world!</b>");
+            // $("#test3").val("Dolly Duck");
+            // $("#vrtotal_75").val("9");
+            // $(".vrtotal75").val("654");
+            // $("#vrtotal75").val("654");
+
+            // var tables = $('#dataTableBuilder').DataTable();
+            //
+            // tables.ajax.reload();
+
+
+            // alert(1212);
+            //
+            //
+            // console.log(obj.value)
+            // console.log(obj.dataset.valor_unitario)
+            // console.log(obj.dataset.compra_item_id)
+
+            var compra_item_id = obj.dataset.compra_item_id;
+            var quantidade = obj.value / obj.dataset.valor_unitario;
+            // alert(quantidade);
+            $(".qtd" + compra_item_id).val(quantidade)
+            // console.log($('.vrtotal75').val());
+
+
+            // $('#vrtotal_75').val('123');
+            // console.log($('#vrtotal_75'))
+            // alert($('#vrtotal_75').val());
+            // $('#vrtotal_75').attr('value', '456');
+            // alert($('#vrtotal_75').val());
+
+
+            // console.log($('#vrtotal_75'))
+            // console.log($('#vrtotal_75').val());
+            // console.log(obj)
+
+        }
+
+        // $( document ).ready(function() {
+        //     $('.valor_total').change(function () {
+        //         alert(2);
+        //         // (this).each(
+        //         //     alert(this.value)
+        //         // )
+        //
+        //     })
+        // });
+
+        $(document).ready(function(){
+            $('body').on('change','.valor_total', function(event){
+                var soma = 0;
+                $( ".valor_total" ).each(function( index ) {
+                    if (!isNaN(parseFloat($( this ).val()))){
+                        soma = parseFloat($( this ).val()) + parseFloat(soma);
+                    }
+                });
+                $("#utilizado").html("<b>"+ soma +"</b>");
+
+            });
+        });
+
 
     </script>
 @endpush
