@@ -37,9 +37,12 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->setModel('App\Models\MinutaEmpenho');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'empenho/minuta');
         $this->crud->setEntityNameStrings('Minuta de Empenho', 'Minutas de Empenho');
-        $this->crud->setEditView('vendor.backpack.crud.edit_compra');
+        $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
+        $this->crud->setShowView('vendor.backpack.crud.empenho.show');
         $this->crud->allowAccess('update');
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
+
+        $this->crud->allowAccess('show');
 
 //        $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
