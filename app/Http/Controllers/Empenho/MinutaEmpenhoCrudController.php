@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 use Route;
+use App\Http\Traits\Formatador;
 
 /**
  * Class MinutaEmpenhoCrudController
@@ -24,6 +25,7 @@ use Route;
  */
 class MinutaEmpenhoCrudController extends CrudController
 {
+    use Formatador;
 
     public function setup()
     {
@@ -77,6 +79,9 @@ class MinutaEmpenhoCrudController extends CrudController
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here
+
+        $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
+
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -119,7 +124,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 'class' => 'form-group col-md-6'
             ],
             'attributes' => [
-                'readonly' => true
+                'disabled' => true
             ]
         ]);
     }
@@ -159,7 +164,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => "Credor",
             'type' => "select2_from_ajax",
             'name' => 'fornecedor_empenho_id',
-            'entity' => 'fornecedor',
+            'entity' => 'fornecedor_empenho',
             'attribute' => "cpf_cnpj_idgener",
             'attribute2' => "nome",
             'process_results_template' => 'gescon.process_results_fornecedor',
@@ -169,6 +174,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'minimum_input_length' => 2,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
+            ],
+            'attributes' => [
+                'readonly' => true
             ]
         ]);
     }
