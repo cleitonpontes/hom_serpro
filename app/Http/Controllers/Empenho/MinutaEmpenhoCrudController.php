@@ -76,7 +76,6 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        dd('aq');
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -86,6 +85,8 @@ class MinutaEmpenhoCrudController extends CrudController
 
     protected function adicionaCampos()
     {
+        $this->adicionaCampoNumeroEmpenho();
+        $this->adicionaCampoCipi();
         $this->adicionaCampoDataEmissão();
         $this->adicionaCampoTipoEmpenho();
         $this->adicionaCampoFornecedor();
@@ -94,6 +95,33 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaCampoTaxaCambio();
         $this->adicionaCampoLocalEntrega();
         $this->adicionaCampoDescricao();
+    }
+
+    protected function adicionaCampoNumeroEmpenho()
+    {
+        $this->crud->addField([
+            'name' => 'numero_empenho',
+            'label' => 'Número Empenho',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6'
+            ]
+        ]);
+    }
+
+    protected function adicionaCampoCipi()
+    {
+        $this->crud->addField([
+            'name' => 'cipi',
+            'label' => 'CIPI',
+            'type' => 'text',
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-6'
+            ],
+            'attributes' => [
+                'readonly' => true
+            ]
+        ]);
     }
 
     protected function adicionaCampoDataEmissão()
