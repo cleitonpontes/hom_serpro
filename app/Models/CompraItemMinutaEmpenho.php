@@ -11,7 +11,7 @@ class CompraItemMinutaEmpenho extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    use SoftDeletes;
+//    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -34,6 +34,13 @@ class CompraItemMinutaEmpenho extends Model
         'quantidade',
         'valor'
     ];
+
+    /**
+     * Informa que não utilizará os campos create_at e update_at do Laravel
+     *
+     * @var boolean
+     */
+    public $timestamps = false;
 
     /*
     |--------------------------------------------------------------------------

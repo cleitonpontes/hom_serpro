@@ -28,26 +28,26 @@
         </div>
         <div class="box-body">
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-2">
                     Crédito orçamentário:
                 </div>
-                <div class="col-md-10" id="">
-                    {{$bla}}
+                <div class="col-md-10 col-sm-10" id="">
+                    R$ {{ number_format($credito,2,',','.') }}
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-2">
+            <div class="row text-red">
+                <div class="col-md-2 col-sm-2">
                     Utilizado:
                 </div>
-                <div class="col-md-10" id="utilizado">
+                <div class="col-md-10 col-sm-10" id="utilizado">
 
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-10">
                     Saldo:
                 </div>
-                <div class="col-md-10" id="test3">
+                <div class="col-md-10 col-sm-10" id="saldo">
 
                 </div>
             </div>
@@ -66,12 +66,6 @@
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
             @csrf <!-- {{ csrf_field() }} -->
 
-
-                {{--                <p id="test1">This is a paragraph.</p>--}}
-                {{--                <p id="test2">This is another paragraph.</p>--}}
-
-                {{--                <p>Input field: <input type="text" id="test3" value="ttteste"></p>--}}
-
                 {!! $html->table() !!}
                 <div class="col-sm-12">
 
@@ -89,13 +83,9 @@
     </div>
 
 @endsection
-
 @push('after_scripts')
     {!! $html->scripts() !!}
     <script type="text/javascript">
-        // alert(123);
-
-        // $('#subitem').select2();
 
         function bloqueia(tipo) {
             $('input[type=checkbox]').each(function () {
@@ -107,111 +97,61 @@
 
         function calculaValorTotal(obj) {
 
-            // $("#test1").text("Hello world!");
-            // $("#test2").html("<b>Hello world!</b>");
-            // $("#test3").val("Dolly Duck");
-            // $("#vrtotal_75").val("9");
-            // $(".vrtotal75").val("654");
-            // $("#vrtotal75").val("654");
-
-            // var tables = $('#dataTableBuilder').DataTable();
-            //
-            // tables.ajax.reload();
-
-
-            // alert(1212);
-
-
-            // console.log(obj.value)
-            // console.log(obj.dataset.valor_unitario)
-            // console.log(obj.dataset.compra_item_id)
             var compra_item_id = obj.dataset.compra_item_id;
             var valor_total = obj.value * obj.dataset.valor_unitario;
+            valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
             $(".vrtotal" + compra_item_id)
                 .val(valor_total)
                 .trigger("change")
-            // console.log($('.vrtotal75').val());
-
-            // $(".myTextBox").val("New value").trigger("change");
-
-
-            // $('#vrtotal_75').val('123');
-            // console.log($('#vrtotal_75'))
-            // alert($('#vrtotal_75').val());
-            // $('#vrtotal_75').attr('value', '456');
-            // alert($('#vrtotal_75').val());
-
-
-            // console.log($('#vrtotal_75'))
-            // console.log($('#vrtotal_75').val());
-            // console.log(obj)
 
         }
 
         function calculaQuantidade(obj) {
 
-            $("#test1").text("Hello world!");
-            // $("#test2").html("<b>Hello world!</b>");
-            // $("#test3").val("Dolly Duck");
-            // $("#vrtotal_75").val("9");
-            // $(".vrtotal75").val("654");
-            // $("#vrtotal75").val("654");
-
-            // var tables = $('#dataTableBuilder').DataTable();
-            //
-            // tables.ajax.reload();
-
-
-            // alert(1212);
-            //
-            //
-            // console.log(obj.value)
-            // console.log(obj.dataset.valor_unitario)
-            // console.log(obj.dataset.compra_item_id)
-
             var compra_item_id = obj.dataset.compra_item_id;
-            var quantidade = obj.value / obj.dataset.valor_unitario;
-            // alert(quantidade);
+            var value = obj.value;
+
+            value = ptToEn(value);
+
+            var quantidade = value / obj.dataset.valor_unitario;
+
             $(".qtd" + compra_item_id).val(quantidade)
-            // console.log($('.vrtotal75').val());
-
-
-            // $('#vrtotal_75').val('123');
-            // console.log($('#vrtotal_75'))
-            // alert($('#vrtotal_75').val());
-            // $('#vrtotal_75').attr('value', '456');
-            // alert($('#vrtotal_75').val());
-
-
-            // console.log($('#vrtotal_75'))
-            // console.log($('#vrtotal_75').val());
-            // console.log(obj)
 
         }
 
-        // $( document ).ready(function() {
-        //     $('.valor_total').change(function () {
-        //         alert(2);
-        //         // (this).each(
-        //         //     alert(this.value)
-        //         // )
-        //
-        //     })
-        // });
-
-        $(document).ready(function(){
-            $('body').on('change','.valor_total', function(event){
+        $(document).ready(function () {
+            $('body').on('change', '.valor_total', function (event) {
                 var soma = 0;
-                $( ".valor_total" ).each(function( index ) {
-                    if (!isNaN(parseFloat($( this ).val()))){
-                        soma = parseFloat($( this ).val()) + parseFloat(soma);
+                var saldo = {{$credito}};
+                $(".valor_total").each(function (index) {
+                    var valor = ptToEn($(this).val());
+
+                    if (!isNaN(parseFloat(valor))) {
+                        soma = parseFloat(valor) + parseFloat(soma);
                     }
                 });
-                $("#utilizado").html("<b>"+ soma +"</b>");
-
+                saldo = saldo - soma;
+                $("#utilizado").html("<b>R$ " + soma.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
+                $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
             });
         });
 
+        function atualizaMascara() {
+            var maxLength = '000.000.000.000.000,00'.length;
+            $('.valor_total').maskMoney({
+                allowNegative: false,
+                thousands: '.',
+                decimal: ',',
+                affixesStay: false
+            }).attr('maxlength', maxLength).trigger('mask.maskMoney');
+        }
+
+        function ptToEn(value) {
+
+            value = value.replaceAll('.', '');
+            return value.replaceAll(',', '.');
+        }
 
     </script>
 @endpush
+

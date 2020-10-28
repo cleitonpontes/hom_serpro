@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Empenho;
 
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\CompraItem;
+use App\Models\CompraItemMinutaEmpenho;
 use App\Models\MinutaEmpenho;
 use App\Models\Naturezasubitem;
 use Illuminate\Http\Request;
@@ -12,9 +13,12 @@ use Illuminate\Support\Facades\DB;
 use Route;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
+use App\Http\Traits\Formatador;
 
 class SubelementoController extends BaseControllerEmpenho
 {
+    use Formatador;
+
     /**
      * Display a listing of the resource.
      *
@@ -87,7 +91,6 @@ class SubelementoController extends BaseControllerEmpenho
                     'saldo_contabil.saldo',
 
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa"),
-                //                    'naturezadespesa.id as naturezadespesa_id'
                 ]
             )
             ->get()
@@ -136,7 +139,7 @@ class SubelementoController extends BaseControllerEmpenho
 
         $html = $this->retornaGridItens();
 
-        return view('backpack::mod.empenho.Etapa5SubElemento', compact('html'))->with('bla',$itens[0]['saldo']);
+        return view('backpack::mod.empenho.Etapa5SubElemento', compact('html'))->with('credito', $itens[0]['saldo']);
     }
 
     /**
@@ -246,7 +249,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'language' => [
                         'url' => asset('/json/pt_br.json')
                     ],
-                    'initComplete' => 'function() { $(\'.subitem\').select2() }'
+                    'initComplete' => 'function() { $(\'.subitem\').select2(); atualizaMascara() }'
 
                 ]
             );
@@ -257,31 +260,27 @@ class SubelementoController extends BaseControllerEmpenho
 //    private function retornaRadioItens($id, $minuta_id, $descricao)
     private function addColunaSubItem($item)
     {
-//        dd($item);
         $subItens = Naturezasubitem::where('naturezadespesa_id', $item['natureza_despesa_id'])
             ->get()->pluck('codigo_descricao', 'id');
-//        dd($subItens);
 
-//        $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
-        $retorno = '<select name="item[][\'subitem\'][]" id="subitem" class="subitem">';
+        $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
         foreach ($subItens as $key => $subItem) {
             $retorno .= "<option value='$key'>$subItem</option>";
         }
         $retorno .= '</select>';
         return $this->addColunaCompraItemId($item) . $retorno;
-//        return $retorno;
     }
 
     private function addColunaQuantidade($item)
     {
-//        dd($item);
+
         if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='text' class='qtd". $item['compra_item_id'] ."' id='qtd". $item['compra_item_id'] ."' data-tipo='' name=\"item[]['qtd'][]\" value='' disabled  > ";
+            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd" . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id'] . "' data-tipo='' name='qtd[]' value='' readonly  > ";
         }
-        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
+        return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
             . "' data-compra_item_id='" . $item['compra_item_id']
-            . "' data-valor_unitario='" . $item['valorunitario'] . "' name=\"item[]['qtd'][]\""
-            . "value='' onchange='calculaValorTotal(this)'  > ";
+            . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
+            . " class='form-control' value='' onchange='calculaValorTotal(this)'  > ";
 //        dd($item);
 //        return " <input  type='text' id='' data-tipo='' name='qtd[]' value=''   > ";
     }
@@ -290,28 +289,53 @@ class SubelementoController extends BaseControllerEmpenho
     {
 //        dd($item);
         if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='text' class='valor_total vrtotal".$item['compra_item_id']."'"
-                ."id='vrtotal" . $item['compra_item_id']
-                . "' data-qtd_item='". $item['qtd_item'] ."' name='valor_total[]' value=''"
-//                . "data-compra_item_id="
-
+            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal" . $item['compra_item_id'] . "'"
+                . "id='vrtotal" . $item['compra_item_id']
+                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value=''"
                 . " data-compra_item_id='" . $item['compra_item_id'] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
                 . " onchange='calculaQuantidade(this)' >";
         }
-        return " <input  type='text' class='valor_total vrtotal".$item['compra_item_id']."'"
+        return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "'"
             . "id='vrtotal" . $item['compra_item_id']
-            . "' data-tipo='' name='valor_total[]' value='' disabled > ";
+            . "' data-tipo='' name='valor_total[]' value='' readonly > ";
     }
 
     private function addColunaCompraItemId($item)
     {
-//        dd($item);
         return " <input  type='hidden' id='" . '' . "' data-tipo='' name='compra_item_id[]' value='" . $item['compra_item_id'] . "'   > ";
     }
 
     public function store(Request $request)
     {
-        dd($request->all());
+        $compra_item_ids = $request->compra_item_id;
+
+        $valores = $request->valor_total;
+
+        $valores = array_map(
+            function ($valores) {
+                return $this->retornaFormatoAmericano($valores);
+            },
+            $valores
+        );
+
+        DB::beginTransaction();
+        try {
+            foreach ($compra_item_ids as $index => $item) {
+                CompraItemMinutaEmpenho::where('compra_item_id', $item)
+                    ->where('minutaempenho_id', $request->minuta_id)
+                    ->update([
+                        'subelemento_id' => $request->subitem[$index],
+                        'quantidade' => $request->qtd[$index],
+                        'valor' => $valores[$index]
+                    ]);
+            }
+
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
+
+        return redirect()->route('empenho.minuta.etapa.compra', ['etapa_id' => 7, 'minuta_id' => $request->minuta_id]);
     }
 }
