@@ -55,10 +55,12 @@ class SaldoContabil extends Model
                 DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS nd"),
                 DB::raw("SUBSTRING(saldo_contabil.conta_corrente,24,8) AS ugr"),
                 DB::raw("SUBSTRING(saldo_contabil.conta_corrente,32,11) AS plano_interno"),
-                'saldo_contabil.saldo',
+                DB::raw("TO_CHAR(saldo_contabil.saldo,'999G999G000D99') AS saldo")
+
             ])
             ->where(DB::raw("SUBSTRING(saldo_contabil.conta_corrente,22,2)"),'<>','00')
             ->where('saldo_contabil.unidade_id',$unidade_id)
+            ->orderby('saldo','DESC')
             ->get()
             ->toArray();
 //        dd($teste->getBindings(),$teste->toSql());

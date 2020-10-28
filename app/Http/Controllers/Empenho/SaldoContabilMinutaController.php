@@ -49,21 +49,22 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $modUnidade = Unidade::find($unidade_id);
 
         $saldosContabeis = SaldoContabil::retornaSaldos($unidade_id);
+        $saldos = $this->retornaSaldosComMascara($saldosContabeis);
 
         if ($request->ajax()) {
-            return DataTables::of($saldosContabeis)
+            return DataTables::of($saldos)
                 ->addColumn(
                     'action',
-                    function ($saldosContabeis) use ($modUnidade)
+                    function ($saldos) use ($modUnidade)
                     {
-                        return $this->retornaBtnAtualizar($saldosContabeis['id'],$modUnidade->codigo);
+                        return $this->retornaBtnAtualizar($saldos['id'],$modUnidade->codigo);
                     }
                 )
                 ->addColumn(
                     'btn_selecionar',
-                    function ($saldosContabeis) use ($minuta_id)
+                    function ($saldos) use ($minuta_id)
                     {
-                        return $this->retornaBtSelecionar($saldosContabeis['id'],$minuta_id);
+                        return $this->retornaBtSelecionar($saldos['id'],$minuta_id);
                     }
                 )
                 ->rawColumns(['action','btn_selecionar'])
@@ -82,6 +83,17 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             ->with('modUnidade',$modUnidade);
     }
 
+    public function retornaSaldosComMascara($saldos)
+    {
+        $saldosPtBr = array_map(function ($saldos){
+            if($saldos['saldo']){
+                $saldos['saldo'] = str_replace(',','.',$saldos['saldo']);
+                $saldos['saldo'] = str_replace_last('.',',',$saldos['saldo']);
+            }
+            return $saldos;
+        },$saldos);
+        return $saldosPtBr;
+    }
 
 
     public function consultaApiSta($ano,$ug,$gestao,$contacontabil)
