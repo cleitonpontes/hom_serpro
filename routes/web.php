@@ -51,6 +51,7 @@ Route::group([
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
 
+
 Route::group(
     [
         'middleware' => ['web'],
@@ -252,14 +253,14 @@ Route::group(
 
 //            CRUD::resource('/minutaempenho', 'MinutaEmpenhoCrudController')
 //                ->name('minuta.empenho');
+            CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
+//            Route::get('/minuta', 'MinutaEmpenhoCrudController@index')
+//                ->name('lista.minuta')
+//                ->middleware('permission:folha_apropriacao_acesso');
 
-            Route::get('/minuta', 'MinutaEmpenhoCrudController@index')
-                ->name('lista.minuta')
-                ->middleware('permission:folha_apropriacao_acesso');
-
-            Route::Post('/minuta/search', 'MinutaEmpenhoCrudController@search')
-                ->name('lista.minuta.search')
-                ->middleware('permission:folha_apropriacao_acesso');
+//            Route::Post('/minuta/search', 'MinutaEmpenhoCrudController@search')
+//                ->name('lista.minuta.search')
+//                ->middleware('permission:folha_apropriacao_acesso');
 
 
             //passo 1
@@ -310,10 +311,11 @@ Route::group(
             //passo 6
 
 
-            Route::get('dados/{etapa_id}/{minuta_id}', 'DadosEmpenhoCrudController@create')
-                ->name('minuta.etapa.dadosempenho');
+//            Route::get('minuta/{id}', 'MinutaEmpenhoCrudController@edit')
+//                ->name('minuta.etapa.dadosempenho');
 
-            Route::post('dados', 'DadosEmpenhoCrudController@store');
+//            Route::post('minuta', 'MinutaEmpenhoCrudController@store');
+//            Route::put('minuta', 'MinutaEmpenhoCrudController@update');
 
             //passo 7
 
@@ -332,17 +334,22 @@ Route::group(
 //                ->name('minuta.empenho');
 
 
+
+
+
 //            Route::get('/listaminutaempenho', 'NovoEmpenhoController@index')
 //                ->name('lista.minuta.empenhos')
 //                ->middleware('permission:folha_apropriacao_acesso');
 
-            Route::get('minuta/etapa/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoController@index')
-                ->name('minuta.etapa.fornecedor')
-                ->middleware('permission:folha_apropriacao_passo');
+//            Route::get('minuta/etapa/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoControllerEmpenho@index')
+//                ->name('minuta.etapa.fornecedor')
+//                ->middleware('permission:folha_apropriacao_passo');
 
-            Route::post('/minuta/tela/1/gravar', 'Minuta\Tela1EmpenhoController@gravar')
-                ->name('minuta.tela.1.gravar')
-                ->middleware('permission:folha_apropriacao_passo');
+//            Route::post('/minuta/tela/1/gravar', 'Minuta\Tela1EmpenhoController@gravar')
+//                ->name('minuta.tela.1.gravar')
+//                ->middleware('permission:folha_apropriacao_passo');
+
+
 
 
 //            Route::get('minuta/tela/1/create', 'CompraSiasgCrudController@create')

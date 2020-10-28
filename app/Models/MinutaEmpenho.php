@@ -6,6 +6,7 @@ use Backpack\CRUD\CrudTrait;
 use Eduardokum\LaravelMailAutoEmbed\Models\EmbeddableEntity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class MinutaEmpenho extends Model
@@ -77,6 +78,19 @@ class MinutaEmpenho extends Model
 //        ])->where('ug', $ug);
 
         return $listagem;
+    }
+
+    public function retornaAmparoPorMinuta()
+    {
+            return AmparoLegal::select(['amparo_legal.id', DB::raw("ato_normativo ||
+                    case when (artigo is not null)  then ' - Artigo: ' || artigo else '' end ||
+                    case when (paragrafo is not null)  then ' - Parágrafo: ' || paragrafo else '' end ||
+                    case when (amparo_legal.inciso is not null)  then ' - Inciso: ' || amparo_legal.inciso else '' end ||
+                    case when (alinea is not null)  then ' - Alinea: ' || alinea else '' end
+                    as campo_api_amparo")
+            ])->join('compras','compras.modalidade_id','=','amparo_legal.modalidade_id')
+              ->join('minutaempenhos','minutaempenhos.compra_id','=','compras.id')
+              ->where('minutaempenhos.id', $this->id)->pluck('campo_api_amparo','amparolegal.id')->toArray();
     }
 
     public function atualizaFornecedorCompra($fornecedor_id)
