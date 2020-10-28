@@ -29,7 +29,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function setup()
     {
-        $minuta_id = $this->crud->getCurrentEntryId();
+        $this->minuta_id = $this->crud->getCurrentEntryId();
 
         /*
         |--------------------------------------------------------------------------
@@ -59,8 +59,9 @@ class MinutaEmpenhoCrudController extends CrudController
 
         // TODO: remove setFromDb() and manually define Fields and Columns
         //$this->crud->setFromDb();
-        $this->adicionaCampos($minuta_id);
+        $this->adicionaCampos($this->minuta_id);
         $this->adicionaColunas();
+        $this->aplicaFiltros();
 
         // add asterisk for fields that are required in MinutaEmpenhoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -84,14 +85,15 @@ class MinutaEmpenhoCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        return \Redirect::to('empenho/minuta/'.$this->minuta_id);
+//        return $redirect_location;
     }
 
     protected function adicionaCampos($minuta_id)
     {
         $this->adicionaCampoNumeroEmpenho();
         $this->adicionaCampoCipi();
-        $this->adicionaCampoDataEmissão();
+        $this->adicionaCampoDataEmissao();
         $this->adicionaCampoTipoEmpenho();
         $this->adicionaCampoFornecedor();
         $this->adicionaCampoProcesso();
@@ -99,6 +101,16 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaCampoTaxaCambio();
         $this->adicionaCampoLocalEntrega();
         $this->adicionaCampoDescricao();
+    }
+
+    protected function adicionaColunas()
+    {
+        $this->adicionaColunaSituacao();
+    }
+
+    protected function aplicaFiltros()
+    {
+        $this->aplicaFiltroNumeroEmpenho();
     }
 
     protected function adicionaCampoNumeroEmpenho()
@@ -128,7 +140,7 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
-    protected function adicionaCampoDataEmissão()
+    protected function adicionaCampoDataEmissao()
     {
         $this->crud->addField([
             'name' => 'data_emissao',
@@ -146,7 +158,7 @@ class MinutaEmpenhoCrudController extends CrudController
         })->where('visivel',false)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $this->crud->addField([
-            'name' => 'empenho_id',
+            'name' => 'tipo_empenho_id',
             'label' => "Tipo Empenho",
             'type' => 'select2_from_array',
             'options' => $tipo_empenhos,
@@ -201,7 +213,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'name' => 'id',
             'label' => "Amparo Legal",
             'type' => 'select_from_array',
-            'options' =>  $modelo->retornaAmparoPorMinuta(),
+            'options' =>  $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
             'allows_null' => true,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
@@ -247,12 +259,6 @@ class MinutaEmpenhoCrudController extends CrudController
             ]
         ]);
     }
-    protected function adicionaColunas()
-    {
-
-        $this->adicionaColunaSituacao();
-
-    }
 
     protected function adicionaColunaSituacao()
     {
@@ -267,5 +273,23 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInShow' => true,
             'options' => [0 => 'Inativo', 1 => 'Ativo']
         ]);
+    }
+
+    private function aplicaFiltroNumeroEmpenho()
+    {
+        $campo = [
+            'name' => 'numero_empenho',
+            'type' => 'text',
+            'label' => 'Número Empenho'
+        ];
+
+        $this->crud->addFilter(
+            $campo,
+          false,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'minuta_empenho.id', json_decode($value));
+            }
+        );
     }
 }
