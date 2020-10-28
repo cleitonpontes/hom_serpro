@@ -42,8 +42,7 @@ class ContratofaturaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/faturas');
         $this->crud->setEntityNameStrings('Fatura do Contrato', 'Faturas - Contrato');
         $this->crud->addClause('join', 'tipolistafatura', 'tipolistafatura.id', '=', 'contratofaturas.tipolistafatura_id');
-        $this->crud->addClause('leftJoin', 'apropriacoes_faturas_contratofaturas', 'apropriacoes_faturas_contratofaturas.contratofaturas_id', '=', 'contratofaturas.id');
-        $this->crud->addClause('select', 'contratofaturas.*', 'apropriacoes_faturas_contratofaturas.contratofaturas_id');
+        $this->crud->addClause('select', 'contratofaturas.*');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
