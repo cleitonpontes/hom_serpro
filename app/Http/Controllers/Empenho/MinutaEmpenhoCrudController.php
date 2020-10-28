@@ -29,7 +29,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function setup()
     {
-       // $minuta_id = \Route::current()->parameter('id');
+        $minuta_id = $this->crud->getCurrentEntryId();
 
         /*
         |--------------------------------------------------------------------------
@@ -59,7 +59,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
         // TODO: remove setFromDb() and manually define Fields and Columns
         //$this->crud->setFromDb();
-        $this->adicionaCampos();
+        $this->adicionaCampos($minuta_id);
         $this->adicionaColunas();
 
         // add asterisk for fields that are required in MinutaEmpenhoRequest
@@ -79,7 +79,6 @@ class MinutaEmpenhoCrudController extends CrudController
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here
-
         $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
 
         $redirect_location = parent::updateCrud($request);
@@ -88,7 +87,7 @@ class MinutaEmpenhoCrudController extends CrudController
         return $redirect_location;
     }
 
-    protected function adicionaCampos()
+    protected function adicionaCampos($minuta_id)
     {
         $this->adicionaCampoNumeroEmpenho();
         $this->adicionaCampoCipi();
@@ -96,7 +95,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaCampoTipoEmpenho();
         $this->adicionaCampoFornecedor();
         $this->adicionaCampoProcesso();
-       // $this->adicionaCampoAmparoLegal($minuta_id);
+        $this->adicionaCampoAmparoLegal($minuta_id);
         $this->adicionaCampoTaxaCambio();
         $this->adicionaCampoLocalEntrega();
         $this->adicionaCampoDescricao();
@@ -197,6 +196,7 @@ class MinutaEmpenhoCrudController extends CrudController
     protected function adicionaCampoAmparoLegal($minuta_id)
     {
         $modelo = MinutaEmpenho::find($minuta_id);
+
         $this->crud->addField([
             'name' => 'id',
             'label' => "Amparo Legal",
