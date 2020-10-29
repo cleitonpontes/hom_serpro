@@ -319,10 +319,11 @@ Route::group(
 
             //passo 7
 
-            Route::get('passivo/{etapa_id}/{minuta_id?}', 'PassivoCrudController@create')
-                ->name('minuta.etapa.compra');
+            CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create','show']]);
 
-            Route::post('passivo', 'PassivoCrudController@store');
+            Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
+            ->name('passivo-anterior.create');
+
 
             /**
              *

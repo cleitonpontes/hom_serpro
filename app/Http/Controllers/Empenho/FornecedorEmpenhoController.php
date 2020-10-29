@@ -125,7 +125,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     {
         $etapa_id = Route::current()->parameter('etapa_id');
         $minuta_id = Route::current()->parameter('minuta_id');
-        $modMinutaEmpenho = MinutaEmpenho::find(Route::current()->parameter('minuta_id'));
+        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
         (!is_null($modMinutaEmpenho))?$modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id):'';
 
@@ -235,6 +235,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     public function store(Request $request)
     {
         $minuta = MinutaEmpenho::find($request->minuta_id);
+
         $minuta_id = $request->minuta_id;
         $fornecedor_id = $request->fornecedor_id;
         $itens = $request->itens;
@@ -252,17 +253,20 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             $itens
         );
 
+
         DB::beginTransaction();
         try {
             CompraItemMinutaEmpenho::insert($itens);
             $minuta->etapa = 4;
             $minuta->save();
             DB::commit();
+
+            return redirect()->route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => $minuta->etapa, 'minuta_id' => $minuta_id]);
+
         } catch (Exception $exc) {
             DB::rollback();
         }
 
-        return redirect()->route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => 4, 'minuta_id' => $minuta_id]);
     }
 
     private function retornaItensAcoes($id, $minuta_id)

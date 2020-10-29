@@ -97,6 +97,7 @@ class MinutaEmpenho extends Model
     {
         $this->fornecedor_compra_id = $fornecedor_id;
         $this->fornecedor_empenho_id = $fornecedor_id;
+        $this->etapa = 3;
         $this->update();
     }
     /*

@@ -169,7 +169,7 @@ class CompraSiasgCrudController extends CrudController
         $minutaEmpenho = $this->gravaMinutaEmpenho(
             ['compra_id' => $params['compra_id'], 'unidade_origem_id' => $params['unidade_origem_id']]
         );
-        $etapa = $minutaEmpenho->etapa + 1;
+        $etapa = 2;
         return redirect('/empenho/fornecedor/' . $etapa . '/' . $minutaEmpenho->id);
     }
 
@@ -290,7 +290,7 @@ class CompraSiasgCrudController extends CrudController
         $minutaEmpenho = new MinutaEmpenho();
         $minutaEmpenho->unidade_id = $params['unidade_origem_id'];
         $minutaEmpenho->compra_id = $params['compra_id'];
-        $minutaEmpenho->etapa = 1;
+        $minutaEmpenho->etapa = 2;
         //todo RETIRAR A OBRIGATORIEDADE DA INFORMACAO COMPLEMENTAR
         //todo COLOCAR O TIPO MINUTA EMPENHO
         $minutaEmpenho->informacao_complementar = '';

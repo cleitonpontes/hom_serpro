@@ -72,7 +72,7 @@
                 </div>
                 <div class="box-tools">
                     {!! Button::success('<i class="fa fa-arrow-left"></i> Voltar')
-                        ->asLinkTo(route('empenho.lista.minuta'))
+                        ->asLinkTo(route('empenho.crud./minuta.index'))
                     !!}
                     <button type="submit" class="btn btn-primary">
                         Próxima Etapa <i class="fa fa-arrow-right"></i>

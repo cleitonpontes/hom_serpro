@@ -96,10 +96,6 @@ class SubelementoController extends BaseControllerEmpenho
             ->get()
             ->toArray();
 
-//        dd($itens);
-//        ;
-
-//        dd($itens->getBindings(), $itens->toSql());
 
         if ($request->ajax()) {
             return DataTables::of($itens)
@@ -257,7 +253,6 @@ class SubelementoController extends BaseControllerEmpenho
         return $html;
     }
 
-//    private function retornaRadioItens($id, $minuta_id, $descricao)
     private function addColunaSubItem($item)
     {
         $subItens = Naturezasubitem::where('naturezadespesa_id', $item['natureza_despesa_id'])
@@ -308,7 +303,10 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function store(Request $request)
     {
+
         $compra_item_ids = $request->compra_item_id;
+
+        $minuta_id = $request->get('minuta_id');
 
         $valores = $request->valor_total;
 
@@ -331,11 +329,16 @@ class SubelementoController extends BaseControllerEmpenho
                     ]);
             }
 
+            $modMinuta = MinutaEmpenho::find($minuta_id);
+            $modMinuta->etapa = 6;
+            $modMinuta->save();
+
+
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
         }
 
-        return redirect()->route('empenho.minuta.etapa.compra', ['etapa_id' => 7, 'minuta_id' => $request->minuta_id]);
+        return redirect()->route('empenho.crud./minuta.edit', ['minutum' => $modMinuta->id ]);
     }
 }

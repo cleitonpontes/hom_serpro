@@ -78,9 +78,9 @@
                         </button>
                     </div>
                     <div class="col-md-3" align="left">
-                        {!! Button::primary('<i class="fa fa-arrow-right"></i> Próxima Etapa')
-                            ->asLinkTo(route('empenho.minuta.etapa.subelemento',['etapa_id'=> ($etapa_id + 1),'minuta_id' => $minuta_id]))
-                        !!}
+                        <button type="submit" class="btn btn-primary" id="salvar">
+                            Próxima Etapa  <i class="fa fa-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>

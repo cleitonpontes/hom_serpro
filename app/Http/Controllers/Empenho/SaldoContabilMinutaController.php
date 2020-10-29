@@ -117,6 +117,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $saldosContabeis = json_encode($this->consultaApiSta($ano,$ug,$gestao,$contacontabil));
 
+
         foreach (json_decode($saldosContabeis) as $key => $saldo){
             $saldocontabil = new SaldoContabil();
             $saldocontabil->gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo);
@@ -125,7 +126,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         return redirect()->route(
             'empenho.minuta.listagem.saldocontabil',
                 [
-                'etapa_id' => ($etapa_id + 1),
+                'etapa_id' => ($etapa_id),
                 'minuta_id' => $minuta_id
                 ]
         );
@@ -134,16 +135,22 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
     public function atualizaMinuta(Request $request)
     {
+
+        if (!$request->get('saldo')){
+            \Alert::error('Selecione o Saldo Contábil.')->flash();
+            return redirect()->back();
+        }
+
         $minuta_id = $request->get('minuta_id');
         $etapa_id = $request->get('etapa_id');
         $saldo_contabil_id = $request->get('saldo');
 
         $modMinuta = MinutaEmpenho::find($minuta_id);
-        $modMinuta->etapa = $etapa_id;
+        $modMinuta->etapa = $etapa_id+1;
         $modMinuta->saldo_contabil_id = $saldo_contabil_id;
         $modMinuta->save();
 
-        return redirect()->route('empenho.minuta.etapa.subelemento',['etapa_id' => ($etapa_id + 1), 'minuta_id' => $minuta_id]);
+        return redirect()->route('empenho.minuta.etapa.subelemento',['etapa_id' => $modMinuta->etapa, 'minuta_id' => $minuta_id]);
 
     }
 
