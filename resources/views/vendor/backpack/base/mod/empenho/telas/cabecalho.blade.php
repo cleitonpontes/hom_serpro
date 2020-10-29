@@ -22,13 +22,14 @@
     // Itens do cabeçalho
     $passos = array();
 
-    $passos[1] = 'Consultar Compra';
-    $passos[2] = 'Selecionar Fornecedor';
-    $passos[3] = 'Selecionar Itens';
-    $passos[4] = 'Validar Saldo';
-    $passos[5] = 'Informar Dados';
-    $passos[6] = 'Persistir Dados';
-    $passos[7] = 'Gerar XML';
+    $passos[1] = 'Compra';
+    $passos[2] = 'Fornecedor';
+    $passos[3] = 'Itens';
+    $passos[4] = 'Crédito disponível';
+    $passos[5] = 'Subelemento';
+    $passos[6] = 'Dados Empenho';
+    $passos[7] = 'Passivo Anterior';
+    $passos[8] = 'Finalizar';
 
     $rotas[1] = 'buscacompra';
     $rotas[2] = 'fornecedor';
@@ -36,7 +37,8 @@
     $rotas[4] = '';
     $rotas[5] = '';
     $rotas[6] = '';
-    $rotas[7] = ''
+    $rotas[7] = '';
+    $rotas[8] = '';
 
 @endphp
 

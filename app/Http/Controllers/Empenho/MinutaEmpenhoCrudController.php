@@ -105,6 +105,17 @@ class MinutaEmpenhoCrudController extends CrudController
     protected function adicionaColunas()
     {
         $this->adicionaColunaSituacao();
+
+        $this->adicionaColunaNumeroEmpenho();
+        $this->adicionaColunaCipi();
+        $this->adicionaColunaDataEmissao();
+        $this->adicionaColunaTipoEmpenho();
+        $this->adicionaColunaFornecedor();
+        $this->adicionaColunaProcesso();
+        $this->adicionaColunaAmparoLegal();
+        $this->adicionaColunaTaxaCambio();
+        $this->adicionaColunaLocalEntrega();
+        $this->adicionaColunaDescricao();
     }
 
     protected function adicionaCampoNumeroEmpenho()
@@ -268,4 +279,72 @@ class MinutaEmpenhoCrudController extends CrudController
             'options' => [0 => 'Inativo', 1 => 'Ativo']
         ]);
     }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('situacao');
+//        $this->crud->removeColumn('tipo_id');
+//        $this->crud->removeColumn('categoria_id');
+//        $this->crud->removeColumn('unidade_id');
+//        $this->crud->removeColumn('info_complementar');
+//        $this->crud->removeColumn('fundamento_legal');
+//        $this->crud->removeColumn('modalidade_id');
+//        $this->crud->removeColumn('licitacao_numero');
+//        $this->crud->removeColumn('data_assinatura');
+//        $this->crud->removeColumn('data_publicacao');
+//        $this->crud->removeColumn('valor_inicial');
+//        $this->crud->removeColumn('valor_global');
+//        $this->crud->removeColumn('valor_parcela');
+//        $this->crud->removeColumn('valor_acumulado');
+//        $this->crud->removeColumn('situacao_siasg');
+//        $this->crud->removeColumn('receita_despesa');
+//        $this->crud->removeColumn('subcategoria_id');
+
+        return $content;
+    }
+
+
+    public function adicionaColunaNumeroEmpenho()
+    {
+
+    }
+    public function adicionaColunaCipi()
+    {
+
+    }
+    public function adicionaColunaDataEmissao()
+    {
+
+    }
+    public function adicionaColunaTipoEmpenho()
+    {
+
+    }
+    public function adicionaColunaFornecedor()
+    {
+
+    }
+    public function adicionaColunaProcesso()
+    {
+
+    }
+    public function adicionaColunaAmparoLegal()
+    {
+
+    }
+    public function adicionaColunaTaxaCambio()
+    {
+
+    }
+    public function adicionaColunaLocalEntrega()
+    {
+
+    }
+    public function adicionaColunaDescricao()
+    {
+
+    }
+
 }
