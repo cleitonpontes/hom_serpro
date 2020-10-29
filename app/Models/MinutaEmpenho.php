@@ -146,6 +146,11 @@ class MinutaEmpenho extends Model
         return $this->belongsTo(Unidade::class, 'unidade_id');
     }
 
+    public function passivo_anterior()
+    {
+        return $this->hasMany(ContaCorrentePassivoAnterior::class, 'minutaempenho_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
+//Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
 
 Route::get('/', function () {
     return redirect('/inicio');
@@ -43,7 +43,7 @@ Route::group([
     'prefix' => 'soap',
     'namespace' => 'Soap',
 ], function () {
-    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
+//    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
     Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
     Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialController@oficioPreview')->name('soap.oficio.preview');
 });
@@ -323,6 +323,9 @@ Route::group(
 
             Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
             ->name('passivo-anterior.create');
+
+//            Route::get('passivo-anterior/{minuta_id}/edit', 'ContaCorrentePassivoAnteriorCrudController@edit')
+//                ->name('passivo-anterior.edit');
 
 
             /**
