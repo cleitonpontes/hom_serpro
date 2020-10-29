@@ -84,7 +84,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return \Redirect::to('empenho/minuta/'.$this->minuta_id);
+        return \Redirect::to('empenho/passivo-anterior/'.$this->minuta_id);
 //        return $redirect_location;
     }
 
