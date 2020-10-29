@@ -39,8 +39,8 @@ Route::group([
             Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
             Route::get('orgaosubcategoria', 'OrgaosubcategoriaController@index');
             Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
-            Route::get('ocorrenciaconcluida', 'OcorrenciaconcluidaController@index');
-            Route::get('ocorrenciaconcluida/{id}', 'OcorrenciaconcluidaController@show');
+//            Route::get('ocorrenciaconcluida', 'OcorrenciaconcluidaController@index');
+//            Route::get('ocorrenciaconcluida/{id}', 'OcorrenciaconcluidaController@show');
             Route::get('municipios', 'MunicipioController@index');
             Route::get('amparolegal', 'AmparoLegalController@index');
             Route::get('amparolegal/{id}', 'AmparoLegalController@show');
