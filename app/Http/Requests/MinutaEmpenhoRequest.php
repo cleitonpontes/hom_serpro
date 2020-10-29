@@ -26,7 +26,11 @@ class MinutaEmpenhoRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'numero_empenho' => 'required|max:17',
+            'descricao'=> 'required|max:468',
+            'processo' => 'max:20',
+
+
         ];
     }
 

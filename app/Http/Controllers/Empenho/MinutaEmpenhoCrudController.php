@@ -61,7 +61,6 @@ class MinutaEmpenhoCrudController extends CrudController
         //$this->crud->setFromDb();
         $this->adicionaCampos($this->minuta_id);
         $this->adicionaColunas();
-        $this->aplicaFiltros();
 
         // add asterisk for fields that are required in MinutaEmpenhoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -106,11 +105,6 @@ class MinutaEmpenhoCrudController extends CrudController
     protected function adicionaColunas()
     {
         $this->adicionaColunaSituacao();
-    }
-
-    protected function aplicaFiltros()
-    {
-        $this->aplicaFiltroNumeroEmpenho();
     }
 
     protected function adicionaCampoNumeroEmpenho()
@@ -273,23 +267,5 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInShow' => true,
             'options' => [0 => 'Inativo', 1 => 'Ativo']
         ]);
-    }
-
-    private function aplicaFiltroNumeroEmpenho()
-    {
-        $campo = [
-            'name' => 'numero_empenho',
-            'type' => 'text',
-            'label' => 'Número Empenho'
-        ];
-
-        $this->crud->addFilter(
-            $campo,
-          false,
-            function ($value) {
-                $this->crud->addClause('whereIn'
-                    , 'minuta_empenho.id', json_decode($value));
-            }
-        );
     }
 }
