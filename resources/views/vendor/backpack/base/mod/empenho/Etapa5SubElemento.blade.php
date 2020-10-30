@@ -56,7 +56,7 @@
 
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
-            <h3 class="box-title">Itens da Compra</h3>
+            <h3 class="box-title">Subelemento</h3>
         </div>
 
         <div class="box-body">

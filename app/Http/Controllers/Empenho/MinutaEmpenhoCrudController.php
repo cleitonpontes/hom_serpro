@@ -12,9 +12,11 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
 use App\Http\Requests\MinutaEmpenhoRequest as UpdateRequest;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
+use Redirect;
 use Route;
 use App\Http\Traits\Formatador;
 
@@ -46,12 +48,12 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
 
         $this->crud->allowAccess('show');
+        $this->crud->denyAccess('delete');
 
 //        $this->crud->denyAccess('update');
-        $this->crud->denyAccess('delete');
-       // $this->crud->denyAccess('show');
+        // $this->crud->denyAccess('show');
 
-       // $this->crud->addButton('', 'Nova Minuta', 'view', 'teste', '');
+        // $this->crud->addButton('', 'Nova Minuta', 'view', 'teste', '');
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -85,7 +87,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return \Redirect::to('empenho/passivo-anterior/'.$this->minuta_id);
+        return Redirect::to('empenho/passivo-anterior/' . $this->minuta_id);
 //        return $redirect_location;
     }
 
@@ -103,9 +105,26 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaCampoDescricao();
     }
 
-    protected function adicionaColunas()
+    /**
+     * Configura a grid de visualização
+     *
+     *
+     */
+    protected function adicionaColunas(): void
     {
+        $this->adicionaColunaUnidade();
+        $this->adicionaColunaFornecedorEmpenho();
+
         $this->adicionaColunaSituacao();
+        $this->adicionaColunaNumeroEmpenho();
+        $this->adicionaColunaCipi();
+        $this->adicionaColunaDataEmissao();
+        $this->adicionaColunaTipoEmpenho();
+        $this->adicionaColunaProcesso();
+        $this->adicionaColunaAmparoLegal();
+        $this->adicionaColunaTaxaCambio();
+        $this->adicionaColunaLocalEntrega();
+        $this->adicionaColunaDescricao();
     }
 
     protected function adicionaCampoNumeroEmpenho()
@@ -146,11 +165,12 @@ class MinutaEmpenhoCrudController extends CrudController
             ]
         ]);
     }
+
     protected function adicionaCampoTipoEmpenho()
     {
         $tipo_empenhos = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Minuta Empenho');
-        })->where('visivel',false)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+        })->where('visivel', false)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $this->crud->addField([
             'name' => 'tipo_empenho_id',
@@ -208,7 +228,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'name' => 'amparo_legal_id',
             'label' => "Amparo Legal",
             'type' => 'select_from_array',
-            'options' =>  $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
+            'options' => $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
             'allows_null' => true,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
@@ -268,5 +288,105 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInShow' => true,
             'options' => [0 => 'Inativo', 1 => 'Ativo']
         ]);
+    }
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('situacao');
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('compra_id');
+
+        $this->crud->removeColumn('fornecedor_compra_id');
+        $this->crud->removeColumn('fornecedor_empenho_id');
+        $this->crud->removeColumn('saldo_contabil_id');
+
+        $this->crud->removeColumn('tipo_empenho_id');
+        $this->crud->removeColumn('amparo_legal_id');
+
+        $this->crud->removeColumn('numero_empenho_sequencial');
+        $this->crud->removeColumn('passivo_anterior');
+        $this->crud->removeColumn('conta_contabil_passivo_anterior');
+        $this->crud->removeColumn('tipo_minuta_empenho');
+
+        return $content;
+    }
+
+
+    /**
+     * Configura a coluna Unidade
+     */
+    public function adicionaColunaUnidade(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'getUnidade',
+            'label' => 'Unidade Gestora',
+            'type' => 'model_function',
+            'function_name' => 'getUnidade',
+            'priority' => 1,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    public function adicionaColunaFornecedorEmpenho(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'getFornecedorEmpenho',
+            'label' => 'Credor', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getFornecedorEmpenho', // the method in your Model
+            'orderable' => true,
+            'limit' => 1000,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
+                $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+            },
+        ]);
+    }
+
+    public function adicionaColunaNumeroEmpenho()
+    {
+    }
+
+    public function adicionaColunaCipi()
+    {
+    }
+
+    public function adicionaColunaDataEmissao()
+    {
+    }
+
+    public function adicionaColunaTipoEmpenho()
+    {
+    }
+
+
+    public function adicionaColunaProcesso()
+    {
+    }
+
+    public function adicionaColunaAmparoLegal()
+    {
+    }
+
+    public function adicionaColunaTaxaCambio()
+    {
+    }
+
+    public function adicionaColunaLocalEntrega()
+    {
+    }
+
+    public function adicionaColunaDescricao()
+    {
     }
 }

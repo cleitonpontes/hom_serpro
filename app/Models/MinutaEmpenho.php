@@ -48,7 +48,8 @@ class MinutaEmpenho extends Model
         'passivo_anterior',
         'processo',
         'taxa_cambio',
-        'tipo_minuta_empenho'
+        'tipo_minuta_empenho',
+        'valor_total'
     ];
 
     /*
@@ -64,7 +65,7 @@ class MinutaEmpenho extends Model
     public function retornaListagem()
     {
         $ug = session('user_ug');
-        $listagem = MinutaEmpenho::where('id',1)->get();
+        $listagem = MinutaEmpenho::where('id', 1)->get();
 
 //        $listagem->select([
 //            'apropriacoes.id',
@@ -82,15 +83,15 @@ class MinutaEmpenho extends Model
 
     public function retornaAmparoPorMinuta()
     {
-            return AmparoLegal::select(['amparo_legal.id', DB::raw("ato_normativo ||
+        return AmparoLegal::select(['amparo_legal.id', DB::raw("ato_normativo ||
                     case when (artigo is not null)  then ' - Artigo: ' || artigo else '' end ||
                     case when (paragrafo is not null)  then ' - Parágrafo: ' || paragrafo else '' end ||
                     case when (amparo_legal.inciso is not null)  then ' - Inciso: ' || amparo_legal.inciso else '' end ||
                     case when (alinea is not null)  then ' - Alinea: ' || alinea else '' end
                     as campo_api_amparo")
-            ])->join('compras','compras.modalidade_id','=','amparo_legal.modalidade_id')
-              ->join('minutaempenhos','minutaempenhos.compra_id','=','compras.id')
-              ->where('minutaempenhos.id', $this->id)->pluck('campo_api_amparo','amparolegal.id')->toArray();
+        ])->join('compras', 'compras.modalidade_id', '=', 'amparo_legal.modalidade_id')
+            ->join('minutaempenhos', 'minutaempenhos.compra_id', '=', 'compras.id')
+            ->where('minutaempenhos.id', $this->id)->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
     }
 
     public function atualizaFornecedorCompra($fornecedor_id)
@@ -100,6 +101,20 @@ class MinutaEmpenho extends Model
         $this->etapa = 3;
         $this->update();
     }
+
+    public function getUnidade()
+    {
+
+        $unidade = $this->unidade_id()->first();
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+    }
+
+    public function getFornecedorEmpenho()
+    {
+        $fornecedor = $this->fornecedor_empenho()->first();
+        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -133,7 +148,7 @@ class MinutaEmpenho extends Model
 
     public function saldo_contabil()
     {
-         return $this->belongsTo(SaldoContabil::class, 'saldo_contabil_id');
+        return $this->belongsTo(SaldoContabil::class, 'saldo_contabil_id');
     }
 
     public function tipo_empenho()
