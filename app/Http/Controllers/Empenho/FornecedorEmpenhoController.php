@@ -8,6 +8,7 @@
 
 namespace App\Http\Controllers\Empenho;
 
+use Alert;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
@@ -40,6 +41,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
             ->distinct()
+            ->where('minutaempenhos.id', $minuta_id)
             ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener'])
             ->get()
             ->toArray();
@@ -127,7 +129,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
-        (!is_null($modMinutaEmpenho))?$modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id):'';
+        (!is_null($modMinutaEmpenho)) ? $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id) : '';
 
 
         $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
@@ -240,8 +242,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $fornecedor_id = $request->fornecedor_id;
         $itens = $request->itens;
 
-        if (!isset($itens)){
-            \Alert::error('Escolha pelo menos 1 item da compra.')->flash();
+        if (!isset($itens)) {
+            Alert::error('Escolha pelo menos 1 item da compra.')->flash();
             return redirect("/empenho/item/3/$minuta_id/$fornecedor_id");
         }
 
@@ -262,11 +264,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             DB::commit();
 
             return redirect()->route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => $minuta->etapa, 'minuta_id' => $minuta_id]);
-
         } catch (Exception $exc) {
             DB::rollback();
         }
-
     }
 
     private function retornaItensAcoes($id, $minuta_id)

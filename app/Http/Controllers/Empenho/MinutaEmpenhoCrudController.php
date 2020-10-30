@@ -15,6 +15,7 @@ use App\Http\Requests\MinutaEmpenhoRequest as UpdateRequest;
 use Illuminate\Http\Request;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
+use Redirect;
 use Route;
 use App\Http\Traits\Formatador;
 
@@ -48,9 +49,9 @@ class MinutaEmpenhoCrudController extends CrudController
 
 //        $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
-       // $this->crud->denyAccess('show');
+        // $this->crud->denyAccess('show');
 
-       // $this->crud->addButton('', 'Nova Minuta', 'view', 'teste', '');
+        // $this->crud->addButton('', 'Nova Minuta', 'view', 'teste', '');
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -84,7 +85,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return \Redirect::to('empenho/passivo-anterior/'.$this->minuta_id);
+        return Redirect::to('empenho/passivo-anterior/' . $this->minuta_id);
 //        return $redirect_location;
     }
 
@@ -102,10 +103,16 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaCampoDescricao();
     }
 
-    protected function adicionaColunas()
+    /**
+     * Configura a grid de visualização
+     *
+     *
+     */
+    protected function adicionaColunas(): void
     {
-        $this->adicionaColunaSituacao();
+        $this->adicionaColunaUnidade();
 
+        $this->adicionaColunaSituacao();
         $this->adicionaColunaNumeroEmpenho();
         $this->adicionaColunaCipi();
         $this->adicionaColunaDataEmissao();
@@ -156,11 +163,12 @@ class MinutaEmpenhoCrudController extends CrudController
             ]
         ]);
     }
+
     protected function adicionaCampoTipoEmpenho()
     {
         $tipo_empenhos = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Minuta Empenho');
-        })->where('visivel',false)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+        })->where('visivel', false)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $this->crud->addField([
             'name' => 'tipo_empenho_id',
@@ -218,7 +226,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'name' => 'id',
             'label' => "Amparo Legal",
             'type' => 'select_from_array',
-            'options' =>  $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
+            'options' => $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
             'allows_null' => true,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
@@ -285,66 +293,81 @@ class MinutaEmpenhoCrudController extends CrudController
         $content = parent::show($id);
 
         $this->crud->removeColumn('situacao');
-//        $this->crud->removeColumn('tipo_id');
-//        $this->crud->removeColumn('categoria_id');
-//        $this->crud->removeColumn('unidade_id');
-//        $this->crud->removeColumn('info_complementar');
-//        $this->crud->removeColumn('fundamento_legal');
-//        $this->crud->removeColumn('modalidade_id');
-//        $this->crud->removeColumn('licitacao_numero');
-//        $this->crud->removeColumn('data_assinatura');
-//        $this->crud->removeColumn('data_publicacao');
-//        $this->crud->removeColumn('valor_inicial');
-//        $this->crud->removeColumn('valor_global');
-//        $this->crud->removeColumn('valor_parcela');
-//        $this->crud->removeColumn('valor_acumulado');
-//        $this->crud->removeColumn('situacao_siasg');
-//        $this->crud->removeColumn('receita_despesa');
-//        $this->crud->removeColumn('subcategoria_id');
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('compra_id');
+
+        $this->crud->removeColumn('fornecedor_compra_id');
+        $this->crud->removeColumn('fornecedor_empenho_id');
+        $this->crud->removeColumn('saldo_contabil_id');
+
+        $this->crud->removeColumn('tipo_empenho_id');
+        $this->crud->removeColumn('amparo_legal_id');
+
+        $this->crud->removeColumn('numero_empenho_sequencial');
+        $this->crud->removeColumn('passivo_anterior');
+        $this->crud->removeColumn('conta_contabil_passivo_anterior');
+        $this->crud->removeColumn('tipo_minuta_empenho');
 
         return $content;
     }
 
 
+    /**
+     * Configura a coluna Unidade
+     */
+    public function adicionaColunaUnidade(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'getUnidade',
+            'label' => 'Unidade Gestora',
+            'type' => 'model_function',
+            'function_name' => 'getUnidade',
+            'priority' => 1,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
     public function adicionaColunaNumeroEmpenho()
     {
-
     }
+
     public function adicionaColunaCipi()
     {
-
     }
+
     public function adicionaColunaDataEmissao()
     {
-
     }
+
     public function adicionaColunaTipoEmpenho()
     {
-
     }
+
     public function adicionaColunaFornecedor()
     {
-
     }
+
     public function adicionaColunaProcesso()
     {
-
     }
+
     public function adicionaColunaAmparoLegal()
     {
-
     }
+
     public function adicionaColunaTaxaCambio()
     {
-
     }
+
     public function adicionaColunaLocalEntrega()
     {
-
     }
+
     public function adicionaColunaDescricao()
     {
-
     }
-
 }

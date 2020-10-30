@@ -48,7 +48,8 @@ class MinutaEmpenho extends Model
         'passivo_anterior',
         'processo',
         'taxa_cambio',
-        'tipo_minuta_empenho'
+        'tipo_minuta_empenho',
+        'valor_total'
     ];
 
     /*
@@ -100,6 +101,13 @@ class MinutaEmpenho extends Model
         $this->etapa = 3;
         $this->update();
     }
+
+    public function getUnidade()
+    {
+        $unidade = Unidade::find($this->unidade_id);
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
