@@ -32,8 +32,23 @@ class Movimentacaocontratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function excluirMovimentacao($idMovimentacao){
+        if($objMovimentacaocontratoconta = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->delete()){return true;}
+        else{return false;}
+    }
+    public function verificarSeMovimentacaoExiste($request){
+        // vamos verificar se para este mês / ano / tipoMovimentacao já existe lançamento
+        $mesCompetencia = $request->input('mes_competencia');
+        $anoCompetencia = $request->input('ano_competencia');
+        $tipoMovimentacao = $request->input('tipo_id');
+        $qtdMovimentacoes = Depositocontratoconta::where('tipo_id','=',$tipoMovimentacao)
+            ->where('mes_competencia','=', $mesCompetencia)
+            ->where('ano_competencia','=', $anoCompetencia)
+            ->count();
+        if($qtdMovimentacoes>0){return true;}
+        return false;
+    }
     public function criarMovimentacao($request){
-        $dataHoje = time();
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
         $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
         $objMovimentacaocontratoconta->tipo_id = $request->input('tipo_id');
@@ -48,7 +63,6 @@ class Movimentacaocontratoconta extends Model
             echo false;
         }
     }
-
     public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
         $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
         $objMovimentacao->situacao_movimentacao = $statusMovimentacao;

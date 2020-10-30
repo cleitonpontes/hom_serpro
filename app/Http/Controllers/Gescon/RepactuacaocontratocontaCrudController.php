@@ -183,148 +183,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 'default' => date('Y'),
                 'allows_null' => false,
             ],
-
-
-
-            // [
-            //     'name' => 'data_inicio',
-            //     'label' => "Data início",
-            //     'type' => 'date',
-            //     // 'default' => $objContratoTerceirizado->data_fim,
-            //     'allows_null' => false,
-            //     // optionals
-            //     'attributes' => [
-            //         'id' => 'data_inicio',
-            //         // 'readonly' => 'readonly',
-            //     ],
-            // ],
-            // [
-            //     'name' => 'data_fim',
-            //     'label' => "Data fim",
-            //     'type' => 'date',
-            //     // 'default' => $objContratoTerceirizado->data_fim,
-            //     'allows_null' => false,
-            //     // optionals
-            //     'attributes' => [
-            //         'id' => 'data_fim',
-            //         // 'readonly' => 'readonly',
-            //     ],
-            // ],
-            // [   // Hidden
-            //     'name' => 'tipo_id',
-            //     'type' => 'hidden',
-            //     'default' => $idTipoMovimentacaoRetirada, // tipo da movimentação (dep, ret, rep)
-            // ],
-            // [   //
-            //     'name' => 'funcao',
-            //     'label' => 'Função do funcionário',
-            //     'type' => 'text',
-            //     // optionals
-            //     'attributes' => [
-            //         'readonly' => 'readonly',
-            //         'style' => 'pointer-events: none;touch-action: none;'
-            //     ], // allow decimals
-            //     'default' => $nomeFuncaoContratoTerceirizado,
-            // ],
-            // [   //
-            //     'name' => 'remuneracao',
-            //     'label' => 'Remuneração do funcionário',
-            //     'type' => 'text',
-            //     // optionals
-            //     'attributes' => [
-            //         'readonly' => 'readonly',
-            //         'style' => 'pointer-events: none;touch-action: none;'
-            //     ], // allow decimals
-            //     'default' => $objContratoTerceirizado->salario,
-            // ],
-            // [   //
-            //     'name' => 'fat_empresa',
-            //     'label' => 'Encargo',
-            //     'type' => 'text',
-            //     // optionals
-            //     'attributes' => [
-            //         'readonly' => 'readonly',
-            //         'style' => 'pointer-events: none;touch-action: none;'
-            //     ], // allow decimals
-            //     'default' => $objContratoConta->fat_empresa,
-            //     'prefix' => "%",
-            // ],
-
-            // [   // Hidden
-            //     'name' => 'situacao_movimentacao',
-            //     'type' => 'hidden',
-            //     'default' => 'Movimentação Criada',
-            // ],
-
-            // [ // select_from_array
-            //     'name' => 'mes_competencia',
-            //     'label' => "Mês Retirada",
-            //     'type' => 'select2_from_array',
-            //     'options' => config('app.meses_referencia_fatura'), // vai buscar em app.php o array meses_referencia_fatura
-            //     'allows_null' => false,
-            // ],
-            // [ // select_from_array
-            //     'name' => 'ano_competencia',
-            //     'label' => "Ano Retirada",
-            //     'type' => 'select2_from_array',
-            //     'options' => config('app.anos_referencia_fatura'), // vai buscar em app.php o array anos_referencia_fatura
-            //     'default' => date('Y'),
-            //     'allows_null' => false,
-            // ],
-            // [ // select_from_array
-            //     'name' => 'situacao_retirada',
-            //     'label' => "Situação da Retirada",
-            //     // 'type' => 'select2_from_array',
-            //     'type' => 'select2_from_array_hidden_field',    //  tipo criado para possibilitar uso do jquery para esconder campos
-            //     'options' => $arrayObjetosEncargoParaCombo, // aqui é de onde vai buscar o array
-            //     'allows_null' => false,
-            // ],
-            // [   // Number
-            //     'name' => 'valor',
-            //     'label' => 'Valor',
-            //     'type' => 'money_fatura',
-            //     // optionals
-            //     'attributes' => [
-            //         'id' => 'valor',
-            //         // 'readonly' => 'readonly',
-            //         // 'style' => 'pointer-events: none;touch-action: none;'
-            //     ], // allow decimals
-            //     'prefix' => "R$",
-            //     // 'default' => $objContratoTerceirizado->salario, // tipo da movimentação (dep, ret, rep)
-            // ],
-
         ];
-
-        // // vamos gerar os campos com os valores dos saldos
-        // foreach( $arrayObjetosEncargo as $objEncargo ){
-        //     $nomeEncargo = $objEncargo->descricao;
-        //     $tipoId = $objEncargo->tipo_id;
-        //     $objContratoConta = new Contratoconta();
-
-
-        //     $saldoEncargoContratoTerceirizado = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
-        //     $saldoEncargoContratoTerceirizado = number_format($saldoEncargoContratoTerceirizado, 2, '.', ',' );
-
-        //     $saldoDepositoEncargoContratoTerceirizado = $objContratoConta->getSaldoDepositoPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
-        //     $saldoDepositoEncargoContratoTerceirizado = number_format($saldoDepositoEncargoContratoTerceirizado, 2, '.', ',' );
-
-        //     $saldoRetiradaEncargoContratoTerceirizado = $objContratoConta->getSaldoRetiradaPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
-        //     $saldoRetiradaEncargoContratoTerceirizado = number_format($saldoRetiradaEncargoContratoTerceirizado, 2, '.', ',' );
-
-        //     $campos[] = [   //
-        //         'name' => $nomeEncargo,
-        //         'label' => 'Saldo '.$nomeEncargo,
-        //         'type' => 'text',
-        //         // optionals
-        //         'attributes' => [
-        //             'readonly' => 'readonly',
-        //             'style' => 'pointer-events: none;touch-action: none;'
-        //         ], // allow decimals
-        //         // 'default' => '('.$saldoDepositoEncargoContratoTerceirizado.' - '.$saldoRetiradaEncargoContratoTerceirizado.') = '.$saldoEncargoContratoTerceirizado,
-        //         'default' => $saldoEncargoContratoTerceirizado,
-        //     ];
-        // }
-
         return $campos;
     }
     public function salvarNovoSalario($idContratoTerceirizado, $novoSalario){
@@ -342,27 +201,11 @@ class RepactuacaocontratocontaCrudController extends CrudController
         return false;
     }
     public function criarMovimentacao($request){
-
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
         if( $idMovimentacao = $objMovimentacaocontratoconta->criarMovimentacao($request) ){
             return $idMovimentacao;
         }
         return false;
-
-        // $dataHoje = time();
-        // $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
-        // $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
-        // $objMovimentacaocontratoconta->tipo_id = $request->input('tipo_id');
-        // $objMovimentacaocontratoconta->mes_competencia = $request->input('mes_competencia');
-        // $objMovimentacaocontratoconta->ano_competencia = $request->input('ano_competencia');
-        // $objMovimentacaocontratoconta->valor_total_mes_ano = 0;
-        // $objMovimentacaocontratoconta->situacao_movimentacao = $request->input('situacao_movimentacao');
-        // $objMovimentacaocontratoconta->user_id = $request->input('user_id');
-        // if($objMovimentacaocontratoconta->save()){
-        //     return $objMovimentacaocontratoconta->id;
-        // } else {
-        //     echo false;
-        // }
     }
 
     public function store(StoreRequest $request)
@@ -439,19 +282,10 @@ class RepactuacaocontratocontaCrudController extends CrudController
                             // aqui a movimentação foi criada.
                             array_push($arrayIdsMovimentacoesGeradas, $idMovimentacao);
                             $request->request->set('movimentacao_id', $idMovimentacao);
-
-                            // vamos alterar o status da movimentação
-                            self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
-
                             //
                             $idMovimentacaoAux = $idMovimentacaoLancamento;
                         }
 
-
-
-
-
-                        // início transformar em método
                         // verificar o mês e ano início da movimentação do lançamento
                         $continuar = false;
                         if( $anoMovimentacaoLancamento >= $anoInicio ){
@@ -483,14 +317,9 @@ class RepactuacaocontratocontaCrudController extends CrudController
                         } else {
                             $continuar = false;
                         }
-                        // fim transformar em método
-
-
-
 
                         // verificar se está tudo certo pra continuar
                         if($continuar){
-                            // início transformar em método
                             // aqui as verificações estão ok
                             $percentualEncargo = $objEncargo->percentual;
                             $valorSalvar = ( $diferencaEntreSalarios * $percentualEncargo) / 100;
@@ -513,7 +342,6 @@ class RepactuacaocontratocontaCrudController extends CrudController
                             } else {
                                 $quantidadeLancamentosGerados ++;
                             }
-                            // fim transformar em método
                         }
                     }
                     self::salvarNovoSalario($idContratoTerceirizado, $novoSalario);

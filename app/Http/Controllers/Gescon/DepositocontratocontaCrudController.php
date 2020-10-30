@@ -20,7 +20,6 @@ use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 
-
 /**
  * Class DepositocontratocontaCrudController
  * @package App\Http\Controllers\Admin
@@ -30,8 +29,6 @@ class DepositocontratocontaCrudController extends CrudController
 {
     public function setup()
     {
-
-
         $contratoconta_id = \Route::current()->parameter('contratoconta_id');
         $contratoConta = Contratoconta::where('id','=',$contratoconta_id)->first();
         if(!$contratoConta){
@@ -39,7 +36,6 @@ class DepositocontratocontaCrudController extends CrudController
         }
         $contrato_id = $contratoConta->contrato_id;
         \Route::current()->setParameter('contrato_id', $contrato_id);
-
 
         $contrato = Contrato::where('id','=',$contrato_id)
             ->where('unidade_id','=',session()->get('user_ug_id'))->first();
@@ -49,9 +45,6 @@ class DepositocontratocontaCrudController extends CrudController
         // buscar quantidade de contratos terceirizados pelo contrato_id
         $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)->get();
         $quantidadeContratosTerceirizados = count($arrayContratosTerceirizados);
-        // $objContratoTerceirizado = Contratoterceirizado::where('contrato_id','=',$contrato_id)->first();
-        // $idContratoTerceirizado = $objContratoTerceirizado->id;
-
 
         // buscar o tipo de movimentação em codigoitens = depósito
         $objTipoMovimentacaoDeposito = Codigoitem::whereHas('codigo', function ($query) {
@@ -60,7 +53,6 @@ class DepositocontratocontaCrudController extends CrudController
         ->where('descricao', '=', 'Depósito')
         ->first();
         $idTipoMovimentacaoDeposito = $objTipoMovimentacaoDeposito->id;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -79,14 +71,11 @@ class DepositocontratocontaCrudController extends CrudController
         $this->crud->addClause('orderby', 'ano_competencia');
         $this->crud->addClause('orderby', 'mes_competencia');
 
-
         // $this->crud->denyAccess('create');
         // $this->crud->denyAccess('update');
         // $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
         $this->crud->denyAccess('list');
-
-
 
         /*
         |--------------------------------------------------------------------------
@@ -102,7 +91,6 @@ class DepositocontratocontaCrudController extends CrudController
 
         $campos = $this->Campos($idTipoMovimentacaoDeposito, $contratoconta_id, $contrato_id, $quantidadeContratosTerceirizados);
         $this->crud->addFields($campos);
-
 
         // add asterisk for fields that are required in DepositocontratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -163,73 +151,9 @@ class DepositocontratocontaCrudController extends CrudController
                 'default' => date('Y'),
                 'allows_null' => false,
             ],
-            // [
-            //     'name' => 'proporcionalidade',
-            //     'label' => 'Proporcionalidade',
-            //     'type' => 'text',
-            //     // 'prefix' => "%",
-            //     'default' => '30',
-            // ],
-            // [   // Number
-            //     'name' => 'salario',
-            //     'label' => 'Salário',
-            //     'type' => 'money_fatura',
-            //     // optionals
-            //     'attributes' => [
-            //         'id' => 'valor',
-            //         'readonly' => 'readonly',
-            //         'style' => 'pointer-events: none;touch-action: none;'
-            //     ], // allow decimals
-            //     'prefix' => "R$",
-            //     'default' => $objContratoTerceirizado->salario, // tipo da movimentação (dep, ret, rep)
-            // ],
         ];
-
-
-        // // buscar os encargos para calcularmos e exibirmos no formulário
-        // $arrayObjetosEncargos = Codigoitem::whereHas('codigo', function ($query) {
-        //     $query->where('descricao', '=', 'Tipo Encargos');
-        // })
-        // ->join('encargos', 'encargos.tipo_id', '=', 'codigoitens.id')
-        // ->orderBy('descricao')
-        // ->get();
-
-        // $valorTotalRetencoes = 0;
-        // foreach($arrayObjetosEncargos as $objEncargo){
-        //     $descricaoEncargo= $objEncargo->descricao;
-        //     $percentualEncargo= $objEncargo->percentual;
-        //     $salario = $objContratoTerceirizado->salario;
-        //     $valorEncargo = ($salario * $percentualEncargo) / 100;
-        //     $valorTotalRetencoes = ($valorTotalRetencoes + $valorEncargo);
-
-        //     $campos[] = [
-        //         'name' => $descricaoEncargo,
-        //         'label' => $descricaoEncargo.' ('.$percentualEncargo.'%) ',
-        //         'type' => 'text',
-        //         'default' => $valorEncargo,
-        //         'prefix' => "R$",
-        //         'attributes' => [
-        //             'readonly' => 'readonly',
-        //             'style' => 'pointer-events: none;touch-action: none;'
-        //         ], // chan
-        //     ];
-        // }
-
-        // $campos[] = [
-        //     'name' => 'valorTotalRetencoes',
-        //     'label' => 'Valor Total Retenções',
-        //     'type' => 'text',
-        //     'default' => $valorTotalRetencoes,
-        //     'prefix' => "R$",
-        //     'attributes' => [
-        //         'readonly' => 'readonly',
-        //         'style' => 'pointer-events: none;touch-action: none;'
-        //     ], // chan
-        // ];
-
         return $campos;
     }
-
 
     public function Colunas()
     {
@@ -272,11 +196,6 @@ class DepositocontratocontaCrudController extends CrudController
                 'label' => 'Ano',
                 'type'  => 'text',
             ],
-            // [
-            //     'name'  => 'proporcionalidade',
-            //     'label' => 'Proporcionalidade',
-            //     'type'  => 'text',
-            // ],
             [
                 'name' => 'formatValor',
                 'label' => 'Valor', // Table column heading
@@ -292,15 +211,10 @@ class DepositocontratocontaCrudController extends CrudController
         return $colunas;
     }
     public function verificarSeMovimentacaoExiste($request){
-        // vamos verificar se para este mês / ano / tipoMovimentacao já existe lançamento
-        $mesCompetencia = $request->input('mes_competencia');
-        $anoCompetencia = $request->input('ano_competencia');
-        $tipoMovimentacao = $request->input('tipo_id');
-        $qtdMovimentacoes = Depositocontratoconta::where('tipo_id','=',$tipoMovimentacao)
-            ->where('mes_competencia','=', $mesCompetencia)
-            ->where('ano_competencia','=', $anoCompetencia)
-            ->count();
-        if($qtdMovimentacoes>0){return true;}
+        $objMovimentacao = new Movimentacaocontratoconta();
+        if($objMovimentacao->verificarSeMovimentacaoExiste($request)){
+            return true;
+        }
         return false;
     }
     // verificar se no ano/mês de competência, o funcionário já tinha iniciado.
@@ -326,33 +240,26 @@ class DepositocontratocontaCrudController extends CrudController
         return true;
     }
     public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
-        $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
-        $objMovimentacao->situacao_movimentacao = $statusMovimentacao;
-        if(!$objMovimentacao->save()){
-            return false;
-        } else {
+        $objMovimentacao = new Movimentacaocontratoconta();
+        if($objMovimentacao->alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao)){
             return true;
         }
-
+        return false;
     }
+    // este método não é o mesmo que tem em Movimentacaocontratoconta
     public function criarMovimentacao($request){
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
-        $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
-        $objMovimentacaocontratoconta->tipo_id = $request->input('tipo_id');
-        $objMovimentacaocontratoconta->mes_competencia = $request->input('mes_competencia');
-        $objMovimentacaocontratoconta->ano_competencia = $request->input('ano_competencia');
-        $objMovimentacaocontratoconta->valor_total_mes_ano = 0;
-        $objMovimentacaocontratoconta->situacao_movimentacao = $request->input('situacao_movimentacao');
-        $objMovimentacaocontratoconta->user_id = $request->input('user_id');
-        if($objMovimentacaocontratoconta->save()){
-            return $objMovimentacaocontratoconta->id;
-        } else {
-            echo false;
+        if($id = $objMovimentacaocontratoconta->criarMovimentacao($request)){
+            return $id;
         }
+        return false;
     }
     public function excluirMovimentacao($idMovimentacao){
-        if($objMovimentacaocontratoconta = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->delete()){return true;}
-        else{return false;}
+        $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
+        if($id = $objMovimentacaocontratoconta->excluirMovimentacao($idMovimentacao)){
+            return true;
+        }
+        return false;
     }
     public function store(StoreRequest $request)
     {

@@ -262,42 +262,29 @@ class RetiradacontratocontaCrudController extends CrudController
         return $idContrato;
     }
     public function getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado){
-        $obj = \DB::table('contratoterceirizados')
-            ->select('contratocontas.id')
-            ->where('contratoterceirizados.id','=',$idContratoTerceirizado)
-            ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
-            ->join('contratocontas', 'contratocontas.contrato_id', '=', 'contratos.id')
-            ->first();
-        $idContratoConta = $obj->id;
-        return $idContratoConta;
+        $objContratoConta = new Contratoconta();
+        return $idContratoConta = $objContratoConta->getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado);
     }
     public function criarMovimentacao($request){
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
-        $objMovimentacaocontratoconta->contratoconta_id = $request->input('contratoconta_id');
-        $objMovimentacaocontratoconta->tipo_id = $request->input('tipo_id');
-        $objMovimentacaocontratoconta->mes_competencia = $request->input('mes_competencia');
-        $objMovimentacaocontratoconta->ano_competencia = $request->input('ano_competencia');
-        $objMovimentacaocontratoconta->valor_total_mes_ano = 0;
-        $objMovimentacaocontratoconta->situacao_movimentacao = $request->input('situacao_movimentacao');
-        $objMovimentacaocontratoconta->user_id = $request->input('user_id');
-        if($objMovimentacaocontratoconta->save()){
-            return $objMovimentacaocontratoconta->id;
-        } else {
-            echo false;
+        if($id = $objMovimentacaocontratoconta->criarMovimentacao($request)){
+            return $id;
         }
+        return false;
     }
     public function excluirMovimentacao($idMovimentacao){
-        if($objMovimentacaocontratoconta = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->delete()){return true;}
-        else{return false;}
-    }
-    public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
-        $objMovimentacao = Movimentacaocontratoconta::where('id','=',$idMovimentacao)->first();
-        $objMovimentacao->situacao_movimentacao = $statusMovimentacao;
-        if(!$objMovimentacao->save()){
-            return false;
-        } else {
+        $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
+        if($id = $objMovimentacaocontratoconta->excluirMovimentacao($idMovimentacao)){
             return true;
         }
+        return false;
+    }
+    public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
+        $objMovimentacao = new Movimentacaocontratoconta();
+        if($objMovimentacao->alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao)){
+            return true;
+        }
+        return false;
     }
     // verificar se no ano/mês de competência, o funcionário já tinha iniciado.
     public function verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado){
@@ -339,7 +326,6 @@ class RetiradacontratocontaCrudController extends CrudController
         ->join('encargos', 'encargos.tipo_id', '=', 'codigoitens.id')
         ->first()->tipo_id;
     }
-
     public function verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valorInformadoRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao){
         // vamos buscar o saldo do encargo grupo A sobre 13 salario e férias
         $idContratoTerceirizado = $objContratoTerceirizado->id;
@@ -349,33 +335,22 @@ class RetiradacontratocontaCrudController extends CrudController
         $idGrupoA = self::getTipoIdEncargoByNomeEncargo($nomeGrupoA);
         $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $idGrupoA);
         $situacaoFuncionario = $objContratoTerceirizado->situacao;
-
-
-        // \Log::info('Situaçao do funcionário: '.$situacaoFuncionario);
-
         // Grupo A - vamos calcular o Grupo A, que é o percentual fat_empresa sobre o valor informado para retirada.
         $fat_empresa = $request->input('fat_empresa');  // Cáculo do grupo A, que é o fat_empresa da tab contratocontas
         $valorFatEmpresaGrupoA = ( $valorInformadoRetirada * $fat_empresa ) / 100 ;
-
         // vamos atualizar o valor da retirada, somando com o percentual do fat_empresa, que é o grupo A
         $valorRetirada = ( $valorInformadoRetirada + $valorFatEmpresaGrupoA );
-
         // vamos verificar quanto o funcionário tem de saldo para o encargo informado.
         $salario = $objContratoTerceirizado->salario;
         $umTercoSalario = ( $salario / 3 );
-        // $situacaoRetirada = $request->input('situacao_retirada');
-
-
         if($situacaoRetirada=='Demissão'){
             // aqui o usuário informou que a retirada é para demissão
-
             // verificar se o funcionário já não é demitido
             if( !$situacaoFuncionario ){
                 $mensagem = 'Este funcionário já está demitido.';
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
             // verificar se informou a data de demissão
             $dataDemissao = $request->input('data_demissao');
             if( $dataDemissao=='' ){

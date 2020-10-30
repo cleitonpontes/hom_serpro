@@ -49,7 +49,7 @@ class LancamentoCrudController extends CrudController
 
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
-        $this->crud->denyAccess('delete');
+        // $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
 
         $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');

@@ -27,14 +27,26 @@ class Contratoconta extends Model
     ];
     // protected $hidden = [];
     // protected $dates = [];
-
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao){
 
+    public function getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado){
+        $obj = \DB::table('contratoterceirizados')
+            ->select('contratocontas.id')
+            ->where('contratoterceirizados.id','=',$idContratoTerceirizado)
+            ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
+            ->join('contratocontas', 'contratocontas.contrato_id', '=', 'contratos.id')
+            ->first();
+        $idContratoConta = $obj->id;
+        return $idContratoConta;
+    }
+
+
+
+    public function alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao){
         $objContratoTerceirizado = Contratoterceirizado::where('id', '=', $idContratoTerceirizado)->first();
         $objContratoTerceirizado->situacao = 'f';
         $objContratoTerceirizado->data_fim = $dataDemissao;
