@@ -113,12 +113,12 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         $this->adicionaColunaUnidade();
         $this->adicionaColunaFornecedorEmpenho();
+        $this->adicionaColunaTipoEmpenho();
 
         $this->adicionaColunaSituacao();
         $this->adicionaColunaNumeroEmpenho();
         $this->adicionaColunaCipi();
         $this->adicionaColunaDataEmissao();
-        $this->adicionaColunaTipoEmpenho();
         $this->adicionaColunaProcesso();
         $this->adicionaColunaAmparoLegal();
         $this->adicionaColunaTaxaCambio();
@@ -366,8 +366,23 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function adicionaColunaTipoEmpenho()
     {
-    }
+        $this->crud->addColumn([
+            'name' => 'getTipoEmpenho',
+            'label' => 'Tipo', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getTipoEmpenho', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
 
+        ]);
+    }
 
     public function adicionaColunaProcesso()
     {

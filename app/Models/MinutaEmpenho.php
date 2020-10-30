@@ -115,6 +115,16 @@ class MinutaEmpenho extends Model
         return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
     }
 
+    /**
+     * Retorna descrição do Tipo do Empenho
+     *
+     * @return string
+     */
+    public function getTipoEmpenho()
+    {
+        return $this->tipo_empenho->descricao;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
