@@ -243,6 +243,7 @@ Route::group(
             'prefix' => 'empenho',
             'namespace' => 'Empenho\\',
             'as' => 'empenho.',
+            'middleware' => ['auth','permission:empenho_minuta_acesso'],
         ], function () {
 
             /**
@@ -319,10 +320,10 @@ Route::group(
 
             //passo 7
 
-            CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create','show']]);
+            CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create', 'show']]);
 
             Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
-            ->name('passivo-anterior.create');
+                ->name('passivo-anterior.create');
 
 //            Route::get('passivo-anterior/{minuta_id}/edit', 'ContaCorrentePassivoAnteriorCrudController@edit')
 //                ->name('passivo-anterior.edit');
@@ -338,9 +339,6 @@ Route::group(
 //                ->name('minuta.empenho');
 
 
-
-
-
 //            Route::get('/listaminutaempenho', 'NovoEmpenhoController@index')
 //                ->name('lista.minuta.empenhos')
 //                ->middleware('permission:folha_apropriacao_acesso');
@@ -352,8 +350,6 @@ Route::group(
 //            Route::post('/minuta/tela/1/gravar', 'Minuta\Tela1EmpenhoController@gravar')
 //                ->name('minuta.tela.1.gravar')
 //                ->middleware('permission:folha_apropriacao_passo');
-
-
 
 
 //            Route::get('minuta/tela/1/create', 'CompraSiasgCrudController@create')

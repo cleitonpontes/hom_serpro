@@ -12,6 +12,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
 use App\Http\Requests\MinutaEmpenhoRequest as UpdateRequest;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
@@ -46,9 +47,9 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
 
         $this->crud->allowAccess('show');
+        $this->crud->denyAccess('delete');
 
 //        $this->crud->denyAccess('update');
-        $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
 
         // $this->crud->addButton('', 'Nova Minuta', 'view', 'teste', '');
@@ -111,13 +112,13 @@ class MinutaEmpenhoCrudController extends CrudController
     protected function adicionaColunas(): void
     {
         $this->adicionaColunaUnidade();
+        $this->adicionaColunaFornecedorEmpenho();
 
         $this->adicionaColunaSituacao();
         $this->adicionaColunaNumeroEmpenho();
         $this->adicionaColunaCipi();
         $this->adicionaColunaDataEmissao();
         $this->adicionaColunaTipoEmpenho();
-        $this->adicionaColunaFornecedor();
         $this->adicionaColunaProcesso();
         $this->adicionaColunaAmparoLegal();
         $this->adicionaColunaTaxaCambio();
@@ -331,6 +332,26 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
+    public function adicionaColunaFornecedorEmpenho(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'getFornecedorEmpenho',
+            'label' => 'Credor', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getFornecedorEmpenho', // the method in your Model
+            'orderable' => true,
+            'limit' => 1000,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
+                $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+            },
+        ]);
+    }
+
     public function adicionaColunaNumeroEmpenho()
     {
     }
@@ -347,9 +368,6 @@ class MinutaEmpenhoCrudController extends CrudController
     {
     }
 
-    public function adicionaColunaFornecedor()
-    {
-    }
 
     public function adicionaColunaProcesso()
     {
