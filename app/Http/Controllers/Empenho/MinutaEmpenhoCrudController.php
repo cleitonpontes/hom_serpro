@@ -304,6 +304,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaColunaTaxaCambio();
         $this->adicionaColunaLocalEntrega();
         $this->adicionaColunaDescricao();
+
     }
 
     protected function adicionaColunaSituacao()

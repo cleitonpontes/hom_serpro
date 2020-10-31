@@ -63,8 +63,7 @@
 
                     <div class="box-body">
                         <form action="/empenho/subelemento" method="POST">
-                            <input type="hidden" id="minuta_id" name="minuta_id" value="">
-                            <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="">
+                            <input type="hidden" id="minuta_id" name="minuta_id" value="{{$crud->getCurrentEntryId()}}">
                         @csrf <!-- {{ csrf_field() }} -->
 
                             <div class="box-body">
@@ -123,8 +122,6 @@
 
                     <div class="box-body">
                         <form action="/empenho/subelemento" method="POST">
-                            <input type="hidden" id="minuta_id" name="minuta_id" value="">
-                            <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="">
                         @csrf <!-- {{ csrf_field() }} -->
 
                             <div class="box-body">
@@ -184,8 +181,6 @@
                         </div>
                         <div class="box-body">
                             <form action="/empenho/subelemento" method="POST">
-                                <input type="hidden" id="minuta_id" name="minuta_id" value="">
-                                <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="">
                             @csrf <!-- {{ csrf_field() }} -->
                                 <div class="box-body">
                                     <table class="table table-striped">
@@ -212,12 +207,31 @@
             @endforeach
 
             <div class="box-tools">
-                {!! Button::success('<i class="fa fa-arrow-left"></i> Voltar')
-                    ->asLinkTo(route('empenho.crud./minuta.index'))
-                !!}
-                <button type="submit" class="btn btn-primary">
-                    Próxima Etapa <i class="fa fa-arrow-right"></i>
-                </button>
+                <div class="row">
+                    <div class="col-md-3">
+{{--                        {!! Button::primary('<i class="fa fa-arrow-left"></i> Voltar')--}}
+{{--                            ->asLinkTo(route('empenho.minuta.etapa.item'));--}}
+{{--                        !!}--}}
+                        <button type="button" class="btn btn-primary" id="voltar">
+                            <i class="fa fa-arrow-left"></i> Voltar
+                        </button>
+                    </div>
+                    <div class="col-md-3" align="right">
+                        <button type="button" class="btn btn-primary" id="emitir_empenho_siafi">
+                            <i class="fa fa-save"></i> Emitir Empenho SIAFI
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-primary" id="empenhar_outro_fornecedor"  disabled="disabled">
+                            <i class="fa fa-plus"></i> Empenhar outro Fornecedor
+                        </button>
+                    </div>
+                    <div class="col-md-3" align="right">
+                        <button type="submit" class="btn btn-primary" id="finalizar"  disabled="disabled">
+                            <i class="fa fa-check-circle"></i> Finalizar
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -231,6 +245,71 @@
 @endsection
 
 @section('after_scripts')
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="{{ asset('vendor/backpack/crud/js/crud.js') }}"></script>
     <script src="{{ asset('vendor/backpack/crud/js/show.js') }}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            $('body').on('click','#emitir_empenho_siafi', function(event){
+                salvarTabelasSiafi(event);
+                $('#emitir_empenho_siafi').attr('disabled',true);
+                $('#empenhar_outro_fornecedor').removeAttr('disabled');
+                $('#finalizar').removeAttr('disabled');
+            });
+
+            $('body').on('click','#empenhar_outro_fornecedor', function(event){
+                $('#empenhar_outro_fornecedor').attr('disabled',true);
+                $('#emitir_empenho_siafi').removeAttr('disabled');
+                $('#finalizar').attr('disabled',true);
+            });
+
+        });
+
+        function salvarTabelasSiafi(event){
+
+            var minuta_id = $('#minuta_id').val();
+
+            var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
+            url = url.replace(':minuta_id',minuta_id);
+
+            axios.request(url)
+                .then(response => {
+                    dados = response.data
+                    if(dados.resultado == true) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
+        }
+
+
+        function empenharOutroFornecedor(event){
+
+            var minuta_id = $('#minuta_id').val();
+
+            var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
+            url = url.replace(':minuta_id',minuta_id);
+            axios.request(url)
+                .then(response => {
+                    dados = response.data
+                    if(dados.resultado == true) {
+                        var table = $('#dataTableBuilder').DataTable();
+                        table.ajax.reload();
+                    }
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
+        }
+
+    </script>
 @endsection

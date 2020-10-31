@@ -45,6 +45,7 @@ Route::group([
             Route::get('amparolegal', 'AmparoLegalController@index');
             Route::get('amparolegal/{id}', 'AmparoLegalController@show');
             Route::get('atualizasaldos/unidade/{cod_unidade}', 'SaldoContabilController@atualizaSaldosPorUnidade')->name('atualiza.saldos.unidade');
+            Route::get('pupula/tabelas/siafi/{minuta_id}', 'MinutaEmpenhoController@populaTabelasSiafi')->name('popula.tabelas.siafi');
         });
 
         // if not otherwise configured, setup the dashboard routes
