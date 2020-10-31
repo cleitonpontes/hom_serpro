@@ -62,7 +62,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
+//dd($minuta_id);
         $this->fields($minuta_id);
 
         // add asterisk for fields that are required in ContaCorrentePassivoAnteriorRequest
@@ -81,6 +81,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         $itens = array_map(
             function ($itens) use ($request) {
                 $itens['minutaempenho_id'] = $request->minutaempenho_id;
+                $itens['conta_corrente_json'] = $request->conta_corrente_json;
                 $itens['conta_corrente_json'] = $request->conta_corrente_json;
                 return $itens;
             },

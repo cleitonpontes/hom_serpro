@@ -25,11 +25,14 @@ class MinutaEmpenhoRequest extends FormRequest
      */
     public function rules()
     {
+        $this->data_hoje = date('Y-m-d');
+        $this->data_ano = date('Y');
+
         return [
-            'numero_empenho' => 'required|max:17',
+            'numero_empenho' => 'numeric|min:400001|max:800000',
             'descricao'=> 'required|max:468',
             'processo' => 'max:20',
-
+            'data_emissao' => "date|after_or_equal:{$this->data_hoje}",
 
         ];
     }
@@ -54,7 +57,9 @@ class MinutaEmpenhoRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'numero_empenho.min' => 'O :attribute deve maior que 400001',
+            'numero_empenho.max' => 'O campo :attribute não pode ser maior que 800000',
+            //'data_emissao.before' => "A :attribute deve ser uma data anterior a!",
         ];
     }
 }

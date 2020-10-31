@@ -37,7 +37,8 @@ class CompraItem extends Model
         'descricaodetalhada',
         'quantidade',
         'valorunitario',
-        'valortotal'
+        'valortotal',
+        'qtd_restante'
     ];
 
     /*
@@ -54,6 +55,7 @@ class CompraItem extends Model
         $this->unidade_autorizada_id = $params['unidade_autorizada_id'];
         $this->descricaodetalhada = $params['descricaodetalhada'];
         $this->quantidade = $params['quantidade'];
+        $this->qtd_total = $params['quantidade'];
         $this->valorunitario = $params['valorunitario'];
         $this->valortotal = $params['valortotal'];
 

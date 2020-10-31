@@ -32,6 +32,7 @@ class MinutaEmpenhoCrudController extends CrudController
     public function setup()
     {
         $this->minuta_id = $this->crud->getCurrentEntryId();
+       // dd($this->minuta_id);
 
         /*
         |--------------------------------------------------------------------------
@@ -129,7 +130,7 @@ class MinutaEmpenhoCrudController extends CrudController
     protected function adicionaCampoNumeroEmpenho()
     {
         $this->crud->addField([
-            'name' => 'numero_empenho',
+            'name' => 'numero_empenho_sequencial',
             'label' => 'Número Empenho',
             'type' => 'text',
             'wrapperAttributes' => [
@@ -224,7 +225,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $modelo = MinutaEmpenho::find($minuta_id);
 
         $this->crud->addField([
-            'name' => 'id',
+            'name' => 'amparo_legal_id',
             'label' => "Amparo Legal",
             'type' => 'select_from_array',
             'options' => $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
