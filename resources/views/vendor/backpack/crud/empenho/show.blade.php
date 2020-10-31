@@ -56,11 +56,8 @@
                 @else
                 @endif
                 {{--	    <div class="box no-padding no-border">--}}
-                <div class="box box-solid box-primary">
+                <div class="box box-solid box-primary collapsed-box">
                     <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                            <i class="fa fa-minus"></i>
-                        </button>
                         <h3 class="box-title">Resumo da Minuta de Empenho</h3>
                     </div>
 
@@ -119,11 +116,8 @@
             <div class="m-t-20">
 
                 {{--	    <div class="box no-padding no-border">--}}
-                <div class="box box-solid box-primary">
+                <div class="box box-solid box-primary collapsed-box">
                     <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                            <i class="fa fa-minus"></i>
-                        </button>
                         <h3 class="box-title">Resumo da Compra</h3>
                     </div>
 
@@ -183,13 +177,9 @@
                 <div class="m-t-20">
 
                     {{--	    <div class="box no-padding no-border">--}}
-                    <div class="box box-solid box-primary">
+                    <div class="box box-solid box-primary collapsed-box">
                         <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip"
                              title="Collapse">
-                            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip"
-                                    title="Collapse">
-                                <i class="fa fa-minus"></i>
-                            </button>
                             <h3 class="box-title">Item da Compra</h3>
                         </div>
                         <div class="box-body">
