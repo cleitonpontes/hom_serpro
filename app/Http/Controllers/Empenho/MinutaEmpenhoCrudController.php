@@ -33,7 +33,7 @@ class MinutaEmpenhoCrudController extends CrudController
     public function setup()
     {
         $this->minuta_id = $this->crud->getCurrentEntryId();
-       // dd($this->minuta_id);
+        // dd($this->minuta_id);
 
         /*
         |--------------------------------------------------------------------------
@@ -486,23 +486,24 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
             ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
-            ->join('codigoitens','codigoitens.id','=','compra_items.tipo_item_id')
-            ->join('catmatseritens','catmatseritens.id','=','compra_items.catmatseritem_id')
-            ->join('fornecedores','fornecedores.id','=','compra_items.fornecedor_id')
-            ->where('compra_item_minuta_empenho.minutaempenho_id',$minuta_id)
+            ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+            ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
+            ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
+            ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
             ->select([
+                DB::raw('codigoitens.descricao AS "Tipo do Item"'),
                 DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
-                DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
+
+                DB::raw('catmatseritens.descricao AS "CatMatSerItem"'),
+                DB::raw('catmatseritens.codigo_siasg AS "Código"'),
+                DB::raw('fornecedores.nome AS "Fornecedor"'),
+                DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
+                DB::raw('naturezasubitem.descricao AS "Natureza/Despeza"'),
                 DB::raw('compra_items.valorunitario AS "Valor unitário"'),
+                DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                 DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
             ])
-            ->get();
-//        dump($itens);
-//        foreach ($itens as $item) {
-//            dd($item);
-//        }
-//
-//        dd($itens);
+            ->get()->toArray();
 
         $this->crud->addColumn([
             'box' => 'itens',
