@@ -42,7 +42,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
             ->distinct()
             ->where('minutaempenhos.id', $minuta_id)
-            ->where('compra_items.quantidade','>', 0)
+            ->where('compra_items.quantidade', '>', 0)
             ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener'])
             ->get()
             ->toArray();
@@ -126,17 +126,17 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
     public function item(Request $request)
     {
-        $etapa_id = Route::current()->parameter('etapa_id');
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
+        //TODO VERIFICAR SE O FORNECEDOR EXISTE NA COMPRA
         (!is_null($modMinutaEmpenho)) ? $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id) : '';
 
 
         $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
             ->where('compra_items.fornecedor_id', $fornecedor_id)
-            ->where('compra_items.quantidade','>', 0)
+            ->where('compra_items.quantidade', '>', 0)
             ->select([
                 'compra_items.id',
                 'codigoitens.descricao',
@@ -265,7 +265,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             $minuta->save();
             DB::commit();
 
-            return redirect()->route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => $minuta->etapa, 'minuta_id' => $minuta_id]);
+            return redirect()->route('empenho.minuta.gravar.saldocontabil', ['minuta_id' => $minuta_id]);
         } catch (Exception $exc) {
             DB::rollback();
         }

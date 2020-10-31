@@ -169,10 +169,10 @@ class CompraSiasgCrudController extends CrudController
                     'modalidade_id' => $request->modalidade_id,
                     'numero_ano' => $request->numero_ano
                 ]);
-            $etapa = 2;
+//            $etapa = 2;
             DB::commit();
 
-            return redirect('/empenho/fornecedor/' . $etapa . '/' . $minutaEmpenho->id);
+            return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
 
         } catch (Exception $exc) {
             dd($exc);

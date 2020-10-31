@@ -112,7 +112,10 @@ class MinutaEmpenho extends Model
     public function getFornecedorEmpenho()
     {
         $fornecedor = $this->fornecedor_empenho()->first();
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+        if ($fornecedor) {
+            return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+        }
+        return '';
     }
 
     /**

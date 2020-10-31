@@ -127,7 +127,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
                 :'';
         }
         return redirect()->route(
-            'empenho.minuta.listagem.saldocontabil',
+            'empenho.minuta.etapa.saldocontabil',
                 [
                 'etapa_id' => ($etapa_id),
                 'minuta_id' => $minuta_id
@@ -173,7 +173,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $modSaldo->save();
 
         return redirect()->route(
-            'empenho.minuta.listagem.saldocontabil',
+            'empenho.minuta.etapa.saldocontabil',
             [
                 'etapa_id' => ($request->get('etapa_id') + 1),
                 'minuta_id' => $request->get('minuta_id')
