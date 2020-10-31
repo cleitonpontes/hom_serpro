@@ -42,6 +42,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
             ->distinct()
             ->where('minutaempenhos.id', $minuta_id)
+            ->where('compra_items.quantidade','>', 0)
             ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener'])
             ->get()
             ->toArray();
@@ -135,6 +136,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
             ->where('compra_items.fornecedor_id', $fornecedor_id)
+            ->where('compra_items.quantidade','>', 0)
             ->select([
                 'compra_items.id',
                 'codigoitens.descricao',
