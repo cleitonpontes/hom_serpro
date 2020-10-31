@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Empenho;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
+use App\Models\CompraItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -63,7 +64,7 @@ class MinutaEmpenhoCrudController extends CrudController
         // TODO: remove setFromDb() and manually define Fields and Columns
         //$this->crud->setFromDb();
         $this->adicionaCampos($this->minuta_id);
-        $this->adicionaColunas();
+        $this->adicionaColunas($this->minuta_id);
 
         // add asterisk for fields that are required in MinutaEmpenhoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -91,6 +92,29 @@ class MinutaEmpenhoCrudController extends CrudController
 //        return $redirect_location;
     }
 
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumn('situacao');
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('compra_id');
+
+        $this->crud->removeColumn('fornecedor_compra_id');
+        $this->crud->removeColumn('fornecedor_empenho_id');
+        $this->crud->removeColumn('saldo_contabil_id');
+
+        $this->crud->removeColumn('tipo_empenho_id');
+        $this->crud->removeColumn('amparo_legal_id');
+
+        $this->crud->removeColumn('numero_empenho_sequencial');
+        $this->crud->removeColumn('passivo_anterior');
+        $this->crud->removeColumn('conta_contabil_passivo_anterior');
+        $this->crud->removeColumn('tipo_minuta_empenho');
+
+        return $content;
+    }
+
     protected function adicionaCampos($minuta_id)
     {
         $this->adicionaCampoNumeroEmpenho();
@@ -103,28 +127,6 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaCampoTaxaCambio();
         $this->adicionaCampoLocalEntrega();
         $this->adicionaCampoDescricao();
-    }
-
-    /**
-     * Configura a grid de visualização
-     *
-     *
-     */
-    protected function adicionaColunas(): void
-    {
-        $this->adicionaColunaUnidade();
-        $this->adicionaColunaFornecedorEmpenho();
-        $this->adicionaColunaTipoEmpenho();
-
-        $this->adicionaColunaSituacao();
-        $this->adicionaColunaNumeroEmpenho();
-        $this->adicionaColunaCipi();
-        $this->adicionaColunaDataEmissao();
-        $this->adicionaColunaProcesso();
-        $this->adicionaColunaAmparoLegal();
-        $this->adicionaColunaTaxaCambio();
-        $this->adicionaColunaLocalEntrega();
-        $this->adicionaColunaDescricao();
     }
 
     protected function adicionaCampoNumeroEmpenho()
@@ -236,7 +238,6 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
-
     protected function adicionaCampoTaxaCambio()
     {
         $this->crud->addField([
@@ -275,9 +276,40 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
+    /**
+     * Configura a grid de visualização
+     *
+     */
+    protected function adicionaColunas($minuta_id): void
+    {
+        $this->adicionaColunaUnidade();
+        $this->adicionaColunaFornecedorEmpenho();
+        $this->adicionaColunaTipoEmpenho();
+        $this->adicionaColunaAmparoLegal();
+
+        $this->adicionaColunaModalidade();
+        $this->adicionaColunaTipoCompra();
+        $this->adicionaColunaNumeroAnoCompra();
+        $this->adicionaColunaIncisoCompra();
+        $this->adicionaColunaLeiCompra();
+
+        $this->adicionaColunasItens($minuta_id);
+//        dd('tese');
+
+//        $this->adicionaColunaSituacao();
+        $this->adicionaColunaNumeroEmpenho();
+        $this->adicionaColunaCipi();
+        $this->adicionaColunaDataEmissao();
+        $this->adicionaColunaProcesso();
+        $this->adicionaColunaTaxaCambio();
+        $this->adicionaColunaLocalEntrega();
+        $this->adicionaColunaDescricao();
+    }
+
     protected function adicionaColunaSituacao()
     {
         $this->crud->addColumn([
+            'box' => 'resumo',
             'name' => 'situacao',
             'label' => 'Situação',
             'type' => 'boolean',
@@ -290,36 +322,14 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
-    public function show($id)
-    {
-        $content = parent::show($id);
-
-        $this->crud->removeColumn('situacao');
-        $this->crud->removeColumn('unidade_id');
-        $this->crud->removeColumn('compra_id');
-
-        $this->crud->removeColumn('fornecedor_compra_id');
-        $this->crud->removeColumn('fornecedor_empenho_id');
-        $this->crud->removeColumn('saldo_contabil_id');
-
-        $this->crud->removeColumn('tipo_empenho_id');
-        $this->crud->removeColumn('amparo_legal_id');
-
-        $this->crud->removeColumn('numero_empenho_sequencial');
-        $this->crud->removeColumn('passivo_anterior');
-        $this->crud->removeColumn('conta_contabil_passivo_anterior');
-        $this->crud->removeColumn('tipo_minuta_empenho');
-
-        return $content;
-    }
-
-
     /**
      * Configura a coluna Unidade
      */
+
     public function adicionaColunaUnidade(): void
     {
         $this->crud->addColumn([
+            'box' => 'resumo',
             'name' => 'getUnidade',
             'label' => 'Unidade Gestora',
             'type' => 'model_function',
@@ -336,6 +346,7 @@ class MinutaEmpenhoCrudController extends CrudController
     public function adicionaColunaFornecedorEmpenho(): void
     {
         $this->crud->addColumn([
+            'box' => 'resumo',
             'name' => 'getFornecedorEmpenho',
             'label' => 'Credor', // Table column heading
             'type' => 'model_function',
@@ -353,23 +364,12 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
-    public function adicionaColunaNumeroEmpenho()
-    {
-    }
-
-    public function adicionaColunaCipi()
-    {
-    }
-
-    public function adicionaColunaDataEmissao()
-    {
-    }
-
     public function adicionaColunaTipoEmpenho()
     {
         $this->crud->addColumn([
+            'box' => 'resumo',
             'name' => 'getTipoEmpenho',
-            'label' => 'Tipo', // Table column heading
+            'label' => 'Tipo de Empenho', // Table column heading
             'type' => 'model_function',
             'function_name' => 'getTipoEmpenho', // the method in your Model
             'orderable' => true,
@@ -385,13 +385,156 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
+    public function adicionaColunaAmparoLegal()
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'getAmparoLegal',
+            'label' => 'Amparo Legal', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+
+    public function adicionaColunaModalidade()
+    {
+        $this->crud->addColumn([
+            'box' => 'compra',
+            'name' => 'compra_modalidade',
+            'label' => 'Modalidade', // Table column heading
+            'type' => 'text',
+//            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    public function adicionaColunaTipoCompra()
+    {
+        $this->crud->addColumn([
+            'box' => 'compra',
+            'name' => 'tipo_compra',
+            'label' => 'Tipo da Compra', // Table column heading
+            'type' => 'text',
+//            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    public function adicionaColunaNumeroAnoCompra()
+    {
+        $this->crud->addColumn([
+            'box' => 'compra',
+            'name' => 'numero_ano',
+            'label' => 'Numero/Ano', // Table column heading
+            'type' => 'text',
+//            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    public function adicionaColunaIncisoCompra()
+    {
+        $this->crud->addColumn([
+            'box' => 'compra',
+            'name' => 'inciso',
+            'label' => 'Inciso', // Table column heading
+            'type' => 'text',
+//            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    public function adicionaColunaLeiCompra()
+    {
+        $this->crud->addColumn([
+            'box' => 'compra',
+            'name' => 'lei',
+            'label' => 'Lei', // Table column heading
+            'type' => 'text',
+//            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    public function adicionaColunasItens($minuta_id)
+    {
+        $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
+            ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
+            ->join('codigoitens','codigoitens.id','=','compra_items.tipo_item_id')
+            ->join('catmatseritens','catmatseritens.id','=','compra_items.catmatseritem_id')
+            ->join('fornecedores','fornecedores.id','=','compra_items.fornecedor_id')
+            ->where('compra_item_minuta_empenho.minutaempenho_id',$minuta_id)
+            ->select([
+                DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
+                DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
+                DB::raw('compra_items.valorunitario AS "Valor unitário"'),
+                DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
+            ])
+            ->get();
+//        dump($itens);
+//        foreach ($itens as $item) {
+//            dd($item);
+//        }
+//
+//        dd($itens);
+
+        $this->crud->addColumn([
+            'box' => 'itens',
+            'name' => 'itens',
+            'label' => 'itens', // Table column heading
+//            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            'values' => $itens
+        ]);
+    }
+
+    public function adicionaColunaNumeroEmpenho()
+    {
+    }
+
+    public function adicionaColunaCipi()
+    {
+    }
+
+    public function adicionaColunaDataEmissao()
+    {
+    }
+
+
     public function adicionaColunaProcesso()
     {
     }
 
-    public function adicionaColunaAmparoLegal()
-    {
-    }
 
     public function adicionaColunaTaxaCambio()
     {
