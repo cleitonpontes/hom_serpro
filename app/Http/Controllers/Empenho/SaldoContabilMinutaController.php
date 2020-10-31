@@ -15,6 +15,7 @@ use App\Models\SaldoContabil;
 use App\Models\Unidade;
 use App\Models\MinutaEmpenho;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Route;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
@@ -117,12 +118,14 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $saldosContabeis = json_encode($this->consultaApiSta($ano,$ug,$gestao,$contacontabil));
 
-
         foreach (json_decode($saldosContabeis) as $key => $saldo){
-            $saldocontabil = new SaldoContabil();
-            $saldocontabil->gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo);
-        }
 
+            $modSaldoContabil = new SaldoContabil();
+            $atualizar = $modSaldoContabil->verificaDataAtualizacaoSaldoContabil($saldo);
+            (!$atualizar)
+                ?$modSaldoContabil->gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo)
+                :'';
+        }
         return redirect()->route(
             'empenho.minuta.listagem.saldocontabil',
                 [

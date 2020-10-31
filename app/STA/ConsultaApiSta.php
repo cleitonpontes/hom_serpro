@@ -51,7 +51,8 @@ class ConsultaApiSta
             $retorno[] = [
                 'contacorrente' => $dado['conta_corrente'],
                 'tiposaldo' => $dado['tiposaldo'],
-                'saldo' => number_format($dado['saldo'], 2, '.', '')
+                'saldo' => number_format($dado['saldo'], 2, '.', ''),
+                'updated_at' => $dado['updated_at']
             ];
         }
 

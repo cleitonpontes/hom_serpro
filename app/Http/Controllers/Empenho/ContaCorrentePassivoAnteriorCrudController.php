@@ -13,8 +13,6 @@ use App\Http\Requests\ContaCorrentePassivoAnteriorRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 use Exception;
-use Redirect;
-use Route;
 
 /**
  * Class ContaCorrentePassivoAnteriorCrudController
@@ -25,28 +23,13 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 {
     public function setup()
     {
-        $minuta_id = Route::current()->parameter('minuta_id');
 
-        $minuta_id = isset($minuta_id) ? $minuta_id : '';
-//        dd($minuta_id);
-
-        $passivoAnterior = '';
-        $contaContabilPassivoAnterior = '';
-//        $minuta_id = '';
-
-
-        if (!(null !== Route::current()->parameter('minuta_id'))
-            && $this->crud->getCurrentEntryId() !== false
-        ) {
-
-            $modPassivoAnterior = ContaCorrentePassivoAnterior::find($this->crud->getCurrentEntryId());
-            $modMinuta = $modPassivoAnterior->minutaempenho()->first();
-            $minuta_id = $modMinuta->id;
-
-            $passivoAnterior = $modMinuta->passivo_anterior;
-            $contaContabilPassivoAnterior = $modMinuta->conta_contabil_passivo_anterior;
-        }
-
+         if(\Route::current()->parameter('minuta_id')) {
+             $minuta_id = \Route::current()->parameter('minuta_id');
+         }else{
+             $modPassivoAnterior = ContaCorrentePassivoAnterior::find($this->crud->getCurrentEntryId());
+             $minuta_id = $modPassivoAnterior->minutaempenho_id;
+         }
 
         /*
         |--------------------------------------------------------------------------
@@ -56,19 +39,18 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         $this->crud->setModel('App\Models\ContaCorrentePassivoAnterior');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'empenho/passivo-anterior');
         $this->crud->setEntityNameStrings('Conta Corrente Passivo Anterior', 'Contas Corrente Passivo Anterior');
-        $this->crud->addClause('join', 'minutaempenhos', 'minutaempenhos.id', '=', 'conta_corrente_passivo_anterior.minutaempenho_id');
+        $this->crud->addClause('join', 'minutaempenhos', 'minutaempenhos.id', '=', 'conta_corrente_passivo_anterior.minutaempenhos_id');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'minutaempenhos.fornecedor_empenho_id');
         $this->crud->addClause('join', 'compras', 'compras.id', '=', 'minutaempenhos.compra_id');
-//        $this->crud->addClause('join', 'compra_items', 'compra_items.compra_id', '=', 'compras.id');
+        $this->crud->addClause('join', 'compra_items', 'compra_items.compra_id', '=', 'compras.id');
         $this->crud->addClause(
             'select',
-            'conta_corrente_passivo_anterior.*',
-            'minutaempenhos.id',
-            'minutaempenhos.passivo_anterior',
-            'minutaempenhos.etapa',
-            'fornecedores.cpf_cnpj_idgener',
-            'minutaempenhos.valor_total',
-            'minutaempenhos.conta_contabil_passivo_anterior'
+                    'conta_corrente_passivo_anterior.*',
+                    'minutaempenhos.id',
+                    'minutaempenhos.passivo_anterior',
+                    'minutaempenhos.etapa',
+                    'fornecedores.cpf_cnpj_idgener',
+                    'fornecedores.valortotal'
         );
 
         $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
@@ -80,8 +62,8 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
-        $this->fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior);
+//dd($minuta_id);
+        $this->fields($minuta_id);
 
         // add asterisk for fields that are required in ContaCorrentePassivoAnteriorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -100,38 +82,39 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             function ($itens) use ($request) {
                 $itens['minutaempenho_id'] = $request->minutaempenho_id;
                 $itens['conta_corrente_json'] = $request->conta_corrente_json;
+                $itens['conta_corrente_json'] = $request->conta_corrente_json;
                 return $itens;
             },
             $itens
         );
 
+
         DB::beginTransaction();
         try {
-
             ContaCorrentePassivoAnterior::insert($itens);
             $minuta->etapa = 8;
             $minuta->passivo_anterior = $request->passivo_anterior;
-            $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
-
             $minuta->save();
             DB::commit();
         } catch (Exception $exc) {
+            dd($exc);
             DB::rollback();
         }
 
-        return Redirect::to('empenho/minuta/' . $minuta->id);
+        dd('fim store');
+        return redirect()->route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => $minuta->etapa, 'minuta_id' => $minuta_id]);
 
     }
 
     public function update(UpdateRequest $request)
     {
 
-        $minuta = MinutaEmpenho::find($request->minutaempenho_id);
         $itens = json_decode($request->get('conta_corrente_json'), true);
-        $arrayPassivoAnterior = ContaCorrentePassivoAnterior::where('minutaempenho_id', $request->minutaempenho_id)->get()->toArray();
+
+        $arrayPassivoAnterior = ContaCorrentePassivoAnterior::where('minutaempenho_id',$request->id)->get()->toArray();
 
         $itens = array_map(
-            function ($itens) use ($request, $arrayPassivoAnterior) {
+            function ($itens) use ($request,$arrayPassivoAnterior) {
                 $itens['minutaempenho_id'] = $arrayPassivoAnterior[0]['minutaempenho_id'];
                 $itens['conta_corrente_json'] = $request->conta_corrente_json;
                 return $itens;
@@ -139,38 +122,39 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             $itens
         );
 
+
+//        dd($itens);
+
         DB::beginTransaction();
         try {
             $this->deletaPassivoAnterior($arrayPassivoAnterior);
             ContaCorrentePassivoAnterior::insert($itens);
-            $minuta->etapa = 8;
-            $minuta->passivo_anterior = $request->passivo_anterior;
-            $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
-
-            $minuta->save();
             DB::commit();
         } catch (Exception $exc) {
-            //  dd($exc);
+            dd($exc);
             DB::rollback();
         }
 
-        return Redirect::to('empenho/minuta/' . $minuta->id);
+        dd('fim update');
+        return redirect()->route('empenho.minuta.gravar.saldocontabil', ['etapa_id' => 8, 'minuta_id' => $itens['minutaempenho_id']]);
 
     }
 
 
     public function deletaPassivoAnterior(array $modPassivoAnterior)
     {
-        foreach ($modPassivoAnterior as $key => $value) {
-            ContaCorrentePassivoAnterior::where('id', $value['id'])->forceDelete();
+        foreach ($modPassivoAnterior as $key => $value){
+            ContaCorrentePassivoAnterior::where('id',$value['id'])->forceDelete();
         }
     }
 
-    private function fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior): void
+    private function fields($minuta_id): void
     {
-        $this->setFieldMinutaId($minuta_id);
-        $this->setFieldPassivoAnterior($passivoAnterior);
-        $this->setFieldContaContabil($contaContabilPassivoAnterior, $passivoAnterior);
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+
+        $this->setFieldMinutaId($modMinuta->di);
+        $this->setFieldPassivoAnterior($modMinuta->passivo_anterior);
+        $this->setFieldContaContabil();
         $this->setTablePassivoAnterior();
     }
 
@@ -183,31 +167,30 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         ]);
     }
 
-    private function setFieldPassivoAnterior($passivoAnterior): void
+    private function setFieldPassivoAnterior($passivo_anterior): void
     {
         $this->crud->addField([
             'name' => 'passivo_anterior',
             'label' => 'Passivo Anterior',
             'type' => 'checkbox',
-            'value' => $passivoAnterior
+            'value' => $passivo_anterior
         ]);
     }
 
-    private function setFieldContaContabil($contaContabilPassivoAnterior, $passivoAnterior): void
+    private function setFieldContaContabil(): void
     {
-
         $this->crud->addField([
-            'name' => 'conta_contabil_passivo_anterior',
+            'name' => 'conta_contabil',
             'label' => 'Conta Contábil',
             'type' => 'text',
-            'value' => $contaContabilPassivoAnterior,
-            'attributes' => $passivoAnterior ? [] : $attributes = ['readonly' => true]
+            'attr' => [
+                'disabled' => 'disabled'
+            ]
         ]);
     }
 
     private function setTablePassivoAnterior(): void
     {
-
         $this->crud->addField([
             'name' => 'conta_corrente_json',
             'label' => 'Conta Corrente',
@@ -221,6 +204,5 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             'min' => 0, // minimum rows allowed in the table
         ]);
     }
-
 
 }

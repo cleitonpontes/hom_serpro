@@ -133,7 +133,7 @@
             });
 
             $('body').on('change','#cb_unidade', function(event){
-                recarregaTabeladeSaldos(event);
+                atualizaTabeladeSaldos(event);
             });
 
             $('body').on('click','#btn_inserir', function(event){

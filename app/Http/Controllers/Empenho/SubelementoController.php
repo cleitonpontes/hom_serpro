@@ -275,7 +275,8 @@ class SubelementoController extends BaseControllerEmpenho
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
             . "' data-compra_item_id='" . $item['compra_item_id']
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control' value='' onchange='calculaValorTotal(this)'  > ";
+            . " class='form-control' value='' onchange='calculaValorTotal(this)'  > "
+            ." <input  type='hidden' id='quantidade_total" . '' . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
 //        dd($item);
 //        return " <input  type='text' id='' data-tipo='' name='qtd[]' value=''   > ";
     }
@@ -320,20 +321,23 @@ class SubelementoController extends BaseControllerEmpenho
         DB::beginTransaction();
         try {
             foreach ($compra_item_ids as $index => $item) {
+
                 CompraItemMinutaEmpenho::where('compra_item_id', $item)
                     ->where('minutaempenho_id', $request->minuta_id)
                     ->update([
                         'subelemento_id' => $request->subitem[$index],
-                        'quantidade' => $request->qtd[$index],
+                        'quantidade' => ($request->qtd[$index]),
                         'valor' => $valores[$index]
                     ]);
+                CompraItem::where('id',$item)
+                    ->update(['quantidade' => ($request->quantidade_total[$index] - $request->qtd[$index])]);
             }
 
             $modMinuta = MinutaEmpenho::find($minuta_id);
             $modMinuta->etapa = 6;
+            $modMinuta->valor_total = $request->valor_utilizado;
             $modMinuta->save();
-
-
+            
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();

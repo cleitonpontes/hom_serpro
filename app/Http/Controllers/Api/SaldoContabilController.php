@@ -33,12 +33,15 @@ class SaldoContabilController extends Controller
             try {
                 foreach (json_decode($saldosContabeis) as $key => $saldo) {
                     $modSaldoContabil = new SaldoContabil();
-                    $modSaldoContabil->gravaSaldoContabil($ano, $unidade->id, $saldo->contacorrente, $contacontabil, $saldo->saldo);
+                    $atualizar = $modSaldoContabil->verificaDataAtualizacaoSaldoContabil($saldo);
+                    if($atualizar) {
+                        $modSaldoContabil->AtualizaSaldoContabil($ano, $unidade->id, $saldo->contacorrente, $contacontabil, $saldo->saldo);
+                        DB::commit();
+                        $retorno['resultado'] = true;
+                        $request->session()->put('unidade_ajax_id',$unidade->id);
+                        return $retorno;
+                    }
                 }
-                DB::commit();
-                $retorno['resultado'] = true;
-                $request->session()->put('unidade_ajax_id',$unidade->id);
-                return $retorno;
 
             } catch (\Exception $exc) {
                 DB::rollback();
@@ -46,5 +49,6 @@ class SaldoContabilController extends Controller
         }
         return $retorno;
     }
+
 
 }

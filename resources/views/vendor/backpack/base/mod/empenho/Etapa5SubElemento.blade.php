@@ -64,6 +64,7 @@
             <form action="/empenho/subelemento" method="POST">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
+                <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="">
             @csrf <!-- {{ csrf_field() }} -->
 
                 {!! $html->table() !!}
@@ -133,6 +134,7 @@
                 saldo = saldo - soma;
                 $("#utilizado").html("<b>R$ " + soma.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
                 $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+                $("#valor_utilizado").val(soma);
             });
         });
 

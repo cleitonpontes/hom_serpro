@@ -23,6 +23,7 @@ class SaldoContabil extends Model
     */
 
     protected static $logFillable = true;
+    public $timestamps = true;
     protected static $logName = 'saldo_contabil';
 
     protected $table = 'saldo_contabil';
@@ -36,7 +37,8 @@ class SaldoContabil extends Model
         'ano',
         'conta_contabil',
         'conta_corrente',
-        'saldo'
+        'saldo',
+        'timestamps'
     ];
 
     /*
@@ -60,10 +62,26 @@ class SaldoContabil extends Model
             ])
             ->where(DB::raw("SUBSTRING(saldo_contabil.conta_corrente,22,2)"),'<>','00')
             ->where('saldo_contabil.unidade_id',$unidade_id)
+            ->where('saldo_contabil.saldo','>',0)
             ->orderby('saldo','DESC')
             ->get()
             ->toArray();
 //        dd($teste->getBindings(),$teste->toSql());
+    }
+
+    public function verificaDataAtualizacaoSaldoContabil($saldoSta)
+    {
+        $atualizar = false;
+        $saldoLocal = SaldoContabil::where('conta_corrente',$saldoSta->contacorrente)->first();
+
+        if(!is_null($saldoLocal)) {
+            if ($saldoLocal->count() > 0) {
+                if (strtotime($saldoLocal->updated_at) < strtotime($saldoSta->updated_at)) {
+                    $atualizar = true;
+                }
+            }
+        }
+        return $atualizar;
     }
 
     public function gravaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)
@@ -73,6 +91,16 @@ class SaldoContabil extends Model
             ['saldo' => $saldo]
         );
     }
+
+    public function AtualizaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)
+    {
+        $saldoContabil = SaldoContabil::updateOrCreate(
+            ['ano'=> $ano,'unidade_id' => $unidade_id,'conta_corrente' => $contacorrente,'conta_contabil' => $contacontabil],
+            ['saldo' => $saldo,'updated_at' => date("Y-m-d H:i:s")]
+        );
+    }
+
+
 
     /*
     |--------------------------------------------------------------------------
