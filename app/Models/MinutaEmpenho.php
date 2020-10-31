@@ -122,7 +122,7 @@ class MinutaEmpenho extends Model
      */
     public function getTipoEmpenho()
     {
-        return $this->tipo_empenho->descricao;
+        return $this->tipo_empenho->descricao ?? '';
     }
 
     /**
@@ -133,13 +133,15 @@ class MinutaEmpenho extends Model
     public function getAmparoLegal()
     {
 
-        $artigo = isset($this->amparo_legal->artigo) ? ' - Artigo: '.$this->amparo_legal->artigo : '';
-        $paragrafo = isset($this->amparo_legal->paragrafo) ? ' - Parágrafo: '.$this->amparo_legal->paragrafo : '';
-        $inciso = isset($this->amparo_legal->inciso) ? ' - Inciso: '.$this->amparo_legal->inciso : '';
-        $alinea = isset($this->amparo_legal->alinea) ? ' - Alínea: '.$this->amparo_legal->alinea : '';
+        if (isset($this->amparo_legal)) {
+            $artigo = isset($this->amparo_legal->artigo) ? ' - Artigo: ' . $this->amparo_legal->artigo : '';
+            $paragrafo = isset($this->amparo_legal->paragrafo) ? ' - Parágrafo: ' . $this->amparo_legal->paragrafo : '';
+            $inciso = isset($this->amparo_legal->inciso) ? ' - Inciso: ' . $this->amparo_legal->inciso : '';
+            $alinea = isset($this->amparo_legal->alinea) ? ' - Alínea: ' . $this->amparo_legal->alinea : '';
 
-        return $this->amparo_legal->ato_normativo . $artigo . $paragrafo . $inciso . $alinea;
-
+            return $this->amparo_legal->ato_normativo . $artigo . $paragrafo . $inciso . $alinea;
+        }
+        return '';
     }
 
     /*
