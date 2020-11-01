@@ -188,7 +188,7 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         $this->crud->addField([
             'label' => "Credor",
-            'type' => "select2_from_ajax",
+            'type' => "select2_from_ajax_credor",
             'name' => 'fornecedor_empenho_id',
             'entity' => 'fornecedor_empenho',
             'attribute' => "cpf_cnpj_idgener",
@@ -200,9 +200,6 @@ class MinutaEmpenhoCrudController extends CrudController
             'minimum_input_length' => 2,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
-            ],
-            'attributes' => [
-                'readonly' => true
             ]
         ]);
     }
