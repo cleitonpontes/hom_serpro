@@ -2,43 +2,41 @@
 {{--{{dd( Request::url() )}}--}}
 
 @php
-    // Busca url da rota
-    $request = Request();
-    $url = $request->path();
 
-    $partes = explode('/', $url);
-    $proc = array_search('tela', $partes);
+    //dd(session('empenho_etapa'));
+    //dd(session()->all());
+        // Busca url da rota
+        $request = Request();
+        $url = $request->path();
 
-    // Define o passo atual
-    //$passo = (int) $partes[$proc +1];
+        $partes = explode('/', $url);
+        $proc = array_search('tela', $partes);
 
-    $passo = (int) Route::current()->parameter('etapa_id');
-    $minuta_id = (int) Route::current()->parameter('minuta_id');
-    $minuta = ($minuta_id ?: '' );
+        $passo = session('empenho_etapa');
+        //dd($passo);
+        $minuta_id = (int) Route::current()->parameter('minuta_id');
+        $minuta = ($minuta_id ?: '' );
 
-    //dd($passo);
-    session(['empenho_tela' => $passo]);
+        // Itens do cabeçalho
+        $passos = array();
 
-    // Itens do cabeçalho
-    $passos = array();
+        $passos[1] = 'Compra';
+        $passos[2] = 'Fornecedor';
+        $passos[3] = 'Itens';
+        $passos[4] = 'Crédito disponível';
+        $passos[5] = 'Subelemento';
+        $passos[6] = 'Dados Empenho';
+        $passos[7] = 'Passivo Anterior';
+        $passos[8] = 'Finalizar';
 
-    $passos[1] = 'Compra';
-    $passos[2] = 'Fornecedor';
-    $passos[3] = 'Itens';
-    $passos[4] = 'Crédito disponível';
-    $passos[5] = 'Subelemento';
-    $passos[6] = 'Dados Empenho';
-    $passos[7] = 'Passivo Anterior';
-    $passos[8] = 'Finalizar';
-
-    $rotas[1] = 'buscacompra';
-    $rotas[2] = 'fornecedor';
-    $rotas[3] = 'item';
-    $rotas[4] = '';
-    $rotas[5] = '';
-    $rotas[6] = '';
-    $rotas[7] = '';
-    $rotas[8] = '';
+        $rotas[1] = 'buscacompra';
+        $rotas[2] = 'fornecedor';
+        $rotas[3] = 'item';
+        $rotas[4] = '';
+        $rotas[5] = '';
+        $rotas[6] = '';
+        $rotas[7] = '';
+        $rotas[8] = '';
 
 @endphp
 

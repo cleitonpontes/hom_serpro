@@ -1,3 +1,4 @@
+{{--@php dd($crud->columns['itens']['values']) @endphp--}}
 @extends('backpack::layout')
 
 @section('header')
@@ -55,43 +56,43 @@
                 @else
                 @endif
                 {{--	    <div class="box no-padding no-border">--}}
-                <div class="box box-solid box-primary">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Resumo da minuta de empenho</h3>
+                <div class="box box-solid box-primary collapsed-box">
+                    <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <h3 class="box-title">Resumo da Minuta de Empenho</h3>
                     </div>
 
                     <div class="box-body">
-                        <br/>
                         <form action="/empenho/subelemento" method="POST">
-                            <input type="hidden" id="minuta_id" name="minuta_id" value="">
-                            <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="">
+                            <input type="hidden" id="minuta_id" name="minuta_id" value="{{$crud->getCurrentEntryId()}}">
                         @csrf <!-- {{ csrf_field() }} -->
 
                             <div class="box-body">
-                                <br/>
                                 <table class="table table-striped">
                                     <tbody>
                                     @foreach ($crud->columns as $column)
-                                        <tr>
-                                            <td>
-                                                <strong>{{ $column['label'] }}</strong>
-                                            </td>
-                                            <td>
-                                                @if (!isset($column['type']))
-                                                    @include('crud::columns.text')
-                                                @else
-                                                    @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
-                                                        @include('vendor.backpack.crud.columns.'.$column['type'])
+                                        @if( !isset($column['box']) || ($column['box'] === 'resumo') )
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ $column['label'] }}</strong>
+                                                </td>
+                                                <td>
+                                                    @if (!isset($column['type']))
+                                                        @include('crud::columns.text')
                                                     @else
-                                                        @if(view()->exists('crud::columns.'.$column['type']))
-                                                            @include('crud::columns.'.$column['type'])
+                                                        @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
+                                                            @include('vendor.backpack.crud.columns.'.$column['type'])
                                                         @else
-                                                            @include('crud::columns.text')
+                                                            @if(view()->exists('crud::columns.'.$column['type']))
+                                                                @include('crud::columns.'.$column['type'])
+                                                            @else
+                                                                @include('crud::columns.text')
+                                                            @endif
                                                         @endif
                                                     @endif
-                                                @endif
-                                            </td>
-                                        </tr>
+                                                </td>
+                                            </tr>
+
+                                        @endif()
                                     @endforeach
                                     @if ($crud->buttons->where('stack', 'line')->count())
                                         <tr>
@@ -105,30 +106,210 @@
                                 </table>
                             </div>
                     </div><!-- /.box-body -->
-                            <div class="col-sm-12"></div>
-                            <div class="box-tools">
-                                {!! Button::success('<i class="fa fa-arrow-left"></i> Voltar')
-                                    ->asLinkTo(route('empenho.crud./minuta.index'))
-                                !!}
-                                <button type="submit" class="btn btn-primary">
-                                    Próxima Etapa <i class="fa fa-arrow-right"></i>
-                                </button>
+                    <div class="col-sm-12"></div>
+
+                    </form>
+                </div>
+            </div>
+
+            <div class="m-t-20">
+
+                {{--	    <div class="box no-padding no-border">--}}
+                <div class="box box-solid box-primary collapsed-box">
+                    <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <h3 class="box-title">Resumo da Compra</h3>
+                    </div>
+
+                    <div class="box-body">
+                        <form action="/empenho/subelemento" method="POST">
+                        @csrf <!-- {{ csrf_field() }} -->
+
+                            <div class="box-body">
+                                <table class="table table-striped">
+                                    <tbody>
+                                    @foreach ($crud->columns as $column)
+                                        @if( isset($column['box']) && ($column['box'] === 'compra') )
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ $column['label'] }}</strong>
+                                                </td>
+                                                <td>
+                                                    @if (!isset($column['type']))
+                                                        @include('crud::columns.text')
+                                                    @else
+                                                        @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
+                                                            @include('vendor.backpack.crud.columns.'.$column['type'])
+                                                        @else
+                                                            @if(view()->exists('crud::columns.'.$column['type']))
+                                                                @include('crud::columns.'.$column['type'])
+                                                            @else
+                                                                @include('crud::columns.text')
+                                                            @endif
+                                                        @endif
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                    @if ($crud->buttons->where('stack', 'line')->count())
+                                        <tr>
+                                            <td><strong>{{ trans('backpack::crud.actions') }}</strong></td>
+                                            <td>
+                                                @include('crud::inc.button_stack', ['stack' => 'line'])
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    </tbody>
+                                </table>
                             </div>
+                    </div><!-- /.box-body -->
+                    <div class="col-sm-12"></div>
+
+                    </form>
+                </div>
+            </div>
+
+            {{-- ITENS DA COMPRA  --}}
+            @foreach($crud->columns['itens']['values'] as $itens )
+                <div class="m-t-20">
+
+                    {{--	    <div class="box no-padding no-border">--}}
+                    <div class="box box-solid box-primary collapsed-box">
+                        <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip"
+                             title="Collapse">
+                            <h3 class="box-title">Item da Compra</h3>
+                        </div>
+                        <div class="box-body">
+                            <form action="/empenho/subelemento" method="POST">
+                            @csrf <!-- {{ csrf_field() }} -->
+                                <div class="box-body">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                        @foreach ($itens as $key => $value)
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ $key }}</strong>
+                                                </td>
+                                                <td>
+                                                    <span>{{ $value }}</span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div><!-- /.box-body -->
+                        <div class="col-sm-12"></div>
+
                         </form>
                     </div>
                 </div>
+            @endforeach
 
+            <div class="box-tools">
+                <div class="row">
+                    <div class="col-md-3">
+{{--                        {!! Button::primary('<i class="fa fa-arrow-left"></i> Voltar')--}}
+{{--                            ->asLinkTo(route('empenho.minuta.etapa.item'));--}}
+{{--                        !!}--}}
+                        <button type="button" class="btn btn-primary" id="voltar">
+                            <i class="fa fa-arrow-left"></i> Voltar
+                        </button>
+                    </div>
+                    <div class="col-md-3" align="right">
+                        <button type="button" class="btn btn-primary" id="emitir_empenho_siafi">
+                            <i class="fa fa-save"></i> Emitir Empenho SIAFI
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-primary" id="empenhar_outro_fornecedor"  disabled="disabled">
+                            <i class="fa fa-plus"></i> Empenhar outro Fornecedor
+                        </button>
+                    </div>
+                    <div class="col-md-3" align="right">
+                        <button type="submit" class="btn btn-primary" id="finalizar"  disabled="disabled">
+                            <i class="fa fa-check-circle"></i> Finalizar
+                        </button>
+                    </div>
+                </div>
             </div>
+
         </div>
-        @endsection
+    </div>
+@endsection
 
 
-        @section('after_styles')
-            <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/crud.css') }}">
-            <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/show.css') }}">
-        @endsection
+@section('after_styles')
+    <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/crud.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/show.css') }}">
+@endsection
 
-        @section('after_scripts')
-            <script src="{{ asset('vendor/backpack/crud/js/crud.js') }}"></script>
-            <script src="{{ asset('vendor/backpack/crud/js/show.js') }}"></script>
+@section('after_scripts')
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="{{ asset('vendor/backpack/crud/js/crud.js') }}"></script>
+    <script src="{{ asset('vendor/backpack/crud/js/show.js') }}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            $('body').on('click','#emitir_empenho_siafi', function(event){
+                salvarTabelasSiafi(event);
+                $('#emitir_empenho_siafi').attr('disabled',true);
+                $('#empenhar_outro_fornecedor').removeAttr('disabled');
+                $('#finalizar').removeAttr('disabled');
+            });
+
+            $('body').on('click','#empenhar_outro_fornecedor', function(event){
+                $('#empenhar_outro_fornecedor').attr('disabled',true);
+                $('#emitir_empenho_siafi').removeAttr('disabled');
+                $('#finalizar').attr('disabled',true);
+            });
+
+        });
+
+        function salvarTabelasSiafi(event){
+
+            var minuta_id = $('#minuta_id').val();
+
+            var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
+            url = url.replace(':minuta_id',minuta_id);
+
+            axios.request(url)
+                .then(response => {
+                    dados = response.data
+                    if(dados.resultado == true) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
+        }
+
+
+        function empenharOutroFornecedor(event){
+
+            var minuta_id = $('#minuta_id').val();
+
+            var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
+            url = url.replace(':minuta_id',minuta_id);
+            axios.request(url)
+                .then(response => {
+                    dados = response.data
+                    if(dados.resultado == true) {
+                        var table = $('#dataTableBuilder').DataTable();
+                        table.ajax.reload();
+                    }
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
+        }
+
+    </script>
 @endsection

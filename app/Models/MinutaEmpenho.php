@@ -112,7 +112,39 @@ class MinutaEmpenho extends Model
     public function getFornecedorEmpenho()
     {
         $fornecedor = $this->fornecedor_empenho()->first();
-        return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+        if ($fornecedor) {
+            return $fornecedor->cpf_cnpj_idgener . ' - ' . $fornecedor->nome;
+        }
+        return '';
+    }
+
+    /**
+     * Retorna descrição do Tipo do Empenho
+     *
+     * @return string
+     */
+    public function getTipoEmpenho()
+    {
+        return $this->tipo_empenho->descricao ?? '';
+    }
+
+    /**
+     * Retorna descrição do Amparo Legal
+     *
+     * @return string
+     */
+    public function getAmparoLegal()
+    {
+
+        if (isset($this->amparo_legal)) {
+            $artigo = isset($this->amparo_legal->artigo) ? ' - Artigo: ' . $this->amparo_legal->artigo : '';
+            $paragrafo = isset($this->amparo_legal->paragrafo) ? ' - Parágrafo: ' . $this->amparo_legal->paragrafo : '';
+            $inciso = isset($this->amparo_legal->inciso) ? ' - Inciso: ' . $this->amparo_legal->inciso : '';
+            $alinea = isset($this->amparo_legal->alinea) ? ' - Alínea: ' . $this->amparo_legal->alinea : '';
+
+            return $this->amparo_legal->ato_normativo . $artigo . $paragrafo . $inciso . $alinea;
+        }
+        return '';
     }
 
     /*
@@ -177,6 +209,31 @@ class MinutaEmpenho extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getCompraModalidadeAttribute()
+    {
+        return $this->compra()->first()->modalidade()->first()->descricao;
+    }
+
+    public function getTipoCompraAttribute()
+    {
+        return $this->compra()->first()->tipo_compra()->first()->descricao;
+    }
+
+    public function getNumeroAnoAttribute()
+    {
+        return $this->compra()->first()->numero_ano;
+    }
+
+    public function getIncisoAttribute()
+    {
+        return $this->compra()->first()->inciso;
+    }
+
+    public function getLeiAttribute()
+    {
+        return $this->compra()->first()->lei;
+    }
 
     /*
     |--------------------------------------------------------------------------

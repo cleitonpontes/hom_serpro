@@ -169,10 +169,10 @@ class CompraSiasgCrudController extends CrudController
                     'modalidade_id' => $request->modalidade_id,
                     'numero_ano' => $request->numero_ano
                 ]);
-            $etapa = 2;
+//            $etapa = 2;
             DB::commit();
 
-            return redirect('/empenho/fornecedor/' . $etapa . '/' . $minutaEmpenho->id);
+            return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
 
         } catch (Exception $exc) {
             dd($exc);
@@ -321,9 +321,10 @@ class CompraSiasgCrudController extends CrudController
 
     public function retornaInfoComplementar($params)
     {
+        $numeroAno = str_replace("/","",$params['numero_ano']);
         $modalide = Codigoitem::find($params['modalidade_id']);
         $unidade = Unidade::find($params['unidade_origem_id']);
-        $info = $modalide->descricao.' '.$params['numero_ano'].' '.($unidade->codigo.' - '.$unidade->nomeresumido);
+        $info = $unidade->codigo.$modalide->descres.$numeroAno;
 
         return $info;
     }
