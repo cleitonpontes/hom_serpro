@@ -25,31 +25,27 @@ class VerifyStepEmpenhoMiddleware
         'empenho.minuta.etapa.item' => 3,
         'empenho.minuta.etapa.saldocontabil' => 4,
         'empenho.minuta.etapa.subelemento' => 5,
-        'empenho.minuta.etapa.passivo-anterior' => 7
+        'empenho.crud./minuta.edit' => 6,
+        'empenho.minuta.etapa.passivo-anterior' => 7,
+        'empenho.crud./minuta.show' => 8
     ];
 
     public function handle($request, Closure $next)
     {
-        //rotas para verificação
-//        if ($this->rotas[Route::current()->action['as']]) {
-//        dd(2);
-//        dump(Route::current());
-//        dump(Route::current()->action['as']);
-//        dump($request->method());
-//        dd($request);
 
         if (array_key_exists(Route::current()->action['as'], $this->rotas)) {
 
-            $minuta_id = Route::current()->parameter('minuta_id');
+            $minuta_id = Route::current()->parameter('minuta_id') ?? Route::current()->parameter('minutum');
 
             $minuta = MinutaEmpenho::find($minuta_id);
-//          dd($minuta->etapa);
             session(['empenho_etapa' => $minuta->etapa]);
-            session(['empenho_etapa' => $minuta->etapa]);
-            if ($minuta->etapa >= $this->rotas[Route::current()->action['as']]) {
+            session(['fornecedor_compra' => $minuta->fornecedor_compra_id]);
+            if ($minuta->etapa >= $this->rotas[Route::current()->action['as']]
+                || ($minuta->etapa === 2 && $this->rotas[Route::current()->action['as']] === 3)
+            ) {
                 return $next($request);
             }
-            dd($minuta->etapa , $this->rotas[Route::current()->action['as']]);
+            dd($minuta->etapa, $this->rotas[Route::current()->action['as']]);
 
             dd(2);
 

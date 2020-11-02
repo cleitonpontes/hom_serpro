@@ -8,12 +8,12 @@
 
 namespace App\Http\Controllers\Empenho;
 
-
 use App\Forms\InserirCelulaOrcamentariaForm;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\SaldoContabil;
 use App\Models\Unidade;
 use App\Models\MinutaEmpenho;
+use FormBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Route;
@@ -26,11 +26,11 @@ use App\STA\ConsultaApiSta;
 use App\Http\Traits\Users;
 use App\Http\Traits\Formatador;
 
-
 class SaldoContabilMinutaController extends BaseControllerEmpenho
 {
     use Users;
     use Formatador;
+
     /**
      * Display a listing of the resource.
      *
@@ -41,10 +41,9 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinuta = MinutaEmpenho::find($minuta_id);
-        $etapa_id = Route::current()->parameter('etapa_id');
 
         $unidade_id = session('user_ug_id');
-        if((session('unidade_ajax_id') !== null)){
+        if ((session('unidade_ajax_id') !== null)) {
             $unidade_id = session('unidade_ajax_id');
         }
         $modUnidade = Unidade::find($unidade_id);
@@ -56,105 +55,97 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             return DataTables::of($saldos)
                 ->addColumn(
                     'action',
-                    function ($saldos) use ($modUnidade)
-                    {
-                        return $this->retornaBtnAtualizar($saldos['id'],$modUnidade->codigo);
+                    function ($saldos) use ($modUnidade) {
+                        return $this->retornaBtnAtualizar($saldos['id'], $modUnidade->codigo);
                     }
                 )
                 ->addColumn(
                     'btn_selecionar',
-                    function ($saldos) use ($minuta_id)
-                    {
-                        return $this->retornaBtSelecionar($saldos['id'],$minuta_id);
+                    function ($saldos) use ($minuta_id) {
+                        return $this->retornaBtSelecionar($saldos['id'], $minuta_id);
                     }
                 )
-                ->rawColumns(['action','btn_selecionar'])
+                ->rawColumns(['action', 'btn_selecionar'])
                 ->make(true);
         }
 
         $html = $this->retornaGrid();
 
-        $form = $this->retonaFormModal($modUnidade->id,$minuta_id,$etapa_id);
+        $form = $this->retonaFormModal($modUnidade->id, $minuta_id);
 
-        return view('backpack::mod.empenho.Etapa4SaldoContabil', compact(['html','form']))
+        return view('backpack::mod.empenho.Etapa4SaldoContabil', compact(['html', 'form']))
             ->with('minuta_id', $modMinuta->id)
-            ->with('etapa_id',$etapa_id)
-            ->with('fornecedor_id',$modUnidade->fornecedor_compra_id)
-            ->with('unidades',$this->buscaUg())
-            ->with('modUnidade',$modUnidade);
+            ->with('fornecedor_id', $modUnidade->fornecedor_compra_id)
+            ->with('unidades', $this->buscaUg())
+            ->with('modUnidade', $modUnidade);
     }
 
     public function retornaSaldosComMascara($saldos)
     {
-        $saldosPtBr = array_map(function ($saldos){
-            if($saldos['saldo']){
-                $saldos['saldo'] = str_replace(',','.',$saldos['saldo']);
-                $saldos['saldo'] = str_replace_last('.',',',$saldos['saldo']);
+        $saldosPtBr = array_map(function ($saldos) {
+            if ($saldos['saldo']) {
+                $saldos['saldo'] = str_replace(',', '.', $saldos['saldo']);
+                $saldos['saldo'] = str_replace_last('.', ',', $saldos['saldo']);
             }
             return $saldos;
-        },$saldos);
+        }, $saldos);
         return $saldosPtBr;
     }
 
 
-    public function consultaApiSta($ano,$ug,$gestao,$contacontabil)
+    public function consultaApiSta($ano, $ug, $gestao, $contacontabil)
     {
         $apiSta = new ConsultaApiSta();
-        $saldoContabil = $apiSta->saldocontabilAnoUgGestaoContacontabil($ano,$ug,$gestao,$contacontabil);
+        $saldoContabil = $apiSta->saldocontabilAnoUgGestaoContacontabil($ano, $ug, $gestao, $contacontabil);
         return $saldoContabil;
     }
 
 
-    public function store(){
+    public function store()
+    {
 
         $minuta_id = Route::current()->parameter('minuta_id');
-        $etapa_id = Route::current()->parameter('etapa_id');
 
-        $unidade = Unidade::where('codigo',session('user_ug'))->first();
+        $unidade = Unidade::where('codigo', session('user_ug'))->first();
         $ano = date('Y');
         $ug = $unidade->codigo;
         $gestao = $unidade->gestao;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
 
-        $saldosContabeis = json_encode($this->consultaApiSta($ano,$ug,$gestao,$contacontabil));
+        $saldosContabeis = json_encode($this->consultaApiSta($ano, $ug, $gestao, $contacontabil));
 
-        foreach (json_decode($saldosContabeis) as $key => $saldo){
-
+        foreach (json_decode($saldosContabeis) as $key => $saldo) {
             $modSaldoContabil = new SaldoContabil();
             $atualizar = $modSaldoContabil->verificaDataAtualizacaoSaldoContabil($saldo);
             (!$atualizar)
-                ?$modSaldoContabil->gravaSaldoContabil($ano,$unidade->id,$saldo->contacorrente,$contacontabil,$saldo->saldo)
-                :'';
+                ? $modSaldoContabil->gravaSaldoContabil($ano, $unidade->id, $saldo->contacorrente, $contacontabil, $saldo->saldo)
+                : '';
         }
         return redirect()->route(
             'empenho.minuta.etapa.saldocontabil',
-                [
-                'etapa_id' => ($etapa_id),
+            [
                 'minuta_id' => $minuta_id
-                ]
+            ]
         );
-
     }
 
     public function atualizaMinuta(Request $request)
     {
 
-        if (!$request->get('saldo')){
+        if (!$request->get('saldo')) {
             \Alert::error('Selecione o Saldo Contábil.')->flash();
             return redirect()->back();
         }
 
         $minuta_id = $request->get('minuta_id');
-        $etapa_id = $request->get('etapa_id');
         $saldo_contabil_id = $request->get('saldo');
 
         $modMinuta = MinutaEmpenho::find($minuta_id);
-        $modMinuta->etapa = $etapa_id+1;
+        $modMinuta->etapa = 5;
         $modMinuta->saldo_contabil_id = $saldo_contabil_id;
         $modMinuta->save();
 
-        return redirect()->route('empenho.minuta.etapa.subelemento',['etapa_id' => $modMinuta->etapa, 'minuta_id' => $minuta_id]);
-
+        return redirect()->route('empenho.minuta.etapa.subelemento', [ 'minuta_id' => $minuta_id]);
     }
 
     public function inserirCelulaOrcamentaria(Request $request)
@@ -175,12 +166,9 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         return redirect()->route(
             'empenho.minuta.etapa.saldocontabil',
             [
-                'etapa_id' => ($request->get('etapa_id') + 1),
                 'minuta_id' => $request->get('minuta_id')
             ]
         );
-
-
     }
 
     public function retornaContaCorrente(Request $request)
@@ -289,7 +277,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     private function retornaBtSelecionar($id, $minuta_id)
     {
         $btn = '';
-        $btn .= "<input type='radio' class='custom-control-input' id=saldo_".$id." name='saldo' value=".$id.">";
+        $btn .= "<input type='radio' class='custom-control-input' id=saldo_" . $id . " name='saldo' value=" . $id . ">";
         return $btn;
     }
 
@@ -307,29 +295,23 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         return $acoes;
     }
 
-    public function retonaFormModal($unidade_id,$minuta_id,$etapa_id)
+    public function retonaFormModal($unidade_id, $minuta_id)
     {
-        return $form = \FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
+        return FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
             'url' => route('empenho.saldo.inserir.modal'),
             'method' => 'POST',
-             'id' => 'form_modal'
+            'id' => 'form_modal'
 
-        ])->add('unidade_id', 'hidden',[
+        ])->add('unidade_id', 'hidden', [
             'value' => $unidade_id,
             'attr' => [
-                'id'=>'unidade_id'
+                'id' => 'unidade_id'
             ]
-        ])->add('minuta_id', 'hidden',[
+        ])->add('minuta_id', 'hidden', [
             'value' => $minuta_id,
             'attr' => [
-                'id'=>'minuta_id'
-            ]
-        ])->add('etapa_id', 'hidden',[
-            'value' => $etapa_id,
-            'attr' => [
-                'id'=>'etapa_id'
+                'id' => 'minuta_id'
             ]
         ]);
     }
-
 }

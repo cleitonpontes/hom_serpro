@@ -27,7 +27,6 @@
             <form action="{{route('empenho.minuta.atualizar.saldo')}}" method="post">
             @csrf <!-- {{ csrf_field() }} -->
                 <div class="col-sm-12">
-                    <input type="hidden" id="etapa_id" name="etapa_id" value="{{$etapa_id}}">
                     <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 </div>
 
@@ -66,7 +65,7 @@
                 <div class="row">
                     <div class="col-md-3" align="left">
                         {!! Button::primary('<i class="fa fa-arrow-left"></i> Voltar')
-                            ->asLinkTo(route('empenho.minuta.etapa.item',['etapa_id'=> ($etapa_id - 1),'minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id]))
+                            ->asLinkTo(route('empenho.minuta.etapa.item',['minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id]))
                         !!}
                     </div>
                     <div class="col-md-3">

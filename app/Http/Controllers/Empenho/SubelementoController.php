@@ -27,7 +27,6 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function index(Request $request)
     {
-        $etapa_id = Route::current()->parameter('etapa_id');
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         //        $fornecedor_id = \Route::current()->parameter('fornecedor_id');
@@ -79,7 +78,7 @@ class SubelementoController extends BaseControllerEmpenho
             ->select(
                 [
                     'compra_item_minuta_empenho.compra_item_id',
-                    'tipo_compra.descricao as tipo_compra',
+                    'tipo_compra.descricao as tipo_compra_descricao',
                     'codigoitens.descricao',
                     'compra_items.catmatseritem_id',
                     'compra_items.descricaodetalhada',
@@ -96,14 +95,12 @@ class SubelementoController extends BaseControllerEmpenho
             ->get()
             ->toArray();
 
-
         if ($request->ajax()) {
             return DataTables::of($itens)
                 ->addColumn(
                     'ci_id',
                     function ($item) use ($modMinutaEmpenho) {
 
-                        //                    return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao']);
                         return $this->addColunaCompraItemId($item);
                     }
                 )
@@ -111,7 +108,6 @@ class SubelementoController extends BaseControllerEmpenho
                     'subitem',
                     function ($item) use ($modMinutaEmpenho) {
 
-                        //                    return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao']);
                         return $this->addColunaSubItem($item);
                     }
                 )
@@ -269,22 +265,19 @@ class SubelementoController extends BaseControllerEmpenho
     private function addColunaQuantidade($item)
     {
 
-        if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+        if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd" . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id'] . "' data-tipo='' name='qtd[]' value='' readonly  > ";
         }
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
             . "' data-compra_item_id='" . $item['compra_item_id']
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
             . " class='form-control' value='' onchange='calculaValorTotal(this)'  > "
-            ." <input  type='hidden' id='quantidade_total" . '' . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
-//        dd($item);
-//        return " <input  type='text' id='' data-tipo='' name='qtd[]' value=''   > ";
+            . " <input  type='hidden' id='quantidade_total" . '' . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
     }
 
     private function addColunaValorTotal($item)
     {
-//        dd($item);
-        if ($item['tipo_compra'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+        if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='text' class='form-control col-md-12 valor_total vrtotal" . $item['compra_item_id'] . "'"
                 . "id='vrtotal" . $item['compra_item_id']
                 . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value=''"
@@ -321,7 +314,6 @@ class SubelementoController extends BaseControllerEmpenho
         DB::beginTransaction();
         try {
             foreach ($compra_item_ids as $index => $item) {
-
                 CompraItemMinutaEmpenho::where('compra_item_id', $item)
                     ->where('minutaempenho_id', $request->minuta_id)
                     ->update([
@@ -329,7 +321,7 @@ class SubelementoController extends BaseControllerEmpenho
                         'quantidade' => ($request->qtd[$index]),
                         'valor' => $valores[$index]
                     ]);
-                CompraItem::where('id',$item)
+                CompraItem::where('id', $item)
                     ->update(['quantidade' => ($request->quantidade_total[$index] - $request->qtd[$index])]);
             }
 
@@ -337,12 +329,12 @@ class SubelementoController extends BaseControllerEmpenho
             $modMinuta->etapa = 6;
             $modMinuta->valor_total = $request->valor_utilizado;
             $modMinuta->save();
-            
+
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
         }
 
-        return redirect()->route('empenho.crud./minuta.edit', ['minutum' => $modMinuta->id ]);
+        return redirect()->route('empenho.crud./minuta.edit', ['minutum' => $modMinuta->id]);
     }
 }

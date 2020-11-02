@@ -68,7 +68,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     private function retornaAcoes($id, $minuta_id)
     {
         $acoes = '';
-        $acoes .= '<a href="/empenho/item/3/' . $minuta_id . '/' . $id;
+        $acoes .= '<a href="' . route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $id]);
         $acoes .= '"Selecionar ';
         $acoes .= "class='btn btn-default btn-sm' ";
         $acoes .= 'title="Selecionar este fornecedor">';
@@ -246,7 +246,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         if (!isset($itens)) {
             Alert::error('Escolha pelo menos 1 item da compra.')->flash();
-            return redirect("/empenho/item/3/$minuta_id/$fornecedor_id");
+            return redirect()->route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);
         }
 
         $itens = array_map(

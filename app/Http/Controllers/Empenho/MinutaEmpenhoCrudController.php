@@ -84,6 +84,7 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         // your additional operations before save here
         $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
+        $request->request->set('etapa', 7);
 
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -226,7 +227,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'amparo_legal_id',
             'label' => "Amparo Legal",
-            'type' => 'select_from_array',
+            'type' => 'select2_from_array',
             'options' => $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
             'allows_null' => true,
             'wrapperAttributes' => [
@@ -301,7 +302,6 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaColunaTaxaCambio();
         $this->adicionaColunaLocalEntrega();
         $this->adicionaColunaDescricao();
-
     }
 
     protected function adicionaColunaSituacao()

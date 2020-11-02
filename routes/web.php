@@ -255,7 +255,7 @@ Route::group(
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
 
             //passo 1
-            Route::get('buscacompra/{etapa_id}/{minuta_id?}', 'CompraSiasgCrudController@create')
+            Route::get('buscacompra', 'CompraSiasgCrudController@create')
                 ->name('minuta.etapa.compra');
 
             Route::post('buscacompra', 'CompraSiasgCrudController@store');
@@ -272,10 +272,10 @@ Route::group(
                 ->name('minuta.etapa.item.store');
 
             //passo 4
-            Route::get('saldo/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@index')
+            Route::get('saldo/{minuta_id}', 'SaldoContabilMinutaController@index')
                 ->name('minuta.etapa.saldocontabil');
 
-            Route::get('saldo/gravar/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@store')
+            Route::get('saldo/gravar/{minuta_id}', 'SaldoContabilMinutaController@store')
                 ->name('minuta.gravar.saldocontabil');
 
             Route::post('saldo/gravar/saldo/minuta', 'SaldoContabilMinutaController@atualizaMinuta')
@@ -285,7 +285,7 @@ Route::group(
                 ->name('saldo.inserir.modal');
 
             //passo 5
-            Route::get('subelemento/{etapa_id}/{minuta_id}', 'SubelementoController@index')
+            Route::get('subelemento/{minuta_id}', 'SubelementoController@index')
                 ->name('minuta.etapa.subelemento');
 
             Route::post('subelemento', 'SubelementoController@store')

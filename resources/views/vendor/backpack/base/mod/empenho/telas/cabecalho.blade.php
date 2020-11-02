@@ -12,13 +12,10 @@
         $partes = explode('/', $url);
         $proc = array_search('tela', $partes);
 
-        $passo = session('empenho_etapa');
-        //dd($passo);
-        $minuta_id = (int) Route::current()->parameter('minuta_id');
-        $minuta = ($minuta_id ?: '' );
-
+        $etapa = session('empenho_etapa');
+        $minuta_id = Route::current()->parameter('minuta_id') ?? Route::current()->parameter('minutum');
+        $fornecedor_id = session('fornecedor_compra') ?? Route::current()->parameter('fornecedor_id') ?? '';
         // Itens do cabeçalho
-        $passos = array();
 
         $passos[1] = 'Compra';
         $passos[2] = 'Fornecedor';
@@ -29,14 +26,40 @@
         $passos[7] = 'Passivo Anterior';
         $passos[8] = 'Finalizar';
 
-        $rotas[1] = 'buscacompra';
-        $rotas[2] = 'fornecedor';
-        $rotas[3] = 'item';
-        $rotas[4] = '';
-        $rotas[5] = '';
-        $rotas[6] = '';
-        $rotas[7] = '';
-        $rotas[8] = '';
+        $rotas[1] = ['name' => 'empenho.minuta.etapa.compra', 'params'=>[]];
+        $rotas[2] = [
+            'name' => 'empenho.minuta.etapa.fornecedor',
+            'params'=> ['minuta_id' => $minuta_id]
+        ];
+
+        $rotas[3] = [
+            'name' => 'empenho.minuta.etapa.item',
+            'params' => ['minuta_id' => $minuta_id,
+                            'fornecedor_id' => $fornecedor_id
+                        ]
+        ];
+        $rotas[4] = [
+            'name' => 'empenho.minuta.etapa.saldocontabil',
+            'params' => ['minuta_id' => $minuta_id]
+        ];
+        $rotas[5] = [
+            'name' => 'empenho.minuta.etapa.subelemento',
+            'params' => ['minuta_id' => $minuta_id]
+        ];
+        $rotas[6] = [
+            'name' => 'empenho.crud./minuta.edit',
+            'params' => ['minutum' => $minuta_id]
+        ];
+        $rotas[7] = [
+            'name' => 'empenho.minuta.etapa.passivo-anterior',
+            'params' => ['minuta_id' => $minuta_id]
+        ];
+
+        $rotas[8] = [
+            'name' => 'empenho.crud./minuta.show',
+            'params' => ['minutum' => $minuta_id]
+        ];
+
 
 @endphp
 
@@ -50,17 +73,11 @@
                 <div class="row" align="center">
 
                     @foreach($passos as $num => $descricao)
-                        @php
-                            $fornecedor = ''
-                        @endphp
-                        @if($num === 3 )
-                            @php $fornecedor = Route::current()->parameter('fornecedor_id') @endphp
-                        @endif
-                        @php $cor = ($passo >= $num) ? 'azul' : '' @endphp
+
+                        @php $cor = ($etapa >= $num) ? 'azul' : '' @endphp
                         <div class="btn btn-app" style="width: 108px;">
                             @if($cor=="azul")
-                                <a href="{{ backpack_url("/empenho/$rotas[$num]/$num/$minuta$fornecedor") }}">
-                                    {{--                                <a href="{{route('busca.compra', ['tela_id'=> '1'])}}">--}}
+                                <a href="{{ route($rotas[$num]['name'], $rotas[$num]['params'])  }}">
                                     @endif
                                     <span class="circulo {{$cor}}">{{$num}}</span>
                                     {!! $descricao !!}
