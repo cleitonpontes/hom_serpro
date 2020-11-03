@@ -14,7 +14,7 @@ class InsertPublicacaoContratohistoricoTable extends Migration
     public function up()
     {
         Schema::table('contratohistorico', function (Blueprint $table) {
-            $table->date('data_publicacao')->nullable(false)->change();
+            $table->date('data_publicacao')->nullable()->change();
             $table->boolean('publicado')->default(false);
         });
     }
