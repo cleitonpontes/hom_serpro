@@ -171,6 +171,9 @@ class ContratoController extends Controller
         $empenhos = $this->buscaEmpenhosPorContratoId($contrato_id);
 
         foreach ($empenhos as $e) {
+
+            $numeroEmpenho = @$e->empenho->unidade->codigo . @$e->empenho->unidade->gestao . @$e->empenho->numero;
+
             $empenhos_array[] = [
                 'unidade_gestora' => @$e->empenho->unidade->codigo,
                 'gestao' => @$e->empenho->unidade->gestao,
@@ -186,7 +189,9 @@ class ContratoController extends Controller
                 'rpaliquidar' => number_format(@$e->empenho->rpaliquidar, 2, ',', '.'),
                 'rpliquidado' => number_format(@$e->empenho->rpliquidado, 2, ',', '.'),
                 'rppago' => number_format(@$e->empenho->rppago, 2, ',', '.'),
-
+                'links' => [
+                    'documento_pagamento' => url(env('API_STA_HOST').'/api/ordembancaria/empenho/' . $numeroEmpenho)
+                ]
             ];
         }
 
