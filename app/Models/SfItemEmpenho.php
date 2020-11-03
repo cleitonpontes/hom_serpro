@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class SfOrcEmpenhoDados extends Model
+class SfItemEmpenho extends Model
 {
     use CrudTrait;
     use LogsActivity;
@@ -20,33 +20,19 @@ class SfOrcEmpenhoDados extends Model
     */
 
     protected static $logFillable = true;
-    protected static $logName = 'sforcempenhodados';
+    protected static $logName = 'sfitemempenho';
 
-    protected $table = 'sforcempenhodados';
+    protected $table = 'sfitemempenho';
 
     protected $guarded = [
         'id'
     ];
 
     protected $fillable = [
-        'minutaempenho_id',
-        'ugemitente',
-        'anoempenho',
-        'tipoempenho',
-        'numempenho',
-        'dtemis',
-        'txtprocesso',
-        'vlrtaxacambio',
-        'vlrempenho',
-        'codfavorecido',
-        'codamparolegal',
-        'txtinfocompl',
-        'codtipotransf',
-        'txtlocalentrega',
-        'txtdescricao',
-        'numro', // numero??
-        'mensagemretorno',
-        'situacao'
+        'sforcempenhodado_id',
+        'numseqitem',
+        'codsubelemento',
+        'descricao'
     ];
 
     /*
@@ -61,19 +47,14 @@ class SfOrcEmpenhoDados extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function minuta_empenhos()
+    public function sforcempenhodados()
     {
-        return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
+        return $this->belongsTo(SfOrcEmpenhoDados::class, 'sforcempenhodado_id');
     }
 
-    public function passivos_anteriores()
+    public function operacao_item_empenho()
     {
-        return $this->hasMany(SfPassivoAnterior::class, 'sforcempenhodado_id');
-    }
-
-    public function itens_empenho()
-    {
-        return $this->hasMany(SfItemEmpenho::class, 'sforcempenhodado_id');
+        return $this->hasOne(SfOperacaoItemEmpenho::class, 'sfitemempenho_id');
     }
 
     /*

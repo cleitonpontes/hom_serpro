@@ -279,7 +279,17 @@
                 .then(response => {
                     dados = response.data
                     if(dados.resultado == true) {
-                        location.reload();
+                        Swal.fire(
+                            'Sucesso!',
+                            'Empenho emitido com sucesso!',
+                            'success'
+                        )
+                    }else{
+                        Swal.fire(
+                            'Alerta!',
+                            'Houve um problema ao tentar salvar os dados.',
+                            'warning'
+                        )
                     }
                 })
                 .catch(error => {
