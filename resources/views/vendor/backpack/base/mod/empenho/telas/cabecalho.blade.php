@@ -13,8 +13,10 @@
         $proc = array_search('tela', $partes);
 
         $etapa = session('empenho_etapa');
-        $minuta_id = Route::current()->parameter('minuta_id') ?? Route::current()->parameter('minutum');
+        $minuta_id = Route::current()->parameter('minuta_id') ?? session('minuta_id') ?? Route::current()->parameter('minutum');
         $fornecedor_id = session('fornecedor_compra') ?? Route::current()->parameter('fornecedor_id') ?? '';
+        $conta_id = session('conta_id') ?? Route::current()->parameter('conta_id') ?? '';
+
         // Itens do cabeçalho
 
         $passos[1] = 'Compra';
@@ -50,15 +52,24 @@
             'name' => 'empenho.crud./minuta.edit',
             'params' => ['minutum' => $minuta_id]
         ];
-        $rotas[7] = [
-            'name' => 'empenho.minuta.etapa.passivo-anterior',
-            'params' => ['minuta_id' => $minuta_id]
-        ];
+        if ($conta_id){
+            $rotas[7] = [
+                'name' => 'empenho.crud.passivo-anterior.edit',
+                'params' => ['minuta_id' => $conta_id]
+            ];
+
+        } else {
+            $rotas[7] = [
+                'name' => 'empenho.minuta.etapa.passivo-anterior',
+                'params' => ['passivo_anterior' => $minuta_id]
+            ];
+        }
+
 
         $rotas[8] = [
             'name' => 'empenho.crud./minuta.show',
             'params' => ['minutum' => $minuta_id]
-        ];
+        ]
 
 
 @endphp

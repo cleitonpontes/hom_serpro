@@ -129,8 +129,10 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
-        //TODO VERIFICAR SE O FORNECEDOR EXISTE NA COMPRA
-        (!is_null($modMinutaEmpenho)) ? $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id) : '';
+        if (!is_null($modMinutaEmpenho)) {
+            $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id);
+            session(['fornecedor_compra' => $fornecedor_id]);
+        }
 
 
         $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')

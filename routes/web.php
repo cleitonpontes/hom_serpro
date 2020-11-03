@@ -243,7 +243,7 @@ Route::group(
             'prefix' => 'empenho',
             'namespace' => 'Empenho\\',
             'as' => 'empenho.',
-            'middleware' => ['auth','permission:empenho_minuta_acesso'],
+            'middleware' => ['auth', 'permission:empenho_minuta_acesso', 'verify.step.empenho'],
         ], function () {
 
             /**
@@ -252,46 +252,30 @@ Route::group(
              *
              **/
 
-//            CRUD::resource('/minutaempenho', 'MinutaEmpenhoCrudController')
-//                ->name('minuta.empenho');
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
-//            Route::get('/minuta', 'MinutaEmpenhoCrudController@index')
-//                ->name('lista.minuta')
-//                ->middleware('permission:folha_apropriacao_acesso');
-
-//            Route::Post('/minuta/search', 'MinutaEmpenhoCrudController@search')
-//                ->name('lista.minuta.search')
-//                ->middleware('permission:folha_apropriacao_acesso');
-
 
             //passo 1
-//            CRUD::resource('/buscacompra', 'CompraSiasgCrudController')
-//                ->name('busca.compra');
-
-            Route::get('buscacompra/{etapa_id}/{minuta_id?}', 'CompraSiasgCrudController@create')
+            Route::get('buscacompra', 'CompraSiasgCrudController@create')
                 ->name('minuta.etapa.compra');
 
             Route::post('buscacompra', 'CompraSiasgCrudController@store');
 
             //passo 2
-            Route::get('fornecedor/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoController@index')
+            Route::get('fornecedor/{minuta_id}', 'FornecedorEmpenhoController@index')
                 ->name('minuta.etapa.fornecedor');
 
             //passo 3
+            Route::get('item/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
+                ->name('minuta.etapa.item');
 
             Route::post('item', 'FornecedorEmpenhoController@store')
                 ->name('minuta.etapa.item.store');
 
-            Route::get('item/{etapa_id}/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
-                ->name('minuta.etapa.item');
-
-
             //passo 4
+            Route::get('saldo/{minuta_id}', 'SaldoContabilMinutaController@index')
+                ->name('minuta.etapa.saldocontabil');
 
-            Route::get('saldo/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@index')
-                ->name('minuta.listagem.saldocontabil');
-
-            Route::get('saldo/gravar/{etapa_id}/{minuta_id}', 'SaldoContabilMinutaController@store')
+            Route::get('saldo/gravar/{minuta_id}', 'SaldoContabilMinutaController@store')
                 ->name('minuta.gravar.saldocontabil');
 
             Route::post('saldo/gravar/saldo/minuta', 'SaldoContabilMinutaController@atualizaMinuta')
@@ -301,9 +285,7 @@ Route::group(
                 ->name('saldo.inserir.modal');
 
             //passo 5
-
-
-            Route::get('subelemento/{etapa_id}/{minuta_id}', 'SubelementoController@index')
+            Route::get('subelemento/{minuta_id}', 'SubelementoController@index')
                 ->name('minuta.etapa.subelemento');
 
             Route::post('subelemento', 'SubelementoController@store')
@@ -311,60 +293,12 @@ Route::group(
 
             //passo 6
 
-
-//            Route::get('minuta/{id}', 'MinutaEmpenhoCrudController@edit')
-//                ->name('minuta.etapa.dadosempenho');
-
-//            Route::post('minuta', 'MinutaEmpenhoCrudController@store');
-//            Route::put('minuta', 'MinutaEmpenhoCrudController@update');
-
             //passo 7
-
             CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create', 'show']]);
 
             Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
-                ->name('passivo-anterior.create');
+                ->name('minuta.etapa.passivo-anterior');
 
-//            Route::get('passivo-anterior/{minuta_id}/edit', 'ContaCorrentePassivoAnteriorCrudController@edit')
-//                ->name('passivo-anterior.edit');
-
-
-            //passo 8
-
-            CRUD::resource('store-siafi', 'SaldoContabilMinutaController', ['except' => ['create', 'show']]);
-
-            Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
-                ->name('passivo-anterior.create');
-
-//            Route::get('passivo-anterior/{minuta_id}/edit', 'ContaCorrentePassivoAnteriorCrudController@edit')
-//                ->name('passivo-anterior.edit');
-
-
-            /**
-             *
-             * Minuta Empenho - Genéricos
-             *
-             **/
-
-//            CRUD::resource('/minutaempenho', 'MinutaEmpenhoCrudController')
-//                ->name('minuta.empenho');
-
-
-//            Route::get('/listaminutaempenho', 'NovoEmpenhoController@index')
-//                ->name('lista.minuta.empenhos')
-//                ->middleware('permission:folha_apropriacao_acesso');
-
-//            Route::get('minuta/etapa/{etapa_id}/{minuta_id}', 'FornecedorEmpenhoControllerEmpenho@index')
-//                ->name('minuta.etapa.fornecedor')
-//                ->middleware('permission:folha_apropriacao_passo');
-
-//            Route::post('/minuta/tela/1/gravar', 'Minuta\Tela1EmpenhoController@gravar')
-//                ->name('minuta.tela.1.gravar')
-//                ->middleware('permission:folha_apropriacao_passo');
-
-
-//            Route::get('minuta/tela/1/create', 'CompraSiasgCrudController@create')
-//                ->name('compra.create');
         });
 
         Route::get('/tags', function () {

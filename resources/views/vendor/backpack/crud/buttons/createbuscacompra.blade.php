@@ -1,5 +1,5 @@
 @if ($crud->hasAccess('create'))
-    <a href="{{ url('empenho/buscacompra/1') }}"
+    <a href="{{ url('empenho/buscacompra') }}"
        class="btn btn-primary ladda-button"
        data-style="zoom-in">
        <span class="ladda-label">

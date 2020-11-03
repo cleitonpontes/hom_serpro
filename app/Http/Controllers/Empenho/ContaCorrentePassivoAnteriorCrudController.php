@@ -28,17 +28,14 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         $minuta_id = Route::current()->parameter('minuta_id');
 
         $minuta_id = isset($minuta_id) ? $minuta_id : '';
-//        dd($minuta_id);
 
         $passivoAnterior = '';
         $contaContabilPassivoAnterior = '';
-//        $minuta_id = '';
 
 
         if (!(null !== Route::current()->parameter('minuta_id'))
             && $this->crud->getCurrentEntryId() !== false
         ) {
-
             $modPassivoAnterior = ContaCorrentePassivoAnterior::find($this->crud->getCurrentEntryId());
             $modMinuta = $modPassivoAnterior->minutaempenho()->first();
             $minuta_id = $modMinuta->id;
@@ -48,9 +45,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         }
 
 
-        $minuta = MinutaEmpenho::find($minuta_id);
-        $minuta->fornecedor_empenho_id;
-        $minuta->valor_total;
 
 
 //        $passivoAnteriorM = ContaCorrentePassivoAnterior::find(35);
@@ -67,7 +61,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 //            $itens
 //        );
 
-      //  dd($itens);
+        //  dd($itens);
 
         /*
         |--------------------------------------------------------------------------
@@ -107,29 +101,30 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         // add asterisk for fields that are required in ContaCorrentePassivoAnteriorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
-
     }
 
     public function store(StoreRequest $request)
     {
-
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
-        $itens = json_decode($request->get('conta_corrente_json'), true);
-        $conta_corrente_json = $request->get('conta_corrente_json');
-
-        $itens = array_map(
-            function ($itens) use ($request) {
-                $itens['minutaempenho_id'] = $request->minutaempenho_id;
-                $itens['conta_corrente_json'] = $request->conta_corrente_json;
-                return $itens;
-            },
-            $itens
-        );
 
         DB::beginTransaction();
         try {
+            if ($request->passivo_anterior == true) {
+                $itens = json_decode($request->get('conta_corrente_json'), true);
+                $conta_corrente_json = $request->get('conta_corrente_json');
 
-            ContaCorrentePassivoAnterior::insert($itens);
+                $itens = array_map(
+                    function ($itens) use ($request) {
+                        $itens['minutaempenho_id'] = $request->minutaempenho_id;
+                        $itens['conta_corrente_json'] = $request->conta_corrente_json;
+                        return $itens;
+                    },
+                    $itens
+                );
+
+                ContaCorrentePassivoAnterior::insert($itens);
+            }
+
             $minuta->etapa = 8;
             $minuta->passivo_anterior = $request->passivo_anterior;
             $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
@@ -141,7 +136,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         }
 
         return Redirect::to('empenho/minuta/' . $minuta->id);
-
     }
 
     public function update(UpdateRequest $request)
@@ -176,7 +170,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         }
 
         return Redirect::to('empenho/minuta/' . $minuta->id);
-
     }
 
 
@@ -242,6 +235,4 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             'min' => 0, // minimum rows allowed in the table
         ]);
     }
-
-
 }
