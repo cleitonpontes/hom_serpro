@@ -41,6 +41,12 @@ class Funcionarioscontratoconta extends Model
     public function getCpfFormatado(){
         $base = new AdminController();
         $cpf = $this->cpf;
+        $cpf = '815.199.581-53';
+        // vamos verificar se o cpf ainda não está formatado
+        $posicaoPonto = strpos($cpf, '.');
+        if($posicaoPonto > 0){
+            return $cpf;
+        }
         return $cpf = $base->formataCnpjCpfTipo($cpf, 'FISICA');
     }
     public function getSituacaoFuncionario(){
