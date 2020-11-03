@@ -227,7 +227,7 @@
                         </button>
                     </div>
                     <div class="col-md-3" align="right">
-                        <button type="submit" class="btn btn-primary" id="finalizar"  disabled="disabled">
+                        <button type="submit" class="btn btn-primary" id="finalizar"  disabled="disabled" onclick="{{route('empenho.crud./minuta.index')}}">
                             <i class="fa fa-check-circle"></i> Finalizar
                         </button>
                     </div>
@@ -256,11 +256,13 @@
             $('body').on('click','#emitir_empenho_siafi', function(event){
                 salvarTabelasSiafi(event);
                 $('#emitir_empenho_siafi').attr('disabled',true);
+                $('#voltar').attr('disabled',true);
                 $('#empenhar_outro_fornecedor').removeAttr('disabled');
                 $('#finalizar').removeAttr('disabled');
             });
 
             $('body').on('click','#empenhar_outro_fornecedor', function(event){
+                empenharOutroFornecedor(event);
                 $('#empenhar_outro_fornecedor').attr('disabled',true);
                 $('#emitir_empenho_siafi').removeAttr('disabled');
                 $('#finalizar').attr('disabled',true);
@@ -304,15 +306,16 @@
 
             var minuta_id = $('#minuta_id').val();
 
-            var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
+            var url = "{{route('novo.empenho.compra',':minuta_id')}}";
             url = url.replace(':minuta_id',minuta_id);
             axios.request(url)
                 .then(response => {
-                    dados = response.data
-                    if(dados.resultado == true) {
-                        var table = $('#dataTableBuilder').DataTable();
-                        table.ajax.reload();
-                    }
+                    var nova_minuta_id = response.data
+
+                    var url = "{{route('empenho.minuta.etapa.fornecedor',':minuta_id')}}";
+                    url = url.replace(':minuta_id',nova_minuta_id);
+                    console.log(url);
+                    window.location.href = url;
                 })
                 .catch(error => {
                     alert(error);

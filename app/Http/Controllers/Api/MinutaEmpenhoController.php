@@ -47,7 +47,6 @@ class MinutaEmpenhoController extends Controller
             $retorno['resultado'] = true;
 
             } catch (\Exception $exc) {
-                dd($exc);
                 DB::rollback();
             }
 
@@ -154,6 +153,29 @@ class MinutaEmpenhoController extends Controller
             $modSfOpItemEmpenho->vlrunitario = ($item->valor / $item->quantidade);
             $modSfOpItemEmpenho->vlroperacao = $item->valor;
             $modSfOpItemEmpenho->save();
+    }
+
+    public function novoEmpenhoMesmaCompra()
+    {
+        $minuta_id = Route::current()->parameter('minuta_id');
+        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+
+        DB::beginTransaction();
+        try {
+            $novoEmpenho = new MinutaEmpenho();
+            $novoEmpenho->unidade_id = $modMinutaEmpenho->unidade_id;
+            $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
+            $novoEmpenho->informacao_complementar = $modMinutaEmpenho->informacao_complementar;
+            $novoEmpenho->etapa = 2;
+            $novoEmpenho->save();
+            DB::commit();
+            return json_encode($novoEmpenho->id);
+        } catch (\Exception $exc) {
+            DB::rollback();
+        }
+
+
+
     }
 
 

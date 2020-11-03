@@ -63,6 +63,7 @@ class VerifyStepEmpenhoMiddleware
 
                 return $next($request);
             }
+
             session(['empenho_etapa' => '']);
             session(['conta_id' => '']);
             session(['fornecedor_compra' => '']);
