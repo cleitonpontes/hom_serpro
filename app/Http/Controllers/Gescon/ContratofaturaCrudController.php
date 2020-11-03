@@ -555,6 +555,7 @@ class ContratofaturaCrudController extends CrudController
         return $redirect_location;
     }
 
+
     public function update(UpdateRequest $request)
     {
         $contrato_id = $request->input('contrato_id');

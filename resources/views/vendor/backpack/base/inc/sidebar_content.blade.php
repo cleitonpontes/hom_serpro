@@ -449,6 +449,12 @@
                             </a>
                         </li>
                         <li>
+                            <a href='{{ backpack_url('/gescon/encargo') }}'>
+                                <i class='fa fa-list'></i>
+                                <span>Encargo</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ backpack_url('/admin/justificativafatura') }}">
                                 <i class="fa fa-list"></i>
                                 <span>Justificativa fatura</span>

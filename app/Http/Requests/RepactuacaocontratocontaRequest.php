@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
-class OrgaoSuperiorRequest extends FormRequest
+class RepactuacaocontratocontaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,12 +25,8 @@ class OrgaoSuperiorRequest extends FormRequest
      */
     public function rules()
     {
-        $id = $this->id ?? "NULL";
-
         return [
-            'codigo' => "required|max:5|min:5|unique:orgaossuperiores,codigo,{$id}",
-            'nome' => "required|max:255",
-            'situacao' => 'required',
+            // 'name' => 'required|min:5|max:255'
         ];
     }
 
@@ -54,12 +50,7 @@ class OrgaoSuperiorRequest extends FormRequest
     public function messages()
     {
         return [
-            'codigo.required' => 'O campo "Código" é obrigatório!',
-            'codigo.unique' => 'Este Código já está cadastrado!',
-            'nome.required' => 'O campo "Nome" é obrigatório!',
-            'nome.max' => 'O campo "Nome" deve ser no máximo 255 caracteres!',
-            'situacao.required' => 'O campo "Situação" é obrigatório!',
+            //
         ];
     }
 }
-
