@@ -489,17 +489,19 @@ class MinutaEmpenhoCrudController extends CrudController
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
             ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
             ->select([
-                DB::raw('codigoitens.descricao AS "Tipo do Item"'),
-                DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
-
-                DB::raw('catmatseritens.descricao AS "CatMatSerItem"'),
-                DB::raw('catmatseritens.codigo_siasg AS "Código"'),
-                DB::raw('fornecedores.nome AS "Fornecedor"'),
                 DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
-                DB::raw('naturezasubitem.descricao AS "Natureza/Despeza"'),
+                DB::raw('fornecedores.nome AS "Fornecedor"'),
+                DB::raw('codigoitens.descricao AS "Tipo do Item"'),
+                DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
+                DB::raw('catmatseritens.descricao AS "Descrição"'),
+                DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
+                DB::raw('naturezasubitem.descricao AS "ND Detalhada"'),
                 DB::raw('compra_items.valorunitario AS "Valor unitário"'),
                 DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                 DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
+
+
+
             ])
             ->get()->toArray();
 
