@@ -190,7 +190,7 @@ class ContratoController extends Controller
                 'rpliquidado' => number_format(@$e->empenho->rpliquidado, 2, ',', '.'),
                 'rppago' => number_format(@$e->empenho->rppago, 2, ',', '.'),
                 'links' => [
-                    'documento_pagamento' => url('/api/ordembancaria/empenho/' . $numeroEmpenho)
+                    'documento_pagamento' => url(env('API_STA_HOST').'/api/ordembancaria/empenho/' . $numeroEmpenho)
                 ]
             ];
         }
