@@ -132,7 +132,7 @@ class AdminController extends Controller
     {
         $events = [];
         $eventsCollections = $this->getCalendarEvents()->get()->toArray();
-        if (count($eventsCollections) > 0) {
+        if (is_array($eventsCollections) ? count($eventsCollections) : 0) {
             foreach ($eventsCollections as $key => $value) {
                  $events[] = \Calendar::event(
                      $value['title'],
