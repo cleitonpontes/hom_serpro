@@ -132,7 +132,8 @@ class AdminController extends Controller
     {
         $events = [];
         $eventsCollections = $this->getCalendarEvents()->get()->toArray();
-        if (is_array($eventsCollections) ? count($eventsCollections) : 0) {
+        $pkcount = is_array($eventsCollections) ? count($eventsCollections) : 0;
+        if ($pkcount > 0) {
             foreach ($eventsCollections as $key => $value) {
                  $events[] = \Calendar::event(
                      $value['title'],
@@ -149,7 +150,7 @@ class AdminController extends Controller
         }
         return $events;
     }
-    
+
 
     private function getColors($shuffle = false)
     {
