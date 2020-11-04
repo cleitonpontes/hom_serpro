@@ -1430,6 +1430,8 @@ class ContratoController extends Controller
 *          @OA\Schema(
 *             schema="Empenhos",
 *             type="object",
+*             @OA\Property(property="unidade_gestora",type="string",example="110099"),
+*             @OA\Property(property="gestao",type="string",example="00001"),
 *             @OA\Property(property="numero",type="string",example="2019NE800022"),
 *             @OA\Property(property="credor",type="string",example="09.439.320/0001-17 - GLOBAL SERVICOS & COMERCIO LTDA"),
 *             @OA\Property(property="planointerno",type="string",example="AGU0047 - SERVICOS DE PORTARIA"),
@@ -1442,6 +1444,7 @@ class ContratoController extends Controller
 *             @OA\Property(property="rpaliquidar",type="number",example="128.941,72"),
 *             @OA\Property(property="rpliquidado",type="number",example="128.941,72"),
 *             @OA\Property(property="rppago",type="number",example="102.725,92"),
+*             @OA\Property(property="links",type="array", @OA\Items(type="object", example="{'documento_pagamento': 'http:\/\/sta.agu.gov.br\/api\/ordembancaria\/empenho\/110099000012017NE800559'}"))
 *       ),
 *          @OA\Schema(
 *             schema="Empenhos_id",
