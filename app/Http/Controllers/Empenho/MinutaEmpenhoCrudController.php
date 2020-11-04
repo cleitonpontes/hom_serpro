@@ -8,6 +8,7 @@ use App\Models\Compra;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
+use App\Models\SaldoContabil;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -33,7 +34,6 @@ class MinutaEmpenhoCrudController extends CrudController
     public function setup()
     {
         $this->minuta_id = $this->crud->getCurrentEntryId();
-        // dd($this->minuta_id);
 
         /*
         |--------------------------------------------------------------------------
@@ -51,18 +51,12 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('delete');
 
-//        $this->crud->denyAccess('update');
-        // $this->crud->denyAccess('show');
-
-        // $this->crud->addButton('', 'Nova Minuta', 'view', 'teste', '');
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
 
-        // TODO: remove setFromDb() and manually define Fields and Columns
-        //$this->crud->setFromDb();
         $this->adicionaCampos($this->minuta_id);
         $this->adicionaColunas($this->minuta_id);
 
@@ -291,8 +285,8 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaColunaIncisoCompra();
         $this->adicionaColunaLeiCompra();
 
-        $this->adicionaColunasItens($minuta_id);
-//        dd('tese');
+        $this->adicionaBoxItens($minuta_id);
+        $this->adicionaBoxSaldo($minuta_id);
 
 //        $this->adicionaColunaSituacao();
         $this->adicionaColunaNumeroEmpenho();
@@ -480,7 +474,7 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
-    public function adicionaColunasItens($minuta_id)
+    public function adicionaBoxItens($minuta_id)
     {
         $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
             ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
@@ -501,9 +495,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
 
 
-
-            ])
-            ->get()->toArray();
+            ])->get()->toArray();
 
         $this->crud->addColumn([
             'box' => 'itens',
@@ -516,6 +508,40 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
             'values' => $itens
+        ]);
+    }
+
+    public function adicionaBoxSaldo($minuta_id)
+    {
+
+        $saldo = SaldoContabil::join('minutaempenhos', 'minutaempenhos.saldo_contabil_id', '=', 'saldo_contabil.id')
+            ->select([
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,1,1) AS "Esfera"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,2,6) AS "PTRS"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,8,10) AS "Fonte"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,18,6) AS "ND"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,24,8) AS "UGR"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,32,11) AS "Plano Interno"'),
+                DB::raw('TO_CHAR(saldo_contabil.saldo,\'999G999G000D99\') AS "Crédito orçamentário"'),
+                DB::raw('TO_CHAR(minutaempenhos.valor_total,\'999G999G000D99\') AS "Utilizado"'),
+                DB::raw('TO_CHAR(saldo_contabil.saldo - minutaempenhos.valor_total, \'999G999G000D99\')  AS "Saldo"'),
+
+            ])
+            ->where('minutaempenhos.id', $minuta_id)
+            ->get()
+            ->toArray();
+
+        $this->crud->addColumn([
+            'box' => 'saldo',
+            'name' => 'saldo',
+            'label' => 'saldo', // Table column heading
+//            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+            'values' => $saldo
         ]);
     }
 

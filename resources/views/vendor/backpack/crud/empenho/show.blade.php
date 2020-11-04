@@ -1,4 +1,4 @@
-{{--@php dd($crud->columns['itens']['values']) @endphp--}}
+{{--@php dd($crud->columns) @endphp--}}
 @extends('backpack::layout')
 
 @section('header')
@@ -30,7 +30,7 @@
         <div class="{{ $crud->getShowContentClass() }}">
         @include('backpack::mod.empenho.telas.cabecalho')
 
-        <!-- Default box -->
+        <!-- Resumo da Minuta de Empenho -->
             <div class="m-t-20">
                 @if ($crud->model->translationEnabled())
                     <div class="row">
@@ -55,7 +55,6 @@
                     </div>
                 @else
                 @endif
-                {{--	    <div class="box no-padding no-border">--}}
                 <div class="box box-solid box-primary collapsed-box">
                     <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <h3 class="box-title">Resumo da Minuta de Empenho</h3>
@@ -91,7 +90,6 @@
                                                     @endif
                                                 </td>
                                             </tr>
-
                                         @endif()
                                     @endforeach
                                     @if ($crud->buttons->where('stack', 'line')->count())
@@ -112,9 +110,40 @@
                 </div>
             </div>
 
-            <div class="m-t-20">
+            {{-- Crédito Orçamentário  --}}
+            @foreach($crud->columns['saldo']['values'] as $itens )
+                <div class="m-t-20">
+                    <div class="box box-solid box-primary collapsed-box">
+                        <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip"
+                             title="Collapse">
+                            <h3 class="box-title">Crédito Orçamentário</h3>
+                        </div>
+                        <div class="box-body">
+                            @csrf <!-- {{ csrf_field() }} -->
+                                <div class="box-body">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                        @foreach ($itens as $key => $value)
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ $key }}</strong>
+                                                </td>
+                                                <td>
+                                                    <span>{{ $value }}</span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div><!-- /.box-body -->
+                        <div class="col-sm-12"></div>
+                    </div>
+                </div>
+            @endforeach
 
-                {{--	    <div class="box no-padding no-border">--}}
+            <!-- Resumo da Compra -->
+            <div class="m-t-20">
                 <div class="box box-solid box-primary collapsed-box">
                     <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <h3 class="box-title">Resumo da Compra</h3>
@@ -172,8 +201,6 @@
             {{-- ITENS DA COMPRA  --}}
             @foreach($crud->columns['itens']['values'] as $itens )
                 <div class="m-t-20">
-
-                    {{--	    <div class="box no-padding no-border">--}}
                     <div class="box box-solid box-primary collapsed-box">
                         <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip"
                              title="Collapse">
@@ -209,9 +236,6 @@
             <div class="box-tools">
                 <div class="row">
                     <div class="col-md-3">
-{{--                        {!! Button::primary('<i class="fa fa-arrow-left"></i> Voltar')--}}
-{{--                            ->asLinkTo(route('empenho.minuta.etapa.item'));--}}
-{{--                        !!}--}}
                         <button type="button" class="btn btn-primary" id="voltar">
                             <i class="fa fa-arrow-left"></i> Voltar
                         </button>
@@ -222,12 +246,14 @@
                         </button>
                     </div>
                     <div class="col-md-3">
-                        <button type="button" class="btn btn-primary" id="empenhar_outro_fornecedor"  disabled="disabled">
+                        <button type="button" class="btn btn-primary" id="empenhar_outro_fornecedor"
+                                disabled="disabled">
                             <i class="fa fa-plus"></i> Empenhar outro Fornecedor
                         </button>
                     </div>
                     <div class="col-md-3" align="right">
-                        <button type="submit" class="btn btn-primary" id="finalizar"  disabled="disabled" onclick="{{route('empenho.crud./minuta.index')}}">
+                        <button type="submit" class="btn btn-primary" id="finalizar" disabled="disabled"
+                                onclick="{{route('empenho.crud./minuta.index')}}">
                             <i class="fa fa-check-circle"></i> Finalizar
                         </button>
                     </div>
@@ -251,42 +277,42 @@
     <script src="{{ asset('vendor/backpack/crud/js/show.js') }}"></script>
     <script type="text/javascript">
 
-        $(document).ready(function(){
+        $(document).ready(function () {
 
-            $('body').on('click','#emitir_empenho_siafi', function(event){
+            $('body').on('click', '#emitir_empenho_siafi', function (event) {
                 salvarTabelasSiafi(event);
-                $('#emitir_empenho_siafi').attr('disabled',true);
-                $('#voltar').attr('disabled',true);
+                $('#emitir_empenho_siafi').attr('disabled', true);
+                $('#voltar').attr('disabled', true);
                 $('#empenhar_outro_fornecedor').removeAttr('disabled');
                 $('#finalizar').removeAttr('disabled');
             });
 
-            $('body').on('click','#empenhar_outro_fornecedor', function(event){
+            $('body').on('click', '#empenhar_outro_fornecedor', function (event) {
                 empenharOutroFornecedor(event);
-                $('#empenhar_outro_fornecedor').attr('disabled',true);
+                $('#empenhar_outro_fornecedor').attr('disabled', true);
                 $('#emitir_empenho_siafi').removeAttr('disabled');
-                $('#finalizar').attr('disabled',true);
+                $('#finalizar').attr('disabled', true);
             });
 
         });
 
-        function salvarTabelasSiafi(event){
+        function salvarTabelasSiafi(event) {
 
             var minuta_id = $('#minuta_id').val();
 
             var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
-            url = url.replace(':minuta_id',minuta_id);
+            url = url.replace(':minuta_id', minuta_id);
 
             axios.request(url)
                 .then(response => {
                     dados = response.data
-                    if(dados.resultado == true) {
+                    if (dados.resultado == true) {
                         Swal.fire(
                             'Sucesso!',
                             'Empenho emitido com sucesso!',
                             'success'
                         )
-                    }else{
+                    } else {
                         Swal.fire(
                             'Alerta!',
                             'Houve um problema ao tentar salvar os dados.',
@@ -302,18 +328,18 @@
         }
 
 
-        function empenharOutroFornecedor(event){
+        function empenharOutroFornecedor(event) {
 
             var minuta_id = $('#minuta_id').val();
 
             var url = "{{route('novo.empenho.compra',':minuta_id')}}";
-            url = url.replace(':minuta_id',minuta_id);
+            url = url.replace(':minuta_id', minuta_id);
             axios.request(url)
                 .then(response => {
                     var nova_minuta_id = response.data
 
                     var url = "{{route('empenho.minuta.etapa.fornecedor',':minuta_id')}}";
-                    url = url.replace(':minuta_id',nova_minuta_id);
+                    url = url.replace(':minuta_id', nova_minuta_id);
                     console.log(url);
                     window.location.href = url;
                 })
