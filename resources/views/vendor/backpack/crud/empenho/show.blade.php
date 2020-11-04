@@ -252,10 +252,9 @@
                         </button>
                     </div>
                     <div class="col-md-3" align="right">
-                        <button type="submit" class="btn btn-primary" id="finalizar" disabled="disabled"
-                                onclick="{{route('empenho.crud./minuta.index')}}">
+                        <a href="{{route('empenho.crud./minuta.index')}}"  class="btn btn-primary" id="finalizar" disabled="disabled">
                             <i class="fa fa-check-circle"></i> Finalizar
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -309,7 +308,7 @@
                     if (dados.resultado == true) {
                         Swal.fire(
                             'Sucesso!',
-                            'Empenho emitido com sucesso!',
+                            'Empenho salvo com sucesso!',
                             'success'
                         )
                     } else {

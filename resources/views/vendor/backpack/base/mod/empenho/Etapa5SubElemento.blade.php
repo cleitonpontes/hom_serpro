@@ -7,8 +7,7 @@
 @section('header')
     <section class="content-header">
         <h1>
-            Itens
-            <small>da Compra</small>
+            Crédito Orçamentário
         </h1>
     </section>
 @endsection
@@ -24,7 +23,7 @@
     </div>
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
-            <h3 class="box-title">Itens da Compra</h3>
+            <h3 class="box-title">Saldo do Crédito Orçamentário</h3>
         </div>
         <div class="box-body">
             <div class="row">
@@ -64,6 +63,7 @@
             <form action="/empenho/subelemento" method="POST">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
+                <input type="hidden" id="credito" name="credito" value="{{$credito}}">
                 <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="">
             @csrf <!-- {{ csrf_field() }} -->
 

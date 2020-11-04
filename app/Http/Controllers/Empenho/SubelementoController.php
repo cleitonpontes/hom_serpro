@@ -14,7 +14,7 @@ use Route;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
 use App\Http\Traits\Formatador;
-
+use Alert;
 class SubelementoController extends BaseControllerEmpenho
 {
     use Formatador;
@@ -252,6 +252,7 @@ class SubelementoController extends BaseControllerEmpenho
     private function addColunaSubItem($item)
     {
         $subItens = Naturezasubitem::where('naturezadespesa_id', $item['natureza_despesa_id'])
+            ->orderBy('codigo', 'asc')
             ->get()->pluck('codigo_descricao', 'id');
 
         $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
@@ -297,10 +298,14 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function store(Request $request)
     {
+        $minuta_id = $request->get('minuta_id');
+
+        if ($request->credito - $request->valor_utilizado < 0) {
+            Alert::error('O saldo não pode ser negativo.')->flash();
+            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+        }
 
         $compra_item_ids = $request->compra_item_id;
-
-        $minuta_id = $request->get('minuta_id');
 
         $valores = $request->valor_total;
 
