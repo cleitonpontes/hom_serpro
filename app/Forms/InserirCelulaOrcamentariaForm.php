@@ -63,11 +63,11 @@ class InserirCelulaOrcamentariaForm extends Form
                         'oninput' => 'handleInput(event)'
                     ]
             ])
-        ->add('valor', 'text',[
-                'label' => 'Valor',
-                'attr' => ['id'=>'valor', 'required ' => true,]
-            ])
-        ->add('cancelar', 'button', [
+//        ->add('valor', 'text',[
+//                'label' => 'Valor',
+//                'attr' => ['id'=>'valor', 'required ' => true,]
+//            ])
+        ->add('cancelar', 'submit', [
             'label' => '<i class="fa fa-reply"></i> Cancelar',
             'attr' => [
                 'class' => 'btn btn-danger',

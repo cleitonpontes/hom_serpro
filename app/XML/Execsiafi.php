@@ -269,6 +269,28 @@ class Execsiafi
 
     }
 
+
+    public function conrazaoUserSystem($system_user,$pwd ,$amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
+    {
+
+//        $senha = base64_decode($user->senhasiafi);
+
+        $client = $this->conexao_xml($system_user, $pwd, $ug, '', $amb, $ano, 'CONSULTA');
+
+        $parms = new \stdClass;
+        $parms->tabConsultarSaldo = [
+            'codUG' => $ug,
+            'contaContabil' => $contacontabil,
+            'contaCorrente' => $contacorrente,
+            'mesRefSaldo' => $mesref
+        ];
+
+        $retorno = $this->submit($client, $parms, 'CONRAZAO');
+
+        return $this->trataretorno($retorno);
+
+    }
+
     public function consultaDh(
         BackpackUser $user,
         string $ug_user,

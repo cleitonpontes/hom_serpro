@@ -48,7 +48,7 @@ class VerifyStepEmpenhoMiddleware
                 session(['unidade_ajax_id' => '']);
                 return $next($request);
             }
-            //se for a rota 4
+//            se for a rota 4
             if ($this->rotas[Route::current()->action['as']] === 1) {
                 session(['unidade_ajax_id' => '']);
             }

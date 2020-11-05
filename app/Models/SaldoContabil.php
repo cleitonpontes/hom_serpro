@@ -62,7 +62,6 @@ class SaldoContabil extends Model
             ])
             ->where(DB::raw("SUBSTRING(saldo_contabil.conta_corrente,22,2)"),'<>','00')
             ->where('saldo_contabil.unidade_id',$unidade_id)
-            ->where('saldo_contabil.saldo','>',0)
             ->orderby('saldo','DESC')
             ->get()
             ->toArray();
@@ -72,14 +71,8 @@ class SaldoContabil extends Model
     public function verificaDataAtualizacaoSaldoContabil($saldoSta)
     {
         $atualizar = false;
-        $saldoLocal = SaldoContabil::where('conta_corrente',$saldoSta->contacorrente)->first();
-
-        if(!is_null($saldoLocal)) {
-            if ($saldoLocal->count() > 0) {
-                if (strtotime($saldoLocal->updated_at) < strtotime($saldoSta->updated_at)) {
-                    $atualizar = true;
-                }
-            }
+        if (strtotime($this->updated_at) < strtotime($saldoSta->updated_at)) {
+            $atualizar = true;
         }
         return $atualizar;
     }

@@ -45,7 +45,10 @@ Route::group([
             Route::get('amparolegal', 'AmparoLegalController@index');
             Route::get('amparolegal/{id}', 'AmparoLegalController@show');
             Route::get('atualizasaldos/unidade/{cod_unidade}', 'SaldoContabilController@atualizaSaldosPorUnidade')->name('atualiza.saldos.unidade');
+            Route::get('atualizasaldos/linha/{saldo_id}', 'SaldoContabilController@atualizaSaldosPorLinha')->name('atualiza.saldos.linha');
             Route::get('pupula/tabelas/siafi/{minuta_id}', 'MinutaEmpenhoController@populaTabelasSiafi')->name('popula.tabelas.siafi');
+            Route::get('inserir/celula/modal/{cod_unidade}/{contacorrente}', 'SaldoContabilController@inserirCelulaOrcamentaria')->name('saldo.inserir.modal');
+            Route::get('carrega/saldos/unidade/{cod_unidade}', 'SaldoContabilController@carregaSaldosPorUnidadeSiasg')->name('carrega.saldos.unidade');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
         });
 

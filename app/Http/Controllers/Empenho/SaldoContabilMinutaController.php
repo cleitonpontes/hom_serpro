@@ -43,9 +43,11 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $modMinuta = MinutaEmpenho::find($minuta_id);
 
         $unidade_id = session('user_ug_id');
-        if ((session('unidade_ajax_id') !== null)) {
+
+        if (!empty(session('unidade_ajax_id'))) {
             $unidade_id = session('unidade_ajax_id');
         }
+
         $modUnidade = Unidade::find($unidade_id);
 
         $saldosContabeis = SaldoContabil::retornaSaldos($unidade_id);
@@ -55,14 +57,14 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             return DataTables::of($saldos)
                 ->addColumn(
                     'action',
-                    function ($saldos) use ($modUnidade) {
-                        return $this->retornaBtnAtualizar($saldos['id'], $modUnidade->codigo);
+                    function ($saldos){
+                        return $this->retornaBtnAtualizar($saldos['id']);
                     }
                 )
                 ->addColumn(
                     'btn_selecionar',
-                    function ($saldos) use ($minuta_id) {
-                        return $this->retornaBtSelecionar($saldos['id'], $minuta_id);
+                    function ($saldos){
+                        return $this->retornaBtSelecionar($saldos['id']);
                     }
                 )
                 ->rawColumns(['action', 'btn_selecionar'])
@@ -150,6 +152,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
     public function inserirCelulaOrcamentaria(Request $request)
     {
+
         $conta_corrente = $this->retornaContaCorrente($request);
         $saldo = $request->get('valor');
         $unidade_id = $request->get('unidade_id');
@@ -264,17 +267,26 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     }
 
 
-    private function retornaBtnAtualizar($id, $codigo)
+    private function retornaBtnAtualizar($id)
     {
-        $btnsel = '';
-        $btnsel .= '<button type="button" class="btn btn-primary btn-sm" id="atualiza_saldo_acao">';
-        $btnsel .= '<i class="fa fa-refresh"></i></button>';
+        $btnUpdate = '';
+        $btnUpdate .= '<button type="button" class="btn btn-primary btn-sm" id='.$id.' name=atualiza_saldo_acao_'.$id.">";
+        $btnUpdate .= '<i class="fa fa-refresh"></i></button>';
 
-        return $btnsel;
+//        $btnUpdate = '';
+//        $btnUpdate .= '<button type="button" class="btn btn-primary btn-sm" id='.$id.'" name="atualiza_saldo_acao">';
+//        $btnUpdate .= "<a href='/api/atualizasaldos/linha/$id'";
+//        $btnUpdate .= "title='Atualizar Saldo'>";
+////        $btnUpdate .= "name='atualiza_'".$id.">";
+////        $btnUpdate .= "id='$id>";
+//        $btnUpdate .= "<i class='fa fa-refresh'></i></a></button>";
+
+        return $btnUpdate;
+
     }
 
 
-    private function retornaBtSelecionar($id, $minuta_id)
+    private function retornaBtSelecionar($id)
     {
         $btn = '';
         $btn .= "<input type='radio' class='custom-control-input' id=saldo_" . $id . " name='saldo' value=" . $id . ">";
@@ -298,8 +310,8 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     public function retonaFormModal($unidade_id, $minuta_id)
     {
         return FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
-            'url' => route('empenho.saldo.inserir.modal'),
-            'method' => 'POST',
+//            'url' => route('api.saldo.inserir.modal'),
+//            'method' => 'POST',
             'id' => 'form_modal'
 
         ])->add('unidade_id', 'hidden', [
