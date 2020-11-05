@@ -243,12 +243,12 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 $jornadaContratoTerceirizado = $objContratoTerceirizado->jornada;
                 $salarioAtual = $objContratoTerceirizado->salario;
                 $diferencaEntreSalarios = ($novoSalario - $salarioAtual);
+                $situacaoContratoTerceirizado = $objContratoTerceirizado->situacao; // verificar se é ativo
 
-                // vamos verificar se a jornada informada é a mesma da jornada do terceirizado.
-                if( $jornada == $jornadaContratoTerceirizado ){
+                // vamos verificar se a jornada informada é a mesma da jornada do terceirizado e se o terceirizado é ativo.
+                if( $jornada == $jornadaContratoTerceirizado && $situacaoContratoTerceirizado){
                     // para cada terceirizado - buscar os lançamentos pela data
                     $idContratoTerceirizado = $objContratoTerceirizado->id;
-
                     $arrayLancamentosTerceirizado = self::getTodosLancamentosDepositoByIdContratoTerceirizado($idContratoTerceirizado);
 
                     // vamos varrer os lançamentos para verificar o mês / ano

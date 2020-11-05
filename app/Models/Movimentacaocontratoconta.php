@@ -76,7 +76,8 @@ class Movimentacaocontratoconta extends Model
         $objLancamento = new Lancamento();
         $idMovimentacao= $this->id;
         // vamos pegar todosos lançamentos da movimentacao e somá-los
-        return $valorTotal = $objLancamento->getValorTotalLancamentosByIdMovimentacao($idMovimentacao);
+        $valorTotal = $objLancamento->getValorTotalLancamentosByIdMovimentacao($idMovimentacao);
+        return $valorTotal = number_format($valorTotal, 2, ',', '.');
     }
     public function getTipoMovimentacao(){
         $objCodigoItem = Codigoitem::find($this->tipo_id);
