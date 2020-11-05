@@ -22,6 +22,7 @@ class VerifyStepEmpenhoMiddleware
      * Rotas para verificação
      */
     public $rotas = [
+        'empenho.minuta.etapa.compra' => 1,
         'empenho.minuta.etapa.fornecedor' => 2,
         'empenho.minuta.etapa.item' => 3,
         'empenho.minuta.etapa.saldocontabil' => 4,
@@ -35,7 +36,23 @@ class VerifyStepEmpenhoMiddleware
     public function handle($request, Closure $next)
     {
 
+        //se a rota existe na lista de rotas
         if (array_key_exists(Route::current()->action['as'], $this->rotas)) {
+
+            //se for a rota 1 limpa tudo
+            if ($this->rotas[Route::current()->action['as']] === 1) {
+                session(['empenho_etapa' => '']);
+                session(['conta_id' => '']);
+                session(['fornecedor_compra' => '']);
+                session(['situacao_minuta' => '']);
+                session(['unidade_ajax_id' => '']);
+                return $next($request);
+            }
+            //se for a rota 4
+            if ($this->rotas[Route::current()->action['as']] === 1) {
+                session(['unidade_ajax_id' => '']);
+            }
+
             $minuta_id = Route::current()->parameter('minuta_id')
                 ?? Route::current()->parameter('minutum');
 
@@ -60,6 +77,7 @@ class VerifyStepEmpenhoMiddleware
                 session(['minuta_id' => $minuta->id]);
                 session(['empenho_etapa' => $minuta->etapa]);
                 session(['fornecedor_compra' => $minuta->fornecedor_compra_id]);
+                session(['situacao_minuta' => $minuta->situacao]);
 
                 return $next($request);
             }
