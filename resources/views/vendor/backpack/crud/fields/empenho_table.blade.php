@@ -10,9 +10,7 @@ $item_name = strtolower(isset($field['entity_singular']) && !empty($field['entit
 $items = old(square_brackets_to_dots($field['name'])) ?? $field['value'] ?? $field['default'] ?? '';
 
 $conta_corrente_padrao = $crud->params['conta_corrente_padrao'];
-//dd($conta_corrente_padrao);
-// make sure not matter the attribute casting
-// the $items variable contains a properly defined JSON
+$valor_total = $crud->params['valor_total'];
 
 if (is_array($items)) {
     if (count($items)) {
@@ -23,7 +21,6 @@ if (is_array($items)) {
 } elseif (is_string($items) && !is_array(json_decode($items))) {
     $items = '[]';
 }
-//dd($crud->params['valor_total']);
 ?>
 <div ng-app="backPackTableApp" ng-controller="tableController" @include('crud::inc.field_wrapper_attributes') >
 
@@ -38,6 +35,7 @@ if (is_array($items)) {
                ng-init="field = '#{{ $field['name'] }}';
                items = {{ $items }};
                conta = {{ $conta_corrente_padrao }};
+               val_total = {{ $valor_total }};
                max = {{$max}};
                min = {{$min}};
                maxErrorTitle = '{{trans('backpack::crud.table_cant_add', ['entity' => $item_name])}}';
@@ -45,7 +43,6 @@ if (is_array($items)) {
         >
             <thead>
             <tr>
-
                 @foreach( $field['columns'] as $prop )
                     <th style="font-weight: 600!important;">
                         {{ $prop }}
@@ -58,34 +55,31 @@ if (is_array($items)) {
 
             <tbody ui-sortable="sortableOptions" ng-model="items" class="table-striped">
 
-            <tr ng-repeat="item in items" class="array-row">
-
-                <td>
-                    <input class=" " ng-type="text" ng-model='item.conta_corrente' ng-value="<%costPerCanSixteen%>"
-                           @if($action === 'edit')
-                           ng-model='item.conta_corrente'
-                        @endif
-                    >
-                </td>
-                <td>
-                    <input class=" " type="text" ng-value="<%costPerCanSixteen_%>" currency-input
-                           @if($action === 'edit')
-                           ng-model='item.valor'
-                        @endif
-                    >
-                </td>
-                <td ng-if="max == -1 || max > 1">
-                    <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i
-                            class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>
-                </td>
-                <td ng-if="max == -1 || max > 1">
-                    <button ng-hide="min > -1 && $index < min" class="btn btn-sm btn-default" type="button"
-                            ng-click="removeItem(item);"><span class="sr-only">delete item</span><i class="fa fa-trash"
-                                                                                                    role="presentation"
-                                                                                                    aria-hidden="true"></i>
-                    </button>
-                </td>
-            </tr>
+                <tr ng-repeat="item in items" class="array-row">
+                    <td>
+                        <input  class=" " ng-type="text" ng-model='item.conta_corrente' ng-value="<%costPerCanSixteen%>" >
+                    </td>
+                    <td>
+                        <input name="conta_corrente_p" type="hidden"  value="<%costPerCanSixteen%>">
+                    </td>
+                    <td>
+                        <input  class=" " type="text" ng-model='item.valor' ng-value="<%costPerCanSixteen_%>">
+                    </td>
+                    <td>
+                        <input name="valor_total_p" type="hidden"  value="<%costPerCanSixteen_%>">
+                    </td>
+                    <td ng-if="max == -1 || max > 1">
+                        <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i
+                                class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>
+                    </td>
+                    <td ng-if="max == -1 || max > 1">
+                        <button ng-hide="min > -1 && $index < min" class="btn btn-sm btn-default" type="button"
+                                ng-click="removeItem(item);"><span class="sr-only">delete item</span><i class="fa fa-trash"
+                                                                                                        role="presentation"
+                                                                                                        aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
 
             </tbody>
 
@@ -171,17 +165,8 @@ if (is_array($items)) {
                 };
 
                 $scope.costPerCanSixteen = function () {
-                    var priceSixteen = 50;
-                        @foreach( $field['columns'] as $prop => $label)
-
-                        @endforeach
-
-                    // var conta_corrente_padrao = $('#conta_corrente_padrao').val();
-                    alert($scope.max);
-
-
                      $scope.costPerCanSixteen = $scope.conta;
-                     $scope.costPerCanSixteen_ = 987;
+                     $scope.costPerCanSixteen_ = $scope.val_total;
                 };
 
                 $scope.removeItem = function (item) {
@@ -210,7 +195,6 @@ if (is_array($items)) {
                 }, true);
 
                 if ($scope.min > -1) {
-                    // alert(98777);
                     for (var i = 0; i < $scope.min; i++) {
                         $scope.addItem();
                     }
@@ -223,44 +207,9 @@ if (is_array($items)) {
                     if (!ctrlDom.hasClass('ng-scope')) {
                         angular.bootstrap(ctrl, [ctrlDom.attr('ng-app')]);
                     }
-
-                    function ttttteste() {
-                        // alert(665544);
-                    }
-
-                    $("#btn_add2").click(function () {
-                        // $('body').on('click','#btn_add2', function(event){
-                        // console.log(123);
-                        // alert(123);
-                        // empenharOutroFornecedor(event);
-                        // $('#empenhar_outro_fornecedor').attr('disabled',true);
-                        // $('#emitir_empenho_siafi').removeAttr('disabled');
-                        // $('#finalizar').attr('disabled',true);
-                    });
                 });
             })
 
-        </script>
-
-        <script type="javascript">
-            $(document).ready(function () {
-
-
-                $("#btn_add2").click(function () {
-                    // $('body').on('click','#btn_add2', function(event){
-                    //     console.log(123);
-                    //     alert(123);
-                    // empenharOutroFornecedor(event);
-                    // $('#empenhar_outro_fornecedor').attr('disabled',true);
-                    // $('#emitir_empenho_siafi').removeAttr('disabled');
-                    // $('#finalizar').attr('disabled',true);
-                });
-
-                function teste() {
-                    // alert(123333);
-                }
-
-            });
         </script>
 
     @endpush

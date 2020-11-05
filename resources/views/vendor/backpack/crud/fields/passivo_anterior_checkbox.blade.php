@@ -10,8 +10,8 @@
     @include('crud::inc.field_translatable_icon')
     <div class="checkbox" >
     	<label>
-    	  <input type="hidden" name="{{ $field['name'] }}" value="0">
-    	  <input type="checkbox" value="0"
+            <input type="hidden" name="{{ $field['name'] }}" value="0">
+    	  <input type="checkbox" value="1"
 
           name="{{ $field['name'] }}"
 

@@ -28,8 +28,8 @@
     @if($action === 'create')
         <script>
             jQuery(document).ready(function($) {
-                // alert( $("#passivo").val());
-                if ( $("#passivo").val() == 0) {
+                 // alert( $("#passivo").val());
+                if ( $("#passivo").val() == 1) {
                     $('#contabil').attr('disabled', true);
                     $('#btn_add').attr('disabled', true);
                 }
