@@ -91,7 +91,7 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         $content = parent::show($id);
 
-        $this->crud->removeColumn('situacao');
+        $this->crud->removeColumn('situacao_id');
         $this->crud->removeColumn('unidade_id');
         $this->crud->removeColumn('compra_id');
 

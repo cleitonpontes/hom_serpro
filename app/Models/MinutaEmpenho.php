@@ -33,22 +33,23 @@ class MinutaEmpenho extends Model
     protected $fillable = [
         'amparo_legal_id',
         'compra_id',
-        'fornecedor_compra_id',
-        'fornecedor_empenho_id',
-        'saldo_contabil_id',
-        'tipo_empenho_id',
-        'unidade_id',
         'conta_contabil_passivo_anterior',
         'data_emissao',
         'descricao',
         'etapa',
+        'fornecedor_compra_id',
+        'fornecedor_empenho_id',
         'informacao_complementar',
         'local_entrega',
         'numero_empenho_sequencial',
         'passivo_anterior',
         'processo',
+        'saldo_contabil_id',
+        'situacao',
         'taxa_cambio',
+        'tipo_empenho_id',
         'tipo_minuta_empenho',
+        'unidade_id',
         'valor_total'
     ];
 

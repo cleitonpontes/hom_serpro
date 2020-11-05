@@ -29,6 +29,7 @@
                 allowNegative: false,
                 thousands: '.',
                 decimal: ',',
+                allowZero: true,
                 precision: 4,
                 affixesStay: false
             }).attr('maxlength', maxLength).trigger('mask.maskMoney');

@@ -131,27 +131,33 @@ class CompraSiasgCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         $retornoSiasg = $this->consultaCompraSiasg($request);
-        $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg,$request);
+        $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
 
         if (session()->get('user_ug_id') <> $request->unidade_origem_id) {
-            return redirect('/empenho/buscacompra/1')->with('alert-warning','Você não tem permissão para realizar empenho para este unidade!');
+            return redirect('/empenho/buscacompra/1')->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade!');
         }
 
         if (is_null($unidade_autorizada_id)) {
-            return redirect('/empenho/buscacompra/1')->with('alert-warning','Você não tem permissão para realizar empenho para este unidade Subrogada!');
+            return redirect('/empenho/buscacompra/1')->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade Subrogada!');
         }
 
         if (is_null($retornoSiasg->data)) {
-            return redirect('/empenho/buscacompra/1')->with('alert-warning','Nenhuma compra foi encontrada!!');
+            return redirect('/empenho/buscacompra/1')->with('alert-warning', 'Nenhuma compra foi encontrada!!');
         }
 
         $this->montaParametrosCompra($retornoSiasg, $request);
 
         $compra = $this->verificaCompraExiste($request);
+
+        $situacao = Codigoitem::wherehas('codigo', function ($q) {
+            $q->where('descricao', '=', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EM ANDAMENTO')
+            ->first();
+
         DB::beginTransaction();
         try {
             if (empty($compra)) {
-
                 $redirect_location = parent::storeCrud($request);
                 $params['compra_id'] = $this->crud->entry->id;
                 $params['unidade_autorizada_id'] = $this->crud->entry->unidade_origem_id;
@@ -164,16 +170,16 @@ class CompraSiasgCrudController extends CrudController
             }
 
             $minutaEmpenho = $this->gravaMinutaEmpenho([
-                    'compra_id' => $params['compra_id'],
-                    'unidade_origem_id' => $params['unidade_origem_id'],
-                    'modalidade_id' => $request->modalidade_id,
-                    'numero_ano' => $request->numero_ano
-                ]);
+                'situacao_id' => $situacao->id,
+                'compra_id' => $params['compra_id'],
+                'unidade_origem_id' => $params['unidade_origem_id'],
+                'modalidade_id' => $request->modalidade_id,
+                'numero_ano' => $request->numero_ano
+            ]);
 //            $etapa = 2;
             DB::commit();
 
             return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
-
         } catch (Exception $exc) {
             dd($exc);
             DB::rollback();
@@ -199,17 +205,18 @@ class CompraSiasgCrudController extends CrudController
         return $compra;
     }
 
-    public function verificaPermissaoUasgCompra($compraSiasg,$request){
+    public function verificaPermissaoUasgCompra($compraSiasg, $request)
+    {
         $unidade_autorizada_id = null;
         $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
         $subrrogada = $compraSiasg->data->compraSispp->subrogada;
         if ($tipoCompra == $this::SISPP) {
-             if($subrrogada <> '000000'){
-                 ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = $subrrogada : '';
-             }else{
-                 ($request->unidade_origem_id == session('user_ug_id')) ? $unidade_autorizada_id = $request->unidade_origem_id : '';
-             }
-        }else{
+            if ($subrrogada <> '000000') {
+                ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = $subrrogada : '';
+            } else {
+                ($request->unidade_origem_id == session('user_ug_id')) ? $unidade_autorizada_id = $request->unidade_origem_id : '';
+            }
+        } else {
             $unidade_autorizada_id = 'SISPR';
         }
         return $unidade_autorizada_id;
@@ -235,11 +242,11 @@ class CompraSiasgCrudController extends CrudController
 
     public function buscaTipoCompra($descres)
     {
-        $tipocompra = Codigoitem::wherehas('codigo',function ($q){
+        $tipocompra = Codigoitem::wherehas('codigo', function ($q) {
             $q->where('descricao', '=', 'Tipo Compra');
         })
             ->where('visivel', true)
-            ->where('descres', '0'.$descres)
+            ->where('descres', '0' . $descres)
             ->first();
         return $tipocompra->id;
     }
@@ -312,6 +319,7 @@ class CompraSiasgCrudController extends CrudController
         $minutaEmpenho = new MinutaEmpenho();
         $minutaEmpenho->unidade_id = $params['unidade_origem_id'];
         $minutaEmpenho->compra_id = $params['compra_id'];
+        $minutaEmpenho->situacao_id = $params['situacao_id'];
         $minutaEmpenho->etapa = 2;
         $minutaEmpenho->informacao_complementar = $this->retornaInfoComplementar($params);
 
@@ -321,10 +329,10 @@ class CompraSiasgCrudController extends CrudController
 
     public function retornaInfoComplementar($params)
     {
-        $numeroAno = str_replace("/","",$params['numero_ano']);
+        $numeroAno = str_replace("/", "", $params['numero_ano']);
         $modalide = Codigoitem::find($params['modalidade_id']);
         $unidade = Unidade::find($params['unidade_origem_id']);
-        $info = $unidade->codigo.$modalide->descres.$numeroAno;
+        $info = $unidade->codigo . $modalide->descres . $numeroAno;
 
         return $info;
     }

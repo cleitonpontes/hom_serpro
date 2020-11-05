@@ -44,7 +44,7 @@ class VerifyStepEmpenhoMiddleware
                 session(['empenho_etapa' => '']);
                 session(['conta_id' => '']);
                 session(['fornecedor_compra' => '']);
-                session(['situacao_minuta' => '']);
+                session(['situacao_id' => '']);
                 session(['unidade_ajax_id' => '']);
                 return $next($request);
             }
@@ -77,7 +77,7 @@ class VerifyStepEmpenhoMiddleware
                 session(['minuta_id' => $minuta->id]);
                 session(['empenho_etapa' => $minuta->etapa]);
                 session(['fornecedor_compra' => $minuta->fornecedor_compra_id]);
-                session(['situacao_minuta' => $minuta->situacao]);
+                session(['situacao_id' => $minuta->situacao_id]);
 
                 return $next($request);
             }
