@@ -6,14 +6,13 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right">
         <li class="dropdown-header"><i class="fa fa-list"></i> Conta Vinculada:</li>
-        <!-- <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/movimentacaocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Movimentações</a></li> -->
-        <!-- <li><a href="/gescon/contrato/contratoconta/{{$entry->contratoconta_id}}/depositocontratoconta/create">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Novo Depósito</a></li> -->
-
         <li><a href="/gescon/contrato/contratoconta/movimentacaocontratoconta/{{ $entry->getKey()}}/lancamento">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Lançamentos</a></li>
+        <li><a href="/gescon/movimentacao/{{ $entry->getKey()}}/excluir">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Excluir movimentação</a></li>
 
-        <!-- <li><a href="/gescon/contrato/{{$entry->getKey()}}/contratocontas">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Retiradas</a></li>
-        <li><a href="/gescon/contrato/{{$entry->getKey()}}/cronograma">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Repactuações</a></li>
-        <li><a href="/gescon/contrato/{{$entry->getKey()}}/cronograma">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Relat depós. e retir.</a></li>
-        <li><a href="/gescon/contrato/{{$entry->getKey()}}/cronograma">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo de encerramento</a></li> -->
+        <!-- <li><a href="/gescon/contrato/contratoconta/{{\Route::current()->parameter('contratoconta_id')}}/excluirmovimentacao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Excluir Movimentação</a></li> -->
+        <!-- $contratoconta_id = \Route::current()->parameter('contratoconta_id'); -->
+
+
+        <!-- /gescon/contrato/contratoconta/26/movimentacaocontratoconta -->
     </ul>
 </div>

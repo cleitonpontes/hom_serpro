@@ -23,14 +23,9 @@ class LancamentoCrudController extends CrudController
     public function setup()
     {
         $movimentacaocontratoconta_id = \Route::current()->parameter('movimentacaocontratoconta_id');
-
         $objMovimentacaoContratoConta = Movimentacaocontratoconta::where('id', '=', $movimentacaocontratoconta_id)->first();
         $contratoconta_id = $objMovimentacaoContratoConta->contratoconta_id;
-
-
         \Route::current()->setParameter('contratoconta_id', $contratoconta_id);
-
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -46,15 +41,12 @@ class LancamentoCrudController extends CrudController
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
         $this->crud->addClause('where', 'lancamentos.movimentacao_id', '=', $movimentacaocontratoconta_id);
 
-
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         // $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
 
         $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
-
-
 
         /*
         |--------------------------------------------------------------------------
@@ -90,20 +82,6 @@ class LancamentoCrudController extends CrudController
                     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
                 },
             ],
-            // [
-            //     'name' => 'getSalarioContratoTerceirizado',
-            //     'label' => 'Salário', // Table column heading
-            //     'type' => 'model_function',
-            //     'function_name' => 'getSalarioContratoTerceirizado', // the method in your Model
-            //     'orderable' => true,
-            //     'visibleInTable' => true, // no point, since it's a large text
-            //     'visibleInModal' => true, // would make the modal too big
-            //     'visibleInExport' => true, // not important enough
-            //     'visibleInShow' => true, // sure, why not
-            //     'searchLogic' => function (Builder $query, $column, $searchTerm) {
-            //         $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
-            //     },
-            // ],
             [
                 'name' => 'getTipoEncargo',
                 'label' => 'Verba', // Table column heading
@@ -132,35 +110,11 @@ class LancamentoCrudController extends CrudController
                     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
                 },
             ],
-            // [
-            //     'name'  => 'mes_competencia',
-            //     'label' => 'Mês',
-            //     'type'  => 'text',
-            // ],
-            // [
-            //     'name'  => 'ano_competencia',
-            //     'label' => 'Ano',
-            //     'type'  => 'text',
-            // ],
-            // [
-            //     'name'  => 'situacao_movimentacao',
-            //     'label' => 'Situação da movimentação',
-            //     'type'  => 'text',
-            // ],
-            // [
-            //     'name'  => 'proporcionalidade',
-            //     'label' => 'Proporcionalidade',
-            //     'type'  => 'text',
-            // ],
-
             [
                 'name'  => 'descricao',
                 'label' => 'Tipo da movimentação',
                 'type'  => 'text',
             ],
-
-
-
             [
                 'name' => 'formatValor',
                 'label' => 'Valor lançamento', // Table column heading

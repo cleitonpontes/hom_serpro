@@ -15,6 +15,9 @@ use App\Models\Saldohistoricoitem;
 use App\Models\Siasgcompra;
 use App\Models\Siasgcontrato;
 use App\Models\Subrogacao;
+use App\Models\Movimentacaocontratoconta;
+use App\Models\Lancamento;
+
 use App\Observers\CatmatseratualizacaoObserver;
 use App\Observers\ComunicaObserver;
 use App\Observers\ContratocronogramaObserve;
@@ -28,6 +31,9 @@ use App\Observers\SiasgcompraObserver;
 use App\Observers\SiasgcontratoObserver;
 use App\Observers\SubrogacaoObserver;
 use App\Observers\UsuarioObserver;
+use App\Observers\MovimentacaocontratocontaObserver;
+use App\Observers\LancamentoObserver;
+
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
@@ -65,6 +71,8 @@ class AppServiceProvider extends ServiceProvider
         Contratodespesaacessoria::observe(ContratodespesaacessoriaObserver::class);
         Siasgcompra::observe(SiasgcompraObserver::class);
         Siasgcontrato::observe(SiasgcontratoObserver::class);
+        Movimentacaocontratoconta::observe(MovimentacaocontratocontaObserver::class);
+        Lancamento::observe(LancamentoObserver::class);
     }
 
     /**

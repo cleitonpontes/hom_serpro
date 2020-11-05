@@ -22,7 +22,10 @@ class Movimentacaocontratoconta extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = [];
+    protected $fillable = [
+        'contratoconta_id', 'tipo_id', 'mes_competencia', 'ano_competencia', 'valor_total_mes_ano',
+        'situacao_movimentacao', 'user_id'
+    ];
     // protected $hidden = [];
     // protected $dates = [];
 

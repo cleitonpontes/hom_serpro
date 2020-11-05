@@ -174,6 +174,10 @@ Route::group([
             Route::group(['prefix' => 'contrato/contratoconta/contratoterceirizado/{contratoterceirizado_id}'], function () {
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
             });
+            // Route::group(['prefix' => 'movimentacao/{movimentacao_id}'], function () {
+            //     Route::get('excluir', 'MovimentacaocontratocontaCrudController@excluirmovimentacao');
+            // });
+            Route::get('movimentacao/{movimentacao_id}/excluir', 'MovimentacaocontratocontaCrudController@excluirMovimentacao');
             // fim conta vinculada - contrato conta
 
 
