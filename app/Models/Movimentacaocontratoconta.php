@@ -41,7 +41,9 @@ class Movimentacaocontratoconta extends Model
         $mesCompetencia = $request->input('mes_competencia');
         $anoCompetencia = $request->input('ano_competencia');
         $tipoMovimentacao = $request->input('tipo_id');
+        $idContratoConta = $request->input('contratoconta_id');
         $qtdMovimentacoes = Depositocontratoconta::where('tipo_id','=',$tipoMovimentacao)
+            ->where('contratoconta_id','=', $idContratoConta)
             ->where('mes_competencia','=', $mesCompetencia)
             ->where('ano_competencia','=', $anoCompetencia)
             ->count();
