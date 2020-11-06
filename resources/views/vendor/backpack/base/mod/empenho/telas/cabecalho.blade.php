@@ -28,48 +28,19 @@
         $passos[7] = 'Passivo Anterior';
         $passos[8] = 'Finalizar';
 
-        $rotas[1] = ['name' => 'empenho.minuta.etapa.compra', 'params'=>[]];
-        $rotas[2] = [
-            'name' => 'empenho.minuta.etapa.fornecedor',
-            'params'=> ['minuta_id' => $minuta_id]
-        ];
+        $rotas[1] = '#';
+        $rotas[2] = route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id]);
+        $rotas[3] = route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);
+        $rotas[4] = route('empenho.minuta.etapa.saldocontabil', ['minuta_id' => $minuta_id]);
+        $rotas[5] = route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+        $rotas[6] = route('empenho.crud./minuta.edit', ['minutum' => $minuta_id]);
+        $rotas[7] = route('empenho.minuta.etapa.passivo-anterior', ['passivo_anterior' => $minuta_id]);
 
-        $rotas[3] = [
-            'name' => 'empenho.minuta.etapa.item',
-            'params' => ['minuta_id' => $minuta_id,
-                            'fornecedor_id' => $fornecedor_id
-                        ]
-        ];
-        $rotas[4] = [
-            'name' => 'empenho.minuta.etapa.saldocontabil',
-            'params' => ['minuta_id' => $minuta_id]
-        ];
-        $rotas[5] = [
-            'name' => 'empenho.minuta.etapa.subelemento',
-            'params' => ['minuta_id' => $minuta_id]
-        ];
-        $rotas[6] = [
-            'name' => 'empenho.crud./minuta.edit',
-            'params' => ['minutum' => $minuta_id]
-        ];
         if ($conta_id){
-            $rotas[7] = [
-                'name' => 'empenho.crud.passivo-anterior.edit',
-                'params' => ['minuta_id' => $conta_id]
-            ];
-
-        } else {
-            $rotas[7] = [
-                'name' => 'empenho.minuta.etapa.passivo-anterior',
-                'params' => ['passivo_anterior' => $minuta_id]
-            ];
+            $rotas[7] = route('empenho.crud.passivo-anterior.edit', ['minuta_id' => $conta_id]);
         }
 
-
-        $rotas[8] = [
-            'name' => 'empenho.crud./minuta.show',
-            'params' => ['minutum' => $minuta_id]
-        ]
+        $rotas[8] = route('empenho.crud./minuta.show', ['minutum' => $minuta_id])
 
 
 @endphp
@@ -88,7 +59,7 @@
                         @php $cor = ($etapa >= $num) ? 'azul' : '' @endphp
                         <div class="btn btn-app" style="width: 108px;">
                             @if($cor=="azul")
-                                <a href="{{ route($rotas[$num]['name'], $rotas[$num]['params'])  }}">
+                                <a href="{{ $rotas[$num]  }}">
                                     @endif
                                     <span class="circulo {{$cor}}">{{$num}}</span>
                                     {!! $descricao !!}
