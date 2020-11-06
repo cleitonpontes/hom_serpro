@@ -73,7 +73,7 @@ class MovimentacaocontratocontaCrudController extends CrudController
         // $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
-        // $this->crud->denyAccess('delete');
+        $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
 
         // cláusulas para possibilitar buscas
