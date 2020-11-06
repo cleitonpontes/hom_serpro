@@ -11,7 +11,6 @@ use App\Models\MinutaEmpenho;
 use App\Models\SaldoContabil;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
-// VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
 use App\Http\Requests\MinutaEmpenhoRequest as UpdateRequest;
 use Illuminate\Database\Eloquent\Builder;

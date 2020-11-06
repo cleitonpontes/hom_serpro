@@ -123,7 +123,6 @@ class SubelementoController extends BaseControllerEmpenho
                         return $this->addColunaValorTotal($item);
                     }
                 )
-//                ->rawColumns(['ci_id','subitem', 'quantidade', 'valor_total'])
                 ->rawColumns(['subitem', 'quantidade', 'valor_total'])
                 ->make(true);
         }
@@ -286,6 +285,7 @@ class SubelementoController extends BaseControllerEmpenho
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
                 . " onchange='calculaQuantidade(this)' >";
         }
+
         return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "'"
             . "id='vrtotal" . $item['compra_item_id']
             . "' data-tipo='' name='valor_total[]' value='' readonly > ";

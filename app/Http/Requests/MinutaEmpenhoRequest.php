@@ -31,7 +31,7 @@ class MinutaEmpenhoRequest extends FormRequest
         return [
             'numero_empenho_sequencial' => 'nullable|numeric|min:400001|max:800000',
             'descricao'=> 'required|max:468',
-            'local_entrega'=> 'required',
+//            'local_entrega'=> 'required',
             'taxa_cambio'=> 'required',
             'processo' => 'max:20',
             'data_emissao' => "date|after_or_equal:{$this->data_hoje}",

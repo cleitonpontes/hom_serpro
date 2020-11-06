@@ -28,11 +28,6 @@ use Yajra\DataTables\Services\DataTable;
 
 class FornecedorEmpenhoController extends BaseControllerEmpenho
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
     public function index(Request $request)
     {
         $minuta_id = Route::current()->parameter('minuta_id');
@@ -167,7 +162,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     private function retornaRadioItens($id, $minuta_id, $descricao)
     {
         $retorno = '';
-        $retorno .= " <input  type='checkbox' id='$id' data-tipo='$descricao' name='itens[][compra_item_id]' value='$id'  onclick=\"bloqueia('$descricao')\" > ";
+        $retorno .= " <input  type='checkbox' id='$id' data-tipo='$descricao' "
+            . "name='itens[][compra_item_id]' value='$id'  onclick=\"bloqueia('$descricao')\" > ";
 
         return $retorno;
     }
@@ -254,7 +250,10 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         if (!isset($itens)) {
             Alert::error('Escolha pelo menos 1 item da compra.')->flash();
-            return redirect()->route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);
+            return redirect()->route(
+                'empenho.minuta.etapa.item',
+                ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]
+            );
         }
 
         $itens = array_map(
