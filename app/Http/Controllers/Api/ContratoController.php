@@ -1100,7 +1100,7 @@ class ContratoController extends Controller
 
     private function buscaContratosInativosPorOrgao(string $orgao)
     {
-        $contratos = Contrato::whereHas('unidade', function ($q) use ($orgao) {
+        $contratos = Contrato::whereHas('unidadeorigem', function ($q) use ($orgao) {
             $q->whereHas('orgao', function ($o) use ($orgao) {
                 $o->where('codigo', $orgao)
                     ->where('situacao', true);
