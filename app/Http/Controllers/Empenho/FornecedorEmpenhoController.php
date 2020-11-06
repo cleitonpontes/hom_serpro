@@ -146,7 +146,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'descricaodetalhada',
                 'quantidade',
                 'valorunitario',
-                'valortotal'])
+                'valortotal',
+                'numero'
+            ])
             ->get()
             ->toArray();
 
@@ -156,7 +158,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             })
                 ->make(true);
         }
-
 
         $html = $this->retornaGridItens();
 
@@ -186,6 +187,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'title' => 'Ações',
                 'orderable' => false,
                 'searchable' => false
+            ])
+            ->addColumn([
+                'data' => 'numero',
+                'name' => 'numero',
+                'title' => 'N. Item',
             ])
             ->addColumn([
                 'data' => 'descricao',
