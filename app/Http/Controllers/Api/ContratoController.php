@@ -1091,7 +1091,7 @@ class ContratoController extends Controller
 
     private function buscaContratoPorUASGeNumero(string $codigo_uasg, string $numeroano_contrato)
     {
-        $contratos = Contrato::whereHas('unidade', function ($q) use ($codigo_uasg) {
+        $contratos = Contrato::whereHas('unidadeorigem', function ($q) use ($codigo_uasg) {
             $q->whereHas('orgao', function ($o) {
                 $o->where('situacao', true);
             })
