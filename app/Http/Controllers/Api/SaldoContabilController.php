@@ -69,23 +69,29 @@ class SaldoContabilController extends Controller
     {
         $cod_unidade = Route::current()->parameter('cod_unidade');
         $contacorrente = Route::current()->parameter('contacorrente');
+
         $unidade = Unidade::where('codigo',$cod_unidade)->first();
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
         $amb = 'HOM';
         $ano = date('Y');
         $ug = $unidade->codigo;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
-//        $conta_corrente = "N".$contacorrente;
-        $conta_corrente = 'N11184940100000000339039        AGU0042';
+        $conta_corrente = "N".$contacorrente;
+//        $conta_corrente = 'N11184940100000000339039        AGU0042';  TESTE DESCOMENTAR
+//        $contacorrente = '11184940100000000339039        AGU0042'; DESCOMENTAR
         $system_user = env('USUARIO_SIAFI');
         $pwd = env('SENHA_SIAFI');
-        $mes = $meses[(int) date('m')];//$meses[(int) $registro['mes']];
-
+        $mes = $meses[(int) date('m')];
         $execsiafi = new Execsiafi();
-        $retorno = null;
         $contaSiafi = $execsiafi->conrazaoUserSystem($system_user,$pwd, $amb, $ano, $ug, $contacontabil,$conta_corrente, $mes);
-        $retorno = false;
-        if (!empty($contaSiafi->resultado[4])) {
+
+        if (empty($contaSiafi->resultado[4])) {
+            $retorno['resultado'] = null;
+            return json_encode($retorno);
+        }
+
+        $saldoExiste = SaldoContabil::where('conta_corrente',$contacorrente)->first();
+        if(is_null($saldoExiste)) {
             DB::beginTransaction();
             try {
                 $modSaldo = new SaldoContabil();
@@ -93,14 +99,18 @@ class SaldoContabilController extends Controller
                 $modSaldo->ano = $ano;
                 $modSaldo->conta_contabil = $contacontabil;
                 $modSaldo->conta_corrente = $contacorrente;
-                $modSaldo->saldo = (string) $contaSiafi->resultado[4];
+                $modSaldo->saldo = (string)$contaSiafi->resultado[4];
                 $modSaldo->save();
                 DB::commit();
-                $retorno = true;
+                $retorno['resultado'] = true;
             } catch (\Exception $exc) {
                 DB::rollback();
             }
+        }else{
+            $retorno['resultado'] = false;
         }
+
+
         return json_encode($retorno);
     }
 

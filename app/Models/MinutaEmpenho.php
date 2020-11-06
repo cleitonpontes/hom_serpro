@@ -45,7 +45,7 @@ class MinutaEmpenho extends Model
         'passivo_anterior',
         'processo',
         'saldo_contabil_id',
-        'situacao',
+        'situacao_id',
         'taxa_cambio',
         'tipo_empenho_id',
         'tipo_minuta_empenho',
@@ -197,6 +197,11 @@ class MinutaEmpenho extends Model
     public function passivo_anterior()
     {
         return $this->hasMany(ContaCorrentePassivoAnterior::class, 'minutaempenho_id');
+    }
+
+    public function situacao()
+    {
+        return $this->belongsTo(Codigoitem::class, 'situacao_id');
     }
 
     /*

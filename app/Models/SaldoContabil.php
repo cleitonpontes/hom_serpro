@@ -76,6 +76,28 @@ class SaldoContabil extends Model
         }
         return $atualizar;
     }
+//empenho/saldo/gravar/60
+    public function existeSaldoContabil($ano,$saldoSta,$unidade_id,$contacontabil)
+    {
+        $saldoExiste = $this->newQuery()->where('conta_corrente',$saldoSta->contacorrente)->first();
+        if(is_null($saldoExiste)){
+
+            $this->ano = $ano;
+            $this->unidade_id = $unidade_id;
+            $this->conta_contabil = $contacontabil;
+            $this->conta_corrente = $saldoSta->contacorrente;
+            $this->saldo = $saldoSta->saldo;
+
+            $this->save();
+        }else{
+            if (strtotime($saldoExiste->updated_at) < strtotime($saldoSta->updated_at)) {
+                $saldoExiste->saldo = $saldoSta->saldo;
+//                $saldoExiste->updated_at = $saldoSta->updated_at;
+                $saldoExiste->update();
+
+            }
+        }
+    }
 
     public function gravaSaldoContabil($ano,$unidade_id,$contacorrente,$contacontabil,$saldo)
     {

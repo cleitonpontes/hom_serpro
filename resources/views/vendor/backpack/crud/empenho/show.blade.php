@@ -225,7 +225,7 @@
                         </button>
                     </div>
                     <div class="col-md-3" align="right">
-                        <button type="button" class="btn btn-primary" id="emitir_empenho_siafi">
+                        <button type="button" class="btn btn-primary" id="emitir_empenho_siafi"  {{(session('situacao') == 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
                             <i class="fa fa-save"></i> Emitir Empenho SIAFI
                         </button>
                     </div>
@@ -236,7 +236,7 @@
                         </button>
                     </div>
                     <div class="col-md-3" align="right">
-                        <a href="{{route('empenho.crud./minuta.index')}}"  class="btn btn-primary" id="finalizar" disabled="disabled">
+                        <a href="{{route('empenho.crud./minuta.index')}}"  class="btn btn-primary" id="finalizar" {{(session('situacao') <> 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
                             <i class="fa fa-check-circle"></i> Finalizar
                         </a>
                     </div>

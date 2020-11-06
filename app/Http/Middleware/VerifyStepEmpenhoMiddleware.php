@@ -77,7 +77,7 @@ class VerifyStepEmpenhoMiddleware
                 session(['minuta_id' => $minuta->id]);
                 session(['empenho_etapa' => $minuta->etapa]);
                 session(['fornecedor_compra' => $minuta->fornecedor_compra_id]);
-                session(['situacao_id' => $minuta->situacao_id]);
+                session(['situacao' => $minuta->situacao->descricao]);
 
                 return $next($request);
             }

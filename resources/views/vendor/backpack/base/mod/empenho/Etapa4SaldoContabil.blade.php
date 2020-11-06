@@ -493,7 +493,8 @@
             axios.request(url)
                 .then(response => {
                     dados = response.data
-                    if(dados == true) {
+                    console.log(dados.resultado);
+                    if(dados.resultado == true) {
                         Swal.fire({
                             position: 'top-end',
                             icon: 'success',
@@ -503,12 +504,19 @@
                         })
                         var table = $('#dataTableBuilder').DataTable();
                         table.ajax.reload();
-                    }else{
+                    }else if(dados.resultado == null){
                         Swal.fire({
                             icon: 'warning',
                             title: 'Célula Orçamentária não encontrada!',
                             showConfirmButton: true,
                             footer: '<b>Verifique os dados enviados!</b>'
+                        })
+                    }else if(dados.resultado == false){
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Célula Orçamentária já existe!',
+                            showConfirmButton: true,
+                            footer: '<b>Insira outra Célula Orçamentário!</b>'
                         })
                     }
                 })
