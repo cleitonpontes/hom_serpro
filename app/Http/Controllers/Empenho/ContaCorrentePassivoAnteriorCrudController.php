@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Empenho;
 
+use Alert;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\ContaCorrentePassivoAnterior;
 use App\Models\MinutaEmpenho;
@@ -79,7 +80,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 //        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
 //        dd($this->crud->query->first());
         $query = $this->crud->query->first();
-        $params = ['valor_total' => $query->valor_total, 'conta_corrente_padrao' => $query->conta_corrente_padrao ];
+        $params = ['valor_total' => $query->valor_total, 'conta_corrente_padrao' => $query->conta_corrente_padrao];
 
         $this->crud->params = $params;
 
@@ -93,7 +94,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior,$valor_total_minuta);
+        $this->fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior, $valor_total_minuta);
 
         // add asterisk for fields that are required in ContaCorrentePassivoAnteriorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -106,13 +107,11 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
         DB::beginTransaction();
         try {
-
-            if(str_contains($request->conta_corrente_json , "{}")) {
-
+            if (str_contains($request->conta_corrente_json, "{}")) {
                 $conta_corrente_json = $request->conta_corrente_json;
                 $conta_corrente_json = str_replace(
                     '{}',
-                    '{"conta_corrente":"'. $request->conta_corrente_p .'","valor":"'. $request->valor_total_p .'"}',
+                    '{"conta_corrente":"' . $request->conta_corrente_p . '","valor":"' . $request->valor_total_p . '"}',
                     $conta_corrente_json
                 );
 
@@ -122,7 +121,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
                 $valor_total_conta = 0;
                 foreach ($itens as $key => $item) {
-                   $valor_total_conta+= $item['valor'];
+                    $valor_total_conta += $item['valor'];
                 }
 
                 $itens = array_map(
@@ -138,11 +137,11 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             }
 
             if ($request->valor_total_p != $valor_total_conta) {
-                \Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
+                Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
                 return redirect()->back();
             }
 
-            dd($request->valor_total_p.'-'.$valor_total_conta);
+            dd($request->valor_total_p . '-' . $valor_total_conta);
 
             $minuta->etapa = 8;
             $minuta->passivo_anterior = $request->passivo_anterior;
@@ -164,7 +163,8 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         $itens = json_decode($request->get('conta_corrente_json'), true);
         $arrayPassivoAnterior = ContaCorrentePassivoAnterior::where(
             'minutaempenho_id',
-            $request->minutaempenho_id)->get()->toArray();
+            $request->minutaempenho_id
+        )->get()->toArray();
 
         $itens = array_map(
             function ($itens) use ($request, $arrayPassivoAnterior) {
@@ -201,7 +201,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         }
     }
 
-    private function fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior,$valor_total_minuta): void
+    private function fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior, $valor_total_minuta): void
     {
         $this->setFieldMinutaId($minuta_id);
         $this->setFieldPassivoAnterior($passivoAnterior);
@@ -228,9 +228,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             'attributes' => [
                 'id' => 'passivo'
             ],
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-4'
-            ],
             'value' => $passivoAnterior
         ]);
     }
@@ -239,15 +236,12 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
     {
         $this->crud->addField([
             'name' => 'valor_total',
-            'label'=> 'Valor Total da Minuta:',
+            'label' => 'Valor Total da Minuta:',
             'type' => 'text',
             'value' => $valor_total_minuta,
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-8'
-            ],
             'attributes' => [
-                    'disabled' => 'disabled',
-                ],
+                'disabled' => 'disabled',
+            ],
         ]);
     }
 
@@ -259,7 +253,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             'label' => 'Conta Contábil',
             'type' => 'conta_contabil_text',
             'attributes' => [
-                'id'=>'contabil'
+                'id' => 'contabil'
             ],
             'value' => $contaContabilPassivoAnterior,
         ]);
