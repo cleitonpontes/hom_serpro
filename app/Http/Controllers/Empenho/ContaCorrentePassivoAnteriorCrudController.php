@@ -141,8 +141,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
                 return redirect()->back();
             }
 
-            dd($request->valor_total_p . '-' . $valor_total_conta);
-
             $minuta->etapa = 8;
             $minuta->passivo_anterior = $request->passivo_anterior;
             $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
