@@ -40,19 +40,17 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             $modMinuta = $modPassivoAnterior->minutaempenho()->first();
             $minuta_id = $modMinuta->id;
 
+            $valor_total_minuta = $modMinuta->valor_total;
             $passivoAnterior = $modMinuta->passivo_anterior;
             $contaContabilPassivoAnterior = $modMinuta->conta_contabil_passivo_anterior;
         }
 
         if (Route::current()->parameter('minuta_id') == null && $this->crud->getCurrentEntryId() == false) {
-//            dd($this->crud->request->minutaempenho_id);
-
             $minuta_id = $this->crud->request->minutaempenho_id;
         }
 
-//        dump($this->crud);
-//        dump( Route::current()->parameter('minuta_id'));
-//        dd($this->crud->getCurrentEntryId());
+        $minuta = MinutaEmpenho::find($minuta_id);
+        $valor_total_minuta = $minuta->valor_total;
 
         /*
         |--------------------------------------------------------------------------
@@ -95,7 +93,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior);
+        $this->fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior,$valor_total_minuta);
 
         // add asterisk for fields that are required in ContaCorrentePassivoAnteriorRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -104,7 +102,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        $valor_total = $request->valor_total_p;
 
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
         DB::beginTransaction();
@@ -123,6 +120,11 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
                 $itens = json_decode($request->get('conta_corrente_json'), true);
 
+                $valor_total_conta = 0;
+                foreach ($itens as $key => $item) {
+                   $valor_total_conta+= $item['valor'];
+                }
+
                 $itens = array_map(
                     function ($itens) use ($request) {
                         $itens['minutaempenho_id'] = $request->minutaempenho_id;
@@ -134,6 +136,14 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
                 ContaCorrentePassivoAnterior::insert($itens);
             }
+
+            if ($request->valor_total_p != $valor_total_conta) {
+                \Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
+                return redirect()->back();
+            }
+
+            dd($request->valor_total_p.'-'.$valor_total_conta);
+
             $minuta->etapa = 8;
             $minuta->passivo_anterior = $request->passivo_anterior;
             $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
@@ -191,11 +201,11 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         }
     }
 
-    private function fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior): void
+    private function fields($minuta_id, $passivoAnterior, $contaContabilPassivoAnterior,$valor_total_minuta): void
     {
         $this->setFieldMinutaId($minuta_id);
         $this->setFieldPassivoAnterior($passivoAnterior);
-        $this->setFieldValorTotal();
+        $this->setFieldValorTotalMinuta($valor_total_minuta);
         $this->setFieldContaContabil($contaContabilPassivoAnterior, $passivoAnterior);
         $this->setFieldTablePassivoAnterior();
     }
@@ -218,16 +228,26 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             'attributes' => [
                 'id' => 'passivo'
             ],
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-4'
+            ],
             'value' => $passivoAnterior
         ]);
     }
 
-    private function setFieldValorTotal(): void
+    private function setFieldValorTotalMinuta($valor_total_minuta): void
     {
         $this->crud->addField([
             'name' => 'valor_total',
+            'label'=> 'Valor Total da Minuta:',
             'type' => 'text',
-            'value' => ''
+            'value' => $valor_total_minuta,
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-8'
+            ],
+            'attributes' => [
+                    'disabled' => 'disabled',
+                ],
         ]);
     }
 
@@ -257,7 +277,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
                 'conta_corrente' => 'Número Conta Corrente',
                 'valor' => 'Valor'
             ],
-            'max' => 5, // maximum rows allowed in the table
+            'max' => 99, // maximum rows allowed in the table
             'min' => 0, // minimum rows allowed in the table
         ]);
     }
