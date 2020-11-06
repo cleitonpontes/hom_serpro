@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Empenho;
 use Alert;
 use App\Http\Controllers\Empenho\Minuta\Etapa1EmpenhoController;
 use App\Http\Traits\Formatador;
+use App\Models\Catmatseritem;
 use App\Models\Codigo;
 use App\Models\Codigoitem;
 use App\Models\Compra;
@@ -26,8 +27,8 @@ class CompraSiasgCrudController extends CrudController
 {
     use Formatador;
 
-    const MATERIAL = 149;
-    const SERVICO = 150;
+    const MATERIAL = [149, 194];
+    const SERVICO = [150, 195];
     const SISPP = 1;
     const SISRP = 2;
 
@@ -263,17 +264,25 @@ class CompraSiasgCrudController extends CrudController
     public function gravaParametroItensdaCompra($compraSiasg, $params)
     {
         $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $params);
+        $tipo = ['S' => $this::SERVICO[0], 'M' => $this::MATERIAL[0]];
+        $catGrupo = ['S' => $this::SERVICO[1], 'M' => $this::MATERIAL[1]];
 
         if (!is_null($compraSiasg->data->itemCompraSisppDTO)) {
             foreach ($compraSiasg->data->itemCompraSisppDTO as $key => $item) {
-                $params['tipo_item_id'] = ($item->tipo <> 'S') ? $this::SERVICO : $this::MATERIAL;
-                $params['catmatseritem_id'] = intval($item->codigo);
+                $catmatseritem = Catmatseritem::updateOrCreate(
+                    ['codigo_siasg' => (int)$item->codigo],
+                    ['descricao' => $item->descricao, 'grupo_id' => $catGrupo[$item->tipo]]
+                );
+
+                $params['tipo_item_id'] = $tipo[$item->tipo];
+                $params['catmatseritem_id'] = $catmatseritem->id;
                 $params['fornecedor_id'] = $this->retornaIdFornecedor($item);
                 $params['unidade_autorizada_id'] = $unidade_autorizada_id;
                 $params['descricaodetalhada'] = $item->descricaoDetalhada;
                 $params['quantidade'] = $item->quantidadeTotal;
                 $params['valorunitario'] = $item->valorUnitario;
                 $params['valortotal'] = $item->valorTotal;
+                $params['numero'] = $item->numero;
 
                 $compraItem = new CompraItem();
                 $compraItem->gravaCompraItem($params);

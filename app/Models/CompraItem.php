@@ -38,7 +38,8 @@ class CompraItem extends Model
         'quantidade',
         'valorunitario',
         'valortotal',
-        'qtd_restante'
+        'qtd_restante',
+        'numero'
     ];
 
     /*
@@ -58,6 +59,7 @@ class CompraItem extends Model
         $this->qtd_total = $params['quantidade'];
         $this->valorunitario = $params['valorunitario'];
         $this->valortotal = $params['valortotal'];
+        $this->numero = $params['numero'];
 
         $this->save($params);
         return $this->id;

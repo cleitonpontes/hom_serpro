@@ -82,9 +82,11 @@ class VerifyStepEmpenhoMiddleware
                 return $next($request);
             }
 
+            session(['minuta_id' => '']);
             session(['empenho_etapa' => '']);
-            session(['conta_id' => '']);
             session(['fornecedor_compra' => '']);
+            session(['conta_id' => '']);
+            session(['situacao' => '']);
 
             return redirect()->route('empenho.crud./minuta.index')->withError('Não permitido');
         }
