@@ -61,10 +61,7 @@ class MovimentacaocontratocontaCrudController extends CrudController
         $this->crud->setEntityNameStrings('movimentacaocontratoconta', 'Movimentações da conta');
 
         $this->crud->addButtonFromView('line', 'deletemovimentacao', 'deletemovimentacao', 'beginning');
-
         $this->crud->addButtonFromView('line', 'moremovimentacaocontratoconta', 'moremovimentacaocontratoconta', 'end');
-
-
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontavinculada', 'end');
         $this->crud->addButtonFromView('top', 'adicionardeposito', 'adicionardeposito', 'end');
         $this->crud->addButtonFromView('top', 'adicionarretirada', 'adicionarretirada', 'end');
