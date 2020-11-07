@@ -16,6 +16,7 @@
         $minuta_id = Route::current()->parameter('minuta_id') ?? session('minuta_id') ?? Route::current()->parameter('minutum');
         $fornecedor_id = session('fornecedor_compra') ?? Route::current()->parameter('fornecedor_id') ?? '';
         $conta_id = session('conta_id') ?? Route::current()->parameter('conta_id') ?? '';
+        $situacao = session('situacao');
 
         // Itens do cabeçalho
 
@@ -28,19 +29,25 @@
         $passos[7] = 'Passivo Anterior';
         $passos[8] = 'Finalizar';
 
-        $rotas[1] = '#';
-        $rotas[2] = route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id]);
-        $rotas[3] = route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);
-        $rotas[4] = route('empenho.minuta.etapa.saldocontabil', ['minuta_id' => $minuta_id]);
-        $rotas[5] = route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
-        $rotas[6] = route('empenho.crud./minuta.edit', ['minutum' => $minuta_id]);
-        $rotas[7] = route('empenho.minuta.etapa.passivo-anterior', ['passivo_anterior' => $minuta_id]);
+        $rotas = [1 => '#', 2 => '#', 3 => '#', 4 => '#', 5 => '#', 6 => '#', 7 => '#', 8 => '#'];
 
-        if ($conta_id){
-            $rotas[7] = route('empenho.crud.passivo-anterior.edit', ['minuta_id' => $conta_id]);
+        if ($situacao === 'EM ANDAMENTO'){
+            $rotas[1] = '#';
+            $rotas[2] = route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id]);
+            $rotas[3] = route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);
+            $rotas[4] = route('empenho.minuta.etapa.saldocontabil', ['minuta_id' => $minuta_id]);
+            $rotas[5] = route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+            $rotas[6] = route('empenho.crud./minuta.edit', ['minutum' => $minuta_id]);
+            $rotas[7] = route('empenho.minuta.etapa.passivo-anterior', ['passivo_anterior' => $minuta_id]);
+
+            if ($conta_id){
+                $rotas[7] = route('empenho.crud.passivo-anterior.edit', ['minuta_id' => $conta_id]);
+            }
+
+            $rotas[8] = route('empenho.crud./minuta.show', ['minutum' => $minuta_id]);
+
         }
 
-        $rotas[8] = route('empenho.crud./minuta.show', ['minutum' => $minuta_id])
 
 
 @endphp
