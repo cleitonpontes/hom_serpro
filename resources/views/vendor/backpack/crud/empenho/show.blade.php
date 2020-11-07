@@ -1,4 +1,5 @@
 {{--@php dd($crud->columns) @endphp--}}
+{{--{{ dd(get_defined_vars()['__data']) }}--}}
 @extends('backpack::layout')
 
 @section('header')
@@ -235,11 +236,13 @@
                             <i class="fa fa-plus"></i> Empenhar outro Fornecedor
                         </button>
                     </div>
-                    <div class="col-md-3" align="right">
-                        <a href="{{route('empenho.crud./minuta.index')}}"  class="btn btn-primary" id="finalizar" {{(session('situacao') <> 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
+                    <div class="col-md-3"align="right">
+                        <button type="button" class="btn btn-primary" id="finalizar"
+                            {{(session('situacao') <> 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
                             <i class="fa fa-check-circle"></i> Finalizar
-                        </a>
+                        </button>
                     </div>
+
                 </div>
             </div>
 
@@ -277,6 +280,9 @@
                 $('#finalizar').attr('disabled', true);
             });
 
+            $('body').on('click', '#finalizar', function (event) {
+                window.location.href = "{{route('empenho.crud./minuta.index')}}";
+            });
         });
 
         function salvarTabelasSiafi(event) {

@@ -41,12 +41,13 @@ class MinutaEmpenhoController extends Controller
                 $this->gravaSfPassivoAnterior($sforcempenhodados, $modMinutaEmpenho);
             }
             $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodados);
+            $this->gravaMinuta($modMinutaEmpenho);
 
             DB::commit();
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
-//            dd($exc);
             DB::rollback();
+//            dd($exc);
         }
 
         return $retorno;
@@ -152,6 +153,19 @@ class MinutaEmpenhoController extends Controller
         $modSfOpItemEmpenho->save();
     }
 
+    public function gravaMinuta(MinutaEmpenho $modMinutaEmpenho)
+    {
+
+        $situacao = Codigoitem::wherehas('codigo', function ($q) {
+            $q->where('descricao', '=', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EM PROCESSAMENTO')
+            ->first();
+
+        $modMinutaEmpenho->situacao_id = $situacao->id;
+        $modMinutaEmpenho->save();
+    }
+
     public function novoEmpenhoMesmaCompra()
     {
         $minuta_id = Route::current()->parameter('minuta_id');
@@ -167,13 +181,8 @@ class MinutaEmpenhoController extends Controller
             $novoEmpenho->save();
             DB::commit();
             return json_encode($novoEmpenho->id);
-        } catch (\Exception $exc) {
+        } catch (Exception $exc) {
             DB::rollback();
         }
-
-
-
     }
-
-
 }

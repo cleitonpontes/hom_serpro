@@ -46,6 +46,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->setShowView('vendor.backpack.crud.empenho.show');
         $this->crud->allowAccess('update');
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
+        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
 
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('delete');
