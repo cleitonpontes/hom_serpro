@@ -25,7 +25,7 @@
     </div>
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
-            <h3 class="box-title">Listagem - Minutas de Empenho</h3>
+            <h3 class="box-title">Fornecedores da Compra</h3>
         </div>
 
         <div class="box-body">

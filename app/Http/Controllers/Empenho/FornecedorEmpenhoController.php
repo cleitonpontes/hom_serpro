@@ -275,6 +275,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             return redirect()->route('empenho.minuta.gravar.saldocontabil', ['minuta_id' => $minuta_id]);
         } catch (Exception $exc) {
             DB::rollback();
+            dd($exc);
         }
     }
 

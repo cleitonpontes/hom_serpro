@@ -64,7 +64,7 @@
             <div class="box-tools" align="right">
                 <div class="row">
                     <div class="col-md-3" align="left">
-                        {!! Button::primary('<i class="fa fa-arrow-left"></i> Voltar')
+                        {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
                             ->asLinkTo(route('empenho.minuta.etapa.item',['minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id]))
                         !!}
                     </div>
@@ -77,7 +77,7 @@
                         </button>
                     </div>
                     <div class="col-md-3" align="left">
-                        <button type="submit" class="btn btn-primary" id="salvar">
+                        <button type="submit" class="btn btn-success" id="salvar">
                             Próxima Etapa  <i class="fa fa-right"></i>
                         </button>
                     </div>

@@ -38,10 +38,10 @@
 
                 </div>
                 <div class="box-tools">
-                    {!! Button::success('<i class="fa fa-arrow-left"></i> Voltar')
+                    {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
                         ->asLinkTo(route('empenho.crud./minuta.index'))
                     !!}
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-success">
                         Próxima Etapa <i class="fa fa-arrow-right"></i>
                     </button>
                 </div>
