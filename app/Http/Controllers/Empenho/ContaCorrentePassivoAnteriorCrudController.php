@@ -119,28 +119,27 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             }
 
             $itens = json_decode($request->get('conta_corrente_json'), true);
+            if(!is_null($itens)){
+                $valor_total_conta = 0;
+                foreach ($itens as $key => $item) {
+                    $valor_total_conta += $item['valor'];
+                }
 
-            $valor_total_conta = 0;
-            foreach ($itens as $key => $item) {
-                $valor_total_conta += $item['valor'];
+                $itens = array_map(
+                    function ($itens) use ($request) {
+                        $itens['minutaempenho_id'] = $request->minutaempenho_id;
+                        $itens['conta_corrente_json'] = $request->conta_corrente_json;
+                        return $itens;
+                    },
+                    $itens
+                );
+                ContaCorrentePassivoAnterior::insert($itens);
+                if ($request->valor_total_p != $valor_total_conta) {
+                    Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
+                    return redirect()->back();
+                }
             }
 
-            $itens = array_map(
-                function ($itens) use ($request) {
-                    $itens['minutaempenho_id'] = $request->minutaempenho_id;
-                    $itens['conta_corrente_json'] = $request->conta_corrente_json;
-                    return $itens;
-                },
-                $itens
-            );
-
-            ContaCorrentePassivoAnterior::insert($itens);
-
-
-            if ($request->valor_total_p != $valor_total_conta) {
-                Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
-                return redirect()->back();
-            }
 
             $minuta->etapa = 8;
             $minuta->passivo_anterior = $request->passivo_anterior;
