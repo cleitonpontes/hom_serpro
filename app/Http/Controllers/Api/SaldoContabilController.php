@@ -37,7 +37,7 @@ class SaldoContabilController extends Controller
 
     public function atualizaSaldosPorUnidade(Request $request)
     {
-        $retorno = false;
+        $retorno = true;
         $cod_unidade = Route::current()->parameter('cod_unidade');
         $unidade = Unidade::where('codigo',$cod_unidade)->first();
         $modSaldoContabil = SaldoContabil::where('unidade_id',$unidade->id)->get();
@@ -46,7 +46,6 @@ class SaldoContabilController extends Controller
         try {
             foreach($modSaldoContabil as $key => $saldocontabil){
                 $saldoAtualizado = $this->consultaSaldoSiafi($saldocontabil->id);
-//                $saldoAtualizado = 1100 + $key;
                 $saldocontabil->saldo = $saldoAtualizado;
                 $saldocontabil->save();
             }
@@ -70,17 +69,16 @@ class SaldoContabilController extends Controller
         $cod_unidade = Route::current()->parameter('cod_unidade');
         $contacorrente = Route::current()->parameter('contacorrente');
 
+        $amb = env('AMBIENTE_SIAFI');
+        $system_user = env('USUARIO_SIAFI');
+        $pwd = env('SENHA_SIAFI');
+
         $unidade = Unidade::where('codigo',$cod_unidade)->first();
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
-        $amb = 'HOM';
         $ano = date('Y');
         $ug = $unidade->codigo;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
         $conta_corrente = "N".$contacorrente;
-//        $conta_corrente = 'N11184940100000000339039        AGU0042';  TESTE DESCOMENTAR
-//        $contacorrente = '11184940100000000339039        AGU0042'; DESCOMENTAR
-        $system_user = env('USUARIO_SIAFI');
-        $pwd = env('SENHA_SIAFI');
         $mes = $meses[(int) date('m')];
         $execsiafi = new Execsiafi();
         $contaSiafi = $execsiafi->conrazaoUserSystem($system_user,$pwd, $amb, $ano, $ug, $contacontabil,$conta_corrente, $mes);
@@ -126,19 +124,18 @@ class SaldoContabilController extends Controller
         $saldo = SaldoContabil::find($saldo_id);
         $unidade = Unidade::find($saldo->unidade_id);
 
-        $amb = 'HOM';
+        $amb = env('AMBIENTE_SIAFI');
         $ano = date('Y');
         $ug = $unidade->codigo;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
-//        $contacorrente = "N".$saldo->conta_corrente;
-        $contacorrente = 'N11184940100000000339039        AGU0042';
+        $contacorrente = "N".$saldo->conta_corrente;
+//        $contacorrente = 'N11184940100000000339039        AGU0042'; // remover comentário para testar
         $system_user = env('USUARIO_SIAFI');
         $pwd = env('SENHA_SIAFI');
         $mes = $meses[(int) date('m')];//$meses[(int) $registro['mes']];
 
         try {
             $execsiafi = new Execsiafi();
-
             $retorno = null;
             $retorno = $execsiafi->conrazaoUserSystem($system_user,$pwd, $amb, $ano, $ug, $contacontabil,$contacorrente, $mes);
 

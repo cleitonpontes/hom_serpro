@@ -47,16 +47,19 @@ class ConsultaApiSta
         $dados = $base->buscaDadosUrl($url);
 
         $retorno = [];
-        foreach ($dados as $dado) {
-            $retorno[] = [
-                'contacorrente' => $dado['conta_corrente'],
-                'tiposaldo' => $dado['tiposaldo'],
-                'saldo' => number_format($dado['saldo'], 2, '.', ''),
-                'updated_at' => $dado['updated_at']
-            ];
+        $pkCount = (is_array($dados) ? count($dados) : 0);
+        if ($pkCount > 0) {
+            foreach ($dados as $dado) {
+                $retorno[] = [
+                    'contacorrente' => $dado['conta_corrente'],
+                    'tiposaldo' => $dado['tiposaldo'],
+                    'saldo' => number_format($dado['saldo'], 2, '.', ''),
+                    'updated_at' => $dado['updated_at']
+                ];
+            }
+            return $retorno;
         }
-
-        return $retorno;
+        return $dados;
     }
 
     public function saldocontabilAnoUgGestao(string $ano, string $ug, string $gestao)

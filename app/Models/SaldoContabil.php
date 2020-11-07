@@ -76,7 +76,7 @@ class SaldoContabil extends Model
         }
         return $atualizar;
     }
-//empenho/saldo/gravar/60
+
     public function existeSaldoContabil($ano,$saldoSta,$unidade_id,$contacontabil)
     {
         $saldoExiste = $this->newQuery()->where('conta_corrente',$saldoSta->contacorrente)->first();

@@ -114,17 +114,20 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $gestao = $unidade->gestao;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
 
-        $saldosContabeis = json_encode($this->consultaApiSta($ano, $ug, $gestao, $contacontabil));
-        DB::beginTransaction();
-        try {
-            foreach (json_decode($saldosContabeis) as $key => $saldo) {
-
-                $modSaldoContabil = new SaldoContabil();
-                $modSaldoContabil->existeSaldoContabil($ano,$saldo,$unidade->id,$contacontabil);
+//        $saldosApiSta = $this->consultaApiSta($ano, $ug, $gestao, $contacontabil);
+        $saldosApiSta = $this->consultaApiSta($ano, $ug, $gestao, '12365498722');
+        if (count($saldosApiSta) > 0){
+            $saldosContabeis = json_encode($saldosApiSta);
+            DB::beginTransaction();
+            try {
+                foreach (json_decode($saldosContabeis) as $key => $saldo) {
+                    $modSaldoContabil = new SaldoContabil();
+                    $modSaldoContabil->existeSaldoContabil($ano, $saldo, $unidade->id, $contacontabil);
+                }
+                DB::commit();
+            } catch (\Exception $exc) {
+                DB::rollback();
             }
-            DB::commit();
-        } catch (\Exception $exc) {
-            DB::rollback();
         }
         return redirect()->route(
             'empenho.minuta.etapa.saldocontabil',
