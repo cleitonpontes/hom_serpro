@@ -31,6 +31,7 @@
                  // alert( $("#passivo").val());
                 if ( $("#passivo").val() == 1) {
                     $('#contabil').attr('disabled', true);
+
                     $('#btn_add').attr('disabled', true);
                 }
 
@@ -40,11 +41,13 @@
                         $('#btn_add').removeAttr('disabled');
                     } else {
                         $('#contabil').attr('disabled', true);
+                        $('#contabil').val("");
                         $('#btn_add').attr('disabled', true);
                     }
                 });
 
             });
+
         </script>
     @endif
 
