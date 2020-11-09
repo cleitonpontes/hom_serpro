@@ -114,8 +114,8 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $gestao = $unidade->gestao;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
 
-//        $saldosApiSta = $this->consultaApiSta($ano, $ug, $gestao, $contacontabil);
-        $saldosApiSta = $this->consultaApiSta($ano, $ug, $gestao, '12365498722');
+        $saldosApiSta = $this->consultaApiSta($ano, $ug, $gestao, $contacontabil);
+        
         if (count($saldosApiSta) > 0){
             $saldosContabeis = json_encode($saldosApiSta);
             DB::beginTransaction();

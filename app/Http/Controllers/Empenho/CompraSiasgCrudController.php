@@ -246,7 +246,6 @@ class CompraSiasgCrudController extends CrudController
         $tipocompra = Codigoitem::wherehas('codigo', function ($q) {
             $q->where('descricao', '=', 'Tipo Compra');
         })
-            ->where('visivel', true)
             ->where('descres', '0' . $descres)
             ->first();
         return $tipocompra->id;
