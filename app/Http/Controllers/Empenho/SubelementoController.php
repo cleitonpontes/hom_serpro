@@ -15,6 +15,7 @@ use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
 use App\Http\Traits\Formatador;
 use Alert;
+
 class SubelementoController extends BaseControllerEmpenho
 {
     use Formatador;
@@ -227,7 +228,6 @@ class SubelementoController extends BaseControllerEmpenho
                 [
                     'processing' => true,
                     'serverSide' => true,
-                    'responsive' => true,
                     'info' => true,
                     'order' => [
                         0,
@@ -240,8 +240,12 @@ class SubelementoController extends BaseControllerEmpenho
                     'language' => [
                         'url' => asset('/json/pt_br.json')
                     ],
-                    'initComplete' => 'function() { $(\'.subitem\').select2(); atualizaMascara() }'
-
+                    'initComplete' => 'function() { $(\'.subitem\').select2(); atualizaMascara() }',
+                    'responsive' => [true,
+                        'details' => [
+                            'renderer' => '$.fn.dataTable.Responsive.renderer.listHiddenNodes()'
+                        ]
+                    ]
                 ]
             );
 
@@ -266,7 +270,11 @@ class SubelementoController extends BaseControllerEmpenho
     {
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd" . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id'] . "' data-tipo='' name='qtd[]' value='' readonly  > ";
+            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
+                . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id']
+                . "' data-tipo='' name='qtd[]' value='' readonly  > "
+                . " <input  type='hidden' id='quantidade_total" . '' . "' data-tipo='' name='quantidade_total[]' value='"
+                . $item['qtd_item'] . "'> ";
         }
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
             . "' data-compra_item_id='" . $item['compra_item_id']
@@ -285,7 +293,6 @@ class SubelementoController extends BaseControllerEmpenho
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
                 . " onchange='calculaQuantidade(this)' >";
         }
-
         return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "'"
             . "id='vrtotal" . $item['compra_item_id']
             . "' data-tipo='' name='valor_total[]' value='' readonly > ";
