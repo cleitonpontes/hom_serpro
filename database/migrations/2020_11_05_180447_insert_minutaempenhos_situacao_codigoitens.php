@@ -8,6 +8,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class InsertMinutaempenhosSituacaoCodigoitens extends Migration
 {
+    //TODO MIGRAR PARA SEEDS
     /**
      * Run the migrations.
      *

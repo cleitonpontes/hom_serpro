@@ -6,6 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class AlterContaCorrentePassivoAnteriorTable extends Migration
 {
+    //TODO OK DELETAR
     /**
      * Run the migrations.
      *

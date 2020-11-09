@@ -6,6 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class AddCompraItemsTable extends Migration
 {
+    //TODO MIGRATE OK DELETE
     /**
      * Run the migrations.
      *

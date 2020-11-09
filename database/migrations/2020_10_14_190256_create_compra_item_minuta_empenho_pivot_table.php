@@ -15,9 +15,9 @@ class CreateCompraItemMinutaEmpenhoPivotTable extends Migration
         Schema::create('compra_item_minuta_empenho', function (Blueprint $table) {
             $table->integer('compra_item_id')->unsigned()->index();
             $table->integer('minutaempenho_id')->unsigned()->index();
-            $table->integer('subelemento_id');
-            $table->decimal('quantidade', 10,5)->default(0);
-            $table->decimal('valor', 17,2)->default(0);
+            $table->integer('subelemento_id')->nullable();
+            $table->decimal('quantidade', 10,5)->default(0)->nullable();
+            $table->decimal('valor', 17,2)->default(0)->nullable();
 
             $table->foreign('minutaempenho_id')->references('id')->on('minutaempenhos')->onDelete('cascade');
             $table->foreign('compra_item_id')->references('id')->on('compra_items')->onDelete('cascade');

@@ -6,6 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class AddCollumnEtapaMinutaEmpenhosTable extends Migration
 {
+    //TODO MIGRATE OK DELETAR
     /**
      * Run the migrations.
      *

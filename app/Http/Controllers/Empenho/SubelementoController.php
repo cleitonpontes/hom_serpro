@@ -67,7 +67,7 @@ class SubelementoController extends BaseControllerEmpenho
                 'saldo_contabil',
                 'saldo_contabil.id',
                 '=',
-                'minutaempenhos.saldo_contabil_id',
+                'minutaempenhos.saldo_contabil_id'
             )
             ->join(
                 'naturezadespesa',
@@ -273,20 +273,23 @@ class SubelementoController extends BaseControllerEmpenho
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
                 . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id']
                 . "' data-tipo='' name='qtd[]' value='' readonly  > "
-                . " <input  type='hidden' id='quantidade_total" . '' . "' data-tipo='' name='quantidade_total[]' value='"
+                . " <input  type='hidden' id='quantidade_total" . ''
+                . "' data-tipo='' name='quantidade_total[]' value='"
                 . $item['qtd_item'] . "'> ";
         }
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
             . "' data-compra_item_id='" . $item['compra_item_id']
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
             . " class='form-control' value='' onchange='calculaValorTotal(this)'  > "
-            . " <input  type='hidden' id='quantidade_total" . '' . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+            . " <input  type='hidden' id='quantidade_total" . ''
+            . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
     }
 
     private function addColunaValorTotal($item)
     {
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal" . $item['compra_item_id'] . "'"
+            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
+                . $item['compra_item_id'] . "'"
                 . "id='vrtotal" . $item['compra_item_id']
                 . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value=''"
                 . " data-compra_item_id='" . $item['compra_item_id'] . "'"
@@ -300,7 +303,8 @@ class SubelementoController extends BaseControllerEmpenho
 
     private function addColunaCompraItemId($item)
     {
-        return " <input  type='hidden' id='" . '' . "' data-tipo='' name='compra_item_id[]' value='" . $item['compra_item_id'] . "'   > ";
+        return " <input  type='hidden' id='" . ''
+            . "' data-tipo='' name='compra_item_id[]' value='" . $item['compra_item_id'] . "'   > ";
     }
 
     public function store(Request $request)

@@ -313,6 +313,7 @@ class CompraSiasgCrudController extends CrudController
         $fornecedor = new Fornecedor();
         $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
 
+        //TODO UPDATE OR INSERT FORNECEDOR
         if (is_null($retorno)) {
             $fornecedor->tipo_fornecedor = $fornecedor->retornaTipoFornecedor($item->niFornecedor);
             $fornecedor->cpf_cnpj_idgener = $fornecedor->formataCnpjCpf($item->niFornecedor);
