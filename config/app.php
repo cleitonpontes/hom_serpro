@@ -15,6 +15,8 @@ return [
         'emprpp' => '622920107', // 6.2.2.9.2.01.07 = EMPENHOS LIQUIDADOS A PAGAR INSCRITO EM RPP
     ],
 
+    'conta_contabil_credito_disponivel' => '622110000',
+
     'modalidades_sem_exigencia' => [
         'Inexigibilidade',
         'Não se Aplica'

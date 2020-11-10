@@ -171,6 +171,9 @@ class ContratoController extends Controller
         $empenhos = $this->buscaEmpenhosPorContratoId($contrato_id);
 
         foreach ($empenhos as $e) {
+
+            $numeroEmpenho = @$e->empenho->unidade->codigo . @$e->empenho->unidade->gestao . @$e->empenho->numero;
+
             $empenhos_array[] = [
                 'unidade_gestora' => @$e->empenho->unidade->codigo,
                 'gestao' => @$e->empenho->unidade->gestao,
@@ -186,7 +189,9 @@ class ContratoController extends Controller
                 'rpaliquidar' => number_format(@$e->empenho->rpaliquidar, 2, ',', '.'),
                 'rpliquidado' => number_format(@$e->empenho->rpliquidado, 2, ',', '.'),
                 'rppago' => number_format(@$e->empenho->rppago, 2, ',', '.'),
-
+                'links' => [
+                    'documento_pagamento' => url(env('API_STA_HOST').'/api/ordembancaria/empenho/' . $numeroEmpenho)
+                ]
             ];
         }
 
@@ -1086,7 +1091,7 @@ class ContratoController extends Controller
 
     private function buscaContratoPorUASGeNumero(string $codigo_uasg, string $numeroano_contrato)
     {
-        $contratos = Contrato::whereHas('unidade', function ($q) use ($codigo_uasg) {
+        $contratos = Contrato::whereHas('unidadeorigem', function ($q) use ($codigo_uasg) {
             $q->whereHas('orgao', function ($o) {
                 $o->where('situacao', true);
             })
@@ -1425,6 +1430,8 @@ class ContratoController extends Controller
 *          @OA\Schema(
 *             schema="Empenhos",
 *             type="object",
+*             @OA\Property(property="unidade_gestora",type="string",example="110099"),
+*             @OA\Property(property="gestao",type="string",example="00001"),
 *             @OA\Property(property="numero",type="string",example="2019NE800022"),
 *             @OA\Property(property="credor",type="string",example="09.439.320/0001-17 - GLOBAL SERVICOS & COMERCIO LTDA"),
 *             @OA\Property(property="planointerno",type="string",example="AGU0047 - SERVICOS DE PORTARIA"),
@@ -1437,6 +1444,7 @@ class ContratoController extends Controller
 *             @OA\Property(property="rpaliquidar",type="number",example="128.941,72"),
 *             @OA\Property(property="rpliquidado",type="number",example="128.941,72"),
 *             @OA\Property(property="rppago",type="number",example="102.725,92"),
+*             @OA\Property(property="links",type="array", @OA\Items(type="object", example="{'documento_pagamento': 'http:\/\/sta.agu.gov.br\/api\/ordembancaria\/empenho\/110099000012017NE800559'}"))
 *       ),
 *          @OA\Schema(
 *             schema="Empenhos_id",

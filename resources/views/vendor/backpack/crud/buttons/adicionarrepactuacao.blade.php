@@ -1,0 +1,1 @@
+<a href="/gescon/contrato/contratoconta/{{ \Route::current()->parameter('contratoconta_id') }}/funcoescontratoconta" class="btn btn-xs btn-default" title="Repactuação"><i class="fa fa-play">Repactuação</i></a>

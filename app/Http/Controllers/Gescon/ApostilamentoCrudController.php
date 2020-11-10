@@ -253,7 +253,6 @@ class ApostilamentoCrudController extends CrudController
                 'label' => "Tipo",
                 'type' => 'select_from_array',
                 'options' => $tipos,
-                'allows_null' => false,
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;

@@ -42,8 +42,7 @@ class ContratofaturaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/faturas');
         $this->crud->setEntityNameStrings('Fatura do Contrato', 'Faturas - Contrato');
         $this->crud->addClause('join', 'tipolistafatura', 'tipolistafatura.id', '=', 'contratofaturas.tipolistafatura_id');
-        $this->crud->addClause('leftJoin', 'apropriacoes_faturas_contratofaturas', 'apropriacoes_faturas_contratofaturas.contratofaturas_id', '=', 'contratofaturas.id');
-        $this->crud->addClause('select', 'contratofaturas.*', 'apropriacoes_faturas_contratofaturas.contratofaturas_id');
+        $this->crud->addClause('select', 'contratofaturas.*');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
@@ -66,30 +65,6 @@ class ContratofaturaCrudController extends CrudController
             $this->crud->AllowAccess('update');
             $this->crud->AllowAccess('delete');
         }
-
-        $this->crud->enableBulkActions();
-
-        $this->crud->addButton(
-            'line',
-            'apropriacao_fatura',
-            'view',
-            'crud::buttons.apropriacao_fatura',
-            'end'
-        );
-
-        $this->crud->addButton(
-            'bottom',
-            'apropriacao_fatura',
-            'view',
-            'crud::buttons.bulk_apropriacao_fatura'
-        );
-
-        $this->crud->addButton(
-            'bottom',
-            'del_apropriacao_fatura',
-            'view',
-            'crud::buttons.bulk_delete'
-        );
 
         /*
         |--------------------------------------------------------------------------
@@ -579,6 +554,7 @@ class ContratofaturaCrudController extends CrudController
 
         return $redirect_location;
     }
+
 
     public function update(UpdateRequest $request)
     {

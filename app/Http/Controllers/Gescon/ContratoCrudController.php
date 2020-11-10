@@ -40,7 +40,6 @@ class ContratoCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-
         $this->crud->setModel('App\Models\Contrato');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato');
         $this->crud->setEntityNameStrings('Contrato', 'Contratos');

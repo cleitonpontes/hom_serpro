@@ -20,10 +20,12 @@ class CreateCompraItemsTable extends Migration
             $table->integer('catmatseritem_id');
             $table->integer('fornecedor_id');
             $table->integer('unidade_autorizada_id');
-            $table->string('descricaodetalhada');
-            $table->integer('quantidade')->default(0);
+            $table->text('descricaodetalhada');
+            $table->decimal('quantidade', 10, 5)->default(0);
             $table->decimal('valorunitario', 17, 4)->default(0);
             $table->decimal('valortotal', 17, 2)->default(0);
+            $table->integer('qtd_total')->nullable();
+            $table->text('numero');
 
             $table->foreign('compra_id')->references('id')->on('compras')->onDelete('cascade');
             $table->foreign('tipo_item_id')->references('id')->on('codigoitens')->onDelete('cascade');

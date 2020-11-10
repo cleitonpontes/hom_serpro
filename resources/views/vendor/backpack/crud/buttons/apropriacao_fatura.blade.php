@@ -14,7 +14,7 @@ if ($faturaApropriada) {
 }
 @endphp
 
-@if ($crud->hasAccess('update'))
+@if (backpack_user()->hasRole('Execução Financeira'))
     <a href="{{ $link }}"
        class="btn btn-xs btn-default {{ $cor }}"
        title="{{ $hint }}"

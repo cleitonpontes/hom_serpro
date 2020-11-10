@@ -39,7 +39,6 @@ class FaturaController extends BaseController
     use Formatador;
 
     private $htmlBuilder = '';
-    private $contratoId = 0;
     private $apropriacaoId = null;
     private $apropriacaoValor = 0;
     private $pcoId = null;
@@ -103,29 +102,23 @@ class FaturaController extends BaseController
      */
     public function create(Contrato $contrato, Contratofatura $fatura)
     {
-        $this->contratoId = $contrato->id;
         $faturaIds = (array)$fatura->id;
-
-        if ($this->validaFaturaDoContrato($fatura->contrato->id)) {
-            \Alert::warning($this->msgErroFaturaDoContrato)->flash();
-            return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
-        }
 
         if ($this->validaNaoApropriacaoDeFaturas($faturaIds)) {
             \Alert::warning($this->msgErroFaturaEmApropriacao)->flash();
-            return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
+            return redirect('/gescon/consulta/faturas');
         }
 
         if ($this->validaExistenciaFaturas($faturaIds)) {
             \Alert::warning($this->msgErroFaturaInexistente)->flash();
-            return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
+            return redirect('/gescon/consulta/faturas');
         }
 
         $this->gerarApropriacaoFaturas($faturaIds);
         $this->executaApropriacaoFaturas();
 
         \Alert::success('Fatura(s) incluída(s) na apropriação')->flash();
-        return redirect("/gescon/meus-contratos/$this->contratoId/faturas");
+        return redirect('/gescon/consulta/faturas');
     }
 
     /**
@@ -140,6 +133,12 @@ class FaturaController extends BaseController
         $retorno['mensagem'] = '';
 
         $faturaIds = request()->entries;
+
+        if ($this->validaFaturaDeDiferentesContratos($faturaIds)) {
+            $retorno['mensagem'] = $this->msgErroFaturaDoContrato;
+
+            return json_encode($retorno);
+        }
 
         if ($this->validaNaoApropriacaoDeFaturas($faturaIds)) {
             $retorno['mensagem'] = $this->msgErroFaturasEmApropriacao;
@@ -239,9 +238,9 @@ class FaturaController extends BaseController
      * @return bool
      * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
      */
-    protected function validaFaturaDoContrato($faturaContratoId)
+    protected function validaFaturaDeDiferentesContratos($faturaContratoId)
     {
-        return $this->contratoId != $faturaContratoId;
+        return Contratofatura::whereIn('id', $faturaContratoId)->pluck('contrato_id')->unique()->count() != 1;
     }
 
     /**

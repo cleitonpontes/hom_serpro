@@ -18,6 +18,7 @@ class CreateContaCorrentePassivoAnteriorTable extends Migration
             $table->bigInteger('minutaempenho_id');
             $table->string('conta_corrente');
             $table->decimal('valor',17,2)->default(0);
+            $table->json('conta_corrente_json')->nullable();
 
             $table->foreign('minutaempenho_id')->references('id')->on('minutaempenhos')->onDelete('cascade');
 

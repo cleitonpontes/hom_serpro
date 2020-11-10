@@ -20,6 +20,7 @@ class AlterMinutaempenhosTable extends Migration
             $table->bigInteger('saldo_contabil_id')->nullable(); //tela04
             $table->bigInteger('tipo_empenho_id')->nullable(); //tela 06
             $table->bigInteger('amparo_legal_id')->nullable(); //tela 06
+            $table->integer('situacao_id');
             $table->date('data_emissao')->nullable(); //tela 06
             $table->string('processo')->nullable(); //tela 06
             $table->integer('numero_empenho_sequencial')->nullable(); //retorno numero empenho
@@ -30,7 +31,9 @@ class AlterMinutaempenhosTable extends Migration
             $table->boolean('passivo_anterior')->default(false); //tela 07
             $table->string('conta_contabil_passivo_anterior')->nullable(); //tela 07
             $table->string('mensagem_siafi')->nullable(); //gravar retorno do WS
-            $table->string('situacao')->default('Em andamento'); //Em andamento, Em processamento, Erro, Empenho Emitido, Empenho cancelado
+            $table->integer('etapa');
+            $table->decimal('valor_total', 17,4)->default(0);
+            //$table->string('situacao')->default('Em andamento'); //Em andamento, Em processamento, Erro, Empenho Emitido, Empenho cancelado
 
             $table->foreign('compra_id')->references('id')->on('compras')->onDelete('cascade');
             $table->foreign('fornecedor_compra_id')->references('id')->on('fornecedores')->onDelete('cascade');
@@ -39,6 +42,7 @@ class AlterMinutaempenhosTable extends Migration
             $table->foreign('tipo_empenho_id')->references('id')->on('codigoitens')->onDelete('cascade');
             $table->foreign('amparo_legal_id')->references('id')->on('amparo_legal')->onDelete('cascade');
             $table->foreign('unidade_id')->references('id')->on('unidades')->onDelete('cascade');
+            $table->foreign('situacao_id')->references('id')->on('codigoitens')->onDelete('cascade');
 
             $table->softDeletes();
         });

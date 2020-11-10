@@ -10,8 +10,8 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
+  //teste
+//Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
 
 Route::get('/', function () {
     return redirect('/inicio');
@@ -43,13 +43,14 @@ Route::group([
     'prefix' => 'soap',
     'namespace' => 'Soap',
 ], function () {
-    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
+//    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
     Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
     Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialController@oficioPreview')->name('soap.oficio.preview');
 });
 
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+
 
 Route::group(
     [
@@ -236,5 +237,73 @@ Route::group(
             Route::get('/fatura/{id}/manual', 'FaturaController@editar')->name('apropriacao.fatura.editar');                            // ...
             Route::get('/fatura/{apropriacaoFatura}/dochabil', 'FaturaController@documentoHabil')->name('apropriacao.fatura.dochabil'); // Pronto
         });
+
+        // Módulo Empenho
+        Route::group([
+            'prefix' => 'empenho',
+            'namespace' => 'Empenho\\',
+            'as' => 'empenho.',
+            'middleware' => ['auth', 'permission:empenho_minuta_acesso', 'verify.step.empenho'],
+        ], function () {
+
+            /**
+             *
+             * Minuta Empenho - Genéricos
+             *
+             **/
+
+            CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
+
+            //passo 1
+            Route::get('buscacompra', 'CompraSiasgCrudController@create')
+                ->name('minuta.etapa.compra');
+
+            Route::post('buscacompra', 'CompraSiasgCrudController@store');
+
+            //passo 2
+            Route::get('fornecedor/{minuta_id}', 'FornecedorEmpenhoController@index')
+                ->name('minuta.etapa.fornecedor');
+
+            //passo 3
+            Route::get('item/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
+                ->name('minuta.etapa.item');
+
+            Route::post('item', 'FornecedorEmpenhoController@store')
+                ->name('minuta.etapa.item.store');
+
+            //passo 4
+            Route::get('saldo/{minuta_id}', 'SaldoContabilMinutaController@index')
+                ->name('minuta.etapa.saldocontabil');
+
+            Route::get('saldo/gravar/{minuta_id}', 'SaldoContabilMinutaController@store')
+                ->name('minuta.gravar.saldocontabil');
+
+            Route::post('saldo/gravar/saldo/minuta', 'SaldoContabilMinutaController@atualizaMinuta')
+                ->name('minuta.atualizar.saldo');
+
+            Route::post('saldo/inserir/celula', 'SaldoContabilMinutaController@inserirCelulaOrcamentaria')
+                ->name('saldo.inserir.modal');
+
+            //passo 5
+            Route::get('subelemento/{minuta_id}', 'SubelementoController@index')
+                ->name('minuta.etapa.subelemento');
+
+            Route::post('subelemento', 'SubelementoController@store')
+                ->name('subelemento.store');
+
+            //passo 6
+
+            //passo 7
+            CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create', 'show']]);
+
+            Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
+                ->name('minuta.etapa.passivo-anterior');
+
+        });
+
+        Route::get('/tags', function () {
+            return view('tags');
+        });
+        Route::get('/tags/find', 'Select2Ajax\TagController@find');
     }
 );
