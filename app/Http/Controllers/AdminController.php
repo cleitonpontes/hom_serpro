@@ -130,27 +130,27 @@ class AdminController extends Controller
 
     protected function getEvents()
     {
-
         $events = [];
-        $eventsCollections = $this->getCalendarEvents();
-        if ($eventsCollections->count() > 0) {
+        $eventsCollections = $this->getCalendarEvents()->get()->toArray();
+        $pkcount = is_array($eventsCollections) ? count($eventsCollections) : 0;
+        if ($pkcount > 0) {
             foreach ($eventsCollections as $key => $value) {
-                $events[] = \Calendar::event(
-                    $value->title,
-                    true,
-                    new \DateTime($value->start_date),
-                    new \DateTime($value->end_date . ' +1 day'),
-                    null,
-                    // Add color and link on event
-                    [
-                        'color' => '#619aef',
-                    ]
-                );
+                 $events[] = \Calendar::event(
+                     $value['title'],
+                     true,
+                     new \DateTime($value['start_date']),
+                     new \DateTime($value['end_date'] . ' +1 day'),
+                     null,
+                     // Add color and link on event
+                     [
+                         'color' => '#619aef',
+                   ]
+                 );
             }
         }
-
         return $events;
     }
+
 
     private function getColors($shuffle = false)
     {
@@ -284,7 +284,7 @@ class AdminController extends Controller
 
     protected function getCalendarEvents()
     {
-        $eventsCollections = CalendarEvent::whereNull('unidade_id');
+        $eventsCollections = new CalendarEvent();
         if (session()->get('user_ug_id')) {
             $eventsCollections = $eventsCollections->where('unidade_id', session()->get('user_ug_id'));
         }

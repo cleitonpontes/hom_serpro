@@ -148,6 +148,7 @@ Route::group([
             CRUD::resource('meus-contratos', 'MeucontratoCrudController');
             CRUD::resource('fornecedor', 'FornecedorCrudController');
             CRUD::resource('indicador', 'IndicadorCrudController');
+            CRUD::resource('encargo', 'EncargoCrudController');
 
             Route::group([
                 'prefix' => 'siasg',
@@ -155,18 +156,35 @@ Route::group([
             ], function () {
                 CRUD::resource('compras', 'SiasgcompraCrudController');
                 CRUD::resource('contratos', 'SiasgcontratoCrudController');
-
-
                 Route::get('apisiasg', 'SiasgcompraCrudController@apisiasg');
                 Route::get('inserircompras', 'SiasgcompraCrudController@inserirComprasEmMassa');
                 Route::get('inserircontratos', 'SiasgcontratoCrudController@verificarContratosPendentes');
-                Route::get('inserircontratossisg', 'SiasgcontratoCrudController@importaManualmenteContratoSemCompra');
-                Route::get('inserircontratosnaosisg', 'SiasgcontratoCrudController@importaManualmenteContratoNaoSisg');
-
-
             });
 
+            // início conta vinculada - contrato conta - mvascs@gmail.com
+            Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}'], function () {
+                CRUD::resource('extratocontratoconta', 'ExtratocontratocontaCrudController');
+                CRUD::resource('movimentacaocontratoconta', 'MovimentacaocontratocontaCrudController');
+                CRUD::resource('depositocontratoconta', 'DepositocontratocontaCrudController');
+                CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
+                CRUD::resource('funcionarioscontratoconta', 'FuncionarioscontratocontaCrudController');
+                CRUD::resource('funcoescontratoconta', 'FuncoescontratocontaCrudController');
+            });
+            Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}/{funcao_id}'], function () {
+                CRUD::resource('repactuacaocontratoconta', 'RepactuacaocontratocontaCrudController');
+            });
+            Route::group(['prefix' => 'contrato/contratoconta/movimentacaocontratoconta/{movimentacaocontratoconta_id}'], function () {
+                CRUD::resource('lancamento', 'LancamentoCrudController');
+            });
+            Route::group(['prefix' => 'contrato/contratoconta/contratoterceirizado/{contratoterceirizado_id}'], function () {
+                CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
+            });
+            // fim conta vinculada - contrato conta
+
+
+
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
+                CRUD::resource('contratocontas', 'ContratocontaCrudController'); // conta vinculada
                 CRUD::resource('aditivos', 'AditivoCrudController');
                 CRUD::resource('apostilamentos', 'ApostilamentoCrudController');
                 CRUD::resource('arquivos', 'ContratoarquivoCrudController');
