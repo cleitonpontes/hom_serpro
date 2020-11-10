@@ -358,6 +358,7 @@ class Contrato extends Model
         }
     }
 
+
     public function formatVlrParcela()
     {
         return 'R$ ' . number_format($this->valor_parcela, 2, ',', '.');

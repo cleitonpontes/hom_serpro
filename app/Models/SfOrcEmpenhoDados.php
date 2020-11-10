@@ -71,6 +71,11 @@ class SfOrcEmpenhoDados extends Model
         return $this->hasMany(SfPassivoAnterior::class, 'sforcempenhodado_id');
     }
 
+    public function itens_empenho()
+    {
+        return $this->hasMany(SfItemEmpenho::class, 'sforcempenhodado_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

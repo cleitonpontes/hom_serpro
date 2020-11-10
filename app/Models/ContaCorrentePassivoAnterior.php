@@ -30,7 +30,8 @@ class ContaCorrentePassivoAnterior extends Model
     protected $fillable = [
         'minutaempenho_id',
         'conta_corrente',
-        'valor'
+        'valor',
+        'conta_corrente_json'
     ];
 
     /*

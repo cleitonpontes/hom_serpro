@@ -43,9 +43,17 @@ class UsuarioUnidadeCrudController extends CrudController
         // $this->crud->addClause('where', 'users.unidade_id', '=', $unidade_user->id);
 
         $this->crud->setEntityNameStrings('Usuário Unidade: ' . $unidade_user->codigo, 'Usuários Unidade: ' . $unidade_user->codigo);
-        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
-        $this->crud->addClause('where', 'users.ugprimaria', '=', $unidade_user->id);
-
+        $this->crud->addClause('leftjoin', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
+        $unidade_user_id = $unidade_user->id;
+        $this->crud->query->where(function ($q) use ( $unidade_user_id ){
+                        $q->orWhere('users.ugprimaria', '=', $unidade_user_id)
+                        ->orWhere('users.situacao','=',0)
+                        ->orWhere(function ($q) {
+                            $q->whereNull('users.ugprimaria')
+                              ->where('users.situacao','=',1);
+                        });
+                    });
+                    
         // $this->crud->addClause('whereHas', 'unidades', function ($q) use ($unidade_user) {
         //     $q->where('unidade_id', $unidade_user->id);
         //     $q->orWhere('ugprimaria', $unidade_user->id);
@@ -320,6 +328,14 @@ class UsuarioUnidadeCrudController extends CrudController
             return redirect()->back();
         }else{
             // your additional operations before save here
+
+            // caso a situação for inativa, limpa os campos de ugPrimaria, Unidades e permissões
+            if($request->input('situacao') == 0){ // 0 = false = inativo
+                $request->request->set('ugprimaria', null);
+                $request->request->set('unidades', null);
+                $request->request->set('roles', null);
+            }
+
             $redirect_location = parent::updateCrud($request);
             // your additional operations after save here
             // use $this->data['entry'] or $this->crud->entry

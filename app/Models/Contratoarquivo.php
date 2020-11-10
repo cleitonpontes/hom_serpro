@@ -43,6 +43,7 @@ class Contratoarquivo extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
     public function getContrato()
     {
         return $this->getContratoNumero();
