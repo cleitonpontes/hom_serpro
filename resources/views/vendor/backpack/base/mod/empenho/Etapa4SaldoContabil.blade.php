@@ -44,16 +44,10 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-9" align="right">
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#inserir_celular_orcamentaria">
                             Inserir Célula Orçamentária <i class="fa fa-plus"></i>
                         </button>
-                    </div>
-                    <div class="col-md-3" align="right">
-
-                    </div>
-                    <div class="col-md-3" align="left">
-
                     </div>
                 </div>
             </div>
@@ -63,24 +57,26 @@
 
             <div class="box-tools" align="right">
                 <div class="row">
-                    <div class="col-md-3" align="left">
-                        {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
-                            ->asLinkTo(route('empenho.minuta.etapa.item',['minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id]))
-                        !!}
-                    </div>
-                    <div class="col-md-3">
+
+                    <div class="box-tools col-md-6" align="left">
+
+                            {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
+                                ->asLinkTo(route('empenho.minuta.etapa.item',['minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id]))
+                            !!}
+
+                            <button type="submit" class="btn btn-success">
+                                Próxima Etapa <i class="fa fa-arrow-right"></i>
+                            </button>
 
                     </div>
-                    <div class="col-md-3" align="right">
+                    <div class="col-md-6" align="right">
                         <button type="button" class="btn btn-primary" id="atualiza_saldo">
                             Atualizar todos os Saldos  <i class="fa fa-refresh"></i>
                         </button>
                     </div>
-                    <div class="col-md-3" align="left">
-                        <button type="submit" class="btn btn-success" id="salvar">
-                            Próxima Etapa  <i class="fa fa-right"></i>
-                        </button>
-                    </div>
+{{--                    <div class="col-md-3" align="left">--}}
+{{--                        --}}
+{{--                    </div>--}}
                 </div>
             </div>
             </form>
