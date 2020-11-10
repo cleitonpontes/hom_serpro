@@ -45,7 +45,7 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#inserir_celular_orcamentaria">
+                        <button type="button" id="inserir_celula" class="btn btn-primary" data-toggle="modal" data-target="#inserir_celular_orcamentaria">
                             Inserir Célula Orçamentária <i class="fa fa-plus"></i>
                         </button>
                     </div>
@@ -356,12 +356,10 @@
                 atualizaSaldosPorUnidade(event);
             });
 
-
             $('body').on('click','button[name^="atualiza_saldo_acao_"]',function (event){
                 var saldo_id = this.id;
                 atualizaLinhadeSaldo(event,saldo_id);
             });
-
 
             $('body').on('change','#cb_unidade', function(event){
                 recarregaTabeladeSaldos(event);
@@ -376,6 +374,10 @@
             });
 
             $('#inserir_celular_orcamentaria').on('show.bs.modal', function(event) {
+                $('#form_modal').each (function(){
+                    this.reset();
+                });
+
                 var unidade_id = $('#cb_unidade :selected').val();
                 $('#unidade_id').val(unidade_id);
 

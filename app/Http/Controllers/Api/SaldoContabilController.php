@@ -129,10 +129,10 @@ class SaldoContabilController extends Controller
         $ug = $unidade->codigo;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
         $contacorrente = "N".$saldo->conta_corrente;
-//        $contacorrente = 'N11184940100000000339039        AGU0042'; // remover comentário para testar
         $system_user = env('USUARIO_SIAFI');
         $pwd = env('SENHA_SIAFI');
         $mes = $meses[(int) date('m')];//$meses[(int) $registro['mes']];
+
 
         try {
             $execsiafi = new Execsiafi();
