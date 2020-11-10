@@ -18,7 +18,7 @@ use App\Models\SfOrcEmpenhoDados;
 use App\Models\SfPassivoAnterior;
 use App\Models\SfPassivoPermanente;
 use App\Models\Unidade;
-use app\Models\Catmatseritem;
+use App\Models\Catmatseritem;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
