@@ -316,7 +316,6 @@
             event.preventDefault()
         }
 
-
         function empenharOutroFornecedor(event) {
 
             var minuta_id = $('#minuta_id').val();
