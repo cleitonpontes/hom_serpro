@@ -32,7 +32,7 @@ class TipoMinutaEmpenhoSeeder extends Seeder
 
         DB::table('codigoitens')->insert([
             'codigo_id' => $itemCodigo,
-            'descres' => '2',
+            'descres' => '3',
             'descricao' => 'Estimativo',
             'visivel' => false,
             'created_at' => now(),
@@ -41,7 +41,7 @@ class TipoMinutaEmpenhoSeeder extends Seeder
 
         DB::table('codigoitens')->insert([
             'codigo_id' => $itemCodigo,
-            'descres' => '3',
+            'descres' => '5',
             'descricao' => 'Global',
             'visivel' => false,
             'created_at' => now(),
