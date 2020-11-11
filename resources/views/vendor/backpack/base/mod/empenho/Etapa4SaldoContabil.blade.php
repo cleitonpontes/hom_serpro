@@ -46,8 +46,6 @@
                     </div>
                     <div class="col-md-9" align="right">
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#inserir_celular_orcamentaria">
-                    <div class="col-md-3">
-                        <button type="button" id="inserir_celula" class="btn btn-primary" data-toggle="modal" data-target="#inserir_celular_orcamentaria">
                             Inserir Célula Orçamentária <i class="fa fa-plus"></i>
                         </button>
                     </div>
@@ -76,11 +74,7 @@
                             Atualizar todos os Saldos  <i class="fa fa-refresh"></i>
                         </button>
                     </div>
-                    <div class="col-md-3" align="left">
-                        <button type="submit" class="btn btn-success" id="salvar">
-                            Próxima Etapa  <i class="fa fa-right"></i>
-                        </button>
-                    </div>
+
                 </div>
             </div>
             </form>
