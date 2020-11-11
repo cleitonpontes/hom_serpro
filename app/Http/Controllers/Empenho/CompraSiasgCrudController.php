@@ -27,10 +27,10 @@ class CompraSiasgCrudController extends CrudController
 {
     use Formatador;
 
-    const MATERIAL = [149, 194];
-    const SERVICO = [150, 195];
-    const SISPP = 1;
-    const SISRP = 2;
+    public const MATERIAL = [149, 194];
+    public const SERVICO = [150, 195];
+    public const SISPP = 1;
+    public const SISRP = 2;
 
 //    const TIPOCOMPRASIASG =
 
@@ -136,15 +136,17 @@ class CompraSiasgCrudController extends CrudController
         $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
 
         if (session()->get('user_ug_id') <> $request->unidade_origem_id) {
-            return redirect('/empenho/buscacompra/1')->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade!');
+            return redirect('/empenho/buscacompra')
+                ->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade!');
         }
 
         if (is_null($unidade_autorizada_id)) {
-            return redirect('/empenho/buscacompra/1')->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade Subrogada!');
+            return redirect('/empenho/buscacompra')
+                ->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade Subrogada!');
         }
 
         if (is_null($retornoSiasg->data)) {
-            return redirect('/empenho/buscacompra/1')->with('alert-warning', 'Nenhuma compra foi encontrada!!');
+            return redirect('/empenho/buscacompra')->with('alert-warning', 'Nenhuma compra foi encontrada!!');
         }
 
         $this->montaParametrosCompra($retornoSiasg, $request);
@@ -183,7 +185,7 @@ class CompraSiasgCrudController extends CrudController
 
             return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
         } catch (Exception $exc) {
-            dd($exc);
+//            dd($exc);
             DB::rollback();
         }
     }
@@ -216,7 +218,8 @@ class CompraSiasgCrudController extends CrudController
             if ($subrrogada <> '000000') {
                 ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = $subrrogada : '';
             } else {
-                ($request->unidade_origem_id == session('user_ug_id')) ? $unidade_autorizada_id = $request->unidade_origem_id : '';
+                ($request->unidade_origem_id == session('user_ug_id'))
+                    ? $unidade_autorizada_id = $request->unidade_origem_id : '';
             }
         } else {
             $unidade_autorizada_id = 'SISPR';
@@ -224,7 +227,7 @@ class CompraSiasgCrudController extends CrudController
         return $unidade_autorizada_id;
     }
 
-    public function montaParametrosCompra($compraSiasg, $request)
+    public function montaParametrosCompra($compraSiasg, $request): void
     {
         $unidade_subrogada = $compraSiasg->data->compraSispp->subrogada;
         $request->request->set(
@@ -238,8 +241,7 @@ class CompraSiasgCrudController extends CrudController
 
     public function buscaIdUnidade($uasg)
     {
-        $unidade = Unidade::where('codigo', $uasg)->first();
-        return $unidade->id;
+        return Unidade::where('codigo', $uasg)->first()->id;
     }
 
     public function buscaTipoCompra($descres)
@@ -261,7 +263,7 @@ class CompraSiasgCrudController extends CrudController
             ->first();
     }
 
-    public function gravaParametroItensdaCompra($compraSiasg, $params)
+    public function gravaParametroItensdaCompra($compraSiasg, $params): void
     {
         $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $params);
         $tipo = ['S' => $this::SERVICO[0], 'M' => $this::MATERIAL[0]];
