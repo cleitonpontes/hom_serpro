@@ -80,10 +80,10 @@ class CompraItem extends Model
         return $this->belongsTo(Compra::class, 'compra_id');
     }
 
-    public function fornecedor()
-    {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
-    }
+//    public function fornecedor()
+//    {
+//        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+//    }
 
     public function tipo_item()
     {
@@ -93,6 +93,26 @@ class CompraItem extends Model
     public function unidade_autorizada()
     {
         return $this->belongsTo(Unidade::class, 'unidade_autorizada_id');
+    }
+
+    public function unidade()
+    {
+        return $this->belongsToMany(
+            'App\Models\CompraItem',
+            'compra_item_unidade',
+            'unidade_id',
+            'compra_item_id'
+        );
+    }
+
+    public function fornecedor()
+    {
+        return $this->belongsToMany(
+            'App\Models\CompraItem',
+            'compra_item_unidade',
+            'fornecedor_id',
+            'compra_item_id'
+        );
     }
 
     /*
