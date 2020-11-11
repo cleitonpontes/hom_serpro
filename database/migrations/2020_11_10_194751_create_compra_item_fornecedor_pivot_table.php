@@ -15,9 +15,9 @@ class CreateCompraItemFornecedorPivotTable extends Migration
         Schema::create('compra_item_fornecedor', function (Blueprint $table) {
             $table->integer('compra_item_id')->unsigned()->index();
             $table->foreign('compra_item_id')->references('id')->on('compra_items')->onDelete('cascade');
-            $table->integer('fornecedore_id')->unsigned()->index();
-            $table->foreign('fornecedore_id')->references('id')->on('fornecedores')->onDelete('cascade');
-            $table->primary(['compra_item_id', 'fornecedore_id']);
+            $table->integer('fornecedor_id')->unsigned()->index();
+            $table->foreign('fornecedor_id')->references('id')->on('fornecedores')->onDelete('cascade');
+            $table->primary(['compra_item_id', 'fornecedor_id']);
             $table->string('ni_fornecedor')->nullable();
             $table->string('classificacao')->nullable();
             $table->string('situacao_sicaf')->nullable();
@@ -25,6 +25,8 @@ class CreateCompraItemFornecedorPivotTable extends Migration
             $table->decimal('valor_unitario', 17, 4)->default(0);
             $table->decimal('valor_negociado', 17, 4)->default(0);
             $table->integer('quantidade_empenhada')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

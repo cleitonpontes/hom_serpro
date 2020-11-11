@@ -34,10 +34,13 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         $fornecedores = MinutaEmpenho::join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
             ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
-            ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
+            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+            ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
+            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+            ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
             ->distinct()
             ->where('minutaempenhos.id', $minuta_id)
-            ->where('compra_items.quantidade', '>', 0)
+            ->where('compra_item_unidade.quantidade_saldo', '>', 0)
             ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener'])
             ->get()
             ->toArray();
@@ -131,18 +134,22 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
 
         $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
+            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+            ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
+            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+            ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
-            ->where('compra_items.fornecedor_id', $fornecedor_id)
-            ->where('compra_items.quantidade', '>', 0)
+            ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+            ->where('compra_item_unidade.quantidade_saldo', '>', 0)
             ->select([
                 'compra_items.id',
                 'codigoitens.descricao',
                 'catmatseritem_id',
-                'descricaodetalhada',
-                'quantidade',
-                'valorunitario',
-                'valortotal',
-                'numero'
+                'compra_items.descricaodetalhada',
+                'compra_item_unidade.quantidade_saldo',
+                'compra_item_unidade.valor_item',
+                'compra_item_unidade.valor_total',
+                'compra_items.numero'
             ])
             ->get()
             ->toArray();
@@ -205,18 +212,18 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'title' => 'Descrição',
             ])
             ->addColumn([
-                'data' => 'quantidade',
-                'name' => 'quantidade',
+                'data' => 'quantidade_saldo',
+                'name' => 'quantidade_saldo',
                 'title' => 'Quantidade',
             ])
             ->addColumn([
-                'data' => 'valorunitario',
-                'name' => 'valorunitario',
+                'data' => 'valor_item',
+                'name' => 'valor_item',
                 'title' => 'Valor Unit.',
             ])
             ->addColumn([
-                'data' => 'valortotal',
-                'name' => 'valortotal',
+                'data' => 'valor_total',
+                'name' => 'valor_total',
                 'title' => 'Valor Total.',
             ])
             ->parameters([

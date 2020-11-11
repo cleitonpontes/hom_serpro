@@ -24,19 +24,13 @@ class CompraItem extends Model
 
     protected $table = 'compra_items';
 
-    protected $guarded = [
-        'id'
-    ];
-
     protected $fillable = [
         'compra_id',
         'tipo_item_id',
         'catmatseritem_id',
-        'fornecedor_id',
-        'unidade_autorizada_id',
         'descricaodetalhada',
-        'quantidade',
         'valorunitario',
+        'qtd_total',
         'valortotal',
         'qtd_restante',
         'numero'
@@ -47,21 +41,18 @@ class CompraItem extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function gravaCompraItem($params){
-
-        $this->compra_id = $params['compra_id'];
+    public function gravaCompraItem($params)
+    {
+        $this->compra_id = (int)$params['compra_id'];
         $this->tipo_item_id = $params['tipo_item_id'];
         $this->catmatseritem_id = $params['catmatseritem_id'];
-        $this->fornecedor_id = $params['fornecedor_id'];
-        $this->unidade_autorizada_id = $params['unidade_autorizada_id'];
         $this->descricaodetalhada = $params['descricaodetalhada'];
-        $this->quantidade = $params['quantidade'];
-        $this->qtd_total = $params['quantidade'];
+        $this->qtd_total = $params['qtd_total'];
         $this->valorunitario = $params['valorunitario'];
         $this->valortotal = $params['valortotal'];
         $this->numero = $params['numero'];
 
-        $this->save($params);
+        $this->save();
         return $this->id;
     }
     /*

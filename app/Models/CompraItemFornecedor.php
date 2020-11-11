@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class CompraItemFornecedor extends Model
 {
     protected $table = 'compra_item_fornecedor';
-    protected $primaryKey = ['compra_item_id', 'fornecedore_id'];
+
+    public $timestamps = true;
 
     protected $fillable = [
         'compra_item_id',

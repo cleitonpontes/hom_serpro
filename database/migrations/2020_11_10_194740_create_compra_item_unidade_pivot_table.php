@@ -25,6 +25,8 @@ class CreateCompraItemUnidadePivotTable extends Migration
             $table->decimal('valor_item', 17, 4)->default(0);
             $table->decimal('valor_total', 17, 2)->default(0);
             $table->string('tipo_uasg')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
 
         });
     }
