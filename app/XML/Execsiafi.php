@@ -273,8 +273,6 @@ class Execsiafi
     public function conrazaoUserSystem($system_user,$pwd ,$amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
     {
 
-//        $senha = base64_decode($user->senhasiafi);
-
         $client = $this->conexao_xml($system_user, $pwd, $ug, '', $amb, $ano, 'CONSULTA');
 
         $parms = new \stdClass;
