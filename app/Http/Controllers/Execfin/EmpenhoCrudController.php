@@ -829,6 +829,7 @@ class EmpenhoCrudController extends CrudController
                 $ws_siafi = new Execsiafi;
                 $ano = '2020';
                 $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
+                $empenho->update($retorno);
             }
         }
 

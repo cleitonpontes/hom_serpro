@@ -224,10 +224,7 @@ class Execsiafi
 
         }
 
-        dd($client->__getLastResponse(), $client->__getLastRequest());
-
         return $client->__getLastResponse();
-
     }
 
     public function conrazao($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
@@ -363,9 +360,7 @@ class Execsiafi
 
         $retorno = $this->submit($client, $parms, 'INCNE');
 
-        dd($retorno);
-
-        return $retorno;
+        return $this->trataRetornoEmpenho($retorno);
 
     }
 
@@ -487,6 +482,10 @@ class Execsiafi
             'itemEmpenho' => $this->montaItemEmpenho($sfOrcEmpenhoDados->id),
         ];
 
+        if($parms->orcEmpenhoDados['passivoAnterior'] == null){
+            unset($parms->orcEmpenhoDados['passivoAnterior']);
+        }
+
         return $parms;
     }
 
@@ -580,17 +579,18 @@ class Execsiafi
 
     private function montaPassivoAnterior(string $sfOrcEmpenhoDados_id)
     {
-        $array = [];
+        $array = null;
 
         $dado = SfPassivoAnterior::where('sforcempenhodado_id', $sfOrcEmpenhoDados_id)
             ->first();
 
-        if ($dado) {
+        if (isset($dado->id)) {
             $array = [
                 'codContaContabil' => $dado->codcontacontabil,
                 'passivoPermanente' => $this->montaPassivoPermanente($dado->id),
             ];
         }
+
         $passivoanterior = $array;
 
         return $passivoanterior;
@@ -963,6 +963,34 @@ class Execsiafi
 
 
         return $this;
+    }
+
+    protected function trataRetornoEmpenho($retorno)
+    {
+        $xml = simplexml_load_string(str_replace(':', '', $retorno));
+
+        $resultado = [];
+
+        if (isset($xml->soapHeader)) {
+            if($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'FALHA'){
+                foreach ($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->mensagem as $mensagem ){
+                    if(!isset($resultado['mensagemretorno'])){
+                        $resultado['mensagemretorno'] = (string) $mensagem->txtMsg;
+                    }else{
+                        $resultado['mensagemretorno'] .= " | " . (string) $mensagem->txtMsg;
+                    }
+                }
+                $resultado['situacao'] = 'ERRO';
+            }
+
+            if($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'SUCESSO'){
+                $resultado['numempenho'] = (int) substr($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->empenho,6,6);
+                $resultado['numro'] = (string) $xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->documentoRO;
+                $resultado['mensagemretorno'] = (string) $xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->empenho;
+                $resultado['situacao'] = 'EMITIDO';
+            }
+        }
+        return $resultado;
     }
 
 }
