@@ -973,14 +973,22 @@ class Execsiafi
 
         if (isset($xml->soapHeader)) {
             if($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'FALHA'){
-                foreach ($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->mensagem as $mensagem ){
-                    if(!isset($resultado['mensagemretorno'])){
-                        $resultado['mensagemretorno'] = (string) $mensagem->txtMsg;
-                    }else{
-                        $resultado['mensagemretorno'] .= " | " . (string) $mensagem->txtMsg;
+                if(isset($xml->soapBody->ns3orcIncluirEmpenhoResponse)){
+                    foreach ($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->mensagem as $mensagem ){
+                        if(!isset($resultado['mensagemretorno'])){
+                            $resultado['mensagemretorno'] = (string) $mensagem->txtMsg;
+                        }else{
+                            $resultado['mensagemretorno'] .= " | " . (string) $mensagem->txtMsg;
+                        }
                     }
+                    $resultado['situacao'] = 'ERRO';
                 }
-                $resultado['situacao'] = 'ERRO';
+
+                if(isset($xml->soapBody->soapFault)){
+                    $resultado['mensagemretorno'] = (string)  $xml->soapBody->soapFault->faultcode . " | " . (string)  $xml->soapBody->soapFault->faultstring;
+                    $resultado['situacao'] = 'ERRO';
+                }
+
             }
 
             if($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'SUCESSO'){
