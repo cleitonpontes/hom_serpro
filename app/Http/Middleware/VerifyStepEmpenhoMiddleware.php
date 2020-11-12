@@ -27,6 +27,7 @@ class VerifyStepEmpenhoMiddleware
         'empenho.minuta.etapa.item' => 3,
         'empenho.minuta.etapa.saldocontabil' => 4,
         'empenho.minuta.etapa.subelemento' => 5,
+//        'empenho.minuta.etapa.subelemento.edit' => 5,
         'empenho.crud./minuta.edit' => 6,
         'empenho.minuta.etapa.passivo-anterior' => 7,
         'empenho.crud.passivo-anterior.edit' => 7,

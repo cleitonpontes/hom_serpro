@@ -23,15 +23,12 @@ class SubelementoController extends BaseControllerEmpenho
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     *
      */
-
     public function index(Request $request)
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
-        //        $fornecedor_id = \Route::current()->parameter('fornecedor_id');
-//        $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id);
 
         $itens = MinutaEmpenho::join(
             'compra_item_minuta_empenho',
@@ -89,12 +86,20 @@ class SubelementoController extends BaseControllerEmpenho
                     'naturezadespesa.id as natureza_despesa_id',
                     'compra_items.valortotal',
                     'saldo_contabil.saldo',
-
-                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa"),
+                    'compra_item_minuta_empenho.subelemento_id',
+                    'compra_item_minuta_empenho.quantidade',
+                    'compra_item_minuta_empenho.valor',
+                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                 ]
             )
             ->get()
             ->toArray();
+//        select sum(valor) from compra_item_minuta_empenho WHERE minutaempenho_id = 8
+        $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+            ->select(DB::raw('sum(valor) '))
+            ->first()->toArray();
+//        ;dd($itens->getBindings(),$itens->toSql());
+//        dd($valor_utilizado);
 
         if ($request->ajax()) {
             return DataTables::of($itens)
@@ -124,14 +129,29 @@ class SubelementoController extends BaseControllerEmpenho
                         return $this->addColunaValorTotal($item);
                     }
                 )
-                ->rawColumns(['subitem', 'quantidade', 'valor_total'])
+                ->addColumn(
+                    'valor_total_item',
+                    function ($item) {
+                        return $this->addColunaValorTotalItem($item);
+                    }
+                )
+                ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item'])
                 ->make(true);
         }
 
-
         $html = $this->retornaGridItens();
 
-        return view('backpack::mod.empenho.Etapa5SubElemento', compact('html'))->with('credito', $itens[0]['saldo']);
+//        dd($itens);
+
+        return view(
+            'backpack::mod.empenho.Etapa5SubElemento',
+            compact('html')
+        )->with([
+            'credito' => $itens[0]['saldo'],
+            'valor_utilizado' => $valor_utilizado['sum'],
+            'saldo' => $itens[0]['saldo'] - $valor_utilizado['sum'],
+            'update' => $valor_utilizado['sum'] > 0
+        ]);
     }
 
     /**
@@ -188,6 +208,13 @@ class SubelementoController extends BaseControllerEmpenho
                     'data' => 'valorunitario',
                     'name' => 'valorunitario',
                     'title' => 'Valor Unit.',
+                ]
+            )
+            ->addColumn(
+                [
+                    'data' => 'valor_total_item',
+                    'name' => 'valor_total_item',
+                    'title' => 'Valor Total do Item',
                 ]
             )
             ->addColumn(
@@ -260,7 +287,8 @@ class SubelementoController extends BaseControllerEmpenho
 
         $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
         foreach ($subItens as $key => $subItem) {
-            $retorno .= "<option value='$key'>$subItem</option>";
+            $selected = ($key == $item['subelemento_id']) ? 'selected' : '';
+            $retorno .= "<option value='$key' $selected>$subItem</option>";
         }
         $retorno .= '</select>';
         return $this->addColunaCompraItemId($item) . $retorno;
@@ -268,37 +296,48 @@ class SubelementoController extends BaseControllerEmpenho
 
     private function addColunaQuantidade($item)
     {
+        $quantidade = $item['quantidade'];
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
                 . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id']
-                . "' data-tipo='' name='qtd[]' value='' readonly  > "
-                . " <input  type='hidden' id='quantidade_total" . ''
+                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
+                . " <input  type='hidden' id='quantidade_total" . $item['compra_item_id']
                 . "' data-tipo='' name='quantidade_total[]' value='"
                 . $item['qtd_item'] . "'> ";
         }
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
             . "' data-compra_item_id='" . $item['compra_item_id']
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control' value='' onchange='calculaValorTotal(this)'  > "
-            . " <input  type='hidden' id='quantidade_total" . ''
+            . " class='form-control' value='$quantidade' onchange='calculaValorTotal(this)'  > "
+            . " <input  type='hidden' id='quantidade_total" . $item['compra_item_id']
             . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
     }
 
     private function addColunaValorTotal($item)
     {
+//        dd($item);
+        $valor = $item['valor'];
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
                 . $item['compra_item_id'] . "'"
                 . "id='vrtotal" . $item['compra_item_id']
-                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value=''"
+                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
                 . " data-compra_item_id='" . $item['compra_item_id'] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
                 . " onchange='calculaQuantidade(this)' >";
         }
         return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "'"
             . "id='vrtotal" . $item['compra_item_id']
-            . "' data-tipo='' name='valor_total[]' value='' readonly > ";
+            . "' data-tipo='' name='valor_total[]' value='$valor' readonly > ";
+    }
+
+    private function addColunaValorTotalItem($item)
+    {
+        return "<td>" . $item['qtd_item'] * $item['valorunitario'] . "</td>"
+            . " <input  type='hidden' id='valor_total_item" . $item['compra_item_id'] . "'"
+            . " name='valor_total_item[]"
+            . "' value='" . $item['qtd_item'] * $item['valorunitario'] . "'> ";
     }
 
     private function addColunaCompraItemId($item)
@@ -310,7 +349,6 @@ class SubelementoController extends BaseControllerEmpenho
     public function store(Request $request)
     {
         $minuta_id = $request->get('minuta_id');
-
         if ($request->credito - $request->valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
             return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
@@ -319,6 +357,7 @@ class SubelementoController extends BaseControllerEmpenho
         $compra_item_ids = $request->compra_item_id;
 
         $valores = $request->valor_total;
+//        dd($valores);
 
         $valores = array_map(
             function ($valores) {
@@ -326,10 +365,75 @@ class SubelementoController extends BaseControllerEmpenho
             },
             $valores
         );
+        if (in_array(0, $valores) || in_array('', $valores)) {
+            Alert::error('O item não pode estar com valor zero.')->flash();
+            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+        }
 
         DB::beginTransaction();
         try {
             foreach ($compra_item_ids as $index => $item) {
+                if ($valores[$index] > $request->valor_total_item[$index]) {
+                    Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
+                    return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                }
+
+                CompraItemMinutaEmpenho::where('compra_item_id', $item)
+                    ->where('minutaempenho_id', $request->minuta_id)
+                    ->update([
+                        'subelemento_id' => $request->subitem[$index],
+                        'quantidade' => ($request->qtd[$index]),
+                        'valor' => $valores[$index]
+                    ]);
+                CompraItem::where('id', $item)
+                    ->update(['quantidade' => ($request->quantidade_total[$index] - $request->qtd[$index])]);
+            }
+
+            $modMinuta = MinutaEmpenho::find($minuta_id);
+            $modMinuta->etapa = 6;
+            $modMinuta->valor_total = $request->valor_utilizado;
+            $modMinuta->save();
+
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
+
+        return redirect()->route('empenho.crud./minuta.edit', ['minutum' => $modMinuta->id]);
+    }
+    public function update(Request $request)
+    {
+        dd(123);
+        $minuta_id = $request->get('minuta_id');
+        if ($request->credito - $request->valor_utilizado < 0) {
+            Alert::error('O saldo não pode ser negativo.')->flash();
+            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+        }
+
+        $compra_item_ids = $request->compra_item_id;
+
+        $valores = $request->valor_total;
+//        dd($valores);
+
+        $valores = array_map(
+            function ($valores) {
+                return $this->retornaFormatoAmericano($valores);
+            },
+            $valores
+        );
+        if (in_array(0, $valores) || in_array('', $valores)) {
+            Alert::error('O item não pode estar com valor zero.')->flash();
+            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+        }
+
+        DB::beginTransaction();
+        try {
+            foreach ($compra_item_ids as $index => $item) {
+                if ($valores[$index] > $request->valor_total_item[$index]) {
+                    Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
+                    return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                }
+
                 CompraItemMinutaEmpenho::where('compra_item_id', $item)
                     ->where('minutaempenho_id', $request->minuta_id)
                     ->update([

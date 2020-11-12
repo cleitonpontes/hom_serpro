@@ -340,6 +340,8 @@
     <script type="text/javascript">
 
         $(document).ready(function(){
+            $('#cb_unidade').select2();
+
             // $('body').addClass('no-scroll-y');
             var maxLength = '000.000.000.000.000,00'.length;
 

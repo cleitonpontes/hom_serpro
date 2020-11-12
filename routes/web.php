@@ -287,9 +287,12 @@ Route::group(
             //passo 5
             Route::get('subelemento/{minuta_id}', 'SubelementoController@index')
                 ->name('minuta.etapa.subelemento');
-
+            /*Route::get('subelemento/{minuta_id}/edit', 'SubelementoController@index')
+                ->name('minuta.etapa.subelemento.edit');*/
             Route::post('subelemento', 'SubelementoController@store')
                 ->name('subelemento.store');
+            Route::put('subelemento', 'SubelementoController@update')
+                ->name('subelemento.update');
 
             //passo 6
 
