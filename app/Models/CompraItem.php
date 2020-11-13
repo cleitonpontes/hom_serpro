@@ -13,6 +13,9 @@ class CompraItem extends Model
     use LogsActivity;
     use SoftDeletes;
 
+    public const MATERIAL = [149, 194];
+    public const SERVICO = [150, 195];
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -41,7 +44,22 @@ class CompraItem extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function gravaCompraItem($params)
+    public function gravaCompraItemSispp($params,$catmatseritem,$item)
+    {
+        $tipo = ['S' => $this::SERVICO[0], 'M' => $this::MATERIAL[0]];
+
+        $this->compra_id = $params['compra_id'];
+        $this->tipo_item_id = $tipo[$item->tipo];
+        $this->catmatseritem_id = $catmatseritem->id;
+        $this->descricaodetalhada = $item->descricaoDetalhada;
+        $this->numero = $item->numero;
+
+        $this->save();
+        return $this->id;
+    }
+
+
+    public function gravaCompraItemSisrp($params)
     {
         $this->compra_id = (int)$params['compra_id'];
         $this->tipo_item_id = $params['tipo_item_id'];
