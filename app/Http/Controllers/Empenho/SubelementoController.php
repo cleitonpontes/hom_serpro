@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Empenho;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
+use App\Models\CompraItemUnidade;
 use App\Models\MinutaEmpenho;
 use App\Models\Naturezasubitem;
 use Illuminate\Http\Request;
@@ -72,6 +73,18 @@ class SubelementoController extends BaseControllerEmpenho
                 '=',
                 DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
             )
+            ->join(
+                'compra_item_fornecedor',
+                'compra_item_fornecedor.compra_item_id',
+                '=',
+                'compra_items.id'
+            )
+            ->join(
+                'compra_item_unidade',
+                'compra_item_unidade.compra_item_id',
+                '=',
+                'compra_items.id'
+            )
             ->where('minutaempenhos.id', $minuta_id)
             ->select(
                 [
@@ -80,11 +93,11 @@ class SubelementoController extends BaseControllerEmpenho
                     'codigoitens.descricao',
                     'compra_items.catmatseritem_id',
                     'compra_items.descricaodetalhada',
-                    'compra_items.quantidade as qtd_item',
-                    'compra_items.valorunitario',
+                    'compra_item_unidade.quantidade_saldo as qtd_item',
+                    'compra_item_fornecedor.valor_unitario as valorunitario',
                     'naturezadespesa.codigo as natureza_despesa',
                     'naturezadespesa.id as natureza_despesa_id',
-                    'compra_items.valortotal',
+                    'compra_item_fornecedor.valor_negociado as valortotal',
                     'saldo_contabil.saldo',
                     'compra_item_minuta_empenho.subelemento_id',
                     'compra_item_minuta_empenho.quantidade',
@@ -94,6 +107,7 @@ class SubelementoController extends BaseControllerEmpenho
             )
             ->get()
             ->toArray();
+//        ;dd($itens->getBindings(),$itens->toSql());
 //        select sum(valor) from compra_item_minuta_empenho WHERE minutaempenho_id = 8
         $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
             ->select(DB::raw('sum(valor) '))
@@ -353,11 +367,9 @@ class SubelementoController extends BaseControllerEmpenho
             Alert::error('O saldo não pode ser negativo.')->flash();
             return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
         }
-
         $compra_item_ids = $request->compra_item_id;
 
         $valores = $request->valor_total;
-//        dd($valores);
 
         $valores = array_map(
             function ($valores) {
@@ -365,6 +377,7 @@ class SubelementoController extends BaseControllerEmpenho
             },
             $valores
         );
+
         if (in_array(0, $valores) || in_array('', $valores)) {
             Alert::error('O item não pode estar com valor zero.')->flash();
             return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
@@ -385,8 +398,9 @@ class SubelementoController extends BaseControllerEmpenho
                         'quantidade' => ($request->qtd[$index]),
                         'valor' => $valores[$index]
                     ]);
-                CompraItem::where('id', $item)
-                    ->update(['quantidade' => ($request->quantidade_total[$index] - $request->qtd[$index])]);
+                CompraItemUnidade::where('compra_item_id', $item)
+                    ->where('unidade_id', session('user_ug_id'))
+                    ->update(['quantidade_saldo' => ($request->quantidade_total[$index] - $request->qtd[$index])]);
             }
 
             $modMinuta = MinutaEmpenho::find($minuta_id);
@@ -401,6 +415,7 @@ class SubelementoController extends BaseControllerEmpenho
 
         return redirect()->route('empenho.crud./minuta.edit', ['minutum' => $modMinuta->id]);
     }
+
     public function update(Request $request)
     {
         dd(123);
@@ -413,7 +428,6 @@ class SubelementoController extends BaseControllerEmpenho
         $compra_item_ids = $request->compra_item_id;
 
         $valores = $request->valor_total;
-//        dd($valores);
 
         $valores = array_map(
             function ($valores) {

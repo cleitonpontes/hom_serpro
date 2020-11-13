@@ -29,28 +29,27 @@
         </div>
         <div class="box-body">
             <div class="row">
-                <div class="col-md-2 col-sm-2">
+                <div class="col-md-2 col-sm-3">
                     Crédito orçamentário:
                 </div>
-                <div class="col-md-10 col-sm-10" id="">
+                <div class="col-md-10 col-sm-9" id="">
                     R$ {{ number_format($credito,2,',','.') }}
                 </div>
             </div>
             <div class="row text-red">
-                <div class="col-md-2 col-sm-2">
+                <div class="col-md-2 col-sm-3">
                     Utilizado:
                 </div>
-                <div class="col-md-10 col-sm-10" id="utilizado">
+                <div class="col-md-10 col-sm-9" id="utilizado">
                     <b>R$ {{ number_format($valor_utilizado,2,',','.') }}</b>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-2 col-sm-2">
+                <div class="col-md-2 col-sm-3">
                     Saldo:
                 </div>
-                <div class="col-md-10 col-sm-10" id="saldo">
+                <div class="col-md-10 col-sm-9" id="saldo">
                     R$ {{ number_format($saldo,2,',','.') }}
-
                 </div>
             </div>
         </div>

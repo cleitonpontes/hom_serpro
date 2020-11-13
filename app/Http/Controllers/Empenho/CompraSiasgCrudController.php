@@ -135,6 +135,10 @@ class CompraSiasgCrudController extends CrudController
     {
         $retornoSiasg = $this->consultaCompraSiasg($request);
 
+        if (is_null($retornoSiasg->data)) {
+            return redirect('/empenho/buscacompra')->with('alert-warning', 'Nenhuma compra foi encontrada!!');
+        }
+
         $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
 
         if (session()->get('user_ug_id') <> $request->unidade_origem_id) {
@@ -147,9 +151,6 @@ class CompraSiasgCrudController extends CrudController
                 ->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade Subrogada!');
         }
 
-        if (is_null($retornoSiasg->data)) {
-            return redirect('/empenho/buscacompra')->with('alert-warning', 'Nenhuma compra foi encontrada!!');
-        }
         $this->montaParametrosCompra($retornoSiasg, $request);
 
         $compra = $this->verificaCompraExiste($request);
