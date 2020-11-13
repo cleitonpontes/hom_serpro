@@ -36,12 +36,12 @@ class ContratohistoricoObserve
 
 
         if($contratohistorico->tipo_id == 60 || $contratohistorico->tipo_id == 65) {
-//            Contratopublicacoes::create([
-//                'contratohistorico_id' => $contratohistorico->id,
-//                'data_publicacao' => $contratohistorico->data_publicacao,
-//                'status' => 'Pendente',
-//                'situacao' => 'Não Publicado'
-//            ]);
+            ContratoPublicacoes::create([
+                'contratohistorico_id' => $contratohistorico->id,
+                'data_publicacao' => $contratohistorico->data_publicacao,
+                'status' => 'Pendente',
+                'situacao' => 'Não Publicado'
+            ]);
         }
     }
 
