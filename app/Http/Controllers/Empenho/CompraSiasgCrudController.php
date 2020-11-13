@@ -132,6 +132,7 @@ class CompraSiasgCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         $retornoSiasg = $this->consultaCompraSiasg($request);
+
         $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
 
         if (session()->get('user_ug_id') <> $request->unidade_origem_id) {

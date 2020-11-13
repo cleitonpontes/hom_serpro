@@ -78,6 +78,7 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->txtlocalentrega = $modMinutaEmpenho->local_entrega;
         $modSfOrcEmpenhoDados->txtdescricao = $modMinutaEmpenho->descricao;
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+        $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
 
         $modSfOrcEmpenhoDados->save();
         return $modSfOrcEmpenhoDados;
@@ -92,7 +93,7 @@ class MinutaEmpenhoController extends Controller
         $modSfCelulaOrcamentaria->codptres = substr($modSaldoContabil->conta_corrente, 1, 6);
         $modSfCelulaOrcamentaria->codfonterec = substr($modSaldoContabil->conta_corrente, 7, 10);
         $modSfCelulaOrcamentaria->codnatdesp = (int)substr($modSaldoContabil->conta_corrente, 17, 6);
-        $modSfCelulaOrcamentaria->ugresponsavel = (int)substr($modSaldoContabil->conta_corrente, 23, 8); //TODO VERIFICAR SE ESSA É A UGR DA TRIPA
+        $modSfCelulaOrcamentaria->ugresponsavel = (int)substr($modSaldoContabil->conta_corrente, 23, 8);
         $modSfCelulaOrcamentaria->codplanointerno = substr($modSaldoContabil->conta_corrente, 31, 11);
 
         $modSfCelulaOrcamentaria->save();
@@ -130,6 +131,7 @@ class MinutaEmpenhoController extends Controller
         $modCompraItemEmpenho = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
 
         foreach ($modCompraItemEmpenho as $key => $item) {
+
             $modSfItemEmpenho = new SfItemEmpenho();
             $modSubelemento = Naturezasubitem::find($item->subelemento_id);
             $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
@@ -191,7 +193,7 @@ class MinutaEmpenhoController extends Controller
         $descricao = '';
         $modCompraItem = CompraItem::find($compra_id);
         $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
-        (empty($modCompraItem->descricaodetalhada)) ? $descricao = $modCompraItem->descricaodetalhada : $descricao = $modcatMatSerItem->descricao;
+        (!empty($modCompraItem->descricaodetalhada)) ? $descricao = $modCompraItem->descricaodetalhada : $descricao = $modcatMatSerItem->descricao;
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
 }
