@@ -11,6 +11,7 @@ use App\Models\Codigoitem;
 use App\Models\Compra;
 use App\Models\CompraItem;
 use App\Models\CompraItemFornecedor;
+use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
@@ -140,6 +141,8 @@ class CompraSiasgCrudController extends CrudController
         }
 
         $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
+        //todo verificar se pode empenhar para outra unidade não logada
+        //https://hom.siasgnet-consultas.siasgnet.estaleiro.serpro.gov.br/siasgnet-externo/compra/v1/sisrp?uasgUsuario=090026&uasgCompra=090026&modalidade=05&numeroAnoCompra=000232019&numeroItem=00001&tipoUASG=G
 
         if (session()->get('user_ug_id') <> $request->unidade_origem_id) {
             return redirect('/empenho/buscacompra')
@@ -162,8 +165,7 @@ class CompraSiasgCrudController extends CrudController
             ->first();
         DB::beginTransaction();
         try {
-//            if (empty($compra)) {
-                //$redirect_location = parent::storeCrud($request);
+
             $compra = $this->updateOrCreateCompra($request);
 
                 if($retornoSiasg->data->compraSispp->tipoCompra == 1){
@@ -173,7 +175,6 @@ class CompraSiasgCrudController extends CrudController
                 if($retornoSiasg->data->compraSispp->tipoCompra == 2){
                     $this->gravaParametroItensdaCompraSISRP($retornoSiasg, $compra);
                 }
-
 
 
             $minutaEmpenho = $this->gravaMinutaEmpenho([
@@ -197,8 +198,8 @@ class CompraSiasgCrudController extends CrudController
     {
         $compra = Compra::updateOrCreate(
             [
-                'unidade_origem_id' => $request->get('unidade_origem_id'),
-                'modalidade_id'=> $request->get('modalidade_id'),
+                'unidade_origem_id' => (int)$request->get('unidade_origem_id'),
+                'modalidade_id'=> (int)$request->get('modalidade_id'),
                 'numero_ano'=> $request->get('numero_ano'),
                 'tipo_compra_id'=> $request->get('tipo_compra_id')
             ],
@@ -221,11 +222,11 @@ class CompraSiasgCrudController extends CrudController
                 'compra_id' => (int)$compra->id,
                 'tipo_item_id'=> (int)$tipo[$item->tipo],
                 'catmatseritem_id'=> (int)$catmatseritem->id,
-                'descricaodetalhada'=> (string)$item->descricaoDetalhada,
-                'numero' => (string)$item->numero
+                'numero' => (string)$item->numero,
             ],
             [
-                'descricaodetalhada'=> $item->descricaoDetalhada
+                'descricaodetalhada'=> (string)$item->descricaoDetalhada,
+                'qtd_total' => $item->quantidadeTotal
             ]
         );
         return $compraitem;
@@ -315,61 +316,53 @@ class CompraSiasgCrudController extends CrudController
     {
         $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $compra);
 
-        DB::beginTransaction();
-        try {
             if (!is_null($compraSiasg->data->itemCompraSisppDTO)) {
                 foreach ($compraSiasg->data->itemCompraSisppDTO as $key => $item) {
 
                     $catmatseritem = $this->gravaCatmatseritem($item);
 
-                    $compraitem_id = $this->updateOrCreateCompraItemSispp($compra,$catmatseritem,$item);
+                    $compraitem = $this->updateOrCreateCompraItemSispp($compra,$catmatseritem,$item);
+
                     $fornecedor = $this->retornaFornecedor($item);
 
-                    $this->gravaCompraItemFornecedor($compraitem_id,$item,$fornecedor);
-                    dd('gravou');
-                    $this->gravaCompraItemUnidadeSispp($compraitem_id,$item,$unidade_autorizada_id,$fornecedor);
+                    $this->gravaCompraItemFornecedor($compraitem->id,$item,$fornecedor);
 
-                    DB::commit();
+                    $this->gravaCompraItemUnidadeSispp($compraitem->id,$item,$unidade_autorizada_id,$fornecedor);
+
                 }
             }
-        } catch (Exception $exc) {
-            DB::rollback();
-        }
+
     }
 
 
-
-    public function gravaParametroItensdaCompraSISRP($compraSiasg, $params): void
+    public function gravaParametroItensdaCompraSISRP($compraSiasg, $compra): void
     {
-        $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $params);
+        $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $compra);
         $consultaCompra = new ApiSiasg();
+
         DB::beginTransaction();
         try {
             if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
                 foreach ($compraSiasg->data->linkSisrpCompleto as $key => $item) {
-
                     $dadosItemCompra = ($consultaCompra->consultaCompraByUrl($item->linkSisrpCompleto));
+                    $tipoUasg = (substr($item->linkSisrpCompleto,-1));
                     $dadosata = (object)$dadosItemCompra['data']['dadosAta'];
                     $gerenciadoraParticipante = (object)$dadosItemCompra['data']['dadosGerenciadoraParticipante'];
                     $carona = $dadosItemCompra['data']['dadosCarona'];
                     $dadosFornecedor = $dadosItemCompra['data']['dadosFornecedor'];
-                    dump($dadosata);
-                    dump($gerenciadoraParticipante);
-                    dump(($carona));
-                    dump($dadosFornecedor);
 
                     $catmatseritem = $this->gravaCatmatseritem($dadosata);
 
-                    $compraItem = new CompraItem();
-                    $compraitem_id = $compraItem->gravaCompraItemSisrp($params,$catmatseritem,$dadosata);
+                    $modcompraItem = new CompraItem();
+                    $compraItem = $modcompraItem->updateOrCreateCompraItemSisrp($compra,$catmatseritem,$dadosata);
 
                     foreach ($dadosFornecedor as $key => $itemfornecedor) {
-                        $fornecedor = $this->retornaFornecedor((object)$itemfornecedor);
-                        $this->gravaCompraItemFornecedor($compraitem_id, (object)$itemfornecedor, $fornecedor);
-                    }
 
-                    $this->gravaCompraItemUnidadeSisrp($compraitem_id,$unidade_autorizada_id,$item,$gerenciadoraParticipante,$carona,$dadosFornecedor);
-                    dd('gravou');
+                        $fornecedor = $this->retornaFornecedor((object)$itemfornecedor);
+
+                        $this->gravaCompraItemFornecedor($compraItem->id, (object)$itemfornecedor, $fornecedor);
+                    }
+                    $this->gravaCompraItemUnidadeSisrp($compraItem,$unidade_autorizada_id,$item,$gerenciadoraParticipante,$carona,$dadosFornecedor,$tipoUasg);
 
                     DB::commit();
                 }
@@ -379,7 +372,7 @@ class CompraSiasgCrudController extends CrudController
         }
     }
 
-    public function gravaCompraItemUnidadeSisrp($compraitem_id,$unidade_autorizada_id,$item,$dadosGerenciadoraParticipante,$carona,$dadosFornecedor)
+    public function gravaCompraItemUnidadeSisrp($compraitem,$unidade_autorizada_id,$item,$dadosGerenciadoraParticipante,$carona,$dadosFornecedor,$tipoUasg)
     {
         $qtd_autorizada = $dadosGerenciadoraParticipante->quantidadeAAdquirir - $dadosGerenciadoraParticipante->quantidadeAdquirida;
         $fornecedor_id = null;
@@ -390,45 +383,39 @@ class CompraSiasgCrudController extends CrudController
             $fornecedor_id = $fornecedor->id;
         }
 
-        $fornecedor = $this->retornaFornecedor($item);
-        $paramsUnidade['compra_item_id'] = $compraitem_id;
-        $paramsUnidade['unidade_id'] = $unidade_autorizada_id;;
-        $paramsUnidade['fornecedor_id'] = $fornecedor_id;
-        $paramsUnidade['quantidade_autorizada'] = $qtd_autorizada;
-        $paramsUnidade['quantidade_saldo'] = $item->quantidadeTotal;
-        $paramsUnidade['tipo_uasg'] = '';
-        $paramsUnidade['quantidade_total'] = $item->quantidadeTotal;
-        $paramsUnidade['quantidade_adquirir'] = $dadosGerenciadoraParticipante->quantidadeAAdquirir;
-        $paramsUnidade['quantidade_adquirida'] = $dadosGerenciadoraParticipante->quantidadeAdquirida;
-        CompraItemUnidade::insert($paramsUnidade);
+        $compraItemUnidade = CompraItemUnidade::updateOrCreate(
+            [
+                'compra_item_id' => $compraitem->id,
+                'unidade_id' => $unidade_autorizada_id,
+                'fornecedor_id' => $fornecedor_id,
 
+            ],
+            [
+                'quantidade_autorizada' => $qtd_autorizada,
+                'quantidade_saldo' => $qtd_autorizada,
+                'tipo_uasg' => $tipoUasg,
+                'quantidade_adquirir' => $dadosGerenciadoraParticipante->quantidadeAAdquirir,
+                'quantidade_adquirida' => $dadosGerenciadoraParticipante->quantidadeAdquirida
+            ]
+        );
+
+        $saldo = $this->retornaSaldoAtualizado($compraitem->id);
+        if(isset($saldo->saldo)){
+            $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+            $compraItemUnidade->save();
+        }
     }
 
     public function gravaCompraItemFornecedor($compraitem_id,$item,$fornecedor)
     {
-//        $paramsFornecedor['compra_item_id'] = $compraitem_id;
-//        $paramsFornecedor['fornecedor_id'] = $fornecedor->id;
-//        $paramsFornecedor['ni_fornecedor'] = $fornecedor->cpf_cnpj_idgener;
-//        $paramsFornecedor['classificacao'] = (isset($item->classicacao))? $item->classicacao :'';
-//        $paramsFornecedor['situacao_sicaf'] = $item->situacaoSicaf;
-//        $paramsFornecedor['quantidade_homologada_vencedor'] = (isset($item->quantidadeHomologadaVencedor))? $item->quantidadeHomologadaVencedor :0;
-//        $paramsFornecedor['valor_unitario'] = $item->valorUnitario;
-//        $paramsFornecedor['valor_negociado'] = (isset($item->valorTotal))?$item->valorTotal : $item->valorNegociado;
-//        $paramsFornecedor['quantidade_empenhada'] = (isset($item->quantidadeEmpenhada))? $item->quantidadeEmpenhada :0;
-//        CompraItemFornecedor::updateOrCreate($paramsFornecedor);
-        CompraItemFornecedor::updateOrCreate(
+
+       $fornecedor = CompraItemFornecedor::updateOrCreate(
             [
                 'compra_item_id' => $compraitem_id,
-                'fornecedor_id' => $fornecedor->id,
-                'ni_fornecedor' => $fornecedor->cpf_cnpj_idgener,
-                'classificacao' => (isset($item->classicacao))? $item->classicacao :'',
-                'situacao_sicaf' => $item->situacaoSicaf,
-                'quantidade_homologada_vencedor' => (int)(isset($item->quantidadeHomologadaVencedor))? $item->quantidadeHomologadaVencedor :0,
-                'valor_unitario' => $item->valorUnitario,
-                'valor_negociado' => (isset($item->valorTotal))?$item->valorTotal : $item->valorNegociado,
-                'quantidade_empenhada' =>  (int)(isset($item->quantidadeEmpenhada))? $item->quantidadeEmpenhada :0
+                'fornecedor_id' => $fornecedor->id
             ],
             [
+                'ni_fornecedor' => $fornecedor->cpf_cnpj_idgener,
                 'classificacao' => (isset($item->classicacao))? $item->classicacao :'',
                 'situacao_sicaf' => $item->situacaoSicaf,
                 'quantidade_homologada_vencedor' => (isset($item->quantidadeHomologadaVencedor))? $item->quantidadeHomologadaVencedor :0,
@@ -442,12 +429,38 @@ class CompraSiasgCrudController extends CrudController
 
     public function gravaCompraItemUnidadeSispp($compraitem_id,$item,$unidade_autorizada_id,$fornecedor)
     {
-        $paramsUnidade['compra_item_id'] = $compraitem_id;
-        $paramsUnidade['unidade_id'] = $unidade_autorizada_id;;
-        $paramsUnidade['fornecedor_id'] = $fornecedor->id;
-        $paramsUnidade['quantidade_saldo'] = $item->quantidadeTotal;
-        $paramsUnidade['quantidade_total'] = $item->quantidadeTotal;
-        CompraItemUnidade::insert($paramsUnidade);
+//        dump($compraitem_id,$unidade_autorizada_id,$fornecedor->id);
+        $compraItemUnidade = CompraItemUnidade::updateOrCreate(
+            [
+                'compra_item_id' => $compraitem_id,
+                'unidade_id' => $unidade_autorizada_id,
+                'fornecedor_id' => $fornecedor->id
+            ],
+            [
+                'quantidade_saldo' => $item->quantidadeTotal,
+                'quantidade_autorizada' => $item->quantidadeTotal
+            ]
+        );
+
+        $saldo = $this->retornaSaldoAtualizado($compraitem_id);
+
+        if(isset($saldo->saldo)){
+            $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+            $compraItemUnidade->save();
+        }
+
+    }
+
+    public function retornaSaldoAtualizado($compraitem_id)
+    {
+        return CompraItemMinutaEmpenho::select(
+            DB::raw( 'compra_item_unidade.quantidade_autorizada - sum(compra_item_minuta_empenho.quantidade) as saldo')
+        )
+            ->join('compra_item_unidade','compra_item_unidade.compra_item_id','=','compra_item_minuta_empenho.compra_item_id')
+            ->where('compra_item_minuta_empenho.compra_item_id',$compraitem_id)
+            ->groupBy('compra_item_unidade.quantidade_autorizada')
+            ->first();
+
     }
 
     public function gravaCatmatseritem($item)
@@ -474,7 +487,9 @@ class CompraSiasgCrudController extends CrudController
                 : $unidade_autorizada_id = $compra->unidade_origem_id;
         }
         if ($tipoCompra == $this::SISRP) {
-            //tratar unidade autorizada SISRP - Aguardando Serviço ficar pronto
+            ($subrrogada <> '000000')
+                ? $unidade_autorizada_id = (int)$this->buscaIdUnidade($subrrogada)
+                : $unidade_autorizada_id = $compra->unidade_origem_id;
         }
 
         return $unidade_autorizada_id;

@@ -139,17 +139,19 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
             ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
-            ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
             ->where('compra_item_unidade.quantidade_saldo', '>', 0)
+            ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+            ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
             ->select([
                 'compra_items.id',
                 'codigoitens.descricao',
                 'catmatseritem_id',
                 'compra_items.descricaodetalhada',
                 'compra_item_unidade.quantidade_saldo',
-                'compra_item_unidade.valor_item',
-                'compra_item_unidade.valor_total',
-                'compra_items.numero'
+                'compra_item_fornecedor.valor_unitario',
+                'compra_item_fornecedor.valor_negociado',
+                'compra_items.numero',
+                'compra_item_fornecedor.situacao_sicaf'
             ])
             ->get()
             ->toArray();
@@ -217,14 +219,19 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'title' => 'Quantidade',
             ])
             ->addColumn([
-                'data' => 'valor_item',
-                'name' => 'valor_item',
+                'data' => 'valor_unitario',
+                'name' => 'valor_unitario',
                 'title' => 'Valor Unit.',
             ])
             ->addColumn([
-                'data' => 'valor_total',
-                'name' => 'valor_total',
+                'data' => 'valor_negociado',
+                'name' => 'valor_negociado',
                 'title' => 'Valor Total.',
+            ])
+            ->addColumn([
+                'data' => 'situacao_sicaf',
+                'name' => 'situacao_sicaf',
+                'title' => 'Situação SICAF',
             ])
             ->parameters([
                 'processing' => true,

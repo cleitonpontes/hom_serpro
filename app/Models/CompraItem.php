@@ -46,18 +46,22 @@ class CompraItem extends Model
     */
 
 
-    public function gravaCompraItemSisrp($params,$catmatseritem,$dadosata)
+    public function updateOrCreateCompraItemSisrp($compra,$catmatseritem,$dadosata)
     {
         $tipo = ['S' => $this::SERVICO[0], 'M' => $this::MATERIAL[0]];
-
-        $this->compra_id = (int)$params['compra_id'];
-        $this->tipo_item_id = $tipo[$dadosata->tipo];
-        $this->catmatseritem_id = $catmatseritem->id;
-        $this->descricaodetalhada = $dadosata->descricaoDetalhada;
-        $this->numero = $dadosata->numeroItem;
-
-        $this->save();
-        return $this->id;
+        $compraitem = CompraItem::updateOrCreate(
+            [
+                'compra_id' => $compra->id,
+                'tipo_item_id'=> (int)$tipo[$dadosata->tipo],
+                'catmatseritem_id'=> (int)$catmatseritem->id,
+                'numero' => $dadosata->numeroItem
+            ],
+            [
+                'descricaodetalhada'=> (!empty($dadosata->descricaoDetalhada))?$dadosata->descricaoDetalhada:$dadosata->descricao,
+                'qtd_total' => $dadosata->quantidadeTotal
+            ]
+        );
+        return $compraitem;
     }
     /*
     |--------------------------------------------------------------------------
