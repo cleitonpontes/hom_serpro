@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CompraItemUnidade extends Model
 {
     protected $table = 'compra_item_unidade';
-    
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -16,8 +16,6 @@ class CompraItemUnidade extends Model
         'fornecedor_id',
         'quantidade_autorizada',
         'quantidade_saldo',
-        'valor_item',
-        'valor_total',
         'tipo_uasg'
     ];
 

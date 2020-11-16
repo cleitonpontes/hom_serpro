@@ -44,34 +44,24 @@ class CompraItem extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function gravaCompraItemSispp($params,$catmatseritem,$item)
+
+
+    public function updateOrCreateCompraItemSisrp($compra,$catmatseritem,$dadosata)
     {
         $tipo = ['S' => $this::SERVICO[0], 'M' => $this::MATERIAL[0]];
-
-        $this->compra_id = $params['compra_id'];
-        $this->tipo_item_id = $tipo[$item->tipo];
-        $this->catmatseritem_id = $catmatseritem->id;
-        $this->descricaodetalhada = $item->descricaoDetalhada;
-        $this->numero = $item->numero;
-
-        $this->save();
-        return $this->id;
-    }
-
-
-    public function gravaCompraItemSisrp($params)
-    {
-        $this->compra_id = (int)$params['compra_id'];
-        $this->tipo_item_id = $params['tipo_item_id'];
-        $this->catmatseritem_id = $params['catmatseritem_id'];
-        $this->descricaodetalhada = $params['descricaodetalhada'];
-        $this->qtd_total = $params['qtd_total'];
-        $this->valorunitario = $params['valorunitario'];
-        $this->valortotal = $params['valortotal'];
-        $this->numero = $params['numero'];
-
-        $this->save();
-        return $this->id;
+        $compraitem = CompraItem::updateOrCreate(
+            [
+                'compra_id' => $compra->id,
+                'tipo_item_id'=> (int)$tipo[$dadosata->tipo],
+                'catmatseritem_id'=> (int)$catmatseritem->id,
+                'numero' => $dadosata->numeroItem
+            ],
+            [
+                'descricaodetalhada'=> (!empty($dadosata->descricaoDetalhada))?$dadosata->descricaoDetalhada:$dadosata->descricao,
+                'qtd_total' => $dadosata->quantidadeTotal
+            ]
+        );
+        return $compraitem;
     }
     /*
     |--------------------------------------------------------------------------
