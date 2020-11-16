@@ -491,7 +491,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 DB::raw('catmatseritens.descricao AS "Descrição"'),
                 DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
                 DB::raw('naturezasubitem.codigo || \' - \' || naturezasubitem.descricao AS "ND Detalhada"'),
-                DB::raw('compra_items.valorunitario AS "Valor unitário"'),
+                DB::raw('compra_item_fornecedor.valorunitario AS "Valor unitário"'),
                 DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                 DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
 
