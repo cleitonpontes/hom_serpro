@@ -147,8 +147,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'catmatseritem_id',
                 'compra_items.descricaodetalhada',
                 'compra_item_unidade.quantidade_saldo',
-                'compra_item_unidade.valor_item',
-                'compra_item_unidade.valor_total',
+                'compra_item_fornecedor.valor_unitario',
+                'compra_item_fornecedor.valor_negociado',
                 'compra_items.numero'
             ])
             ->get()
@@ -217,14 +217,14 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'title' => 'Quantidade',
             ])
             ->addColumn([
-                'data' => 'valor_item',
-                'name' => 'valor_item',
+                'data' => 'valor_unitario',
+                'name' => 'valor_unitario',
                 'title' => 'Valor Unit.',
             ])
             ->addColumn([
-                'data' => 'valor_total',
-                'name' => 'valor_total',
-                'title' => 'Valor Total.',
+                'data' => 'valor_negociado',
+                'name' => 'valor_negociado',
+                'title' => 'Valor Negociado.',
             ])
             ->parameters([
                 'processing' => true,

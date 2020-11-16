@@ -44,7 +44,6 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinuta = MinutaEmpenho::find($minuta_id);
-
         $unidade_id = session('user_ug_id');
 
         if (!empty(session('unidade_ajax_id'))) {
@@ -52,7 +51,6 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         }
 
         $modUnidade = Unidade::find($unidade_id);
-
         $saldosContabeis = SaldoContabil::retornaSaldos($unidade_id);
         $saldos = $this->retornaSaldosComMascara($saldosContabeis);
 
@@ -75,7 +73,6 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         }
 
         $html = $this->retornaGrid();
-
         $form = $this->retonaFormModal($modUnidade->id, $minuta_id);
 
         return view('backpack::mod.empenho.Etapa4SaldoContabil', compact(['html', 'form']))
@@ -139,7 +136,6 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
     public function atualizaMinuta(Request $request)
     {
-
         if (!$request->get('saldo')) {
             Alert::error('Selecione o Saldo Contábil.')->flash();
             return redirect()->back();
