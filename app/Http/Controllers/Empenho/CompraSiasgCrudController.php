@@ -139,21 +139,14 @@ class CompraSiasgCrudController extends CrudController
         $retornoSiasg = $this->consultaCompraSiasg($request);
 
         if (is_null($retornoSiasg->data)) {
-            return redirect('/empenho/buscacompra')->with('alert-warning', 'Nenhuma compra foi encontrada!!');
+            return redirect('/empenho/buscacompra')->with('alert-warning', $retornoSiasg->messagem);
         }
 
         $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
-        //todo verificar se pode empenhar para outra unidade não logada
-        //https://hom.siasgnet-consultas.siasgnet.estaleiro.serpro.gov.br/siasgnet-externo/compra/v1/sisrp?uasgUsuario=090026&uasgCompra=090026&modalidade=05&numeroAnoCompra=000232019&numeroItem=00001&tipoUASG=G
-
-        if (session()->get('user_ug_id') <> $request->unidade_origem_id) {
-            return redirect('/empenho/buscacompra')
-                ->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade!');
-        }
 
         if (is_null($unidade_autorizada_id)) {
             return redirect('/empenho/buscacompra')
-                ->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade Subrogada!');
+                ->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade!');
         }
 
         $this->montaParametrosCompra($retornoSiasg, $request);
@@ -259,18 +252,13 @@ class CompraSiasgCrudController extends CrudController
         $subrrogada = $compraSiasg->data->compraSispp->subrogada;
         if ($tipoCompra == $this::SISPP) {
             if ($subrrogada <> '000000') {
-                ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = $subrrogada : '';
+                ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = session('user_ug_id') : '';
             } else {
                 ($request->unidade_origem_id == session('user_ug_id'))
                     ? $unidade_autorizada_id = $request->unidade_origem_id : '';
             }
         } else {
-            if ($subrrogada <> '000000') {
-                ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = $subrrogada : '';
-            } else {
-                ($request->unidade_origem_id == session('user_ug_id'))
-                    ? $unidade_autorizada_id = $request->unidade_origem_id : '';
-            }
+            $unidade_autorizada_id = session('user_ug_id');
         }
         return $unidade_autorizada_id;
     }

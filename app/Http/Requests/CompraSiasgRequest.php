@@ -26,8 +26,9 @@ class CompraSiasgRequest extends FormRequest
     public function rules()
     {
         return [
-//             'descricao' => 'required|min:5|max:255',
-//             'visivel' => 'required',
+             'modalidade_id' => 'required',
+             'numero_ano' => 'required',
+             'unidade_origem_id' => 'required'
         ];
     }
 
