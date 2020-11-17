@@ -31,8 +31,10 @@ class RemColunsCodigoItemTable extends Migration
     public function down()
     {
         Schema::table('compra_items', function (Blueprint $table) {
-            $table->integer('fornecedor_id');
-            $table->integer('unidade_autorizada_id');
+            $table->integer('fornecedor_id')->nullable();
+            $table->foreign('fornecedor_id')->references('id')->on('fornecedores')->onDelete('cascade');
+            $table->integer('unidade_autorizada_id')->nullable();
+            $table->foreign('unidade_autorizada_id')->references('id')->on('unidades')->onDelete('cascade');
             $table->decimal('quantidade', 10, 5)->default(0);
             $table->decimal('valorunitario', 17, 4)->default(0);
             $table->decimal('valortotal', 17, 2)->default(0);
