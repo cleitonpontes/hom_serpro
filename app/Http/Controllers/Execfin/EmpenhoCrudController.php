@@ -325,14 +325,28 @@ class EmpenhoCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [ // select_from_array
-                'name' => 'fornecedor_id',
                 'label' => "Credor / Fornecedor",
-                'type' => 'select2_from_array',
-                'options' => $fornecedores,
-                'allows_null' => true,
-//                'default' => 'one',
+                'type' => "select2_from_ajax",
+                'name' => 'fornecedor_id',
+                'entity' => 'fornecedor',
+                'attribute' => "cpf_cnpj_idgener",
+                'attribute2' => "nome",
+                'process_results_template' => 'gescon.process_results_fornecedor',
+                'model' => "App\Models\Fornecedor",
+                'data_source' => url("api/fornecedor"),
+                'placeholder' => "Selecione o fornecedor",
+                'minimum_input_length' => 2,//                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
+//             [ // select_from_array - excluir
+//                 'name' => 'fornecedor_id',
+//                 'label' => "Credor / Fornecedor",
+//                 'type' => 'select2_from_array',
+//                 'options' => $fornecedores,
+//                 'allows_null' => true,
+// //                'default' => 'one',
+//                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+//             ],
             [ // select_from_array
                 'name' => 'planointerno_id',
                 'label' => "Plano Interno (PI)",
