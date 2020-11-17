@@ -239,6 +239,24 @@ class DepositocontratocontaCrudController extends CrudController
         }
         return true;
     }
+    // verificar se o ano/mês de competência é menor do que o ano/mes atual.
+    public function verificarSeCompetenciaECompativelComDataAtual($request, $objContratoTerceirizado){
+        $mesCompetencia = $request->input('mes_competencia');
+        $anoCompetencia = $request->input('ano_competencia');
+
+        $dataHoje = date("Y-m-d");
+        $mesHoje = substr($dataHoje, 5, 2);
+        $anoHoje = substr($dataHoje, 0, 4);
+        $diaHoje = substr($dataHoje, 8, 2);
+
+        if( $anoCompetencia > $anoHoje ){
+            return false;
+        }
+        if( $anoCompetencia == $anoHoje  && $mesCompetencia >= $mesHoje){
+            return false;
+        }
+        return true;
+    }
     public function alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao){
         $objMovimentacao = new Movimentacaocontratoconta();
         if($objMovimentacao->alterarStatusMovimentacao($idMovimentacao, $statusMovimentacao)){
@@ -310,6 +328,19 @@ class DepositocontratocontaCrudController extends CrudController
             if($situacaoFuncionario == true || $situacaoFuncionario == 't' || $situacaoFuncionario == 1){
                 $depositoFeito = true;
 
+
+                // vamos verificar se o mês/ano de competência é menor do que o mês/ano atual
+                if(!self::verificarSeCompetenciaECompativelComDataAtual($request, $objContratoTerceirizado)){
+                    $mensagem = 'Mês / ano de competência precisa ser anterior ao mês / ano atual.';
+                    \Alert::error($mensagem)->flash();
+                    if( !self::excluirMovimentacao($idMovimentacao) ){
+                        \Alert::error('Problemas ao excluir a movimentação.')->flash();
+                    }
+                    return redirect()->back();
+                }
+
+
+
                 // vamos verificar se no mês/ano de competência, o funcionário já tinha iniciado
                 if(!self::verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado)){
                     $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do funcionário.';
@@ -319,6 +350,8 @@ class DepositocontratocontaCrudController extends CrudController
                     }
                     return redirect()->back();
                 }
+
+
 
 
                 // verificar se tem proporcionalidade
