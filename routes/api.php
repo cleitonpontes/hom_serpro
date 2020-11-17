@@ -27,6 +27,12 @@ Route::group([
     Route::get('transparenciafornecedores', 'ApiTransparenciaController@fornecedores');
     Route::get('transparenciacontratos', 'ApiTransparenciaController@contratos');
 
+    Route::group([
+        'prefix' => 'comprasnet'
+    ], function (){
+        Route::post('/contratosempenhos', 'ComprasnetController@getContratosEmpenhosPorItens');
+        Route::get('/contratos', 'ComprasnetController@getDadosContratosPorItem');
+    });
 
     //API Consulta Contratos
     Route::group([
