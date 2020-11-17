@@ -72,6 +72,17 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
 
     protected function aplicaFiltrosEspecificos(): void
     {
+
+        $this->crud->addFilter([
+            'name' => 'numero',
+            'type' => 'text',
+            'label' => 'Número Contrato'
+        ], 
+            false
+        , function ($value) {
+            $this->crud->addClause('where' , 'contratos.numero', 'LIKE', "%$value%");
+        });
+
         $this->crud->addFilter([
             'name' => 'receita_despesa',
             'type' => 'select2_multiple',
