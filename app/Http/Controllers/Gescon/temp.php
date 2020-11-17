@@ -41,8 +41,6 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
         $this->crud->addClause('leftJoin', 'fornecedores',
             'fornecedores.id', '=', 'contratos.fornecedor_id'
         );
-
-
         $this->crud->addClause('select', [
             'contratos.*',
             'fornecedores.*',
@@ -93,6 +91,8 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
         $this->aplicaFiltroFuncao();
         $this->aplicaFiltroInstalacao();
         $this->aplicaFiltroPortaria();
+        $this->aplicaFiltroVigenciaFim();
+        $this->aplicaFiltroVigenciaInicio();
     }
 
     /**
@@ -109,7 +109,56 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
         $this->adicionaColunaDataInicio();
         $this->adicionaColunaDataFim();
         $this->adicionaColunaSituacao();
+
+        $this->adicionaColunaVigenciaFim();
+        // $this->adicionaColunaVigenciaInicio();
     }
+
+
+
+    /**
+     * Adiciona o filtro ao campo vigencia_inicio
+     *
+     * @author Márcio Vasconcelos Donato <mvascs@gmail.com>
+     */
+    protected function aplicaFiltroVigenciaInicio()
+    {
+        $this->crud->addFilter([
+            'type' => 'date_range',
+            'name' => 'vigencia_inicio',
+            'label' => 'Vig. Início'
+        ],
+            false,
+            function ($value) {
+                $dates = json_decode($value);
+                $this->crud->addClause('where', 'contratos.vigencia_inicio', '>=', $dates->from);
+                $this->crud->addClause('where', 'contratos.vigencia_inicio', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+    /**
+     * Adiciona o filtro ao campo vigencia_fim
+     *
+     * @author Márcio Vasconcelos Donato <mvascs@gmail.com>
+     */
+    protected function aplicaFiltroVigenciaFim()
+    {
+        $this->crud->addFilter([
+            'type' => 'date_range',
+            'name' => 'vigencia_fim',
+            'label' => 'Vig. Fim'
+        ],
+            false,
+            function ($value) {
+                $dates = json_decode($value);
+                $this->crud->addClause('where', 'contratos.vigencia_fim', '>=', $dates->from);
+                $this->crud->addClause('where', 'contratos.vigencia_fim', '<=', $dates->to . ' 23:59:59');
+            }
+        );
+    }
+
+
+
 
     /**
      * Adiciona o filtro ao campo Usuário
@@ -225,12 +274,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pelo name
-            'orderLogic' => function ($query, $column, $columnDirection) {
-                return $query->leftJoin('users', 'users.id', '=', 'contratoresponsaveis.user_id')
-                    ->orderBy('users.name', $columnDirection);
-            }
+            'visibleInShow' => true
         ]);
     }
 
@@ -251,12 +295,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pelo name
-            'orderLogic' => function ($query, $column, $columnDirection) {
-                return $query->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoresponsaveis.funcao_id')
-                    ->orderBy('codigoitens.descricao', $columnDirection);
-            }
+            'visibleInShow' => true
         ]);
     }
 
@@ -277,12 +316,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pelo name
-            'orderLogic' => function ($query, $column, $columnDirection) {
-                return $query->leftJoin('instalacoes', 'instalacoes.id', '=', 'contratoresponsaveis.instalacao_id')
-                    ->orderBy('instalacoes.nome', $columnDirection);
-            }
+            'visibleInShow' => true
         ]);
     }
 
@@ -323,11 +357,30 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+   /**
+     * Adiciona o campo Vigencia Fim na listagem
+     *
+     * @author Anderson Sathler <asathler@gmail.com>
+     */
+    private function adicionaColunaVigenciaFim()
+    {
+        $this->crud->addColumn([
+            'name' => 'vigencia_fim',
+            'label' => 'Vig. Fim',
+            'type' => 'date',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
             'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
-            'orderLogic' => function ($query, $column, $columnDirection) {
-                return $query->orderBy('contratoresponsaveis.data_inicio', $columnDirection);
-            }
+            // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //     $query->orWhere('nome', 'ilike', "%$searchTerm%");
+            // },
+
         ]);
     }
 
@@ -348,11 +401,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
-            'orderLogic' => function ($query, $column, $columnDirection) {
-                return $query->orderBy('contratoresponsaveis.data_fim', $columnDirection);
-            }
+            'visibleInShow' => true
         ]);
     }
 
@@ -376,11 +425,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
-            'orderLogic' => function ($query, $column, $columnDirection) {
-                return $query->orderBy('contratoresponsaveis.situacao', $columnDirection);
-            }
+            'visibleInShow' => true
         ]);
     }
 
