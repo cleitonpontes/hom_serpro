@@ -16,7 +16,7 @@ class CreateIpAcessoTable extends Migration
         Schema::create('ipsacesso', function (Blueprint $table) {
             $table->increments('id');
             $table->bigInteger('orgao_id');
-            $table->bigInteger('unidade_id');
+            $table->bigInteger('unidade_id')->nullable();
             $table->json('ips');
 
             $table->foreign('orgao_id')->references('id')->on('orgaos')->onDelete('cascade');

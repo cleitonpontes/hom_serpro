@@ -27,7 +27,7 @@ class IpsacessoRequest extends FormRequest
     {
         return [
             'orgao_id' => "required",
-            'unidade_id' => 'required',
+//            'unidade_id' => 'required',
             'ips' => 'required|min:14',
         ];
     }
@@ -53,7 +53,7 @@ class IpsacessoRequest extends FormRequest
     {
         return [
             'orgao_id.required' => 'O campo "Órgão" é obrigatório!',
-            'unidade_id.required' => 'O campo "Unidade" é obrigatório!',
+//            'unidade_id.required' => 'O campo "Unidade" é obrigatório!',
             'ips.min' => 'Deve ser informado pelo menos 1 Número de IP',
         ];
     }

@@ -40,7 +40,7 @@ class Ipsacesso extends Model
 
         if ($this->orgao) {
             $orgao = Orgao::find($this->orgao_id);
-            $retorno = $orgao->nome;
+            $retorno = $orgao->nome . ' - ' . $orgao->nome;
 
         }
 

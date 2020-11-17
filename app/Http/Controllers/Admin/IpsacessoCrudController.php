@@ -70,7 +70,8 @@ class IpsacessoCrudController extends CrudController
 
     public function campos()
     {
-        $orgaos = Orgao::all()->pluck('nome', 'id')->toArray();
+        $orgaos = Orgao::select(DB::raw("CONCAT(codigo,' - ',nome) AS nome"), 'id')->pluck('nome', 'id')->toArray();
+
 
         $campos = [
             [
@@ -83,13 +84,15 @@ class IpsacessoCrudController extends CrudController
             ],
             [
                 'label' => "Unidade",
-                'type' => 'select2_from_ajax',
+                'type' => "select2_from_ajax",
                 'name' => 'unidade_id',
-                'model' => 'App\Models\Unidade',
-                'attribute' => 'nomeresumido',
                 'entity' => 'unidade',
-                'data_source' => url('api/unidade'),
-                'placeholder' => 'Selecione...',
+                'attribute' => "codigo",
+                'attribute2' => "nomeresumido",
+                'process_results_template' => 'gescon.process_results_unidade',
+                'model' => "App\Models\Unidade",
+                'data_source' => url("api/unidade"),
+                'placeholder' => "Selecione a Unidade",
                 'minimum_input_length' => 0,
                 'dependencies' => ['orgao_id'],
             ],
@@ -124,26 +127,26 @@ class IpsacessoCrudController extends CrudController
         $colunas = [
 
             [
-                'label'       => 'Orgão',
-                'type'        => 'model_function',
-                'name'        => 'orgao_id',
-                'entity'      => 'orgao',
-                'attribute'   => 'nome', // combined name & date column
-                'model'       => 'App\Models\Orgao',
+                'label' => 'Orgão',
+                'type' => 'model_function',
+                'name' => 'orgao_id',
+                'entity' => 'orgao',
+                'attribute' => 'nome', // combined name & date column
+                'model' => 'App\Models\Orgao',
                 'function_name' => 'getOrgao',
-                 'searchLogic' => function ($query, $column, $searchTerm) {
-                     $query->orWhereHas('orgao', function ($q) use ($column, $searchTerm) {
-                         $q->where('orgaos.nome', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
-                     });
-                 }
+                'searchLogic' => function ($query, $column, $searchTerm) {
+                    $query->orWhereHas('orgao', function ($q) use ($column, $searchTerm) {
+                        $q->where('orgaos.nome', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
+                    });
+                }
             ],
             [
-                'label'       => 'Unidade',
-                'type'        => 'model_function',
-                'name'        => 'unidade_id',
-                'entity'      => 'unidade',
-                'attribute'   => 'nome', // combined name & date column
-                'model'       => 'App\Models\Unidade',
+                'label' => 'Unidade',
+                'type' => 'model_function',
+                'name' => 'unidade_id',
+                'entity' => 'unidade',
+                'attribute' => 'nome', // combined name & date column
+                'model' => 'App\Models\Unidade',
                 'function_name' => 'getUnidade',
                 'searchLogic' => function ($query, $column, $searchTerm) {
                     $query->orWhereHas('unidade', function ($q) use ($column, $searchTerm) {
