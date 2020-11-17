@@ -33,6 +33,10 @@ class IpsacessoCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
+        if (!backpack_user()->hasRole('Administrador')) {
+            abort('403', config('app.erro_permissao'));
+        }
+
         $this->crud->setModel('App\Models\Ipsacesso');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/ipsacesso');
         $this->crud->setEntityNameStrings('IP', "Controle de acesso por IP's");
@@ -42,7 +46,17 @@ class IpsacessoCrudController extends CrudController
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-        
+        $this->crud->enableExportButtons();
+        $this->crud->denyAccess('create');
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
+
+        (backpack_user()->can('ipapi_inserir')) ? $this->crud->allowAccess('create') : null;
+        (backpack_user()->can('ipapi_editar')) ? $this->crud->allowAccess('update') : null;
+        (backpack_user()->can('ipapi_deletar')) ? $this->crud->allowAccess('delete') : null;
+
+
         $this->crud->addFields($this->Campos());
         $this->crud->addColumns($this->colunas());
 
@@ -57,7 +71,7 @@ class IpsacessoCrudController extends CrudController
     public function campos()
     {
         $orgaos = Orgao::all()->pluck('nome', 'id')->toArray();
-               
+
         $campos = [
             [
                 'name' => 'orgao_id',
@@ -68,15 +82,15 @@ class IpsacessoCrudController extends CrudController
                 'allows_null' => true
             ],
             [
-                'label' => "Unidade", 
+                'label' => "Unidade",
                 'type' => 'select2_from_ajax',
-                'name' => 'unidade_id', 
+                'name' => 'unidade_id',
                 'model' => 'App\Models\Unidade',
-                'attribute' => 'nomeresumido', 
+                'attribute' => 'nomeresumido',
                 'entity' => 'unidade',
                 'data_source' => url('api/unidade'),
-                'placeholder' => 'Selecione...', 
-                'minimum_input_length' => 0, 
+                'placeholder' => 'Selecione...',
+                'minimum_input_length' => 0,
                 'dependencies' => ['orgao_id'],
             ],
             [
@@ -119,7 +133,7 @@ class IpsacessoCrudController extends CrudController
                 'function_name' => 'getOrgao',
                  'searchLogic' => function ($query, $column, $searchTerm) {
                      $query->orWhereHas('orgao', function ($q) use ($column, $searchTerm) {
-                         $q->where('orgaos.nome', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");                    
+                         $q->where('orgaos.nome', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
                      });
                  }
             ],
@@ -133,16 +147,18 @@ class IpsacessoCrudController extends CrudController
                 'function_name' => 'getUnidade',
                 'searchLogic' => function ($query, $column, $searchTerm) {
                     $query->orWhereHas('unidade', function ($q) use ($column, $searchTerm) {
-                        $q->where('unidades.nomeresumido', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");                    
+                        $q->where('unidades.nomeresumido', 'like', "%" . utf8_encode(utf8_decode(strtoupper($searchTerm))) . "%");
                     });
                 }
             ],
             [
                 'name' => 'ips',
-                'label' => "Ip's",
-                'type' => 'model_function',
-                'function_name' => 'getUnidade', // the method in your Model
-                'visibleInTable' => false,
+                'label' => 'Ip´s',
+                'type' => 'table',
+                'columns' => [
+                    'name' => 'Ip´s',
+                ],
+                'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true,
@@ -154,7 +170,7 @@ class IpsacessoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         $usuario = BackpackUser::where('id', '=', \Auth::user()->id)->first();
-      
+
         if (!$usuario->hasRole('Administrador')) {
             \Alert::error('Sem permissão para cadastrar IPs')->flash();
             return redirect()->back();
@@ -162,7 +178,7 @@ class IpsacessoCrudController extends CrudController
 
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
-        
+
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;

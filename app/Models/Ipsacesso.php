@@ -41,7 +41,7 @@ class Ipsacesso extends Model
         if ($this->orgao) {
             $orgao = Orgao::find($this->orgao_id);
             $retorno = $orgao->nome;
-            
+
         }
 
         return $retorno;
@@ -54,7 +54,7 @@ class Ipsacesso extends Model
         if ($this->unidade) {
             $unidade = Unidade::find($this->unidade_id);
             $retorno = $unidade->codigo . ' - ' . $unidade->nomeresumido;
-            
+
         }
 
         return $retorno;
