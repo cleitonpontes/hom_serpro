@@ -319,13 +319,11 @@
         function empenharOutroFornecedor(event) {
 
             var minuta_id = $('#minuta_id').val();
-
             var url = "{{route('novo.empenho.compra',':minuta_id')}}";
             url = url.replace(':minuta_id', minuta_id);
             axios.request(url)
                 .then(response => {
                     var nova_minuta_id = response.data
-
                     var url = "{{route('empenho.minuta.etapa.fornecedor',':minuta_id')}}";
                     url = url.replace(':minuta_id', nova_minuta_id);
                     console.log(url);

@@ -48,7 +48,7 @@ class MinutaEmpenhoController extends Controller
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
             DB::rollback();
-//            dd($exc);
+            dd($exc);
         }
 
         return $retorno;
@@ -179,8 +179,10 @@ class MinutaEmpenhoController extends Controller
             $novoEmpenho->unidade_id = $modMinutaEmpenho->unidade_id;
             $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
             $novoEmpenho->informacao_complementar = $modMinutaEmpenho->informacao_complementar;
+            $novoEmpenho->situacao_id = 178;//em andamento
             $novoEmpenho->etapa = 2;
             $novoEmpenho->save();
+
             DB::commit();
             return json_encode($novoEmpenho->id);
         } catch (Exception $exc) {
