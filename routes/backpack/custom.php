@@ -98,6 +98,7 @@ Route::group([
             CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
             CRUD::resource('comunica', 'ComunicaCrudController');
             CRUD::resource('importacao', 'ImportacaoCrudController');
+            CRUD::resource('ipsacesso', 'IpsacessoCrudController');
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
