@@ -41,7 +41,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->distinct()
             ->where('minutaempenhos.id', $minuta_id)
             ->where('compra_item_unidade.quantidade_saldo', '>', 0)
-            ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener'])
+            ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener','compra_item_fornecedor.situacao_sicaf'])
             ->get()
             ->toArray();
 
@@ -101,6 +101,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'name' => 'nome',
                 'title' => 'Fornecedor'
             ])
+            ->addColumn([
+                'data' => 'situacao_sicaf',
+                'name' => 'situacao_sicaf',
+                'title' => 'Situação SICAF',
+            ])
             ->parameters([
                 'processing' => true,
                 'serverSide' => true,
@@ -151,8 +156,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'compra_item_unidade.quantidade_saldo',
                 'compra_item_fornecedor.valor_unitario',
                 'compra_item_fornecedor.valor_negociado',
-                'compra_items.numero',
-                'compra_item_fornecedor.situacao_sicaf'
+                'compra_items.numero'
             ])
             ->get()
             ->toArray();
@@ -228,11 +232,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'data' => 'valor_negociado',
                 'name' => 'valor_negociado',
                 'title' => 'Valor Total.',
-            ])
-            ->addColumn([
-                'data' => 'situacao_sicaf',
-                'name' => 'situacao_sicaf',
-                'title' => 'Situação SICAF',
             ])
             ->parameters([
                 'processing' => true,

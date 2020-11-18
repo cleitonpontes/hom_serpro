@@ -499,7 +499,7 @@ class CompraSiasgCrudController extends CrudController
     {
         $numeroAno = str_replace("/", "", $params['numero_ano']);
         $modalide = Codigoitem::find($params['modalidade_id']);
-        $unidade = Unidade::find($params['unidade_origem_id']);
+        $unidade = Unidade::find($params['unidade_id']);
         $info = $unidade->codigo . $modalide->descres . $numeroAno;
 
         return $info;
