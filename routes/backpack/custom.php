@@ -257,7 +257,8 @@ Route::group([
             CRUD::resource('rhsituacao', 'RhsituacaoCrudController');
             CRUD::resource('rhrubrica', 'RhrubricaCrudController');
 
-            Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaMigracaoEmpenho');
+//            Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaMigracaoEmpenho');
+            Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaCargaEmpenhos');
             Route::get('/atualizasaldosempenhos', 'EmpenhoCrudController@executaAtualizaSaldosEmpenhos');
             Route::get('/atualizanaturezadespesas', 'EmpenhoCrudController@executaAtualizacaoNd');
 

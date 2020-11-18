@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Execfin;
 
 use Alert;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Transparencia\IndexController;
 use App\Http\Traits\Busca;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
+use App\Jobs\MigracaoCargaEmpenhoJob;
 use App\Jobs\MigracaoempenhoJob;
 use App\Jobs\MigracaoRpJob;
 use App\Models\Empenho;
@@ -706,64 +708,89 @@ class EmpenhoCrudController extends CrudController
         return $empenhos;
     }
 
-    public function migracaoEmpenho($ug_id)
+    public function migracaoEmpenho($ug_id, $ano_request = null)
     {
         $unidade = Unidade::find($ug_id);
 
         $ano = date('Y');
 
+        if ($ano_request) {
+            $ano = $ano_request;
+        }
+
         $migracao_url = config('migracao.api_sta');
         $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
 
-//        $dados = json_decode(file_get_contents($migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo),
-//            true);
+        $dados = (env('APP_ENV', 'production') === 'production')
+            ? $this->buscaDadosFileGetContents($url)
+            : $this->buscaDadosCurl($url);
 
-        $dados = $this->buscaDadosUrl($url);
+        $pkcount = is_array($dados) ? count($dados) : 0;
+        if ($pkcount > 0) {
+            foreach ($dados as $d) {
+                $credor = $this->buscaFornecedor($d);
 
-        foreach ($dados as $d) {
-            $credor = $this->buscaFornecedor($d);
-
-            if ($d['picodigo']) {
-                $pi = $this->buscaPi($d);
-            }
-
-            $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
-                ->first();
-
-            $empenho = Empenho::where('numero', '=', trim($d['numero']))
-                ->where('unidade_id', '=', $unidade->id)
-                ->first();
-
-            if (!$empenho) {
-                $empenho = Empenho::create([
-                    'numero' => trim($d['numero']),
-                    'unidade_id' => $unidade->id,
-                    'fornecedor_id' => $credor->id,
-                    'planointerno_id' => $pi->id,
-                    'naturezadespesa_id' => $naturezadespesa->id
-                ]);
-            } else {
-                $empenho->fornecedor_id = $credor->id;
-                $empenho->planointerno_id = $pi->id;
-                $empenho->naturezadespesa_id = $naturezadespesa->id;
-                $empenho->save();
-            }
-
-            foreach ($d['itens'] as $item) {
-                $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
-                    ->where('naturezadespesa_id', $naturezadespesa->id)
-                    ->first();
-
-                $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                    ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                    ->first();
-
-                if (!$empenhodetalhado) {
-                    $empenhodetalhado = Empenhodetalhado::create([
-                        'empenho_id' => $empenho->id,
-                        'naturezasubitem_id' => $naturezasubitem->id
-                    ]);
+                if ($d['picodigo']) {
+                    $pi = $this->buscaPi($d);
                 }
+
+                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
+                    ->first();
+
+                $empenho = Empenho::where('numero', '=', trim($d['numero']))
+                    ->where('unidade_id', '=', $unidade->id)
+                    ->first();
+
+                if (!$empenho) {
+                    $empenho = Empenho::create([
+                        'numero' => trim($d['numero']),
+                        'unidade_id' => $unidade->id,
+                        'fornecedor_id' => $credor->id,
+                        'planointerno_id' => $pi->id,
+                        'naturezadespesa_id' => $naturezadespesa->id
+                    ]);
+                } else {
+                    $empenho->fornecedor_id = $credor->id;
+                    $empenho->planointerno_id = $pi->id;
+                    $empenho->naturezadespesa_id = $naturezadespesa->id;
+                    $empenho->save();
+                }
+
+                foreach ($d['itens'] as $item) {
+                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                        ->where('naturezadespesa_id', $naturezadespesa->id)
+                        ->first();
+
+                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                        ->first();
+
+                    if (!$empenhodetalhado) {
+                        $empenhodetalhado = Empenhodetalhado::create([
+                            'empenho_id' => $empenho->id,
+                            'naturezasubitem_id' => $naturezasubitem->id
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
+    public function executaCargaEmpenhos()
+    {
+        $unidades = Unidade::whereHas('contratos', function ($c) {
+            $c->where('situacao', true);
+        })
+            ->where('situacao', true)
+            ->get();
+
+        $base = new AdminController();
+        $ano_antigo = $base->retornaDataMaisOuMenosQtdTipoFormato('Y', '-', '10', 'years', date('Y-m-d'));
+        $ano_corrente = date('Y');
+
+        foreach ($unidades as $unidade) {
+            for ($i = $ano_antigo; $i <= $ano_corrente; $i++) {
+                MigracaoCargaEmpenhoJob::dispatch($unidade->id, $i)->onQueue('migracaocargaempenho');
             }
         }
     }
