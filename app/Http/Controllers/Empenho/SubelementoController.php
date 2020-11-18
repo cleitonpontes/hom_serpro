@@ -409,7 +409,7 @@ class SubelementoController extends BaseControllerEmpenho
 
                 $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item)
                     ->where('unidade_id', session('user_ug_id'))
-                    ->where('fornecedor_id', $request->fornecedor_id)
+                    //->where('fornecedor_id', $request->fornecedor_id)
                     ->first();
 
                 $saldo = $this->retornaSaldoAtualizado($item);

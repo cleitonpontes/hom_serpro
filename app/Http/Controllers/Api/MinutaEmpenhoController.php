@@ -27,11 +27,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Route;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Empenho\CompraSiasgCrudController;
+use App\Http\Traits\CompraTrait;
 
 class MinutaEmpenhoController extends Controller
 {
 
+    use CompraTrait;
 
     public function populaTabelasSiafi(Request $request)
     {
@@ -199,18 +200,16 @@ class MinutaEmpenhoController extends Controller
 
     public function atualizaSaldoCompraItemUnidade(MinutaEmpenho $modMinutaEmpenho)
     {
-        $compraSiasgCrudController = new CompraSiasgCrudController();
-
         $compra = Compra::find($modMinutaEmpenho->compra_id)->first();
 
         $compraSiasg = $this->buscaCompraSiasg($compra);
 
         if ($compraSiasg->data->compraSispp->tipoCompra == 1) {
-            $compraSiasgCrudController->gravaParametroItensdaCompraSISPP($compraSiasg, $compra);
+            $this->gravaParametroItensdaCompraSISPP($compraSiasg, $compra);
         }
 
         if ($compraSiasg->data->compraSispp->tipoCompra == 2) {
-            $compraSiasgCrudController->gravaParametroItensdaCompraSISRP($compraSiasg, $compra);
+            $this->gravaParametroItensdaCompraSISRP($compraSiasg, $compra);
         }
     }
 
