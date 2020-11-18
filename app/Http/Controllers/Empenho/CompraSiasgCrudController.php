@@ -174,7 +174,7 @@ class CompraSiasgCrudController extends CrudController
             $minutaEmpenho = $this->gravaMinutaEmpenho([
                 'situacao_id' => $situacao->id,
                 'compra_id' => $compra->id,
-                'unidade_origem_id' => $compra->unidade_origem_id,
+                'unidade_id' => $unidade_autorizada_id,
                 'modalidade_id' => $compra->modalidade_id,
                 'numero_ano' => $compra->numero_ano
             ]);
@@ -485,7 +485,7 @@ class CompraSiasgCrudController extends CrudController
     public function gravaMinutaEmpenho($params)
     {
         $minutaEmpenho = new MinutaEmpenho();
-        $minutaEmpenho->unidade_id = $params['unidade_origem_id'];
+        $minutaEmpenho->unidade_id = $params['unidade_id'];
         $minutaEmpenho->compra_id = $params['compra_id'];
         $minutaEmpenho->situacao_id = $params['situacao_id'];
         $minutaEmpenho->etapa = 2;
