@@ -33,7 +33,7 @@ class MinutaEmpenhoRequest extends FormRequest
             'descricao'=> 'required|max:468',
 //            'local_entrega'=> 'required',
             'taxa_cambio'=> 'required',
-            'amparo_legal_id' => 'require',
+            'amparo_legal_id' => 'required',
             'processo' => 'max:20',
             'data_emissao' => "date|before_or_equal:{$this->data_hoje}",
 
