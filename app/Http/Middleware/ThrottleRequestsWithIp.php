@@ -17,10 +17,7 @@ class ThrottleRequestsWithIp extends \Illuminate\Routing\Middleware\ThrottleRequ
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1, $prefix = '')
     {
-        // $ipsCadastrado = Ipsacesso::whereJsonContains('ips', [['name' =>$request->ip()]])->get()->toArray();
         $ipsCadastrado = Ipsacesso::whereJsonContains('ips', [['name' =>$request->ip()]]);
-        dd($ipsCadastrado->toSql());
-        
         if(empty($ipsCadastrado)) {
             abort('403', config('app.erro_permissao'));
         }
