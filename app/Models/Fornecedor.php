@@ -91,6 +91,16 @@ class Fornecedor extends Model
         return $this->hasMany(MinutaEmpenho::class, 'fornecedor_empenho_id');
     }
 
+    public function compraItem()
+    {
+        return $this->belongsToMany(
+            'App\Models\Fornecedor',
+            'compra_item_fornecedor',
+            'compra_item_id',
+            'fornecedor_id'
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

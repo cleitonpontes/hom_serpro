@@ -1,13 +1,15 @@
+{{--{{ dd(get_defined_vars()['__data']) }}--}}
+
 @php
     $minuta_id = Route::current()->parameter('minuta_id');
-    $fornecedor_id = Route::current()->parameter('fornecedor_id')
+    //$fornecedor_id = Route::current()->parameter('fornecedor_id')
 @endphp
 @extends('backpack::layout')
 
 @section('header')
     <section class="content-header">
         <h1>
-            Crédito Orçamentário
+            Subelemento
         </h1>
     </section>
 @endsection
@@ -27,27 +29,27 @@
         </div>
         <div class="box-body">
             <div class="row">
-                <div class="col-md-2 col-sm-2">
+                <div class="col-md-2 col-sm-3">
                     Crédito orçamentário:
                 </div>
-                <div class="col-md-10 col-sm-10" id="">
+                <div class="col-md-10 col-sm-9" id="">
                     R$ {{ number_format($credito,2,',','.') }}
                 </div>
             </div>
             <div class="row text-red">
-                <div class="col-md-2 col-sm-2">
+                <div class="col-md-2 col-sm-3">
                     Utilizado:
                 </div>
-                <div class="col-md-10 col-sm-10" id="utilizado">
-
+                <div class="col-md-10 col-sm-9" id="utilizado">
+                    <b>R$ {{ number_format($valor_utilizado,2,',','.') }}</b>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-2 col-sm-10">
+                <div class="col-md-2 col-sm-3">
                     Saldo:
                 </div>
-                <div class="col-md-10 col-sm-10" id="saldo">
-
+                <div class="col-md-10 col-sm-9" id="saldo">
+                    R$ {{ number_format($saldo,2,',','.') }}
                 </div>
             </div>
         </div>
@@ -64,8 +66,11 @@
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
                 <input type="hidden" id="credito" name="credito" value="{{$credito}}">
-                <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="">
-            @csrf <!-- {{ csrf_field() }} -->
+                <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="{{$valor_utilizado}}">
+                @csrf <!-- {{ csrf_field() }} -->
+                @if($update)
+                    {!! method_field('PUT') !!}
+                @endif
 
                 {!! $html->table() !!}
                 <div class="col-sm-12">
@@ -144,6 +149,7 @@
                 allowNegative: false,
                 thousands: '.',
                 decimal: ',',
+                //allowZero: true,
                 affixesStay: false
             }).attr('maxlength', maxLength).trigger('mask.maskMoney');
         }

@@ -477,10 +477,13 @@ class MinutaEmpenhoCrudController extends CrudController
     public function adicionaBoxItens($minuta_id)
     {
         $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
+            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
             ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
             ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
-            ->join('fornecedores', 'fornecedores.id', '=', 'compra_items.fornecedor_id')
+            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+//            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+            ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
             ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
             ->select([
                 DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
@@ -490,7 +493,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 DB::raw('catmatseritens.descricao AS "Descrição"'),
                 DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
                 DB::raw('naturezasubitem.codigo || \' - \' || naturezasubitem.descricao AS "ND Detalhada"'),
-                DB::raw('compra_items.valorunitario AS "Valor unitário"'),
+                DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
                 DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                 DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
 

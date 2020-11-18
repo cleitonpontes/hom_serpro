@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
+use App\Models\Compra;
 use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
+use App\Models\CompraItemUnidade;
 use App\Models\ContaCorrentePassivoAnterior;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
@@ -19,14 +21,19 @@ use App\Models\SfPassivoAnterior;
 use App\Models\SfPassivoPermanente;
 use App\Models\Unidade;
 use App\Models\Catmatseritem;
+use App\XML\ApiSiasg;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Route;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\CompraTrait;
 
 class MinutaEmpenhoController extends Controller
 {
+
+    use CompraTrait;
+
     public function populaTabelasSiafi(Request $request)
     {
         $retorno['resultado'] = false;
@@ -48,7 +55,7 @@ class MinutaEmpenhoController extends Controller
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
             DB::rollback();
-//            dd($exc);
+            dd($exc);
         }
 
         return $retorno;
@@ -118,7 +125,7 @@ class MinutaEmpenhoController extends Controller
         foreach ($modCCPassivoAnterior as $key => $conta) {
             $modSfPassivoPermanente = new SfPassivoPermanente();
             $modSfPassivoPermanente->sfpassivoanterior_id = $sfpassivoanterior->id;
-            $modSfPassivoPermanente->contacorrente = "P".$conta->conta_corrente;
+            $modSfPassivoPermanente->contacorrente = "P" . $conta->conta_corrente;
             $modSfPassivoPermanente->vlrrelacionado = $conta->valor;
             $modSfPassivoPermanente->save();
         }
@@ -131,7 +138,6 @@ class MinutaEmpenhoController extends Controller
         $modCompraItemEmpenho = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
 
         foreach ($modCompraItemEmpenho as $key => $item) {
-
             $modSfItemEmpenho = new SfItemEmpenho();
             $modSubelemento = Naturezasubitem::find($item->subelemento_id);
             $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
@@ -172,20 +178,64 @@ class MinutaEmpenhoController extends Controller
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EM ANDAMENTO')
+            ->select('codigoitens.id')->first();
 
         DB::beginTransaction();
         try {
+            $this->atualizaSaldoCompraItemUnidade($modMinutaEmpenho);
             $novoEmpenho = new MinutaEmpenho();
             $novoEmpenho->unidade_id = $modMinutaEmpenho->unidade_id;
             $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
             $novoEmpenho->informacao_complementar = $modMinutaEmpenho->informacao_complementar;
+            $novoEmpenho->situacao_id = $situacao->id;//em andamento
             $novoEmpenho->etapa = 2;
             $novoEmpenho->save();
+
             DB::commit();
             return json_encode($novoEmpenho->id);
         } catch (Exception $exc) {
             DB::rollback();
         }
+    }
+
+    public function atualizaSaldoCompraItemUnidade(MinutaEmpenho $modMinutaEmpenho)
+    {
+        $compra = Compra::find($modMinutaEmpenho->compra_id)->first();
+
+        $compraSiasg = $this->buscaCompraSiasg($compra);
+
+        if ($compraSiasg->data->compraSispp->tipoCompra == 1) {
+            $this->gravaParametroItensdaCompraSISPP($compraSiasg, $compra);
+        }
+
+        if ($compraSiasg->data->compraSispp->tipoCompra == 2) {
+            $this->gravaParametroItensdaCompraSISRP($compraSiasg, $compra);
+        }
+    }
+
+    public function buscaCompraSiasg(Compra $compra)
+    {
+        $uasgCompra_id = (!is_null($compra->unidade_subrrogada_id)) ? $compra->unidade_subrrogada_id : $compra->unidade_origem_id;
+
+        $modalidade = Codigoitem::find($compra->modalidade_id);
+        $uasgCompra = Unidade::find($uasgCompra_id);
+        $numero_ano = explode('/', $compra->numero_ano);
+        $apiSiasg = new ApiSiasg();
+
+        $params = [
+            'modalidade' => $modalidade->descres,
+            'numeroAno' => $numero_ano[0] . $numero_ano[1],
+            'uasgCompra' => $uasgCompra->codigo,
+            'uasgUsuario' => session('user_ug')
+        ];
+
+        $compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
+
+        return $compra;
     }
 
     public function buscaDescricao($compra_id)

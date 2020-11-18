@@ -13,6 +13,9 @@ class CompraItem extends Model
     use LogsActivity;
     use SoftDeletes;
 
+    public const MATERIAL = [149, 194];
+    public const SERVICO = [150, 195];
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -24,19 +27,13 @@ class CompraItem extends Model
 
     protected $table = 'compra_items';
 
-    protected $guarded = [
-        'id'
-    ];
-
     protected $fillable = [
         'compra_id',
         'tipo_item_id',
         'catmatseritem_id',
-        'fornecedor_id',
-        'unidade_autorizada_id',
         'descricaodetalhada',
-        'quantidade',
         'valorunitario',
+        'qtd_total',
         'valortotal',
         'qtd_restante',
         'numero'
@@ -47,22 +44,24 @@ class CompraItem extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function gravaCompraItem($params){
 
-        $this->compra_id = $params['compra_id'];
-        $this->tipo_item_id = $params['tipo_item_id'];
-        $this->catmatseritem_id = $params['catmatseritem_id'];
-        $this->fornecedor_id = $params['fornecedor_id'];
-        $this->unidade_autorizada_id = $params['unidade_autorizada_id'];
-        $this->descricaodetalhada = $params['descricaodetalhada'];
-        $this->quantidade = $params['quantidade'];
-        $this->qtd_total = $params['quantidade'];
-        $this->valorunitario = $params['valorunitario'];
-        $this->valortotal = $params['valortotal'];
-        $this->numero = $params['numero'];
 
-        $this->save($params);
-        return $this->id;
+    public function updateOrCreateCompraItemSisrp($compra,$catmatseritem,$dadosata)
+    {
+        $tipo = ['S' => $this::SERVICO[0], 'M' => $this::MATERIAL[0]];
+        $compraitem = CompraItem::updateOrCreate(
+            [
+                'compra_id' => $compra->id,
+                'tipo_item_id'=> (int)$tipo[$dadosata->tipo],
+                'catmatseritem_id'=> (int)$catmatseritem->id,
+                'numero' => $dadosata->numeroItem
+            ],
+            [
+                'descricaodetalhada'=> (!empty($dadosata->descricaoDetalhada))?$dadosata->descricaoDetalhada:$dadosata->descricao,
+                'qtd_total' => $dadosata->quantidadeTotal
+            ]
+        );
+        return $compraitem;
     }
     /*
     |--------------------------------------------------------------------------
@@ -80,10 +79,10 @@ class CompraItem extends Model
         return $this->belongsTo(Compra::class, 'compra_id');
     }
 
-    public function fornecedor()
-    {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
-    }
+//    public function fornecedor()
+//    {
+//        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+//    }
 
     public function tipo_item()
     {
@@ -93,6 +92,26 @@ class CompraItem extends Model
     public function unidade_autorizada()
     {
         return $this->belongsTo(Unidade::class, 'unidade_autorizada_id');
+    }
+
+    public function unidade()
+    {
+        return $this->belongsToMany(
+            'App\Models\CompraItem',
+            'compra_item_unidade',
+            'unidade_id',
+            'compra_item_id'
+        );
+    }
+
+    public function fornecedor()
+    {
+        return $this->belongsToMany(
+            'App\Models\CompraItem',
+            'compra_item_unidade',
+            'fornecedor_id',
+            'compra_item_id'
+        );
     }
 
     /*

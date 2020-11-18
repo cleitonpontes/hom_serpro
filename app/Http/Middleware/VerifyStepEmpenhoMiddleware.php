@@ -27,6 +27,7 @@ class VerifyStepEmpenhoMiddleware
         'empenho.minuta.etapa.item' => 3,
         'empenho.minuta.etapa.saldocontabil' => 4,
         'empenho.minuta.etapa.subelemento' => 5,
+//        'empenho.minuta.etapa.subelemento.edit' => 5,
         'empenho.crud./minuta.edit' => 6,
         'empenho.minuta.etapa.passivo-anterior' => 7,
         'empenho.crud.passivo-anterior.edit' => 7,
@@ -38,7 +39,6 @@ class VerifyStepEmpenhoMiddleware
 
         //se a rota existe na lista de rotas
         if (array_key_exists(Route::current()->action['as'], $this->rotas)) {
-
             //se for a rota 1 limpa tudo
             if ($this->rotas[Route::current()->action['as']] === 1) {
                 session(['empenho_etapa' => '']);
@@ -87,6 +87,10 @@ class VerifyStepEmpenhoMiddleware
             session(['fornecedor_compra' => '']);
             session(['conta_id' => '']);
             session(['situacao' => '']);
+
+            if ($this->rotas[Route::current()->action['as']] === 8) {
+                return $next($request);
+            }
 
             return redirect()->route('empenho.crud./minuta.index')->withError('Não permitido');
         }
