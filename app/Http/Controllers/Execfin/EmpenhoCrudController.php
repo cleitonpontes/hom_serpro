@@ -743,7 +743,7 @@ class EmpenhoCrudController extends CrudController
                     ->where('unidade_id', '=', $unidade->id)
                     ->first();
 
-                if (!$empenho) {
+                if (!isset($empenho->id)) {
                     $empenho = Empenho::create([
                         'numero' => trim($d['numero']),
                         'unidade_id' => $unidade->id,
