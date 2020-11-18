@@ -394,10 +394,10 @@
 
             var url = "{{route('atualiza.saldos.linha',':saldo_id')}}";
             url = url.replace(':saldo_id',saldo_id);
+
             axios.request(url)
                 .then(response => {
                     dados = response.data
-                    // alert(dados);
                     if(dados == true) {
                         Swal.fire({
                             position: 'top-end',
@@ -412,7 +412,7 @@
                         Swal.fire({
                             position: 'top-end',
                             icon: 'warning',
-                            title: 'O saldo está atualizado!',
+                            title: 'O saldo já está atualizado!',
                             showConfirmButton: false,
                             timer: 1500
                         })
