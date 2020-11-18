@@ -669,12 +669,14 @@ class EmpenhoCrudController extends CrudController
                     'fornecedor_id' => $credor->id,
                     'planointerno_id' => $pi_id,
                     'naturezadespesa_id' => $naturezadespesa->id,
+                    'fonte' => trim($d['fonte']),
                     'rp' => 1
                 ]);
             } else {
                 $empenho->fornecedor_id = $credor->id;
                 $empenho->planointerno_id = $pi_id;
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
+                $empenho->fonte = trim($d['fonte']);
                 $empenho->deleted_at = null;
                 $empenho->rp = 1;
                 $empenho->save();
@@ -747,12 +749,14 @@ class EmpenhoCrudController extends CrudController
                         'unidade_id' => $unidade->id,
                         'fornecedor_id' => $credor->id,
                         'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezadespesa->id
+                        'naturezadespesa_id' => $naturezadespesa->id,
+                        'fonte' => trim($d['fonte']),
                     ]);
                 } else {
                     $empenho->fornecedor_id = $credor->id;
                     $empenho->planointerno_id = $pi->id;
                     $empenho->naturezadespesa_id = $naturezadespesa->id;
+                    $empenho->fonte = trim($d['fonte']);
                     $empenho->save();
                 }
 
