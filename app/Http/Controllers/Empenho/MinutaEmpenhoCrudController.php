@@ -481,6 +481,8 @@ class MinutaEmpenhoCrudController extends CrudController
             ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
             ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
+            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+//            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
             ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
             ->select([

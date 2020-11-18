@@ -33,6 +33,9 @@
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
                 @csrf <!-- {{ csrf_field() }} -->
+                @if($update)
+                    {!! method_field('PUT') !!}
+                @endif
                 {!! $html->table() !!}
                 <div class="col-sm-12">
 

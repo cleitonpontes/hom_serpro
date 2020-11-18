@@ -2,7 +2,7 @@
 
 @php
     $minuta_id = Route::current()->parameter('minuta_id');
-    $fornecedor_id = Route::current()->parameter('fornecedor_id')
+    //$fornecedor_id = Route::current()->parameter('fornecedor_id')
 @endphp
 @extends('backpack::layout')
 

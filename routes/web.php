@@ -271,6 +271,9 @@ Route::group(
             Route::post('item', 'FornecedorEmpenhoController@store')
                 ->name('minuta.etapa.item.store');
 
+            Route::put('item', 'FornecedorEmpenhoController@update')
+                ->name('minuta.etapa.item.update');
+
             //passo 4
             Route::get('saldo/{minuta_id}', 'SaldoContabilMinutaController@index')
                 ->name('minuta.etapa.saldocontabil');

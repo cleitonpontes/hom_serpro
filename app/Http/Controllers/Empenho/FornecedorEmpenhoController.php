@@ -12,6 +12,7 @@ use Alert;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
+use App\Models\CompraItemUnidade;
 use App\Models\MinutaEmpenho;
 use Exception;
 use Illuminate\Http\Request;
@@ -25,9 +26,12 @@ use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
+use App\Http\Traits\CompraTrait;
 
 class FornecedorEmpenhoController extends BaseControllerEmpenho
 {
+    use CompraTrait;
+
     public function index(Request $request)
     {
         $minuta_id = Route::current()->parameter('minuta_id');
@@ -129,6 +133,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
     public function item(Request $request)
     {
+//        dd('item');
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
@@ -170,7 +175,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         $html = $this->retornaGridItens();
 
-        return view('backpack::mod.empenho.Etapa3Itensdacompra', compact('html'));
+
+        return view(
+            'backpack::mod.empenho.Etapa3Itensdacompra',
+            compact('html')
+        )->with(['update' => CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get()->isNotEmpty()]);
     }
 
     private function retornaRadioItens($id, $minuta_id, $descricao)
@@ -281,6 +290,58 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         DB::beginTransaction();
         try {
+            CompraItemMinutaEmpenho::insert($itens);
+            $minuta->etapa = 4;
+            $minuta->save();
+            DB::commit();
+
+            return redirect()->route('empenho.minuta.gravar.saldocontabil', ['minuta_id' => $minuta_id]);
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $minuta = MinutaEmpenho::find($request->minuta_id);
+
+        $minuta_id = $request->minuta_id;
+        $fornecedor_id = $request->fornecedor_id;
+        $itens = $request->itens;
+
+        if (!isset($itens)) {
+            Alert::error('Escolha pelo menos 1 item da compra.')->flash();
+            return redirect()->route(
+                'empenho.minuta.etapa.item',
+                ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]
+            );
+        }
+
+        $itens = array_map(
+            function ($itens) use ($minuta_id) {
+                $itens['minutaempenho_id'] = $minuta_id;
+                return $itens;
+            },
+            $itens
+        );
+
+        DB::beginTransaction();
+        try {
+            $cime = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
+            $cime_deletar = $cime->get();
+            $cime->delete();
+
+            foreach ($cime_deletar as $item) {
+                $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
+                    ->where('unidade_id', session('user_ug_id'))
+                    ->where('fornecedor_id', $fornecedor_id)
+                    ->first();
+
+                $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($item->compra_item_id)->saldo;
+                $compraItemUnidade->save();
+            }
+
             CompraItemMinutaEmpenho::insert($itens);
             $minuta->etapa = 4;
             $minuta->save();

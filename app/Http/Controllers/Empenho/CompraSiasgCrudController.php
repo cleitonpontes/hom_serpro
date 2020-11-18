@@ -174,6 +174,7 @@ class CompraSiasgCrudController extends CrudController
             $minutaEmpenho = $this->gravaMinutaEmpenho([
                 'situacao_id' => $situacao->id,
                 'compra_id' => $compra->id,
+                'unidade_origem_id' => $compra->unidade_origem_id,
                 'unidade_id' => $unidade_autorizada_id,
                 'modalidade_id' => $compra->modalidade_id,
                 'numero_ano' => $compra->numero_ano
@@ -385,10 +386,10 @@ class CompraSiasgCrudController extends CrudController
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
-        if (isset($saldo->saldo)) {
+//        if (isset($saldo->saldo)) {
             $compraItemUnidade->quantidade_saldo = $saldo->saldo;
             $compraItemUnidade->save();
-        }
+//        }
     }
 
     public function gravaCompraItemFornecedor($compraitem_id, $item, $fornecedor)
@@ -428,10 +429,10 @@ class CompraSiasgCrudController extends CrudController
 
         $saldo = $this->retornaSaldoAtualizado($compraitem_id);
 
-        if (isset($saldo->saldo)) {
+//        if (isset($saldo->saldo)) {
             $compraItemUnidade->quantidade_saldo = $saldo->saldo;
             $compraItemUnidade->save();
-        }
+//        }
     }
 
     public function gravaCatmatseritem($item)

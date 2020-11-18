@@ -16,10 +16,12 @@ use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
 use App\Http\Traits\Formatador;
 use Alert;
+use App\Http\Traits\CompraTrait;
 
 class SubelementoController extends BaseControllerEmpenho
 {
     use Formatador;
+    use CompraTrait;
 
     /**
      * Display a listing of the resource.
@@ -89,6 +91,7 @@ class SubelementoController extends BaseControllerEmpenho
             ->select(
                 [
                     'compra_item_minuta_empenho.compra_item_id',
+                    'compra_item_fornecedor.fornecedor_id',
                     'tipo_compra.descricao as tipo_compra_descricao',
                     'codigoitens.descricao',
                     'compra_items.catmatseritem_id',
@@ -164,7 +167,9 @@ class SubelementoController extends BaseControllerEmpenho
             'credito' => $itens[0]['saldo'],
             'valor_utilizado' => $valor_utilizado['sum'],
             'saldo' => $itens[0]['saldo'] - $valor_utilizado['sum'],
-            'update' => $valor_utilizado['sum'] > 0
+            'update' => false,
+//            'update' => $valor_utilizado['sum'] > 0,
+            'fornecedor_id' => $itens[0]['fornecedor_id'],
         ]);
     }
 
@@ -362,6 +367,8 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function store(Request $request)
     {
+//        dump('store');
+//        dump($request->all());
         $minuta_id = $request->get('minuta_id');
         if ($request->credito - $request->valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
@@ -386,6 +393,7 @@ class SubelementoController extends BaseControllerEmpenho
         DB::beginTransaction();
         try {
             foreach ($compra_item_ids as $index => $item) {
+//                dd($item);
                 if ($valores[$index] > $request->valor_total_item[$index]) {
                     Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
                     return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
@@ -398,9 +406,16 @@ class SubelementoController extends BaseControllerEmpenho
                         'quantidade' => ($request->qtd[$index]),
                         'valor' => $valores[$index]
                     ]);
-                CompraItemUnidade::where('compra_item_id', $item)
+
+                $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item)
                     ->where('unidade_id', session('user_ug_id'))
-                    ->update(['quantidade_saldo' => ($request->quantidade_total[$index] - $request->qtd[$index])]);
+                    ->where('fornecedor_id', $request->fornecedor_id)
+                    ->first();
+
+                $saldo = $this->retornaSaldoAtualizado($item);
+                    $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+                    $compraItemUnidade->save();
+
             }
 
             $modMinuta = MinutaEmpenho::find($minuta_id);
@@ -418,7 +433,7 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function update(Request $request)
     {
-        dd(123);
+        $this->store($request);
         $minuta_id = $request->get('minuta_id');
         if ($request->credito - $request->valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
