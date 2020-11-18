@@ -241,6 +241,11 @@ class MinutaEmpenho extends Model
         return $this->compra()->first()->lei;
     }
 
+    public function getSituacaoDescricaoAttribute()
+    {
+        return $this->situacao()->first()->descricao;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS

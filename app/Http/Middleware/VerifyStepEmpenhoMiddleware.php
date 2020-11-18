@@ -39,7 +39,6 @@ class VerifyStepEmpenhoMiddleware
 
         //se a rota existe na lista de rotas
         if (array_key_exists(Route::current()->action['as'], $this->rotas)) {
-
             //se for a rota 1 limpa tudo
             if ($this->rotas[Route::current()->action['as']] === 1) {
                 session(['empenho_etapa' => '']);
@@ -88,6 +87,10 @@ class VerifyStepEmpenhoMiddleware
             session(['fornecedor_compra' => '']);
             session(['conta_id' => '']);
             session(['situacao' => '']);
+
+            if ($this->rotas[Route::current()->action['as']] === 8) {
+                return $next($request);
+            }
 
             return redirect()->route('empenho.crud./minuta.index')->withError('Não permitido');
         }

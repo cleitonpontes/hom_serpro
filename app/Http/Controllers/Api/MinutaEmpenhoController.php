@@ -125,7 +125,7 @@ class MinutaEmpenhoController extends Controller
         foreach ($modCCPassivoAnterior as $key => $conta) {
             $modSfPassivoPermanente = new SfPassivoPermanente();
             $modSfPassivoPermanente->sfpassivoanterior_id = $sfpassivoanterior->id;
-            $modSfPassivoPermanente->contacorrente = "P".$conta->conta_corrente;
+            $modSfPassivoPermanente->contacorrente = "P" . $conta->conta_corrente;
             $modSfPassivoPermanente->vlrrelacionado = $conta->valor;
             $modSfPassivoPermanente->save();
         }
@@ -138,7 +138,6 @@ class MinutaEmpenhoController extends Controller
         $modCompraItemEmpenho = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
 
         foreach ($modCompraItemEmpenho as $key => $item) {
-
             $modSfItemEmpenho = new SfItemEmpenho();
             $modSubelemento = Naturezasubitem::find($item->subelemento_id);
             $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
@@ -179,6 +178,11 @@ class MinutaEmpenhoController extends Controller
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EM ANDAMENTO')
+            ->select('codigoitens.id')->first();
 
         DB::beginTransaction();
         try {
@@ -187,7 +191,7 @@ class MinutaEmpenhoController extends Controller
             $novoEmpenho->unidade_id = $modMinutaEmpenho->unidade_id;
             $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
             $novoEmpenho->informacao_complementar = $modMinutaEmpenho->informacao_complementar;
-            $novoEmpenho->situacao_id = 178;//em andamento
+            $novoEmpenho->situacao_id = $situacao->id;//em andamento
             $novoEmpenho->etapa = 2;
             $novoEmpenho->save();
 

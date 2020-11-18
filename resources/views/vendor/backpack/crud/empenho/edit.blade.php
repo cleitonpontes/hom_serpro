@@ -1,3 +1,4 @@
+{{--{{ dd(get_defined_vars()['__data']) }}--}}
 @extends('backpack::layout')
 
 @section('header')
@@ -59,11 +60,14 @@
 		      @endif
 		    </div><!-- /.box-body -->
 
-            <div class="">
-
-                @include('crud::inc.form_save_buttons')
-
-		    </div><!-- /.box-footer-->
+                <div class="">
+                    {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
+                        ->asLinkTo(route('empenho.crud./minuta.index'))
+                    !!}
+                    <button type="submit" class="btn btn-success">
+                        Próxima Etapa <i class="fa fa-arrow-right"></i>
+                    </button>
+                </div>
 		  </div><!-- /.box -->
 		  </form>
 	</div>

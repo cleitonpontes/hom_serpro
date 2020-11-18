@@ -1,4 +1,6 @@
 {{--@php dd($crud->columns) @endphp--}}
+{{--@php dd($entry) @endphp--}}
+{{--@php dd($entry->situacao_descricao, $entry->etapa) @endphp--}}
 {{--{{ dd(get_defined_vars()['__data']) }}--}}
 @extends('backpack::layout')
 
@@ -32,7 +34,7 @@
         @include('backpack::mod.empenho.telas.cabecalho')
 
         <!-- Resumo da Minuta de Empenho -->
-            <div class="m-t-20">
+            <div class="m-t-0">
                 @if ($crud->model->translationEnabled())
                     <div class="row">
                         <div class="col-md-12 m-b-10">
@@ -112,30 +114,30 @@
                             <h3 class="box-title">Crédito Orçamentário</h3>
                         </div>
                         <div class="box-body">
-                            @csrf <!-- {{ csrf_field() }} -->
-                                <div class="box-body">
-                                    <table class="table table-striped">
-                                        <tbody>
-                                        @foreach ($itens as $key => $value)
-                                            <tr>
-                                                <td>
-                                                    <strong>{{ $key }}</strong>
-                                                </td>
-                                                <td>
-                                                    <span>{{ $value }}</span>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
+                        @csrf <!-- {{ csrf_field() }} -->
+                            <div class="box-body">
+                                <table class="table table-striped">
+                                    <tbody>
+                                    @foreach ($itens as $key => $value)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $key }}</strong>
+                                            </td>
+                                            <td>
+                                                <span>{{ $value }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div><!-- /.box-body -->
                         <div class="col-sm-12"></div>
                     </div>
                 </div>
             @endforeach
 
-            <!-- Resumo da Compra -->
+        <!-- Resumo da Compra -->
             <div class="m-t-20">
                 <div class="box box-solid box-primary collapsed-box">
                     <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -221,24 +223,43 @@
             <div class="box-tools">
                 <div class="row">
                     <div class="col-md-3">
-                        <button type="button" class="btn btn-primary" id="voltar">
-                            <i class="fa fa-arrow-left"></i> Voltar
-                        </button>
+                        @if ($entry->situacao_descricao === 'EM ANDAMENTO' && !empty(session('conta_id')) )
+                            <button type="button" class="btn btn-primary" id="voltar">
+                                <i class="fa fa-arrow-left"></i> Voltar
+                            </button>
+                        @else
+                            <button type="button" class="btn btn-primary" id="voltar"
+                                    disabled>
+                                <i class="fa fa-arrow-left"></i> Voltar
+                            </button>
+                        @endif
+
                     </div>
                     <div class="col-md-3" align="right">
-                        <button type="button" class="btn btn-primary" id="emitir_empenho_siafi"  {{(session('situacao') == 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
+
+                        <button type="button" class="btn btn-primary"
+                                @if ($entry->situacao_descricao === 'EM ANDAMENTO' && $entry->etapa === 8)
+                                id="emitir_empenho_siafi"
+                                @else
+                                disabled
+                            @endif
+                        >
                             <i class="fa fa-save"></i> Emitir Empenho SIAFI
                         </button>
                     </div>
                     <div class="col-md-3">
-                        <button type="button" class="btn btn-primary" id="empenhar_outro_fornecedor"
-                                disabled="disabled">
+                        <button type="button" class="btn btn-primary"
+                                @if (!(($entry->situacao_descricao == 'EM PROCESSAMENTO'|| $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
+                                    disabled
+                                @endif
+                                id="empenhar_outro_fornecedor"
+                        >
                             <i class="fa fa-plus"></i> Empenhar outro Fornecedor
                         </button>
                     </div>
-                    <div class="col-md-3"align="right">
+                    <div class="col-md-3" align="right">
                         <button type="button" class="btn btn-primary" id="finalizar"
-                            {{(session('situacao') <> 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
+                            {{($entry->situacao_descricao !== 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
                             <i class="fa fa-check-circle"></i> Finalizar
                         </button>
                     </div>
@@ -282,6 +303,10 @@
 
             $('body').on('click', '#finalizar', function (event) {
                 window.location.href = "{{route('empenho.crud./minuta.index')}}";
+            });
+
+            $('body').on('click', '#voltar', function (event) {
+                window.location.href = "{{route('empenho.crud.passivo-anterior.edit', ['minuta_id' => session('conta_id')])}}";
             });
         });
 

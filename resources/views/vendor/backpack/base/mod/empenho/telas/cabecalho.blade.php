@@ -84,7 +84,6 @@
         </div>
     </div>
 </div>
-<br/>
 
 @push('after_scripts')
     <style type="text/css">
