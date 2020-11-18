@@ -782,6 +782,7 @@ class EmpenhoCrudController extends CrudController
             $c->where('situacao', true);
         })
             ->where('situacao', true)
+            ->where('utiliza_siafi', true)
             ->get();
 
         $base = new AdminController();
@@ -792,6 +793,11 @@ class EmpenhoCrudController extends CrudController
             for ($i = $ano_antigo; $i <= $ano_corrente; $i++) {
                 MigracaoCargaEmpenhoJob::dispatch($unidade->id, $i)->onQueue('migracaocargaempenho');
             }
+        }
+
+        if (backpack_user()) {
+            Alert::success('Migração de Empenhos em Andamento!')->flash();
+            return redirect('/execfin/empenho');
         }
     }
 
