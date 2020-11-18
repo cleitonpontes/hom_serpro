@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
+use App\Models\Compra;
 use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
+use App\Models\CompraItemUnidade;
 use App\Models\ContaCorrentePassivoAnterior;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
@@ -19,14 +21,18 @@ use App\Models\SfPassivoAnterior;
 use App\Models\SfPassivoPermanente;
 use App\Models\Unidade;
 use App\Models\Catmatseritem;
+use App\XML\ApiSiasg;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Route;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Empenho\CompraSiasgCrudController;
 
 class MinutaEmpenhoController extends Controller
 {
+
+
     public function populaTabelasSiafi(Request $request)
     {
         $retorno['resultado'] = false;
@@ -175,6 +181,7 @@ class MinutaEmpenhoController extends Controller
 
         DB::beginTransaction();
         try {
+            $this->atualizaSaldoCompraItemUnidade($modMinutaEmpenho);
             $novoEmpenho = new MinutaEmpenho();
             $novoEmpenho->unidade_id = $modMinutaEmpenho->unidade_id;
             $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
@@ -188,6 +195,44 @@ class MinutaEmpenhoController extends Controller
         } catch (Exception $exc) {
             DB::rollback();
         }
+    }
+
+    public function atualizaSaldoCompraItemUnidade(MinutaEmpenho $modMinutaEmpenho)
+    {
+        $compraSiasgCrudController = new CompraSiasgCrudController();
+
+        $compra = Compra::find($modMinutaEmpenho->compra_id)->first();
+
+        $compraSiasg = $this->buscaCompraSiasg($compra);
+
+        if ($compraSiasg->data->compraSispp->tipoCompra == 1) {
+            $compraSiasgCrudController->gravaParametroItensdaCompraSISPP($compraSiasg, $compra);
+        }
+
+        if ($compraSiasg->data->compraSispp->tipoCompra == 2) {
+            $compraSiasgCrudController->gravaParametroItensdaCompraSISRP($compraSiasg, $compra);
+        }
+    }
+
+    public function buscaCompraSiasg(Compra $compra)
+    {
+        $uasgCompra_id = (!is_null($compra->unidade_subrrogada_id)) ? $compra->unidade_subrrogada_id : $compra->unidade_origem_id;
+
+        $modalidade = Codigoitem::find($compra->modalidade_id);
+        $uasgCompra = Unidade::find($uasgCompra_id);
+        $numero_ano = explode('/', $compra->numero_ano);
+        $apiSiasg = new ApiSiasg();
+
+        $params = [
+            'modalidade' => $modalidade->descres,
+            'numeroAno' => $numero_ano[0] . $numero_ano[1],
+            'uasgCompra' => $uasgCompra->codigo,
+            'uasgUsuario' => session('user_ug')
+        ];
+
+        $compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
+
+        return $compra;
     }
 
     public function buscaDescricao($compra_id)
