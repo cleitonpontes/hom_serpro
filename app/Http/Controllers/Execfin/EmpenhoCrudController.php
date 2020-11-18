@@ -806,7 +806,7 @@ class EmpenhoCrudController extends CrudController
         $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
             ->first();
 
-        if (!$fornecedor) {
+        if (!isset($fornecedor->id)) {
             $tipo = 'JURIDICA';
             if (strlen($credor['cpfcnpjugidgener']) == 14) {
                 $tipo = 'FISICA';
