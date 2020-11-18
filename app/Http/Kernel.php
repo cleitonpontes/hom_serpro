@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\UgprimariaMiddleware;
+use App\Http\Middleware\ThrottleRequestsWithIp;
 use App\Http\Middleware\VerifyStepEmpenhoMiddleware;
 use App\Jobs\MigracaoempenhoJob;
 use Illuminate\Console\Scheduling\Schedule;
@@ -69,6 +70,7 @@ class Kernel extends HttpKernel
         'ugprimaria' => UgprimariaMiddleware::class,
         'permission' => PermissionMiddleware::class,
         'verify.step.empenho' => VerifyStepEmpenhoMiddleware::class,
+        'throttleIp'=> ThrottleRequestsWithIp::class,
     ];
 
     /**
