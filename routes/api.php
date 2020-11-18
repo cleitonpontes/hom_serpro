@@ -19,6 +19,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group([
     'namespace' => 'Api',
+    'middleware'=> 'throttleIp'
 ], function () {
 
     //API Campos Transparência Index
