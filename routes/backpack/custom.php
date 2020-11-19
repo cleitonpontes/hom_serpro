@@ -52,6 +52,12 @@ Route::group([
             Route::get('inserir/celula/modal/{cod_unidade}/{contacorrente}', 'SaldoContabilController@inserirCelulaOrcamentaria')->name('saldo.inserir.modal');
             Route::get('carrega/saldos/unidade/{cod_unidade}', 'SaldoContabilController@carregaSaldosPorUnidadeSiasg')->name('carrega.saldos.unidade');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
+
+            //API Campos Transparência Index
+            Route::get('transparenciaorgaos', 'ApiTransparenciaController@orgaos');
+            Route::get('transparenciaunidades', 'ApiTransparenciaController@unidades');
+            Route::get('transparenciafornecedores', 'ApiTransparenciaController@fornecedores');
+            Route::get('transparenciacontratos', 'ApiTransparenciaController@contratos');
         });
 
         // if not otherwise configured, setup the dashboard routes
