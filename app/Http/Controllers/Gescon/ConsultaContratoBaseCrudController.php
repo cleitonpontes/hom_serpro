@@ -264,7 +264,8 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // não tem orderLogic, pois só será listada uma unidade gestora.
         ]);
     }
 
@@ -290,10 +291,13 @@ class ConsultaContratoBaseCrudController extends CrudController
                 $query->orWhere('contratos.numero',
                     'ilike', '%' . $searchTerm . '%'
                 );
+            },
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratos.numero', $columnDirection);
             }
         ]);
     }
-
     /**
      * Retorna item de array contendo as definições da coluna Fornecedor do contrato
      *
@@ -320,6 +324,10 @@ class ConsultaContratoBaseCrudController extends CrudController
                 $query->orWhere('fornecedores.nome',
                     'ilike', '%' . $searchTerm . '%'
                 );
+            },
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('fornecedores.nome', $columnDirection);
             }
         ]);
     }
@@ -363,9 +371,14 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratos.vigencia_inicio', $columnDirection);
+            }
         ]);
     }
+
 
     /**
      * Retorna item de array contendo as definições da coluna Data de Fim da Vigência do contrato
@@ -385,7 +398,11 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratos.vigencia_fim', $columnDirection);
+            }
         ]);
     }
 
@@ -408,7 +425,11 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratos.valor_global', $columnDirection);
+            }
         ]);
     }
 
@@ -428,7 +449,11 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratos.num_parcelas', $columnDirection);
+            }
         ]);
     }
 
@@ -451,7 +476,11 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratos.valor_parcela', $columnDirection);
+            }
         ]);
     }
 
