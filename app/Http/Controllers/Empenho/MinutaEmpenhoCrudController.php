@@ -51,6 +51,8 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('delete');
 
+        $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
