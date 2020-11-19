@@ -3,12 +3,18 @@
 namespace App\XML;
 
 use App\Models\BackpackUser;
+use App\Models\SfCelulaOrcamentaria;
 use App\Models\SfCentroCusto;
 use App\Models\SfCertificado;
 use App\Models\SfDadosBasicos;
 use App\Models\SfDocOrigem;
+use App\Models\SfItemEmpenho;
 use App\Models\SfNonce;
+use App\Models\SfOperacaoItemEmpenho;
+use App\Models\SfOrcEmpenhoDados;
 use App\Models\SfPadrao;
+use App\Models\SfPassivoAnterior;
+use App\Models\SfPassivoPermanente;
 use App\Models\SfPco;
 use App\Models\SfPcoItem;
 use App\Models\Sfrelitemvlrcc;
@@ -28,6 +34,9 @@ class Execsiafi
             if ($wsdl == 'CPR') {
                 $wsdl = 'https://servicos-siafi.tesouro.gov.br/siafi' . $exercicio . '/services/cpr/manterContasPagarReceber?wsdl';
             }
+            if ($wsdl == 'ORCAMENTARIO') {
+                $wsdl = 'https://servicos-siafi.tesouro.gov.br/siafi' . $exercicio . '/services/orcamentario/manterOrcamentario?wsdl';
+            }
         }
 
         if ($amb == 'HOM') {
@@ -37,6 +46,9 @@ class Execsiafi
             }
             if ($wsdl == 'CPR') {
                 $wsdl = 'https://homextservicos-siafi.tesouro.gov.br/siafi' . $exercicio . 'he/services/cpr/manterContasPagarReceber?wsdl';
+            }
+            if ($wsdl == 'ORCAMENTARIO') {
+                $wsdl = 'https://homextservicos-siafi.tesouro.gov.br/siafi' . $exercicio . 'he/services/orcamentario/manterOrcamentario?wsdl';
             }
 
         }
@@ -71,11 +83,10 @@ class Execsiafi
         ]);
 
 
-
         $client = new \SoapClient($wsdl, [
-        'trace' => 1,
-        'stream_context' => $context,
-    ]);
+            'trace' => 1,
+            'stream_context' => $context,
+        ]);
 
 
         $cabecalho = $this->cabecalho($ug, $sf_id, $wsdl);
@@ -90,14 +101,14 @@ class Execsiafi
     protected function cabecalho($ug, $sf_id, $wsdl)
     {
 
-        if($wsdl == 'CONSULTA'){
+        if ($wsdl == 'CONSULTA') {
             $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug></ns1:cabecalhoSIAFI>';
             $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
                 'Security',
                 new \SoapVar($xml, XSD_ANYXML),
                 true
             );
-        }else{
+        } else {
             $nonce = SfNonce::select()->orderBy('id', 'desc')->first();
             $nonce_id = $nonce->id + 1;
             $data = [
@@ -184,6 +195,14 @@ class Execsiafi
                 $client->cprDHCadastrarDocumentoHabil($parms);
             }
 
+            if ($tipo == 'INCNE') {
+                $client->orcIncluirEmpenho($parms);
+            }
+
+            if ($tipo == 'ALTNE') {
+                $client->orcAlterarEmpenho($parms);
+            }
+
             if ($tipo == 'ALTDH') {
                 $client->cprDHAlterarDHIncluirItensDH($parms);
             }
@@ -201,13 +220,11 @@ class Execsiafi
             }
 
         } catch (\Exception $e) {
-
-            //var_dump($e);
+//            var_dump($e);
 
         }
 
         return $client->__getLastResponse();
-
     }
 
     public function conrazao($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
@@ -248,7 +265,7 @@ class Execsiafi
         $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
         $senha = '';
 
-        if($user->senhasiafi){
+        if ($user->senhasiafi) {
             $senha = base64_decode($user->senhasiafi);
         }
 
@@ -270,7 +287,7 @@ class Execsiafi
     }
 
 
-    public function conrazaoUserSystem($system_user,$pwd ,$amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
+    public function conrazaoUserSystem($system_user, $pwd, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
     {
 
         $client = $this->conexao_xml($system_user, $pwd, $ug, '', $amb, $ano, 'CONSULTA');
@@ -295,7 +312,8 @@ class Execsiafi
         string $amb,
         string $ano,
         $sfpadrao
-    ) {
+    )
+    {
 
         $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
         $senha = '';
@@ -317,13 +335,42 @@ class Execsiafi
 
     }
 
+    public function incluirNe(
+        BackpackUser $user,
+        string $ug_user,
+        string $amb,
+        string $ano,
+        SfOrcEmpenhoDados $sfOrcEmpenhoDados
+    )
+    {
+        $erro_mensagem = '';
+        $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
+        $senha = '';
+        if ($user->senhasiafi) {
+            $senha = base64_decode($user->senhasiafi);
+        } else {
+            $erro_mensagem = 'Cadastre sua Senha SIAFI em "Meus Dados"!';
+        }
+
+        $client = $this->conexao_xml($cpf, $senha, $ug_user, $sfOrcEmpenhoDados->id, $amb, $ano, 'ORCAMENTARIO');
+
+        $parms = $this->montaXmlorcEmpenhoDados($sfOrcEmpenhoDados);
+
+        $retorno = $this->submit($client, $parms, 'INCNE');
+
+        return $this->trataRetornoEmpenho($retorno);
+
+    }
+
+
     public function apropriaNovoDh(
         BackpackUser $user,
         string $ug_user,
         string $amb,
         string $ano,
         SfPadrao $sfpadrao
-    ) {
+    )
+    {
 
         $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
         $senha = '';
@@ -354,7 +401,8 @@ class Execsiafi
         string $amb,
         string $ano,
         SfPadrao $sfpadrao
-    ) {
+    )
+    {
 
         $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
         $senha = '';
@@ -410,10 +458,37 @@ class Execsiafi
         return $parms;
     }
 
+    private function montaXmlorcEmpenhoDados(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
+    {
+        $parms = new \stdClass;
+        $parms->orcEmpenhoDados = [
+            'ugEmitente' => $sfOrcEmpenhoDados->ugemitente,
+            'anoEmpenho' => $sfOrcEmpenhoDados->anoempenho,
+            'tipoEmpenho' => $sfOrcEmpenhoDados->tipoempenho,
+            'numEmpenho' => $sfOrcEmpenhoDados->numempenho,
+            'celulaOrcamentaria' => $this->montaCelulaOrcamentaria($sfOrcEmpenhoDados->id),
+            'dtEmis' => $sfOrcEmpenhoDados->dtemis,
+            'txtProcesso' => $sfOrcEmpenhoDados->txtprocesso,
+            'vlrTaxaCambio' => $sfOrcEmpenhoDados->vlrtaxacambio,
+            'vlrEmpenho' => $sfOrcEmpenhoDados->vlrempenho,
+            'codFavorecido' => $sfOrcEmpenhoDados->codfavorecido,
+            'codAmparoLegal' => $sfOrcEmpenhoDados->codamparolegal,
+            'txtInfoCompl' => $sfOrcEmpenhoDados->txtinfocompl,
+            'txtLocalEntrega' => $sfOrcEmpenhoDados->txtlocalentrega,
+            'txtDescricao' => $sfOrcEmpenhoDados->txtdescricao,
+            'passivoAnterior' => $this->montaPassivoAnterior($sfOrcEmpenhoDados->id),
+            'itemEmpenho' => $this->montaItemEmpenho($sfOrcEmpenhoDados->id),
+        ];
+
+        if($parms->orcEmpenhoDados['passivoAnterior'] == null){
+            unset($parms->orcEmpenhoDados['passivoAnterior']);
+        }
+
+        return $parms;
+    }
+
     private function montaXmlcprDHCadastrar(SfPadrao $sfPadrao)
     {
-
-
         $parms = new \stdClass;
         $parms->cprDHCadastrar = [
             'codUgEmit' => $sfPadrao->codugemit,
@@ -425,6 +500,119 @@ class Execsiafi
         ];
 
         return $parms;
+    }
+
+    private function montaCelulaOrcamentaria(string $sfOrcEmpenhoDados_id)
+    {
+        $array = [];
+
+        $dado = SfCelulaOrcamentaria::where('sforcempenhodado_id', $sfOrcEmpenhoDados_id)
+            ->first();
+
+        if ($dado) {
+            $array = [
+                'esfera' => $dado->esfera,
+                'codPTRES' => $dado->codptres,
+                'codFonteRec' => $dado->codfonterec,
+                'codNatDesp' => $dado->codnatdesp,
+                'ugResponsavel' => ($dado->ugresponsavel == '0') ? '' : $dado->ugresponsavel,
+                'codPlanoInterno' => ($dado->codplanointerno != null or $dado->codplanointerno != '') ? $dado->codplanointerno : '',
+            ];
+        }
+
+        if ($dado->ugresponsavel == 0 or $dado->ugresponsavel == null) {
+            unset($array['ugResponsavel']);
+        }
+        if ($dado->codplanointerno == null or $dado->codplanointerno == '') {
+            unset($array['codPlanoInterno']);
+        }
+
+        $celulaOrcamentaria = $array;
+
+        return $celulaOrcamentaria;
+    }
+
+    private function montaItemEmpenho(string $sfOrcEmpenhoDados_id)
+    {
+        $array = [];
+
+        $dados = SfItemEmpenho::where('sforcempenhodado_id', $sfOrcEmpenhoDados_id)
+            ->get();
+
+        if ($dados) {
+            foreach ($dados as $dado) {
+                $array[] = [
+                    'numSeqItem' => $dado->numseqitem,
+                    'codSubElemento' => $dado->codsubelemento,
+                    'descricao' => $dado->descricao,
+                    'operacaoItemEmpenho' => $this->montaOperacaoItemEmpenho($dado->id)
+                ];
+            }
+        }
+
+        $itemempenho = $array;
+
+        return $itemempenho;
+    }
+
+    private function montaOperacaoItemEmpenho(string $sfitemempenho_id)
+    {
+        $array = [];
+
+        $dado = SfOperacaoItemEmpenho::where('sfitemempenho_id', $sfitemempenho_id)
+            ->first();
+
+        if ($dado) {
+            $array = [
+                'tipoOperacaoItemEmpenho' => $dado->tipooperacaoitemempenho,
+                'quantidade' => $dado->quantidade,
+                'vlrUnitario' => $dado->vlrunitario,
+                'vlrOperacao' => $dado->vlroperacao,
+            ];
+        }
+        $operacaoitemempenho = $array;
+
+        return $operacaoitemempenho;
+    }
+
+    private function montaPassivoAnterior(string $sfOrcEmpenhoDados_id)
+    {
+        $array = null;
+
+        $dado = SfPassivoAnterior::where('sforcempenhodado_id', $sfOrcEmpenhoDados_id)
+            ->first();
+
+        if (isset($dado->id)) {
+            $array = [
+                'codContaContabil' => $dado->codcontacontabil,
+                'passivoPermanente' => $this->montaPassivoPermanente($dado->id),
+            ];
+        }
+
+        $passivoanterior = $array;
+
+        return $passivoanterior;
+    }
+
+    private function montaPassivoPermanente(string $sfPassivoAnterior_id)
+    {
+        $array = [];
+
+        $dados = SfPassivoPermanente::where('sfpassivoanterior_id', $sfPassivoAnterior_id)
+            ->get();
+
+        if ($dados) {
+            foreach ($dados as $dado) {
+                $array[] = [
+                    'contaCorrente' => $dado->contacorrente,
+                    'vlrRelacionado' => $dado->vlrrelacionado,
+                ];
+            }
+        }
+
+        $passivopermanente = $array;
+
+        return $passivopermanente;
     }
 
     private function montaCentroCusto(string $sfpadrao_id)
@@ -633,7 +821,7 @@ class Execsiafi
 
         $resultado = [];
 
-        if(isset($xml->soapHeader)){
+        if (isset($xml->soapHeader)) {
             foreach ($xml->soapHeader as $var2) {
 
                 foreach ($var2->ns2EfetivacaoOperacao as $var3) {
@@ -773,6 +961,42 @@ class Execsiafi
 
 
         return $this;
+    }
+
+    protected function trataRetornoEmpenho($retorno)
+    {
+        $xml = simplexml_load_string(str_replace(':', '', $retorno));
+
+        $resultado = [];
+
+        if (isset($xml->soapHeader)) {
+            if($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'FALHA'){
+                if(isset($xml->soapBody->ns3orcIncluirEmpenhoResponse)){
+                    foreach ($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->mensagem as $mensagem ){
+                        if(!isset($resultado['mensagemretorno'])){
+                            $resultado['mensagemretorno'] = (string) $mensagem->txtMsg;
+                        }else{
+                            $resultado['mensagemretorno'] .= " | " . (string) $mensagem->txtMsg;
+                        }
+                    }
+                    $resultado['situacao'] = 'ERRO';
+                }
+
+                if(isset($xml->soapBody->soapFault)){
+                    $resultado['mensagemretorno'] = (string)  $xml->soapBody->soapFault->faultcode . " | " . (string)  $xml->soapBody->soapFault->faultstring;
+                    $resultado['situacao'] = 'ERRO';
+                }
+
+            }
+
+            if($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'SUCESSO'){
+                $resultado['numempenho'] = (int) substr($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->empenho,6,6);
+                $resultado['numro'] = (string) $xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->documentoRO;
+                $resultado['mensagemretorno'] = (string) $xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->empenho;
+                $resultado['situacao'] = 'EMITIDO';
+            }
+        }
+        return $resultado;
     }
 
 }
