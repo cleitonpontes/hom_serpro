@@ -15,19 +15,24 @@ class UnidadeComOrgaoController extends Controller
         $search_term = $request->input('q');
         $form = collect($request->input('form'))->pluck('value', 'name');
 
-        // se for passado na consulta o id do orgão será filtrado pelo id e pela serarch_term
-        if ($form['orgao_id']) {
-            $options = Unidade::query();
-            $options =  Unidade::where('orgao_id', $form['orgao_id'])
-                ->where('nome', 'LIKE', '%'.strtoupper($search_term).'%');
-            return $options->paginate(10);
+        if ($search_term) {
+            // se for passado na consulta o id do orgão será filtrado pelo id e pela serarch_term
+            if (isset($form['orgao_id'])) {
+                $results = Unidade::whereHas('orgao', function ($q) use ($form) {
+                    $q->where('id', $form['orgao_id']);
+                })
+                    ->where('codigo', 'LIKE', '%' . strtoupper($search_term) . '%')
+                    ->paginate(10);
+
+            } else {
+                $results = Unidade::where('codigo', 'LIKE', '%' . strtoupper($search_term) . '%')
+                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+                    ->orWhere('nomeresumido', 'LIKE', '%' . strtoupper($search_term) . '%')
+                    ->paginate(10);
+            }
+        } else {
+            $results = Unidade::paginate(10);
         }
-
-        $results = Unidade::where('codigo', 'LIKE', '%'.strtoupper($search_term).'%')
-            ->orWhere('nome', 'LIKE', '%'.strtoupper($search_term).'%')
-            ->orWhere('nomeresumido', 'LIKE', '%'.strtoupper($search_term).'%')
-            ->paginate(10);
-
         return $results;
     }
 
