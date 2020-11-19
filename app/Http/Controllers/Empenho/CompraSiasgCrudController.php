@@ -121,7 +121,7 @@ class CompraSiasgCrudController extends CrudController
             'model' => "App\Models\Unidade",
             'data_source' => url("api/unidade"),
             'placeholder' => "Selecione a Unidade",
-            'minimum_input_length' => 2
+            'minimum_input_length' => 0
         ]);
     }
 

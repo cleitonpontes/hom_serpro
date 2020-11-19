@@ -15,8 +15,8 @@ class UnidadeController extends Controller
         $search_term = $request->input('q');
         $form = collect($request->input('form'))->pluck('value', 'name');
 
-        // se for passado na consulta o id do orgão será filtrado pelo id e pela serarch_term
         if ($search_term) {
+            // se for passado na consulta o id do orgão será filtrado pelo id e pela serarch_term
             if ($form['orgao_id']) {
                 $results = Unidade::whereHas('orgao', function ($q) use ($form) {
                     $q->where('id', $form['orgao_id']);
