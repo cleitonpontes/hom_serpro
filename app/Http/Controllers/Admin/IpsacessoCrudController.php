@@ -91,7 +91,7 @@ class IpsacessoCrudController extends CrudController
                 'attribute2' => "nomeresumido",
                 'process_results_template' => 'gescon.process_results_unidade',
                 'model' => "App\Models\Unidade",
-                'data_source' => url("api/unidade"),
+                'data_source' => url("api/unidadecomorgao"),
                 'placeholder' => "Selecione a Unidade",
                 'minimum_input_length' => 0,
                 'dependencies' => ['orgao_id'],
