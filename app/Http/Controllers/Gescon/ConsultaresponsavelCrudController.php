@@ -252,7 +252,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pelo name
+            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pela desc.
             'orderLogic' => function ($query, $column, $columnDirection) {
                 return $query->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoresponsaveis.funcao_id')
                     ->orderBy('codigoitens.descricao', $columnDirection);
@@ -278,7 +278,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pelo name
+            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pelo nome da inst.
             'orderLogic' => function ($query, $column, $columnDirection) {
                 return $query->leftJoin('instalacoes', 'instalacoes.id', '=', 'contratoresponsaveis.instalacao_id')
                     ->orderBy('instalacoes.nome', $columnDirection);
@@ -377,7 +377,7 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
-            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by situacao
             'orderLogic' => function ($query, $column, $columnDirection) {
                 return $query->orderBy('contratoresponsaveis.situacao', $columnDirection);
             }
