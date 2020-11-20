@@ -6,6 +6,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use App\Models\Contrato;
 use App\Models\Contratoconta;
+use App\Models\Movimentacaocontratoconta;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\MovimentacaocontratocontaRequest as StoreRequest;
@@ -26,7 +27,15 @@ class MovimentacaocontratocontaCrudController extends CrudController
 {
     public function setup()
     {
-        $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+
+        // em caso de exclusão de movimentação, tudo o que temos é o id da movimentação
+        if( \Route::current()->parameter('contratoconta_id') == null  && \Route::current()->parameter('movimentacao_id') != null ){
+            // aqui temos o id da movimentação
+            $contratoconta_id = Movimentacaocontratoconta::where('id', \Route::current()->parameter('movimentacao_id'))->first()->contratoconta_id;
+        } else {
+            $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+        }
+
 
         $contratoConta = Contratoconta::where('id','=',$contratoconta_id)->first();
         if(!$contratoConta){
@@ -51,6 +60,7 @@ class MovimentacaocontratocontaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/movimentacaocontratoconta');
         $this->crud->setEntityNameStrings('movimentacaocontratoconta', 'Movimentações da conta');
 
+        $this->crud->addButtonFromView('line', 'deletemovimentacao', 'deletemovimentacao', 'beginning');
         $this->crud->addButtonFromView('line', 'moremovimentacaocontratoconta', 'moremovimentacaocontratoconta', 'end');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontavinculada', 'end');
         $this->crud->addButtonFromView('top', 'adicionardeposito', 'adicionardeposito', 'end');
@@ -64,7 +74,7 @@ class MovimentacaocontratocontaCrudController extends CrudController
         // $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
-        // $this->crud->denyAccess('delete');
+        $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
 
         // cláusulas para possibilitar buscas
@@ -145,6 +155,20 @@ class MovimentacaocontratocontaCrudController extends CrudController
             ],
         ];
         return $colunas;
+    }
+    // este método é chamado pelo custom.php - via rota.
+    public function excluirMovimentacao(int $movimentacao_id){
+        $objMovimentacao = Movimentacaocontratoconta::where('id', $movimentacao_id)->first();
+        $contratoconta_id = $objMovimentacao->contratoconta_id;
+        if($objMovimentacao->excluirMovimentacao($movimentacao_id)){
+            $mensagem = 'Movimentação excluída com sucesso!';
+            \Alert::success($mensagem)->flash();
+        } else {
+            $mensagem = 'Erro ao excluir a movimentação!';
+            \Alert::error($mensagem)->flash();
+        }
+        $linkLocation = '/gescon/contrato/contratoconta/'.$contratoconta_id.'/movimentacaocontratoconta';
+        return redirect($linkLocation);
     }
     public function store(StoreRequest $request)
     {

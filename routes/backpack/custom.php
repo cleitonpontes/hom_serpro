@@ -29,6 +29,8 @@ Route::group([
             Route::get('empenho/{id}', 'EmpenhoController@show');
             Route::get('unidade', 'UnidadeController@index');
             Route::get('unidade/{id}', 'UnidadeController@show');
+            Route::get('unidadecomorgao', 'UnidadeComOrgaoController@index');
+            Route::get('unidadecomorgao/{id}', 'UnidadeComOrgaoController@show');
             Route::get('fornecedor', 'FornecedorController@index');
             Route::get('fornecedor/{id}', 'FornecedorController@show');
             Route::get('comprasiasg', 'ComprasiasgController@index');
@@ -50,6 +52,12 @@ Route::group([
             Route::get('inserir/celula/modal/{cod_unidade}/{contacorrente}', 'SaldoContabilController@inserirCelulaOrcamentaria')->name('saldo.inserir.modal');
             Route::get('carrega/saldos/unidade/{cod_unidade}', 'SaldoContabilController@carregaSaldosPorUnidadeSiasg')->name('carrega.saldos.unidade');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
+
+            //API Campos Transparência Index
+            Route::get('transparenciaorgaos', 'ApiTransparenciaController@orgaos');
+            Route::get('transparenciaunidades', 'ApiTransparenciaController@unidades');
+            Route::get('transparenciafornecedores', 'ApiTransparenciaController@fornecedores');
+            Route::get('transparenciacontratos', 'ApiTransparenciaController@contratos');
         });
 
         // if not otherwise configured, setup the dashboard routes
@@ -98,6 +106,7 @@ Route::group([
             CRUD::resource('catmatseratualizacao', 'CatmatseratualizacaoCrudController');
             CRUD::resource('comunica', 'ComunicaCrudController');
             CRUD::resource('importacao', 'ImportacaoCrudController');
+            CRUD::resource('ipsacesso', 'IpsacessoCrudController');
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
@@ -179,6 +188,10 @@ Route::group([
             Route::group(['prefix' => 'contrato/contratoconta/contratoterceirizado/{contratoterceirizado_id}'], function () {
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
             });
+            // Route::group(['prefix' => 'movimentacao/{movimentacao_id}'], function () {
+            //     Route::get('excluir', 'MovimentacaocontratocontaCrudController@excluirmovimentacao');
+            // });
+            Route::get('movimentacao/{movimentacao_id}/excluir', 'MovimentacaocontratocontaCrudController@excluirMovimentacao');
             // fim conta vinculada - contrato conta
 
 
@@ -248,11 +261,13 @@ Route::group([
         ], function () {
 
             CRUD::resource('empenho', 'EmpenhoCrudController');
+            Route::get('incluirnovoempenho','EmpenhoCrudController@incluirEmpenhoSiafi');
             CRUD::resource('situacaosiafi', 'ExecsfsituacaoCrudController');
             CRUD::resource('rhsituacao', 'RhsituacaoCrudController');
             CRUD::resource('rhrubrica', 'RhrubricaCrudController');
 
-            Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaMigracaoEmpenho');
+//            Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaMigracaoEmpenho');
+            Route::get('/migracaoempenhos', 'EmpenhoCrudController@executaCargaEmpenhos');
             Route::get('/atualizasaldosempenhos', 'EmpenhoCrudController@executaAtualizaSaldosEmpenhos');
             Route::get('/atualizanaturezadespesas', 'EmpenhoCrudController@executaAtualizacaoNd');
 

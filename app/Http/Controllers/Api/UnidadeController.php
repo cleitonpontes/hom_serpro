@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Models\Unidade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use function foo\func;
 
 class UnidadeController extends Controller
 {
+
     public function index(Request $request)
     {
         $search_term = $request->input('q');
@@ -32,4 +34,5 @@ class UnidadeController extends Controller
     {
         return Unidade::find($id);
     }
+
 }

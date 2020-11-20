@@ -235,6 +235,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
         ->where('funcao_id', $idFuncao)
         ->get();
 
+
         if(count($arrayContratosTerceirizados) > 0){
 
             // varrer os contratos
@@ -244,9 +245,12 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 $salarioAtual = $objContratoTerceirizado->salario;
                 $diferencaEntreSalarios = ($novoSalario - $salarioAtual);
                 $situacaoContratoTerceirizado = $objContratoTerceirizado->situacao; // verificar se é ativo
+                // $idMovimentacao = null;
 
                 // vamos verificar se a jornada informada é a mesma da jornada do terceirizado e se o terceirizado é ativo.
                 if( $jornada == $jornadaContratoTerceirizado && $situacaoContratoTerceirizado){
+
+
                     // para cada terceirizado - buscar os lançamentos pela data
                     $idContratoTerceirizado = $objContratoTerceirizado->id;
                     $arrayLancamentosTerceirizado = self::getTodosLancamentosDepositoByIdContratoTerceirizado($idContratoTerceirizado);
@@ -347,8 +351,10 @@ class RepactuacaocontratocontaCrudController extends CrudController
                     self::salvarNovoSalario($idContratoTerceirizado, $novoSalario);
                 }
             }
-            // precisamos finalizar a última movimentação
-            self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
+            // precisamos finalizar a última movimentação, caso ela exista.
+            if( isset($idMovimentacao) ){
+                self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
+            }
             // vamos verificar se alguma movimentação foi gerada sem nenhum lançamento - excluí-la se for o caso.
             self::verificarNecessidadeDeExcluirMovimentacao($arrayIdsMovimentacoesGeradas);
 

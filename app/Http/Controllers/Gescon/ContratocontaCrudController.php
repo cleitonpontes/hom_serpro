@@ -182,7 +182,7 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'fat_empresa',
-                'label' => 'Encargos',
+                'label' => 'Encargo',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text

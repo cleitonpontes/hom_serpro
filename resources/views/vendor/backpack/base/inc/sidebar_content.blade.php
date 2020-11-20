@@ -449,6 +449,11 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ backpack_url('/admin/ipsacesso') }}"><i class="fa fa-gear"></i>
+                                <span>Cadastro de IP's</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ backpack_url('/admin/sfcertificado') }}">
                                 <i class="fa fa-lock"></i>
                                 <span>Certificado SIAFI</span>
