@@ -111,14 +111,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'title' => 'Fornecedor'
             ])
             ->addColumn([
-                'data' => 'situacao_sicaf',
-                'name' => 'situacao_sicaf',
-                'title' => 'Situação SICAF',
-            ])
-            ->addColumn([
                 'data' => 'icone',
                 'name' => 'icone',
-                'title' => '',
+                'title' => 'Situação SICAF',
                 'orderable' => false,
                 'searchable' => false
             ])
