@@ -51,8 +51,10 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         if ($request->ajax()) {
             return DataTables::of($fornecedores)->addColumn('action', function ($fornecedores) use ($minuta_id) {
-                return $this->retornaAcoes($fornecedores['id'], $minuta_id);
-            })
+                return $this->retornaAcoes($fornecedores['id'], $minuta_id, $fornecedores['situacao_sicaf']);
+            })->addColumn('icone', function ($fornecedores) use ($minuta_id) {
+                return '<i class="fa fa-'. ($fornecedores['situacao_sicaf'] != 1 ? 'times' : 'check') .'"></i>';
+            })->rawColumns(['icone','action'])
                 ->make(true);
         }
 
@@ -67,7 +69,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
      * @param number $id
      * @return string
      */
-    private function retornaAcoes($id, $minuta_id)
+    private function retornaAcoes($id, $minuta_id, $situacao_sicaf)
     {
         $acoes = '';
         $acoes .= '<a href="' . route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $id]);
@@ -75,6 +77,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $acoes .= "class='btn btn-default btn-sm' ";
         $acoes .= 'title="Selecionar este fornecedor">';
         $acoes .= '<i class="fa fa-check-circle"></i></a>';
+        $sem_acao = '<i class="glyphicon glyphicon-ban-circle"></i>';
+
+        $acoes = ($situacao_sicaf != 1) ? $sem_acao : $acoes;
 
         return $acoes;
     }
@@ -109,6 +114,13 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'data' => 'situacao_sicaf',
                 'name' => 'situacao_sicaf',
                 'title' => 'Situação SICAF',
+            ])
+            ->addColumn([
+                'data' => 'icone',
+                'name' => 'icone',
+                'title' => '',
+                'orderable' => false,
+                'searchable' => false
             ])
             ->parameters([
                 'processing' => true,
