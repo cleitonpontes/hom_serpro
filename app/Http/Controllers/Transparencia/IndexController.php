@@ -87,6 +87,10 @@ class IndexController extends Controller
         if (isset($filtro['fornecedor'])) {
             $url_filtro .= 'fornecedor=["' . strval($filtro['fornecedor']) . '"]&';
         }
+        if (isset($filtro['contrato'])) {
+            //Funciona também sem o urlencode
+            $url_filtro .= 'numero=' . urlencode(strval($filtro['contrato'])) . '&';
+        }
 
         $this->data['contratos_total_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_TOTAL,
             $filtro);

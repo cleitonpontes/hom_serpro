@@ -50,10 +50,14 @@
 		      	@include('crud::form_content', [ 'fields' => $crud->getFields('create'), 'action' => 'create' ])
 		      @endif
 		    </div><!-- /.box-body -->
-		    <div class="">
-                @include('crud::inc.form_save_empenho_buttons')
-
-            </div><!-- /.box-footer-->
+              <div class="">
+                  {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
+                      ->asLinkTo(route('empenho.crud./minuta.index'))
+                  !!}
+                  <button type="submit" class="btn btn-success">
+                      Próxima Etapa <i class="fa fa-arrow-right"></i>
+                  </button>
+              </div>
 
 		  </div><!-- /.box -->
 		  </form>

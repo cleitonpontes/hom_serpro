@@ -49,6 +49,8 @@ class SiasgcompraCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
+        (backpack_user()->can('importacao_editar')) ? $this->crud->addButtonFromView('line', 'atualizarsituacaocompra',
+            'atualizarsituacaocompra') : null;
         (backpack_user()->can('importacao_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('importacao_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('importacao_deletar')) ? $this->crud->allowAccess('delete') : null;
@@ -371,6 +373,13 @@ class SiasgcompraCrudController extends CrudController
         $compras = Siasgcompra::where('situacao', 'Pendente');
         return $compras->get();
     }
+    public function executarAtualizacaoSituacaoCompra($id){
+         $compra = Siasgcompra::find($id);
+         $compra->situacao = "Pendente";
+         $compra->save();
 
+        \Alert::success('Situação da compra alterada com sucesso!')->flash();
+        return redirect('/gescon/siasg/compras');
+    }
 
 }

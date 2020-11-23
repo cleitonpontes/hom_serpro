@@ -97,7 +97,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'getCpfFormatado',
-                'label' => 'cpf', // Table column heading
+                'label' => 'CPF', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getCpfFormatado', // the method in your Model
                 'orderable' => true,

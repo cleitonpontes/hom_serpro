@@ -125,4 +125,10 @@ class ApiSiasg
         return http_build_query($params,'','&');
     }
 
+    public function consultaCompraByUrl($url)
+    {
+        $retorno = file_get_contents($url, false, $this->context);
+        return  json_decode($retorno, true);
+    }
+
 }

@@ -22,7 +22,10 @@ class Movimentacaocontratoconta extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
-    protected $fillable = [];
+    protected $fillable = [
+        'contratoconta_id', 'tipo_id', 'mes_competencia', 'ano_competencia', 'valor_total_mes_ano',
+        'situacao_movimentacao', 'user_id'
+    ];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -41,7 +44,9 @@ class Movimentacaocontratoconta extends Model
         $mesCompetencia = $request->input('mes_competencia');
         $anoCompetencia = $request->input('ano_competencia');
         $tipoMovimentacao = $request->input('tipo_id');
+        $idContratoConta = $request->input('contratoconta_id');
         $qtdMovimentacoes = Depositocontratoconta::where('tipo_id','=',$tipoMovimentacao)
+            ->where('contratoconta_id','=', $idContratoConta)
             ->where('mes_competencia','=', $mesCompetencia)
             ->where('ano_competencia','=', $anoCompetencia)
             ->count();

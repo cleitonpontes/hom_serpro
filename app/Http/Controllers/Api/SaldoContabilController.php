@@ -18,36 +18,39 @@ class SaldoContabilController extends Controller
     public function atualizaSaldosPorLinha(Request $request)
     {
         $retorno = false;
+
         $saldo_id = Route::current()->parameter('saldo_id');
         $saldoAtualizado = $this->consultaSaldoSiafi($saldo_id);
-
-        DB::beginTransaction();
-        try {
-            $modSaldo = SaldoContabil::find($saldo_id);
-            $modSaldo->saldo = $saldoAtualizado;
-            $modSaldo->save();
-            DB::commit();
-            $retorno = true;
-        } catch (\Exception $exc) {
-            DB::rollback();
+        if(!empty($saldoAtualizado)) {
+            DB::beginTransaction();
+            try {
+                $modSaldo = SaldoContabil::find($saldo_id);
+                $modSaldo->saldo = $saldoAtualizado;
+                $modSaldo->save();
+                DB::commit();
+                $retorno = true;
+            } catch (\Exception $exc) {
+                DB::rollback();
+            }
         }
-
         return json_encode($retorno);
     }
 
     public function atualizaSaldosPorUnidade(Request $request)
     {
-        $retorno = true;
+        $retorno = false;
         $cod_unidade = Route::current()->parameter('cod_unidade');
         $unidade = Unidade::where('codigo',$cod_unidade)->first();
         $modSaldoContabil = SaldoContabil::where('unidade_id',$unidade->id)->get();
-
         DB::beginTransaction();
         try {
             foreach($modSaldoContabil as $key => $saldocontabil){
                 $saldoAtualizado = $this->consultaSaldoSiafi($saldocontabil->id);
-                $saldocontabil->saldo = $saldoAtualizado;
-                $saldocontabil->save();
+//                dd($saldoAtualizado);
+                if(!empty($saldoAtualizado)) {
+                    $saldocontabil->saldo = $saldoAtualizado;
+                    $saldocontabil->save();
+                }
             }
             DB::commit();
             $retorno = true;
@@ -57,13 +60,6 @@ class SaldoContabilController extends Controller
         return json_encode($retorno);
     }
 
-
-    /**
-     *
-     *
-     *
-     *
-     */
     public function inserirCelulaOrcamentaria(Request $request)
     {
         $cod_unidade = Route::current()->parameter('cod_unidade');
@@ -133,19 +129,16 @@ class SaldoContabilController extends Controller
         $pwd = env('SENHA_SIAFI');
         $mes = $meses[(int) date('m')];//$meses[(int) $registro['mes']];
 
+//        $contacorrente = 'N11184940100000000339039        AGU0042'; //DESCOMENTE PARA TESTAR A ATUALIZACAO DO SALDO POR LINHA
 
-        try {
-            $execsiafi = new Execsiafi();
-            $retorno = null;
-            $retorno = $execsiafi->conrazaoUserSystem($system_user,$pwd, $amb, $ano, $ug, $contacontabil,$contacorrente, $mes);
+        $execsiafi = new Execsiafi();
+        $retorno = null;
+        $retorno = $execsiafi->conrazaoUserSystem($system_user,$pwd, $amb, $ano, $ug, $contacontabil,$contacorrente, $mes);
 
-            if (isset($retorno->resultado[4])) {
-                $saldoAtual = (string) $retorno->resultado[4];
-            }
-        } catch (Exception $e) {
-
+        if (!empty($retorno->resultado[4])) {
+            return (string) $retorno->resultado[4];
         }
-        return $saldoAtual;
+        return "";
     }
 
 

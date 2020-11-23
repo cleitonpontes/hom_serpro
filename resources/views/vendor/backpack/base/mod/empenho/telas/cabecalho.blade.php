@@ -48,8 +48,6 @@
 
         }
 
-
-
 @endphp
 
 <div class="container-fluid spark-screen">
@@ -63,16 +61,20 @@
 
                     @foreach($passos as $num => $descricao)
 
-                        @php $cor = ($etapa >= $num) ? 'azul' : '' @endphp
+                        @php
+                            $cor = '';
+                            if ($rotas[$num] == url()->current()){
+                                $cor = 'verde';
+                            } elseif ($etapa >= $num) {
+                                $cor = 'azul';
+                            }
+
+                        @endphp
                         <div class="btn btn-app" style="width: 108px;">
-                            @if($cor=="azul")
-                                <a href="{{ $rotas[$num]  }}">
-                                    @endif
-                                    <span class="circulo {{$cor}}">{{$num}}</span>
-                                    {!! $descricao !!}
-                                    @if($cor=="azul")
-                                </a>
-                            @endif
+                            @if($cor=="azul") <a href="{{ $rotas[$num]  }}"> @endif
+                                <span class="circulo {{$cor}}">{{$num}}</span>
+                                {!! $descricao !!}
+                            @if($cor=="azul") </a> @endif
                         </div>
                     @endforeach
 
@@ -82,7 +84,6 @@
         </div>
     </div>
 </div>
-<br/>
 
 @push('after_scripts')
     <style type="text/css">
@@ -104,6 +105,10 @@
 
         .azul {
             background-color: #3C8DBC;
+        }
+
+        .verde {
+            background-color: #00a65a;
         }
     </style>
 @endpush

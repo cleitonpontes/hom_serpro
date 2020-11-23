@@ -8,11 +8,13 @@
 
 namespace App\Http\Controllers\Empenho;
 
+use Alert;
 use App\Forms\InserirCelulaOrcamentariaForm;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\SaldoContabil;
 use App\Models\Unidade;
 use App\Models\MinutaEmpenho;
+use Exception;
 use FormBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,14 +36,14 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     /**
      * Display a listing of the resource.
      *
-     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View
+     * @throws Exception
      */
     public function index(Request $request)
     {
-
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinuta = MinutaEmpenho::find($minuta_id);
-
         $unidade_id = session('user_ug_id');
 
         if (!empty(session('unidade_ajax_id'))) {
@@ -49,7 +51,6 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         }
 
         $modUnidade = Unidade::find($unidade_id);
-
         $saldosContabeis = SaldoContabil::retornaSaldos($unidade_id);
         $saldos = $this->retornaSaldosComMascara($saldosContabeis);
 
@@ -57,13 +58,13 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
             return DataTables::of($saldos)
                 ->addColumn(
                     'action',
-                    function ($saldos){
+                    function ($saldos) {
                         return $this->retornaBtnAtualizar($saldos['id']);
                     }
                 )
                 ->addColumn(
                     'btn_selecionar',
-                    function ($saldos){
+                    function ($saldos) {
                         return $this->retornaBtSelecionar($saldos['id']);
                     }
                 )
@@ -72,7 +73,6 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         }
 
         $html = $this->retornaGrid();
-
         $form = $this->retonaFormModal($modUnidade->id, $minuta_id);
 
         return view('backpack::mod.empenho.Etapa4SaldoContabil', compact(['html', 'form']))
@@ -84,28 +84,25 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
     public function retornaSaldosComMascara($saldos)
     {
-        $saldosPtBr = array_map(function ($saldos) {
+        return array_map(function ($saldos) {
             if ($saldos['saldo']) {
                 $saldos['saldo'] = str_replace(',', '.', $saldos['saldo']);
                 $saldos['saldo'] = str_replace_last('.', ',', $saldos['saldo']);
             }
             return $saldos;
         }, $saldos);
-        return $saldosPtBr;
     }
 
 
     public function consultaApiSta($ano, $ug, $gestao, $contacontabil)
     {
         $apiSta = new ConsultaApiSta();
-        $saldoContabil = $apiSta->saldocontabilAnoUgGestaoContacontabil($ano, $ug, $gestao, $contacontabil);
-        return $saldoContabil;
+        return $apiSta->saldocontabilAnoUgGestaoContacontabil($ano, $ug, $gestao, $contacontabil);
     }
 
 
     public function store()
     {
-
         $minuta_id = Route::current()->parameter('minuta_id');
 
         $unidade = Unidade::where('codigo', session('user_ug'))->first();
@@ -116,7 +113,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
         $saldosApiSta = $this->consultaApiSta($ano, $ug, $gestao, $contacontabil);
         $pkcount = is_array($saldosApiSta) ? count($saldosApiSta) : 0;
-        if ($pkcount > 0){
+        if ($pkcount > 0) {
             $saldosContabeis = json_encode($saldosApiSta);
             DB::beginTransaction();
             try {
@@ -125,7 +122,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
                     $modSaldoContabil->existeSaldoContabil($ano, $saldo, $unidade->id, $contacontabil);
                 }
                 DB::commit();
-            } catch (\Exception $exc) {
+            } catch (Exception $exc) {
                 DB::rollback();
             }
         }
@@ -139,9 +136,8 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 
     public function atualizaMinuta(Request $request)
     {
-
         if (!$request->get('saldo')) {
-            \Alert::error('Selecione o Saldo Contábil.')->flash();
+            Alert::error('Selecione o Saldo Contábil.')->flash();
             return redirect()->back();
         }
 
@@ -153,7 +149,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $modMinuta->saldo_contabil_id = $saldo_contabil_id;
         $modMinuta->save();
 
-        return redirect()->route('empenho.minuta.etapa.subelemento', [ 'minuta_id' => $minuta_id]);
+        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
     }
 
     public function inserirCelulaOrcamentaria(Request $request)
@@ -276,7 +272,8 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
     private function retornaBtnAtualizar($id)
     {
         $btnUpdate = '';
-        $btnUpdate .= '<button type="button" class="btn btn-primary btn-sm" id='.$id.' name=atualiza_saldo_acao_'.$id.">";
+        $btnUpdate .= '<button type="button" class="btn btn-primary btn-sm" id=' . $id
+            . ' name=atualiza_saldo_acao_' . $id . ">";
         $btnUpdate .= '<i class="fa fa-refresh"></i></button>';
 
 //        $btnUpdate = '';
@@ -288,7 +285,6 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
 //        $btnUpdate .= "<i class='fa fa-refresh'></i></a></button>";
 
         return $btnUpdate;
-
     }
 
 
