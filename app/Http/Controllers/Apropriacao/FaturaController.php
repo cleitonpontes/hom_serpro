@@ -1,4 +1,9 @@
 <?php
+/**
+ * Controller com métodos e funções da Apropriação da Fatura
+ *
+ * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
+ */
 
 namespace App\Http\Controllers\Apropriacao;
 
@@ -19,11 +24,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
-/**
- * Controller com métodos e funções da Apropriação da Fatura
- *
- * @author Anderson Sathler M. Ribeiro <asathler@gmail.com>
- */
 
 /**
  * Disponibiliza as funcionalidades básicas para controllers
