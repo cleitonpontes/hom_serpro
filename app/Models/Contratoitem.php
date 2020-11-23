@@ -33,6 +33,7 @@ class Contratoitem extends Model
         'quantidade',
         'valorunitario',
         'valortotal',
+        'numero_item_compra',
     ];
 
     /*
