@@ -23,6 +23,7 @@ use Yajra\DataTables\Html\Builder;
  */
 class BaseController extends Controller
 {
+    private $htmlBuilder = '';
 
     /**
      * Método construtor
@@ -143,7 +144,7 @@ class BaseController extends Controller
 
     /**
      * Formata número
-     * 
+     *
      * @param number $valor
      * @return number
      */
