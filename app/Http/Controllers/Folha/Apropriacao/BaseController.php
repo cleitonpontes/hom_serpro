@@ -23,7 +23,6 @@ use Yajra\DataTables\Html\Builder;
  */
 class BaseController extends Controller
 {
-    private $htmlBuilder = '';
 
     /**
      * Método construtor
