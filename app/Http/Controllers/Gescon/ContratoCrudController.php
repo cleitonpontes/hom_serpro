@@ -618,6 +618,10 @@ class ContratoCrudController extends CrudController
         $this->adicionaCampoUnidadeRequisitante();
         $this->adicionaCampoSituacao();
 
+        $this->tab = 'Itens do Contrato';
+
+        $this->adicionaCampoItensContrato();
+
         $this->tab = 'Vigência / Valores';
 
         $this->adicionaCampoDataVigenciaInicio();
@@ -866,6 +870,16 @@ class ContratoCrudController extends CrudController
             'name' => 'processo',
             'label' => 'Número Processo',
             'type' => 'numprocesso',
+            'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionaCampoItensContrato()
+    {
+        $this->crud->addField([
+            'name' => 'itens',
+            'type' => 'itens_contrato_list',
+            'label' => 'Teste',
             'tab' => $this->tab
         ]);
     }
