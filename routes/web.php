@@ -225,7 +225,7 @@ Route::group(
         // Módulo Apropriação da Fatura
         Route::group([
             'prefix' => 'apropriacao',
-            'namespace' => 'apropriacao',
+            'namespace' => 'Apropriacao',
             'middleware' => 'auth',
             // 'middleware' = 'permission:apropriacao_fatura'
         ], function () {
