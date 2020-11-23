@@ -10,24 +10,6 @@
         </a>
     </li>
 @endif
-{{-- ************************************************************************ --}}
-{{-- Minuta Empenho                                                                --}}
-{{-- ************************************************************************ --}}
-<li class="treeview">
-    <a href="#">
-        <i class='fa fa-files-o'></i>
-        <span>Empenhar Compra</span>
-        <i class="fa fa-angle-left pull-right"></i>
-    </a>
-    <ul class="treeview-menu">
-        <li>
-            <a href="{{ backpack_url('/empenho/minuta') }}">
-                <i class="fa fa-file-o"></i>
-                <span>Buscar Compra</span>
-            </a>
-        </li>
-    </ul>
-</li>
 {{-- ******************************************************************************** --}}
 {{-- Gestão contratual                                                                --}}
 {{-- ******************************************************************************** --}}
