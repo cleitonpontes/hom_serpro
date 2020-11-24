@@ -164,8 +164,10 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => 'Data Emissão',
             'type' => 'date',
             'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
-            ]
+                'class' => 'form-group col-md-6',
+                'title'       => 'Somente data atual ou retroativa',
+
+            ],
         ]);
     }
 
