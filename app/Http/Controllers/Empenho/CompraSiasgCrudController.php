@@ -63,6 +63,7 @@ class CompraSiasgCrudController extends CrudController
         );
         $this->crud->setEntityNameStrings('Buscar Compra', 'Buscar Compras');
         $this->crud->setCreateView('vendor.backpack.crud.empenho.create');
+        $this->crud->urlVoltar = route('empenho.crud./minuta.index');
 
 //        $this->crud->denyAccess('create');
 //        $this->crud->denyAccess('update');
