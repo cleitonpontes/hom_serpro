@@ -212,7 +212,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->addColumn([
                 'data' => 'action',
                 'name' => 'action',
-                'title' => 'Ações',
+                'title' => '<input type="checkbox" name="selectAll" id="selectAll" > Ações',
                 'orderable' => false,
                 'searchable' => false
             ])
