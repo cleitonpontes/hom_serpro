@@ -34,6 +34,44 @@ class MinutaEmpenhoController extends Controller
 
     use CompraTrait;
 
+    
+    /**
+     * Método para buscar as minutas de empenho de acordo com uasg da pessoa logada
+     * e o id do fornecedor passado na request.
+     * 
+     * @return  array $minutaEmpenho
+     */
+
+    public function index(Request $request)
+    {
+        $search_term = $request->input('q');
+        $form = collect($request->input('form'))->pluck('value', 'name');
+
+        $options = MinutaEmpenho::query();
+
+        if (!$form['fornecedor_id']) {
+            return [];
+        }
+
+        if ($form['fornecedor_id']) {
+            $options = $options->where('fornecedor_compra_id', $form['fornecedor_id'])
+                ->where('unidade_id', '=', session()->get('user_ug_id'))
+                ->where('situacao_id', '=', 270);
+        }
+
+        $results = $options->paginate(10);
+
+        // NÃO ESQUECER DE COLOCAR PARA BUSCAR PELA PESQUISA
+
+        // if ($search_term) {
+        //     $results = $options->where('numero', 'LIKE', '%' . $search_term . '%')->paginate(10);
+        // } else {
+        //     $results = $options->paginate(10);
+        // }
+
+        return $results;
+    }
+
     public function populaTabelasSiafi(Request $request)
     {
         $retorno['resultado'] = false;

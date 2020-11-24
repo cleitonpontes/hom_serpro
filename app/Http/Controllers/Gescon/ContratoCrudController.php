@@ -595,6 +595,7 @@ class ContratoCrudController extends CrudController
         $this->tab = 'Dados do contrato';
 
         $this->adicionaCampoFornecedor();
+        $this->adicionarMinutasDeEmpenho();
         $this->adicionaCampoDataAssinatura();
         $this->adicionaCampoDataPublicacao();
         $this->adicionaCampoObjeto();
@@ -618,7 +619,7 @@ class ContratoCrudController extends CrudController
         $this->adicionaCampoUnidadeRequisitante();
         $this->adicionaCampoSituacao();
 
-        $this->tab = 'Itens do Contrato';
+        $this->tab = 'Itens do contrato';
 
         $this->adicionaCampoItensContrato();
 
@@ -688,6 +689,25 @@ class ContratoCrudController extends CrudController
             'placeholder' => "Selecione o fornecedor",
             'minimum_input_length' => 2,
             'tab' => $this->tab
+        ]);
+    }
+
+    protected function adicionarMinutasDeEmpenho()
+    {
+        $this->crud->addField([
+            'label' => 'Minutas de Empenho',
+            'name' => 'situacao_id',
+            'type' => 'select2_from_ajax_multiple',
+            'entity' => 'minutaempenho',
+            'placeholder' => 'Selecione minutas de empenho',
+            'minimum_input_length' => 0,
+            'data_source' => url('api/minutaempenho'),
+            'model' => 'App\Models\ContratoMinutaEmpenho',
+            'attribute' => 'situacao_id',
+            'atrribute2'=> 'local_entrega',
+            'pivot' => true,
+            'tab' => $this->tab,
+            'dependecies' => ['fornecedor_id'],
         ]);
     }
 
