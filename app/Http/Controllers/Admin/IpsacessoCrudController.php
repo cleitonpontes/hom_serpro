@@ -91,7 +91,7 @@ class IpsacessoCrudController extends CrudController
                 'attribute2' => "nomeresumido",
                 'process_results_template' => 'gescon.process_results_unidade',
                 'model' => "App\Models\Unidade",
-                'data_source' => url("api/unidade"),
+                'data_source' => url("api/unidadecomorgao"),
                 'placeholder' => "Selecione a Unidade",
                 'minimum_input_length' => 0,
                 'dependencies' => ['orgao_id'],
@@ -178,6 +178,9 @@ class IpsacessoCrudController extends CrudController
             \Alert::error('Sem permissão para cadastrar IPs')->flash();
             return redirect()->back();
         }
+        
+        // retirar campos vazios do formulario de ips cadastrados
+        $request->request->set('ips', str_replace(",{}",'', $request->input('ips')));
 
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
@@ -189,13 +192,17 @@ class IpsacessoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        
         $usuario = BackpackUser::where('id', '=', \Auth::user()->id)->first();
-
+        
         if (!$usuario->hasRole('Administrador')) {
             \Alert::error('Sem permissão para alterar IPs')->flash();
             return redirect()->back();
+        
         }
-
+        // retirar campos vazios do formulario de ips cadastrados
+        $request->request->set('ips', str_replace(",{}",'', $request->input('ips')));
+        
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here

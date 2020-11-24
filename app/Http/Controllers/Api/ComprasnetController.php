@@ -16,26 +16,28 @@ class ComprasnetController extends Controller
         $dados['itens'] = $request->itens;
 
         $retorno = [
-            'item1' => [
-                'nroItem' => '0001',
-                'contratosAtivos' => [
-                    '11016150000012019000000',
-                    '11062150000022019000000',
+            'itens' => [
+                [
+                    'nroItem' => '0001',
+                    'contratosAtivos' => [
+                        '11016150000012019000000',
+                        '11062150000022019000000',
+                    ],
+                    'empenhos' => [
+                        '110161000012020NE000001',
+                        '110621000012020NE000001',
+                    ],
                 ],
-                'empenhos' => [
-                    '110161000012020NE000001',
-                    '110621000012020NE000001',
+                [
+                    'nroItem' => '0002',
+                    'contratosAtivos' => [
+
+                    ],
+                    'empenhos' => [
+                        
+                    ],
                 ],
-            ],
-            'item2' => [
-                'nroItem' => '0002',
-                'contratosAtivos' => [
-                    'Nao possui contratos ativos'
-                ],
-                'empenhos' => [
-                    'Nao ha empenho para esse item',
-                ],
-            ],
+            ]
         ];
 
         return $retorno;

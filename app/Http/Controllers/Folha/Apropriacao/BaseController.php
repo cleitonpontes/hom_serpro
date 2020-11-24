@@ -143,7 +143,7 @@ class BaseController extends Controller
 
     /**
      * Formata número
-     * 
+     *
      * @param number $valor
      * @return number
      */

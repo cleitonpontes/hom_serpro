@@ -58,6 +58,8 @@ class SiasgcontratoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
+        (backpack_user()->can('importacao_inserir')) ? $this->crud->addButtonFromView('line', 'atualizarsituacaocontrato',
+            'atualizarsituacaocontrato') : null;
         (backpack_user()->can('importacao_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('importacao_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('importacao_deletar')) ? $this->crud->allowAccess('delete') : null;
@@ -584,6 +586,15 @@ class SiasgcontratoCrudController extends CrudController
         $siasgContrato->sisg = $dados['sisg'];
         $siasgContrato->save();
 
+    }
+
+    public function executarAtualizacaoSituacaoContrato($id){
+        $compra = Siasgcontrato::find($id);
+        $compra->situacao = "Pendente";
+        $compra->save();
+
+        \Alert::success('Situação do contrato alterado com sucesso!')->flash();
+        return redirect('/gescon/siasg/contratos');
     }
 
 }

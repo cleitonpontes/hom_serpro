@@ -17,6 +17,7 @@ use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
+use App\Models\SfOrcEmpenhoDados;
 use App\Models\Unidade;
 use App\STA\ConsultaApiSta;
 use App\XML\Execsiafi;
@@ -866,6 +867,23 @@ class EmpenhoCrudController extends CrudController
         curl_close($ch);
 
         return json_decode($data, true);
+    }
+
+    public function incluirEmpenhoSiafi()
+    {
+        $retorno = null;
+        $empenhos = SfOrcEmpenhoDados::where('situacao', 'EM PROCESSAMENTO')
+            ->get();
+
+        if ($empenhos) {
+            foreach ($empenhos as $empenho) {
+                $ws_siafi = new Execsiafi;
+                $ano = '2020';
+                $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
+                $empenho->update($retorno);
+            }
+        }
+
     }
 
 }

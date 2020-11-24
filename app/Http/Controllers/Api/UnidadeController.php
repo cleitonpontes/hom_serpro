@@ -13,22 +13,19 @@ class UnidadeController extends Controller
     public function index(Request $request)
     {
         $search_term = $request->input('q');
-        $form = collect($request->input('form'))->pluck('value', 'name');
+        $page = $request->input('page');
 
-        // se for passado na consulta o id do orgão será filtrado pelo id e pela serarch_term
-        if ($form['orgao_id']) {
-            $options = Unidade::whereHas('orgao', function ($q) use ($form) {
-                $q->where('id', $form['orgao_id']);
-            })
-                ->where('codigo', 'LIKE', '%' . strtoupper($search_term) . '%');
-
-            return $options->paginate(10);
+        if ($search_term)
+        {
+            $results = Unidade::where('codigo', 'LIKE', '%'.strtoupper($search_term).'%')
+                ->orWhere('nome', 'LIKE', '%'.strtoupper($search_term).'%')
+                ->orWhere('nomeresumido', 'LIKE', '%'.strtoupper($search_term).'%')
+                ->paginate(10);
         }
-
-        $results = Unidade::where('codigo', 'LIKE', '%' . strtoupper($search_term) . '%')
-            ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
-            ->orWhere('nomeresumido', 'LIKE', '%' . strtoupper($search_term) . '%')
-            ->paginate(10);
+        else
+        {
+            $results = Unidade::paginate(10);
+        }
 
         return $results;
     }
@@ -37,4 +34,5 @@ class UnidadeController extends Controller
     {
         return Unidade::find($id);
     }
+
 }
