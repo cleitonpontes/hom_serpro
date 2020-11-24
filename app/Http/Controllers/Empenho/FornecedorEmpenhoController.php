@@ -239,7 +239,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->addColumn([
                 'data' => 'quantidade_saldo',
                 'name' => 'quantidade_saldo',
-                'title' => 'Quantidade',
+                'title' => 'Qtd./Saldo',
             ])
             ->addColumn([
                 'data' => 'valor_unitario',
