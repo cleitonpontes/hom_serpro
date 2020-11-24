@@ -45,7 +45,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->distinct()
             ->where('minutaempenhos.id', $minuta_id)
             ->where('compra_item_unidade.quantidade_saldo', '>', 0)
-            ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener','compra_item_fornecedor.situacao_sicaf'])
+            ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener', 'compra_item_fornecedor.situacao_sicaf'])
             ->get()
             ->toArray();
 
@@ -53,8 +53,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             return DataTables::of($fornecedores)->addColumn('action', function ($fornecedores) use ($minuta_id) {
                 return $this->retornaAcoes($fornecedores['id'], $minuta_id, $fornecedores['situacao_sicaf']);
             })->addColumn('icone', function ($fornecedores) use ($minuta_id) {
-                return '<i class="fa fa-'. ($fornecedores['situacao_sicaf'] != 1 ? 'times' : 'check') .'"></i>';
-            })->rawColumns(['icone','action'])
+                return '<i class="fa fa-' . ($fornecedores['situacao_sicaf'] != 1 ? 'times' : 'check') . '"></i>';
+            })->rawColumns(['icone', 'action'])
                 ->make(true);
         }
 
@@ -156,10 +156,12 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
             ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
-            ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
             ->where('compra_item_unidade.quantidade_saldo', '>', 0)
-            ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
-            ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+            ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
+            ->where(function ($query) use ($fornecedor_id) {
+                $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                    ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
+            })
             ->select([
                 'compra_items.id',
                 'codigoitens.descricao',
@@ -172,6 +174,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ])
             ->get()
             ->toArray();
+//        ;dd($itens->getBindings(),$itens->toSql());
 
         if ($request->ajax()) {
             return DataTables::of($itens)->addColumn('action', function ($itens) use ($modMinutaEmpenho) {
@@ -181,7 +184,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         }
 
         $html = $this->retornaGridItens();
-
 
         return view(
             'backpack::mod.empenho.Etapa3Itensdacompra',
@@ -210,7 +212,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->addColumn([
                 'data' => 'action',
                 'name' => 'action',
-                'title' => 'Ações',
+                'title' => '<input type="checkbox" name="selectAll" id="selectAll" > Ações',
                 'orderable' => false,
                 'searchable' => false
             ])
@@ -305,7 +307,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             return redirect()->route('empenho.minuta.gravar.saldocontabil', ['minuta_id' => $minuta_id]);
         } catch (Exception $exc) {
             DB::rollback();
-            dd($exc);
+//            dd(123);
+            throw $exc;
         }
     }
 
@@ -338,11 +341,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             $cime = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
             $cime_deletar = $cime->get();
             $cime->delete();
-
             foreach ($cime_deletar as $item) {
                 $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
                     ->where('unidade_id', session('user_ug_id'))
-                    ->where('fornecedor_id', $fornecedor_id)
                     ->first();
 
                 $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($item->compra_item_id)->saldo;
@@ -357,7 +358,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             return redirect()->route('empenho.minuta.gravar.saldocontabil', ['minuta_id' => $minuta_id]);
         } catch (Exception $exc) {
             DB::rollback();
-            dd($exc);
+            throw $exc;
+            return redirect()->back();
         }
     }
 
