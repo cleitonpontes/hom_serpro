@@ -42,7 +42,7 @@
                 </div>
                 <div class="box-tools">
                     {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
-                        ->asLinkTo(route('empenho.crud./minuta.index'))
+                        ->asLinkTo(route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id]))
                     !!}
                     <button type="submit" class="btn btn-success">
                         Próxima Etapa <i class="fa fa-arrow-right"></i>
