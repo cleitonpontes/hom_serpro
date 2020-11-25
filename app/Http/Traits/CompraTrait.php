@@ -168,7 +168,8 @@ trait CompraTrait
         //TODO UPDATE OR INSERT FORNECEDOR
         if (is_null($retorno)) {
             $fornecedor->tipo_fornecedor = $fornecedor->retornaTipoFornecedor($item->niFornecedor);
-            $fornecedor->cpf_cnpj_idgener = $fornecedor->formataCnpjCpf($item->niFornecedor);
+            $fornecedor->cpf_cnpj_idgener = $item->niFornecedor === 'ESTRANGEIRO'
+                ? $item->niFornecedor : $fornecedor->formataCnpjCpf($item->niFornecedor);
             $fornecedor->nome = $item->nomeFornecedor;
             $fornecedor->save();
             return $fornecedor;

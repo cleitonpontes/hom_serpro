@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Empenho;
 
+use App\Forms\InserirCelulaOrcamentariaForm;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
@@ -192,6 +193,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
     protected function adicionaCampoFornecedor()
     {
+        //$form = $this->retonaFormModal();
         $this->crud->addField([
             'label' => "Credor",
             'type' => "select2_from_ajax_credor",
@@ -206,7 +208,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'minimum_input_length' => 2,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
-            ]
+            ],
+            'form' => $this->retonaFormModal(1, 21)
         ]);
     }
 
@@ -585,5 +588,25 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function adicionaColunaDescricao()
     {
+    }
+
+    public function retonaFormModal($unidade_id, $minuta_id)
+    {
+        return FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
+//            'url' => route('api.saldo.inserir.modal'),
+//            'method' => 'POST',
+            'id' => 'form_modal'
+
+        ])->add('unidade_id', 'hidden', [
+            'value' => $unidade_id,
+            'attr' => [
+                'id' => 'unidade_id'
+            ]
+        ])->add('minuta_id', 'hidden', [
+            'value' => $minuta_id,
+            'attr' => [
+                'id' => 'minuta_id'
+            ]
+        ]);
     }
 }

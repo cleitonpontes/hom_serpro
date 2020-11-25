@@ -7,6 +7,12 @@
 
 <div @include('crud::inc.field_wrapper_attributes') >
     <label>{!! $field['label'] !!}</label>
+    <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal"
+            data-target="#inserir_celular_orcamentaria">
+        Novo <i class="fa fa-plus"></i>
+    </button>
+
+
     <?php $entity_model = $crud->model; ?>
 
     <select
@@ -43,6 +49,30 @@
             @endif
         @endif
     </select>
+
+    <div id="inserir_celular_orcamentaria" tabindex="-1" class="modal fade"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        Inserir Célula Orçamentária
+                    </h3>
+                    <button type="button" class="close" id="fechar_modal" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="textoModal">
+                    <fieldset class="form-group">
+                        {!! form($form) !!}
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     {{-- HINT --}}
@@ -163,6 +193,16 @@
                 });
             @endforeach
         @endif
+
+            $('#inserir_celular_orcamentaria').on('show.bs.modal', function (event) {
+                var unidade_id = $('#cb_unidade :selected').val();
+                $('#unidade_id').val(unidade_id);
+
+                var botao = $(event.relatedTarget);
+                var link = botao.data('link');
+
+                $('#btnExcluir').attr('href', link);
+            });
     });
 </script>
 @endpush
