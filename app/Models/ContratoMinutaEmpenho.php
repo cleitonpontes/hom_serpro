@@ -18,7 +18,7 @@ class ContratoMinutaEmpenho extends Model
         return $this->belongsTo(Contratos::class, 'contrato_id');
     }
 
-    public function amparosLegais()
+    public function minutasempenho()
     {
         return $this->belongsTo(MinutaEmpenho::class, 'minuta_empenho_id');
     }
