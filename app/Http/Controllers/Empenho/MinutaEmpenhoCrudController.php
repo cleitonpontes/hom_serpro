@@ -57,7 +57,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
 
-        $this->crud->orderBy('updated_at','desc');
+        $this->crud->orderBy('updated_at', 'desc');
 
         /*
         |--------------------------------------------------------------------------
@@ -169,7 +169,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'date',
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
-                'title'       => 'Somente data atual ou retroativa',
+                'title' => 'Somente data atual ou retroativa',
 
             ],
         ]);
@@ -299,6 +299,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
         $this->adicionaColunaIncisoCompra();
         $this->adicionaColunaLeiCompra();
+        $this->adicionaColunaValorTotal();
 
         $this->adicionaBoxItens($minuta_id);
         $this->adicionaBoxSaldo($minuta_id);
@@ -490,6 +491,24 @@ class MinutaEmpenhoCrudController extends CrudController
 //            'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
             'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    public function adicionaColunaValorTotal()
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'valor_total',
+            'label' => 'Valor Total', // Table column heading
+            'type' => 'number',
+            'prefix' => 'R$ ',
+            'decimals' => 2,
+//            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
