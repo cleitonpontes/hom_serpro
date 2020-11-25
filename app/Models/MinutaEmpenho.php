@@ -229,7 +229,8 @@ class MinutaEmpenho extends Model
 
     public function getCompraModalidadeAttribute()
     {
-        return $this->compra()->first()->modalidade()->first()->descricao;
+        $compra = $this->compra()->first()->modalidade()->first();
+        return $compra->descres . ' - ' . $compra->descricao;
     }
 
     public function getTipoCompraAttribute()
