@@ -692,22 +692,25 @@ class ContratoCrudController extends CrudController
         ]);
     }
 
+
     protected function adicionarMinutasDeEmpenho()
     {
         $this->crud->addField([
             'label' => 'Minutas de Empenho',
-            'name' => 'situacao_id',
+            'name' => 'minutasempenho',
+            'placeholder' => 'Selecione minutas de empenho',
             'type' => 'select2_from_ajax_multiple',
             'entity' => 'minutaempenho',
-            'placeholder' => 'Selecione minutas de empenho',
-            'minimum_input_length' => 0,
-            'data_source' => url('api/minutaempenho'),
-            'model' => 'App\Models\ContratoMinutaEmpenho',
-            'attribute' => 'situacao_id',
-            'atrribute2'=> 'local_entrega',
+            'attribute' => 'nome_minuta_empenho',
+            'model' => 'App\Models\MinutaEmpenho',
+            'data_source' => url('api/minutaempenhoparacontrato'),
+            'dependencies' => ['fornecedor_id'],
             'pivot' => true,
+            'minimum_input_length' => 0,
+            'wrapperAttributes' => [
+                'title' => '{uasg} {modalidade} {numeroAno} - Nº do(s) Empenho(s) - Data de Emissão'
+            ],
             'tab' => $this->tab,
-            'dependecies' => ['fornecedor_id'],
         ]);
     }
 

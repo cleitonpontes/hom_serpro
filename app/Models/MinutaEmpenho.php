@@ -204,6 +204,16 @@ class MinutaEmpenho extends Model
         return $this->belongsTo(Codigoitem::class, 'situacao_id');
     }
 
+    public function contrato()
+    {
+        return $this->belongsToMany(
+            'App\Models\Contrato',
+            'contrato_minuta_empenho_pivot',
+            'minuta_empenho_id',
+            'contrato_id'
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
