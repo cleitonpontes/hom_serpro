@@ -23,6 +23,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\CompraSiasgRequest as StoreRequest;
 use App\Http\Requests\CompraSiasgRequest as UpdateRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Route;
 use App\Http\Traits\CompraTrait;
@@ -41,11 +42,14 @@ class CompraSiasgCrudController extends CrudController
 
     public function setup()
     {
-        $modalidades = Codigoitem::where('codigo_id', 13)
-            ->where('visivel', true)
-            ->pluck('descricao', 'id')
-            ->toArray();
 
+        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Modalidade Licitação');
+        })
+            ->whereRaw('LENGTH(descres) <= 2')
+            ->orderBy('descres')
+            ->select(DB::raw("CONCAT(descres,' - ',descricao) AS descres_descricao"), 'id')
+            ->pluck('descres_descricao', 'id');
 
         /*
         |--------------------------------------------------------------------------
@@ -59,6 +63,7 @@ class CompraSiasgCrudController extends CrudController
         );
         $this->crud->setEntityNameStrings('Buscar Compra', 'Buscar Compras');
         $this->crud->setCreateView('vendor.backpack.crud.empenho.create');
+        $this->crud->urlVoltar = route('empenho.crud./minuta.index');
 
 //        $this->crud->denyAccess('create');
 //        $this->crud->denyAccess('update');
@@ -81,7 +86,7 @@ class CompraSiasgCrudController extends CrudController
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
-    private function fields(array $modalidades): void
+    private function fields(Collection $modalidades): void
     {
         $this->setFieldModalidade($modalidades);
         $this->setFieldNumeroAno();

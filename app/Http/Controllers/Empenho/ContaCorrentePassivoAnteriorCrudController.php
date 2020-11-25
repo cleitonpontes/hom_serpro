@@ -86,6 +86,10 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
         $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
         $this->crud->setCreateView('vendor.backpack.crud.empenho.create');
+        $this->crud->urlVoltar = route(
+            'empenho.crud./minuta.edit',
+            ['minutum' => $minuta_id]
+        );
 
 //        dd($this->crud->query->toSql());
         /*
@@ -140,7 +144,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
                         return redirect()->back();
                     }
                 }
-
             }
 
             $minuta->etapa = 8;

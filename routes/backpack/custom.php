@@ -54,11 +54,7 @@ Route::group([
             Route::get('minutaempenhoparacontrato', 'MinutaEmpenhoController@minutaempenhoparacontrato');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
 
-            //API Campos Transparência Index
-            Route::get('transparenciaorgaos', 'ApiTransparenciaController@orgaos');
-            Route::get('transparenciaunidades', 'ApiTransparenciaController@unidades');
-            Route::get('transparenciafornecedores', 'ApiTransparenciaController@fornecedores');
-            Route::get('transparenciacontratos', 'ApiTransparenciaController@contratos');
+
         });
 
         // if not otherwise configured, setup the dashboard routes
