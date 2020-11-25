@@ -79,7 +79,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $acoes .= '<i class="fa fa-check-circle"></i></a>';
         $sem_acao = '<i class="glyphicon glyphicon-ban-circle"></i>';
 
-        $acoes = ($situacao_sicaf != 1) ? $sem_acao : $acoes;
+        //$acoes = ($situacao_sicaf != 1) ? $sem_acao : $acoes;
 
         return $acoes;
     }
