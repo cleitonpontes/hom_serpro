@@ -137,7 +137,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => 'Número Empenho',
             'type' => 'text',
             'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
+                'class' => 'form-group col-md-6',
+                'title' => 'Campo opcional.',
             ]
         ]);
     }
