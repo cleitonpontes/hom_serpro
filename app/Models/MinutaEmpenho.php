@@ -110,6 +110,17 @@ class MinutaEmpenho extends Model
         return $unidade->codigo . ' - ' . $unidade->nomeresumido;
     }
 
+    public function getUnidadeCompra()
+    {
+        $unidade = $this->compra->unidade_origem()->first();
+        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+    }
+
+    public function getSituacao()
+    {
+        return $this->situacao->descricao;
+    }
+
     public function getFornecedorEmpenho()
     {
         $fornecedor = $this->fornecedor_empenho()->first();

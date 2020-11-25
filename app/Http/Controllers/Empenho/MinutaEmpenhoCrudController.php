@@ -57,11 +57,14 @@ class MinutaEmpenhoCrudController extends CrudController
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
 
+        $this->crud->orderBy('updated_at','desc');
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
+        $this->crud->enableExportButtons();
 
         $this->adicionaCampos($this->minuta_id);
         $this->adicionaColunas($this->minuta_id);
@@ -285,19 +288,27 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         $this->adicionaColunaUnidade();
         $this->adicionaColunaFornecedorEmpenho();
+
+        $this->adicionaColunaTipoCompra();
+        $this->adicionaColunaUnidadeCompra();
+        $this->adicionaColunaModalidade();
+        $this->adicionaColunaNumeroAnoCompra();
+
         $this->adicionaColunaTipoEmpenho();
         $this->adicionaColunaAmparoLegal();
 
-        $this->adicionaColunaModalidade();
-        $this->adicionaColunaTipoCompra();
-        $this->adicionaColunaNumeroAnoCompra();
         $this->adicionaColunaIncisoCompra();
         $this->adicionaColunaLeiCompra();
 
         $this->adicionaBoxItens($minuta_id);
         $this->adicionaBoxSaldo($minuta_id);
 
-//        $this->adicionaColunaSituacao();
+        $this->adicionaColunaMensagemSiafi();
+        $this->adicionaColunaSituacao();
+        $this->adicionaColunaCreatedAt();
+        $this->adicionaColunaUpdatedAt();
+
+
         $this->adicionaColunaNumeroEmpenho();
         $this->adicionaColunaCipi();
         $this->adicionaColunaDataEmissao();
@@ -307,19 +318,36 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaColunaDescricao();
     }
 
-    protected function adicionaColunaSituacao()
+    public function adicionaColunaSituacao(): void
     {
         $this->crud->addColumn([
             'box' => 'resumo',
-            'name' => 'situacao',
+            'name' => 'getSituacao',
             'label' => 'Situação',
-            'type' => 'boolean',
+            'type' => 'model_function',
+            'function_name' => 'getSituacao',
+            'priority' => 1,
             'orderable' => true,
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true,
-            'options' => [0 => 'Inativo', 1 => 'Ativo']
+            'visibleInShow' => true
+        ]);
+    }
+
+    public function adicionaColunaMensagemSiafi(): void
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'mensagem_siafi',
+            'label' => 'Mensagem SIAFI',
+            'type' => 'text',
+            'priority' => 1,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
         ]);
     }
 
@@ -344,6 +372,55 @@ class MinutaEmpenhoCrudController extends CrudController
         ]);
     }
 
+    public function adicionaColunaCreatedAt(): void
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'created_at',
+            'label' => 'Criação em',
+            'type' => 'datetime',
+            'priority' => 1,
+            'orderable' => true,
+            'visibleInTable' => false,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    public function adicionaColunaUpdatedAt(): void
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'updated_at',
+            'label' => 'Atualizado em',
+            'type' => 'datetime',
+            'priority' => 1,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
+    public function adicionaColunaUnidadeCompra(): void
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'getUnidadeCompra',
+            'label' => 'UASG Compra',
+            'type' => 'model_function',
+            'function_name' => 'getUnidadeCompra',
+            'priority' => 1,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true
+        ]);
+    }
+
     public function adicionaColunaFornecedorEmpenho(): void
     {
         $this->crud->addColumn([
@@ -353,8 +430,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'model_function',
             'function_name' => 'getFornecedorEmpenho', // the method in your Model
             'orderable' => true,
-            'limit' => 1000,
-            'visibleInTable' => true, // no point, since it's a large text
+            'limit' => 100,
+            'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
@@ -374,7 +451,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'model_function',
             'function_name' => 'getTipoEmpenho', // the method in your Model
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
@@ -395,7 +472,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'model_function',
             'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
@@ -428,7 +505,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'text',
 //            'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
@@ -460,9 +537,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'text',
 //            'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => false, // would make the modal too big
+            'visibleInExport' => false, // not important enough
             'visibleInShow' => true, // sure, why not
         ]);
     }
@@ -476,9 +553,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'text',
 //            'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => false, // would make the modal too big
+            'visibleInExport' => false, // not important enough
             'visibleInShow' => true, // sure, why not
         ]);
     }
@@ -515,9 +592,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => 'itens', // Table column heading
 //            'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => false, // would make the modal too big
+            'visibleInExport' => false, // not important enough
             'visibleInShow' => true, // sure, why not
             'values' => $itens
         ]);
@@ -549,9 +626,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => 'saldo', // Table column heading
 //            'type' => 'text',
             'orderable' => true,
-            'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => false, // would make the modal too big
+            'visibleInExport' => false, // not important enough
             'visibleInShow' => true, // sure, why not
             'values' => $saldo
         ]);
