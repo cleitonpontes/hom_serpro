@@ -1,4 +1,5 @@
 <!-- select2 from ajax -->
+{{--{{ dd(get_defined_vars()['__data']) }}--}}
 @php
     $connected_entity = new $field['model'];
     $connected_entity_key_name = $connected_entity->getKeyName();
@@ -65,7 +66,7 @@
                 </div>
                 <div class="modal-body" id="textoModal">
                     <fieldset class="form-group">
-                        {!! form($form) !!}
+                        {!! form($field['form']) !!}
                     </fieldset>
                 </div>
                 <div class="modal-footer">

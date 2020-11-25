@@ -11,63 +11,36 @@ class InserirFornecedorForm extends Form
     {
 
         $this
-            ->add('esfera', 'text', [
-                'label' => 'Esfera',
+            ->add('tipo_fornecedor', 'select', [
+                'choices' => [
+                    'FISICA' => 'Pessoa Física',
+                    'JURIDICA' => 'Pessoa Jurídica',
+                    'UG' => 'UG Siafi',
+                    'IDGENERICO' => 'ID Genérico',
+                ],
+                'required ' => true,
+                'selected' => 'en',
+                'empty_value' => '=== Tipo Forncecedor ==='
+            ])
+            ->add('cpf_cnpj_idgener', 'text', [
+                'label' => 'CPF/CNPJ/UG/ID Genérico',
                 'rules' => 'required|min:1',
+                'required ' => true,
                 'attr' => [
                     'id' => 'esfera',
                     'maxlength' => 1,
                     'onkeypress' => 'return somenteNumeros(event)'
                 ]
             ])
-            ->add('ptrs', 'text', [
-                'label' => 'PTRS',
-                'required ' => true,
+            ->add('nome', 'text', [
+                'label' => 'Nome',
                 'attr' => [
-                    'id' => 'ptrs',
-                    'maxlength' => 6,
-                    'onkeypress' => 'return somenteNumeros(event)'
-                ]
-            ])
-            ->add('fonte', 'text', [
-                'label' => 'Fonte',
-                'attr' => [
-                    'id' => 'fonte',
-                    'maxlength' => 10,
+                    'id' => 'nome',
+                    'maxlength' => 255,
                     'required ' => true,
-                    'onkeypress' => 'return somenteNumeros(event)'
+//                    'onkeypress' => 'return somenteNumeros(event)'
                 ]
             ])
-            ->add('natureza_despesa', 'text', [
-                'label' => 'Natureza de Despesa',
-                'attr' => [
-                    'id' => 'natureza_despesa',
-                    'maxlength' => 6,
-                    'required ' => true,
-                    'onkeypress' => 'return somenteNumeros(event)'
-                ]
-            ])
-            ->add('ugr', 'text', [
-                'label' => 'UGR',
-                'attr' => [
-                    'id' => 'urg',
-                    'maxlength' => 8,
-                    'onkeypress' => 'return somenteNumeros(event)'
-                ]
-            ])
-            ->add('plano_interno', 'text', [
-                'label' => 'Plano Interno',
-                'attr' => [
-                    'id' => 'plano_interno',
-                    'maxlength' => 11,
-                    'required ' => true,
-                    'oninput' => 'handleInput(event)'
-                ]
-            ])
-//        ->add('valor', 'text',[
-//                'label' => 'Valor',
-//                'attr' => ['id'=>'valor', 'required ' => true,]
-//            ])
             ->add('cancelar', 'submit', [
                 'label' => '<i class="fa fa-reply"></i> Cancelar',
                 'attr' => [

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Empenho;
 
 use App\Forms\InserirCelulaOrcamentariaForm;
+use App\Forms\InserirFornecedorForm;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Redirect;
 use Route;
 use App\Http\Traits\Formatador;
+use FormBuilder;
 
 /**
  * Class MinutaEmpenhoCrudController
@@ -592,7 +594,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function retonaFormModal($unidade_id, $minuta_id)
     {
-        return FormBuilder::create(InserirCelulaOrcamentariaForm::class, [
+        return FormBuilder::create(InserirFornecedorForm::class, [
 //            'url' => route('api.saldo.inserir.modal'),
 //            'method' => 'POST',
             'id' => 'form_modal'
