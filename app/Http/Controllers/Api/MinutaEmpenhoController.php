@@ -260,9 +260,7 @@ class MinutaEmpenhoController extends Controller
         $form = collect($request->input('form'))->pluck('value', 'name');
 
         define("EMITIDO", 270);
-
-
-
+        
         $options = MinutaEmpenho::query();
 
         if (!$form['fornecedor_id']) {
@@ -282,23 +280,12 @@ class MinutaEmpenhoController extends Controller
                 ->where('unidade_id', '=', session()->get('user_ug_id'))
                 ->where('situacao_id', '=', EMITIDO);
         }
-        //dd($options->toSql);
-        // $options = $options->where('fornecedor_compra_id', $form['fornecedor_id'])
-        //         ->where('unidade_id', '=', session()->get('user_ug_id'))
-        //         ->where('situacao_id', '=', 270);
-        
-        // dd($options->get());
-        $results = $options->paginate(10);
 
-        // NÃO ESQUECER DE COLOCAR PARA BUSCAR PELA PESQUISA
+        if ($search_term) {
+            $options->where('minutaempenhos.numero_empenho_sequencial', 'LIKE', '%' . $search_term . '%');
+        }
 
-        // if ($search_term) {
-        //     $results = $options->where('numero', 'LIKE', '%' . $search_term . '%')->paginate(10);
-        // } else {
-        //     $results = $options->paginate(10);
-        // }
-
-        return $results;
+        return $options->paginate(10);
     }
 
 }
