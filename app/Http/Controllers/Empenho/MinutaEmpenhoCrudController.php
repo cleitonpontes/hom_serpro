@@ -44,6 +44,10 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Minuta de Empenho', 'Minutas de Empenho');
         $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
         $this->crud->setShowView('vendor.backpack.crud.empenho.show');
+        $this->crud->urlVoltar = route(
+            'empenho.minuta.etapa.subelemento',
+            ['minuta_id' => $this->minuta_id]
+        );
         $this->crud->allowAccess('update');
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
         $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
@@ -133,7 +137,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => 'Número Empenho',
             'type' => 'text',
             'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
+                'class' => 'form-group col-md-6',
+                'title' => 'Campo opcional.',
             ]
         ]);
     }
@@ -160,8 +165,10 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => 'Data Emissão',
             'type' => 'date',
             'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
-            ]
+                'class' => 'form-group col-md-6',
+                'title'       => 'Somente data atual ou retroativa',
+
+            ],
         ]);
     }
 
