@@ -247,7 +247,7 @@ class SubelementoController extends BaseControllerEmpenho
                 [
                     'data' => 'subitem',
                     'name' => 'subitem',
-                    'title' => 'Subitem',
+                    'title' => 'Subelemento',
                     'orderable' => false,
                     'searchable' => false
                 ]
@@ -304,7 +304,7 @@ class SubelementoController extends BaseControllerEmpenho
             ->orderBy('codigo', 'asc')
             ->get()->pluck('codigo_descricao', 'id');
 
-        $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
+        $retorno = '<select name="subitem[]" id="subitem" class="subitem" style="width:200px;">';
         foreach ($subItens as $key => $subItem) {
             $selected = ($key == $item['subelemento_id']) ? 'selected' : '';
             $retorno .= "<option value='$key' $selected>$subItem</option>";
