@@ -259,7 +259,7 @@ class MinutaEmpenhoController extends Controller
         $search_term = $request->input('q');
         $form = collect($request->input('form'))->pluck('value', 'name');
 
-       
+        define("EMITIDO", 270);
 
 
 
@@ -273,15 +273,16 @@ class MinutaEmpenhoController extends Controller
             $options
                 ->select(['minutaempenhos.*',
                     DB::raw("CONCAT(unidades.codigosiasg,'  ',codigoitens.descres, '  ' ,compras.numero_ano, ' - ', 
-                                    minutaempenhos.numero_empenho_sequencial, ' - ', data_emissao)
+                                    minutaempenhos.numero_empenho_sequencial, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
                              as nome_minuta_empenho")])
                 ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
                 ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
                 ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
                 ->where('fornecedor_compra_id', $form['fornecedor_id'])
                 ->where('unidade_id', '=', session()->get('user_ug_id'))
-                ->where('situacao_id', '=', 270);
+                ->where('situacao_id', '=', EMITIDO);
         }
+        //dd($options->toSql);
         // $options = $options->where('fornecedor_compra_id', $form['fornecedor_id'])
         //         ->where('unidade_id', '=', session()->get('user_ug_id'))
         //         ->where('situacao_id', '=', 270);
