@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Empenho;
 
-use App\Forms\InserirCelulaOrcamentariaForm;
 use App\Forms\InserirFornecedorForm;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
@@ -169,7 +168,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'date',
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
-                'title'       => 'Somente data atual ou retroativa',
+                'title' => 'Somente data atual ou retroativa',
 
             ],
         ]);
@@ -595,20 +594,47 @@ class MinutaEmpenhoCrudController extends CrudController
     public function retonaFormModal($unidade_id, $minuta_id)
     {
         return FormBuilder::create(InserirFornecedorForm::class, [
-//            'url' => route('api.saldo.inserir.modal'),
-//            'method' => 'POST',
             'id' => 'form_modal'
 
-        ])->add('unidade_id', 'hidden', [
-            'value' => $unidade_id,
-            'attr' => [
-                'id' => 'unidade_id'
-            ]
-        ])->add('minuta_id', 'hidden', [
-            'value' => $minuta_id,
-            'attr' => [
-                'id' => 'minuta_id'
-            ]
         ]);
+    }
+
+    public function inserirFornecedorModal(Request $request)
+    {
+
+        DB::beginTransaction();
+        try {
+            $fornecedor = Fornecedor::firstOrCreate(
+                ['cpf_cnpj_idgener' => $request->cpf_cnpj_idgener],
+                [
+                    'tipo_fornecedor' => $request->fornecedor,
+                    'nome' => $request->nome
+                ]
+            );
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
+        return $fornecedor;
+
+//        $conta_corrente = $this->retornaContaCorrente($request);
+//        $saldo = $request->get('valor');
+//        $unidade_id = $request->get('unidade_id');
+//        $ano = date('Y');
+//        $contacontabil = config('app.conta_contabil_credito_disponivel');
+//        $modSaldo = new SaldoContabil();
+//        $modSaldo->unidade_id = $unidade_id;
+//        $modSaldo->ano = $ano;
+//        $modSaldo->conta_contabil = $contacontabil;
+//        $modSaldo->conta_corrente = $conta_corrente;
+//        $modSaldo->saldo = $this->retornaFormatoAmericano($saldo);
+//        $modSaldo->save();
+//
+//        return redirect()->route(
+//            'empenho.minuta.etapa.saldocontabil',
+//            [
+//                'minuta_id' => $request->get('minuta_id')
+//            ]
+//        );
     }
 }

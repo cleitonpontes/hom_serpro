@@ -20,16 +20,17 @@ class InserirFornecedorForm extends Form
                 ],
                 'required ' => true,
                 'selected' => 'en',
-                'empty_value' => '=== Tipo Forncecedor ==='
+                'empty_value' => '=== Tipo Forncecedor ===',
+                'attr' => [
+                    'id' => 'tipo_fornecedor'
+                ]
             ])
             ->add('cpf_cnpj_idgener', 'text', [
                 'label' => 'CPF/CNPJ/UG/ID Genérico',
                 'rules' => 'required|min:1',
                 'required ' => true,
                 'attr' => [
-                    'id' => 'esfera',
-                    'maxlength' => 1,
-                    'onkeypress' => 'return somenteNumeros(event)'
+                    'id' => 'cpf_cnpj_idgener',
                 ]
             ])
             ->add('nome', 'text', [
@@ -38,7 +39,7 @@ class InserirFornecedorForm extends Form
                     'id' => 'nome',
                     'maxlength' => 255,
                     'required ' => true,
-//                    'onkeypress' => 'return somenteNumeros(event)'
+                    'onkeyup' => "maiuscula(this)"
                 ]
             ])
             ->add('cancelar', 'submit', [

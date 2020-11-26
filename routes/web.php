@@ -299,6 +299,9 @@ Route::group(
 
             //passo 6
 
+            Route::post('minuta/inserir/fornecedor', 'MinutaEmpenhoCrudController@inserirFornecedorModal')
+                ->name('minuta.inserir.fornecedor');
+
             //passo 7
             CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create', 'show']]);
 
