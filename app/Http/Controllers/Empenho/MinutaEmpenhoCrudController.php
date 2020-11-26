@@ -143,7 +143,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'text',
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
-                'title' => 'Campo opcional.',
+                'title' => 'Esse campo é opcional. Preencha caso sua unidade deseje controlar a numeração do empenho. Ao deixar o campo em branco, o sistema irá realizar o controle da numeração dos empenhos automaticamente.',
             ]
         ]);
     }
