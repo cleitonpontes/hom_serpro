@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Empenho;
 
+use App\Forms\InserirFornecedorForm;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Redirect;
 use Route;
 use App\Http\Traits\Formatador;
+use FormBuilder;
 
 /**
  * Class MinutaEmpenhoCrudController
@@ -195,6 +197,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
     protected function adicionaCampoFornecedor()
     {
+        //$form = $this->retonaFormModal();
         $this->crud->addField([
             'label' => "Credor",
             'type' => "select2_from_ajax_credor",
@@ -209,7 +212,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'minimum_input_length' => 2,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
-            ]
+            ],
+            'form' => $this->retonaFormModal(1, 21)
         ]);
     }
 
@@ -681,5 +685,52 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function adicionaColunaDescricao()
     {
+    }
+
+    public function retonaFormModal($unidade_id, $minuta_id)
+    {
+        return FormBuilder::create(InserirFornecedorForm::class, [
+            'id' => 'form_modal'
+
+        ]);
+    }
+
+    public function inserirFornecedorModal(Request $request)
+    {
+
+        DB::beginTransaction();
+        try {
+            $fornecedor = Fornecedor::firstOrCreate(
+                ['cpf_cnpj_idgener' => $request->cpf_cnpj_idgener],
+                [
+                    'tipo_fornecedor' => $request->fornecedor,
+                    'nome' => $request->nome
+                ]
+            );
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
+        return $fornecedor;
+
+//        $conta_corrente = $this->retornaContaCorrente($request);
+//        $saldo = $request->get('valor');
+//        $unidade_id = $request->get('unidade_id');
+//        $ano = date('Y');
+//        $contacontabil = config('app.conta_contabil_credito_disponivel');
+//        $modSaldo = new SaldoContabil();
+//        $modSaldo->unidade_id = $unidade_id;
+//        $modSaldo->ano = $ano;
+//        $modSaldo->conta_contabil = $contacontabil;
+//        $modSaldo->conta_corrente = $conta_corrente;
+//        $modSaldo->saldo = $this->retornaFormatoAmericano($saldo);
+//        $modSaldo->save();
+//
+//        return redirect()->route(
+//            'empenho.minuta.etapa.saldocontabil',
+//            [
+//                'minuta_id' => $request->get('minuta_id')
+//            ]
+//        );
     }
 }
