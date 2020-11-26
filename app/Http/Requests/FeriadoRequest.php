@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
+
 class FeriadoRequest extends FormRequest
 {
     /**
@@ -26,7 +27,9 @@ class FeriadoRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'data' => 'required',
+            'descricao' => 'required',
+            'tipo_id' => 'required'
         ];
     }
 
@@ -51,6 +54,9 @@ class FeriadoRequest extends FormRequest
     {
         return [
             //
+            'data.required' => 'O campo "Data" é obrigatório!',
+            'descricao.required' => 'O campo "Descrição" é obrigatório!',
+            'tipo_id.required' => 'O campo "Tipo do Feriado" é obrigatório!',
         ];
     }
 }
