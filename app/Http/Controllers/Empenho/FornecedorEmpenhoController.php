@@ -206,7 +206,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     private function retornaDescricaoDetalhada($descricao, $descricaocompleta)
     {
         $retorno = '';
-        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i></a>';
+        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i>';
 
         return $retorno;
     }
