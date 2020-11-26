@@ -1,5 +1,6 @@
 <!-- select2 from ajax -->
 {{--{{ dd(get_defined_vars()['__data']) }}--}}
+
 @php
     $connected_entity = new $field['model'];
     $connected_entity_key_name = $connected_entity->getKeyName();
@@ -29,9 +30,11 @@
             @endphp
             @if ($item)
 
+
+
                 {{-- allow clear --}}
                 @if ($entity_model::isColumnNullable($field['name']))
-                    @if(isset($field['attribute']) && $item->{$field['attribute']} == "ESTRANGEIRO")
+                    @if(isset($field['attribute']) && strpos($item->{$field['attribute']},'ESTRANGEIRO') )
                         <option value="" selected>
                             {{ $field['placeholder'] }}
                         </option>
@@ -136,8 +139,7 @@
                             @if ($entity_model::isColumnNullable($field['name']))
                         allowClear: true,
                         @endif
-
-                            @if ($item->{$field['attribute']} != "ESTRANGEIRO")
+                            @if ( strpos($item->{$field['attribute']},'ESTRANGEIRO') === false)
                         disabled: disabled,
                         @endif
 

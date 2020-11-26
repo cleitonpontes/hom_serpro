@@ -176,6 +176,7 @@ trait CompraTrait
                 $fornecedor->save();
                 return $fornecedor;
             }
+            return $retorno;
         }
 
         $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
