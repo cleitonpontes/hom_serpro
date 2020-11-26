@@ -10,7 +10,7 @@
 <div @include('crud::inc.field_wrapper_attributes') >
     <label>{!! $field['label'] !!}</label>
     <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal"
-            data-target="#inserir_celular_orcamentaria">
+            data-target="#inserir_novo_credor">
         Novo <i class="fa fa-plus"></i>
     </button>
 
@@ -18,9 +18,9 @@
     <?php $entity_model = $crud->model; ?>
 
     <select
-        name="cpf_cnpj_idgener"
+        name="{{ $field['name'] }}"
         style="width: 100%"
-        id="select2_ajax_cpf_cnpj_idgener"
+        id="select2_ajax_{{ $field['name'] }}"
         @include('crud::inc.field_attributes', ['default_class' =>  'form-control'])
     >
 
@@ -54,7 +54,15 @@
         @endif
     </select>
 
-    <div id="inserir_celular_orcamentaria" tabindex="-1" class="modal fade"
+
+    {{-- HINT --}}
+    @if (isset($field['hint']))
+        <p class="help-block">{!! $field['hint'] !!}</p>
+    @endif
+</div>
+
+@push('modal_novo_credor')
+    <div id="inserir_novo_credor" tabindex="-1" class="modal fade"
          role="dialog"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -77,13 +85,8 @@
             </div>
         </div>
     </div>
+@endpush
 
-
-    {{-- HINT --}}
-    @if (isset($field['hint']))
-        <p class="help-block">{!! $field['hint'] !!}</p>
-    @endif
-</div>
 
 {{-- ########################################## --}}
 {{-- Extra CSS and JS for this particular field --}}
@@ -124,7 +127,7 @@
     <script>
         jQuery(document).ready(function ($) {
             // trigger select2 for each untriggered select2 box
-            $("#select2_ajax_cpf_cnpj_idgener").each(function (i, obj) {
+            $("#select2_ajax_{{ $field['name'] }}").each(function (i, obj) {
                 var form = $(obj).closest('form');
 
                 if (!$(obj).hasClass("select2-hidden-accessible")) {
@@ -196,12 +199,12 @@
             @if (isset($field['dependencies']))
             @foreach (array_wrap($field['dependencies']) as $dependency)
             $('input[name={{ $dependency }}], select[name={{ $dependency }}], checkbox[name={{ $dependency }}], radio[name={{ $dependency }}], textarea[name={{ $dependency }}]').change(function () {
-                $("#select2_ajax_cpf_cnpj_idgener").val(null).trigger("change");
+                $("#select2_ajax_{{ $field['name'] }}").val(null).trigger("change");
             });
             @endforeach
             @endif
 
-            $('#inserir_celular_orcamentaria').on('show.bs.modal', function (event) {
+            $('#inserir_novo_credor').on('show.bs.modal', function (event) {
                 var unidade_id = $('#cb_unidade :selected').val();
                 $('#unidade_id').val(unidade_id);
 
@@ -309,13 +312,13 @@
             axios.post(url, params)
                 .then(response => {
                     dados = response.data
-                    $('#select2_ajax_cpf_cnpj_idgener').append(
+                    $('#select2_ajax_{{ $field['name'] }}').append(
                         `<option value="${dados.id}" selected="selected">
-                             ${dados.id} - ${dados.nome}
+                             ${dados.cpf_cnpj_idgener} - ${dados.nome}
                         </option>`
                     );
 
-                    $("#select2_ajax_cpf_cnpj_idgener").select2();
+                    $("#select2_ajax_{{ $field['name'] }}").select2();
 
                     Swal.fire({
                         position: 'top-end',
