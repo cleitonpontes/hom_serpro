@@ -167,11 +167,15 @@ trait CompraTrait
             $cpf_cnpj_idgener =
                 mb_strtoupper(preg_replace('/\s/', '_', $item->niFornecedor . '_' . $item->nomeFornecedor), 'UTF-8');
 
-            $fornecedor->tipo_fornecedor = 'IDGENERICO';
-            $fornecedor->cpf_cnpj_idgener = $cpf_cnpj_idgener;
-            $fornecedor->nome = $item->nomeFornecedor;
-            $fornecedor->save();
-            return $fornecedor;
+            $retorno = $fornecedor->buscaFornecedorPorNumero($cpf_cnpj_idgener);
+
+            if (is_null($retorno)) {
+                $fornecedor->tipo_fornecedor = 'IDGENERICO';
+                $fornecedor->cpf_cnpj_idgener = $cpf_cnpj_idgener;
+                $fornecedor->nome = $item->nomeFornecedor;
+                $fornecedor->save();
+                return $fornecedor;
+            }
         }
 
         $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
