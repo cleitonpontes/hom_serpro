@@ -95,7 +95,8 @@ class SubelementoController extends BaseControllerEmpenho
                     'tipo_compra.descricao as tipo_compra_descricao',
                     'codigoitens.descricao',
                     'compra_items.catmatseritem_id',
-                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaodetalhada"),
+                    'compra_items.descricaodetalhada',
+                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                     'compra_item_unidade.quantidade_saldo as qtd_item',
                     'compra_item_fornecedor.valor_unitario as valorunitario',
                     'naturezadespesa.codigo as natureza_despesa',
@@ -152,7 +153,10 @@ class SubelementoController extends BaseControllerEmpenho
                         return $this->addColunaValorTotalItem($item);
                     }
                 )
-                ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item'])
+                ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
+                    return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada'] );
+                })
+                ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item','descricaosimplificada'])
                 ->make(true);
         }
 
@@ -171,6 +175,14 @@ class SubelementoController extends BaseControllerEmpenho
 //            'update' => $valor_utilizado['sum'] > 0,
             'fornecedor_id' => $itens[0]['fornecedor_id'],
         ]);
+    }
+
+    private function retornaDescricaoDetalhada($descricao, $descricaocompleta)
+    {
+        $retorno = '';
+        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i></a>';
+
+        return $retorno;
     }
 
     /**
@@ -210,8 +222,8 @@ class SubelementoController extends BaseControllerEmpenho
             )
             ->addColumn(
                 [
-                    'data' => 'descricaodetalhada',
-                    'name' => 'descricaodetalhada',
+                    'data' => 'descricaosimplificada',
+                    'name' => 'descricaosimplificada',
                     'title' => 'Descrição',
                 ]
             )

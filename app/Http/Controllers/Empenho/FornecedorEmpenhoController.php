@@ -166,7 +166,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'compra_items.id',
                 'codigoitens.descricao',
                 'catmatseritem_id',
-                DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaodetalhada"),
+                'compra_items.descricaodetalhada',
+                DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                 'compra_item_unidade.quantidade_saldo',
                 'compra_item_fornecedor.valor_unitario',
                 'compra_item_fornecedor.valor_negociado',
@@ -179,7 +180,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         if ($request->ajax()) {
             return DataTables::of($itens)->addColumn('action', function ($itens) use ($modMinutaEmpenho) {
                 return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao']);
-            })
+            })->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
+                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada'] );
+            })->rawColumns(['descricaosimplificada', 'action'])
                 ->make(true);
         }
 
@@ -196,6 +199,14 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $retorno = '';
         $retorno .= " <input  type='checkbox' id='$id' data-tipo='$descricao' "
             . "name='itens[][compra_item_id]' value='$id'  onclick=\"bloqueia('$descricao')\" > ";
+
+        return $retorno;
+    }
+
+    private function retornaDescricaoDetalhada($descricao, $descricaocompleta)
+    {
+        $retorno = '';
+        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i></a>';
 
         return $retorno;
     }
@@ -232,8 +243,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'title' => 'Codigo',
             ])
             ->addColumn([
-                'data' => 'descricaodetalhada',
-                'name' => 'descricaodetalhada',
+                'data' => 'descricaosimplificada',
+                'name' => 'descricaosimplificada',
                 'title' => 'Descrição',
             ])
             ->addColumn([
