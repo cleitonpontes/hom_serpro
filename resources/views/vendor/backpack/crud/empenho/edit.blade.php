@@ -71,5 +71,6 @@
 		  </div><!-- /.box -->
 		  </form>
 	</div>
+    @stack('modal_novo_credor')
 </div>
 @endsection

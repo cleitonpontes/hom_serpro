@@ -213,7 +213,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ],
-            'form' => $this->retonaFormModal(1, 21)
+            'form' => $this->retonaFormModal()
         ]);
     }
 
@@ -687,7 +687,7 @@ class MinutaEmpenhoCrudController extends CrudController
     {
     }
 
-    public function retonaFormModal($unidade_id, $minuta_id)
+    public function retonaFormModal()
     {
         return FormBuilder::create(InserirFornecedorForm::class, [
             'id' => 'form_modal'
