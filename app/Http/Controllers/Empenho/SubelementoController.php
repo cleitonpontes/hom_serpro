@@ -95,7 +95,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'tipo_compra.descricao as tipo_compra_descricao',
                     'codigoitens.descricao',
                     'compra_items.catmatseritem_id',
-                    'compra_items.descricaodetalhada',
+                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaodetalhada"),
                     'compra_item_unidade.quantidade_saldo as qtd_item',
                     'compra_item_fornecedor.valor_unitario as valorunitario',
                     'naturezadespesa.codigo as natureza_despesa',

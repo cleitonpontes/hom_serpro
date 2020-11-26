@@ -166,7 +166,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'compra_items.id',
                 'codigoitens.descricao',
                 'catmatseritem_id',
-                'compra_items.descricaodetalhada',
+                DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaodetalhada"),
                 'compra_item_unidade.quantidade_saldo',
                 'compra_item_fornecedor.valor_unitario',
                 'compra_item_fornecedor.valor_negociado',
