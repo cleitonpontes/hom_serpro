@@ -100,6 +100,13 @@
                 $('#prev_aba').show();
                 $('#next_aba').show();
                 break;
+            case 'itensdocontrato':
+
+                $('#botoes_contrato').show();
+                $('#cancelar').show();
+                $('#prev_aba').show();
+                $('#next_aba').hide();
+                break;
             case 'vigenciavalores':
 
                 $('#botoes_contrato').show();
@@ -119,6 +126,9 @@
                 $('#caracteristicasdocontrato').click();
                 break;
             case 'caracteristicasdocontrato':
+                $('#itensdocontrato').click();
+                break;
+            case 'itensdocontrato':
                 $('#vigenciavalores').click();
                 break;
             case 'vigenciavalores':
@@ -136,8 +146,11 @@
             case 'caracteristicasdocontrato':
                 $('#dadosdocontrato').click();
                 break;
-            case 'vigenciavalores':
+            case 'itensdocontrato':
                 $('#caracteristicasdocontrato').click();
+                break;
+            case 'vigenciavalores':
+                $('#itensdocontrato').click();
                 break;
         }
     }
