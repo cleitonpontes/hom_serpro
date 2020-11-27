@@ -740,30 +740,35 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function executarAtualizacaoSituacaoMinuta($id)
     {
+        $minuta = MinutaEmpenho::find($id);
 
-        DB::beginTransaction();
-        try {
-            $minuta = MinutaEmpenho::find($id);
+        if($minuta->situacao->descricao == 'ERRO'){
+            DB::beginTransaction();
+            try {
+                $situacao = Codigoitem::wherehas('codigo', function ($q) {
+                    $q->where('descricao', '=', 'Situações Minuta Empenho');
+                })
+                    ->where('descricao', 'EM PROCESSAMENTO')
+                    ->first();
+                $minuta->situacao_id = $situacao->id;
+                $minuta->save();
 
-            $situacao = Codigoitem::wherehas('codigo', function ($q) {
-                $q->where('descricao', '=', 'Situações Minuta Empenho');
-            })
-                ->where('descricao', 'EM PROCESSAMENTO')
-                ->first();
-            $minuta->situacao_id = $situacao->id;
-            $minuta->save();
+                $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)->first();
 
-            $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)->first();
+                $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+                $modSfOrcEmpenhoDados->save();
 
-            $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
-            $modSfOrcEmpenhoDados->save();
+                DB::commit();
+            } catch (Exception $exc) {
+                DB::rollback();
+            }
 
-            DB::commit();
-        } catch (Exception $exc) {
-            DB::rollback();
+            Alert::success('Situação da minuta alterada com sucesso!')->flash();
+            return redirect('/empenho/minuta');
+        }else{
+            Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+            return redirect('/empenho/minuta');
         }
 
-        Alert::success('Situação da minuta alterada com sucesso!')->flash();
-        return redirect('/empenho/minuta');
     }
 }
