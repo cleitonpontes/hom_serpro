@@ -380,7 +380,7 @@ class SubelementoController extends BaseControllerEmpenho
     public function store(Request $request)
     {
 //        dump('store');
-//        dump($request->all());
+//        dd($request->all());
         $minuta_id = $request->get('minuta_id');
         if ($request->credito - $request->valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
@@ -408,6 +408,11 @@ class SubelementoController extends BaseControllerEmpenho
 //                dd($item);
                 if ($valores[$index] > $request->valor_total_item[$index]) {
                     Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
+                    return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                }
+
+                if ($request->qtd[$index] == 0) {
+                    Alert::error('A quantidade selecionada não pode ser zero.')->flash();
                     return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
                 }
 
