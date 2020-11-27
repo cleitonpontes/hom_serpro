@@ -76,29 +76,28 @@ trait CompraTrait
         $unidade_autorizada_id = session('user_ug_id');
         $consultaCompra = new ApiSiasg();
 
-            if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
-                foreach ($compraSiasg->data->linkSisrpCompleto as $key => $item) {
-                    $dadosItemCompra = ($consultaCompra->consultaCompraByUrl($item->linkSisrpCompleto));
-                    $tipoUasg = (substr($item->linkSisrpCompleto, -1));
-                    $dadosata = (object)$dadosItemCompra['data']['dadosAta'];
-                    $gerenciadoraParticipante = (object)$dadosItemCompra['data']['dadosGerenciadoraParticipante'];
-                    $carona = $dadosItemCompra['data']['dadosCarona'];
-                    $dadosFornecedor = $dadosItemCompra['data']['dadosFornecedor'];
+        if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
+            foreach ($compraSiasg->data->linkSisrpCompleto as $key => $item) {
+                $dadosItemCompra = ($consultaCompra->consultaCompraByUrl($item->linkSisrpCompleto));
+                $tipoUasg = (substr($item->linkSisrpCompleto, -1));
+                $dadosata = (object)$dadosItemCompra['data']['dadosAta'];
+                $gerenciadoraParticipante = (object)$dadosItemCompra['data']['dadosGerenciadoraParticipante'];
+                $carona = $dadosItemCompra['data']['dadosCarona'];
+                $dadosFornecedor = $dadosItemCompra['data']['dadosFornecedor'];
 
-                    $catmatseritem = $this->gravaCatmatseritem($dadosata);
+                $catmatseritem = $this->gravaCatmatseritem($dadosata);
 
-                    $modcompraItem = new CompraItem();
-                    $compraItem = $modcompraItem->updateOrCreateCompraItemSisrp($compra, $catmatseritem, $dadosata);
+                $modcompraItem = new CompraItem();
+                $compraItem = $modcompraItem->updateOrCreateCompraItemSisrp($compra, $catmatseritem, $dadosata);
 
-                    foreach ($dadosFornecedor as $key => $itemfornecedor) {
-                        $fornecedor = $this->retornaFornecedor((object)$itemfornecedor);
+                foreach ($dadosFornecedor as $key => $itemfornecedor) {
+                    $fornecedor = $this->retornaFornecedor((object)$itemfornecedor);
 
-                        $this->gravaCompraItemFornecedor($compraItem->id, (object)$itemfornecedor, $fornecedor);
-                    }
-                    $this->gravaCompraItemUnidadeSisrp($compraItem, $unidade_autorizada_id, $item, $gerenciadoraParticipante, $carona, $dadosFornecedor, $tipoUasg);
-
+                    $this->gravaCompraItemFornecedor($compraItem->id, (object)$itemfornecedor, $fornecedor);
                 }
+                $this->gravaCompraItemUnidadeSisrp($compraItem, $unidade_autorizada_id, $item, $gerenciadoraParticipante, $carona, $dadosFornecedor, $tipoUasg);
             }
+        }
     }
 
     public function retornaUnidadeAutorizada($compraSiasg, $compra)
@@ -168,6 +167,23 @@ trait CompraTrait
     public function retornaFornecedor($item)
     {
         $fornecedor = new Fornecedor();
+
+        if ($item->niFornecedor === 'ESTRANGEIRO') {
+            $cpf_cnpj_idgener =
+                mb_strtoupper(preg_replace('/\s/', '_', $item->niFornecedor . '_' . $item->nomeFornecedor), 'UTF-8');
+
+            $retorno = $fornecedor->buscaFornecedorPorNumero($cpf_cnpj_idgener);
+
+            if (is_null($retorno)) {
+                $fornecedor->tipo_fornecedor = 'IDGENERICO';
+                $fornecedor->cpf_cnpj_idgener = $cpf_cnpj_idgener;
+                $fornecedor->nome = $item->nomeFornecedor;
+                $fornecedor->save();
+                return $fornecedor;
+            }
+            return $retorno;
+        }
+
         $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
 
         //TODO UPDATE OR INSERT FORNECEDOR
@@ -217,8 +233,8 @@ trait CompraTrait
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem_id);
-            $compraItemUnidade->quantidade_saldo = $saldo->saldo;
-            $compraItemUnidade->save();
+        $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+        $compraItemUnidade->save();
     }
 
 
@@ -250,8 +266,8 @@ trait CompraTrait
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
-            $compraItemUnidade->quantidade_saldo = $saldo->saldo;
-            $compraItemUnidade->save();
+        $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+        $compraItemUnidade->save();
     }
 
     public function retonaFormModal($unidade_id, $minuta_id)

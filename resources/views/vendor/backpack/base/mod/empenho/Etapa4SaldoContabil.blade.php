@@ -63,14 +63,10 @@
                     <div class="row">
 
                         <div class="box-tools col-md-6" align="left">
+                            @include('backpack::mod.empenho.botoes',['rota' => route('empenho.minuta.etapa.item',['minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id])])
 
-                            {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
-                                ->asLinkTo(route('empenho.minuta.etapa.item',['minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id]))
-                            !!}
 
-                            <button type="submit" class="btn btn-success">
-                                Próxima Etapa <i class="fa fa-arrow-right"></i>
-                            </button>
+
 
                         </div>
                         <div class="col-md-6" align="right">

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Rules\NaoAceitarEstrangeiro;
 use Illuminate\Foundation\Http\FormRequest;
 
 class MinutaEmpenhoRequest extends FormRequest
@@ -35,6 +36,10 @@ class MinutaEmpenhoRequest extends FormRequest
             'taxa_cambio' => 'required',
             'amparo_legal_id' => 'required',
             'processo' => 'max:20',
+//            'fornecedor_empenho_id' => 'not_regex:/ESTRANGEIRO/',
+            'fornecedor_empenho_id' => [
+                new NaoAceitarEstrangeiro()
+            ],
             'data_emissao' => "date|before_or_equal:{$this->data_hoje}",
 
         ];

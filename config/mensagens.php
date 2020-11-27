@@ -127,5 +127,8 @@ return [
     // |--------------------------------------------------------------------------
 
     // Mensagem de alerta se houver empenhos a identificar ou valores a ratear
-    'apropriacao-persistir-pendencias' => 'Não foram encontrados dados persistidos para essa apropriação.'
+    'apropriacao-persistir-pendencias' => 'Não foram encontrados dados persistidos para essa apropriação.',
+
+    //Mensagem de volta das etapas do fluxo de minuta de empenho
+    'empenho-etapa-botao-voltar' => 'Ao voltar o sistema desfaz os passos posteriores.'
 ];
