@@ -254,6 +254,9 @@ Route::group(
 
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
 
+            Route::get('minuta/{minuta_id}/atualizarsituacaominuta', 'MinutaEmpenhoCrudController@executarAtualizacaoSituacaoMinuta')
+                ->name('minuta.atualizar.situacao');
+
             //passo 1
             Route::get('buscacompra', 'CompraSiasgCrudController@create')
                 ->name('minuta.etapa.compra');

@@ -35,12 +35,14 @@ class MinutaEmpenhoRequest extends FormRequest
 //            'local_entrega'=> 'required',
             'taxa_cambio' => 'required',
             'amparo_legal_id' => 'required',
-            'processo' => 'max:20',
+            'processo' => 'required|max:20',
+            'tipo_empenho_id' => 'required',
 //            'fornecedor_empenho_id' => 'not_regex:/ESTRANGEIRO/',
             'fornecedor_empenho_id' => [
+                'required',
                 new NaoAceitarEstrangeiro()
             ],
-            'data_emissao' => "date|before_or_equal:{$this->data_hoje}",
+            'data_emissao' => "required|date|before_or_equal:{$this->data_hoje}",
 
         ];
     }
@@ -57,7 +59,9 @@ class MinutaEmpenhoRequest extends FormRequest
             'descricao' => 'Descrição / Observação',
             'amparo_legal_id' => 'Amparo Legal',
             'processo' => 'Número Processo',
+            'tipo_empenho_id' => 'Tipo Empenho',
             'data_emissao' => 'Data Emissão',
+            'fornecedor_empenho_id' => 'Credor',
         ];
     }
 

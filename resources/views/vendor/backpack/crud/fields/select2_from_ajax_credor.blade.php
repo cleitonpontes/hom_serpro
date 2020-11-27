@@ -9,10 +9,13 @@
 
 <div @include('crud::inc.field_wrapper_attributes') >
     <label>{!! $field['label'] !!}</label>
-    <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal"
-            data-target="#inserir_novo_credor">
-        Novo <i class="fa fa-plus"></i>
-    </button>
+
+{{--    @if(isset($field['attribute']) && strpos($item->{$field['attribute']},'ESTRANGEIRO') )--}}
+        <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal"
+                data-target="#inserir_novo_credor">
+            Novo <i class="fa fa-plus"></i>
+        </button>
+{{--    @endif--}}
 
 
     <?php $entity_model = $crud->model; ?>
@@ -29,8 +32,6 @@
                 $item = $connected_entity->find($old_value)
             @endphp
             @if ($item)
-
-
 
                 {{-- allow clear --}}
                 @if ($entity_model::isColumnNullable($field['name']))
@@ -140,11 +141,11 @@
 
                         {{-- allow clear --}}
                             @if ($entity_model::isColumnNullable($field['name']))
-                        allowClear: true,
-                        @endif
+                                allowClear: true,
+                            @endif
                             @if ( strpos($item->{$field['attribute']},'ESTRANGEIRO') === false)
-                        disabled: disabled,
-                        @endif
+                                disabled: true,
+                            @endif
 
                         ajax: {
                             url: "{{ $field['data_source'] }}",
