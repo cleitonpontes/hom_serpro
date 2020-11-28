@@ -2,7 +2,6 @@
 
 namespace App\Http\Traits;
 
-use App\Forms\InserirItemContratoMinutaForm;
 use App\Models\Catmatseritem;
 use App\Models\CompraItem;
 use App\Models\CompraItemFornecedor;
@@ -250,8 +249,8 @@ trait CompraTrait
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
-            $compraItemUnidade->quantidade_saldo = $saldo->saldo;
-            $compraItemUnidade->save();
+        $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+        $compraItemUnidade->save();
     }
 
     public function retonaFormModal($unidade_id, $minuta_id)

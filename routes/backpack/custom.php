@@ -104,6 +104,8 @@ Route::group([
             CRUD::resource('comunica', 'ComunicaCrudController');
             CRUD::resource('importacao', 'ImportacaoCrudController');
             CRUD::resource('ipsacesso', 'IpsacessoCrudController');
+            CRUD::resource('feriado', 'FeriadoCrudController');
+
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
