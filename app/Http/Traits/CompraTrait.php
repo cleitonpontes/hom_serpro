@@ -2,7 +2,6 @@
 
 namespace App\Http\Traits;
 
-use App\Forms\InserirItemContratoMinutaForm;
 use App\Models\Catmatseritem;
 use App\Models\CompraItem;
 use App\Models\CompraItemFornecedor;
@@ -12,8 +11,7 @@ use App\Models\Fornecedor;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Html\Builder;
-use Kris\LaravelFormBuilder\Form;
+use App\Forms\InserirItemContratoMinutaForm;
 use FormBuilder;
 
 
