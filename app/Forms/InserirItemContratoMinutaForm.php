@@ -10,18 +10,29 @@ class InserirItemContratoMinutaForm extends Form
     {
 
         $this
-        ->add('tipo_item', 'text',[
-            'label' => 'Tipo Item',
-            'rules' => 'required',
+            ->add('tipo_item', 'select', [
+                'choices' => [
+                    '194' => 'MATERIAL',
+                    '195' => 'SERVIÇO',
+                ],
+                'required ' => true,
+                'selected' => 'en',
+                'empty_value' => 'Selecione...',
                 'attr' => [
-                    'id'=>'tipo_item'
+                    'id' => 'tipo_item',
+                    'onchange' => 'return carregaitens(event)'
                 ]
             ])
-        ->add('item','text',[
-            'label' => 'Item',
-            'required ' => true,
+            ->add('item', 'select', [
+                'choices' => [
+//                    '149' => 'MATERIAL',
+//                    '150' => 'SERVIÇO',
+                ],
+                'required ' => true,
+                'selected' => 'en',
+                'empty_value' => 'Selecione...',
                 'attr' => [
-                    'id'=>'item'
+                    'id' => 'item'
                 ]
             ])
         ->add('quantidade', 'number',[
@@ -40,14 +51,6 @@ class InserirItemContratoMinutaForm extends Form
                     'required ' => true,
                     'onkeypress' => 'return somenteNumeros(event)'
                     ]
-            ])
-        ->add('valor_total', 'text',[
-            'label' => 'UGR',
-                'attr' => [
-                    'id'=>'valor_total',
-                    'required ' => true,
-                    'onkeypress' => 'return somenteNumeros(event)'
-                ]
             ])
         ->add('cancelar', 'submit', [
             'label' => '<i class="fa fa-reply"></i> Cancelar',
