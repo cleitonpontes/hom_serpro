@@ -32,11 +32,11 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="pt-3-half" contenteditable="true">Aurelia Vega</td>
-                        <td class="pt-3-half" contenteditable="true">30</td>
-                        <td class="pt-3-half" contenteditable="true">Deepends</td>
-                        <td class="pt-3-half" contenteditable="true">Spain</td>
-                        <td class="pt-3-half" contenteditable="true">Madrid</td>
+                        <td class="pt-3-half" contenteditable="false">Aurelia Vega</td>
+                        <td class="pt-3-half" contenteditable="false">30</td>
+                        <td class="pt-3-half" contenteditable="false">Deepends</td>
+                        <td class="pt-3-half" contenteditable="false">Spain</td>
+                        <td class="pt-3-half" contenteditable="false">Madrid</td>
                         <td class="pt-3-half">
                           <span class="table-up">
                             <button type="button" class="btn btn-primary" data-toggle="modal"
@@ -51,11 +51,11 @@
                     </tr>
                     <!-- This is our clonable table line -->
                     <tr>
-                        <td class="pt-3-half" contenteditable="true">Guerra Cortez</td>
-                        <td class="pt-3-half" contenteditable="true">45</td>
-                        <td class="pt-3-half" contenteditable="true">Insectus</td>
-                        <td class="pt-3-half" contenteditable="true">USA</td>
-                        <td class="pt-3-half" contenteditable="true">San Francisco</td>
+                        <td class="pt-3-half" contenteditable="false">Guerra Cortez</td>
+                        <td class="pt-3-half" contenteditable="false">45</td>
+                        <td class="pt-3-half" contenteditable="false">Insectus</td>
+                        <td class="pt-3-half" contenteditable="false">USA</td>
+                        <td class="pt-3-half" contenteditable="false">San Francisco</td>
                         <td class="pt-3-half">
                           <span class="table-up">
                             <button type="button" class="btn btn-primary" data-toggle="modal"
@@ -70,11 +70,11 @@
                     </tr>
                     <!-- This is our clonable table line -->
                     <tr>
-                        <td class="pt-3-half" contenteditable="true">Guadalupe House</td>
-                        <td class="pt-3-half" contenteditable="true">26</td>
-                        <td class="pt-3-half" contenteditable="true">Isotronic</td>
-                        <td class="pt-3-half" contenteditable="true">Germany</td>
-                        <td class="pt-3-half" contenteditable="true">Frankfurt am Main</td>
+                        <td class="pt-3-half" contenteditable="false">Guadalupe House</td>
+                        <td class="pt-3-half" contenteditable="false">26</td>
+                        <td class="pt-3-half" contenteditable="false">Isotronic</td>
+                        <td class="pt-3-half" contenteditable="false">Germany</td>
+                        <td class="pt-3-half" contenteditable="false">Frankfurt am Main</td>
                         <td class="pt-3-half">
                           <span class="table-up">
                             <button type="button" class="btn btn-primary" data-toggle="modal"
@@ -89,11 +89,11 @@
                     </tr>
                     <!-- This is our clonable table line -->
                     <tr class="hide">
-                        <td class="pt-3-half" contenteditable="true">Elisa Gallagher</td>
-                        <td class="pt-3-half" contenteditable="true">31</td>
-                        <td class="pt-3-half" contenteditable="true">Portica</td>
-                        <td class="pt-3-half" contenteditable="true">United Kingdom</td>
-                        <td class="pt-3-half" contenteditable="true">London</td>
+                        <td class="pt-3-half" contenteditable="false">Elisa Gallagher</td>
+                        <td class="pt-3-half" contenteditable="false">31</td>
+                        <td class="pt-3-half" contenteditable="false">Portica</td>
+                        <td class="pt-3-half" contenteditable="false">United Kingdom</td>
+                        <td class="pt-3-half" contenteditable="false">London</td>
                         <td class="pt-3-half">
                           <span class="table-up">
                             <button type="button" class="btn btn-primary" data-toggle="modal"
@@ -160,50 +160,50 @@
     {{-- push things in the after_scripts section --}}
 
     @push('crud_fields_scripts')
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
         <script type="text/javascript">
-            const $tableID = $('#table');
-            const $BTN = $('#export-btn');
-            const $EXPORT = $('#export');
 
-            $tableID.on('click', '.table-remove', function () {
+            $(document).ready(function () {
+                const $tableID = $('#table');
 
-                $(this).parents('tr').detach();
+                $('#item').select2();
+
+                $tableID.on('click', '.table-remove', function () {
+                    $(this).parents('tr').detach();
+                });
             });
 
+            function addOption(valor) {
+                var option = new Option(valor, valor);
+                var select = document.getElementById("tipo_item");
+                select.add(option);
+            }
 
-            // A few jQuery helpers for exporting only
-            jQuery.fn.pop = [].pop;
-            jQuery.fn.shift = [].shift;
+            function carregaitens(event) {
 
-            $BTN.on('click', () => {
+                var tipo_id = $('#tipo_item').val();
 
-                const $rows = $tableID.find('tr:not(:hidden)');
-                const headers = [];
-                const data = [];
+                var url = "{{route('buscar.itens.modal',':tipo_id')}}";
+                url = url.replace(':tipo_id', tipo_id);
+                axios.request(url)
+                    .then(response => {
+                        var itens = response.data;
 
-                // Get the headers (add special header logic here)
-                $($rows.shift()).find('th:not(:empty)').each(function () {
+                        itens.foreach(function (item){
+                            console.log(item);
+                            return;
+                            addOption(item)
+                        });
+                        console.log(dados);
+                    })
+                    .catch(error => {
+                        alert(error);
+                    })
+                    .finally()
+                event.preventDefault()
+            }
 
-                    headers.push($(this).text().toLowerCase());
-                });
-
-                // Turn all existing rows into a loopable array
-                $rows.each(function () {
-                    const $td = $(this).find('td');
-                    const h = {};
-
-                    // Use the headers from earlier to name our hash keys
-                    headers.forEach((header, i) => {
-
-                        h[header] = $td.eq(i).text();
-                    });
-
-                    data.push(h);
-                });
-
-                // Output the result
-                $EXPORT.text(JSON.stringify(data));
-            });
         </script>
     @endpush
 @endif
