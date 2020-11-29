@@ -72,10 +72,22 @@ class ContratoItensMinutaController extends Controller
                 'compra_item_fornecedor.valor_unitario',
                 'compra_item_fornecedor.valor_negociado',
                 'compra_item_minuta_empenho.quantidade',
-                'compra_item_minuta_empenho.valor as valor_total')
+                'compra_item_minuta_empenho.valor as valor_total',
+                'compra_item_minuta_empenho.minutaempenho_id')
             ->get()->toArray();
 
         return json_encode($itens);
+    }
+
+
+    public function atualizarItensModal(Request $request)
+    {
+        $minuta_id = Route::current()->parameter('minuta_id');
+        $item_id = Route::current()->parameter('item_id');
+
+        dump($minuta_id);
+        dd($item_id);
+        return;
     }
 
 

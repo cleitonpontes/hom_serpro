@@ -85,6 +85,13 @@
             calculaTotalGlobal();
         });
 
+        $('body').on('click',"[name='atualiza_item']", function(event){
+            var ids = this.id.split("_");
+            var tr = this.closest('tr');
+            console.log(tr);
+            //atualizaitem(event,ids)
+        });
+
     });
 
     function verificaAbaAtiva() {
@@ -122,9 +129,15 @@
         cols += '<td>'+item.descricaodetalhada+'</td>';
         cols += '<td><input  class="form-control itens" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"</td>';
         cols += '<td>'+item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2})+'</td>';
-        cols += '<td>R$ '+item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2})+'</td>';
+        cols += '<td><input  class="form-control itens" type="number" value="'+item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"</td>';
+        // cols += '<td>'+item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2})+'</td>';
         cols += '<td>';
-        cols += '<button onclick="removeLinhaItem(this)" type="button">Remover</button>';
+        cols += '<button type="button" class="btn btn-success" title="Atualizar Valores do Item" name="atualiza_item" id="'+item.id+'_'+item.minutaempenho_id+'">'+
+                    '<i class="fa fa-save"></i>'+
+                '</button>';
+        cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
+                    '<i class="fa fa-trash"></i>'+
+                '</button>';
         cols += '</td>';
 
         newRow.append(cols);
@@ -189,6 +202,32 @@
             $("#table-itens tr").remove();
         }
     }
+
+
+    function atualizaitem(event,ids) {
+
+        var item_id = ids[0];
+        var minuta_id = ids[1];
+
+        var url = "{{route('atualizar.itens.modal',[':minuta_id',':item_id'])}}";
+
+        url = url.replace(':minuta_id', minuta_id);
+        url = url.replace(':item_id', item_id);
+
+        axios.request(url)
+            .then(response => {
+                dados = response.data;
+                console.log(dados);
+            })
+            .catch(error => {
+                alert(error);
+            })
+            .finally()
+        event.preventDefault()
+
+    }
+
+
 
     function habilitaDesabilitaBotoes(){
 
