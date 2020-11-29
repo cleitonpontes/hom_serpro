@@ -54,7 +54,7 @@ Route::group([
             Route::get('minutaempenhoparacontrato', 'MinutaEmpenhoController@minutaempenhoparacontrato');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
             Route::get('inserir/item/modal/{tipo_id}/{contacorrente}', 'ContratoItensMinutaController@inserirIten')->name('item.inserir.modal');
-            Route::get('buscar/itens/modal/{tipo_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
+            Route::get('buscar/itens/modal/{minutas_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
 
 
 

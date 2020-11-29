@@ -250,17 +250,22 @@ class MinutaEmpenhoController extends Controller
     /**
      * Método para buscar as minutas de empenho de acordo com uasg da pessoa logada
      * e o id do fornecedor passado na request utilizado no formulário de contrato.
-     * 
+     *
      * @return  array $minutaEmpenho
      */
 
     public function minutaempenhoparacontrato(Request $request)
     {
         $search_term = $request->input('q');
+
         $form = collect($request->input('form'))->pluck('value', 'name');
 
-        define("EMITIDO", 270);
-        
+        $situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EMPENHO EMITIDO')
+            ->select('codigoitens.id')->first();
+
         $options = MinutaEmpenho::query();
 
         if (!$form['fornecedor_id']) {
@@ -269,16 +274,16 @@ class MinutaEmpenhoController extends Controller
 
         if ($form['fornecedor_id']) {
             $options
-                ->select(['minutaempenhos.*',
-                    DB::raw("CONCAT(unidades.codigosiasg,'  ',codigoitens.descres, '  ' ,compras.numero_ano, ' - ', 
+                ->select(['minutaempenhos.id',
+                    DB::raw("CONCAT(unidades.codigosiasg,'  ',codigoitens.descres, '  ' ,compras.numero_ano, ' - ',
                                     minutaempenhos.numero_empenho_sequencial, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
                              as nome_minuta_empenho")])
                 ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
                 ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
                 ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
-                ->where('fornecedor_compra_id', $form['fornecedor_id'])
-                ->where('unidade_id', '=', session()->get('user_ug_id'))
-                ->where('situacao_id', '=', EMITIDO);
+                ->where('minutaempenhos.fornecedor_compra_id', $form['fornecedor_id'])
+                ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
+                ->where('minutaempenhos.situacao_id', '=', $situacao->id);
         }
 
         if ($search_term) {

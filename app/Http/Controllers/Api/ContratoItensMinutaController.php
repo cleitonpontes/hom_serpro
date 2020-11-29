@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\AmparoLegal;
 use App\Models\Catmatseritem;
+use App\Models\MinutaEmpenho;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -53,11 +54,28 @@ class ContratoItensMinutaController extends Controller
 
     public function buscarItensModal(Request $request)
     {
-        $tipo_id = Route::current()->parameter('tipo_id');
+        $minutas_id = Route::current()->parameter('minutas_id');
 
-        $itens = Catmatseritem::where('grupo_id',$tipo_id)->pluck('descricao','id')->toArray();
+        $itens = MinutaEmpenho::query()
+            ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+            ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
+            ->join('compra_item_minuta_empenho', 'compra_item_minuta_empenho.compra_item_id', '=', 'compra_items.id')
+            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+            ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+            ->where('minutaempenhos.id',$minutas_id)
+            ->where('compra_item_minuta_empenho.minutaempenho_id',$minutas_id)
+            ->select('compra_items.*',
+                'codigoitens.descricao as tipo_item',
+                'compra_item_unidade.quantidade_autorizada',
+                'compra_item_unidade.quantidade_saldo',
+                'compra_item_fornecedor.valor_unitario',
+                'compra_item_fornecedor.valor_negociado',
+                'compra_item_minuta_empenho.quantidade',
+                'compra_item_minuta_empenho.valor as valor_total')
+            ->get()->toArray();
 
-        return $itens;
+        return json_encode($itens);
     }
 
 

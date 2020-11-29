@@ -259,13 +259,11 @@ trait CompraTrait
 //            'method' => 'POST',
             'id' => 'form_modal'
 
-        ])->add('unidade_id', 'hidden', [
-            'value' => $unidade_id,
+        ])->add('compra_item_id', 'hidden', [
             'attr' => [
-                'id' => 'unidade_id'
+                'id' => 'unidade_id[]'
             ]
         ])->add('minuta_id', 'hidden', [
-            'value' => $minuta_id,
             'attr' => [
                 'id' => 'minuta_id'
             ]

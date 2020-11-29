@@ -1,6 +1,7 @@
 <div id="saveActions" class="form-group">
 
     <input type="hidden" name="save_action" value="{{ $saveAction['active']['value'] }}">
+    <input type="hidden" name="compra_itens_id[]" id="compra_itens_id[]">
 
     <div class="btn-group" id="botoes_contrato">
 
@@ -29,6 +30,10 @@
 @push('after_scripts')
 <script type="text/javascript">
     $(document).ready(function() {
+
+        const $array_minutas = $("[name='minutasempenho[]']");
+        valor_global = 0;
+
         $('#botoes_contrato').hide();
         $('#cancelar').hide();
         $('#prev_aba').hide();
@@ -48,6 +53,8 @@
             $('#cancelar').hide();
             $('#prev_aba').hide();
             $('#next_aba').show();
+            // $('.select2-selection__choice').remove();
+
         });
 
         $('body').on('click','#caracteristicasdocontrato', function(event){
@@ -57,12 +64,23 @@
             $('#next_aba').show();
         });
 
+        $('body').on('click','#itensdocontrato', function(event){
+            $('#botoes_contrato').hide();
+            $('#cancelar').hide();
+            $('#prev_aba').show();
+            $('#next_aba').show();
+            carregaitens(event,$array_minutas);
+
+        });
+
         $('body').on('click','#vigenciavalores', function(event){
             $('#botoes_contrato').show();
             $('#cancelar').show();
             $('#prev_aba').show();
             $('#next_aba').hide();
+            calculaTotalGlobal();
         });
+
     });
 
     function verificaAbaAtiva() {
@@ -79,6 +97,86 @@
             }
         });
         return nomeAba;
+    }
+
+    function retornaMinutaIds($array_minutas){
+            var minutas_id = [];
+            $array_minutas.each(function (index,option) {
+                     minutas_id[index] = option[index].value;
+            });
+            return minutas_id;
+    }
+
+    function adicionaLinhaItem(item){
+
+        var compra_itens_id = $("[name='compra_itens_id[]']");
+        compra_itens_id.push(item.id);
+
+        var newRow = $("<tr>");
+        var cols = "";
+        cols += '<td>'+item.tipo_item+'</td>';
+        cols += '<td>'+item.descricaodetalhada+'</td>';
+        cols += '<td>'+item.quantidade+'</td>';
+        cols += '<td>'+item.valor_unitario+'</td>';
+        cols += '<td>'+item.valor_total+'</td>';
+        cols += '<td>';
+        cols += '<button onclick="removeLinhaItem(this)" type="button">Remover</button>';
+        cols += '</td>';
+
+        newRow.append(cols);
+        $("#table-itens").append(newRow);
+    }
+
+    function removeLinhaItem(elemento){
+        var tr = $(elemento).closest('tr');
+        var valor_total = tr.find("td:eq(4)").text();
+        tr.fadeOut(400, function() {
+            subtraiTotalGlobal(valor_total)
+            tr.remove();
+        });
+    }
+
+    function subtraiTotalGlobal(valor_total){
+        var total =  (valor_global - (parseFloat(valor_total)));
+        $('#valor_global').val(total);
+    }
+
+    function calculaTotalGlobal(){
+        var valor_total = 0;
+        $("#table-itens").find('tr').each(function(value){
+            valor_total += parseFloat($(this).find('td').eq(4).text());
+        });
+         $('#valor_global').val(valor_total);
+    }
+
+    function carregaitens(event,$array_minutas) {
+
+        var minutas_id = retornaMinutaIds($array_minutas);
+        if(minutas_id.length > 0) {
+            var url = "{{route('buscar.itens.modal',':minutas_id')}}";
+
+            url = url.replace(':minutas_id', minutas_id);
+
+            axios.request(url)
+                .then(response => {
+                    var itens = response.data;
+                    var qtd_itens = itens.length;
+                    itens.forEach(function (item) {
+                        var linhas = $("#table-itens tr").length;
+                        if(qtd_itens > linhas){
+                            adicionaLinhaItem(item);
+                        }
+                    });
+
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
+        }else{
+            $("#table-itens tr").remove();
+        }
     }
 
     function habilitaDesabilitaBotoes(){

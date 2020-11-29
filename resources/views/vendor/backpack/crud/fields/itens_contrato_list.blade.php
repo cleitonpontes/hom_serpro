@@ -1,14 +1,14 @@
 <!-- field_type_name -->
 @inject('compratrait', 'App\Http\Controllers\Empenho\CompraSiasgCrudController')
 <div @include('crud::inc.field_wrapper_attributes') >
-    <label>{!! $field['label'] !!}</label>
-    <input
-        type="text"
-        name="{{ $field['name'] }}"
-        value="{{ old($field['name']) ? old($field['name']) : (isset($field['value']) ? $field['value'] : (isset($field['default']) ? $field['default'] : '' )) }}"
-        @include('crud::inc.field_attributes')
-    >
-    <br>
+{{--    <label>{!! $field['label'] !!}</label>--}}
+{{--    <input--}}
+{{--        type="text"--}}
+{{--        name="{{ $field['name'] }}"--}}
+{{--        value="{{ old($field['name']) ? old($field['name']) : (isset($field['value']) ? $field['value'] : (isset($field['default']) ? $field['default'] : '' )) }}"--}}
+{{--        @include('crud::inc.field_attributes')--}}
+{{--    >--}}
+{{--    <br>--}}
     <!-- Editable table -->
     <div class="card">
         <div class="card-body">
@@ -19,6 +19,7 @@
                                 Inserir Item <i class="fa fa-plus"></i>
                             </button>
                           </span>
+                <br>
                 <table class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                     <tr>
@@ -30,82 +31,8 @@
                         <th class="text-center">Ações</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr>
-                        <td class="pt-3-half" contenteditable="false">Aurelia Vega</td>
-                        <td class="pt-3-half" contenteditable="false">30</td>
-                        <td class="pt-3-half" contenteditable="false">Deepends</td>
-                        <td class="pt-3-half" contenteditable="false">Spain</td>
-                        <td class="pt-3-half" contenteditable="false">Madrid</td>
-                        <td class="pt-3-half">
-                          <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Editar <i class="fa fa-edit"></i>
-                            </button>
-                          </span>
-                            <span class="table-remove">
-                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">Remover</button>
-                            </span>
-                        </td>
-                    </tr>
-                    <!-- This is our clonable table line -->
-                    <tr>
-                        <td class="pt-3-half" contenteditable="false">Guerra Cortez</td>
-                        <td class="pt-3-half" contenteditable="false">45</td>
-                        <td class="pt-3-half" contenteditable="false">Insectus</td>
-                        <td class="pt-3-half" contenteditable="false">USA</td>
-                        <td class="pt-3-half" contenteditable="false">San Francisco</td>
-                        <td class="pt-3-half">
-                          <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Editar <i class="fa fa-edit"></i>
-                            </button>
-                          </span>
-                            <span class="table-remove">
-                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">Remover</button>
-                            </span>
-                        </td>
-                    </tr>
-                    <!-- This is our clonable table line -->
-                    <tr>
-                        <td class="pt-3-half" contenteditable="false">Guadalupe House</td>
-                        <td class="pt-3-half" contenteditable="false">26</td>
-                        <td class="pt-3-half" contenteditable="false">Isotronic</td>
-                        <td class="pt-3-half" contenteditable="false">Germany</td>
-                        <td class="pt-3-half" contenteditable="false">Frankfurt am Main</td>
-                        <td class="pt-3-half">
-                          <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Editar <i class="fa fa-edit"></i>
-                            </button>
-                          </span>
-                            <span class="table-remove">
-                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">Remover</button>
-                            </span>
-                        </td>
-                    </tr>
-                    <!-- This is our clonable table line -->
-                    <tr class="hide">
-                        <td class="pt-3-half" contenteditable="false">Elisa Gallagher</td>
-                        <td class="pt-3-half" contenteditable="false">31</td>
-                        <td class="pt-3-half" contenteditable="false">Portica</td>
-                        <td class="pt-3-half" contenteditable="false">United Kingdom</td>
-                        <td class="pt-3-half" contenteditable="false">London</td>
-                        <td class="pt-3-half">
-                          <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Editar <i class="fa fa-edit"></i>
-                            </button>
-                          </span>
-                            <span class="table-remove">
-                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">Remover</button>
-                            </span>
-                        </td>
-                    </tr>
+                    <tbody id="table-itens">
+
                     </tbody>
                 </table>
             </div>
@@ -180,7 +107,7 @@
                 select.add(option);
             }
 
-            function carregaitens(event) {
+            function carregaitensModal(event) {
 
                 var tipo_id = $('#tipo_item').val();
 
@@ -203,6 +130,8 @@
                     .finally()
                 event.preventDefault()
             }
+
+
 
         </script>
     @endpush
