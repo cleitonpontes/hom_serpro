@@ -81,6 +81,10 @@
             calculaTotalGlobal();
         });
 
+        $('body').on('change','.itens', function(event){
+            calculaTotalGlobal();
+        });
+
     });
 
     function verificaAbaAtiva() {
@@ -116,9 +120,9 @@
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
         cols += '<td>'+item.descricaodetalhada+'</td>';
-        cols += '<td>'+item.quantidade+'</td>';
-        cols += '<td>'+item.valor_unitario+'</td>';
-        cols += '<td>'+item.valor_total+'</td>';
+        cols += '<td><input  class="form-control itens" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"</td>';
+        cols += '<td>'+item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2})+'</td>';
+        cols += '<td>R$ '+item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2})+'</td>';
         cols += '<td>';
         cols += '<button onclick="removeLinhaItem(this)" type="button">Remover</button>';
         cols += '</td>';
@@ -144,7 +148,14 @@
     function calculaTotalGlobal(){
         var valor_total = 0;
         $("#table-itens").find('tr').each(function(value){
-            valor_total += parseFloat($(this).find('td').eq(4).text());
+            var qtd_item = parseInt($(this).find('input').val());
+            var vl_unit = parseFloat($(this).find('td').eq(3).text());
+            var total_iten = (qtd_item * vl_unit)
+            valor_total += total_iten;
+            console.log(qtd_item);
+            console.log(vl_unit);
+            console.log(valor_total);
+            $(this).find('td').eq(4).text('R$ ' + total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}))
         });
          $('#valor_global').val(valor_total);
     }
