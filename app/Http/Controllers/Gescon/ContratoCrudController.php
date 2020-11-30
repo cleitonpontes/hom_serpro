@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Forms\InserirItemContratoMinutaForm;
+use App\Http\Traits\Formatador;
 use App\Jobs\AlertaContratoJob;
 use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
@@ -34,6 +35,8 @@ use Codedge\Fpdf\Fpdf\Fpdf;
  */
 class ContratoCrudController extends CrudController
 {
+    use Formatador;
+
     protected $tab = '';
 
     public function setup()
@@ -109,31 +112,15 @@ class ContratoCrudController extends CrudController
 
     public function inserirItensContrato($request){
 
-        $valor_uni = $request['vl_unit'];
-        $valor_total = $request['vl_total'];
-
-        $valor_uni = array_map(
-            function ($valor_uni) {
-                return $this->retornaFormatoAmericano($valor_uni);
-            },
-            $valor_uni
-        );
-
-        $valor_total = array_map(
-            function ($valor_total) {
-                return $this->retornaFormatoAmericano($valor_total);
-            },
-            $valor_total
-        );
+        $valor_uni = $this->retornaArrayValoresFormatado($request['vl_unit']);
+        $valor_total = $this->retornaArrayValoresFormatado($request['vl_total']);
 
         DB::beginTransaction();
         try {
-
             foreach ($request['qtd_item'] as $key => $qtd) {
 
                 $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
                 $catmatseritem = Catmatseritem::find($catmatseritem_id);
-
 
                 $contratoItem = new Contratoitem();
                 $contratoItem->contrato_id = $request['contrato_id'];
@@ -1681,8 +1668,14 @@ class ContratoCrudController extends CrudController
         ]);
     }
 
-    public function retornaFormatoAmericano($valor)
-    {
-        return str_replace(',', '.', str_replace('.', '', $valor));
+    public function retornaArrayValoresFormatado(array $valores){
+
+        return array_map(
+            function ($valores) {
+                return $this->retornaFormatoAmericano($valores);
+            },
+            $valores
+        );
     }
+
 }
