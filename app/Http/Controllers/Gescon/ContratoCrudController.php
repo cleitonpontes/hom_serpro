@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Forms\InserirItemContratoMinutaForm;
 use App\Jobs\AlertaContratoJob;
+use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Contratoitem;
 use App\Models\Fornecedor;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
+use FormBuilder;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
@@ -86,6 +89,7 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -94,8 +98,61 @@ class ContratoCrudController extends CrudController
         $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
 
         $redirect_location = parent::storeCrud($request);
+        $contrato_id = $this->crud->getCurrentEntryId();
+        $request->request->set('contrato_id',$contrato_id);
 
+        if(!empty($request->get('qtd_item'))) {
+            $this->inserirItensContrato($request->all());
+        }
         return $redirect_location;
+    }
+
+    public function inserirItensContrato($request){
+
+        $valor_uni = $request['vl_unit'];
+        $valor_total = $request['vl_total'];
+
+        $valor_uni = array_map(
+            function ($valor_uni) {
+                return $this->retornaFormatoAmericano($valor_uni);
+            },
+            $valor_uni
+        );
+
+        $valor_total = array_map(
+            function ($valor_total) {
+                return $this->retornaFormatoAmericano($valor_total);
+            },
+            $valor_total
+        );
+
+        DB::beginTransaction();
+        try {
+
+            foreach ($request['qtd_item'] as $key => $qtd) {
+
+                $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
+                $catmatseritem = Catmatseritem::find($catmatseritem_id);
+
+
+                $contratoItem = new Contratoitem();
+                $contratoItem->contrato_id = $request['contrato_id'];
+                $contratoItem->tipo_id = $request['tipo_item_id'][$key];
+                $contratoItem->grupo_id = $catmatseritem->grupo_id;
+                $contratoItem->catmatseritem_id = $catmatseritem->id;
+                $contratoItem->descricao_complementar = $catmatseritem->descricao;
+                $contratoItem->quantidade = (int)$qtd;
+                $contratoItem->valorunitario = $valor_uni[$key];
+                $contratoItem->valortotal = $valor_total[$key];
+                $contratoItem->save();
+
+            }
+            DB::commit();
+
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
     }
 
     public function update(UpdateRequest $request)
@@ -904,7 +961,8 @@ class ContratoCrudController extends CrudController
             'name' => 'itens',
             'type' => 'itens_contrato_list',
             'label' => 'Teste',
-            'tab' => $this->tab
+            'tab' => $this->tab,
+            'form' => $this->retonaFormModal()
         ]);
     }
 
@@ -1603,5 +1661,28 @@ class ContratoCrudController extends CrudController
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
+    }
+
+    public function retonaFormModal()
+    {
+        return FormBuilder::create(InserirItemContratoMinutaForm::class, [
+//            'url' => route('api.saldo.inserir.modal'),
+//            'method' => 'POST',
+            'id' => 'form_modal'
+
+//        ])->add('compra_item_id', 'hidden', [
+//            'attr' => [
+//                'id' => 'unidade_id[]'
+//            ]
+//        ])->add('minuta_id', 'hidden', [
+//            'attr' => [
+//                'id' => 'minuta_id'
+//            ]
+        ]);
+    }
+
+    public function retornaFormatoAmericano($valor)
+    {
+        return str_replace(',', '.', str_replace('.', '', $valor));
     }
 }

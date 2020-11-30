@@ -1,6 +1,7 @@
 <?php
 namespace App\Forms;
 
+use App\Models\Codigoitem;
 use Kris\LaravelFormBuilder\Form;
 
 class InserirItemContratoMinutaForm extends Form
@@ -9,18 +10,20 @@ class InserirItemContratoMinutaForm extends Form
     public function buildForm()
     {
 
+        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo CATMAT e CATSER');
+        })
+            ->pluck('descricao', 'id')
+            ->toArray();
+
         $this
             ->add('tipo_item', 'select', [
-                'choices' => [
-                    '194' => 'MATERIAL',
-                    '195' => 'SERVIÇO',
-                ],
+                'choices' => $tipos,
                 'required ' => true,
-                'selected' => 'en',
                 'empty_value' => 'Selecione...',
                 'attr' => [
                     'id' => 'tipo_item',
-                    'onchange' => 'return carregaitens(event)'
+                    'onchange' => 'return carregaitensmodal(this)'
                 ]
             ])
             ->add('item', 'select', [

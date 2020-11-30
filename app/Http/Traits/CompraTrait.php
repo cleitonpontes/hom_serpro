@@ -11,8 +11,7 @@ use App\Models\Fornecedor;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Illuminate\Support\Facades\DB;
-use App\Forms\InserirItemContratoMinutaForm;
-use FormBuilder;
+
 
 
 trait CompraTrait
@@ -252,22 +251,5 @@ trait CompraTrait
         $compraItemUnidade->save();
     }
 
-    public function retonaFormModal($unidade_id, $minuta_id)
-    {
-        return FormBuilder::create(InserirItemContratoMinutaForm::class, [
-//            'url' => route('api.saldo.inserir.modal'),
-//            'method' => 'POST',
-            'id' => 'form_modal'
-
-        ])->add('compra_item_id', 'hidden', [
-            'attr' => [
-                'id' => 'unidade_id[]'
-            ]
-        ])->add('minuta_id', 'hidden', [
-            'attr' => [
-                'id' => 'minuta_id'
-            ]
-        ]);
-    }
 
 }

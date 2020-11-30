@@ -1,7 +1,7 @@
 <div id="saveActions" class="form-group">
 
     <input type="hidden" name="save_action" value="{{ $saveAction['active']['value'] }}">
-    <input type="hidden" name="compra_itens_id[]" id="compra_itens_id[]">
+    <input type="hidden" name="catmatseritem_id[]" id="compra_itens_id[]">
 
     <div class="btn-group" id="botoes_contrato">
 
@@ -85,12 +85,6 @@
             calculaTotalGlobal();
         });
 
-        $('body').on('click',"[name='atualiza_item']", function(event){
-            var ids = this.id.split("_");
-            var tr = this.closest('tr');
-            console.log(tr);
-            //atualizaitem(event,ids)
-        });
 
     });
 
@@ -115,6 +109,7 @@
             $array_minutas.each(function (index,option) {
                      minutas_id[index] = option[index].value;
             });
+
             return minutas_id;
     }
 
@@ -122,22 +117,22 @@
 
         var compra_itens_id = $("[name='compra_itens_id[]']");
         compra_itens_id.push(item.id);
+        var vl_unit = item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2});
+        var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
 
         var newRow = $("<tr>");
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
         cols += '<td>'+item.descricaodetalhada+'</td>';
-        cols += '<td><input  class="form-control itens" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"</td>';
-        cols += '<td>'+item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2})+'</td>';
-        cols += '<td><input  class="form-control itens" type="number" value="'+item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"</td>';
-        // cols += '<td>'+item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2})+'</td>';
+        cols += '<td><input  class="form-control itens" name="qtd_item[]" id="qtd" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade+'"></td>';
+        cols += '<td><input  class="form-control" name="vl_unit[]" id="vl_unit" type="text" value="'+vl_unit+'"readonly></td>';
+        cols += '<td><input  class="form-control" name="vl_total[]" id="vl_total" type="text" value="'+vl_total+'"readonly></td>';
         cols += '<td>';
-        cols += '<button type="button" class="btn btn-success" title="Atualizar Valores do Item" name="atualiza_item" id="'+item.id+'_'+item.minutaempenho_id+'">'+
-                    '<i class="fa fa-save"></i>'+
-                '</button>';
         cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
                 '</button>';
+        cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id[]" value="'+item.catmatseritem_id+'">';
+        cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id[]" value="'+item.tipo_item_id+'">';
         cols += '</td>';
 
         newRow.append(cols);
@@ -146,7 +141,8 @@
 
     function removeLinhaItem(elemento){
         var tr = $(elemento).closest('tr');
-        var valor_total = tr.find("td:eq(4)").text();
+        var valor_total = tr.find("td:eq(4)");
+        console.log(valor_total);
         tr.fadeOut(400, function() {
             subtraiTotalGlobal(valor_total)
             tr.remove();
@@ -161,21 +157,22 @@
     function calculaTotalGlobal(){
         var valor_total = 0;
         $("#table-itens").find('tr').each(function(value){
-            var qtd_item = parseInt($(this).find('input').val());
-            var vl_unit = parseFloat($(this).find('td').eq(3).text());
+            var qtd_item = parseInt($(this).find('td').eq(2).find('input').val());
+            var vl_unit = parseFloat($(this).find('td').eq(3).find('input').val());
+
             var total_iten = (qtd_item * vl_unit)
             valor_total += total_iten;
-            console.log(qtd_item);
-            console.log(vl_unit);
-            console.log(valor_total);
-            $(this).find('td').eq(4).text('R$ ' + total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}))
+
+            $(this).find('td').eq(3).find('input').val(vl_unit.toLocaleString('pt-br', {minimumFractionDigits: 2}))
+            $(this).find('td').eq(4).find('input').val(total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}))
         });
-         $('#valor_global').val(valor_total);
+         $('#valor_global').val(valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2}));
     }
 
     function carregaitens(event,$array_minutas) {
 
         var minutas_id = retornaMinutaIds($array_minutas);
+
         if(minutas_id.length > 0) {
             var url = "{{route('buscar.itens.modal',':minutas_id')}}";
 
@@ -204,26 +201,23 @@
     }
 
 
-    function atualizaitem(event,ids) {
+    function carregaitensmodal(tipo) {
 
-        var item_id = ids[0];
-        var minuta_id = ids[1];
+        var tipo_id = tipo.value;
 
-        var url = "{{route('atualizar.itens.modal',[':minuta_id',':item_id'])}}";
+            var url = "{{route('busca.catmatseritens')}}";
 
-        url = url.replace(':minuta_id', minuta_id);
-        url = url.replace(':item_id', item_id);
+            // url = url.replace(':id', tipo_id);
 
-        axios.request(url)
-            .then(response => {
-                dados = response.data;
-                console.log(dados);
-            })
-            .catch(error => {
-                alert(error);
-            })
-            .finally()
-        event.preventDefault()
+            axios.request(url)
+                .then(response => {
+                    var itens = response.data;
+                    console.log(itens);
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
 
     }
 

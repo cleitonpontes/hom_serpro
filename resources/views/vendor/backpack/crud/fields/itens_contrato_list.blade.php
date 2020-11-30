@@ -56,7 +56,7 @@
                 </div>
                 <div class="modal-body" id="textoModal">
                     <fieldset class="form-group">
-                        {!! form($compratrait->retonaFormModal(1,1)) !!}
+{{--                        {!! form($field['form']) !!}--}}
                     </fieldset>
                 </div>
                 <div class="modal-footer">
@@ -94,7 +94,7 @@
             $(document).ready(function () {
                 const $tableID = $('#table');
 
-                $('#item').select2();
+                //$('#item').select2();
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
