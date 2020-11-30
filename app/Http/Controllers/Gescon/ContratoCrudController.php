@@ -9,6 +9,7 @@ use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratoitem;
+use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -107,6 +108,11 @@ class ContratoCrudController extends CrudController
         if(!empty($request->get('qtd_item'))) {
             $this->inserirItensContrato($request->all());
         }
+
+        if(!empty($request->get('minuta_id'))) {
+            $this->vincularMinutaContrato($request->all());
+        }
+
         return $redirect_location;
     }
 
@@ -133,6 +139,24 @@ class ContratoCrudController extends CrudController
                 $contratoItem->valortotal = $valor_total[$key];
                 $contratoItem->save();
 
+            }
+            DB::commit();
+
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
+    }
+
+    public function vincularMinutaContrato($request){
+
+        DB::beginTransaction();
+        try {
+            foreach ($request['minuta_id'] as $minuta_id) {
+                $contratoMinuta = new ContratoMinutaEmpenho();
+                $contratoMinuta->contrato_id = $request['contrato_id'];
+                $contratoMinuta->minuta_empenho_id = $minuta_id;
+                $contratoMinuta->save();
             }
             DB::commit();
 

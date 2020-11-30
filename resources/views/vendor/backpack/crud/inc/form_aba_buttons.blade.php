@@ -33,6 +33,7 @@
 
         const $array_minutas = $("[name='minutasempenho[]']");
         valor_global = 0;
+        retornoAjax = 0;
 
         $('#botoes_contrato').hide();
         $('#cancelar').hide();
@@ -69,7 +70,10 @@
             $('#cancelar').hide();
             $('#prev_aba').show();
             $('#next_aba').show();
-            carregaitens(event,$array_minutas);
+            if(retornoAjax == 0) {
+                carregaitens(event, $array_minutas);
+            }
+            // calculaTotalGlobal()
 
         });
 
@@ -85,6 +89,14 @@
             calculaTotalGlobal();
         });
 
+        $('body').on('change','#select2_ajax_multiple_minutasempenho', function(event){
+            retornoAjax = 0;
+            console.log('onchange minutas '+retornoAjax);
+        });
+
+        $('body').on('click','#remove_item', function(event){
+            removeLinha(this);
+        });
 
     });
 
@@ -120,6 +132,8 @@
         var vl_unit = item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2});
         var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
 
+        valor_global = (parseFloat(valor_global) + parseFloat(item.valor_total));
+        console.log('valor global itens: '+valor_global);
         var newRow = $("<tr>");
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
@@ -139,34 +153,28 @@
         $("#table-itens").append(newRow);
     }
 
-    function removeLinhaItem(elemento){
+    function removeLinha(elemento){
         var tr = $(elemento).closest('tr');
-        var valor_total = tr.find("td:eq(4)");
-        console.log(valor_total);
-        tr.fadeOut(400, function() {
-            subtraiTotalGlobal(valor_total)
-            tr.remove();
-        });
+        tr.remove();
+        calculaTotalGlobal()
     }
 
-    function subtraiTotalGlobal(valor_total){
-        var total =  (valor_global - (parseFloat(valor_total)));
-        $('#valor_global').val(total);
-    }
 
     function calculaTotalGlobal(){
+
         var valor_total = 0;
-        $("#table-itens").find('tr').each(function(value){
-            var qtd_item = parseInt($(this).find('td').eq(2).find('input').val());
-            var vl_unit = parseFloat($(this).find('td').eq(3).find('input').val());
-
-            var total_iten = (qtd_item * vl_unit)
-            valor_total += total_iten;
-
-            $(this).find('td').eq(3).find('input').val(vl_unit.toLocaleString('pt-br', {minimumFractionDigits: 2}))
-            $(this).find('td').eq(4).find('input').val(total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}))
+        $("#table-itens").find('tr').each(function(){
+               var qtd_item = parseInt($(this).find('td').eq(2).find('input').val());
+               var vl_unit = parseFloat($(this).find('td').eq(3).find('input').val());
+               var total_iten = (qtd_item * vl_unit)
+               valor_total += total_iten;
+               $(this).find('td').eq(3).find('input').val(vl_unit.toLocaleString('pt-br', {minimumFractionDigits: 2}))
+               $(this).find('td').eq(4).find('input').val(total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}))
+           // }
         });
          $('#valor_global').val(valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+         valor_global = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2})
+
     }
 
     function carregaitens(event,$array_minutas) {
@@ -186,9 +194,11 @@
                         var linhas = $("#table-itens tr").length;
                         if(qtd_itens > linhas){
                             adicionaLinhaItem(item);
+
                         }
                     });
-
+                    retornoAjax = 1;
+                    console.log('Retorno API '+retornoAjax);
                 })
                 .catch(error => {
                     alert(error);

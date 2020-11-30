@@ -144,7 +144,7 @@
                                 allowClear: true,
                             @endif
                             @if ( strpos($item->{$field['attribute']},'ESTRANGEIRO') === false)
-                                disabled: true,
+                                readOnly: true,
                             @endif
 
                         ajax: {
