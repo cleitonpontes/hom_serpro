@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Empenho;
 
-use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
-use App\Http\Requests\MinutaEmpenhoRequest as UpdateRequest;
+use App\Http\Requests\MinutaAlteracaoRequest as StoreRequest;
+use App\Http\Requests\MinutaAlteracaoRequest as UpdateRequest;
 use App\Http\Traits\Formatador;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
@@ -91,8 +91,8 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->adicionaColunas($minuta_id);
 
         // add asterisk for fields that are required in MinutaEmpenhoRequest
-        $this->crud->setRequiredFields(StoreRequest::class, 'create');
-        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+//        $this->crud->setRequiredFields(StoreRequest::class, 'create');
+//        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
 
 
 //        dd(123);
@@ -100,15 +100,36 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        dd('store alteracao',$request->all());
+        $minuta_id = $request->get('minuta_id');
+
+        $compra_item_ids = $request->compra_item_id;
+
+        $valores = $request->valor_total;
+
+        $valores = array_map(
+            function ($valores) {
+                return $this->retornaFormatoAmericano($valores);
+            },
+            $valores
+        );
+
+
+
+
+
+//        dd($minuta_id, $compra_item_ids, $valores);
+//        dd('store alteracao',$request->all());
         // your additional operations before save here
-        $redirect_location = parent::storeCrud($request);
+//        $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+//        return $redirect_location;
     }
 
     public function update(UpdateRequest $request)
     {
+        dd('up alteracao',$request->all());
         // your additional operations before save here
         $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
         $request->request->set('etapa', 7);
@@ -209,6 +230,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 'compra_items.id'
             )
             ->where('minutaempenhos.id', $minuta_id)
+            ->distinct()
             ->select(
                 [
                     'compra_item_minuta_empenho.compra_item_id',
@@ -224,19 +246,21 @@ class MinutaAlteracaoCrudController extends CrudController
                     'compra_item_fornecedor.valor_negociado as valortotal',
                     'saldo_contabil.saldo',
                     'compra_item_minuta_empenho.subelemento_id',
-                    'compra_item_minuta_empenho.quantidade',
-                    'compra_item_minuta_empenho.valor',
+                    DB::raw("0 AS quantidade"),
+                    DB::raw("0 AS valor"),
+//                    'compra_item_minuta_empenho.quantidade',
+//                    'compra_item_minuta_empenho.valor',
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                 ]
             )
-            ->get()
-            ->toArray();
-//        ;dd($itens->getBindings(),$itens->toSql());
+            ->get()->toArray();
+//        ;dd($itens->getBindings(),$itens->toSql(),$itens->get());
+//        ;dump($itens->getBindings(),$itens->toSql(),$itens->get());
 //        select sum(valor) from compra_item_minuta_empenho WHERE minutaempenho_id = 8
         $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
             ->select(DB::raw('sum(valor) '))
             ->first()->toArray();
-//        ;dd($itens->getBindings(),$itens->toSql());
+//        ;dd($valor_utilizado->getBindings(),$valor_utilizado->toSql(),$valor_utilizado->first());
 //        dd($valor_utilizado);
 
         /*if ($request->ajax()) {
@@ -277,12 +301,12 @@ class MinutaAlteracaoCrudController extends CrudController
                 ->make(true);
         }*/
 
-        $html = $this->retornaGridItens();
+        $html = $this->retornaGridItens($minuta_id);
 
 //        dd($itens);
 
         return view(
-            'backpack::mod.empenho.Etapa5SubElemento',
+            'backpack::mod.empenho.AlteracaoSubElemento',
             compact('html')
         )->with([
             'credito' => $itens[0]['saldo'],
@@ -355,6 +379,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 'compra_items.id'
             )
             ->where('minutaempenhos.id', $minuta_id)
+            ->distinct()
             ->select(
                 [
                     'compra_item_minuta_empenho.compra_item_id',
@@ -370,14 +395,15 @@ class MinutaAlteracaoCrudController extends CrudController
                     'compra_item_fornecedor.valor_negociado as valortotal',
                     'saldo_contabil.saldo',
                     'compra_item_minuta_empenho.subelemento_id',
-                    'compra_item_minuta_empenho.quantidade',
-                    'compra_item_minuta_empenho.valor',
+//                    'compra_item_minuta_empenho.quantidade',
+//                    'compra_item_minuta_empenho.valor',
+                    DB::raw("0 AS quantidade"),
+                    DB::raw("0 AS valor"),
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                 ]
             )
-            ->get()
-            ->toArray();
-
+            ->get()->toArray();
+//        ;dd($itens->getBindings(),$itens->toSql(),$itens->get());
         return DataTables::of($itens)
             ->addColumn(
                 'ci_id',
@@ -412,6 +438,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 }
             )
             ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item'])
+//            ->rawColumns(['subitem', 'valor_total', 'valor_total_item'])
             ->make(true);
     }
 
@@ -983,10 +1010,10 @@ class MinutaAlteracaoCrudController extends CrudController
      *
      * @return \Yajra\DataTables\Html\Builder
      */
-    private function retornaGridItens()
+    private function retornaGridItens($minuta_id)
     {
 //        dd(route('empenho.crud.alteracao.ajax',12));
-        $rota = route('empenho.crud.alteracao.ajax', 12);
+        $rota = route('empenho.crud.alteracao.ajax', $minuta_id);
 
         $html = $this->htmlBuilder
             ->addColumn(
@@ -1129,6 +1156,7 @@ class MinutaAlteracaoCrudController extends CrudController
     private function addColunaQuantidade($item)
     {
         $quantidade = $item['quantidade'];
+//        dd($quantidade);
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"

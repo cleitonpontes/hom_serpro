@@ -311,6 +311,7 @@ Route::group(
             Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
                 ->name('minuta.etapa.passivo-anterior');
 
+            //alteracao minuta
             Route::group(['prefix' => 'minuta/{minuta_id}'], function () {
                 CRUD::resource('alteracao', 'MinutaAlteracaoCrudController');
                 Route::get('alteracao-dt', 'MinutaAlteracaoCrudController@ajax')->name('crud.alteracao.ajax');
