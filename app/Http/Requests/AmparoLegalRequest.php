@@ -26,9 +26,9 @@ class AmparoLegalRequest extends FormRequest
     public function rules():array
     {
         return [
-             'nome' => 'required|max:255|unique:indicadores,nome,NULL,NULL,deleted_at,NULL',
-             'finalidade' => 'required',
-             'situacao' => 'required',
+            //  'nome' => 'required|max:255|unique:indicadores,nome,NULL,NULL,deleted_at,NULL',
+            //  'finalidade' => 'required',
+            //  'situacao' => 'required',
 
         ];
     }

@@ -19,6 +19,7 @@ class AmparoLegal extends Model
     protected $table = 'amparo_legal';
 
     protected $fillable = [
+        'codigo',
         'modalidade_id',
         'ato_normativo',
         'artigo',
@@ -29,31 +30,75 @@ class AmparoLegal extends Model
 
     public function minuta_empenhos()
     {
-        return $this->hasMany(MinutaEmpenho::class);
+        // return $this->hasMany(MinutaEmpenho::class);
     }
 
     public function modalidade()
     {
-        return $this->belongsTo(Codigoitem::class, 'modalidade_id');
+        // return $this->belongsTo(Codigoitem::class, 'modalidade_id');
     }
 
     public function contrato()
     {
-        return $this->belongsToMany(
-            'App\Models\Contrato',
-            'amparo_legal_contrato',
-            'amparo_legal_id',
-            'contrato_id'
-        );
+        // return $this->belongsToMany(
+        //     'App\Models\Contrato',
+        //     'amparo_legal_contrato',
+        //     'amparo_legal_id',
+        //     'contrato_id'
+        // );
     }
 
     public function contratohistorico()
     {
-        return $this->belongsToMany(
-            'App\Models\Contratohistorico',
-            'amparo_legal_contrato',
-            'contratohistorico_id',
-            'amparo_legal_id'
-        );
+        // return $this->belongsToMany(
+        //     'App\Models\Contratohistorico',
+        //     'amparo_legal_contrato',
+        //     'contratohistorico_id',
+        //     'amparo_legal_id'
+        // );
+    }
+
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | FUNCTIONS
+    |--------------------------------------------------------------------------
+    */
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESORS
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | MUTATORS
+    |--------------------------------------------------------------------------
+    */
+    public function getModalidadeIdAttribute($value){
+        $retorno = $this->formatarAtributoModalidadeId($value);
+        return $retorno;
+    }
+
+    // Métodos que auxiliam os mutators
+    public function formatarAtributoModalidadeId($id){
+        $retorno = Codigoitem::find($id);
+        if($retorno){return $retorno->descricao;}
+        else {return null;}
     }
 }

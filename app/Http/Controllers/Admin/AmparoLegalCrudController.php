@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Codigoitem;
+
 use Alert;
 use App\Http\Controllers\AdminController;
 use App\Models\AmparoLegal;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+
 use App\Http\Requests\AmparoLegalRequest as StoreRequest;
 use App\Http\Requests\AmparoLegalRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Exception;
 use Redirect;
@@ -30,69 +34,139 @@ class AmparoLegalCrudController extends CrudController
     {
         if (backpack_user()->hasRole('Administrador')) {
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | CrudPanel Basic Information
-                    |--------------------------------------------------------------------------
-                    */
-                $this->crud->setModel('App\Models\AmparoLegal');
-                $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/amparolegal');
-                $this->crud->setEntityNameStrings('Amparo Legal', 'Amparos Legais');
+            /*
+            |--------------------------------------------------------------------------
+            | CrudPanel Basic Information
+            |--------------------------------------------------------------------------
+            */
+            $this->crud->setModel('App\Models\AmparoLegal');
+            $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/amparolegal');
+            $this->crud->setEntityNameStrings('Amparo Legal', 'Amparos Legais');
+            $this->crud->enableExportButtons();
 
-                $this->crud->enableExportButtons();
-//                $this->crud->denyAccess('create');
-//                $this->crud->denyAccess('update');
-//                $this->crud->denyAccess('delete');
-//                $this->crud->allowAccess('show');
+            // modalidades para o select
+            $arrayModalidades = Codigoitem::whereHas('codigo', function ($query) {
+                $query->where('descricao', '=', 'Modalidade Licitação');
+            })
+                ->orderBy('descricao')
+                ->pluck('descricao', 'id')
+                ->toArray();
 
+            $this->crud->addColumns($this->colunas());
+            $this->crud->addFields($this->campos($arrayModalidades));
 
-//                (backpack_user()->can('indicador_inserir'))
-//                    ? $this->crud->allowAccess('create') : null;
-//                (backpack_user()->can('indicador_editar'))
-//                    ? $this->crud->allowAccess('update') : null;
-//                (backpack_user()->can('indicador_deletar'))
-//                    ? $this->crud->allowAccess('delete') : null;
+            /*
+            |--------------------------------------------------------------------------
+            | CrudPanel Configuration
+            |--------------------------------------------------------------------------
+            */
 
-                $this->crud->addColumns($this->colunas());
-
-                $this->crud->addFields($this->campos());
-
-                /*
-                |--------------------------------------------------------------------------
-                | CrudPanel Configuration
-                |--------------------------------------------------------------------------
-                */
-
-                // add asterisk for fields that are required in IndicadorRequest
-                $this->crud->setRequiredFields(StoreRequest::class, 'create');
-                $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
-            } else {
-                abort('403', config('app.erro_permissao'));
-            }
+            // add asterisk for fields that are required in IndicadorRequest
+            $this->crud->setRequiredFields(StoreRequest::class, 'create');
+            $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+        } else {
+            abort('403', config('app.erro_permissao'));
+        }
     }
+
+    public function getTipoRestricao(){
+        return 'ok';
+    }
+
+    private function campos($arrayModalidades): array
+    {
+        return [
+            [
+                // n-n relationship
+                'label' => "Demais UGs/UASGs", // Table column heading
+                'type' => "select2_from_ajax_multiple",
+                'name' => 'unidades', // the column that contains the ID of that connected entity
+                'entity' => 'unidades', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_multiple_unidade',
+                'model' => "App\Models\RestricaoAmparoLegal", // foreign key model
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a(s) Unidade(s)", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+                // 'tab' => 'Outros',
+                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+            ],
+
+            [
+                // n-n relationship
+                'label' => "Restrições", // Table column heading
+                'type' => "select2_from_ajax_multiple",
+                'name' => 'restricoes', // the column that contains the ID of that connected entity
+                'entity' => 'codigoitens', // the method that defines the relationship in your Model
+                'attribute' => "descricao", // foreign key attribute that is shown to user
+                'attribute2' => "descres", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_multiple_tipo_restricao',
+                'model' => "App\Models\Codigoitem", // foreign key model
+                'data_source' => url("api/codigoitemAmparoLegal"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a(s) Restrição(ões)", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+            ],
+
+
+            [
+                'name' => 'codigo',
+                'label' => 'Código',
+                'type' => 'number',
+            ],
+            [ // select_from_array
+                'name' => 'modalidade_id',
+                'label' => "Modalidade",
+                'type' => 'select2_from_array',
+                'options' => $arrayModalidades,
+                'allows_null' => false,
+            ],
+            [
+                'name' => 'ato_normativo',
+                'label' => 'Ato Normativo',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'artigo',
+                'label' => 'Artigo',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'paragrafo',
+                'label' => 'Parágrafo',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'inciso',
+                'label' => 'Inciso',
+                'type' => 'text',
+            ],
+            [
+                'name' => 'alinea',
+                'label' => 'Alínea',
+                'type' => 'text',
+            ],
+
+        ];
+    }
+
+
 
     public function store(StoreRequest $request)
     {
-//        $amparo = Indicador::where('nome', $request->nome)->onlyTrashed()->first();
-//
-//        //CASO EXISTA INDICADOR DELETADO
-//        if ($amparo) {
-//            $amparo->update(['finalidade' => $request->finalidade, 'situacao' => $request->situacao]);
-//            $amparo->restore();
-//            Alert::success(trans('backpack::crud.insert_success'))->flash();
-            $redirectUrl = Request::has('http_referrer') ? Request::get('http_referrer') : $this->crud->route;
-//
-            return Redirect::to($redirectUrl);
-//
-//            //$indicador->forceDelete();
 
-//        }
 
-//        // your additional operations before save here
-//        $redirect_location = parent::storeCrud($request);
-//        // your additional operations after save here
-//        // use $this->data['entry'] or $this->crud->entry
-//        return $redirect_location;
+        $redirect_location = parent::storeCrud($request);
+        // your additional operations after save here
+        // use $this->data['entry'] or $this->crud->entry
+        return $redirect_location;
+
+
+
+
+        // $redirectUrl = Request::has('http_referrer') ? Request::get('http_referrer') : $this->crud->route;
+        // return Redirect::to($redirectUrl);
     }
 
     public function update(UpdateRequest $request)
@@ -113,76 +187,87 @@ class AmparoLegalCrudController extends CrudController
     private function colunas(): array
     {
         return [
-            [
-                'name' => 'nome',
-                'label' => 'Indicador',
+           [
+                'name' => 'modalidade_id',
+                'label' => 'Modalidade',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
-                },
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
+                // },
             ],
-            [
-                'name' => 'finalidade',
-                'label' => 'Finalidade',
+           [
+                'name' => 'ato_normativo',
+                'label' => 'Ato Normativo',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true,
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('indicadores.finalidade', 'ilike', "%" . $searchTerm . "%");
-                }
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
+                // },
             ],
-            [
-                'name' => 'situacao',
-                'label' => 'Situação',
-                'type' => 'boolean',
+           [
+                'name' => 'artigo',
+                'label' => 'Artigo',
+                'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
                 'visibleInShow' => true,
-                'options' => [0 => 'Inativo', 1 => 'Ativo']
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
+                // },
+            ],
+           [
+                'name' => 'paragrafo',
+                'label' => 'Parágrafo',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
+                // },
+            ],
+           [
+                'name' => 'inciso',
+                'label' => 'Inciso',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
+                // },
+            ],
+           [
+                'name' => 'alinea',
+                'label' => 'Alínea',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
+                // },
             ],
         ];
     }
 
-    private function campos(): array
-    {
-        return [
-            [
-                'name' => 'nome',
-                'label' => 'Nome',
-                'type' => 'text',
-                'attributes' => [
-                    'onfocusout' => "maiuscula(this)",
-                    'maxlength' => "255",
-                ],
-            ],
-            [
-                'name' => 'finalidade',
-                'label' => 'Finalidade',
-                'type' => 'textarea',
-                'attributes' => [
-                    'onfocusout' => "maiuscula(this)"
-                ],
-            ],
-            [
-                'name' => 'situacao',
-                'label' => "Situação",
-                'type' => 'select2_from_array',
-                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-                'allows_null' => false,
-            ],
-
-        ];
-    }
 
     public function show($id): View
     {
