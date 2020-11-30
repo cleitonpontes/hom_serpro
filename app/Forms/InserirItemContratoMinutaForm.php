@@ -43,7 +43,6 @@ class InserirItemContratoMinutaForm extends Form
                 'attr' => [
                     'id'=>'quantidade',
                     'maxlength' => 10,
-                    'required ' => true,
                     'onkeypress' => 'return somenteNumeros(event)'
                 ]
             ])
@@ -51,7 +50,6 @@ class InserirItemContratoMinutaForm extends Form
             'label' => 'Valor Unitário',
                 'attr' => [
                     'id'=>'valor_unitario',
-                    'required ' => true,
                     'onkeypress' => 'return somenteNumeros(event)'
                     ]
             ])

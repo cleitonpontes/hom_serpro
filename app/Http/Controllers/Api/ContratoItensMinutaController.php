@@ -55,7 +55,7 @@ class ContratoItensMinutaController extends Controller
     public function buscarItensModal(Request $request)
     {
         $minutas_id = Route::current()->parameter('minutas_id');
-
+        $ids = explode(',',$minutas_id);
         $itens = MinutaEmpenho::query()
             ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
             ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
@@ -63,8 +63,8 @@ class ContratoItensMinutaController extends Controller
             ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
             ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
-            ->where('minutaempenhos.id',$minutas_id)
-            ->where('compra_item_minuta_empenho.minutaempenho_id',$minutas_id)
+            ->wherein('minutaempenhos.id',$ids)
+            ->wherein('compra_item_minuta_empenho.minutaempenho_id',$ids)
             ->select('compra_items.*',
                 'codigoitens.descricao as tipo_item',
                 'compra_item_unidade.quantidade_autorizada',
@@ -74,6 +74,16 @@ class ContratoItensMinutaController extends Controller
                 'compra_item_minuta_empenho.quantidade',
                 'compra_item_minuta_empenho.valor as valor_total',
                 'compra_item_minuta_empenho.minutaempenho_id')
+            ->groupBy('compra_items.id',
+                'codigoitens.descricao',
+                'compra_item_unidade.quantidade_autorizada',
+                'compra_item_unidade.quantidade_saldo',
+                'compra_item_fornecedor.valor_unitario',
+                'compra_item_fornecedor.valor_negociado',
+                'compra_item_minuta_empenho.quantidade',
+                'compra_item_minuta_empenho.valor',
+                'compra_item_minuta_empenho.minutaempenho_id'
+            )
             ->get()->toArray();
 
         return json_encode($itens);

@@ -73,8 +73,6 @@
             if(retornoAjax == 0) {
                 carregaitens(event, $array_minutas);
             }
-            // calculaTotalGlobal()
-
         });
 
         $('body').on('click','#vigenciavalores', function(event){
@@ -91,7 +89,6 @@
 
         $('body').on('change','#select2_ajax_multiple_minutasempenho', function(event){
             retornoAjax = 0;
-            console.log('onchange minutas '+retornoAjax);
         });
 
         $('body').on('click','#remove_item', function(event){
@@ -118,8 +115,12 @@
 
     function retornaMinutaIds($array_minutas){
             var minutas_id = [];
+
             $array_minutas.each(function (index,option) {
-                     minutas_id[index] = option[index].value;
+                for (var i = 0;i < option.length;i++){
+                    console.log(i);
+                    minutas_id[i] = option[i].value;
+                }
             });
 
             return minutas_id;
@@ -133,7 +134,7 @@
         var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
 
         valor_global = (parseFloat(valor_global) + parseFloat(item.valor_total));
-        console.log('valor global itens: '+valor_global);
+
         var newRow = $("<tr>");
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
@@ -159,9 +160,7 @@
         calculaTotalGlobal()
     }
 
-
     function calculaTotalGlobal(){
-
         var valor_total = 0;
         $("#table-itens").find('tr').each(function(){
                var qtd_item = parseInt($(this).find('td').eq(2).find('input').val());
@@ -180,7 +179,7 @@
     function carregaitens(event,$array_minutas) {
 
         var minutas_id = retornaMinutaIds($array_minutas);
-
+        console.log(minutas_id);
         if(minutas_id.length > 0) {
             var url = "{{route('buscar.itens.modal',':minutas_id')}}";
 
@@ -194,11 +193,9 @@
                         var linhas = $("#table-itens tr").length;
                         if(qtd_itens > linhas){
                             adicionaLinhaItem(item);
-
                         }
                     });
                     retornoAjax = 1;
-                    console.log('Retorno API '+retornoAjax);
                 })
                 .catch(error => {
                     alert(error);

@@ -56,7 +56,7 @@
                 </div>
                 <div class="modal-body" id="textoModal">
                     <fieldset class="form-group">
-{{--                        {!! form($field['form']) !!}--}}
+                        {!! form($field['form']) !!}
                     </fieldset>
                 </div>
                 <div class="modal-footer">

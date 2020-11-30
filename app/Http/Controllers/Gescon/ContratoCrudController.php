@@ -1676,20 +1676,7 @@ class ContratoCrudController extends CrudController
 
     public function retonaFormModal()
     {
-        return FormBuilder::create(InserirItemContratoMinutaForm::class, [
-//            'url' => route('api.saldo.inserir.modal'),
-//            'method' => 'POST',
-            'id' => 'form_modal'
-
-//        ])->add('compra_item_id', 'hidden', [
-//            'attr' => [
-//                'id' => 'unidade_id[]'
-//            ]
-//        ])->add('minuta_id', 'hidden', [
-//            'attr' => [
-//                'id' => 'minuta_id'
-//            ]
-        ]);
+        return FormBuilder::create(InserirItemContratoMinutaForm::class);
     }
 
     public function retornaArrayValoresFormatado(array $valores){
