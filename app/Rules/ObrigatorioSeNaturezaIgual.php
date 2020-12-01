@@ -37,7 +37,7 @@ class ObrigatorioSeNaturezaIgual implements Rule
      */
     public function passes($attribute, $value): bool
     {
-        dd($this->minuta_id);
+
         $natureza = MinutaEmpenho::join(
         'saldo_contabil',
         'saldo_contabil.id',
