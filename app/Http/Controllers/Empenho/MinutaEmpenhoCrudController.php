@@ -156,14 +156,11 @@ class MinutaEmpenhoCrudController extends CrudController
     protected function adicionaCampoCipi()
     {
         $this->crud->addField([
-            'name' => 'cipi',
-            'label' => 'CIPI',
-            'type' => 'text',
+            'name' => 'numero_cipi',
+            'label' => 'ID CIPI',
+            'type' => 'text_cipi',
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
-            ],
-            'attributes' => [
-                'disabled' => true
             ]
         ]);
     }
