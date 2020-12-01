@@ -1,8 +1,9 @@
 site_name: COMPRASNET CONTRATOS
 
 nav:
-  - 'Apresentação': 'Apresentacao_ComprasnetContratos/index.md'
-  - 'Funcionalidades existentes e previsões': 'Funcionalidades_ComprasnetContratos/index.md'
+  - 'Apresentação': 'index.md'
+  - 'Funcionalidades existentes e previsões': 'Funcionalidades/index.md'
+  - 'Orientação Inicial': 'OrientacoesIniciais/index.md'
   - 'Como acessar': 'acesso.md'
   - 'Manuais do sistema': 'manuaisDoSistema.md'
   - 'Grupos de Usuários': 'grupos.md'
@@ -11,7 +12,7 @@ nav:
 theme:
     name: readthedocs
     highlightjs: false
-    include_homepage_in_sidebar: false
+    include_homepage_in_sidebar: true
     collapse_navigation: true
     navigation_depth: 4
 

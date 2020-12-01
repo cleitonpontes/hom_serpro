@@ -358,6 +358,21 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
 
 <hr>
 
+<h2>Gestão Orçamentária <img class="list-button" id="gestaoOrcamentariaButton" onclick="toggleList('gestaoOrcamentaria')" src="../assets/plus-circle.svg" /></h2>
+<ul id="gestaoOrcamentariaList" hide-list>
+    <li>
+        <h4>
+            <a href="../manuais/gestaoFinanceira/empenho/" target="_blank" >
+                Funcionalidades Empenho
+            </a>
+            <a href="https://gitlab.com/comprasnet/contratos/-/wikis/uploads/5b2d7b37091c97aba4dfe2f643fccbb2/FuncionalidadesEmpenho_v510_1509.pdf"
+                target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
+        </h4>
+    </li>
+</ul>
+
+<hr>
+
 <h2>Gestão Financeira <img class="list-button" id="gestaoFinanceiraButton" onclick="toggleList('gestaoFinanceira')" src="../assets/plus-circle.svg" /></h2>
 <ul id="gestaoFinanceiraList" hide-list>
     <li>
@@ -371,14 +386,6 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
     <li>
         <h3>Cadastro <img class="list-button" id="cadastroButton" onclick="toggleList('cadastro')" src="../assets/plus-circle.svg" /></h3>
         <ul id="cadastroList" hide-list>
-            <li>
-                <h4>
-                <a href="../manuais/gestaoFinanceira/empenho/" target="_blank" >
-                Funcionalidades Empenho
-                </a>
-                <a href="https://gitlab.com/comprasnet/contratos/-/wikis/uploads/5b2d7b37091c97aba4dfe2f643fccbb2/FuncionalidadesEmpenho_v510_1509.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
-                </h4>
-            </li>
             <li>
                 <h4>
                 <a href="../manuais/gestaoFinanceira/situacaoSIAFI/" target="_blank" >
