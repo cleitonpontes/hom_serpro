@@ -4,6 +4,10 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Contrato;
+use App\XML\ApiSiasg;
+use App\Models\Siasgcompra;
+use App\Models\Unidade;
+use App\Models\Codigoitem;
 
 class SanitizarComprasContratos extends Command
 {
@@ -38,30 +42,39 @@ class SanitizarComprasContratos extends Command
      */
     public function handle()
     {
-        /* passo 1
-           * Consumir o serviço do (ContratoSiasg) (SiasgcontratoCrudController.php) 
-           * -> Sanitizar dados da tabela (contratoitens) de acordo com a API (ContratoSiasg)
-        */
+       
+       $contrato =  Contrato::select('licitacao_numero', 'codigoitens.descres', 'unidades.codigo')
+                           ->Join('codigoitens', 'codigoitens.id', '=', 'contratos.modalidade_id')
+                           ->join('unidades', 'unidades.id' , '=' , 'contratos.unidade_id')
+                           ->limit(300)->get()->toArray();
 
+      $apiSiasg = new ApiSiasg();
+      $arrRespostaSiasg = [];
 
-        /**
-         * passo 2
-         * percorrer os contratos 
-         * -> tabela (contratos) colunas (modalidade_id,licitacao_numero, numero, unidade_id, unidadeorigem_id )
-         *     Select modalidade_id,licitacao_numero, numero, unidade_id, unidadeorigem_id from contratos 
-         * -> codigoitens (descres)
-         */
+      foreach($contrato as $key => $value){
+        $licitacao_numero = explode( "/" ,  $value['licitacao_numero']);
 
-         /**
-          * passo 3  
-          *  Serviço compra sispp / sisrp
-          */
+        $dado = [
+            'ano' => $licitacao_numero[1],
+            'modalidade' => $value['descres'],
+            'numero' => $licitacao_numero[0],
+            'uasg' => $value['codigo']
+        ];
 
-          /**
-           *  passo 4
-           *  Correlaciona na tabela compras_item_unidade_contratoitens as informações dos itens do 
-           * contratos com os itens da compras utilizando como chave o número do Item da Compra 
-           */
-
+        $dados = json_decode($apiSiasg->executaConsulta('CONTRATOCOMPRA', $dado));
+        
+        if($dados->codigoRetorno === 200){
+            $data = $dados->data[0];
+            $numero = substr($data, 8, 5);
+            $ano = substr($data, 13, 4);
+            $unidade = substr($data, 0, 6);
+            $modalidade = substr($data, 6, 2);
+            // $unidade = Unidade::where('codigosiasg', substr($data, 0, 6))
+            //     ->first();
+            // $modalidade = Codigoitem::where('descres', substr($data, 6, 2))->get()->toArray();
+        }
     }
+    }
+
+  
 }
