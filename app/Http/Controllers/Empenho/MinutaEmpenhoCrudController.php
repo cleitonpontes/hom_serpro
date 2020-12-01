@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Empenho;
 
+use Alert;
 use App\Forms\InserirFornecedorForm;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
@@ -10,6 +11,7 @@ use App\Models\CompraItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\SaldoContabil;
+use App\Models\SfOrcEmpenhoDados;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
@@ -46,6 +48,9 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Minuta de Empenho', 'Minutas de Empenho');
         $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
         $this->crud->setShowView('vendor.backpack.crud.empenho.show');
+
+        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta');
+
         $this->crud->urlVoltar = route(
             'empenho.minuta.etapa.subelemento',
             ['minuta_id' => $this->minuta_id]
@@ -143,7 +148,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'text',
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
-                'title' => 'Campo opcional.',
+                'title' => 'Esse campo é opcional. Preencha caso sua unidade deseje controlar a numeração do empenho. Ao deixar o campo em branco, o sistema irá realizar o controle da numeração dos empenhos automaticamente.',
             ]
         ]);
     }
@@ -219,7 +224,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'processo',
             'label' => 'Número Processo',
-            'type' => 'text',
+            'type' => 'numprocesso',
             'limit' => 20,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
@@ -688,7 +693,6 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         return FormBuilder::create(InserirFornecedorForm::class, [
             'id' => 'form_modal'
-
         ]);
     }
 
@@ -729,5 +733,34 @@ class MinutaEmpenhoCrudController extends CrudController
 //                'minuta_id' => $request->get('minuta_id')
 //            ]
 //        );
+    }
+
+    public function executarAtualizacaoSituacaoMinuta($id)
+    {
+
+        DB::beginTransaction();
+        try {
+            $minuta = MinutaEmpenho::find($id);
+
+            $situacao = Codigoitem::wherehas('codigo', function ($q) {
+                $q->where('descricao', '=', 'Situações Minuta Empenho');
+            })
+                ->where('descricao', 'EM PROCESSAMENTO')
+                ->first();
+            $minuta->situacao_id = $situacao->id;
+            $minuta->save();
+
+            $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)->first();
+
+            $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+            $modSfOrcEmpenhoDados->save();
+
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
+
+        Alert::success('Situação da minuta alterada com sucesso!')->flash();
+        return redirect('/empenho/minuta');
     }
 }
