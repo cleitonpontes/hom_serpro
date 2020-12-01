@@ -74,6 +74,49 @@
                     });
                 }
             });
+
+            $(document).on('change', '#select2_ajax_multiple_minutasempenho', function () {
+                
+                if (!null_or_empty("#select2_ajax_multiple_minutasempenho")) {
+                    $("select[name=modalidade_id]" ).removeAttr("disabled");
+                    buscarModalidade();
+                }
+
+                if (null_or_empty("#select2_ajax_multiple_minutasempenho")) {
+                    $("select[name=modalidade_id]").val(172).change();
+                    $("select[name=modalidade_id]" ).attr('disabled', 'disabled');
+                }
+
+            });
+
+            // verifica se o array esta nulo ou vazio
+            function null_or_empty(str) {
+                var v = $(str).val();
+                if (v === null || v.length == 0) {
+                    return true;
+                }
+                return false;
+            }
+
+            //busca a modalidade de acordo com a primeira minuta de empenho selecionada
+            function buscarModalidade()
+            {
+                var arrayMinutas = $("#select2_ajax_multiple_minutasempenho").val();
+
+                var url = "{{route('buscar.modalidade.empenho',':id')}}";
+                url = url.replace(':id', arrayMinutas[0]);
+                axios.request(url)
+                    .then(response => {
+                        if(response.data){
+                            $("select[name=modalidade_id]").val(response.data).change();
+                        }
+                    })
+                    .catch(error => {
+                        alert(error);
+                    })
+                    .finally()
+                event.preventDefault()
+            }
         });
     </script>
     @endpush
