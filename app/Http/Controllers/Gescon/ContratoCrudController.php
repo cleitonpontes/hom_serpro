@@ -841,7 +841,11 @@ class ContratoCrudController extends CrudController
             'type' => 'select2_from_array',
             'options' => $modalidades,
             'allows_null' => true,
-            'tab' => $this->tab
+            'tab' => $this->tab,
+            'default'    => 172,
+            'attributes' => [
+                'disabled' => 'disabled',
+            ],
         ]);
     }
 

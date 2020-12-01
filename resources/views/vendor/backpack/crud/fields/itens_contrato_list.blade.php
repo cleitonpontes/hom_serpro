@@ -111,8 +111,8 @@
 
                 var tipo_id = $('#tipo_item').val();
 
-                var url = "{{route('buscar.itens.modal',':tipo_id')}}";
-                url = url.replace(':tipo_id', tipo_id);
+                var url = "{{route('buscar.itens.modal','/tipo_id')}}";
+                url = url.replace('/tipo_id', tipo_id);
                 axios.request(url)
                     .then(response => {
                         var itens = response.data;

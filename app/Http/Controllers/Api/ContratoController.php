@@ -21,6 +21,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contratoterceirizado;
 use App\Models\Contratodespesaacessoria;
 use OpenApi\Annotations as OA;
+use App\Models\MinutaEmpenho;
 
 use App\Models\Empenho;
 use App\Models\Fornecedor;
@@ -1139,6 +1140,19 @@ class ContratoController extends Controller
         $cpf =  '***' . substr($cpf,3,9) . '**';
 
         return $cpf . ' - ' . $nome;
+    }
+
+    public function buscarModalidadePorIdEmpenho($id)
+    {
+        $mMinutaEmpenho = MinutaEmpenho::query()
+        ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+        ->where('minutaempenhos.id',$id)->firstOrFail()->toArray();
+
+        if ($mMinutaEmpenho) {
+            return $mMinutaEmpenho['modalidade_id'];
+        }
+
+        return null;
     }
 
 /**
