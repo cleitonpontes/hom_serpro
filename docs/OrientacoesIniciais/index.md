@@ -1,7 +1,7 @@
 <style type="text/css">
     .logo{
         margin: 10px 20%;
-        width: 60%;
+        width: 60%; 
     }
     p{
         font-family: Arial, sans-serif;
