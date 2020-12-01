@@ -58,9 +58,10 @@ class Fornecedor extends Model
         }
     }
 
-    public function buscaFornecedorPorNumero($numero){
-        $Numeroformatado = $this->formataCnpjCpf($numero);
-        $fornecedor = Fornecedor::where('cpf_cnpj_idgener',$Numeroformatado)->first();
+    public function buscaFornecedorPorNumero($numero)
+    {
+        $Numeroformatado = $numero === 'ESTRANGEIRO' ? 'ESTRANGEIRO' : $this->formataCnpjCpf($numero);
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $Numeroformatado)->first();
         return $fornecedor;
 
     }

@@ -37,7 +37,7 @@ Route::group([
             Route::get('comprasiasg/{id}', 'ComprasiasgController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
             Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
-            Route::get('catmatseritem', 'CatmatseritemController@index');
+            Route::get('catmatseritem', 'CatmatseritemController@index')->name('busca.catmatseritens');;
             Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
             Route::get('orgaosubcategoria', 'OrgaosubcategoriaController@index');
             Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
@@ -53,6 +53,9 @@ Route::group([
             Route::get('carrega/saldos/unidade/{cod_unidade}', 'SaldoContabilController@carregaSaldosPorUnidadeSiasg')->name('carrega.saldos.unidade');
             Route::get('minutaempenhoparacontrato', 'MinutaEmpenhoController@minutaempenhoparacontrato');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
+            Route::get('inserir/item/modal/{tipo_id}/{contacorrente}', 'ContratoItensMinutaController@inserirIten')->name('item.inserir.modal');
+            Route::get('buscar/itens/modal/{minutas_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
+
 
 
         });
@@ -104,6 +107,8 @@ Route::group([
             CRUD::resource('comunica', 'ComunicaCrudController');
             CRUD::resource('importacao', 'ImportacaoCrudController');
             CRUD::resource('ipsacesso', 'IpsacessoCrudController');
+            CRUD::resource('feriado', 'FeriadoCrudController');
+
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')

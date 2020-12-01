@@ -61,15 +61,11 @@
 		    </div><!-- /.box-body -->
 
                 <div class="">
-                    {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
-                        ->asLinkTo($crud->urlVoltar)
-                    !!}
-                    <button type="submit" class="btn btn-success">
-                        Próxima Etapa <i class="fa fa-arrow-right"></i>
-                    </button>
+                    @include('backpack::mod.empenho.botoes',['rota' => $crud->urlVoltar])
                 </div>
 		  </div><!-- /.box -->
 		  </form>
 	</div>
+    @stack('modal_novo_credor')
 </div>
 @endsection

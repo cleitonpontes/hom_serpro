@@ -254,6 +254,9 @@ Route::group(
 
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
 
+            Route::get('minuta/{minuta_id}/atualizarsituacaominuta', 'MinutaEmpenhoCrudController@executarAtualizacaoSituacaoMinuta')
+                ->name('minuta.atualizar.situacao');
+
             //passo 1
             Route::get('buscacompra', 'CompraSiasgCrudController@create')
                 ->name('minuta.etapa.compra');
@@ -298,6 +301,9 @@ Route::group(
                 ->name('subelemento.update');
 
             //passo 6
+
+            Route::post('minuta/inserir/fornecedor', 'MinutaEmpenhoCrudController@inserirFornecedorModal')
+                ->name('minuta.inserir.fornecedor');
 
             //passo 7
             CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create', 'show']]);

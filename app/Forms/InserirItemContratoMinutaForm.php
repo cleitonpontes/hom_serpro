@@ -1,6 +1,7 @@
 <?php
 namespace App\Forms;
 
+use App\Models\Codigoitem;
 use Kris\LaravelFormBuilder\Form;
 
 class InserirItemContratoMinutaForm extends Form
@@ -9,19 +10,32 @@ class InserirItemContratoMinutaForm extends Form
     public function buildForm()
     {
 
+        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo CATMAT e CATSER');
+        })
+            ->pluck('descricao', 'id')
+            ->toArray();
+
         $this
-        ->add('tipo_item', 'text',[
-            'label' => 'Tipo Item',
-            'rules' => 'required',
+            ->add('tipo_item', 'select', [
+                'choices' => $tipos,
+                'required ' => true,
+                'empty_value' => 'Selecione...',
                 'attr' => [
-                    'id'=>'tipo_item'
+                    'id' => 'tipo_item',
+                    'onchange' => 'return carregaitensmodal(this)'
                 ]
             ])
-        ->add('item','text',[
-            'label' => 'Item',
-            'required ' => true,
+            ->add('item', 'select', [
+                'choices' => [
+//                    '149' => 'MATERIAL',
+//                    '150' => 'SERVIÇO',
+                ],
+                'required ' => true,
+                'selected' => 'en',
+                'empty_value' => 'Selecione...',
                 'attr' => [
-                    'id'=>'item'
+                    'id' => 'item'
                 ]
             ])
         ->add('quantidade', 'number',[
@@ -29,7 +43,6 @@ class InserirItemContratoMinutaForm extends Form
                 'attr' => [
                     'id'=>'quantidade',
                     'maxlength' => 10,
-                    'required ' => true,
                     'onkeypress' => 'return somenteNumeros(event)'
                 ]
             ])
@@ -37,17 +50,8 @@ class InserirItemContratoMinutaForm extends Form
             'label' => 'Valor Unitário',
                 'attr' => [
                     'id'=>'valor_unitario',
-                    'required ' => true,
                     'onkeypress' => 'return somenteNumeros(event)'
                     ]
-            ])
-        ->add('valor_total', 'text',[
-            'label' => 'UGR',
-                'attr' => [
-                    'id'=>'valor_total',
-                    'required ' => true,
-                    'onkeypress' => 'return somenteNumeros(event)'
-                ]
             ])
         ->add('cancelar', 'submit', [
             'label' => '<i class="fa fa-reply"></i> Cancelar',

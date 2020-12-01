@@ -2,7 +2,6 @@
 
 namespace App\Http\Traits;
 
-use App\Forms\InserirItemContratoMinutaForm;
 use App\Models\Catmatseritem;
 use App\Models\CompraItem;
 use App\Models\CompraItemFornecedor;
@@ -12,9 +11,7 @@ use App\Models\Fornecedor;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Html\Builder;
-use Kris\LaravelFormBuilder\Form;
-use FormBuilder;
+
 
 
 trait CompraTrait
@@ -250,28 +247,9 @@ trait CompraTrait
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
-            $compraItemUnidade->quantidade_saldo = $saldo->saldo;
-            $compraItemUnidade->save();
+        $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+        $compraItemUnidade->save();
     }
 
-    public function retonaFormModal($unidade_id, $minuta_id)
-    {
-        return FormBuilder::create(InserirItemContratoMinutaForm::class, [
-//            'url' => route('api.saldo.inserir.modal'),
-//            'method' => 'POST',
-            'id' => 'form_modal'
-
-        ])->add('unidade_id', 'hidden', [
-            'value' => $unidade_id,
-            'attr' => [
-                'id' => 'unidade_id'
-            ]
-        ])->add('minuta_id', 'hidden', [
-            'value' => $minuta_id,
-            'attr' => [
-                'id' => 'minuta_id'
-            ]
-        ]);
-    }
 
 }

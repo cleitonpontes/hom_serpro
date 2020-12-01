@@ -483,6 +483,12 @@
                             </a>
                         </li>
                         <li>
+                            <a href='{{ backpack_url('/admin/feriado') }}'>
+                                <i class='fa fa-list'></i>
+                                <span>Feriado</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ backpack_url('/admin/justificativafatura') }}">
                                 <i class="fa fa-list"></i>
                                 <span>Justificativa fatura</span>

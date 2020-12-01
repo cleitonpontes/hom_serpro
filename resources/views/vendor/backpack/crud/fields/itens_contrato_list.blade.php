@@ -1,14 +1,14 @@
 <!-- field_type_name -->
 @inject('compratrait', 'App\Http\Controllers\Empenho\CompraSiasgCrudController')
 <div @include('crud::inc.field_wrapper_attributes') >
-    <label>{!! $field['label'] !!}</label>
-    <input
-        type="text"
-        name="{{ $field['name'] }}"
-        value="{{ old($field['name']) ? old($field['name']) : (isset($field['value']) ? $field['value'] : (isset($field['default']) ? $field['default'] : '' )) }}"
-        @include('crud::inc.field_attributes')
-    >
-    <br>
+{{--    <label>{!! $field['label'] !!}</label>--}}
+{{--    <input--}}
+{{--        type="text"--}}
+{{--        name="{{ $field['name'] }}"--}}
+{{--        value="{{ old($field['name']) ? old($field['name']) : (isset($field['value']) ? $field['value'] : (isset($field['default']) ? $field['default'] : '' )) }}"--}}
+{{--        @include('crud::inc.field_attributes')--}}
+{{--    >--}}
+{{--    <br>--}}
     <!-- Editable table -->
     <div class="card">
         <div class="card-body">
@@ -19,6 +19,7 @@
                                 Inserir Item <i class="fa fa-plus"></i>
                             </button>
                           </span>
+                <br>
                 <table class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                     <tr>
@@ -30,82 +31,8 @@
                         <th class="text-center">Ações</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr>
-                        <td class="pt-3-half" contenteditable="true">Aurelia Vega</td>
-                        <td class="pt-3-half" contenteditable="true">30</td>
-                        <td class="pt-3-half" contenteditable="true">Deepends</td>
-                        <td class="pt-3-half" contenteditable="true">Spain</td>
-                        <td class="pt-3-half" contenteditable="true">Madrid</td>
-                        <td class="pt-3-half">
-                          <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Editar <i class="fa fa-edit"></i>
-                            </button>
-                          </span>
-                            <span class="table-remove">
-                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">Remover</button>
-                            </span>
-                        </td>
-                    </tr>
-                    <!-- This is our clonable table line -->
-                    <tr>
-                        <td class="pt-3-half" contenteditable="true">Guerra Cortez</td>
-                        <td class="pt-3-half" contenteditable="true">45</td>
-                        <td class="pt-3-half" contenteditable="true">Insectus</td>
-                        <td class="pt-3-half" contenteditable="true">USA</td>
-                        <td class="pt-3-half" contenteditable="true">San Francisco</td>
-                        <td class="pt-3-half">
-                          <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Editar <i class="fa fa-edit"></i>
-                            </button>
-                          </span>
-                            <span class="table-remove">
-                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">Remover</button>
-                            </span>
-                        </td>
-                    </tr>
-                    <!-- This is our clonable table line -->
-                    <tr>
-                        <td class="pt-3-half" contenteditable="true">Guadalupe House</td>
-                        <td class="pt-3-half" contenteditable="true">26</td>
-                        <td class="pt-3-half" contenteditable="true">Isotronic</td>
-                        <td class="pt-3-half" contenteditable="true">Germany</td>
-                        <td class="pt-3-half" contenteditable="true">Frankfurt am Main</td>
-                        <td class="pt-3-half">
-                          <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Editar <i class="fa fa-edit"></i>
-                            </button>
-                          </span>
-                            <span class="table-remove">
-                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">Remover</button>
-                            </span>
-                        </td>
-                    </tr>
-                    <!-- This is our clonable table line -->
-                    <tr class="hide">
-                        <td class="pt-3-half" contenteditable="true">Elisa Gallagher</td>
-                        <td class="pt-3-half" contenteditable="true">31</td>
-                        <td class="pt-3-half" contenteditable="true">Portica</td>
-                        <td class="pt-3-half" contenteditable="true">United Kingdom</td>
-                        <td class="pt-3-half" contenteditable="true">London</td>
-                        <td class="pt-3-half">
-                          <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Editar <i class="fa fa-edit"></i>
-                            </button>
-                          </span>
-                            <span class="table-remove">
-                                <button type="button" class="btn btn-warning btn-rounded btn-sm my-0">Remover</button>
-                            </span>
-                        </td>
-                    </tr>
+                    <tbody id="table-itens">
+
                     </tbody>
                 </table>
             </div>
@@ -129,7 +56,7 @@
                 </div>
                 <div class="modal-body" id="textoModal">
                     <fieldset class="form-group">
-                        {!! form($compratrait->retonaFormModal(1,1)) !!}
+                        {!! form($field['form']) !!}
                     </fieldset>
                 </div>
                 <div class="modal-footer">
@@ -160,50 +87,52 @@
     {{-- push things in the after_scripts section --}}
 
     @push('crud_fields_scripts')
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
         <script type="text/javascript">
-            const $tableID = $('#table');
-            const $BTN = $('#export-btn');
-            const $EXPORT = $('#export');
 
-            $tableID.on('click', '.table-remove', function () {
+            $(document).ready(function () {
+                const $tableID = $('#table');
 
-                $(this).parents('tr').detach();
+                //$('#item').select2();
+
+                $tableID.on('click', '.table-remove', function () {
+                    $(this).parents('tr').detach();
+                });
             });
 
+            function addOption(valor) {
+                var option = new Option(valor, valor);
+                var select = document.getElementById("tipo_item");
+                select.add(option);
+            }
 
-            // A few jQuery helpers for exporting only
-            jQuery.fn.pop = [].pop;
-            jQuery.fn.shift = [].shift;
+            function carregaitensModal(event) {
 
-            $BTN.on('click', () => {
+                var tipo_id = $('#tipo_item').val();
 
-                const $rows = $tableID.find('tr:not(:hidden)');
-                const headers = [];
-                const data = [];
+                var url = "{{route('buscar.itens.modal',':tipo_id')}}";
+                url = url.replace(':tipo_id', tipo_id);
+                axios.request(url)
+                    .then(response => {
+                        var itens = response.data;
 
-                // Get the headers (add special header logic here)
-                $($rows.shift()).find('th:not(:empty)').each(function () {
+                        itens.foreach(function (item){
+                            console.log(item);
+                            return;
+                            addOption(item)
+                        });
+                        console.log(dados);
+                    })
+                    .catch(error => {
+                        alert(error);
+                    })
+                    .finally()
+                event.preventDefault()
+            }
 
-                    headers.push($(this).text().toLowerCase());
-                });
 
-                // Turn all existing rows into a loopable array
-                $rows.each(function () {
-                    const $td = $(this).find('td');
-                    const h = {};
 
-                    // Use the headers from earlier to name our hash keys
-                    headers.forEach((header, i) => {
-
-                        h[header] = $td.eq(i).text();
-                    });
-
-                    data.push(h);
-                });
-
-                // Output the result
-                $EXPORT.text(JSON.stringify(data));
-            });
         </script>
     @endpush
 @endif
