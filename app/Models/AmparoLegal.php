@@ -59,6 +59,17 @@ class AmparoLegal extends Model
     }
 
 
+    public function amparo_legal_restricoes()
+    {
+        // return $this->belongsToMany(
+        //     'App\Models\Contratohistorico',
+        //     'amparo_legal_contrato',
+        //     'contratohistorico_id',
+        //     'amparo_legal_id'
+        // );
+    }
+
+
 
         /*
     |--------------------------------------------------------------------------

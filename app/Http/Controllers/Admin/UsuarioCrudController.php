@@ -196,7 +196,7 @@ class UsuarioCrudController extends CrudController
                 'attribute' => "codigo", // foreign key attribute that is shown to user
                 'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
                 'process_results_template' => 'gescon.process_results_multiple_unidade',
-                'model' => "App\Models\RestricaoAmparoLegal", // foreign key model
+                'model' => "App\Models\Unidade", // foreign key model
                 'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
                 'placeholder' => "Selecione a(s) Unidade(s)", // placeholder for the select
                 'minimum_input_length' => 2, // minimum characters to type before querying results

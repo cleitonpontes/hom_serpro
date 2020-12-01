@@ -3,11 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Codigoitem;
+use App\Models\AmparoLegal;
+use App\Models\AmparoLegalRestricao;
+use App\Models\Unidade;
+
+
+use App\Http\Traits\Authorizes;
+use App\Jobs\UserMailPasswordJob;
+use App\Models\BackpackUser;
+use Backpack\CRUD\app\Http\Controllers\CrudController;
+
+
 
 use Alert;
 use App\Http\Controllers\AdminController;
-use App\Models\AmparoLegal;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -42,6 +51,9 @@ class AmparoLegalCrudController extends CrudController
             $this->crud->setModel('App\Models\AmparoLegal');
             $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/amparolegal');
             $this->crud->setEntityNameStrings('Amparo Legal', 'Amparos Legais');
+
+
+
             $this->crud->enableExportButtons();
 
             // modalidades para o select
@@ -69,47 +81,28 @@ class AmparoLegalCrudController extends CrudController
         }
     }
 
-    public function getTipoRestricao(){
-        return 'ok';
-    }
+    // public function getTipoRestricao(){
+    //     return 'ok';
+    // }
 
     private function campos($arrayModalidades): array
     {
         return [
             [
                 // n-n relationship
-                'label' => "Demais UGs/UASGs", // Table column heading
+                'label' => "Restricoes", // Table column heading
                 'type' => "select2_from_ajax_multiple",
-                'name' => 'unidades', // the column that contains the ID of that connected entity
-                'entity' => 'unidades', // the method that defines the relationship in your Model
-                'attribute' => "codigo", // foreign key attribute that is shown to user
-                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
-                'process_results_template' => 'gescon.process_results_multiple_unidade',
-                'model' => "App\Models\RestricaoAmparoLegal", // foreign key model
-                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
-                'placeholder' => "Selecione a(s) Unidade(s)", // placeholder for the select
-                'minimum_input_length' => 2, // minimum characters to type before querying results
-                // 'tab' => 'Outros',
-                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
-            ],
-
-            [
-                // n-n relationship
-                'label' => "Restrições", // Table column heading
-                'type' => "select2_from_ajax_multiple",
-                'name' => 'restricoes', // the column that contains the ID of that connected entity
-                'entity' => 'codigoitens', // the method that defines the relationship in your Model
-                'attribute' => "descricao", // foreign key attribute that is shown to user
-                'attribute2' => "descres", // foreign key attribute that is shown to user
+                'name' => 'amparo_legal_restricoesx', // the column that contains the ID of that connected entity
+                'entity' => 'amparo_legal_restricoes', // the method that defines the relationship in your Model
+                'attribute' => "descres", // foreign key attribute that is shown to user
+                'attribute2' => "descricao", // foreign key attribute that is shown to user
                 'process_results_template' => 'gescon.process_results_multiple_tipo_restricao',
-                'model' => "App\Models\Codigoitem", // foreign key model
+                'model' => "App\Models\AmparoLegalRestricao", // foreign key model
                 'data_source' => url("api/codigoitemAmparoLegal"), // url to controller search function (with /{id} should return model)
-                'placeholder' => "Selecione a(s) Restrição(ões)", // placeholder for the select
+                'placeholder' => "Selecione a(s) restrição(ões)", // placeholder for the select
                 'minimum_input_length' => 2, // minimum characters to type before querying results
-                'pivot' => true, // on create&update, do you need to add/delete pivot table entries?
+                'pivot' => false, // on create&update, do you need to add/delete pivot table entries?
             ],
-
-
             [
                 'name' => 'codigo',
                 'label' => 'Código',
@@ -156,10 +149,19 @@ class AmparoLegalCrudController extends CrudController
     public function store(StoreRequest $request)
     {
 
+        // aqui receberemos um array com os codigoitens, para salvarmos na tabela amparo legal restricao
+        $arrayCodigoitens = $request->input('arrayCodigoitens');
+
 
         $redirect_location = parent::storeCrud($request);
+
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
+
+
+        dd($this->data);
+
+
         return $redirect_location;
 
 
