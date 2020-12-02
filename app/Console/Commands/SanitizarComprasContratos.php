@@ -49,7 +49,7 @@ class SanitizarComprasContratos extends Command
             foreach($contrato as $key => $value){
                 $dados = $this->listarDadosContratoApiSiasg($apiSiasg, $value);
                     if(!is_null($dados) && $dados->codigoRetorno === 200){
-                        $arrParams = $this->separarNumeroContratoPorCategoria($dados->data[0]);
+                        $arrParams = $this->separarNumeroContrato($dados->data[0]);
                         $this->atualizarSiasgCompra($arrParams);
                     }
                 }
@@ -84,7 +84,7 @@ class SanitizarComprasContratos extends Command
         return is_object($dados) ? $dados : NULL;
     }
 
-    private function separarNumeroContratoPorCategoria(string $dados)
+    private function separarNumeroContrato(string $dados)
     {
         $unidade =  Unidade::where('codigosiasg', substr($dados, 0, 6))
             ->first();
