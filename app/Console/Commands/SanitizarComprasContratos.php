@@ -43,26 +43,21 @@ class SanitizarComprasContratos extends Command
     public function handle()
     {
         try{
-       
             $contrato =  $this->consultarContrato();
-
             $apiSiasg = new ApiSiasg();
 
             foreach($contrato as $key => $value){
-
                 $dados = $this->listarDadosContratoApiSiasg($apiSiasg, $value);
-                   
-                    if(!is_null($dados) && $dados->codigoRetorno === 200  ){
-                        //var_dump($this->separarNumeroContratoPorCategoria($dados->data[0]));
-                        $this->atualizarSiasgCompra();
+                    if(!is_null($dados) && $dados->codigoRetorno === 200){
+                        $arrParams = $this->separarNumeroContratoPorCategoria($dados->data[0]);
+                        $this->atualizarSiasgCompra($arrParams);
                     }
-                   
                 }
 
         } catch(Exception $e){
-           throw new Exception("Error Processing Request", $e->getMessage());         
+           throw new Exception("Error Processing Request", $e->getMessage());
         }
-     
+
     }
 
     private function consultarContrato()
@@ -91,16 +86,33 @@ class SanitizarComprasContratos extends Command
 
     private function separarNumeroContratoPorCategoria(string $dados)
     {
-        return  [
+        $unidade =  Unidade::where('codigosiasg', substr($dados, 0, 6))
+            ->first();
+
+        $modalidade = Codigoitem::where('descres', substr($dados, 6, 2))
+            ->first();
+
+        return [
             'numero' => substr($dados, 8, 5),
             'ano' => substr($dados, 13, 4),
-            'unidade' => substr($dados, 0, 6),
-            'modalidade' => substr($dados, 6, 2)
+            'unidade' => $unidade->id,
+            'modalidade' => $modalidade->id
         ];
     }
-    
-    private function atualizarSiasgCompra()
+
+    private function atualizarSiasgCompra($arrParams)
     {
-        
+            $siasgCompra = Siasgcompra::updateOrCreate(
+                [
+                    'ano' => $arrParams['ano'],
+                    'numero' => $arrParams['numero'],
+                    'unidade_id' => $arrParams['unidade'],
+                    'modalidade_id' => $arrParams['modalidade'],
+                ],
+                [
+                    'situacao' => 'Pendente'
+                ]
+            );
+            return $siasgCompra;
     }
 }
