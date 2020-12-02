@@ -55,7 +55,7 @@ class SanitizarComprasContratos extends Command
                 }
 
         } catch(Exception $e){
-           throw new Exception("Error Processing Request", $e->getMessage());
+           throw new Exception("Error ao Processar a Requisição", $e->getMessage());
         }
 
     }
@@ -80,7 +80,7 @@ class SanitizarComprasContratos extends Command
             'uasg' => $value['codigo']
         ];
         $dados = json_decode($apiSiasg->executaConsulta('CONTRATOCOMPRA', $dado));
-       
+
         return is_object($dados) ? $dados : NULL;
     }
 
