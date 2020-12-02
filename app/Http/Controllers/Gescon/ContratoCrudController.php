@@ -10,6 +10,7 @@ use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratoitem;
 use App\Models\ContratoMinutaEmpenho;
+use App\Models\MinutaEmpenho;
 use App\Models\Fornecedor;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -101,6 +102,15 @@ class ContratoCrudController extends CrudController
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
 
+        // Caso tenha empenho preenchido utilizar os campos de unidade, modalidade e numero da licitacao de acordo 
+        // com a compra da minuta de empenho descartando os valores inseridos pelo usuário 
+        if(!empty($request->get('minutasempenho'))){
+            $camposBaseadosEmpenho = $this->buscarCamposBaseadosEmpenho(current($request->get('minutasempenho')));
+            $request->request->set('unidadecompra_id', $camposBaseadosEmpenho['unidade_id']);
+            $request->request->set('modalidade_id', $camposBaseadosEmpenho['modalidade_id']);
+            $request->request->set('licitacao_numero', $camposBaseadosEmpenho['compra_numero_ano']);
+        }
+
         $redirect_location = parent::storeCrud($request);
         $contrato_id = $this->crud->getCurrentEntryId();
         $request->request->set('contrato_id',$contrato_id);
@@ -114,6 +124,19 @@ class ContratoCrudController extends CrudController
         }
 
         return $redirect_location;
+    }
+
+    private function buscarCamposBaseadosEmpenho($idEmpenho)
+    {
+        $camposContrato = MinutaEmpenho::select(
+            "compras.modalidade_id",
+            "minutaempenhos.unidade_id",
+            "compras.numero_ano as compra_numero_ano"
+        )
+        ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+        ->where('minutaempenhos.id',$idEmpenho)->firstOrFail()->toArray();
+
+        return $camposContrato;
     }
 
     public function inserirItensContrato($request){

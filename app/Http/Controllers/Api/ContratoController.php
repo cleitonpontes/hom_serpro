@@ -1144,9 +1144,7 @@ class ContratoController extends Controller
 
     public function buscarCamposParaCadastroContratoPorIdEmpenho($id)
     {
-
-
-        $mMinutaEmpenho = MinutaEmpenho::select(
+        $camposContrato = MinutaEmpenho::select(
             "compras.modalidade_id",
             "minutaempenhos.unidade_id",
             "unidades.codigo",
@@ -1161,7 +1159,7 @@ class ContratoController extends Controller
         ->join('amparo_legal', 'amparo_legal.id', '=', 'minutaempenhos.amparo_legal_id')
         ->where('minutaempenhos.id',$id)->firstOrFail()->toArray();
 
-        return $mMinutaEmpenho;
+        return $camposContrato;
     }
 
 /**
