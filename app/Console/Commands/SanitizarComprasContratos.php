@@ -47,16 +47,16 @@ class SanitizarComprasContratos extends Command
             $contrato =  $this->consultarContrato();
 
             $apiSiasg = new ApiSiasg();
-            $arrRespostaSiasg = [];
 
             foreach($contrato as $key => $value){
 
                 $dados = $this->listarDadosContratoApiSiasg($apiSiasg, $value);
-                     if(is_object($dados)){
-                        if($dados->codigoRetorno === 200){
-                            var_dump($this->separarNumeroContratoPorCategoria($dados->data[0]));
-                          }
-                     }
+                   
+                    if(!is_null($dados) && $dados->codigoRetorno === 200  ){
+                        //var_dump($this->separarNumeroContratoPorCategoria($dados->data[0]));
+                        $this->atualizarSiasgCompra();
+                    }
+                   
                 }
 
         } catch(Exception $e){
@@ -74,7 +74,7 @@ class SanitizarComprasContratos extends Command
         return $query->limit(5000)->get()->toArray();
     }
 
-    private function listarDadosContratoApiSiasg($apiSiasg, $value)
+    private function listarDadosContratoApiSiasg(ApiSiasg $apiSiasg, array $value)
     {
         $licitacao_numero = explode( "/" ,  $value['licitacao_numero']);
 
@@ -84,8 +84,9 @@ class SanitizarComprasContratos extends Command
             'numero' => $licitacao_numero[0],
             'uasg' => $value['codigo']
         ];
-
-       return json_decode($apiSiasg->executaConsulta('CONTRATOCOMPRA', $dado));
+        $dados = json_decode($apiSiasg->executaConsulta('CONTRATOCOMPRA', $dado));
+       
+        return is_object($dados) ? $dados : NULL;
     }
 
     private function separarNumeroContratoPorCategoria(string $dados)
@@ -96,5 +97,10 @@ class SanitizarComprasContratos extends Command
             'unidade' => substr($dados, 0, 6),
             'modalidade' => substr($dados, 6, 2)
         ];
-    } 
+    }
+    
+    private function atualizarSiasgCompra()
+    {
+        
+    }
 }
