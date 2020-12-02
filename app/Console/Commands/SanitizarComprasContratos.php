@@ -3,6 +3,11 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Models\Contrato;
+use App\XML\ApiSiasg;
+use App\Models\Siasgcompra;
+use App\Models\Unidade;
+use App\Models\Codigoitem;
 
 class SanitizarComprasContratos extends Command
 {
@@ -37,36 +42,77 @@ class SanitizarComprasContratos extends Command
      */
     public function handle()
     {
-        /* passo 1
-           * Consumir o serviço do (ContratoSiasg) (SiasgcontratoCrudController.php) 
-           * -> Sanitizar dados da tabela (contratoitens) de acordo com a API (ContratoSiasg)
-        */
+        try{
+            $contrato =  $this->consultarContrato();
+            $apiSiasg = new ApiSiasg();
 
-        $url = "https://swapi.dev/api/people/";
-        $ch = curl_init($url);    
-        curl_setopt($ch , CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch , CURLOPT_SSL_VERIFYPEER, false);
-        $resultado = json_decode(curl_exec($ch));
-        var_dump($resultado);
+            foreach($contrato as $key => $value){
+                $dados = $this->listarDadosContratoApiSiasg($apiSiasg, $value);
+                    if(!is_null($dados) && $dados->codigoRetorno === 200){
+                        $arrParams = $this->separarNumeroContratoPorCategoria($dados->data[0]);
+                        $this->atualizarSiasgCompra($arrParams);
+                    }
+                }
 
-        /**
-         * passo 2
-         * percorrer os contratos 
-         * -> tabela (contratos) colunas (modalidade_id,licitacao_numero, numero, unidade_id, unidadeorigem_id )
-         *     Select modalidade_id,licitacao_numero, numero, unidade_id, unidadeorigem_id from contratos 
-         * -> codigoitens (descres)
-         */
+        } catch(Exception $e){
+           throw new Exception("Error Processing Request", $e->getMessage());
+        }
 
-         /**
-          * passo 3  
-          *  Serviço compra sispp / sisrp
-          */
+    }
 
-          /**
-           *  passo 4
-           *  Correlaciona na tabela compras_item_unidade_contratoitens as informações dos itens do 
-           * contratos com os itens da compras utilizando como chave o número do Item da Compra 
-           */
+    private function consultarContrato()
+    {
+       $query =  Contrato::select('licitacao_numero', 'codigoitens.descres', 'unidades.codigo')
+                      ->Join('codigoitens', 'codigoitens.id', '=', 'contratos.modalidade_id')
+                      ->join('unidades', 'unidades.id' , '=' , 'contratos.unidade_id')
+                      ;
+        return $query->limit(5000)->get()->toArray();
+    }
 
+    private function listarDadosContratoApiSiasg(ApiSiasg $apiSiasg, array $value)
+    {
+        $licitacao_numero = explode( "/" ,  $value['licitacao_numero']);
+
+        $dado = [
+            'ano' => $licitacao_numero[1],
+            'modalidade' => $value['descres'],
+            'numero' => $licitacao_numero[0],
+            'uasg' => $value['codigo']
+        ];
+        $dados = json_decode($apiSiasg->executaConsulta('CONTRATOCOMPRA', $dado));
+       
+        return is_object($dados) ? $dados : NULL;
+    }
+
+    private function separarNumeroContratoPorCategoria(string $dados)
+    {
+        $unidade =  Unidade::where('codigosiasg', substr($dados, 0, 6))
+            ->first();
+
+        $modalidade = Codigoitem::where('descres', substr($dados, 6, 2))
+            ->first();
+
+        return [
+            'numero' => substr($dados, 8, 5),
+            'ano' => substr($dados, 13, 4),
+            'unidade' => $unidade->id,
+            'modalidade' => $modalidade->id
+        ];
+    }
+
+    private function atualizarSiasgCompra($arrParams)
+    {
+            $siasgCompra = Siasgcompra::updateOrCreate(
+                [
+                    'ano' => $arrParams['ano'],
+                    'numero' => $arrParams['numero'],
+                    'unidade_id' => $arrParams['unidade'],
+                    'modalidade_id' => $arrParams['modalidade'],
+                ],
+                [
+                    'situacao' => 'Pendente'
+                ]
+            );
+            return $siasgCompra;
     }
 }
