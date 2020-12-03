@@ -145,4 +145,18 @@ trait Formatador
     {
         return str_replace(',', '.', str_replace('.', '', $valor));
     }
+
+    /**
+     * Retorna campo com a descricao detalhada para visualização na tabela
+     * @param string $descricao
+     * @param string $descricaocompleta
+     * @return string
+     */
+    public function retornaDescricaoDetalhada(string $descricao, string $descricaocompleta): string
+    {
+        $retorno = '';
+        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i>';
+
+        return $retorno;
+    }
 }

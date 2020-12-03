@@ -9,6 +9,7 @@ use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
 use App\Models\CompraItemMinutaEmpenho;
+use App\Models\CompraItemUnidade;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\Naturezasubitem;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Redirect;
 use Route;
 use Yajra\DataTables\DataTables;
+use App\Http\Traits\CompraTrait;
 
 /**
  * Class MinutaAlteracaoCrudController
@@ -30,6 +32,7 @@ use Yajra\DataTables\DataTables;
 class MinutaAlteracaoCrudController extends CrudController
 {
     use Formatador;
+    use CompraTrait;
 
     public function __construct(\Yajra\DataTables\Html\Builder $htmlBuilder)
     {
@@ -64,6 +67,9 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->allowAccess('show');
         $this->crud->allowAccess('clone');
         $this->crud->denyAccess('delete');
+        $this->crud->addClause('select', [
+            'minutaempenhos.*',
+        ])->distinct();
 
         $this->crud->addClause(
             'join',
@@ -100,22 +106,84 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        dd('store alteracao',$request->all());
+
+        dump('store alteracao', $request->all());
         $minuta_id = $request->get('minuta_id');
 
         $compra_item_ids = $request->compra_item_id;
 
         $valores = $request->valor_total;
 
-        $valores = array_map(
-            function ($valores) {
-                return $this->retornaFormatoAmericano($valores);
-            },
-            $valores
-        );
+        $remessa = CompraItemMinutaEmpenho::where('minutaempenho_id', $request->minuta_id)
+            ->max('remessa');
+
+        array_walk($valores, function (&$value, $key) use ($request, $remessa) {
+
+            $operacao = explode('|', $request->tipo_alteracao[$key]);
+            $quantidade = $request->qtd[$key];
+            $valor = $this->retornaFormatoAmericano($request->valor_total[$key]);
+
+            if ($operacao[1] === 'ANULAÇÃO') {
+                $quantidade = 0 - $quantidade;
+                $valor = 0 - $valor;
+            } elseif ($operacao[1] === 'CANCELAMENTO') {
+                $item = CompraItemMinutaEmpenho::where('compra_item_id', $request->compra_item_id[$key])
+                    ->where('minutaempenho_id', $request->minuta_id)
+                    ->select(DB::raw('0 - sum(quantidade) as qtd, 0 - sum(valor) as vlr'))->first();
+                $quantidade = $item->qtd;
+                $valor = $item->vlr;
+            }
+
+            $value = [
+                'compra_item_id' => $request->compra_item_id[$key],
+                'minutaempenho_id' => $request->minuta_id,
+                'subelemento_id' => $request->subitem[$key],
+                'operacao_id' => $operacao[0],
+                'remessa' => $remessa + 1,
+                'quantidade' => $quantidade,
+                'valor' => $valor,
+            ];
+        });
+        dump($valores);
+
+//        dd($compra_item_ids);
+//        $compra_item_ids = array_map(
+//            function ($compra_item_ids) use ($minuta_id) {
+//                //                dd($compra_item_ids);
+//                $compra_item_ids['minutaempenho_id'] = $minuta_id;
+//                return $compra_item_ids;
+//            },
+//            $compra_item_ids
+//        );
+
+
+        DB::beginTransaction();
+        try {
+            $teste = CompraItemMinutaEmpenho::insert($valores);
+
+            foreach ($valores as $index => $valor) {
+                $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $valor['compra_item_id'])
+                    ->where('unidade_id', session('user_ug_id'))
+                    ->first();
+
+                $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo;
+                $compraItemUnidade->save();
+
+            }
 
 
 
+
+//            $modMinuta = MinutaEmpenho::find($minuta_id);
+//            $modMinuta->etapa = 6;
+//            $modMinuta->valor_total = $request->valor_utilizado;
+//            $modMinuta->save();
+
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
+        dd($teste);
 
 
 //        dd($minuta_id, $compra_item_ids, $valores);
@@ -129,7 +197,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        dd('up alteracao',$request->all());
+        dd('up alteracao', $request->all());
         // your additional operations before save here
         $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
         $request->request->set('etapa', 7);
@@ -239,6 +307,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     'codigoitens.descricao',
                     'compra_items.catmatseritem_id',
                     'compra_items.descricaodetalhada',
+                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                     'compra_item_unidade.quantidade_saldo as qtd_item',
                     'compra_item_fornecedor.valor_unitario as valorunitario',
                     'naturezadespesa.codigo as natureza_despesa',
@@ -248,8 +317,8 @@ class MinutaAlteracaoCrudController extends CrudController
                     'compra_item_minuta_empenho.subelemento_id',
                     DB::raw("0 AS quantidade"),
                     DB::raw("0 AS valor"),
-//                    'compra_item_minuta_empenho.quantidade',
-//                    'compra_item_minuta_empenho.valor',
+                    //                    'compra_item_minuta_empenho.quantidade',
+                    //                    'compra_item_minuta_empenho.valor',
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                 ]
             )
@@ -324,6 +393,14 @@ class MinutaAlteracaoCrudController extends CrudController
 //        dd($minuta_id);
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
 
+        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Operação item empenho');
+        })
+            ->whereNotIn('descricao', ['INCLUSAO'])
+//            ->orderBy('descricao')
+            ->pluck('descricao', 'id')
+            ->toArray();
+
         $itens = MinutaEmpenho::join(
             'compra_item_minuta_empenho',
             'compra_item_minuta_empenho.minutaempenho_id',
@@ -379,6 +456,8 @@ class MinutaAlteracaoCrudController extends CrudController
                 'compra_items.id'
             )
             ->where('minutaempenhos.id', $minuta_id)
+//            ->where('compra_item_unidade.quantidade_saldo', '>',0)
+//            ->where('compra_item_unidade.quantidade_saldo', '>',0)
             ->distinct()
             ->select(
                 [
@@ -388,6 +467,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     'codigoitens.descricao',
                     'compra_items.catmatseritem_id',
                     'compra_items.descricaodetalhada',
+                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                     'compra_item_unidade.quantidade_saldo as qtd_item',
                     'compra_item_fornecedor.valor_unitario as valorunitario',
                     'naturezadespesa.codigo as natureza_despesa',
@@ -395,8 +475,8 @@ class MinutaAlteracaoCrudController extends CrudController
                     'compra_item_fornecedor.valor_negociado as valortotal',
                     'saldo_contabil.saldo',
                     'compra_item_minuta_empenho.subelemento_id',
-//                    'compra_item_minuta_empenho.quantidade',
-//                    'compra_item_minuta_empenho.valor',
+                    //                    'compra_item_minuta_empenho.quantidade',
+                    //                    'compra_item_minuta_empenho.valor',
                     DB::raw("0 AS quantidade"),
                     DB::raw("0 AS valor"),
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
@@ -408,15 +488,19 @@ class MinutaAlteracaoCrudController extends CrudController
             ->addColumn(
                 'ci_id',
                 function ($item) use ($modMinutaEmpenho) {
-
                     return $this->addColunaCompraItemId($item);
                 }
             )
             ->addColumn(
                 'subitem',
-                function ($item) use ($modMinutaEmpenho) {
-
+                function ($item) {
                     return $this->addColunaSubItem($item);
+                }
+            )
+            ->addColumn(
+                'tipo_alteracao',
+                function ($item) use ($tipos) {
+                    return $this->addColunaTipoAlteracao($item, $tipos);
                 }
             )
             ->addColumn(
@@ -437,7 +521,10 @@ class MinutaAlteracaoCrudController extends CrudController
                     return $this->addColunaValorTotalItem($item);
                 }
             )
-            ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item'])
+            ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
+                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada']);
+            })
+            ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item', 'descricaosimplificada', 'tipo_alteracao'])
 //            ->rawColumns(['subitem', 'valor_total', 'valor_total_item'])
             ->make(true);
     }
@@ -1044,8 +1131,8 @@ class MinutaAlteracaoCrudController extends CrudController
             )
             ->addColumn(
                 [
-                    'data' => 'descricaodetalhada',
-                    'name' => 'descricaodetalhada',
+                    'data' => 'descricaosimplificada',
+                    'name' => 'descricaosimplificada',
                     'title' => 'Descrição',
                 ]
             )
@@ -1081,7 +1168,16 @@ class MinutaAlteracaoCrudController extends CrudController
                 [
                     'data' => 'subitem',
                     'name' => 'subitem',
-                    'title' => 'Subitem',
+                    'title' => 'Subelemento',
+                    'orderable' => false,
+                    'searchable' => false
+                ]
+            )
+            ->addColumn(
+                [
+                    'data' => 'tipo_alteracao',
+                    'name' => 'tipo_alteracao',
+                    'title' => 'Tipo Alteracão',
                     'orderable' => false,
                     'searchable' => false
                 ]
@@ -1140,26 +1236,40 @@ class MinutaAlteracaoCrudController extends CrudController
 
     private function addColunaSubItem($item)
     {
-        $subItens = Naturezasubitem::where('naturezadespesa_id', $item['natureza_despesa_id'])
+        $subItem = Naturezasubitem::where('naturezadespesa_id', $item['natureza_despesa_id'])
+            ->where('id', $item['subelemento_id'])
             ->orderBy('codigo', 'asc')
-            ->get()->pluck('codigo_descricao', 'id');
+            ->select('id', 'codigo', 'descricao')
+            ->first();
 
-        $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
-        foreach ($subItens as $key => $subItem) {
-            $selected = ($key == $item['subelemento_id']) ? 'selected' : '';
-            $retorno .= "<option value='$key' $selected>$subItem</option>";
+        $colSubItem = " <input  type='text' class='form-control qtd' "
+            . "  value='$subItem->codigo - $subItem->descricao' readonly   "
+            . " title='$subItem->codigo - $subItem->descricao' >";
+
+        $hidden = " <input  type='hidden' name='subitem[]' value='$subItem->id'>";
+
+        return $this->addColunaCompraItemId($item) . $colSubItem . $hidden;
+    }
+
+    private function addColunaTipoAlteracao($item, $tipos)
+    {
+
+        $retorno = '<select name="tipo_alteracao[]" class="subitem" style="width:200px">';
+        foreach ($tipos as $key => $value) {
+//            $selected = ($key == $item['subelemento_id']) ? 'selected' : '';
+//            $retorno .= "<option value='$key' $selected>$value</option>";
+            $retorno .= "<option value='$key|$value' >$value</option>";
         }
         $retorno .= '</select>';
-        return $this->addColunaCompraItemId($item) . $retorno;
+        return $retorno;
     }
 
     private function addColunaQuantidade($item)
     {
         $quantidade = $item['quantidade'];
-//        dd($quantidade);
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
+            return " <input  type='number' class='form-control qtd"
                 . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id']
                 . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
                 . " <input  type='hidden' id='quantidade_total" . $item['compra_item_id']

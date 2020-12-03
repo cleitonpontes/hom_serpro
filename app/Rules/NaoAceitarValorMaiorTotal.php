@@ -13,18 +13,21 @@ class NaoAceitarValorMaiorTotal implements Rule
      * @var string|string[]
      */
     private $from;
+    /**
+     * @var array
+     */
+    private $valor_total_item;
 
 
     /**
      * Create a new rule instance.
      *
-     * @param $from
+     * @param array $valor_total_item
      */
 //    public function __construct($from)
-    public function __construct()
+    public function __construct(array $valor_total_item)
     {
-//        dd($from);
-//        $this->from = $this->retornaFormatoAmericano($from);
+        $this->valor_total_item = $valor_total_item;
     }
 
     /**
@@ -36,8 +39,10 @@ class NaoAceitarValorMaiorTotal implements Rule
      */
     public function passes($attribute, $value): bool
     {
-//        dd($attribute, $value);
-        return $this->retornaFormatoAmericano($value) > $this->from;
+        $index = substr($attribute, strpos($attribute, '.') + 1);
+        $valor_selecionado = $this->retornaFormatoAmericano($value);
+
+        return $valor_selecionado <= $this->valor_total_item[$index];
     }
 
     /**
@@ -47,6 +52,6 @@ class NaoAceitarValorMaiorTotal implements Rule
      */
     public function message()
     {
-        return 'O campo "Até" tem que ser maior do que o campo "A partir de"';
+        return 'O valor selecionado não pode ser maior do que o valor total do item.';
     }
 }

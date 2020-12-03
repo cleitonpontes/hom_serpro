@@ -28,13 +28,18 @@ class MinutaAlteracaoRequest extends FormRequest
      */
     public function rules()
     {
-//        dd($this);
+        return [];
+//        dd($this->valor_total_item);
         return [
             'credito' => 'gt:valor_utilizado',
             'valor_total.*' => [
                 'filled',
                 new NaoAceitarZero(),
-                new NaoAceitarValorMaiorTotal()
+                new NaoAceitarValorMaiorTotal($this->valor_total_item)
+            ],
+            'qtd.*' => [
+                'filled',
+                new NaoAceitarZero()
             ]
         ];
     }
@@ -46,7 +51,10 @@ class MinutaAlteracaoRequest extends FormRequest
      */
     public function attributes()
     {
-        return ['valor_total.*' => 'Valor Total'];
+        return [
+            'valor_total.*' => 'Valor Total',
+            'qtd.*' => 'Qtd'
+        ];
     }
 
     /**
