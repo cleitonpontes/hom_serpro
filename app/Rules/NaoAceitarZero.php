@@ -8,13 +8,18 @@ use Illuminate\Contracts\Validation\Rule;
 class NaoAceitarZero implements Rule
 {
     /**
+     * @var array
+     */
+    private $tipo_alteracao;
+
+    /**
      * Create a new rule instance.
      *
-     * @return void
+     * @param array $tipo_alteracao
      */
-    public function __construct()
+    public function __construct(array $tipo_alteracao)
     {
-        //
+        $this->tipo_alteracao = $tipo_alteracao;
     }
 
     /**
@@ -26,7 +31,14 @@ class NaoAceitarZero implements Rule
      */
     public function passes($attribute, $value)
     {
-        return !(empty((int)$value));
+        $index = substr($attribute, strpos($attribute, '.') + 1);
+        $tipo_alteracao = $this->tipo_alteracao[$index];
+        //CASO NÃO SEJA CANCELAMENTO/NENHUMA
+        if ((strpos($tipo_alteracao, 'NENHUMA') === false)
+            && (strpos($tipo_alteracao, 'CANCELAMENTO') === false)) {
+            return !(empty((int)$value));
+        }
+        return true;
     }
 
     /**

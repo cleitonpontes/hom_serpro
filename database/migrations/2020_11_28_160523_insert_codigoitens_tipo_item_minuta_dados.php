@@ -21,23 +21,33 @@ class InsertCodigoitensTipoItemMinutaDados extends Migration
         ]);
         Codigoitem::create([
             'codigo_id' => $codigo->id,
+            'descres' => 'NENH',
+            'descricao' => 'NENHUMA',
+            'visivel' => false
+        ]);
+        Codigoitem::create([
+            'codigo_id' => $codigo->id,
             'descres' => 'INCLUS',
-            'descricao' => 'INCLUSAO'
+            'descricao' => 'INCLUSAO',
+            'visivel' => false
         ]);
         Codigoitem::create([
             'codigo_id' => $codigo->id,
             'descres' => 'REFOR',
-            'descricao' => 'REFORÇO'
+            'descricao' => 'REFORÇO',
+            'visivel' => false
         ]);
         Codigoitem::create([
             'codigo_id' => $codigo->id,
             'descres' => 'ANULA',
-            'descricao' => 'ANULAÇÃO'
+            'descricao' => 'ANULAÇÃO',
+            'visivel' => false
         ]);
         Codigoitem::create([
             'codigo_id' => $codigo->id,
             'descres' => 'CANCEL',
-            'descricao' => 'CANCELAMENTO'
+            'descricao' => 'CANCELAMENTO',
+            'visivel' => false
         ]);
     }
 

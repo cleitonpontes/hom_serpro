@@ -107,7 +107,7 @@ class MinutaAlteracaoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
 
-        dump('store alteracao', $request->all());
+        //dd('store alteracao', $request->all());
         $minuta_id = $request->get('minuta_id');
 
         $compra_item_ids = $request->compra_item_id;
@@ -238,10 +238,8 @@ class MinutaAlteracaoCrudController extends CrudController
     public function create()
     {
 
-//        dd(1234);
         $minuta_id = Route::current()->parameter('minuta_id');
-//        dd($minuta_id);
-        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+//        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
 
         $itens = MinutaEmpenho::join(
             'compra_item_minuta_empenho',

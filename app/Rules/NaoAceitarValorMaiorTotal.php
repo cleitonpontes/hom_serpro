@@ -22,12 +22,13 @@ class NaoAceitarValorMaiorTotal implements Rule
     /**
      * Create a new rule instance.
      *
+     * @param array $tipo_alteracao
      * @param array $valor_total_item
      */
-//    public function __construct($from)
-    public function __construct(array $valor_total_item)
+    public function __construct(array $tipo_alteracao, array $valor_total_item)
     {
         $this->valor_total_item = $valor_total_item;
+        $this->tipo_alteracao = $tipo_alteracao;
     }
 
     /**
@@ -40,9 +41,18 @@ class NaoAceitarValorMaiorTotal implements Rule
     public function passes($attribute, $value): bool
     {
         $index = substr($attribute, strpos($attribute, '.') + 1);
-        $valor_selecionado = $this->retornaFormatoAmericano($value);
+        $tipo_alteracao = $this->tipo_alteracao[$index];
+        if (strpos($tipo_alteracao, 'REFORÇO') !== false) {
+            $valor_selecionado = $this->retornaFormatoAmericano($value);
 
-        return $valor_selecionado <= $this->valor_total_item[$index];
+            return $valor_selecionado <= $this->valor_total_item[$index];
+        }
+        if (strpos($tipo_alteracao, 'ANULAÇÃO') !== false) {
+            $valor_selecionado = $this->retornaFormatoAmericano($value);
+
+            return $valor_selecionado <= $this->valor_total_item[$index];
+        }
+        return true;
     }
 
     /**
