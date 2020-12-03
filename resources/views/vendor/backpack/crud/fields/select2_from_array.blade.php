@@ -74,69 +74,6 @@
                     });
                 }
             });
-
-            $(document).on('change', '#select2_ajax_multiple_minutasempenho', function () {
-                
-                if (!null_or_empty("#select2_ajax_multiple_minutasempenho")) {
-                    $("select[name=modalidade_id]" ).removeAttr("disabled");
-                    buscarModalidade();
-                }
-
-                if (null_or_empty("#select2_ajax_multiple_minutasempenho")) {
-                    // resetar os campos
-                    $('select[name=unidadecompra_id]').val('').change();
-                    $("select[name=modalidade_id]").val(172).change();
-                    $('#select2_ajax_multiple_amparoslegais').val('').change(); 
-                    $("#licitacao_numero").val('');
-                    $("select[name=modalidade_id]" ).attr('disabled', 'disabled');
-                }
-
-            });
-
-            // verifica se o array esta nulo ou vazio
-            function null_or_empty(str) {
-                var v = $(str).val();
-                if (v === null || v.length == 0) {
-                    return true;
-                }
-                return false;
-            }
-
-            //busca a modalidade de acordo com a primeira minuta de empenho selecionada para popular os campos
-            function buscarModalidade()
-            {
-                var arrayMinutas = $("#select2_ajax_multiple_minutasempenho").val();
-
-                var url = "{{route('buscar.campos.contrato.empenho',':id')}}";
-                url = url.replace(':id', arrayMinutas[0]);
-                axios.request(url)
-                    .then(response => {
-                        var dadosCampos = response.data;
-
-                        if(dadosCampos){
-                            // altera campo unidade de compra
-                            $('select[name=unidadecompra_id]').append(`<option value="${dadosCampos.unidade_id}">${dadosCampos.codigo} -  ${dadosCampos.nomeresumido}</option>`); 
-                            $('select[name=unidadecompra_id]').val(dadosCampos.unidade_id).change();
-                            
-                            //altera campo de modalidade da licitacao
-                            $("select[name=modalidade_id]").val(dadosCampos.modalidade_id).change();
-                            $('#select2-select2_ajax_unidadecompra_id-container .select2-selection__placeholder').remove(); 
-                            
-                            // altera campo de amparos legais
-                            $('#select2_ajax_multiple_amparoslegais option').remove();
-                            $('#select2_ajax_multiple_amparoslegais').append(`<option value="${dadosCampos.amparo_legal_id}">${dadosCampos.ato_normativo} - Artigo: ${dadosCampos.artigo}</option>`); 
-                            $('#select2_ajax_multiple_amparoslegais').val(dadosCampos.amparo_legal_id).change(); 
-                            
-                            // altera campo de numero/ano da licitacao
-                            $("#licitacao_numero").val(dadosCampos.compra_numero_ano);
-                        }
-                    })
-                    .catch(error => {
-                        alert(error);
-                    })
-                    .finally()
-                event.preventDefault()
-            }
         });
     </script>
     @endpush
