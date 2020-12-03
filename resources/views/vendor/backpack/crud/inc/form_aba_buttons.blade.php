@@ -71,7 +71,7 @@
             $('#prev_aba').hide();
             $('#next_aba').show();
 
-            $('#select2_ajax_multiple_minutasempenho').val(null).trigger('change');
+            // $('#select2_ajax_multiple_minutasempenho').val(null).trigger('change');
 
         });
 
@@ -82,13 +82,12 @@
             $('#next_aba').show();
         });
 
-        $('body').on('click','#itensdocontrato', function(event){
-            $('#botoes_contrato').hide();
-            $('#cancelar').hide();
-            $('#prev_aba').show();
-            $('#next_aba').show();
+        $('body').on('change','#select2_ajax_multiple_minutasempenho', function(event){
             carregaitens(event, minutas_id);
-            carregaDataInicio();
+        });
+
+        $('body').on('focusout','input[name=data_assinatura]', function(event){
+            atualizarDataInicioItens();
         });
 
         $('body').on('click','#vigenciavalores', function(event){
@@ -108,25 +107,30 @@
             minutas_id = retornaMinutaIds();
         });
 
-        $('body').on('keyup','[name="vl_unit[]"]',function(event){
-            var maxLength = '000.000.000.000.000,0000'.length;
+        //quando altera o campo de quantidade do item re-calcula os valores
+        $('body').on('change','[name="qtd_item[]"]',function(event){
             var tr = this.closest('tr');
-                atualizarValores(tr);
-            console.log($(tr).find('td').eq(3).find('input').val());
+            atualizarValorTotal(tr);
         });
 
-        $('body').on('keyup','[name="vl_total[]"]',function(event){
+        //quando altera o campo de valor unitario do item re-calcula os valores
+        $('body').on('change','[name="vl_unit[]"]',function(event){
             var tr = this.closest('tr');
-            atualizarValores(tr);
+            atualizarValorTotal(tr);
         });
 
+        //quando altera o campo de valor total do item re-calcula a quantidade
+        $('body').on('change','[name="vl_total[]"]',function(event){
+            var tr = this.closest('tr');
+            atualizarQuantidade(tr);
+        });
 
         $('body').on('click','#remove_item', function(event){
             removeLinha(this);
         });
 
         $(document).on('change', '#select2_ajax_multiple_minutasempenho', function () {
-                
+
                 if (!null_or_empty("#select2_ajax_multiple_minutasempenho")) {
                     $("select[name=modalidade_id]" ).removeAttr("disabled");
                     buscarModalidade();
@@ -136,13 +140,14 @@
                     // resetar os campos
                     $('select[name=unidadecompra_id]').val('').change();
                     $("select[name=modalidade_id]").val(172).change();
-                    $('#select2_ajax_multiple_amparoslegais').val('').change(); 
+                    $('#select2_ajax_multiple_amparoslegais').val('').change();
                     $("#licitacao_numero").val('');
                     $("select[name=modalidade_id]" ).attr('disabled', 'disabled');
                 }
             });
 
     });
+
 
     // verifica se o array esta nulo ou vazio
     function null_or_empty(str) {
@@ -166,18 +171,18 @@
 
                 if(dadosCampos){
                     // altera campo unidade de compra
-                    $('select[name=unidadecompra_id]').append(`<option value="${dadosCampos.unidade_id}">${dadosCampos.codigo} -  ${dadosCampos.nomeresumido}</option>`); 
+                    $('select[name=unidadecompra_id]').append(`<option value="${dadosCampos.unidade_id}">${dadosCampos.codigo} -  ${dadosCampos.nomeresumido}</option>`);
                     $('select[name=unidadecompra_id]').val(dadosCampos.unidade_id).change();
-                    
+
                     //altera campo de modalidade da licitacao
                     $("select[name=modalidade_id]").val(dadosCampos.modalidade_id).change();
-                    $('#select2-select2_ajax_unidadecompra_id-container .select2-selection__placeholder').remove(); 
-                    
+                    $('#select2-select2_ajax_unidadecompra_id-container .select2-selection__placeholder').remove();
+
                     // altera campo de amparos legais
                     $('#select2_ajax_multiple_amparoslegais option').remove();
-                    $('#select2_ajax_multiple_amparoslegais').append(`<option value="${dadosCampos.amparo_legal_id}">${dadosCampos.ato_normativo} - Artigo: ${dadosCampos.artigo}</option>`); 
-                    $('#select2_ajax_multiple_amparoslegais').val(dadosCampos.amparo_legal_id).change(); 
-                    
+                    $('#select2_ajax_multiple_amparoslegais').append(`<option value="${dadosCampos.amparo_legal_id}">${dadosCampos.ato_normativo} - Artigo: ${dadosCampos.artigo}</option>`);
+                    $('#select2_ajax_multiple_amparoslegais').val(dadosCampos.amparo_legal_id).change();
+
                     // altera campo de numero/ano da licitacao
                     $("#licitacao_numero").val(dadosCampos.compra_numero_ano);
                 }
@@ -189,23 +194,26 @@
         event.preventDefault()
     }
 
-
-    function atualizarValores(tr){
-
+    function atualizarValorTotal(tr){
         var qtd_item = parseFloat($(tr).find('td').eq(2).find('input').val());
-        console.log(qtd_item);
         var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
-        console.log(vl_unit);
-        var total_iten = (qtd_item * vl_unit)
-        console.log(total_iten);
 
-        $('[name="vl_total[]"]').val(total_iten);
-        // $('[name="vl_total[]"]').val(total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}));
-
+        parseFloat($(tr).find('td').eq(4).find('input').val(qtd_item * vl_unit));
     }
 
-    function carregaDataInicio(){
-        console.log($("[name='data_inicio[]']"));
+    function atualizarQuantidade(tr){
+        var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
+        var valor_total_item = parseFloat($(tr).find('td').eq(4).find('input').val());
+
+        parseFloat($(tr).find('td').eq(2).find('input').val(valor_total_item / vl_unit));
+    }
+
+    function atualizarDataInicioItens(){
+        $("#table-itens").find('tr').each(function(){
+            if ($(this).find('td').eq(6).find('input').val() === "") {
+                $(this).find('td').eq(6).find('input').val($('input[name=data_assinatura]').val());
+            }
+        });
     }
 
     function verificaAbaAtiva() {
@@ -250,11 +258,11 @@
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
         cols += '<td>'+item.descricaodetalhada+'</td>';
-        cols += '<td><input  class="form-control itens" name="qtd_item[]" id="qtd" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
-        cols += '<td><input  class="form-control" name="vl_unit[]" id="vl_unit" type="text" value="'+vl_unit+'"></td>';
-        cols += '<td><input  class="form-control" name="vl_total[]" id="vl_total" type="text" value="'+vl_total+'"></td>';
-        cols += '<td><input type="number" name="periodicidade[]" id="periodicidade[]" value="1"></td>';
-        cols += '<td><input type="date" name="data_inicio[]" id="data_inicio[]"></td>';
+        cols += '<td><input class="form-control itens" name="qtd_item[]" id="qtd" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
+        cols += '<td><input class="form-control" name="vl_unit[]" id="vl_unit" type="text" value="'+vl_unit+'"></td>';
+        cols += '<td><input class="form-control" name="vl_total[]" id="vl_total" type="text" value="'+vl_total+'"></td>';
+        cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade[]" value="1"></td>';
+        cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio[]" value="${$('input[name=data_assinatura]').val()}"></td>`;
         cols += '<td>';
         cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
@@ -275,33 +283,30 @@
         calculaTotalGlobal()
     }
 
+
+
+
     function calculaTotalGlobal(){
         var valor_total = 0;
         $("#table-itens").find('tr').each(function(){
-               var qtd_item = parseInt($(this).find('td').eq(2).find('input').val());
-               var vl_unit = parseFloat($(this).find('td').eq(3).find('input').val());
-               var total_iten = (qtd_item * vl_unit)
-               valor_total += total_iten;
-               $(this).find('td').eq(3).find('input').val(vl_unit)
-               // $(this).find('td').eq(3).find('input').val(vl_unit.toLocaleString('pt-br', {minimumFractionDigits: 2}))
-               $(this).find('td').eq(4).find('input').val(total_iten)
-               // $(this).find('td').eq(4).find('input').val(total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}))
-           // }
+            var total_item = parseInt($(this).find('td').eq(4).find('input').val());
+            var periodicidade = parseFloat($(this).find('td').eq(5).find('input').val());
+            var total_iten = (total_item * periodicidade);
+            valor_total += total_iten;
         });
-         $('#valor_global').val(valor_total);
+        $('#valor_global').val(valor_total);
         $('#valor_global').maskMoney({
             allowNegative: false,
             thousands: '.',
             decimal: ',',
             affixesStay: false
-        }).attr('maxlength', maxLength).trigger('mask.maskMoney');
+        }).attr('maxlength', '000.000.000.000.000,0000'.length).trigger('mask.maskMoney');
          valor_global = valor_total;
 
     }
 
     function carregaitens(event,minutas_id) {
 
-        console.log(minutas_id);
         $("#table-itens tr").remove();
         if(minutas_id.length > 0) {
             var url = "{{route('buscar.itens.modal',':minutas_id')}}";
@@ -338,7 +343,7 @@
             axios.request(url)
                 .then(response => {
                     var itens = response.data;
-                    console.log(itens);
+                    // console.log(itens);
                 })
                 .catch(error => {
                     alert(error);
