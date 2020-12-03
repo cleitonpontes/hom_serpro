@@ -1142,17 +1142,24 @@ class ContratoController extends Controller
         return $cpf . ' - ' . $nome;
     }
 
-    public function buscarModalidadePorIdEmpenho($id)
+    public function buscarCamposParaCadastroContratoPorIdEmpenho($id)
     {
-        $mMinutaEmpenho = MinutaEmpenho::query()
+        $camposContrato = MinutaEmpenho::select(
+            "compras.modalidade_id",
+            "minutaempenhos.unidade_id",
+            "unidades.codigo",
+            "unidades.nomeresumido",
+            "amparo_legal.ato_normativo",
+            "amparo_legal.artigo",
+            "minutaempenhos.amparo_legal_id",
+            "compras.numero_ano as compra_numero_ano"
+        )
         ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+        ->join('unidades','unidades.id','=','minutaempenhos.unidade_id')
+        ->join('amparo_legal', 'amparo_legal.id', '=', 'minutaempenhos.amparo_legal_id')
         ->where('minutaempenhos.id',$id)->firstOrFail()->toArray();
 
-        if ($mMinutaEmpenho) {
-            return $mMinutaEmpenho['modalidade_id'];
-        }
-
-        return null;
+        return $camposContrato;
     }
 
 /**

@@ -12,15 +12,15 @@
     <!-- Editable table -->
     <div class="card">
         <div class="card-body">
-            <div id="table" class="table-editable">
+            <div>
                 <span class="table-up">
                             <button type="button" class="btn btn-primary" data-toggle="modal"
                                     data-target="#inserir_item">
                                 Inserir Item <i class="fa fa-plus"></i>
                             </button>
-                          </span>
+                </span>
                 <br>
-                <table class="table table-bordered table-responsive-md table-striped text-center">
+                <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                     <tr>
                         <th class="text-center">Tipo Item</th>
@@ -28,6 +28,8 @@
                         <th class="text-center">Quantidade</th>
                         <th class="text-center">Valor Unitário</th>
                         <th class="text-center">Valor Total</th>
+                        <th class="text-center">Periodicidade</th>
+                        <th class="text-center">Data Início</th>
                         <th class="text-center">Ações</th>
                     </tr>
                     </thead>

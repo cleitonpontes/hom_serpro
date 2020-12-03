@@ -7,9 +7,11 @@ use App\Http\Traits\Formatador;
 use App\Jobs\AlertaContratoJob;
 use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
+use App\Models\Comprasitemunidadecontratoitens;
 use App\Models\Contrato;
 use App\Models\Contratoitem;
 use App\Models\ContratoMinutaEmpenho;
+use App\Models\MinutaEmpenho;
 use App\Models\Fornecedor;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -94,12 +96,23 @@ class ContratoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
 
+//        dd($request->all());
+
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
         $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
+
+        // Caso tenha empenho preenchido utilizar os campos de unidade, modalidade e numero da licitacao de acordo 
+        // com a compra da minuta de empenho descartando os valores inseridos pelo usuário 
+        if(!empty($request->get('minutasempenho'))){
+            $camposBaseadosEmpenho = $this->buscarCamposBaseadosEmpenho(current($request->get('minutasempenho')));
+            $request->request->set('unidadecompra_id', $camposBaseadosEmpenho['unidade_id']);
+            $request->request->set('modalidade_id', $camposBaseadosEmpenho['modalidade_id']);
+            $request->request->set('licitacao_numero', $camposBaseadosEmpenho['compra_numero_ano']);
+        }
 
         $redirect_location = parent::storeCrud($request);
         $contrato_id = $this->crud->getCurrentEntryId();
@@ -114,6 +127,19 @@ class ContratoCrudController extends CrudController
         }
 
         return $redirect_location;
+    }
+
+    private function buscarCamposBaseadosEmpenho($idEmpenho)
+    {
+        $camposContrato = MinutaEmpenho::select(
+            "compras.modalidade_id",
+            "minutaempenhos.unidade_id",
+            "compras.numero_ano as compra_numero_ano"
+        )
+        ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+        ->where('minutaempenhos.id',$idEmpenho)->firstOrFail()->toArray();
+
+        return $camposContrato;
     }
 
     public function inserirItensContrato($request){
@@ -133,12 +159,13 @@ class ContratoCrudController extends CrudController
                 $contratoItem->tipo_id = $request['tipo_item_id'][$key];
                 $contratoItem->grupo_id = $catmatseritem->grupo_id;
                 $contratoItem->catmatseritem_id = $catmatseritem->id;
-                $contratoItem->descricao_complementar = $catmatseritem->descricao;
-                $contratoItem->quantidade = (int)$qtd;
+                $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
+                $contratoItem->quantidade = (double)$qtd;
                 $contratoItem->valorunitario = $valor_uni[$key];
                 $contratoItem->valortotal = $valor_total[$key];
+                $contratoItem->periodicidade = $request['periodicidade'][$key];
                 $contratoItem->save();
-
+                $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
             }
             DB::commit();
 
@@ -149,7 +176,6 @@ class ContratoCrudController extends CrudController
     }
 
     public function vincularMinutaContrato($request){
-
         DB::beginTransaction();
         try {
             foreach ($request['minuta_id'] as $minuta_id) {
@@ -164,6 +190,15 @@ class ContratoCrudController extends CrudController
             DB::rollback();
             dd($exc);
         }
+    }
+
+    public function vincularContratoItensCompraItemUnidade($contratoItem,$request){
+            foreach ($request['compra_item_unidade_id'] as $key => $compra_item_unidade_id) {
+                $compraItemUnidade_ContratoItem = new Comprasitemunidadecontratoitens();
+                $compraItemUnidade_ContratoItem->contratoitem_id = $contratoItem->id;
+                $compraItemUnidade_ContratoItem->compra_item_unidade_id = $compra_item_unidade_id;
+                $compraItemUnidade_ContratoItem->save();
+            }
     }
 
     public function update(UpdateRequest $request)

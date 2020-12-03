@@ -67,6 +67,7 @@ class ContratoItensMinutaController extends Controller
             ->wherein('compra_item_minuta_empenho.minutaempenho_id',$ids)
             ->select('compra_items.*',
                 'codigoitens.descricao as tipo_item',
+                'compra_item_unidade.id as compra_item_unidade_id',
                 'compra_item_unidade.quantidade_autorizada',
                 'compra_item_unidade.quantidade_saldo',
                 'compra_item_fornecedor.valor_unitario',
@@ -76,6 +77,7 @@ class ContratoItensMinutaController extends Controller
                 'compra_item_minuta_empenho.minutaempenho_id')
             ->groupBy('compra_items.id',
                 'codigoitens.descricao',
+                'compra_item_unidade.id',
                 'compra_item_unidade.quantidade_autorizada',
                 'compra_item_unidade.quantidade_saldo',
                 'compra_item_fornecedor.valor_unitario',
