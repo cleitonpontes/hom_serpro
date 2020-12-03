@@ -43,16 +43,35 @@ class SanitizarComprasContratos extends Command
     public function handle()
     {
         try{
-            $contrato =  $this->consultarContrato();
+            $arrContrato =  $this->consultarContrato();
             $apiSiasg = new ApiSiasg();
 
-            foreach($contrato as $key => $value){
-                $dados = $this->listarDadosContratoApiSiasg($apiSiasg, $value);
-                    if(!is_null($dados) && $dados->codigoRetorno === 200){
-                        $arrParams = $this->separarNumeroContrato($dados->data[0]);
-                        $this->atualizarSiasgCompra($arrParams);
+            /*$arrContratoTeste = [
+                $arrContrato[234],
+                $arrContrato[934],
+                $arrContrato[1647],
+                $arrContrato[2042],
+                $arrContrato[2059],
+                $arrContrato[2584],
+                $arrContrato[4953],
+                $arrContrato[6907],
+                $arrContrato[9602],
+                $arrContrato[9621],
+                $arrContrato[9817],
+                $arrContrato[9929],
+                $arrContrato[9953],
+                $arrContrato[9976],
+            ];*/
+            foreach ($arrContrato as $key => $contrato) {
+                //foreach($arrContratoTeste as $key => $contrato){
+                $dados = $this->listarDadosContratoApiSiasg($apiSiasg, $contrato);
+                if (!is_null($dados) && $dados->codigoRetorno === 200) {
+                    $arrParams = $this->separarNumeroContrato($dados->data[0]);
+                    if ($this->_validarUnidadeModalidade($arrParams['unidade'], $contrato['modalidade_id'])) {
+                        $this->cadastrarAtualizarSiasgCompra($arrParams, $contrato['modalidade_id']);
                     }
                 }
+            }
 
         } catch(Exception $e){
            throw new Exception("Error ao Processar a Requisição", $e->getMessage());
@@ -62,11 +81,15 @@ class SanitizarComprasContratos extends Command
 
     private function consultarContrato()
     {
-       $query =  Contrato::select('licitacao_numero', 'codigoitens.descres', 'unidades.codigo')
-                      ->Join('codigoitens', 'codigoitens.id', '=', 'contratos.modalidade_id')
-                      ->join('unidades', 'unidades.id' , '=' , 'contratos.unidade_id')
-                      ;
-        return $query->limit(5000)->get()->toArray();
+        $query = Contrato::select(
+            'licitacao_numero',
+            'codigoitens.descres',
+            'unidades.codigo',
+            'contratos.modalidade_id'
+        )
+            ->Join('codigoitens', 'codigoitens.id', '=', 'contratos.modalidade_id')
+            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id');
+        return $query->limit(10000)->get()->toArray();
     }
 
     private function listarDadosContratoApiSiasg(ApiSiasg $apiSiasg, array $value)
@@ -88,31 +111,35 @@ class SanitizarComprasContratos extends Command
     {
         $unidade =  Unidade::where('codigosiasg', substr($dados, 0, 6))
             ->first();
-
-        $modalidade = Codigoitem::where('descres', substr($dados, 6, 2))
-            ->first();
-
         return [
             'numero' => substr($dados, 8, 5),
             'ano' => substr($dados, 13, 4),
-            'unidade' => $unidade->id,
-            'modalidade' => $modalidade->id
+            'unidade' => $unidade
         ];
     }
 
-    private function atualizarSiasgCompra($arrParams)
+    private function cadastrarAtualizarSiasgCompra($arrParams, $modalidade)
     {
             $siasgCompra = Siasgcompra::updateOrCreate(
                 [
                     'ano' => $arrParams['ano'],
                     'numero' => $arrParams['numero'],
-                    'unidade_id' => $arrParams['unidade'],
-                    'modalidade_id' => $arrParams['modalidade'],
+                    'unidade_id' => $arrParams['unidade']->id,
+                    //'modalidade_id' => $arrParams['modalidade']->id,
+                    'modalidade_id' => $modalidade,
                 ],
                 [
                     'situacao' => 'Pendente'
                 ]
             );
             return $siasgCompra;
+    }
+
+    private function _validarUnidadeModalidade($unidade, $modalidade)
+    {
+        if ($unidade instanceof Unidade && $modalidade instanceof Codigoitem) {
+            return true;
+        }
+        return false;
     }
 }
