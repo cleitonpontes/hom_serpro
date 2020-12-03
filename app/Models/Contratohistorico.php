@@ -422,6 +422,16 @@ class Contratohistorico extends ContratoBase
         );
     }
 
+    public function qualificacoes()
+    {
+        return $this->belongsToMany(
+            'App\Models\Codigoitem',
+            'contratohistoricoqualificacao',
+            'tipo_id',
+            'contratohistorico_id'
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

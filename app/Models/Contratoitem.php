@@ -31,6 +31,8 @@ class Contratoitem extends Model
         'catmatseritem_id',
         'descricao_complementar',
         'quantidade',
+        'periodicidade',
+        'data_inicio',
         'valorunitario',
         'valortotal',
         'numero_item_compra',

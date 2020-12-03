@@ -42,6 +42,15 @@ class Codigoitem extends Model
         return $this->belongsTo(Codigo::class, 'codigo_id');
     }
 
+    public function contratohistoricos()
+    {
+        return $this->belongsToMany(
+            'App\Models\Contratohistorico',
+            'contratohistoricoqualificacao',
+            'contratohistorico_id',
+            'tipo_id'
+        );
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES
