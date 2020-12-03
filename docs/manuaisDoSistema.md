@@ -363,7 +363,7 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
     <li>
         <h4>
             <a href="../manuais/gestaoFinanceira/empenho/" target="_blank" >
-                Funcionalidades Empenho
+                Empenho
             </a>
             <a href="https://gitlab.com/comprasnet/contratos/-/wikis/uploads/5b2d7b37091c97aba4dfe2f643fccbb2/FuncionalidadesEmpenho_v510_1509.pdf"
                 target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
@@ -376,12 +376,13 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
 <h2>Gestão Financeira <img class="list-button" id="gestaoFinanceiraButton" onclick="toggleList('gestaoFinanceira')" src="../assets/plus-circle.svg" /></h2>
 <ul id="gestaoFinanceiraList" hide-list>
     <li>
-        <h3>
-        <a href="../manuais/gestaoFinanceira/apropriacao/" target="_blank" >
+        <h3 >
         Apropriação
-        </a>
-        <a href="https://gitlab.com/comprasnet/contratos/-/wikis/uploads/b82202f7a7bbe8f79db43da595bc5769/FuncionalidadesApropria%C3%A7%C3%A3o_v510_1509.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
+        <img class="list-button" id="apropriacaoButton" onclick="toggleList('apropriacao')" src="../assets/plus-circle.svg"/>
         </h3>
+        <ul id="apropriacaoList" hide-list>
+            <li><h4>Fatura (em breve)</h4></li>
+        </ul>
     </li>
     <li>
         <h3>Cadastro <img class="list-button" id="cadastroButton" onclick="toggleList('cadastro')" src="../assets/plus-circle.svg" /></h3>
@@ -413,6 +414,7 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
         </ul>
     </li>
 </ul>
+
 
 <hr>
 
