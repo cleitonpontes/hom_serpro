@@ -31,9 +31,25 @@
 <script type="text/javascript">
     $(document).ready(function() {
 
-        const $array_minutas = $("[name='minutasempenho[]']");
         valor_global = 0;
         retornoAjax = 0;
+        minutas_id = [];
+
+        var maxLength = '000.000.000.000.000,0000'.length;
+
+        // $('[name="vl_unit[]"]').maskMoney({
+        //     allowNegative: false,
+        //     thousands: '.',
+        //     decimal: ',',
+        //     affixesStay: false
+        // }).attr('maxlength', maxLength).trigger('mask.maskMoney');
+        //
+        // $('[name="vl_total[]"]').maskMoney({
+        //     allowNegative: false,
+        //     thousands: '.',
+        //     decimal: ',',
+        //     affixesStay: false
+        // }).attr('maxlength', maxLength).trigger('mask.maskMoney');
 
         $('#botoes_contrato').hide();
         $('#cancelar').hide();
@@ -54,7 +70,8 @@
             $('#cancelar').hide();
             $('#prev_aba').hide();
             $('#next_aba').show();
-            // $('.select2-selection__choice').remove();
+
+            $('#select2_ajax_multiple_minutasempenho').val(null).trigger('change');
 
         });
 
@@ -70,9 +87,8 @@
             $('#cancelar').hide();
             $('#prev_aba').show();
             $('#next_aba').show();
-            if(retornoAjax == 0) {
-                carregaitens(event, $array_minutas);
-            }
+            carregaitens(event, minutas_id);
+            carregaDataInicio();
         });
 
         $('body').on('click','#vigenciavalores', function(event){
@@ -87,15 +103,48 @@
             calculaTotalGlobal();
         });
 
-        $('body').on('change','#select2_ajax_multiple_minutasempenho', function(event){
-            retornoAjax = 0;
+        $("[name='minutasempenho[]']").on('change',function(event){
+            minutas_id = [];
+            minutas_id = retornaMinutaIds();
         });
+
+        $('body').on('keyup','[name="vl_unit[]"]',function(event){
+            var maxLength = '000.000.000.000.000,0000'.length;
+            var tr = this.closest('tr');
+                atualizarValores(tr);
+            console.log($(tr).find('td').eq(3).find('input').val());
+        });
+
+        $('body').on('keyup','[name="vl_total[]"]',function(event){
+            var tr = this.closest('tr');
+            atualizarValores(tr);
+        });
+
 
         $('body').on('click','#remove_item', function(event){
             removeLinha(this);
         });
 
     });
+
+
+    function atualizarValores(tr){
+
+        var qtd_item = parseFloat($(tr).find('td').eq(2).find('input').val());
+        console.log(qtd_item);
+        var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
+        console.log(vl_unit);
+        var total_iten = (qtd_item * vl_unit)
+        console.log(total_iten);
+
+        $('[name="vl_total[]"]').val(total_iten);
+        // $('[name="vl_total[]"]').val(total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+
+    }
+
+    function carregaDataInicio(){
+        console.log($("[name='data_inicio[]']"));
+    }
 
     function verificaAbaAtiva() {
         var divTabs = $('#form_tabs');
@@ -113,17 +162,17 @@
         return nomeAba;
     }
 
-    function retornaMinutaIds($array_minutas){
-            var minutas_id = [];
+    function retornaMinutaIds(){
+        var selected = $("[name='minutasempenho[]']").find(':selected');
+        var array_minutas_id = [];
+        selected.each(function (index,option){
+            // console.log(option.value);
+            array_minutas_id[index] = option.value;
 
-            $array_minutas.each(function (index,option) {
-                for (var i = 0;i < option.length;i++){
-                    console.log(i);
-                    minutas_id[i] = option[i].value;
-                }
-            });
+        })
+        // console.log(array_minutas_id);
 
-            return minutas_id;
+        return array_minutas_id;
     }
 
     function adicionaLinhaItem(item){
@@ -139,15 +188,19 @@
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
         cols += '<td>'+item.descricaodetalhada+'</td>';
-        cols += '<td><input  class="form-control itens" name="qtd_item[]" id="qtd" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade+'"></td>';
-        cols += '<td><input  class="form-control" name="vl_unit[]" id="vl_unit" type="text" value="'+vl_unit+'"readonly></td>';
-        cols += '<td><input  class="form-control" name="vl_total[]" id="vl_total" type="text" value="'+vl_total+'"readonly></td>';
+        cols += '<td><input  class="form-control itens" name="qtd_item[]" id="qtd" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
+        cols += '<td><input  class="form-control" name="vl_unit[]" id="vl_unit" type="text" value="'+vl_unit+'"></td>';
+        cols += '<td><input  class="form-control" name="vl_total[]" id="vl_total" type="text" value="'+vl_total+'"></td>';
+        cols += '<td><input type="number" name="periodicidade[]" id="periodicidade[]" value="1"></td>';
+        cols += '<td><input type="date" name="data_inicio[]" id="data_inicio[]"></td>';
         cols += '<td>';
         cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
                 '</button>';
         cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id[]" value="'+item.catmatseritem_id+'">';
         cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id[]" value="'+item.tipo_item_id+'">';
+        cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id[]" value="'+item.compra_item_unidade_id+'">';
+        cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada[]" value="'+item.descricaodetalhada+'">';
         cols += '</td>';
 
         newRow.append(cols);
@@ -167,19 +220,27 @@
                var vl_unit = parseFloat($(this).find('td').eq(3).find('input').val());
                var total_iten = (qtd_item * vl_unit)
                valor_total += total_iten;
-               $(this).find('td').eq(3).find('input').val(vl_unit.toLocaleString('pt-br', {minimumFractionDigits: 2}))
-               $(this).find('td').eq(4).find('input').val(total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}))
+               $(this).find('td').eq(3).find('input').val(vl_unit)
+               // $(this).find('td').eq(3).find('input').val(vl_unit.toLocaleString('pt-br', {minimumFractionDigits: 2}))
+               $(this).find('td').eq(4).find('input').val(total_iten)
+               // $(this).find('td').eq(4).find('input').val(total_iten.toLocaleString('pt-br', {minimumFractionDigits: 2}))
            // }
         });
-         $('#valor_global').val(valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2}));
-         valor_global = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2})
+         $('#valor_global').val(valor_total);
+        $('#valor_global').maskMoney({
+            allowNegative: false,
+            thousands: '.',
+            decimal: ',',
+            affixesStay: false
+        }).attr('maxlength', maxLength).trigger('mask.maskMoney');
+         valor_global = valor_total;
 
     }
 
-    function carregaitens(event,$array_minutas) {
+    function carregaitens(event,minutas_id) {
 
-        var minutas_id = retornaMinutaIds($array_minutas);
         console.log(minutas_id);
+        $("#table-itens tr").remove();
         if(minutas_id.length > 0) {
             var url = "{{route('buscar.itens.modal',':minutas_id')}}";
 
@@ -195,15 +256,13 @@
                             adicionaLinhaItem(item);
                         }
                     });
-                    retornoAjax = 1;
+                    minutas_id = [];
                 })
                 .catch(error => {
                     alert(error);
                 })
                 .finally()
             event.preventDefault()
-        }else{
-            $("#table-itens tr").remove();
         }
     }
 
@@ -213,8 +272,6 @@
         var tipo_id = tipo.value;
 
             var url = "{{route('busca.catmatseritens')}}";
-
-            // url = url.replace(':id', tipo_id);
 
             axios.request(url)
                 .then(response => {
@@ -227,7 +284,6 @@
                 .finally()
 
     }
-
 
 
     function habilitaDesabilitaBotoes(){

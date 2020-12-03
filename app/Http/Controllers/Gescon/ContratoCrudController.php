@@ -7,6 +7,7 @@ use App\Http\Traits\Formatador;
 use App\Jobs\AlertaContratoJob;
 use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
+use App\Models\Comprasitemunidadecontratoitens;
 use App\Models\Contrato;
 use App\Models\Contratoitem;
 use App\Models\ContratoMinutaEmpenho;
@@ -95,6 +96,8 @@ class ContratoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
 
+//        dd($request->all());
+
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -156,12 +159,13 @@ class ContratoCrudController extends CrudController
                 $contratoItem->tipo_id = $request['tipo_item_id'][$key];
                 $contratoItem->grupo_id = $catmatseritem->grupo_id;
                 $contratoItem->catmatseritem_id = $catmatseritem->id;
-                $contratoItem->descricao_complementar = $catmatseritem->descricao;
-                $contratoItem->quantidade = (int)$qtd;
+                $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
+                $contratoItem->quantidade = (double)$qtd;
                 $contratoItem->valorunitario = $valor_uni[$key];
                 $contratoItem->valortotal = $valor_total[$key];
+                $contratoItem->periodicidade = $request['periodicidade'][$key];
                 $contratoItem->save();
-
+                $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
             }
             DB::commit();
 
@@ -172,7 +176,6 @@ class ContratoCrudController extends CrudController
     }
 
     public function vincularMinutaContrato($request){
-
         DB::beginTransaction();
         try {
             foreach ($request['minuta_id'] as $minuta_id) {
@@ -187,6 +190,15 @@ class ContratoCrudController extends CrudController
             DB::rollback();
             dd($exc);
         }
+    }
+
+    public function vincularContratoItensCompraItemUnidade($contratoItem,$request){
+            foreach ($request['compra_item_unidade_id'] as $key => $compra_item_unidade_id) {
+                $compraItemUnidade_ContratoItem = new Comprasitemunidadecontratoitens();
+                $compraItemUnidade_ContratoItem->contratoitem_id = $contratoItem->id;
+                $compraItemUnidade_ContratoItem->compra_item_unidade_id = $compra_item_unidade_id;
+                $compraItemUnidade_ContratoItem->save();
+            }
     }
 
     public function update(UpdateRequest $request)
