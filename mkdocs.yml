@@ -1,0 +1,23 @@
+site_name: COMPRASNET CONTRATOS
+
+nav:
+  - 'Apresentação': 'index.md'
+  - 'Funcionalidades existentes e previsões': 'Funcionalidades/index.md'
+  - 'Orientação Inicial': 'OrientacoesIniciais/index.md'
+  - 'Como acessar': 'acesso.md'
+  - 'Manuais do sistema': 'manuaisDoSistema.md'
+  - 'Grupos de Usuários': 'grupos.md'
+  - 'Licença': 'licenca.md'
+
+theme:
+    name: readthedocs
+    highlightjs: false
+    include_homepage_in_sidebar: true
+    collapse_navigation: true
+    navigation_depth: 4
+
+markdown_extensions:
+  - extra
+  - toc:
+      permalink: '#'
+      separator: "_"
