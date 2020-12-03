@@ -105,8 +105,8 @@ class ContratoCrudController extends CrudController
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
 
-        // Caso tenha empenho preenchido utilizar os campos de unidade, modalidade e numero da licitacao de acordo 
-        // com a compra da minuta de empenho descartando os valores inseridos pelo usuário 
+        // Caso tenha empenho preenchido utilizar os campos de unidade, modalidade e numero da licitacao de acordo
+        // com a compra da minuta de empenho descartando os valores inseridos pelo usuário
         if(!empty($request->get('minutasempenho'))){
             $camposBaseadosEmpenho = $this->buscarCamposBaseadosEmpenho(current($request->get('minutasempenho')));
             $request->request->set('unidadecompra_id', $camposBaseadosEmpenho['unidade_id']);
@@ -163,6 +163,7 @@ class ContratoCrudController extends CrudController
                 $contratoItem->quantidade = (double)$qtd;
                 $contratoItem->valorunitario = $valor_uni[$key];
                 $contratoItem->valortotal = $valor_total[$key];
+                $contratoItem->data_inicio = $request['data_inicio'][$key];
                 $contratoItem->periodicidade = $request['periodicidade'][$key];
                 $contratoItem->save();
                 $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
