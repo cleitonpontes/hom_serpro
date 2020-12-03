@@ -13,10 +13,26 @@ class AmparoLegalRestricao extends Model
     use LogsActivity;
     use SoftDeletes;
 
+    /*
+    |--------------------------------------------------------------------------
+    | GLOBAL VARIABLES
+    |--------------------------------------------------------------------------
+    */
+
     protected static $logFillable = true;
-    protected static $logName = 'restricoes';
+    protected static $logName = 'amparo_legal_restricoes';
+
 
     protected $table = 'amparo_legal_restricoes';
+    // protected $primaryKey = 'id';
+
+
+    // use CrudTrait;
+    // use LogsActivity;
+    // use SoftDeletes;
+
+
+
 
     protected $fillable = [
         'amparo_legal_id',
@@ -25,15 +41,32 @@ class AmparoLegalRestricao extends Model
     ];
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | FUNCTIONS
+    |--------------------------------------------------------------------------
+    */
 
-    public function getAmparoLegal()
+
+    public function amparolegal()
     {
-        if ($this->amparo_legal_id) {
-            $amparo_legal = AmparoLegal::find($this->amparo_legal_id);
-            return $amparo_legal->codigo;
-        }
-        return '';
+        return $this->belongsTo(AmparoLegal::class, 'amparo_legal_id');
     }
+    public function tiporestricao()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_restricao_id');
+    }
+
+
+
+    // public function getAmparoLegal()
+    // {
+    //     if ($this->amparo_legal_id) {
+    //         $amparo_legal = AmparoLegal::find($this->amparo_legal_id);
+    //         return $amparo_legal->codigo;
+    //     }
+    //     return '';
+    // }
 
 
     /*
@@ -41,9 +74,9 @@ class AmparoLegalRestricao extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function amparo_legal()
-    {
-        return $this->belongsTo(AmparoLegal::class, 'amparo_legal_id');
-    }
+    // public function amparo_legal()
+    // {
+    //     return $this->belongsTo(AmparoLegal::class, 'amparo_legal_id');
+    // }
 
 }

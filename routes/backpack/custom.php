@@ -86,6 +86,7 @@ Route::group([
             Route::get('orcamentario', 'OrcamentarioController@index')->name('painel.orcamentario');
         });
 
+
         Route::group([
             'prefix' => 'admin',
             'namespace' => 'Admin',

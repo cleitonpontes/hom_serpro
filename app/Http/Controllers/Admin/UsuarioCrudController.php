@@ -186,7 +186,6 @@ class UsuarioCrudController extends CrudController
                 'minimum_input_length' => 2, // minimum characters to type before querying results
                 'tab' => 'Outros',
             ],
-
             [
                 // n-n relationship
                 'label' => "Demais UGs/UASGs", // Table column heading
