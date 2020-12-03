@@ -3,7 +3,7 @@ site_name: COMPRASNET CONTRATOS
 nav:
   - 'Apresentação': 'index.md'
   - 'Funcionalidades existentes e previsões': 'Funcionalidades/index.md'
-  - 'Orientação Inicial': 'OrientacoesIniciais/index.md'
+  - 'Orientações Iniciais': 'OrientacoesIniciais/index.md'
   - 'Como acessar': 'acesso.md'
   - 'Manuais do sistema': 'manuaisDoSistema.md'
   - 'Grupos de Usuários': 'grupos.md'

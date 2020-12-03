@@ -6,19 +6,20 @@
     p{
         font-family: Arial, sans-serif;
         font-weight: normal;
-        color: #000000;
     }
     .list{
         font-family: Arial, sans-serif;
-        color: #000000;
         margin-left: 2rem;
     }
+    .list li ul{
+        margin: 1rem 0 1rem 0;
+    }
     li ul li{
-        list-style: symbols("\0025cb"); 
+        list-style: symbols("\0025cb");
+        margin-bottom: 1rem;
     }
     .innerList{
         font-family: Arial, sans-serif;
-        color: #000000;
         margin-left: 4rem;
     }
     .innerList li{
@@ -26,12 +27,19 @@
     }
     .cbc{
         font-family: Arial, sans-serif;
-        color: #000000;
-        background-color: lightgray;
-        padding: 0.8rem;
-        padding-bottom: 1.5rem;
+        background-color: #ededed;
+        padding: 1.2rem;
         font-weight: 700;
         font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+    .botao{
+        text-decoration: underline;
+        color: #1351b4;
+        font-size: 1.2rem;
+    }
+    .botao:hover{
+        color:blue;
     }
 </style>
 
@@ -67,7 +75,7 @@ O Cadastramento e as solicitações de adesão ao Comprasnet Contratos serão av
         <b>Cadastradores locais também</b> serão cadastrados pela Seges e serão avisados por e-mail;
     </li>
     <li>
-        Cada <b>usuário final</b> do sistema deverá <b>solicitar sua habilitação</b> no sistema com o <b>cadastrador local</b> do próprio órgão.
+        Cada <b>usuário</b> do sistema deverá <b>solicitar sua habilitação</b> no sistema com o <b>cadastrador local</b> do próprio órgão.
     </li>
 </ul>
 
@@ -75,7 +83,7 @@ O Cadastramento e as solicitações de adesão ao Comprasnet Contratos serão av
 
 <ul class="list">
     <li>
-        Cadastrador <b>Parcial</b> (Administrador de Órgão)
+        Cadastrador <b>Parcial</b> (Administrador de Órgão) </br>
         <ul>
             <li>
                 Acesso a todas as funcionalidades do sistema. Concede novos acessos a todos os perfis abaixo dentro da estrutura de seu órgão. Configura informações de uso do órgão (subcategorias).
@@ -405,12 +413,12 @@ Acompanhe as notícias em gov.br/compras
 
 <div style="display: flex; flex-direction: row; justify-content: space-around; align-items: center; margin-bottom: 2rem;">
     <a href="">
-        <div class="btn">
+        <div class="botao">
             Orientações iniciais
         </div>
     </a>
     <a href="../">
-        <div class="btn">
+        <div class="botao">
             Página Inicial
         </div>
     </a>

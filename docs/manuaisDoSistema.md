@@ -363,7 +363,7 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
     <li>
         <h4>
             <a href="../manuais/gestaoFinanceira/empenho/" target="_blank" >
-                Funcionalidades Empenho
+                Empenho
             </a>
             <a href="https://gitlab.com/comprasnet/contratos/-/wikis/uploads/5b2d7b37091c97aba4dfe2f643fccbb2/FuncionalidadesEmpenho_v510_1509.pdf"
                 target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
@@ -372,6 +372,48 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
 </ul>
 
 <hr>
+
+<h2>Gestão Financeira <img class="list-button" id="gestaoFinanceiraButton" onclick="toggleList('gestaoFinanceira')" src="../assets/plus-circle.svg" /></h2>
+<ul id="gestaoFinanceiraList" hide-list>
+    <li>
+        <h3 >
+        Apropriação
+        <img class="list-button" id="apropriacaoButton" onclick="toggleList('apropriacao')" src="../assets/plus-circle.svg"/>
+        </h3>
+        <ul id="apropriacaoList" hide-list>
+            <li><h4>Fatura (em breve)</h4></li>
+        </ul>
+    </li>
+    <li>
+        <h3>Cadastro <img class="list-button" id="cadastroButton" onclick="toggleList('cadastro')" src="../assets/plus-circle.svg" /></h3>
+        <ul id="cadastroList" hide-list>
+            <li>
+                <h4>
+                <a href="../manuais/gestaoFinanceira/situacaoSIAFI/" target="_blank" >
+                Situação SIAFI
+                </a>
+                <a href="https://gitlab.com/comprasnet/contratos/-/wikis/uploads/f62085451d4a5403fcb718f238301e53/148_GestaoFinanceiraCadastroSituacaoSIAFI.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
+                </h4>
+            </li>
+            <li>
+                <h4>
+                <a href="../manuais/gestaoFinanceira/rubricas/" target="_blank" >
+                Rubricas
+                </a>
+                <a href="https://gitlab.com/comprasnet/contratos/-/wikis/uploads/6faf40f9931c626f2a060dc53e0cbb50/149_GestaoFinanceiraCadastroRubrica.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
+                </h4>
+            </li>
+            <li>
+                <h4>
+                <a href="../manuais/gestaoFinanceira/RHsituacao/" target="_blank" >
+                RH - Situação
+                </a>
+                <a href="https://gitlab.com/comprasnet/contratos/-/wikis/uploads/0bdf1b6b2c7efad866ac898487e7a124/150_GestaoFinanceiraCadastroRHSituacao.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
+                </h4>
+            </li>
+        </ul>
+    </li>
+</ul>
 
 <h2>Gestão Financeira <img class="list-button" id="gestaoFinanceiraButton" onclick="toggleList('gestaoFinanceira')" src="../assets/plus-circle.svg" /></h2>
 <ul id="gestaoFinanceiraList" hide-list>
@@ -413,6 +455,8 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
         </ul>
     </li>
 </ul>
+
+
 
 <hr>
 
