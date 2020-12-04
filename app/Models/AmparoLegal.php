@@ -40,6 +40,7 @@ class AmparoLegal extends Model
         'paragrafo',
         'inciso',
         'alinea',
+        // 'codigo_restricao'
     ];
 
     public function minuta_empenhos()
@@ -73,22 +74,13 @@ class AmparoLegal extends Model
     }
 
 
-
-    public function amparo_legal_restricoes()
-    {
-
-
-        // return $this->belongsToMany(AmparoLegal::class,
-        // 'amparo_legal_restricoes',
-        // 'amparo_legal_id', 'tipo_restricao_id');
-
-
-        return $this->hasMany(AmparoLegalRestricao::class);
+    public function codigoitens(){
+        return $this->belongsToMany(Codigoitem::class,
+        'amparo_legal_restricoes',
+        'amparo_legal_id',
+        'tipo_restricao_id',
+    );
     }
-
-
-
-
 
 
     /*
@@ -102,31 +94,21 @@ class AmparoLegal extends Model
         if($obj){return $obj->descricao;}
         else {return null;}
     }
+    public function getCodigoRestricao(){
+        $id = $this->id;
+        $array = AmparoLegalRestricao::where('amparo_legal_id', $id)->get()->first();
+        return $codigoRestricao = $array['codigo_restricao'];
+    }
     public function getRestricoes(){
-
-        // return
-
         $arrayDescricoesCoditoitens = AmparoLegalRestricao::where('amparo_legal_id', $this->id)
         ->select('codigoitens.descricao')
         ->join('codigoitens', 'codigoitens.id', '=', 'amparo_legal_restricoes.tipo_restricao_id')
-        // ->pluck('codigoitens.descricao', 'codigoitens.id')
-        // ->toArray();
         ->get();
-
-        // dd($arrayDescricoesCoditoitens);
-
-
         $resultado = '';
         foreach($arrayDescricoesCoditoitens as $descricaoCodigoitem){
-
-
-            // dd($descricaoCodigoitem['descricao']);
-
             $resultado .= $descricaoCodigoitem['descricao'].', ';
         }
-
         return $resultado;
-
     }
 
 

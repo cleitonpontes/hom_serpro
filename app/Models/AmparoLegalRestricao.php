@@ -22,17 +22,7 @@ class AmparoLegalRestricao extends Model
     protected static $logFillable = true;
     protected static $logName = 'amparo_legal_restricoes';
 
-
     protected $table = 'amparo_legal_restricoes';
-    // protected $primaryKey = 'id';
-
-
-    // use CrudTrait;
-    // use LogsActivity;
-    // use SoftDeletes;
-
-
-
 
     protected $fillable = [
         'amparo_legal_id',
@@ -41,42 +31,22 @@ class AmparoLegalRestricao extends Model
     ];
 
 
+    public function amparosLegais()
+    {
+        return $this->belongsTo(AmparoLegal::class, 'amparo_legal_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
 
-
-    public function amparolegal()
-    {
-        return $this->belongsTo(AmparoLegal::class, 'amparo_legal_id');
-    }
-    public function tiporestricao()
-    {
-        return $this->belongsTo(Codigoitem::class, 'tipo_restricao_id');
-    }
-
-
-
-    // public function getAmparoLegal()
-    // {
-    //     if ($this->amparo_legal_id) {
-    //         $amparo_legal = AmparoLegal::find($this->amparo_legal_id);
-    //         return $amparo_legal->codigo;
-    //     }
-    //     return '';
-    // }
-
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    // public function amparo_legal()
-    // {
-    //     return $this->belongsTo(AmparoLegal::class, 'amparo_legal_id');
-    // }
+
 
 }
