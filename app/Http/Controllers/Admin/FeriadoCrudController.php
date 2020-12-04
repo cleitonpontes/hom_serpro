@@ -43,6 +43,7 @@ class FeriadoCrudController extends CrudController
             'feriados.id',
             'feriados.data',
             'feriados.descricao as descricao_feriado',
+            'feriados.tipo_id'
         ]);
 
         $this->crud->addClause('join', 'codigoitens',
@@ -81,6 +82,7 @@ class FeriadoCrudController extends CrudController
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
 
         backpack_user()->hasRole('Administrador') ? $this->crud->enableExportButtons() : null;
+
     }
 
     public function store(StoreRequest $request)
@@ -112,7 +114,7 @@ class FeriadoCrudController extends CrudController
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => false,
+                'visibleInShow' => true,
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('feriados.data', 'ilike', "%$searchTerm%");
                 },
@@ -134,14 +136,14 @@ class FeriadoCrudController extends CrudController
                 }
             ],
             [
-                'name'  => 'descricao_codigoitem',
+                'name'  => 'tipo_id',
                 'label' => 'Tipo Feriado',
                 'type'  => 'text',
                 'orderable' => true,
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => false,
+                'visibleInShow' => true,
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
                 },
@@ -161,21 +163,12 @@ class FeriadoCrudController extends CrudController
                 'label' => "Data",
                 'type' => 'date',
                 'format' => 'd/m/Y',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
             ],
             [
                 'name' => 'descricao',
                 'label' => "Descrição",
                 'type' => 'text',
                 'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true
             ],
             [ // select_from_array
                 'name' => 'tipo_id',
@@ -186,5 +179,21 @@ class FeriadoCrudController extends CrudController
             ],
         ];
         return $campos;
+    }
+
+
+    public function show($id)
+    {
+        $content = parent::show($id);
+
+        $this->crud->removeColumns([
+            // 'tipo_id',
+            // 'data',
+            'descricao_feriado',
+            'descricao_codigoitem'
+        ]);
+
+
+        return $content;
     }
 }

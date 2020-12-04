@@ -111,8 +111,29 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
         DB::beginTransaction();
         try {
+
             if ($request->passivo_anterior == 1) {
                 //caso precise injetar o valor padrão na consulta
+                if (!str_contains($request->conta_corrente_json, '{"conta_corrente":')) {
+                    $conta_corrente_json = $request->conta_corrente_json;
+                    $conta_corrente_json = str_replace(
+                        '{"v',
+                        '{"conta_corrente":"' . $request->conta_corrente_p . '","v',
+                        $conta_corrente_json
+                    );
+                    $request->request->set('conta_corrente_json', $conta_corrente_json);
+                }
+
+                if (!str_contains($request->conta_corrente_json, '{"valor":')) {
+                    $conta_corrente_json = $request->conta_corrente_json;
+                    $conta_corrente_json = str_replace(
+                        '"}',
+                        '","valor":"' . $request->valor_total_p . '"}',
+                        $conta_corrente_json
+                    );
+                    $request->request->set('conta_corrente_json', $conta_corrente_json);
+                }
+
                 if (str_contains($request->conta_corrente_json, "{}")) {
                     $conta_corrente_json = $request->conta_corrente_json;
                     $conta_corrente_json = str_replace(
@@ -124,6 +145,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
                 }
 
                 $itens = json_decode($request->get('conta_corrente_json'), true);
+
                 if (!is_null($itens)) {
                     $valor_total_conta = 0;
                     foreach ($itens as $key => $item) {

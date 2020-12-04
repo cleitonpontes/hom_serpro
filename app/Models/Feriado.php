@@ -38,6 +38,7 @@ class Feriado extends Model
     |--------------------------------------------------------------------------
     */
 
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -61,6 +62,16 @@ class Feriado extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+    public function getTipoIdAttribute($value){
+        $retorno = $this->formatarAtributoTipoId($value);
+        return $retorno;
+    }
 
+    // Métodos que auxiliam os mutators
+    public function formatarAtributoTipoId($id){
+        $retorno = Codigoitem::find($id);
+        if($retorno){return $retorno->descricao;}
+        else {return null;}
+    }
 
 }

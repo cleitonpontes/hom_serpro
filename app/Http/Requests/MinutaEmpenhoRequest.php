@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Rules\ObrigatorioSeNaturezaIgual;
 use App\Rules\NaoAceitarEstrangeiro;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -28,6 +29,8 @@ class MinutaEmpenhoRequest extends FormRequest
     {
         $this->data_hoje = date('Y-m-d');
         $this->data_ano = date('Y');
+        $minuta_id = $this->id ?? "NULL";
+        $natureza_cipi = config('app.natureza_despesa_cipi');
 
         return [
             'numero_empenho_sequencial' => 'nullable|numeric|between:400001,800000',
@@ -35,13 +38,18 @@ class MinutaEmpenhoRequest extends FormRequest
 //            'local_entrega'=> 'required',
             'taxa_cambio' => 'required',
             'amparo_legal_id' => 'required',
-            'processo' => 'max:20',
+            'processo' => 'required|max:20',
+            'tipo_empenho_id' => 'required',
 //            'fornecedor_empenho_id' => 'not_regex:/ESTRANGEIRO/',
             'fornecedor_empenho_id' => [
+                'required',
                 new NaoAceitarEstrangeiro()
             ],
-            'data_emissao' => "date|before_or_equal:{$this->data_hoje}",
+            'data_emissao' => "required|date|before_or_equal:{$this->data_hoje}",
 
+            'numero_cipi' => [
+                new ObrigatorioSeNaturezaIgual($natureza_cipi,$minuta_id),
+            ],
         ];
     }
 
@@ -57,7 +65,9 @@ class MinutaEmpenhoRequest extends FormRequest
             'descricao' => 'Descrição / Observação',
             'amparo_legal_id' => 'Amparo Legal',
             'processo' => 'Número Processo',
+            'tipo_empenho_id' => 'Tipo Empenho',
             'data_emissao' => 'Data Emissão',
+            'fornecedor_empenho_id' => 'Credor',
         ];
     }
 

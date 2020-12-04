@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Empenho;
 
+use Alert;
 use App\Forms\InserirFornecedorForm;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
@@ -10,6 +11,7 @@ use App\Models\CompraItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\SaldoContabil;
+use App\Models\SfOrcEmpenhoDados;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
@@ -46,19 +48,22 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Minuta de Empenho', 'Minutas de Empenho');
         $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
         $this->crud->setShowView('vendor.backpack.crud.empenho.show');
+
+        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
+        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
+        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta');
+        $this->crud->addButtonFromView('line', 'moreminuta', 'moreminuta', 'end');
+
         $this->crud->urlVoltar = route(
             'empenho.minuta.etapa.subelemento',
             ['minuta_id' => $this->minuta_id]
         );
-        $this->crud->allowAccess('update');
-        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
-        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
 
+        $this->crud->allowAccess('update');
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('delete');
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-
         $this->crud->orderBy('updated_at', 'desc');
 
         /*
@@ -101,6 +106,9 @@ class MinutaEmpenhoCrudController extends CrudController
     public function show($id)
     {
         $content = parent::show($id);
+
+        $this->adicionaBoxItens($id);
+        $this->adicionaBoxSaldo($id);
 
         $this->crud->removeColumn('situacao_id');
         $this->crud->removeColumn('unidade_id');
@@ -151,14 +159,11 @@ class MinutaEmpenhoCrudController extends CrudController
     protected function adicionaCampoCipi()
     {
         $this->crud->addField([
-            'name' => 'cipi',
-            'label' => 'CIPI',
-            'type' => 'text',
+            'name' => 'numero_cipi',
+            'label' => 'ID CIPI',
+            'type' => 'text_cipi',
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
-            ],
-            'attributes' => [
-                'disabled' => true
             ]
         ]);
     }
@@ -222,7 +227,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'processo',
             'label' => 'Número Processo',
-            'type' => 'text',
+            'type' => 'numprocesso',
             'limit' => 20,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
@@ -305,8 +310,6 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaColunaLeiCompra();
         $this->adicionaColunaValorTotal();
 
-        $this->adicionaBoxItens($minuta_id);
-        $this->adicionaBoxSaldo($minuta_id);
 
         $this->adicionaColunaMensagemSiafi();
         $this->adicionaColunaSituacao();
@@ -594,6 +597,7 @@ class MinutaEmpenhoCrudController extends CrudController
 //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
             ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+            ->where('compra_item_minuta_empenho.remessa',0)
             ->select([
                 DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
                 DB::raw('fornecedores.nome AS "Fornecedor"'),
@@ -607,8 +611,9 @@ class MinutaEmpenhoCrudController extends CrudController
                 DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
 
 
-            ])->get()->toArray();
-
+            ])
+            ->get()->toArray();
+//        ;dd($itens->getBindings(),$itens->toSql());
         $this->crud->addColumn([
             'box' => 'itens',
             'name' => 'itens',
@@ -691,7 +696,6 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         return FormBuilder::create(InserirFornecedorForm::class, [
             'id' => 'form_modal'
-
         ]);
     }
 
@@ -732,5 +736,39 @@ class MinutaEmpenhoCrudController extends CrudController
 //                'minuta_id' => $request->get('minuta_id')
 //            ]
 //        );
+    }
+
+    public function executarAtualizacaoSituacaoMinuta($id)
+    {
+        $minuta = MinutaEmpenho::find($id);
+
+        if($minuta->situacao->descricao == 'ERRO'){
+            DB::beginTransaction();
+            try {
+                $situacao = Codigoitem::wherehas('codigo', function ($q) {
+                    $q->where('descricao', '=', 'Situações Minuta Empenho');
+                })
+                    ->where('descricao', 'EM PROCESSAMENTO')
+                    ->first();
+                $minuta->situacao_id = $situacao->id;
+                $minuta->save();
+
+                $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)->first();
+
+                $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+                $modSfOrcEmpenhoDados->save();
+
+                DB::commit();
+            } catch (Exception $exc) {
+                DB::rollback();
+            }
+
+            Alert::success('Situação da minuta alterada com sucesso!')->flash();
+            return redirect('/empenho/minuta');
+        }else{
+            Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+            return redirect('/empenho/minuta');
+        }
+
     }
 }
