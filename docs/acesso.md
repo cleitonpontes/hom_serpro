@@ -1,11 +1,5 @@
 ## Como acessar o sistema
 
-**Ambiente:** <http://contratos.comprasnet.gov.br/>
-
-**Usuário:** Previamente cadastrado por um usuário administrador do Sistema Comprasnet Contrato (não é login de rede).  
-
-**Senha:** Previamente cadastrado por um usuário administrador do Sistema Comprasnet Contrato (não é senha de rede).
-
 O acesso ao sistema se dará por meio do portal de compras [gov.br/compras](https://gov.br/compras), 
 ou diretamente pelo  link: <https://www.gov.br/compras/pt-br/sistemas/comprasnet-contratos>
 
