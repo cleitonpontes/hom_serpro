@@ -56,9 +56,6 @@
             $('#cancelar').hide();
             $('#prev_aba').hide();
             $('#next_aba').show();
-
-            // $('#select2_ajax_multiple_minutasempenho').val(null).trigger('change');
-
         });
 
         $('body').on('click','#caracteristicasdocontrato', function(event){
@@ -100,7 +97,7 @@
         });
 
         //quando altera o campo de valor unitario do item re-calcula os valores
-        $('body').on('change','[name="vl_unit[]"]',function(event){
+        $('body').on('change','input[name="vl_unit[]"]',function(event){
             var tr = this.closest('tr');
             atualizarValorTotal(tr);
         });
@@ -113,11 +110,17 @@
 
         //quando altera o campo de quantidade de parcela atualizar o valor da parcela
         $('body').on('change','#num_parcelas',function(event){
+            atualizarValorParcela();
+        });
 
-            valor_global = $('#valor_global').val();
-            numero_parcelas = $('#num_parcelas').val();
+        //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
+        $('body').on('change','input[name="periodicidade"]',function(event){
+            atualizarValorParcela();
+        });
 
-            $('#valor_parcela').val(valor_global / numero_parcelas);
+        //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
+        $('body').on('change','#valor_global',function(event){
+            atualizarValorParcela();
         });
 
         $('body').on('click','#remove_item', function(event){
@@ -141,8 +144,19 @@
         });
     });
 
+    //atualiza o valor da parcela do contrato
+    function atualizarValorParcela()
+    {
+
+        valor_global = $('#valor_global').val();
+        numero_parcelas = $('#num_parcelas').val();
+
+        $('#valor_parcela').val(valor_global / numero_parcelas);
+    }
+
     // verifica se o array esta nulo ou vazio
-    function null_or_empty(str) {
+    function null_or_empty(str)
+    {
         var v = $(str).val();
         if (v === null || v.length == 0) {
             return true;
@@ -244,13 +258,13 @@
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
         cols += '<td>'+item.descricaodetalhada+'</td>';
-        cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
-        cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
-        cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
+        cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd[]" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
+        cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit[]" value="'+vl_unit+'"></td>';
+        cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total[]"value="'+vl_total+'"></td>';
         cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade[]" value="1"></td>';
         cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio[]" value="${$('input[name=data_assinatura]').val()}"></td>`;
         cols += '<td>';
-        cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
+        cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item[]">'+
                     '<i class="fa fa-trash"></i>'+
                 '</button>';
         cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id[]" value="'+item.catmatseritem_id+'">';
@@ -278,6 +292,7 @@
             valor_total += total_iten;
         });
         $('#valor_global').val(valor_total);
+        atualizarValorParcela();
     }
 
     function carregaitens(event,minutas_id) {

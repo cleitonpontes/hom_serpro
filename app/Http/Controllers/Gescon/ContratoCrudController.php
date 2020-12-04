@@ -96,8 +96,6 @@ class ContratoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
 
-//        dd($request->all());
-
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -1129,6 +1127,7 @@ class ContratoCrudController extends CrudController
             'name' => 'num_parcelas',
             'label' => 'Núm. Parcelas',
             'type' => 'number',
+            'default'=>'1',
             'attributes' => [
                 "step" => "any",
                 "min" => '1',
