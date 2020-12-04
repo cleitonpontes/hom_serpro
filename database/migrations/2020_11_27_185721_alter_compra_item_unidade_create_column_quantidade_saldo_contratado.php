@@ -14,7 +14,7 @@ class AlterCompraItemUnidadeCreateColumnQuantidadeSaldoContratado extends Migrat
     public function up()
     {
         Schema::table('compra_item_unidade', function (Blueprint $table) {
-            $table->decimal('quantidade_saldo_contratado',17,4);
+            $table->decimal('quantidade_saldo_contratado',17,4)->nullable();
         });
     }
 
