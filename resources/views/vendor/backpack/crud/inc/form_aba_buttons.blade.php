@@ -37,20 +37,6 @@
 
         var maxLength = '000.000.000.000.000,0000'.length;
 
-        // $('[name="vl_unit[]"]').maskMoney({
-        //     allowNegative: false,
-        //     thousands: '.',
-        //     decimal: ',',
-        //     affixesStay: false
-        // }).attr('maxlength', maxLength).trigger('mask.maskMoney');
-        //
-        // $('[name="vl_total[]"]').maskMoney({
-        //     allowNegative: false,
-        //     thousands: '.',
-        //     decimal: ',',
-        //     affixesStay: false
-        // }).attr('maxlength', maxLength).trigger('mask.maskMoney');
-
         $('#botoes_contrato').hide();
         $('#cancelar').hide();
         $('#prev_aba').hide();
@@ -125,29 +111,35 @@
             atualizarQuantidade(tr);
         });
 
+        //quando altera o campo de quantidade de parcela atualizar o valor da parcela
+        $('body').on('change','#num_parcelas',function(event){
+
+            valor_global = $('#valor_global').val();
+            numero_parcelas = $('#num_parcelas').val();
+
+            $('#valor_parcela').val(valor_global / numero_parcelas);
+        });
+
         $('body').on('click','#remove_item', function(event){
             removeLinha(this);
         });
 
         $(document).on('change', '#select2_ajax_multiple_minutasempenho', function () {
+            if (!null_or_empty("#select2_ajax_multiple_minutasempenho")) {
+                $("select[name=modalidade_id]" ).removeAttr("disabled");
+                buscarModalidade();
+            }
 
-                if (!null_or_empty("#select2_ajax_multiple_minutasempenho")) {
-                    $("select[name=modalidade_id]" ).removeAttr("disabled");
-                    buscarModalidade();
-                }
-
-                if (null_or_empty("#select2_ajax_multiple_minutasempenho")) {
-                    // resetar os campos
-                    $('select[name=unidadecompra_id]').val('').change();
-                    $("select[name=modalidade_id]").val(172).change();
-                    $('#select2_ajax_multiple_amparoslegais').val('').change();
-                    $("#licitacao_numero").val('');
-                    $("select[name=modalidade_id]" ).attr('disabled', 'disabled');
-                }
-            });
-
+            if (null_or_empty("#select2_ajax_multiple_minutasempenho")) {
+                // resetar os campos
+                $('select[name=unidadecompra_id]').val('').change();
+                $("select[name=modalidade_id]").val(172).change();
+                $('#select2_ajax_multiple_amparoslegais').val('').change();
+                $("#licitacao_numero").val('');
+                $("select[name=modalidade_id]" ).attr('disabled', 'disabled');
+            }
+        });
     });
-
 
     // verifica se o array esta nulo ou vazio
     function null_or_empty(str) {
@@ -236,12 +228,8 @@
         var selected = $("[name='minutasempenho[]']").find(':selected');
         var array_minutas_id = [];
         selected.each(function (index,option){
-            // console.log(option.value);
             array_minutas_id[index] = option.value;
-
         })
-        // console.log(array_minutas_id);
-
         return array_minutas_id;
     }
 
@@ -252,15 +240,13 @@
         var vl_unit = item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2});
         var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
 
-        valor_global = (parseFloat(valor_global) + parseFloat(item.valor_total));
-
         var newRow = $("<tr>");
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
         cols += '<td>'+item.descricaodetalhada+'</td>';
-        cols += '<td><input class="form-control itens" name="qtd_item[]" id="qtd" type="number" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
-        cols += '<td><input class="form-control" name="vl_unit[]" id="vl_unit" type="text" value="'+vl_unit+'"></td>';
-        cols += '<td><input class="form-control" name="vl_total[]" id="vl_total" type="text" value="'+vl_total+'"></td>';
+        cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
+        cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
+        cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
         cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade[]" value="1"></td>';
         cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio[]" value="${$('input[name=data_assinatura]').val()}"></td>`;
         cols += '<td>';
@@ -283,26 +269,15 @@
         calculaTotalGlobal()
     }
 
-
-
-
     function calculaTotalGlobal(){
         var valor_total = 0;
         $("#table-itens").find('tr').each(function(){
-            var total_item = parseInt($(this).find('td').eq(4).find('input').val());
-            var periodicidade = parseFloat($(this).find('td').eq(5).find('input').val());
+            var total_item = parseFloat($(this).find('td').eq(4).find('input').val());
+            var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
             var total_iten = (total_item * periodicidade);
             valor_total += total_iten;
         });
         $('#valor_global').val(valor_total);
-        $('#valor_global').maskMoney({
-            allowNegative: false,
-            thousands: '.',
-            decimal: ',',
-            affixesStay: false
-        }).attr('maxlength', '000.000.000.000.000,0000'.length).trigger('mask.maskMoney');
-         valor_global = valor_total;
-
     }
 
     function carregaitens(event,minutas_id) {
@@ -333,7 +308,6 @@
         }
     }
 
-
     function carregaitensmodal(tipo) {
 
         var tipo_id = tipo.value;
@@ -343,7 +317,6 @@
             axios.request(url)
                 .then(response => {
                     var itens = response.data;
-                    // console.log(itens);
                 })
                 .catch(error => {
                     alert(error);
@@ -351,7 +324,6 @@
                 .finally()
 
     }
-
 
     function habilitaDesabilitaBotoes(){
 
