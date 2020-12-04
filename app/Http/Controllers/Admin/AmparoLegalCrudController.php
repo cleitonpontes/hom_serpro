@@ -121,32 +121,54 @@ class AmparoLegalCrudController extends CrudController
             //     'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             // ],
 
-            // [
-            //     'label' => "Restricoes",
-            //     'type' => 'select2_multiple',
-            //     'name' => 'amparo_legal_restricoes',
-            //     'entity' => 'restricoes',
-            //     'attribute' => 'descricao',
-            //     'model' => "App\Models\AmparoLegalRestricao",
-            //     'pivot' => true,
-            // ],
-
-
             [
-                // n-n relationship
-                'label' => "Restricoes2", // Table column heading
-                'type' => "select2_from_ajax_multiple",
-                'name' => 'amparo_legal_restricoes', // the column that contains the ID of that connected entity
-                'entity' => 'restricoes', // the method that defines the relationship in your Model
-                'attribute' => "descres", // foreign key attribute that is shown to user
-                'attribute2' => "descricao", // foreign key attribute that is shown to user
-                'process_results_template' => 'gescon.process_results_multiple_tipo_restricao',
-                'model' => "App\Models\AmparoLegalRestricao", // foreign key model
-                'data_source' => url("api/codigoitemAmparoLegal"), // url to controller search function (with /{id} should return model)
-                'placeholder' => "Selecione a(s) restrição(ões)", // placeholder for the select
-                'minimum_input_length' => 2, // minimum characters to type before querying results
-                'pivot' => false, // on create&update, do you need to add/delete pivot table entries?
+                'label' => "Restricoes",
+                'type' => 'select2_multiple',
+                'name' => 'amparo_legal_restricoes',
+                'entity' => 'restricoes',
+                'attribute' => 'descricao',
+                // 'model' => "App\Models\AmparoLegalRestricao",
+                'model' => "App\Models\Codigoitem",
+                'pivot' => true,
+
+                'options' => (function ($query) {
+                    return $query
+                        ->select(['codigoitens.descres as descres', 'codigoitens.descricao as descricao', 'codigoitens.id', 'codigoitens.codigo_id'])
+                        ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
+                        ->where('codigos.descricao', 'Modalidade Licitação')
+
+
+
+                        // ->orderBy('numero', 'ASC')
+                        // ->select(['id', DB::raw('case
+                        //    when left(numero, 4) = date_part(\'year\', current_date)::text
+                        //        then numero || \' - Saldo a Liquidar: R$ \' || aliquidar
+                        //    else numero || \' - Saldo RP  a Liquidar: R$ \' || rpaliquidar
+                        //    end as numero')
+                        // ])
+                        // ->where('unidade_id', session()->get('user_ug_id'))
+                        // ->where('fornecedor_id', $con->fornecedor_id)
+                        ->get();
+                }),
+
             ],
+
+
+            // [
+            //     // n-n relationship
+            //     'label' => "Restricoes2", // Table column heading
+            //     'type' => "select2_from_ajax_multiple",
+            //     'name' => 'amparo_legal_restricoes', // the column that contains the ID of that connected entity
+            //     'entity' => 'restricoes', // the method that defines the relationship in your Model
+            //     'attribute' => "descres", // foreign key attribute that is shown to user
+            //     'attribute2' => "descricao", // foreign key attribute that is shown to user
+            //     'process_results_template' => 'gescon.process_results_multiple_tipo_restricao',
+            //     'model' => "App\Models\AmparoLegalRestricao", // foreign key model
+            //     'data_source' => url("api/codigoitemAmparoLegal"), // url to controller search function (with /{id} should return model)
+            //     'placeholder' => "Selecione a(s) restrição(ões)", // placeholder for the select
+            //     'minimum_input_length' => 2, // minimum characters to type before querying results
+            //     'pivot' => false, // on create&update, do you need to add/delete pivot table entries?
+            // ],
 
             [
                 'name' => 'codigo',
