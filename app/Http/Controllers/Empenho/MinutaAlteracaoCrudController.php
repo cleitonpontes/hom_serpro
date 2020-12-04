@@ -47,6 +47,8 @@ class MinutaAlteracaoCrudController extends CrudController
     {
 
         $minuta_id = $this->crud->getCurrentEntryId();
+        $this->remessa = Route::current()->parameter('alteracao');
+//        dd($remessa);
 //        $minuta_id = \Route::current()->parameter('contrato_id');
 
         /*
@@ -59,6 +61,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Alteração Minuta Empenho', 'Alteração Minuta Empenho');
         $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
         $this->crud->setShowView('vendor.backpack.crud.empenho.show');
+        $this->crud->setShowView('vendor.backpack.crud.empenho.alteracao_show');
 //        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
         //TODO ARRUMAR O BOTÃO UPDATE ALTERACAO MINUTA EMPENHO
         $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
@@ -907,6 +910,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function adicionaBoxItens($minuta_id)
     {
+
         $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
             ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
             ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
@@ -916,6 +920,7 @@ class MinutaAlteracaoCrudController extends CrudController
 //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
             ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+            ->where('compra_item_minuta_empenho.remessa', $this->remessa)
             ->select([
                 DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
                 DB::raw('fornecedores.nome AS "Fornecedor"'),

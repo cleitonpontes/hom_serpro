@@ -316,10 +316,14 @@ Route::group(
                 CRUD::resource('alteracao', 'MinutaAlteracaoCrudController');
                 Route::get('alteracao-dt', 'MinutaAlteracaoCrudController@ajax')->name('crud.alteracao.ajax');
 
+
+
                 Route::group(['prefix' => 'alteracao'], function () {
 
-                    CRUD::resource('passivo-anterior', 'MinutaAlteracaoPassivoAnteriorCrudController', ['except' => ['create', 'show']]);
+                    CRUD::resource('passivo-anterior', 'MinutaAlteracaoPassivoAnteriorCrudController', ['except' => ['create', 'show', 'edit']]);
                     Route::get('passivo-anterior/{remessa}', 'MinutaAlteracaoPassivoAnteriorCrudController@create')
+                        ->name('crud.alteracao.passivo-anterior');
+                    Route::get('passivo-anterior/{remessa}/edit', 'MinutaAlteracaoPassivoAnteriorCrudController@create')
                         ->name('crud.alteracao.passivo-anterior');
                 });
             });
