@@ -26,7 +26,7 @@
           @endif
           > {!! $field['label'] !!}
     	</label>
-{{ $field['value'] }}
+        
         {{-- HINT --}}
         @if (isset($field['hint']))
             <p class="help-block">{!! $field['hint'] !!}</p>
