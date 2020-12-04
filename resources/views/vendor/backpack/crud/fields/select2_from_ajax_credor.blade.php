@@ -206,6 +206,9 @@
             @endif
 
             $('#inserir_novo_credor').on('show.bs.modal', function (event) {
+
+                //TODO VERIFICAR PORQUE QUANDO HABILITAMOS O SELECT2 O CSS FICA ESTRAGADO
+                // $('#tipo_fornecedor').select2();
                 var unidade_id = $('#cb_unidade :selected').val();
                 $('#unidade_id').val(unidade_id);
 
