@@ -31,7 +31,8 @@ class ContaCorrentePassivoAnterior extends Model
         'minutaempenho_id',
         'conta_corrente',
         'valor',
-        'conta_corrente_json'
+        'conta_corrente_json',
+        'remessa',
     ];
 
     /*

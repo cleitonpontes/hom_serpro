@@ -69,6 +69,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->addClause('select', [
             'minutaempenhos.*',
+            'compra_item_minuta_empenho.remessa'
         ])->distinct();
 
         $this->crud->addClause(
@@ -85,6 +86,8 @@ class MinutaAlteracaoCrudController extends CrudController
             '=',
             $minuta_id
         );
+
+//        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
 
 
         /*
@@ -144,7 +147,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 'valor' => $valor,
             ];
         });
-        dump($valores);
+//        dump($valores);
 
 //        dd($compra_item_ids);
 //        $compra_item_ids = array_map(
@@ -159,7 +162,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
         DB::beginTransaction();
         try {
-            $teste = CompraItemMinutaEmpenho::insert($valores);
+            CompraItemMinutaEmpenho::insert($valores);
 
             foreach ($valores as $index => $valor) {
                 $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $valor['compra_item_id'])
@@ -168,10 +171,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
                 $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo;
                 $compraItemUnidade->save();
-
             }
-
-
 
 
 //            $modMinuta = MinutaEmpenho::find($minuta_id);
@@ -180,10 +180,13 @@ class MinutaAlteracaoCrudController extends CrudController
 //            $modMinuta->save();
 
             DB::commit();
+            return Redirect::to('empenho/minuta/' . $minuta_id . '/alteracao/passivo-anterior/' . ($remessa + 1));
         } catch (Exception $exc) {
             DB::rollback();
         }
-        dd($teste);
+
+        http://comprasnet.test/empenho/minuta/55/alteracao/passivo-anterior/4
+//        dd($teste);
 
 
 //        dd($minuta_id, $compra_item_ids, $valores);
@@ -395,7 +398,7 @@ class MinutaAlteracaoCrudController extends CrudController
             $query->where('descricao', '=', 'Operação item empenho');
         })
             ->whereNotIn('descricao', ['INCLUSAO'])
-//            ->orderBy('descricao')
+            ->orderBy('id')
             ->pluck('descricao', 'id')
             ->toArray();
 

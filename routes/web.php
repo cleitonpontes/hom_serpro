@@ -10,7 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-  //teste
+//teste
 //Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
 
 Route::get('/', function () {
@@ -315,13 +315,14 @@ Route::group(
             Route::group(['prefix' => 'minuta/{minuta_id}'], function () {
                 CRUD::resource('alteracao', 'MinutaAlteracaoCrudController');
                 Route::get('alteracao-dt', 'MinutaAlteracaoCrudController@ajax')->name('crud.alteracao.ajax');
+
+                Route::group(['prefix' => 'alteracao'], function () {
+
+                    CRUD::resource('passivo-anterior', 'MinutaAlteracaoPassivoAnteriorCrudController', ['except' => ['create', 'show']]);
+                    Route::get('passivo-anterior/{remessa}', 'MinutaAlteracaoPassivoAnteriorCrudController@create')
+                        ->name('crud.alteracao.passivo-anterior');
+                });
             });
-
         });
-
-        Route::get('/tags', function () {
-            return view('tags');
-        });
-        Route::get('/tags/find', 'Select2Ajax\TagController@find');
     }
 );
