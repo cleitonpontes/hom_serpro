@@ -66,7 +66,7 @@
 
 # Comprasnet Contratos - Gestão contratual e financeira
 
-<img src="..\assets\apresentacao\logo.png" class="logo" alt="LOGO"/>
+<img src="./assets/apresentacao/logo.png" class="logo" alt="LOGO"/>
 
 Com foco na busca pela eficiência da gestão e na melhoria do desempenho das instituições públicas, o Ministério da Economia, em parceria com a Advocacia-Geral da União, ofertam aos órgãos e entidades da administração pública direta, autárquica e fundacional, incluindo as empresas estatais, o **Comprasnet Contratos**. A ferramenta faz parte das medidas de eficiência organizacional para o aprimoramento da administração pública federal direta, autárquica e fundacional estabelecidas pelo Decreto nº 9.739, de 28 de março de 2019 (Art. 6º, IX).
 
@@ -106,43 +106,43 @@ O **Comprasnet Contratos** é uma ferramenta do governo federal que automatiza o
 
 <div class="caracteristicasContainer">
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c1.png" alt="importacao" />
+        <img src="./assets/apresentacao/c1.png" alt="importacao" />
         <p>Módulo de importação de dados do SIASG</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c2.png" alt="financeira" />
+        <img src="./assets/apresentacao/c2.png" alt="financeira" />
         <p>Gestão financeira integrada (SIAFI)</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c3.png" alt="faturas" />
+        <img src="./assets/apresentacao/c3.png" alt="faturas" />
         <p>Gestão de faturas</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c4.png" alt="terceirizados" />
+        <img src="./assets/apresentacao/c4.png" alt="terceirizados" />
         <p>Gestão de terceirizados</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c5.png" alt="" />
+        <img src="./assets/apresentacao/c5.png" alt="" />
         <p>Interação com fornecedores e prepostos</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c6.png" alt="Calendário" />
+        <img src="./assets/apresentacao/c6.png" alt="Calendário" />
         <p>Calendário de vigência de contratos</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c7.png" alt="transparência" />
+        <img src="./assets/apresentacao/c7.png" alt="transparência" />
         <p>Módulo de transparência ativa</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c8.png" alt="Alertas" />
+        <img src="./assets/apresentacao/c8.png" alt="Alertas" />
         <p>Alertas ao fiscal, gestor e fornecedor</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c9.png" alt="Segurança" />
+        <img src="./assets/apresentacao/c9.png" alt="Segurança" />
         <p>Segurança e aderência normativa</p>
     </div>
     <div class="caracteristica">
-        <img src="../assets/apresentacao/c10.png" alt="" />
+        <img src="./assets/apresentacao/c10.png" alt="" />
         <p><span>Organização das</span> atribuições dos envolvidos e registro de todos os atos praticados</p>
     </div>
 </div>
@@ -190,7 +190,7 @@ O **Comprasnet Contratos** é uma ferramenta do governo federal que automatiza o
 
 **Atendimento e suporte**
 <div style="margin-top: -1rem; margin-bottom: 2.5rem;">
-<img src="../assets/apresentacao/suport.png" alt="suporte" width="40rem;"/>
+<img src="./assets/apresentacao/suport.png" alt="suporte" width="40rem;"/>
 Em caso de dúvidas, entre em contato com a Central de atendimento 
 <a href="https://portaldeservicos.economia.gov.br/">clicando aqui</a> ou pelo telefone 0800-978-9001.
 </div>

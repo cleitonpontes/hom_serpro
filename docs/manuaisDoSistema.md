@@ -12,6 +12,33 @@
     }
 </script>
 
+<script type="text/javascript">
+function closePrint () {
+  document.body.removeChild(this.__container__);
+}
+
+function setPrint () {
+  this.contentWindow.__container__ = this;
+  this.contentWindow.onbeforeunload = closePrint;
+  this.contentWindow.onafterprint = closePrint;
+  this.contentWindow.focus(); // Required for IE
+  this.contentWindow.print();
+}
+
+function printPage (sURL) {
+  var oHiddFrame = document.createElement("iframe");
+  oHiddFrame.onload = setPrint;
+  oHiddFrame.style.position = "fixed";
+  oHiddFrame.style.right = "0";
+  oHiddFrame.style.bottom = "0";
+  oHiddFrame.style.width = "0";
+  oHiddFrame.style.height = "0";
+  oHiddFrame.style.border = "0";
+  oHiddFrame.src = sURL;
+  document.body.appendChild(oHiddFrame);
+}
+</script>
+
 <style>
     ul[hide-list]{
         display: none;
@@ -26,6 +53,11 @@
         width: 18px;
         color: #404040;
     }
+    .print{
+        width: 18px;
+        color: #404040;
+        cursor: pointer;
+    }
 </style>
 
 <h1>Manuais do Sistema</h1>
@@ -39,7 +71,7 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
 <h2>Gestão Contratual <img class="list-button" id="gestaoContratualButton" onclick="toggleList('gestaoContratual')" src="../assets/plus-circle.svg" /></h2>
 <ul id="gestaoContratualList" hide-list>
     <li>
-        <h3><a href="../manuais/gestaoContratual/contratos/" target="_blank" >Contratos</a> <a href="../manuais/gestaoContratual/contratos/111_GestaoContratualContratos.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
+        <h3><a href="../manuais/gestaoContratual/contratos/" target="_blank" >Contratos</a> <a href="../manuais/gestaoContratual/contratos/111_GestaoContratualContratos.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a><img onclick="printPage('../manuais/gestaoContratual/contratos/111_GestaoContratualContratos.pdf')" src="../assets/print.svg" class="print"/>
         </h3>
         <ul>
             <li>
