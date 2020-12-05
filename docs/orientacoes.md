@@ -33,19 +33,11 @@
         font-size: 1.1rem;
         margin-bottom: 1.5rem;
     }
-    .botao{
-        text-decoration: underline;
-        color: #1351b4;
-        font-size: 1.2rem;
-    }
-    .botao:hover{
-        color:blue;
-    }
 </style>
 
 # Orientações Iniciais
 
-<img src="./images/image2.png" class="logo" alt="LOGO"/>
+<img src="../assets/orientacoes/image2.png" class="logo" alt="LOGO"/>
 
 O **Comprasnet Contratos** é uma ferramenta disponibilizada em parceria com a Advocacia-Geral da União. Para iniciar o uso da ferramenta, é necessário ler as orientações abaixo e observar os procedimentos de cadastro, observando a estratégia definida pela Secretaria de Gestão, órgão central do Sistema Integrado de Serviços Gerais (SISG).
 
@@ -403,23 +395,10 @@ O Cadastramento e as solicitações de adesão ao Comprasnet Contratos serão av
 **Atendimento e suporte**
 
 <div class="contato">
-<img src="./images/image1.png" alt="contato">
+<img src="../assets/orientacoes/image1.png" alt="contato" width="40rem">
     Em caso de dúvidas, entre em contato com a Central de Atendimento 
     <a href="https://portaldeservicos.economia.gov.br">clicando aqui</a>
      ou pelo telefone 0800-978-9001.
 </div>
 
-Acompanhe as notícias em gov.br/compras
-
-<div style="display: flex; flex-direction: row; justify-content: space-around; align-items: center; margin-bottom: 2rem;">
-    <a href="">
-        <div class="botao">
-            Orientações iniciais
-        </div>
-    </a>
-    <a href="../">
-        <div class="botao">
-            Página Inicial
-        </div>
-    </a>
-</div>
+Acompanhe as notícias em [gov.br/compras](https://gov.br/compras)
