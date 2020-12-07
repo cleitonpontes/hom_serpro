@@ -40,8 +40,8 @@ Route::group([
 });
 
 Route::group([
-    'prefix' => 'soap',
-    'namespace' => 'Soap',
+    'prefix' => 'publicacao',
+    'namespace' => 'Publicacao',
 ], function () {
 //    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
     Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
