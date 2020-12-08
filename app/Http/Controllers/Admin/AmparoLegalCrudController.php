@@ -53,7 +53,8 @@ class AmparoLegalCrudController extends CrudController
             $this->crud->setEntityNameStrings('Amparo Legal', 'Amparos Legais');
 
             $this->crud->addClause('select', [
-                // 'amparo_legal_restricoes.codigo_restricao as codigo_restricao',
+                'alr.codigo_restricao as codigo_restricao',
+                'codigoitens.descricao as descricao_modalidade_id',
                 // Tabela principal deve ser sempre a última da listagem!
                 'amparo_legal.id',
                 'amparo_legal.modalidade_id',
@@ -64,10 +65,8 @@ class AmparoLegalCrudController extends CrudController
                 'amparo_legal.alinea',
             ]);
 
-
-            // $this->crud->addClause('leftJoin', 'amparo_legal_restricoes', 'amparo_legal_restricoes.amparo_legal_id', '=', 'amparo_legal.id');
-
-
+            $this->crud->addClause('join', 'codigoitens', 'codigoitens.id', '=', 'amparo_legal.modalidade_id');
+            $this->crud->addClause('leftJoin', 'amparo_legal_restricoes as alr', 'alr.amparo_legal_id', '=', 'amparo_legal.id')->distinct();
             $this->crud->addClause('orderBy', 'id', 'DESC');
 
             // modalidades para o select
@@ -78,18 +77,14 @@ class AmparoLegalCrudController extends CrudController
                 ->pluck('descricao', 'id')
                 ->toArray();
 
-
-
-
             $idAmparoLegal = \Route::current()->parameter('amparolegal');
             $codigoRestricao = null;
             if(isset($idAmparoLegal)){
-                $codigoRestricao = AmparoLegalRestricao::where('amparo_legal_id', $idAmparoLegal)->get()->first()->codigo_restricao;
+                $array = AmparoLegalRestricao::where('amparo_legal_id', $idAmparoLegal)->get();
+                if(count($array) > 0){
+                    $codigoRestricao = $array->first()->codigo_restricao;
+                }
             }
-
-
-
-
 
             $this->crud->enableExportButtons();
             $this->crud->addColumns($this->colunas());
@@ -99,9 +94,6 @@ class AmparoLegalCrudController extends CrudController
             // $this->crud->denyAccess('update');
             // $this->crud->denyAccess('delete');
             $this->crud->allowAccess('show');
-
-
-
 
             /*
             |--------------------------------------------------------------------------
@@ -115,6 +107,113 @@ class AmparoLegalCrudController extends CrudController
         } else {
             abort('403', config('app.erro_permissao'));
         }
+    }
+
+    private function colunas(): array
+    {
+        return [
+
+            [
+                'name' => 'getModalidade',
+                'label' => 'Modalidade', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getModalidade', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'orderLogic' => function ($query, $column, $columnDirection) {
+                    return $query->orderBy('descricao_modalidade_id', $columnDirection);
+                },
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('codigoitens.descricao', 'ilike', "%" . $searchTerm . "%");
+                },
+            ],
+           [
+                'name' => 'ato_normativo',
+                'label' => 'Ato Normativo',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('ato_normativo', 'ilike', "%" . $searchTerm . "%");
+                },
+            ],
+           [
+                'name' => 'artigo',
+                'label' => 'Artigo',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('artigo', 'ilike', "%" . $searchTerm . "%");
+                },
+            ],
+           [
+                'name' => 'paragrafo',
+                'label' => 'Parágrafo',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('paragrafo', 'ilike', "%" . $searchTerm . "%");
+                },
+            ],
+           [
+                'name' => 'inciso',
+                'label' => 'Inciso',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('inciso', 'ilike', "%" . $searchTerm . "%");
+                },
+            ],
+           [
+                'name' => 'alinea',
+                'label' => 'Alínea',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('alinea', 'ilike', "%" . $searchTerm . "%");
+                },
+            ],
+            [
+                'name' => 'getCodigoRestricao',
+                'label' => 'Código da Restrição', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getCodigoRestricao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('alr.codigo_restricao', 'ilike', "%" . $searchTerm . "%");
+                    $query->orderBy('alr.codigo_restricao');
+                },
+                'orderLogic' => function ($query, $column, $columnDirection) {
+                    return $query->orderBy('alr.codigo_restricao', $columnDirection);
+                },
+            ],
+        ];
     }
 
     private function campos($arrayModalidades, $codigoRestricao): array
@@ -144,16 +243,10 @@ class AmparoLegalCrudController extends CrudController
                 'label' => 'Código da Restrição',
                 'type' => 'number',
                 'default' => $codigoRestricao,
-                // 'options' => (function ($query) {
-                //     return $query::where('amparo_legal.id', $this->id)
-                //         // ->select(['amparo_legal_restricoes.codigo_restricao'])
-                //         ->join('amparo_legal_restricoes', 'amparo_legal_restricoes.amparo_legal_id', '=', 'amparo_legal.id')
-                //         ->get()->first()['codigo_restricao'];
-                // }),
             ],
             [
                 'name' => 'codigo',
-                'label' => 'Código',
+                'label' => 'Código do Amparo Legal',
                 'type' => 'number',
             ],
             [ // select_from_array
@@ -192,10 +285,6 @@ class AmparoLegalCrudController extends CrudController
 
         ];
     }
-    // public function edit($id){
-    //     return $objAmparoLegal = AmparoLegal::find($id)->();
-    //     dd($id);
-    // }
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
@@ -228,124 +317,13 @@ class AmparoLegalCrudController extends CrudController
         return $redirect_location;
     }
 
-    /**
-     * retorna as colunas para visualização (show)
-     *
-     * @return array
-     * @author Saulo Soares <saulosao@gmail.com>
-     */
-    private function colunas(): array
-    {
-        return [
-
-            [
-                'name' => 'getModalidade',
-                'label' => 'Modalidade', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getModalidade', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-           [
-                'name' => 'ato_normativo',
-                'label' => 'Ato Normativo',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
-                // },
-            ],
-           [
-                'name' => 'artigo',
-                'label' => 'Artigo',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
-                // },
-            ],
-           [
-                'name' => 'paragrafo',
-                'label' => 'Parágrafo',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
-                // },
-            ],
-           [
-                'name' => 'inciso',
-                'label' => 'Inciso',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
-                // },
-            ],
-           [
-                'name' => 'alinea',
-                'label' => 'Alínea',
-                'type' => 'text',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('indicadores.nome', 'ilike', "%" . $searchTerm . "%");
-                // },
-            ],
-            [
-                'name' => 'getCodigoRestricao',
-                'label' => 'Código da Restrição', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getCodigoRestricao', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
-            ],
-
-        ];
-    }
-
-
     public function show($id): View
     {
         $content = parent::show($id);
 
-
-        // return Siasgcompra::select(
-        //     DB::raw("CONCAT(unidades.codigosiasg,' - ',unidades.nomeresumido) AS unidadecompra"),
-        //     DB::raw("CONCAT(siasgcompras.numero,' - ',siasgcompras.ano) AS numerocompra"),
-        //     'siasgcompras.id AS id'
-        // )
-        //     ->join('unidades', 'siasgcompras.unidade_id', '=', 'unidades.id')
-        //     ->where('siasgcompras.id',$id)
-        //     ->first();
-
-
-
+        $this->crud->removeColumns([
+            'modalidade_id'
+        ]);
 
         $this->crud->addColumn([
             'name' => 'getRestricoes',
@@ -353,26 +331,6 @@ class AmparoLegalCrudController extends CrudController
             'type' => 'model_function',
             'function_name' => 'getRestricoes', // the method in your Model
         ]);
-
-
-
-
-
-        // $this->crud->addColumn([
-        //     'name' => 'finalidade',
-        //     'label' => 'Finalidade',
-        //     'type' => 'text',
-        //     'orderable' => true,
-        //     'visibleInTable' => true,
-        //     'visibleInModal' => true,
-        //     'visibleInExport' => true,
-        //     'visibleInShow' => true,
-        //     'limit' => 10000
-        // ]);
-
         return $content;
     }
-
-
-
 }

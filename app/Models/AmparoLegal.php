@@ -100,10 +100,13 @@ class AmparoLegal extends Model
         return $codigoRestricao = $array['codigo_restricao'];
     }
     public function getRestricoes(){
+
+
         $arrayDescricoesCoditoitens = AmparoLegalRestricao::where('amparo_legal_id', $this->id)
         ->select('codigoitens.descricao')
         ->join('codigoitens', 'codigoitens.id', '=', 'amparo_legal_restricoes.tipo_restricao_id')
         ->get();
+
         $resultado = '';
         foreach($arrayDescricoesCoditoitens as $descricaoCodigoitem){
             $resultado .= $descricaoCodigoitem['descricao'].', ';
@@ -135,4 +138,9 @@ class AmparoLegal extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+    // public function getModalidadeIdAttribute($value)
+    // {
+    //     return $descricao = Codigoitem::where('id', $value)->first()->descricao;
+    // }
+
 }
