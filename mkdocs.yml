@@ -15,6 +15,9 @@ theme:
     include_homepage_in_sidebar: true
     collapse_navigation: true
     navigation_depth: 4
+    custom_dir: docs/
+    titles_only: true
+    include_search_page: false
 
 markdown_extensions:
   - extra

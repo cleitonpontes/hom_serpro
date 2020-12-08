@@ -71,7 +71,7 @@ Manuais de uso do [Comprasnet Contratos](https://contratos.comprasnet.gov.br/log
 <h2>Gestão Contratual <img class="list-button" id="gestaoContratualButton" onclick="toggleList('gestaoContratual')" src="../assets/plus-circle.svg" /></h2>
 <ul id="gestaoContratualList" hide-list>
     <li>
-        <h3><a href="../manuais/gestaoContratual/contratos/" target="_blank" >Contratos</a> <a href="../manuais/gestaoContratual/contratos/111_GestaoContratualContratos.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a><img onclick="printPage('../manuais/gestaoContratual/contratos/111_GestaoContratualContratos.pdf')" src="../assets/print.svg" class="print"/>
+        <h3><a href="../manuais/gestaoContratual/contratos/" target="_blank" >Contratos</a> <a href="../manuais/gestaoContratual/contratos/111_GestaoContratualContratos.pdf" target="_blank"><img src="../assets/pdf.svg" class="pdf"></a>
         </h3>
         <ul>
             <li>

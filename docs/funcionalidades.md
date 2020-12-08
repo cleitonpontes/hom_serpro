@@ -22,14 +22,16 @@
         justify-content: space-around;       
         font-family: Arial, sans-serif;
         margin-top: -1rem;
+        margin-left: 1rem;
     }
     .styledList li{
         list-style-type: '✔ ' !important;
-        margin: 0.7rem 1rem;
+        margin: 0.7rem 2rem;
     }
     @media only screen and (max-width: 1000px){
         .styledList{
             grid-template-columns: auto;
+            justify-content: start;
         }
     }
 </style>
@@ -122,7 +124,7 @@ Além disso é ainda possível:
     </li>
 </ul>
 
-<ul class="list" style="margin: -2rem 0 1rem 4rem;">
+<ul class="list" style="margin: -2rem 0 2rem 4rem;">
     <li>
         Gestão da Conta Vinculada
     </li>
