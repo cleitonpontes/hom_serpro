@@ -43,6 +43,15 @@ class ContratoSiasgIntegracaoNovo extends Model
                 $subrogacao = $this->verificaSubrrogacao($contrato);
             }
 
+            //evento rescisão
+            //precisamos inserir a rescisão do contrato
+            //campo para inserção automatica
+            //observação = "RESCISÃO DO CONTRATO NÚMERO: {NUMERO/ANO}."
+            //processo = replica dado processo do contrato
+            //data_assinatura = DA-PUBLICACAO
+            //data_publicação = DA-PUBLICACAO
+            //data_vigencia_fim  = DA-PUBLICACAO
+
         }
 
         return $contrato;
@@ -181,6 +190,16 @@ class ContratoSiasgIntegracaoNovo extends Model
 
             if (!isset($busca->id)) {
                 $contratohistorico = Contratohistorico::create($dados);
+            }else{
+                //atualizar termo aditivo
+                //observacao
+                //qualificação
+                //data assinatura
+                //data publicação
+                //vigencias
+                //valor global
+                //numero de parcela
+                //valor da parcela
             }
         }
 
@@ -294,13 +313,13 @@ class ContratoSiasgIntegracaoNovo extends Model
             if ($fornecedor_id != null) {
                 $fornecedor = Fornecedor::find($fornecedor_id);
             } else {
-                $fornecedor = Fornecedor::where('nome', 'ilike', '%' . trim($nomefornecedor) . '%')
+                $fornecedor = Fornecedor::where('nome', 'ilike', '%' . trimnomefornecedor($) . '%')
                     ->first();
 
                 if (!$fornecedor) {
-                    $cpf_cnpj_idgener = $cpfCnpjfornecedor;
+                    $cpf_cnpj_idgener = $cpfCnpjfornecedor; //"ESTRANGEIRO_" . strreplace(' ', '_', trimnomefornecedor($))
                     $tipo = 'IDGENERICO';
-                    $nome = 'Alterar para ID Genérico SIAFI';
+                    $nome = 'Alterar para ID Genérico SIAFI'; //trimnomefornecedor($)
                     $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $cpf_cnpj_idgener)
                         ->first();
                 }
@@ -395,6 +414,25 @@ class ContratoSiasgIntegracaoNovo extends Model
         $novoDado = [
             'unidadeorigem_id' => $dado['unidadeorigem_id'],
             'unidadecompra_id' => $dado['unidadecompra_id']
+            //tipo
+            //vigencias
+            //valor global
+            //data publicação
+            //data_assinatura
+            //fornecedor
+            //unidade_id -> unidadesubrrogada
+            //unidadeorigem_id -> unidadeorigem_id
+            //objeto
+            //modalidade_licitacao
+            //numero da compra
+            //unidade da compra
+
+
+            //Esses 03 ultimos importantes para consumo da api dados da Compra - uasgUsuario = unidadeorigem_id
+
+
+
+
         ];
 
         $contrato = Contrato::find($contrato_alteracao->id);
