@@ -314,13 +314,13 @@ class ContratoSiasgIntegracaoNovo extends Model
             if ($fornecedor_id != null) {
                 $fornecedor = Fornecedor::find($fornecedor_id);
             } else {
-                $fornecedor = Fornecedor::where('nome', 'ilike', '%' . trim($nomefornecedor) . '%')
+                $fornecedor = Fornecedor::where('nome', 'ilike', '%' . $nome . '%')
                     ->first();
 
                 if (!$fornecedor) {
-                    $cpf_cnpj_idgener = "ESTRANGEIRO_".mb_strtoupper(preg_replace('/\s/', '_', $cpfCnpjfornecedor.'_' .$nomefornecedor), 'UTF-8');
+                    $cpf_cnpj_idgener = "ESTRANGEIRO_".mb_strtoupper(preg_replace('/\s/', '_', $cpfCnpjfornecedor.'_' .$nome), 'UTF-8');
                     $tipo = 'IDGENERICO';
-                    //$nome = 'Alterar para ID Genérico SIAFI'; //trimnomefornecedor($) 
+                    //$nome = 'Alterar para ID Genérico SIAFI'; //trimnomefornecedor($)
                     $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $cpf_cnpj_idgener)
                         ->first();
                 }
@@ -335,7 +335,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             $dado = [
                 'tipo_fornecedor' => $tipo,
                 'cpf_cnpj_idgener' => $cpf_cnpj_idgener,
-                'nome' => $nomefornecedor,
+                'nome' => $nome,
             ];
 
             $fornecedor = Fornecedor::create($dado);
@@ -413,26 +413,18 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $novoDado = [
             'unidadeorigem_id' => $dado['unidadeorigem_id'],
-            'unidadecompra_id' => $dado['unidadecompra_id']
-            //tipo
-            //vigencias
-            //valor global
-            //data publicação
-            //data_assinatura
-            //fornecedor
-            //unidade_id -> unidadesubrrogada
-            //unidadeorigem_id -> unidadeorigem_id
-            //objeto
-            //modalidade_licitacao
-            //numero da compra
-            //unidade da compra
-
-
-            //Esses 03 ultimos importantes para consumo da api dados da Compra - uasgUsuario = unidadeorigem_id
-
-
-
-
+            'unidadecompra_id' => $dado['unidadecompra_id'],
+            'tipo_id' => $dado['tipo_id'],
+            'vigencia_inicio' => $dado['vigencia_inicio'],
+            'vigencia_fim' => $dado['vigencia_fim'],
+            'valor_global' => $dado['valor_global'],
+            'data_publicacao' => $dado['data_publicacao'],
+            'data_assinatura' => $dado['data_assinatura'],
+            'fornecedor_id' => $dado['fornecedor_id'],
+            'unidade_id' => $dado['unidade_id'],
+            'objeto' => $dado['objeto'],
+            'modalidade_id' => $dado['modalidade_id'],
+            'numero_compra' => $dado['numero_compra'],
         ];
 
         $contrato = Contrato::find($contrato_alteracao->id);
@@ -500,6 +492,8 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['num_parcelas'] = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($json->data->dadosContrato->valorTotal) / $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela)) : 1;
         $dado['valor_parcela'] = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela) : $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['valor_acumulado'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
+        $dado['numero_compra'] = $siasgcontrato->compra->id;
+        $dado['modalidade_id'] = $siasgcontrato->compra->modalidade_id;
 
         return $dado;
     }
