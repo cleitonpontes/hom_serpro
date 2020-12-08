@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Rules\ObrigatorioSeNaturezaIgual;
 use App\Rules\NaoAceitarEstrangeiro;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -28,6 +29,8 @@ class MinutaEmpenhoRequest extends FormRequest
     {
         $this->data_hoje = date('Y-m-d');
         $this->data_ano = date('Y');
+        $minuta_id = $this->id ?? "NULL";
+        $natureza_cipi = config('app.natureza_despesa_cipi');
 
         return [
             'numero_empenho_sequencial' => 'nullable|numeric|between:400001,800000',
@@ -44,6 +47,9 @@ class MinutaEmpenhoRequest extends FormRequest
             ],
             'data_emissao' => "required|date|before_or_equal:{$this->data_hoje}",
 
+            'numero_cipi' => [
+                new ObrigatorioSeNaturezaIgual($natureza_cipi,$minuta_id),
+            ],
         ];
     }
 

@@ -177,13 +177,13 @@ class SubelementoController extends BaseControllerEmpenho
         ]);
     }
 
-    private function retornaDescricaoDetalhada($descricao, $descricaocompleta)
+/*    private function retornaDescricaoDetalhada($descricao, $descricaocompleta)
     {
         $retorno = '';
         $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i>';
 
         return $retorno;
-    }
+    }*/
 
     /**
      * Monta $html com definições do Grid
@@ -405,7 +405,6 @@ class SubelementoController extends BaseControllerEmpenho
         DB::beginTransaction();
         try {
             foreach ($compra_item_ids as $index => $item) {
-//                dd($item);
                 if ($valores[$index] > $request->valor_total_item[$index]) {
                     Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
                     return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
