@@ -313,11 +313,11 @@ class ContratoSiasgIntegracaoNovo extends Model
             if ($fornecedor_id != null) {
                 $fornecedor = Fornecedor::find($fornecedor_id);
             } else {
-                $fornecedor = Fornecedor::where('nome', 'ilike', '%' . trimnomefornecedor($) . '%')
+                $fornecedor = Fornecedor::where('nome', 'ilike', '%' . trim($nomefornecedor) . '%')
                     ->first();
 
                 if (!$fornecedor) {
-                    $cpf_cnpj_idgener = $cpfCnpjfornecedor; //"ESTRANGEIRO_" . strreplace(' ', '_', trimnomefornecedor($))
+                    $cpf_cnpj_idgener = "ESTRANGEIRO_".mb_strtoupper(preg_replace('/\s/', '_', $cpfCnpjfornecedor.'_' .$nomefornecedor), 'UTF-8');
                     $tipo = 'IDGENERICO';
                     $nome = 'Alterar para ID Genérico SIAFI'; //trimnomefornecedor($)
                     $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $cpf_cnpj_idgener)
@@ -339,7 +339,6 @@ class ContratoSiasgIntegracaoNovo extends Model
 
             $fornecedor = Fornecedor::create($dado);
         }
-
         return $fornecedor;
     }
 

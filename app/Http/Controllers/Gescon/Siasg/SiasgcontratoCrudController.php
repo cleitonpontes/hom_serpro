@@ -461,12 +461,13 @@ class SiasgcontratoCrudController extends CrudController
     {
         $model = new Siasgcontrato;
         $siasgcontratos = $model->buscaContratosPendentes();
-        dd($siasgcontratos);
+
         foreach ($siasgcontratos as $siasgcontrato) {
             if (isset($siasgcontrato->id)) {
                 //AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
                 $this->atualizaSiasgContrato($siasgcontrato);
             }
+            break;
         }
     }
 
@@ -475,19 +476,19 @@ class SiasgcontratoCrudController extends CrudController
         $tipoconsulta = 'DadosContrato';
 
             $dado = [
-                'contrato' => $this->siasgcontrato->unidade->codigosiasg . $this->siasgcontrato->tipo->descres . $this->siasgcontrato->numero . $this->siasgcontrato->ano
+                'contrato' => $siasgcontrato->unidade->codigosiasg . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
             ];
 
-            if($this->siasgcontrato->sisg == false){
+            if($siasgcontrato->sisg == false){
 
                 $tipoconsulta = 'ContratoNaoSisg';
 
                 $dado = [
-                    'contratoNSisg' => $this->siasgcontrato->unidade->codigosiasg . str_pad($this->siasgcontrato->codigo_interno, 10 , " ") . $this->siasgcontrato->tipo->descres . $this->siasgcontrato->numero . $this->siasgcontrato->ano
+                    'contratoNSisg' => $siasgcontrato->unidade->codigosiasg . str_pad($siasgcontrato->codigo_interno, 10 , " ") . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
                 ];
 
             }
-
+            dd($siasgcontrato);
             $apiSiasg = new ApiSiasg;
             $retorno = $apiSiasg->executaConsulta($tipoconsulta, $dado);
             $siasgcontrato_atualizado = $this->siasgcontrato->atualizaJsonMensagemSituacao($this->siasgcontrato->id, $retorno);
