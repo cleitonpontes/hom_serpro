@@ -58,9 +58,41 @@
                     </button>
                 </div>
                 <div class="modal-body" id="textoModal">
-                    <fieldset class="form-group">
-                        {!! form($field['form']) !!}
-                    </fieldset>
+                    <div class="form-group">
+                        <label for="qtd_item" class="control-label">Tipo Item</label>
+                        <select class="form-control" style="width:100%;" id="tipo_item">
+                            <option value="">Selecione</option>
+                            <option value="149">Material</option>
+                            <option value="150">Serviço</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="qtd_item" class="control-label">Item</label>
+                        <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="qtd_item" class="control-label">Quantidade</label>
+                        <input class="form-control" id="qtd_item" maxlength="10" name="qtd_item" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="vl_unit" class="control-label">Valor Unitário</label>
+                        <input class="form-control" id="vl_unit" name="vl_unit" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="vl_total" class="control-label">Valor Total</label>
+                        <input class="form-control" id="vl_total" name="vl_total" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="periodicidade" class="control-label">Periodicidade</label>
+                        <input class="form-control" id="periodicidade" maxlength="10" name="periodicidade" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="data_inicio" class="control-label">Data Início</label>
+                        <input class="form-control" id="data_inicio" name="data_inicio" type="date">
+                    </div>
+                    <button class="btn btn-danger" type="submit" data-dismiss="modal"><i class="fa fa-reply"></i> Cancelar</button>
+                    <button class="btn btn-success" type="button" data-dismiss="modal" id="btn_inserir_item"><i class="fa fa-save"></i> Incluir</button>
                 </div>
                 <div class="modal-footer">
                 </div>
@@ -97,11 +129,42 @@
             $(document).ready(function () {
                 const $tableID = $('#table');
 
-                //$('#item').select2();
-
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
+
+                $('body').on('change','#tipo_item', function(event){
+                    $('#item').val('');
+                    atualizarSelectItem();
+                });
+
+                function atualizarSelectItem(){
+                    $('#item').select2({
+                        ajax: {
+                            url: urlItens(),
+                            dataType: 'json',
+                            delay: 250,
+                            processResults: function (data) {
+                                return {
+                                    results:  $.map(data.data, function (item) {
+                                        return {
+                                            text: item.descricao,
+                                            id: item.id
+                                        }
+                                    })
+                                };
+                            },
+                            cache: true
+                        }
+                    });
+                    $('.selection .select2-selection').css("height","34px").css('border-color','#d2d6de');
+                }
+
+                function urlItens(){
+                    var url = '{{route('busca.catmatseritens.portipo',':tipo_id')}}';
+                    url = url.replace(':tipo_id', $('#tipo_item').val());
+                    return url;
+                }
             });
 
             function addOption(valor) {
