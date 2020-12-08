@@ -27,10 +27,6 @@ class InserirItemContratoMinutaForm extends Form
                 ]
             ])
             ->add('item', 'select', [
-                'choices' => [
-//                    '149' => 'MATERIAL',
-//                    '150' => 'SERVIÇO',
-                ],
                 'required ' => true,
                 'selected' => 'en',
                 'empty_value' => 'Selecione...',
@@ -38,35 +34,52 @@ class InserirItemContratoMinutaForm extends Form
                     'id' => 'item'
                 ]
             ])
-        ->add('quantidade', 'number',[
-            'label' => 'Quantidade',
+            ->add('qtd_item', 'number',[
+                'label' => 'Quantidade',
+                    'attr' => [
+                        'id'=>'qtd_item',
+                        'maxlength' => 10,
+                    ]
+                ])
+            ->add('vl_unit', 'number',[
+                'label' => 'Valor Unitário',
+                    'attr' => [
+                        'id'=>'vl_unit',
+                        ]
+                ])
+            ->add('vl_total', 'number',[
+                'label' => 'Valor Total',
                 'attr' => [
-                    'id'=>'quantidade',
-                    'maxlength' => 10,
-                    'onkeypress' => 'return somenteNumeros(event)'
+                    'id'=>'vl_total',
                 ]
             ])
-        ->add('valor_unitario', 'text',[
-            'label' => 'Valor Unitário',
+            ->add('periodicidade', 'number',[
+                'label' => 'Periodicidade',
                 'attr' => [
-                    'id'=>'valor_unitario',
-                    'onkeypress' => 'return somenteNumeros(event)'
-                    ]
+                    'id'=>'periodicidade',
+                    'maxlength' => 10,
+                ]
             ])
-        ->add('cancelar', 'submit', [
-            'label' => '<i class="fa fa-reply"></i> Cancelar',
-            'attr' => [
-                'class' => 'btn btn-danger',
-                'data-dismiss' => 'modal'
-            ]
-        ])
-        ->add('inserir', 'button', [
-            'label' => '<i class="fa fa-save"></i> Salvar',
-            'attr' => [
-                'class' => 'btn btn-success',
-                'id'=>'btn_inserir_item'
-            ]
-        ]);
+            ->add('data_inicio', 'date',[
+                'label' => 'Data Início',
+                'attr' => [
+                    'id'=>'data_inicio',
+                ]
+            ])
+            ->add('cancelar', 'submit', [
+                'label' => '<i class="fa fa-reply"></i> Cancelar',
+                'attr' => [
+                    'class' => 'btn btn-danger',
+                    'data-dismiss' => 'modal'
+                ]
+            ])
+            ->add('incluir', 'button', [
+                'label' => '<i class="fa fa-save"></i> Incluir',
+                'attr' => [
+                    'class' => 'btn btn-success',
+                    'data-dismiss' => 'modal',
+                    'id'=>'btn_inserir_item'
+                ]
+            ]);
     }
-
 }

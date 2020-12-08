@@ -127,6 +127,14 @@
             removeLinha(this);
         });
 
+        $('body').on('click','#btn_inserir_item', function(event){
+            if(!$('#item').val()){
+                alert('Não foi encontrado nenhum item para incluir à lista.');
+            }else{
+                buscarItem($('#item').val());
+            }
+        });
+
         $(document).on('change', '#select2_ajax_multiple_minutasempenho', function () {
             if (!null_or_empty("#select2_ajax_multiple_minutasempenho")) {
                 $("select[name=modalidade_id]" ).removeAttr("disabled");
@@ -143,6 +151,47 @@
             }
         });
     });
+
+    function buscarItem(id)
+    {
+        var url = "{{route('busca.catmatseritens.id',':id')}}";
+        url = url.replace(':id', id);
+
+        axios.request(url)
+            .then(response => {
+                prepararItemParaIncluirGrid(response.data);
+            })
+            .catch(error => {
+                alert(error);
+            })
+            .finally()
+    }
+
+    function prepararItemParaIncluirGrid(item)
+    {
+        item = {
+            'tipo_item' : $('#tipo_item :selected').text(),
+            'tipo_item_id' : $('#tipo_item').val(),
+            'catmatseritem_id' : item.id,
+            'descricaodetalhada': item.descricao,
+            'quantidade' : $('#qtd_item').val(),
+            'valor_unitario': $('#vl_unit').val(),
+            'valor_total': $('#vl_total').val(),
+            'periodicidade': $('#periodicidade').val(),
+            'data_inicio': $('#data_inicio').val()
+        }
+        adicionaLinhaItem(item);
+        resetarCamposFormulario();
+    }
+
+    function resetarCamposFormulario(){
+            $('#item').val('');
+            $('#qtd_item').val('');
+            $('#vl_unit').val('');
+            $('#vl_total').val('');
+            $('#periodicidade').val('');
+            $('#data_inicio').val('');
+    }
 
     //atualiza o valor da parcela do contrato
     function atualizarValorParcela()
@@ -254,6 +303,17 @@
         var vl_unit = item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2});
         var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
 
+        // se vier data dos dados do contrato preencher com a data default
+        var data_inicio = $('input[name=data_assinatura]').val();
+        if ($('input[name=data_inicio]').val()) {
+            data_inicio = $('input[name=data_inicio]').val();
+        }
+
+        var periodicidade = 1;
+        if ($('#periodicidade').val()) {
+            periodicidade = $('#periodicidade').val();
+        }
+
         var newRow = $("<tr>");
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
@@ -261,10 +321,10 @@
         cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd[]" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
         cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit[]" value="'+vl_unit+'"></td>';
         cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total[]"value="'+vl_total+'"></td>';
-        cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade[]" value="1"></td>';
-        cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio[]" value="${$('input[name=data_assinatura]').val()}"></td>`;
+        cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade[]" value="${periodicidade}"></td>`;
+        cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio[]" value="${data_inicio}"></td>`;
         cols += '<td>';
-        cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item[]">'+
+        cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
                 '</button>';
         cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id[]" value="'+item.catmatseritem_id+'">';
@@ -325,19 +385,40 @@
 
     function carregaitensmodal(tipo) {
 
-        var tipo_id = tipo.value;
+        resetarSelect();
 
-            var url = "{{route('busca.catmatseritens')}}";
+        if (tipo.value){
+            var tipo_id = tipo.value;
+
+            var url = "{{route('busca.catmatseritens.portipo',':tipo_id')}}";
+
+            url = url.replace(':tipo_id', tipo_id);
 
             axios.request(url)
                 .then(response => {
-                    var itens = response.data;
+                    var itens = response.data.data;
+
+                    itens.forEach(function (item) {
+                        carregarOptionsSelect(item);
+                    });
                 })
                 .catch(error => {
                     alert(error);
                 })
                 .finally()
+        }
+    }
 
+    function resetarSelect(){
+        $("#item option").remove();
+        var newRow = '<option value="">Selecione...</option>';
+        $("#item").append(newRow);
+    }
+
+    function carregarOptionsSelect(item)
+    {
+        var newRow = '<option value="'+ item.id+'">'+item.descricao+'</option>';
+        $("#item").append(newRow);
     }
 
     function habilitaDesabilitaBotoes(){

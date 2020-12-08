@@ -37,8 +37,8 @@ Route::group([
             Route::get('comprasiasg/{id}', 'ComprasiasgController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
             Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
-            Route::get('catmatseritem', 'CatmatseritemController@index')->name('busca.catmatseritens');;
-            Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show');
+            Route::get('catmatseritem/buscarportipo/{tipo_id}', 'CatmatseritemController@itemPorTipo')->name('busca.catmatseritens.portipo');;
+            Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show')->name('busca.catmatseritens.id');
             Route::get('orgaosubcategoria', 'OrgaosubcategoriaController@index');
             Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
 //            Route::get('ocorrenciaconcluida', 'OcorrenciaconcluidaController@index');

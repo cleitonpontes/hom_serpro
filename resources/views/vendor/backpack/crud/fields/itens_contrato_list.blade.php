@@ -20,6 +20,7 @@
                             </button>
                 </span>
                 <br>
+                <br>
                 <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                     <tr>
@@ -108,32 +109,6 @@
                 var select = document.getElementById("tipo_item");
                 select.add(option);
             }
-
-            function carregaitensModal(event) {
-
-                var tipo_id = $('#tipo_item').val();
-
-                var url = "{{route('buscar.itens.modal','/tipo_id')}}";
-                url = url.replace('/tipo_id', tipo_id);
-                axios.request(url)
-                    .then(response => {
-                        var itens = response.data;
-
-                        itens.foreach(function (item){
-                            console.log(item);
-                            return;
-                            addOption(item)
-                        });
-                        console.log(dados);
-                    })
-                    .catch(error => {
-                        alert(error);
-                    })
-                    .finally()
-                event.preventDefault()
-            }
-
-
 
         </script>
     @endpush
