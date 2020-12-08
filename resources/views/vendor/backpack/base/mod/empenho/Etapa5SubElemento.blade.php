@@ -76,14 +76,12 @@
                 <div class="col-sm-12">
 
                 </div>
+
                 <div class="box-tools">
-                    {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
-                        ->asLinkTo(route('empenho.crud./minuta.index'))
-                    !!}
-                    <button type="submit" class="btn btn-success">
-                        Próxima Etapa <i class="fa fa-arrow-right"></i>
-                    </button>
+                    @include('backpack::mod.empenho.botoes',['rota' => route('empenho.minuta.etapa.saldocontabil', ['minuta_id' => $minuta_id])])
                 </div>
+
+
             </form>
         </div>
     </div>

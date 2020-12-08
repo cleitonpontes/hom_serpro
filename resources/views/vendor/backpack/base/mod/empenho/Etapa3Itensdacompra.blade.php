@@ -1,6 +1,6 @@
 @php
     $minuta_id = Route::current()->parameter('minuta_id');
-    $fornecedor_id = Route::current()->parameter('fornecedor_id');
+    $fornecedor_id = Route::current()->parameter('fornecedor_id')
 @endphp
 @extends('backpack::layout')
 
@@ -32,7 +32,7 @@
             <form action="/empenho/item" method="POST">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
-                @csrf <!-- {{ csrf_field() }} -->
+            @csrf <!-- {{ csrf_field() }} -->
                 @if($update)
                     {!! method_field('PUT') !!}
                 @endif
@@ -41,12 +41,7 @@
 
                 </div>
                 <div class="box-tools">
-                    {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
-                        ->asLinkTo(route('empenho.crud./minuta.index'))
-                    !!}
-                    <button type="submit" class="btn btn-success">
-                        Próxima Etapa <i class="fa fa-arrow-right"></i>
-                    </button>
+                    @include('backpack::mod.empenho.botoes',['rota' => route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id])])
                 </div>
             </form>
         </div>
@@ -57,12 +52,24 @@
 @push('after_scripts')
     {!! $html->scripts() !!}
     <script type="text/javascript">
-        function bloqueia(tipo){
+        $(document).ready(function () {
+
+            $('#selectAll').click(function () {
+                var checkedStatus = this.checked;
+                $('input[type=checkbox]').each(function () {
+                    $(this).prop('checked', checkedStatus);
+                });
+            });
+        });
+
+        function bloqueia(tipo) {
             $('input[type=checkbox]').each(function () {
-                    if (tipo != $(this).data('tipo')){
-                        this.checked = false;
-                    }
+                if (tipo != $(this).data('tipo')) {
+                    this.checked = false;
+                }
             });
         }
+
+
     </script>
 @endpush

@@ -195,7 +195,7 @@ class Empenho extends Model
         $sql = '';
         $sql .= 'SELECT ';
         $sql .= '	E.numero AS ne, ';
-        $sql .= "	'000' AS fonte, ";
+        $sql .= "	E.fonte AS fonte, ";
         $sql .= '	N.codigo || I.codigo AS nd ';
         $sql .= 'FROM';
         $sql .= '	empenhos AS E ';

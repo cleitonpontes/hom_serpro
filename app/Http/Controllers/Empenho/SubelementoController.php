@@ -96,6 +96,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'codigoitens.descricao',
                     'compra_items.catmatseritem_id',
                     'compra_items.descricaodetalhada',
+                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                     'compra_item_unidade.quantidade_saldo as qtd_item',
                     'compra_item_fornecedor.valor_unitario as valorunitario',
                     'naturezadespesa.codigo as natureza_despesa',
@@ -152,7 +153,10 @@ class SubelementoController extends BaseControllerEmpenho
                         return $this->addColunaValorTotalItem($item);
                     }
                 )
-                ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item'])
+                ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
+                    return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada'] );
+                })
+                ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item','descricaosimplificada'])
                 ->make(true);
         }
 
@@ -172,6 +176,14 @@ class SubelementoController extends BaseControllerEmpenho
             'fornecedor_id' => $itens[0]['fornecedor_id'],
         ]);
     }
+
+/*    private function retornaDescricaoDetalhada($descricao, $descricaocompleta)
+    {
+        $retorno = '';
+        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i>';
+
+        return $retorno;
+    }*/
 
     /**
      * Monta $html com definições do Grid
@@ -210,8 +222,8 @@ class SubelementoController extends BaseControllerEmpenho
             )
             ->addColumn(
                 [
-                    'data' => 'descricaodetalhada',
-                    'name' => 'descricaodetalhada',
+                    'data' => 'descricaosimplificada',
+                    'name' => 'descricaosimplificada',
                     'title' => 'Descrição',
                 ]
             )
@@ -247,7 +259,7 @@ class SubelementoController extends BaseControllerEmpenho
                 [
                     'data' => 'subitem',
                     'name' => 'subitem',
-                    'title' => 'Subitem',
+                    'title' => 'Subelemento',
                     'orderable' => false,
                     'searchable' => false
                 ]
@@ -304,7 +316,7 @@ class SubelementoController extends BaseControllerEmpenho
             ->orderBy('codigo', 'asc')
             ->get()->pluck('codigo_descricao', 'id');
 
-        $retorno = '<select name="subitem[]" id="subitem" class="subitem">';
+        $retorno = '<select name="subitem[]" id="subitem" class="subitem" style="width:200px;">';
         foreach ($subItens as $key => $subItem) {
             $selected = ($key == $item['subelemento_id']) ? 'selected' : '';
             $retorno .= "<option value='$key' $selected>$subItem</option>";
@@ -368,7 +380,7 @@ class SubelementoController extends BaseControllerEmpenho
     public function store(Request $request)
     {
 //        dump('store');
-//        dump($request->all());
+//        dd($request->all());
         $minuta_id = $request->get('minuta_id');
         if ($request->credito - $request->valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
@@ -393,9 +405,13 @@ class SubelementoController extends BaseControllerEmpenho
         DB::beginTransaction();
         try {
             foreach ($compra_item_ids as $index => $item) {
-//                dd($item);
                 if ($valores[$index] > $request->valor_total_item[$index]) {
                     Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
+                    return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                }
+
+                if ($request->qtd[$index] == 0) {
+                    Alert::error('A quantidade selecionada não pode ser zero.')->flash();
                     return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
                 }
 

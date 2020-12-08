@@ -85,6 +85,9 @@ class SiasgcompraObserver
                         'situacao' => ($mensagem != '') ? 'Erro' : 'Pendente',
                     ]);
                     $contrato->save();
+                }else{
+                    $busca->situacao = 'Pendente';
+                    $busca->save();
                 }
             }
         }
