@@ -286,7 +286,7 @@ class AditivoCrudController extends CrudController
             [       // Select2Multiple = n-n relationship (with pivot table)
                 'label' => 'Qualificação',
                 'name' => 'qualificacoes',
-                'type' => 'select2_from_ajax_multiple',
+                'type' => 'select2_from_ajax_multiple_qualificacao',
                 'entity' => 'qualificacoes',
                 'placeholder' => 'Selecione as qualificações',
                 'minimum_input_length' => 0,
@@ -296,21 +296,6 @@ class AditivoCrudController extends CrudController
                 'pivot' => true,
                 'tab' => 'Dados Gerais',
             ],
-//            [
-//                // select_from_array
-//                'name' => 'tipo_id',
-//                'label' => "Tipo",
-//                'placeholder' => 'Selecione minutas de empenho',
-//                'type' => 'select2_from_ajax_multiple',
-//                'entity' => 'minutaempenho',
-//                'attribute' => 'nome_minuta_empenho',
-//                'model' => 'App\Models\MinutaEmpenho',
-//                'options' => $tipos,
-//                'allows_null' => false,
-//                'tab' => 'Dados Gerais',
-////                'default' => 'one',
-//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-//            ],
             [
                 'name' => 'numero',
                 'label' => 'Número Termo Aditivo',
