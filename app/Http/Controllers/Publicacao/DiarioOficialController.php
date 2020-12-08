@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Soap;
+namespace App\Http\Controllers\Publicacao;
 
 use App\Models\Contratohistorico;
 use App\Models\ContratoPublicacoes;
@@ -114,6 +114,7 @@ class DiarioOficialController extends BaseSoapController
 
     public function montaOficioPreview(Contratohistorico $contratoHistorico)
     {
+
         $dados ['dados']['CPF'] = '01895591111';
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
