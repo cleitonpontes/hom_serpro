@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddColumnCompraIdTabelaContratos extends Migration
+class AddCollumnNumeroCompraTabelaContratos extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,7 @@ class AddColumnCompraIdTabelaContratos extends Migration
     public function up()
     {
         Schema::table('contratos', function (Blueprint $table) {
-            $table->bigInteger('compra_id')->nullable();
-            $table->foreign('compra_id')->references('id')->on('compras')->onDelete('cascade');
+            $table->string('numero_compra')->nullable();
         });
     }
 
@@ -27,7 +26,7 @@ class AddColumnCompraIdTabelaContratos extends Migration
     public function down()
     {
         Schema::table('contratos', function (Blueprint $table) {
-            $table->dropColumn('compra_id');
+            $table->dropColumn('numero_compra');
         });
     }
 }
