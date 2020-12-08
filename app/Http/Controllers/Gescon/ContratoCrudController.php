@@ -758,7 +758,6 @@ class ContratoCrudController extends CrudController
             'tab' => $this->tab
         ]);
     }
-
     protected function adicionaCampoAmparoLegal()
     {
         $this->crud->addField([
