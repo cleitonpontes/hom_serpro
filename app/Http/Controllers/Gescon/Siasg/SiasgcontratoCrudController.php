@@ -475,8 +475,10 @@ class SiasgcontratoCrudController extends CrudController
 
         $tipoconsulta = 'DadosContrato';
 
+
+
             $dado = [
-                'contrato' => $siasgcontrato->unidade->codigosiasg . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
+                'contrato' => $this->siasgcontrato->unidade->codigosiasg . $this->siasgcontrato->tipo->descres . $this->siasgcontrato->numero . $this->siasgcontrato->ano
             ];
 
             if($siasgcontrato->sisg == false){

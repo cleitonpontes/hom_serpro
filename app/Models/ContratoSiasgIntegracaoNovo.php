@@ -306,6 +306,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $nome = trim($nomefornecedor);
         $fornecedor = null;
 
+
         if ($cpfCnpjfornecedor == 'ESTRANGEIRO') {
 
             $fornecedor_id = $this->returnaFornecedorIdPorEmpenhos($siasgcontrato);
@@ -319,7 +320,7 @@ class ContratoSiasgIntegracaoNovo extends Model
                 if (!$fornecedor) {
                     $cpf_cnpj_idgener = "ESTRANGEIRO_".mb_strtoupper(preg_replace('/\s/', '_', $cpfCnpjfornecedor.'_' .$nomefornecedor), 'UTF-8');
                     $tipo = 'IDGENERICO';
-                    $nome = 'Alterar para ID Genérico SIAFI'; //trimnomefornecedor($)
+                    //$nome = 'Alterar para ID Genérico SIAFI'; //trimnomefornecedor($) 
                     $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $cpf_cnpj_idgener)
                         ->first();
                 }
@@ -334,7 +335,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             $dado = [
                 'tipo_fornecedor' => $tipo,
                 'cpf_cnpj_idgener' => $cpf_cnpj_idgener,
-                'nome' => $nome,
+                'nome' => $nomefornecedor,
             ];
 
             $fornecedor = Fornecedor::create($dado);
