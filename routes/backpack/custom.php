@@ -168,6 +168,8 @@ Route::group([
                 Route::get('inserircontratos', 'SiasgcontratoCrudController@verificarContratosPendentes');
                 Route::get('/compras/{id}/atualizarsituacaocompra', 'SiasgcompraCrudController@executarAtualizacaoSituacaoCompra');
                 Route::get('/contratos/{id}/atualizarsituacaocontrato', 'SiasgcontratoCrudController@executarAtualizacaoSituacaoContrato');
+                //rota de teste para atualização do contrato
+                Route::get('/atualiza-contrato', 'SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos');
             });
 
             // início conta vinculada - contrato conta - mvascs@gmail.com
