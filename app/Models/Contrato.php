@@ -56,7 +56,7 @@ class Contrato extends Model
         'situacao_siasg',
         'situacao',
         'unidades_requisitantes',
-        'unidadecompra_id'
+        'unidadecompra_id',
     ];
 
     /*
@@ -494,6 +494,11 @@ class Contrato extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+    
+    public function compra()
+    {
+        return $this->belongsTo(Siasgcompra::class, 'compra_id');
+    }
 
     public function arquivos()
     {
