@@ -14,13 +14,13 @@ class ExecCommandBackendFirst extends Migration
     public function up()
     {
         //atualiza arquivos com composer
-        exec('composer dumpautoload');
+//        exec('composer dumpautoload');
 
         //executa seed atualização
-        \Illuminate\Support\Facades\Artisan::call('db:seed', array('--class' => 'UpdateVersion520Seeder'));
+//        \Illuminate\Support\Facades\Artisan::call('db:seed', array('--class' => 'UpdateVersion520Seeder'));
 
         //executa comando para sanitizar usuarios
-        \Illuminate\Support\Facades\Artisan::call('command:SanitizarUsuarioInativos');
+//        \Illuminate\Support\Facades\Artisan::call('command:SanitizarUsuarioInativos');
     }
 
     /**
