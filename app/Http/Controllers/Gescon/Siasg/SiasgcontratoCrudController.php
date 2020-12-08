@@ -478,7 +478,7 @@ class SiasgcontratoCrudController extends CrudController
 
 
             $dado = [
-                'contrato' => $this->siasgcontrato->unidade->codigosiasg . $this->siasgcontrato->tipo->descres . $this->siasgcontrato->numero . $this->siasgcontrato->ano
+                'contrato' => $siasgcontrato->unidade->codigosiasg . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
             ];
 
             if($siasgcontrato->sisg == false){
@@ -490,10 +490,10 @@ class SiasgcontratoCrudController extends CrudController
                 ];
 
             }
-            dd($siasgcontrato);
+
             $apiSiasg = new ApiSiasg;
             $retorno = $apiSiasg->executaConsulta($tipoconsulta, $dado);
-            $siasgcontrato_atualizado = $this->siasgcontrato->atualizaJsonMensagemSituacao($this->siasgcontrato->id, $retorno);
+            $siasgcontrato_atualizado = $siasgcontrato->atualizaJsonMensagemSituacao($siasgcontrato->id, $retorno);
 
             if($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado'){
                 $contratoSiagIntegracao = new ContratoSiasgIntegracaoNovo;
