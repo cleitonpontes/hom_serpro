@@ -49,7 +49,7 @@ Route::group([
             Route::get('atualizasaldos/unidade/{cod_unidade}', 'SaldoContabilController@atualizaSaldosPorUnidade')->name('atualiza.saldos.unidade');
             Route::get('atualizasaldos/linha/{saldo_id}', 'SaldoContabilController@atualizaSaldosPorLinha')->name('atualiza.saldos.linha');
             Route::get('pupula/tabelas/siafi/{minuta_id}', 'MinutaEmpenhoController@populaTabelasSiafi')->name('popula.tabelas.siafi');
-            Route::get('pupula/tabelas/siafi/{minuta_id}/{remessa}', 'MinutaEmpenhoController@populaTabelasSiafiAlteracao')->name('popula.tabelas.siafi');
+            Route::get('pupula/tabelas/siafi/{minuta_id}/{remessa?}', 'MinutaEmpenhoController@populaTabelasSiafiAlteracao')->name('popula.tabelas.siafi.alt');
             Route::get('inserir/celula/modal/{cod_unidade}/{contacorrente}', 'SaldoContabilController@inserirCelulaOrcamentaria')->name('saldo.inserir.modal');
             Route::get('carrega/saldos/unidade/{cod_unidade}', 'SaldoContabilController@carregaSaldosPorUnidadeSiasg')->name('carrega.saldos.unidade');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
@@ -67,9 +67,7 @@ Route::group([
         Route::get('/storage/comunica/anexos/{file}', 'DownloadsController@anexoscomunica');
         Route::get('/storage/ocorrencia/{path}/{file}', 'DownloadsController@anexosocorrencia');
 
-
         Route::get('/storage/importacao/{path}/{file}', 'DownloadsController@importacao');
-
 
         Route::get('/mensagens', 'AdminController@listaMensagens');
         Route::get('/mensagem/{id}', 'AdminController@lerMensagem');

@@ -16,7 +16,9 @@ class AlterPassivoAnteriorTable extends Migration
 
         Schema::table('conta_corrente_passivo_anterior', function ($table) {
 
-            $table->integer('remessa')->default(0);
+            $table->integer('minutaempenhos_remessa_id')->unsigned()->index();
+            $table->foreign('minutaempenhos_remessa_id')->references('id')->on('minutaempenhos_remessa')->onDelete('cascade');
+            $table->unique(['minutaempenho_id','minutaempenhos_remessa_id']);
 
         });
     }
@@ -30,7 +32,7 @@ class AlterPassivoAnteriorTable extends Migration
     {
         Schema::table('conta_corrente_passivo_anterior', function (Blueprint $table) {
 
-            $table->dropColumn('remessa');
+            $table->dropColumn('minutaempenhos_remessa_id');
 
         });
     }

@@ -23,8 +23,9 @@ class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
         Schema::table('compra_item_minuta_empenho', function ($table) use ($situacao) {
 
             $table->dropPrimary('compra_item_minuta_empenho_pkey');
-            $table->integer('remessa')->default(0);
-            $table->primary(['compra_item_id', 'minutaempenho_id','remessa']);
+            $table->integer('minutaempenhos_remessa_id')->nullable()->unsigned()->index();
+            $table->foreign('minutaempenhos_remessa_id')->references('id')->on('minutaempenhos_remessa')->onDelete('cascade');
+            $table->primary(['compra_item_id', 'minutaempenho_id','minutaempenhos_remessa_id']);
             $table->integer('operacao_id')->default($situacao->id);
             $table->foreign('operacao_id')->references('id')->on('codigoitens')->onDelete('cascade');
             $table->timestamps();
@@ -42,7 +43,7 @@ class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
         Schema::table('compra_item_minuta_empenho', function (Blueprint $table) {
 
             $table->dropPrimary('compra_item_minuta_empenho_pkey');
-            $table->dropColumn('remessa');
+            $table->dropColumn('minutaempenhos_remessa_id');
             $table->dropColumn('operacao_id');
             $table->dropColumn('created_at');
             $table->dropColumn('updated_at');

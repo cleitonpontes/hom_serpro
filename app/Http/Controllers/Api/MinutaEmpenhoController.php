@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Route;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CompraTrait;
+//use function GuzzleHttp\Promise\all;
 
 class MinutaEmpenhoController extends Controller
 {
@@ -36,6 +37,7 @@ class MinutaEmpenhoController extends Controller
 
     public function populaTabelasSiafi(Request $request)
     {
+//        dd(333);
         $retorno['resultado'] = false;
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
@@ -91,7 +93,6 @@ class MinutaEmpenhoController extends Controller
         return $modSfOrcEmpenhoDados;
     }
 
-
     public function gravaSfCelulaOrcamentaria(SfOrcEmpenhoDados $sforcempenhodados, SaldoContabil $modSaldoContabil)
     {
         $modSfCelulaOrcamentaria = new SfCelulaOrcamentaria();
@@ -132,10 +133,13 @@ class MinutaEmpenhoController extends Controller
         return $modSfPassivoPermanente;
     }
 
-    public function gravaSfItensEmpenho(MinutaEmpenho $modMinutaEmpenho, SfOrcEmpenhoDados $sforcempenhodados)
+    public function gravaSfItensEmpenho(MinutaEmpenho $modMinutaEmpenho, SfOrcEmpenhoDados $sforcempenhodados, $remessa_id = 0)
     {
 
-        $modCompraItemEmpenho = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
+        $modCompraItemEmpenho = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)
+            ->where('remessa', $remessa_id)
+            ->get();
+//        dd($modCompraItemEmpenho);
 
         foreach ($modCompraItemEmpenho as $key => $item) {
             $modSfItemEmpenho = new SfItemEmpenho();
@@ -245,5 +249,63 @@ class MinutaEmpenhoController extends Controller
         $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
         (!empty($modCompraItem->descricaodetalhada)) ? $descricao = $modCompraItem->descricaodetalhada : $descricao = $modcatMatSerItem->descricao;
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
+    }
+
+    public function populaTabelasSiafiAlteracao(Request $request)
+    {
+//        $params = Route::current()->parameters();
+//        dd($params);
+        $retorno['resultado'] = false;
+        $minuta_id = Route::current()->parameter('minuta_id');
+        $remessa_id = Route::current()->parameter('remessa');
+        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $modSaldoContabil = SaldoContabil::find($modMinutaEmpenho->saldo_contabil_id);
+//        dd($minuta_id,$modMinutaEmpenho,$modSaldoContabil);
+
+        DB::beginTransaction();
+        try {
+            //todo gravar remessa
+            $sforcempenhodadosalt = $this->gravaSfOrcEmpenhoDadosAlt($modMinutaEmpenho);
+//            dump($sforcempenhodadosalt);
+
+//            $this->gravaSfCelulaOrcamentaria($sforcempenhodados, $modSaldoContabil);
+            //TODO VERIFICAR GRAVACAO PASSIVO ANTERIOR ALT
+            if ($modMinutaEmpenho->passivo_anterior) {
+                $this->gravaSfPassivoAnterior($sforcempenhodadosalt, $modMinutaEmpenho);
+            }
+
+            //todo verificar tipo de alteracaono gravaitens
+            $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodadosalt, $remessa_id);
+            //todo gravar registroalteracao
+            $this->gravaMinuta($modMinutaEmpenho);
+
+            DB::commit();
+            $retorno['resultado'] = true;
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
+
+        return $retorno;
+    }
+
+    public function gravaSfOrcEmpenhoDadosAlt(MinutaEmpenho $modMinutaEmpenho)
+    {
+        $modSfOrcEmpenhoDados = new SfOrcEmpenhoDados();
+
+        $ugemitente = Unidade::find($modMinutaEmpenho->unidade_id);
+
+        $modSfOrcEmpenhoDados->minutaempenho_id = $modMinutaEmpenho->id;
+        $modSfOrcEmpenhoDados->ugemitente = $ugemitente->codigo;
+        $modSfOrcEmpenhoDados->anoempenho = (int)date('Y');
+        $modSfOrcEmpenhoDados->numempenho = (int)substr($modMinutaEmpenho->mensagem_siafi, 6, 6);
+        $modSfOrcEmpenhoDados->txtlocalentrega = $modMinutaEmpenho->local_entrega;
+        $modSfOrcEmpenhoDados->txtdescricao = $modMinutaEmpenho->descricao;
+
+        $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+        $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
+
+        $modSfOrcEmpenhoDados->save();
+        return $modSfOrcEmpenhoDados;
     }
 }

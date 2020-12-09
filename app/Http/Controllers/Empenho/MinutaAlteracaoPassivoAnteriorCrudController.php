@@ -115,6 +115,7 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
     {
 
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
+
         DB::beginTransaction();
         try {
             if ($request->passivo_anterior == 1) {
@@ -173,11 +174,11 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
                 }
             }
 
-            $minuta->etapa = 8;
-            $minuta->passivo_anterior = $request->passivo_anterior;
-            $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
-
-            $minuta->save();
+//            $minuta->etapa = 8;
+//            $minuta->passivo_anterior = $request->passivo_anterior;
+//            $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
+//
+//            $minuta->save();
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();

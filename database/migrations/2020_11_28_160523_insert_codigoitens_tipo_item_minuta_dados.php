@@ -59,7 +59,7 @@ class InsertCodigoitensTipoItemMinutaDados extends Migration
     public function down()
     {
         Codigo::where([
-            'descricao' => 'Tipo Feriados',
+            'descricao' => 'Operação item empenho',
             'visivel' => true
         ])->forceDelete();
     }
