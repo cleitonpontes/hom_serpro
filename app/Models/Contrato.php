@@ -566,10 +566,14 @@ class Contrato extends Model
             ->where('situacao', true);
     }
 
+    /**
+     * alterado por mvascs@gmail.com -> retirado where situacao,
+     * para que todos os responsáveis fossem trazidos para o extrato pdf e não apenas os ativos
+     */
     public function responsaveis()
     {
-        return $this->hasMany(Contratoresponsavel::class, 'contrato_id')
-            ->where('situacao', true);
+        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
+            // ->where('situacao', true);
     }
 
     public function terceirizados()
