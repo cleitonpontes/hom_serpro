@@ -92,6 +92,19 @@ class ApiSiasg
         return $this->submit('CONTRATOCOMPRA', $dado_consulta);
     }
 
+    
+    private function consultaContratoCompra(array $dado_consulta)
+    {
+//        $params = [
+//            'ano' => $dado_consulta['ano'],
+//            'modalidade' => $dado_consulta['modalidade'],
+//            'numero' => $dado_consulta['numero'],
+//            'uasg' => $dado_consulta['uasg']
+//        ];
+
+        return $this->submit('CONTRATOCOMPRA', $dado_consulta);
+    }
+
     private function consultaContratoSisg(array $dado_consulta)
     {
 //        $params = [
