@@ -140,6 +140,15 @@ class ContratoSiasgIntegracaoNovo extends Model
         $numparcelas = $contrato->num_parcelas;
         $vlrparcela = $contrato->valor_parcela;
         $tipo_id = $this->buscaTipoId('Termo Aditivo');
+        //observacao
+        //qualificação
+        //data assinatura
+        //data publicação
+        //vigencias
+        //valor global
+        //numero de parcela
+        //valor da parcela
+
 
         $dados = [];
 
