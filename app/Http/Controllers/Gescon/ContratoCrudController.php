@@ -1109,7 +1109,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'valor_global',
             'label' => 'Valor Global',
-            'type' => 'money',
+            'type' => 'number',
             'attributes' => [
                 'id' => 'valor_global',
             ],
@@ -1138,7 +1138,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'valor_parcela',
             'label' => 'Valor Parcela',
-            'type' => 'money',
+            'type' => 'number',
             'attributes' => [
                 'id' => 'valor_parcela',
             ],

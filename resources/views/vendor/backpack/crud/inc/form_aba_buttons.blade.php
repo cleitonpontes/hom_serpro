@@ -309,8 +309,8 @@
         }
 
         var periodicidade = 1;
-        if ($('#periodicidade').val()) {
-            periodicidade = $('#periodicidade').val();
+        if ($('#periodicidade_item').val()) {
+            periodicidade = $('#periodicidade_item').val();
         }
 
         var newRow = $("<tr>");
