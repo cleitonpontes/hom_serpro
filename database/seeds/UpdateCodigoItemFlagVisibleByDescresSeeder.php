@@ -15,7 +15,5 @@ class UpdateCodigoItemFlagVisibleByDescresSeeder extends Seeder
         $codigoitem = Codigoitem::whereRaw('LENGTH(descres) > 2')
                            ->where('descres', '<>', 'NAOSEAPLIC')
                           ->update(['visivel' => false]);
-    
-
     }
 }
