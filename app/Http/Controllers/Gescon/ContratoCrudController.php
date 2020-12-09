@@ -264,7 +264,7 @@ class ContratoCrudController extends CrudController
 
         $pdf->SetY(40);
         $pdf->SetFont('Arial', 'B', 7);
-        $pdf->Cell(23, 5, utf8_decode("Tipo"), 1, 0, 'C');
+        $pdf->Cell(30, 5, utf8_decode("Tipo"), 1, 0, 'C');
 
         $pdf->Cell(23, 5, utf8_decode("Número"), 1, 0, 'C');
         //$pdf->Cell(21, 5, utf8_decode("Observação"), 1, 0, 'C');
@@ -284,7 +284,7 @@ class ContratoCrudController extends CrudController
                 $pdf->AddPage();
                 $pdf->SetY($row_resp);
                 $pdf->SetFont('Arial', 'B', 7);
-                $pdf->Cell(23, 5, utf8_decode("Tipo"), 1, 0, 'C');
+                $pdf->Cell(30, 5, utf8_decode("Tipo"), 1, 0, 'C');
                 $pdf->Cell(23, 5, utf8_decode("Número"), 1, 0, 'C');
                 $pdf->Cell(23, 5, utf8_decode("Data Assinatura"), 1, 0, 'C');
 
@@ -302,7 +302,7 @@ class ContratoCrudController extends CrudController
             $pdf->SetY($row_resp);
 
             $pdf->SetFont('Arial', 'B', 7);
-            $pdf->Cell(23, 5, utf8_decode($registro->tipo()->first()->descricao), 1, 0, 'C');
+            $pdf->Cell(30, 5, utf8_decode($registro->tipo()->first()->descricao), 1, 0, 'C');
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(23, 5, $registro->numero, 1, 0, 'L');
             $pdf->Cell(23, 5, implode('/',array_reverse(explode('-', $registro->data_assinatura))), 1, 0, 'L');
@@ -322,7 +322,7 @@ class ContratoCrudController extends CrudController
 
             $lines = $pdf->NbLines(161, utf8_decode($registro->observacao)) *5;
             $pdf->SetFont('Arial', 'B', 7);
-            $pdf->Cell(23, $lines, utf8_decode("Observação"), 1, 0, 'C');
+            $pdf->Cell(30, $lines, utf8_decode("Observação"), 1, 0, 'C');
 
             $pdf->SetFont('Arial', '', 7);
             $pdf->MultiCell(161, 5, utf8_decode($registro->observacao), 1);
