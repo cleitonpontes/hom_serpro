@@ -467,7 +467,7 @@ class SiasgcontratoCrudController extends CrudController
                 //AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
                 $this->atualizaSiasgContrato($siasgcontrato);
             }
-            break;
+
         }
     }
 
@@ -493,17 +493,24 @@ class SiasgcontratoCrudController extends CrudController
 
             $apiSiasg = new ApiSiasg;
             $retorno = $apiSiasg->executaConsulta($tipoconsulta, $dado);
-            $siasgcontrato_atualizado = $siasgcontrato->atualizaJsonMensagemSituacao($siasgcontrato->id, $retorno);
-
-            if($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado'){
-                $contratoSiagIntegracao = new ContratoSiasgIntegracaoNovo;
-                $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
-
-                if(isset($contrato->id)){
-                    $siasgcontrato_atualizado->contrato_id = $contrato->id;
-                    $siasgcontrato_atualizado->save();
+            $retorno = json_decode($retorno);
+           if(!is_null($retorno->data)){
+                if (!is_null($retorno->data->dadosTermoAditivos)) {
+                    dump('achei');
+                    dd($retorno->data);
                 }
             }
+//            $siasgcontrato_atualizado = $siasgcontrato->atualizaJsonMensagemSituacao($siasgcontrato->id, $retorno);
+//
+//            if($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado'){
+//                $contratoSiagIntegracao = new ContratoSiasgIntegracaoNovo;
+//                $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
+//
+//                if(isset($contrato->id)){
+//                    $siasgcontrato_atualizado->contrato_id = $contrato->id;
+//                    $siasgcontrato_atualizado->save();
+//                }
+//            }
 
 
 
