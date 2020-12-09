@@ -142,9 +142,6 @@ class ContratoCrudController extends CrudController
 
     public function inserirItensContrato($request){
 
-        $valor_uni = $this->retornaArrayValoresFormatado($request['vl_unit']);
-        $valor_total = $this->retornaArrayValoresFormatado($request['vl_total']);
-
         DB::beginTransaction();
         try {
             foreach ($request['qtd_item'] as $key => $qtd) {
@@ -159,8 +156,8 @@ class ContratoCrudController extends CrudController
                 $contratoItem->catmatseritem_id = $catmatseritem->id;
                 $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
                 $contratoItem->quantidade = (double)$qtd;
-                $contratoItem->valorunitario = $valor_uni[$key];
-                $contratoItem->valortotal = $valor_total[$key];
+                $contratoItem->valorunitario = $request['vl_unit'][$key];
+                $contratoItem->valortotal = $request['vl_total'][$key];
                 $contratoItem->data_inicio = $request['data_inicio'][$key];
                 $contratoItem->periodicidade = $request['periodicidade'][$key];
                 $contratoItem->save();
@@ -1717,15 +1714,4 @@ class ContratoCrudController extends CrudController
     {
         return FormBuilder::create(InserirItemContratoMinutaForm::class);
     }
-
-    public function retornaArrayValoresFormatado(array $valores){
-
-        return array_map(
-            function ($valores) {
-                return $this->retornaFormatoAmericano($valores);
-            },
-            $valores
-        );
-    }
-
 }

@@ -1,14 +1,6 @@
 <!-- field_type_name -->
 @inject('compratrait', 'App\Http\Controllers\Empenho\CompraSiasgCrudController')
 <div @include('crud::inc.field_wrapper_attributes') >
-{{--    <label>{!! $field['label'] !!}</label>--}}
-{{--    <input--}}
-{{--        type="text"--}}
-{{--        name="{{ $field['name'] }}"--}}
-{{--        value="{{ old($field['name']) ? old($field['name']) : (isset($field['value']) ? $field['value'] : (isset($field['default']) ? $field['default'] : '' )) }}"--}}
-{{--        @include('crud::inc.field_attributes')--}}
-{{--    >--}}
-{{--    <br>--}}
     <!-- Editable table -->
     <div class="card">
         <div class="card-body">
@@ -73,23 +65,23 @@
                     </div>
                     <div class="form-group">
                         <label for="qtd_item" class="control-label">Quantidade</label>
-                        <input class="form-control" id="qtd_item" maxlength="10" name="qtd_item" type="number">
+                        <input class="form-control" id="quantidade_item" maxlength="10" name="quantidade_item" type="number">
                     </div>
                     <div class="form-group">
                         <label for="vl_unit" class="control-label">Valor Unitário</label>
-                        <input class="form-control" id="vl_unit" name="vl_unit" type="number">
+                        <input class="form-control" id="valor_unit" name="valor_unit" type="number">
                     </div>
                     <div class="form-group">
                         <label for="vl_total" class="control-label">Valor Total</label>
-                        <input class="form-control" id="vl_total" name="vl_total" type="number">
+                        <input class="form-control" id="valor_total" name="valor_total" type="number">
                     </div>
                     <div class="form-group">
                         <label for="periodicidade" class="control-label">Periodicidade</label>
-                        <input class="form-control" id="periodicidade" maxlength="10" name="periodicidade" type="number">
+                        <input class="form-control" id="periodicidade_item" maxlength="10" name="periodicidade_item" type="number">
                     </div>
                     <div class="form-group">
                         <label for="data_inicio" class="control-label">Data Início</label>
-                        <input class="form-control" id="data_inicio" name="data_inicio" type="date">
+                        <input class="form-control" id="dt_inicio" name="dt_inicio" type="date">
                     </div>
                     <button class="btn btn-danger" type="submit" data-dismiss="modal"><i class="fa fa-reply"></i> Cancelar</button>
                     <button class="btn btn-success" type="button" data-dismiss="modal" id="btn_inserir_item"><i class="fa fa-save"></i> Incluir</button>
