@@ -20,6 +20,7 @@ class ContratoSiasgIntegracaoNovo extends Model
     public function executaAtualizacaoContratos(Siasgcontrato $siasgcontrato)
     {
 
+
         if ($siasgcontrato->situacao != 'Importado') {
             return '';
         }
@@ -42,7 +43,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             if ($json->data->dadosContrato->uasgSubRogada != '000000') {
                 $subrogacao = $this->verificaSubrrogacao($contrato);
             }
-            if(is_null($json->data->dadosEventos)){
+            if($json->data->dadosEventos == 20){
                $rescisao = $this->inserirRecisao($contrato, $json);
             }
            // dd(is_null($json->data->dadosEventos));
@@ -70,7 +71,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             'tipo_id' => 191
         ],
         [
-            'objeto' => 'RESCISÃO DO CONTRATO NÚMERO: ' . $contrato->numero,
+            'objeto' => 'RESCISÃO DO CONTRATO NÚMERO teste: ' . $contrato->numero,
             'numero' => $contrato->numero,
             'data_assinatura' => $json->data->dadosContrato->dataPublicacao,
             'data_publicacao' => $json->data->dadosContrato->dataPublicacao,
