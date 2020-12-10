@@ -71,7 +71,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             'tipo_id' => 191
         ],
         [
-            'objeto' => 'RESCISÃO DO CONTRATO NÚMERO teste: ' . $contrato->numero,
+            'objeto' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
             'numero' => $contrato->numero,
             'data_assinatura' => $json->data->dadosContrato->dataPublicacao,
             'data_publicacao' => $json->data->dadosContrato->dataPublicacao,
