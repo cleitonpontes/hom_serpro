@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Forms\InserirItemContratoMinutaForm;
+use App\Http\Traits\Formatador;
 use App\Jobs\AlertaContratoJob;
+use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
+use App\Models\Comprasitemunidadecontratoitens;
 use App\Models\Contrato;
+use App\Models\Contratoitem;
+use App\Models\ContratoMinutaEmpenho;
+use App\Models\MinutaEmpenho;
 use App\Models\Fornecedor;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
+use FormBuilder;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
@@ -31,6 +38,8 @@ use Codedge\Fpdf\Fpdf\Fpdf;
  */
 class ContratoCrudController extends CrudController
 {
+    use Formatador;
+
     protected $tab = '';
 
     public function setup()
@@ -43,6 +52,7 @@ class ContratoCrudController extends CrudController
         $this->crud->setModel('App\Models\Contrato');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato');
         $this->crud->setEntityNameStrings('Contrato', 'Contratos');
+        $this->crud->setEditView('vendor.backpack.crud.contrato.create');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
@@ -85,6 +95,7 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -92,9 +103,98 @@ class ContratoCrudController extends CrudController
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
         $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
 
+        // Caso tenha empenho preenchido utilizar os campos de unidade, modalidade e numero da licitacao de acordo
+        // com a compra da minuta de empenho descartando os valores inseridos pelo usuário
+        if(!empty($request->get('minutasempenho'))){
+            $camposBaseadosEmpenho = $this->buscarCamposBaseadosEmpenho(current($request->get('minutasempenho')));
+            $request->request->set('unidadecompra_id', $camposBaseadosEmpenho['unidade_id']);
+            $request->request->set('modalidade_id', $camposBaseadosEmpenho['modalidade_id']);
+            $request->request->set('licitacao_numero', $camposBaseadosEmpenho['compra_numero_ano']);
+        }
+
         $redirect_location = parent::storeCrud($request);
+        $contrato_id = $this->crud->getCurrentEntryId();
+        $request->request->set('contrato_id',$contrato_id);
+
+        if(!empty($request->get('qtd_item'))) {
+            $this->inserirItensContrato($request->all());
+        }
+
+        if(!empty($request->get('minuta_id'))) {
+            $this->vincularMinutaContrato($request->all());
+        }
 
         return $redirect_location;
+    }
+
+    private function buscarCamposBaseadosEmpenho($idEmpenho)
+    {
+        $camposContrato = MinutaEmpenho::select(
+            "compras.modalidade_id",
+            "minutaempenhos.unidade_id",
+            "compras.numero_ano as compra_numero_ano"
+        )
+        ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+        ->where('minutaempenhos.id',$idEmpenho)->firstOrFail()->toArray();
+
+        return $camposContrato;
+    }
+
+    public function inserirItensContrato($request){
+
+        DB::beginTransaction();
+        try {
+            foreach ($request['qtd_item'] as $key => $qtd) {
+
+                $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
+                $catmatseritem = Catmatseritem::find($catmatseritem_id);
+
+                $contratoItem = new Contratoitem();
+                $contratoItem->contrato_id = $request['contrato_id'];
+                $contratoItem->tipo_id = $request['tipo_item_id'][$key];
+                $contratoItem->grupo_id = $catmatseritem->grupo_id;
+                $contratoItem->catmatseritem_id = $catmatseritem->id;
+                $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
+                $contratoItem->quantidade = (double)$qtd;
+                $contratoItem->valorunitario = $request['vl_unit'][$key];
+                $contratoItem->valortotal = $request['vl_total'][$key];
+                $contratoItem->data_inicio = $request['data_inicio'][$key];
+                $contratoItem->periodicidade = $request['periodicidade'][$key];
+                $contratoItem->save();
+                $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
+            }
+            DB::commit();
+
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
+    }
+
+    public function vincularMinutaContrato($request){
+        DB::beginTransaction();
+        try {
+            foreach ($request['minuta_id'] as $minuta_id) {
+                $contratoMinuta = new ContratoMinutaEmpenho();
+                $contratoMinuta->contrato_id = $request['contrato_id'];
+                $contratoMinuta->minuta_empenho_id = $minuta_id;
+                $contratoMinuta->save();
+            }
+            DB::commit();
+
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
+    }
+
+    public function vincularContratoItensCompraItemUnidade($contratoItem,$request){
+            foreach ($request['compra_item_unidade_id'] as $key => $compra_item_unidade_id) {
+                $compraItemUnidade_ContratoItem = new Comprasitemunidadecontratoitens();
+                $compraItemUnidade_ContratoItem->contratoitem_id = $contratoItem->id;
+                $compraItemUnidade_ContratoItem->compra_item_unidade_id = $compra_item_unidade_id;
+                $compraItemUnidade_ContratoItem->save();
+            }
     }
 
     public function update(UpdateRequest $request)
@@ -595,6 +695,7 @@ class ContratoCrudController extends CrudController
         $this->tab = 'Dados do contrato';
 
         $this->adicionaCampoFornecedor();
+        $this->adicionarMinutasDeEmpenho();
         $this->adicionaCampoDataAssinatura();
         $this->adicionaCampoDataPublicacao();
         $this->adicionaCampoObjeto();
@@ -617,6 +718,10 @@ class ContratoCrudController extends CrudController
         $this->adicionaCampoUnidadeGestoraAtual();
         $this->adicionaCampoUnidadeRequisitante();
         $this->adicionaCampoSituacao();
+
+        $this->tab = 'Itens do contrato';
+
+        $this->adicionaCampoItensContrato();
 
         $this->tab = 'Vigência / Valores';
 
@@ -687,6 +792,28 @@ class ContratoCrudController extends CrudController
         ]);
     }
 
+
+    protected function adicionarMinutasDeEmpenho()
+    {
+        $this->crud->addField([
+            'label' => 'Minutas de Empenho',
+            'name' => 'minutasempenho',
+            'placeholder' => 'Selecione minutas de empenho',
+            'type' => 'select2_from_ajax_multiple',
+            'entity' => 'minutaempenho',
+            'attribute' => 'nome_minuta_empenho',
+            'model' => 'App\Models\MinutaEmpenho',
+            'data_source' => url('api/minutaempenhoparacontrato'),
+            'dependencies' => ['fornecedor_id'],
+            'pivot' => true,
+            'minimum_input_length' => 0,
+            'wrapperAttributes' => [
+                'title' => '{uasg} {modalidade} {numeroAno} - Nº do(s) Empenho(s) - Data de Emissão'
+            ],
+            'tab' => $this->tab,
+        ]);
+    }
+
     protected function adicionaCampoDataAssinatura()
     {
         $this->crud->addField([
@@ -745,7 +872,11 @@ class ContratoCrudController extends CrudController
             'type' => 'select2_from_array',
             'options' => $modalidades,
             'allows_null' => true,
-            'tab' => $this->tab
+            'tab' => $this->tab,
+            'default'    => 172,
+            'attributes' => [
+                'disabled' => 'disabled',
+            ],
         ]);
     }
 
@@ -977,7 +1108,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'valor_global',
             'label' => 'Valor Global',
-            'type' => 'money',
+            'type' => 'number',
             'attributes' => [
                 'id' => 'valor_global',
             ],
@@ -992,6 +1123,7 @@ class ContratoCrudController extends CrudController
             'name' => 'num_parcelas',
             'label' => 'Núm. Parcelas',
             'type' => 'number',
+            'default'=>'1',
             'attributes' => [
                 "step" => "any",
                 "min" => '1',
@@ -1005,7 +1137,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'valor_parcela',
             'label' => 'Valor Parcela',
-            'type' => 'money',
+            'type' => 'number',
             'attributes' => [
                 'id' => 'valor_parcela',
             ],

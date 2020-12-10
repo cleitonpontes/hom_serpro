@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Soap\SiafiEmpenhoController;
+use App\Http\Controllers\Publicacao\SiafiEmpenhoController;
 use App\Models\SaldoContabil;
 use App\Models\Unidade;
 use App\STA\ConsultaApiSta;

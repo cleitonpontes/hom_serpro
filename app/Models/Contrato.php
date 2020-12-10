@@ -612,6 +612,16 @@ class Contrato extends Model
         );
     }
 
+    public function minutasempenho()
+    {
+        return $this->belongsToMany(
+            'App\Models\MinutaEmpenho',
+            'contrato_minuta_empenho_pivot',
+            'contrato_id',
+            'minuta_empenho_id'
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
