@@ -66,29 +66,29 @@ class Apropriacaonotaempenho extends Model
     public function retornaListagemPasso4ComSaldos($apropriacaoId)
     {
         $dados = $this->retornaDadosBase($apropriacaoId);
-        
+
         return $dados;
     }
 
     /**
-     * Faz verificação se pode ou não avançar para o pŕoximo passo 
-     * 
+     * Faz verificação se pode ou não avançar para o pŕoximo passo
+     *
      * @param number $apropriacaoId
      * @return boolean
      */
     public function validarPasso4($apropriacaoId)
     {
         $dados = $this->retornaDadosBase($apropriacaoId);
-        
+
         $semSaldos = array_column($dados, 'sem_saldo');
         $qtde = array_sum($semSaldos);
-        
+
         return $qtde == 0;
     }
 
     /**
      * Retorna os dados básicos para a listagem do Passo 4
-     * 
+     *
      * @param number $apropriacaoId
      * @return array
      */
@@ -125,7 +125,7 @@ class Apropriacaonotaempenho extends Model
             'A.competencia',
             'empenho',
             'S.conta',
-            'fonte',
+            'E.fonte',
             'D.empaliquidar'
         ]);
 
@@ -133,7 +133,7 @@ class Apropriacaonotaempenho extends Model
         $dados->orderBy('A.competencia');
         $dados->orderBy('empenho');
         $dados->orderBy('S.conta');
-        $dados->orderBy('fonte');
+        $dados->orderBy('E.fonte');
         $dados->orderBy('D.empaliquidar');
 
         $dados->select([
@@ -141,7 +141,7 @@ class Apropriacaonotaempenho extends Model
             DB::raw('right("A"."competencia", 2) as mes'),
             'A.ug',
             'empenho',
-            'fonte',
+            'E.fonte',
             'S.conta',
             DB::raw('left("S"."conta", 6) as natureza'),
             DB::raw('right("S"."conta", 2) as subitem'),
@@ -156,7 +156,7 @@ class Apropriacaonotaempenho extends Model
 
         return $dados->get()->toArray();
     }
-    
+
     /**
      * Retorna todos os registros de empenhos por $id
      *

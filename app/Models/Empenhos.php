@@ -60,7 +60,7 @@ class Empenhos extends Model
         $sql .= 'SELECT ';
         $sql .= '	E.numero AS ne, ';
         $sql .= '   left(E.numero, 4)  AS ano, ';
-        $sql .= "	'000' AS fonte, ";
+        $sql .= "	E.fonte AS fonte, ";
         $sql .= '	N.codigo || I.codigo AS nd ';
         $sql .= 'FROM';
         $sql .= '	empenhos AS E ';

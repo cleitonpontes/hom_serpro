@@ -1,3 +1,6 @@
+@php
+    $fornecedor_id = session('fornecedor_compra') ?? Route::current()->parameter('fornecedor_id') ?? ''
+@endphp
 @extends('backpack::layout')
 
 @section('header')
@@ -30,53 +33,50 @@
                     <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 </div>
 
-            <div class="box-tools" align="right">
-                <div class="row">
-                    <div class="col-md-3" align="left">
-                        <label for="cb_unidade"> UG Emitente </label>
-                        <select name="cb_unidade" id="cb_unidade">
-                            @foreach($unidades as $key => $unidade)
-                                @if($key == $modUnidade->id)
-                                    <option value="{{$key}}" selected>{{$unidade}}</option>
-                                @else
-                                    <option value="{{$key}}">{{$unidade}}</option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-9" align="right">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#inserir_celular_orcamentaria">
-                            Inserir Célula Orçamentária <i class="fa fa-plus"></i>
-                        </button>
+                <div class="box-tools" align="right">
+                    <div class="row">
+                        <div class="col-md-3" align="left">
+                            <label for="cb_unidade"> UG Emitente </label>
+                            <select name="cb_unidade" id="cb_unidade">
+                                @foreach($unidades as $key => $unidade)
+                                    @if($key == $modUnidade->id)
+                                        <option value="{{$key}}" selected>{{$unidade}}</option>
+                                    @else
+                                        <option value="{{$key}}">{{$unidade}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-9" align="right">
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    data-target="#inserir_celular_orcamentaria">
+                                Inserir Célula Orçamentária <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <br/>
+                <br/>
 
                 {!! $html->table() !!}
 
-            <div class="box-tools" align="right">
-                <div class="row">
+                <div class="box-tools" align="right">
+                    <div class="row">
 
-                    <div class="box-tools col-md-6" align="left">
+                        <div class="box-tools col-md-6" align="left">
+                            @include('backpack::mod.empenho.botoes',['rota' => route('empenho.minuta.etapa.item',['minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id])])
 
-                            {!! Button::danger('<i class="fa fa-arrow-left"></i> Voltar')
-                                ->asLinkTo(route('empenho.minuta.etapa.item',['minuta_id' => $minuta_id,'fornecedor_id'=> $fornecedor_id]))
-                            !!}
 
-                            <button type="submit" class="btn btn-success">
-                                Próxima Etapa <i class="fa fa-arrow-right"></i>
+
+
+                        </div>
+                        <div class="col-md-6" align="right">
+                            <button type="button" class="btn btn-primary" id="atualiza_saldo">
+                                Atualizar todos os Saldos <i class="fa fa-refresh"></i>
                             </button>
+                        </div>
 
                     </div>
-                    <div class="col-md-6" align="right">
-                        <button type="button" class="btn btn-primary" id="atualiza_saldo">
-                            Atualizar todos os Saldos  <i class="fa fa-refresh"></i>
-                        </button>
-                    </div>
-
                 </div>
-            </div>
             </form>
         </div>
     </div>
@@ -339,13 +339,13 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script type="text/javascript">
 
-        $(document).ready(function(){
+        $(document).ready(function () {
             $('#cb_unidade').select2();
 
             // $('body').addClass('no-scroll-y');
             var maxLength = '000.000.000.000.000,00'.length;
 
-            $('body').on('click','#atualiza_saldo', function(event){
+            $('body').on('click', '#atualiza_saldo', function (event) {
                 $('#ctn-preloader').addClass('ctn-preloader');
                 $('#ctn-preloader').removeClass('loaded');
                 $('body').addClass('no-scroll-y');
@@ -353,25 +353,25 @@
             });
 
 
-            $('body').on('click','button[name^="atualiza_saldo_acao_"]',function (event){
+            $('body').on('click', 'button[name^="atualiza_saldo_acao_"]', function (event) {
                 var saldo_id = this.id;
-                atualizaLinhadeSaldo(event,saldo_id);
+                atualizaLinhadeSaldo(event, saldo_id);
             });
 
 
-            $('body').on('change','#cb_unidade', function(event){
+            $('body').on('change', '#cb_unidade', function (event) {
                 recarregaTabeladeSaldos(event);
             });
 
-            $('body').on('click','#btn_inserir', function(event){
-                if(valida_form()){
+            $('body').on('click', '#btn_inserir', function (event) {
+                if (valida_form()) {
                     inserirCelulaOrcamentaria(event);
                     $('#fechar_modal').trigger('click');
                 }
                 event.preventDefault();
             });
 
-            $('#inserir_celular_orcamentaria').on('show.bs.modal', function(event) {
+            $('#inserir_celular_orcamentaria').on('show.bs.modal', function (event) {
                 var unidade_id = $('#cb_unidade :selected').val();
                 $('#unidade_id').val(unidade_id);
 
@@ -390,15 +390,15 @@
 
         });
 
-        function atualizaLinhadeSaldo(event,saldo_id){
+        function atualizaLinhadeSaldo(event, saldo_id) {
 
             var url = "{{route('atualiza.saldos.linha',':saldo_id')}}";
-            url = url.replace(':saldo_id',saldo_id);
+            url = url.replace(':saldo_id', saldo_id);
 
             axios.request(url)
                 .then(response => {
                     dados = response.data
-                    if(dados == true) {
+                    if (dados == true) {
                         Swal.fire({
                             position: 'top-end',
                             icon: 'success',
@@ -408,7 +408,7 @@
                         })
                         var table = $('#dataTableBuilder').DataTable();
                         table.ajax.reload();
-                    }else{
+                    } else {
                         Swal.fire({
                             position: 'top-end',
                             icon: 'warning',
@@ -426,31 +426,31 @@
         }
 
 
-        function preloader(){
-            setTimeout(function() {
+        function preloader() {
+            setTimeout(function () {
                 $('#ctn-preloader').addClass('loaded');
                 // Una vez haya terminado el preloader aparezca el scroll
                 $('body').removeClass('no-scroll-y');
 
                 if ($('#ctn-preloader').hasClass('loaded')) {
                     // Es para que una vez que se haya ido el preloader se elimine toda la seccion preloader
-                    $('#preloader').delay(1000).queue(function() {
+                    $('#preloader').delay(1000).queue(function () {
                         $(this).remove();
                     });
                 }
             }, 3000);
         }
 
-        function atualizaSaldosPorUnidade(event){
+        function atualizaSaldosPorUnidade(event) {
 
-            var unidade = $('#cb_unidade :selected').text().substring(0,6);
+            var unidade = $('#cb_unidade :selected').text().substring(0, 6);
 
             var url = "{{route('atualiza.saldos.unidade',':cod_unidade')}}";
-            url = url.replace(':cod_unidade',unidade);
+            url = url.replace(':cod_unidade', unidade);
             axios.request(url)
                 .then(response => {
                     dados = response.data
-                    if(dados == true) {
+                    if (dados == true) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Atualização dos saldos concluída com sucesso!',
@@ -468,29 +468,29 @@
             event.preventDefault()
         }
 
-        function inserirCelulaOrcamentaria(event){
+        function inserirCelulaOrcamentaria(event) {
 
-            var unidade = $('#cb_unidade :selected').text().substring(0,6);
+            var unidade = $('#cb_unidade :selected').text().substring(0, 6);
             var contacorrente = $('#esfera').val();
             contacorrente += $('#ptrs').val();
             contacorrente += $('#fonte').val();
             contacorrente += $('#natureza_despesa').val();
-            if(!$('#urg').val()){
+            if (!$('#urg').val()) {
                 contacorrente += '        '
-            }else{
+            } else {
                 contacorrente += $('#urg').val();
             }
             contacorrente += $('#plano_interno').val();
 
             var url = "{{route('saldo.inserir.modal',[':cod_unidade',':contacorrente'])}}";
-            var url2 = url.replace(':cod_unidade',unidade);
-            url = url2.replace(':contacorrente',contacorrente);
+            var url2 = url.replace(':cod_unidade', unidade);
+            url = url2.replace(':contacorrente', contacorrente);
 
             axios.request(url)
                 .then(response => {
                     dados = response.data
                     console.log(dados.resultado);
-                    if(dados.resultado == true) {
+                    if (dados.resultado == true) {
                         Swal.fire({
                             position: 'top-end',
                             icon: 'success',
@@ -500,14 +500,14 @@
                         })
                         var table = $('#dataTableBuilder').DataTable();
                         table.ajax.reload();
-                    }else if(dados.resultado == null){
+                    } else if (dados.resultado == null) {
                         Swal.fire({
                             icon: 'warning',
                             title: 'Célula Orçamentária não encontrada!',
                             showConfirmButton: true,
                             footer: '<b>Verifique os dados enviados!</b>'
                         })
-                    }else if(dados.resultado == false){
+                    } else if (dados.resultado == false) {
                         Swal.fire({
                             icon: 'warning',
                             title: 'Célula Orçamentária já existe!',
@@ -524,16 +524,16 @@
         }
 
 
-        function recarregaTabeladeSaldos(event){
+        function recarregaTabeladeSaldos(event) {
 
-            var unidade = $('#cb_unidade :selected').text().substring(0,6);
+            var unidade = $('#cb_unidade :selected').text().substring(0, 6);
 
             var url = "{{route('carrega.saldos.unidade',':cod_unidade')}}";
-            url = url.replace(':cod_unidade',unidade);
+            url = url.replace(':cod_unidade', unidade);
             axios.request(url)
                 .then(response => {
                     dados = response.data
-                    if(dados == true) {
+                    if (dados == true) {
                         location.reload();
                     }
                 })
@@ -568,7 +568,7 @@
 
         function null_or_empty(str) {
             var v = $(str).val();
-            if(v == null || v == ""){
+            if (v == null || v == "") {
                 return false;
             }
             return true;
@@ -583,23 +583,23 @@
             var vazio6 = null_or_empty("#plano_interno");
 
             if (!vazio1) {
-                Swal.fire('Alerta!','O campo Esfera é obrigatório!','warning');
+                Swal.fire('Alerta!', 'O campo Esfera é obrigatório!', 'warning');
                 return false;
             }
             if (!vazio2) {
-                Swal.fire('Alerta!','O campo PTRS é obrigatório!','warning');
+                Swal.fire('Alerta!', 'O campo PTRS é obrigatório!', 'warning');
                 return false;
             }
             if (!vazio3) {
-                Swal.fire('Alerta!','O campo Fonte é obrigatório!','warning');
+                Swal.fire('Alerta!', 'O campo Fonte é obrigatório!', 'warning');
                 return false;
             }
             if (!vazio4) {
-                Swal.fire('Alerta!','O campo Natureza de Despesa é obrigatório!','warning');
+                Swal.fire('Alerta!', 'O campo Natureza de Despesa é obrigatório!', 'warning');
                 return false;
             }
             if (!vazio6) {
-                Swal.fire('Alerta!','O campo Plano Interno é obrigatório!','warning');
+                Swal.fire('Alerta!', 'O campo Plano Interno é obrigatório!', 'warning');
                 return false;
             }
             return true;

@@ -58,7 +58,7 @@
                     </div>
                 @else
                 @endif
-                <div class="box box-solid box-primary collapsed-box">
+                <div class="box box-solid box-primary ">
                     <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <h3 class="box-title">Resumo da Minuta de Empenho</h3>
                     </div>
@@ -223,8 +223,10 @@
             <div class="box-tools">
                 <div class="row">
                     <div class="col-md-3">
-                        @if ($entry->situacao_descricao === 'EM ANDAMENTO' && !empty(session('conta_id')) )
-                            <button type="button" class="btn btn-primary" id="voltar">
+                        @if ($entry->situacao_descricao === 'EM ANDAMENTO'
+                                && $entry->situacao_descricao === 'EM PROCESSAMENTO'
+                                && !empty(session('conta_id')) )
+                            <button type="button" class="btn btn-primary" id="voltar" >
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </button>
                         @else

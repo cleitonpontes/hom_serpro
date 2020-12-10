@@ -1,0 +1,54 @@
+<div role="navigation" aria-label="breadcrumbs navigation">
+    <ul class="wy-breadcrumbs">
+      <li><a href="{{ nav.homepage.url|url }}">Docs</a> &raquo;</li>
+      {% if page %}
+        {% for doc in page.ancestors %}
+          {% if doc.link %}
+            <li><a href="{{ doc.link|e }}">{{ doc.title }}</a> &raquo;</li>
+          {% else %}
+            <li>{{ doc.title }} &raquo;</li>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      {% if page %}<li>{{ page.title }}</li>{% endif %}
+      <li class="wy-breadcrumbs-aside">
+        {%- block repo %}
+        {% if page and page.edit_url %}
+          <a href="{{ page.edit_url }}"
+          {%- if config.repo_name|lower == 'github' %}
+            class="icon icon-github"
+          {%- elif config.repo_name|lower == 'bitbucket' %}
+            class="icon icon-bitbucket"
+          {%- elif config.repo_name|lower == 'gitlab' %}
+            class="icon icon-gitlab"
+          {% endif %}> Edit on {{ config.repo_name }}</a>
+        {% endif %}
+        {%- endblock %}
+      </li>
+    </ul>
+    {% if config.theme.prev_next_buttons_location|lower in ['top', 'both']
+          and page and (page.next_page or page.previous_page) %}
+      <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+        {%- if page.next_page %}
+          <a href="{{ page.next_page.url|url }}" class="btn btn-neutral float-right" title="{{ page.next_page.title }}">Next <span class="icon icon-circle-arrow-right"></span></a>
+        {%- endif %}
+        {%- if page.previous_page %}
+          <a href="{{ page.previous_page.url|url }}" class="btn btn-neutral" title="{{ page.previous_page.title }}"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        {%- endif %}
+      </div>
+    {% endif %}
+    <div style="margin-left: 95%; cursor: pointer; margin-top: -24px; opacity: 0.8;" 
+    onclick="imprimir()" name="printButton">
+        <svg id="printIcon" enable-background="new 0 0 512 512" height="1.2rem" viewBox="0 0 512 512" width="1.2rem" xmlns="http://www.w3.org/2000/svg"><g><path d="m437 129h-14v-54c0-41.355-33.645-75-75-75h-184c-41.355 0-75 33.645-75 75v54h-14c-41.355 0-75 33.645-75 75v120c0 41.355 33.645 75 75 75h14v68c0 24.813 20.187 45 45 45h244c24.813 0 45-20.187 45-45v-68h14c41.355 0 75-33.645 75-75v-120c0-41.355-33.645-75-75-75zm-318-54c0-24.813 20.187-45 45-45h184c24.813 0 45 20.187 45 45v54h-274zm274 392c0 8.271-6.729 15-15 15h-244c-8.271 0-15-6.729-15-15v-148h274zm89-143c0 24.813-20.187 45-45 45h-14v-50h9c8.284 0 15-6.716 15-15s-6.716-15-15-15h-352c-8.284 0-15 6.716-15 15s6.716 15 15 15h9v50h-14c-24.813 0-45-20.187-45-45v-120c0-24.813 20.187-45 45-45h362c24.813 0 45 20.187 45 45z"/><path d="m296 353h-80c-8.284 0-15 6.716-15 15s6.716 15 15 15h80c8.284 0 15-6.716 15-15s-6.716-15-15-15z"/><path d="m296 417h-80c-8.284 0-15 6.716-15 15s6.716 15 15 15h80c8.284 0 15-6.716 15-15s-6.716-15-15-15z"/><path d="m128 193h-48c-8.284 0-15 6.716-15 15s6.716 15 15 15h48c8.284 0 15-6.716 15-15s-6.716-15-15-15z"/></g></svg>
+    </div>
+    <hr/>
+  </div>
+
+  <script>
+    function imprimir(){
+        let botao = document.getElementsByName('printButton')[0]
+        botao.style.opacity = '0';
+        window.print();
+        botao.style.opacity = '0.8';
+        }
+  </script>
