@@ -44,7 +44,7 @@ class ContratoSiasgIntegracaoNovo extends Model
                 $subrogacao = $this->verificaSubrrogacao($contrato);
             }
             if($json->data->dadosEventos == 20){
-               $rescisao = $this->inserirRecisao($contrato, $json);
+               $rescisao = $this->verificaRecisao($contrato, $json);
             }
            // dd(is_null($json->data->dadosEventos));
 
@@ -64,7 +64,7 @@ class ContratoSiasgIntegracaoNovo extends Model
 
     }
 
-    private function inserirRecisao(Contrato $contrato, $json)
+    private function verificaRecisao(Contrato $contrato, $json)
     {
         $rescisao = Contratohistorico::updateOrCreate([
             'contrato_id' => $contrato->id,
