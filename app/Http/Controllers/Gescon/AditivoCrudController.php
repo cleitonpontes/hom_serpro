@@ -6,6 +6,8 @@ use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Fornecedor;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+use FormBuilder;
+use App\Forms\InserirItemContratoMinutaForm;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\AditivoRequest as StoreRequest;
@@ -373,6 +375,13 @@ class AditivoCrudController extends CrudController
                 ],
                 'tab' => 'Dados Aditivo',
             ],
+            [
+                'name' => 'itens',
+                'type' => 'itens_contrato_aditivo_list',
+                'label' => 'Teste',
+                'tab' => 'Itens do contrato',
+                'form' => $this->retonaFormModal()
+            ],
             [   // Date
                 'name' => 'vigencia_inicio',
                 'label' => 'Data Vig. Início',
@@ -596,5 +605,10 @@ class AditivoCrudController extends CrudController
 
 
         return $content;
+    }
+
+    public function retonaFormModal()
+    {
+        return FormBuilder::create(InserirItemContratoMinutaForm::class);
     }
 }

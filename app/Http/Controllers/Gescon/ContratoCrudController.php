@@ -870,6 +870,16 @@ class ContratoCrudController extends CrudController
         ]);
     }
 
+    protected function adicionaCampoItensContrato()
+    {
+        $this->crud->addField([
+            'name' => 'itens',
+            'type' => 'itens_contrato_list',
+            'label' => 'Teste',
+            'tab' => $this->tab
+        ]);
+    }
+
     protected function adicionaCampoUnidadeGestoraOrigem()
     {
         $this->crud->addField([
@@ -1565,5 +1575,11 @@ class ContratoCrudController extends CrudController
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
+    }
+
+    public function retonaItensContrato($contrato_id)
+    {
+        return Contratoitem::where('contrato_id','=',$contrato_id)
+            ->join('codigoitens', 'codigoitens.id', '=', 'tipo_id')->get()->toArray();
     }
 }
