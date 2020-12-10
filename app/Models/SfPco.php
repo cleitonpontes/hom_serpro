@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class SfPco extends Model
 {
 
+    /*
+    |--------------------------------------------------------------------------
+    | GLOBAL VARIABLES
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Informa que não utilizará os campos create_at e update_at do Laravel
      *
@@ -39,6 +45,12 @@ class SfPco extends Model
         'txttnscre',
         'numclasse'
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | FUNCTIONS
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Valida existência ou não de dados referentes ao Passo 6
@@ -102,6 +114,33 @@ class SfPco extends Model
         return $dados;
     }
 
+    public function retornaPcosProApropriacaoDaFatura($apid)
+    {
+        return $this->from('sfpco as P')
+            ->leftjoin('sfpcoitem as I', 'I.sfpco_id', '=', 'P.id')
+            ->leftjoin('sfpadrao as A', 'A.id', '=', 'P.sfpadrao_id')
+            ->leftjoin('execsfsituacao as E', 'E.codigo', '=', 'P.codsit')
+            ->where('categoriapadrao', 'EXECFATURA')
+            ->where('fk', $apid)
+            ->select(
+                'P.numseqitem    AS seq',
+                'I.numseqitem    AS seq_item',
+                'P.codsit        AS situacao',
+                'E.descricao     AS descricao',
+                'I.numempe       AS empenho',
+                'I.numclassa     AS vpd',
+                DB::raw('lpad("I"."codsubitemempe"::text, 2, \'0\') AS subitem'),
+                DB::raw('\'000\' AS fonte'),
+                'I.vlr           AS valor'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
+
     public function sfpadrao()
     {
         return $this->belongsTo(Contratosfpadrao::class, 'sfpadrao_id');
@@ -117,4 +156,21 @@ class SfPco extends Model
         return $this->hasMany(SfCronBaixaPatrimonial::class, 'sfpco_id');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESORS
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | MUTATORS
+    |--------------------------------------------------------------------------
+    */
 }

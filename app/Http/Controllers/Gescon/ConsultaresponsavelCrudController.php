@@ -41,22 +41,21 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
         $this->crud->addClause('leftJoin', 'fornecedores',
             'fornecedores.id', '=', 'contratos.fornecedor_id'
         );
+
+
         $this->crud->addClause('select', [
             'contratos.*',
             'fornecedores.*',
             // Tabela principal deve ser sempre a última da listagem!
             'contratoresponsaveis.*'
         ]);
-
         // Apenas ocorrências da unidade atual
         $this->crud->addClause('where', 'contratos.unidade_id', '=', session('user_ug_id'));
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
         $this->defineConfiguracaoPadrao();
     }
 
@@ -226,7 +225,12 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pelo name
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->leftJoin('users', 'users.id', '=', 'contratoresponsaveis.user_id')
+                    ->orderBy('users.name', $columnDirection);
+            }
         ]);
     }
 
@@ -247,7 +251,12 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pela desc.
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoresponsaveis.funcao_id')
+                    ->orderBy('codigoitens.descricao', $columnDirection);
+            }
         ]);
     }
 
@@ -268,7 +277,12 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join com users ainda não existe, vamos adicioná-lo e ordenar pelo nome da inst.
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->leftJoin('instalacoes', 'instalacoes.id', '=', 'contratoresponsaveis.instalacao_id')
+                    ->orderBy('instalacoes.nome', $columnDirection);
+            }
         ]);
     }
 
@@ -309,7 +323,11 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratoresponsaveis.data_inicio', $columnDirection);
+            }
         ]);
     }
 
@@ -330,7 +348,11 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratoresponsaveis.data_fim', $columnDirection);
+            }
         ]);
     }
 
@@ -354,7 +376,11 @@ class ConsultaresponsavelCrudController extends ConsultaContratoBaseCrudControll
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by situacao
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                return $query->orderBy('contratoresponsaveis.situacao', $columnDirection);
+            }
         ]);
     }
 

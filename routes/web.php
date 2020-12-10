@@ -10,8 +10,8 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
+  //teste
+//Route::get('/tratardadosmigracaotseagu', 'MigracaotseaguController@tratardadosmigracaotseagu')->name('tratardadosmigracaotseagu');
 
 Route::get('/', function () {
     return redirect('/inicio');
@@ -43,7 +43,9 @@ Route::group([
     'prefix' => 'soap',
     'namespace' => 'Soap',
 ], function () {
-    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
+//    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
+    Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
+    Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialController@oficioPreview')->name('soap.oficio.preview');
 });
 
 
@@ -84,7 +86,7 @@ Route::group(
             Route::get('dashboard', function () {
                 return redirect('/inicio');
             });
-//            Route::get('dashboard', 'AdminController@dashboard')->name('backpack.dashboard');
+            // Route::get('dashboard', 'AdminController@dashboard')->name('backpack.dashboard');
             Route::get('/', 'AdminController@redirect')->name('backpack');
         }
 
@@ -101,14 +103,13 @@ Route::group(
             Route::get('edit-account-info', function () {
                 return redirect('/meus-dados');
             });
-//            Route::get('edit-account-info',
-//                'Auth\MyAccountController@getAccountInfoForm')->name('backpack.account.info');
-//            Route::post('edit-account-info', 'Auth\MyAccountController@postAccountInfoForm');
+            // Route::get('edit-account-info',
+            //     'Auth\MyAccountController@getAccountInfoForm')->name('backpack.account.info');
+            // Route::post('edit-account-info', 'Auth\MyAccountController@postAccountInfoForm');
             Route::get('alterar-senha',
                 'Auth\MyAccountController@getChangePasswordForm')->name('alterar.senha');
             Route::post('alterar-senha', 'Auth\MyAccountController@postChangePasswordForm');
         }
-
 
         // Módulo Folha de Pagamento
         Route::group([
@@ -121,7 +122,7 @@ Route::group(
              *
              * Apropriação da Folha - Genéricos
              *
-             **/
+             */
             Route::get('/apropriacao', 'ApropriacaoController@index')
                 ->name('apropriacao')
                 ->middleware('permission:folha_apropriacao_acesso');
@@ -143,7 +144,7 @@ Route::group(
              * {id}   = Registro
              * {sit}  = Situação
              *
-             **/
+             */
 
             // Passo 1
             Route::get('/apropriacao/passo/1', 'Apropriacao\Passo1Controller@novo')
@@ -219,7 +220,108 @@ Route::group(
             Route::get('/apropriacao/siafi/dochabil/{apid}', 'ApropriacaoController@docHabilSiafi')
                 ->name('apropriacao.siafi.dochabil')
                 ->middleware('permission:folha_apropriacao_passo');
+        });
+
+        // Módulo Apropriação da Fatura
+        Route::group([
+            'prefix' => 'apropriacao',
+            'namespace' => 'Apropriacao',
+            'middleware' => 'auth',
+            // 'middleware' = 'permission:apropriacao_fatura'
+        ], function () {
+            Route::get('/fatura', 'FaturaController@index')->name('apropriacao.faturas');                                               // Pronto
+            Route::get('/contrato/{contrato}/fatura/{fatura}/nova', 'FaturaController@create')->name('apropriacao.fatura.create');      // Pronto
+            Route::put('/fatura/novas', 'FaturaController@createMany')->name('apropriacao.fatura.create.bulk');                         // Pronto
+            Route::delete('/fatura/{apropriacaoFatura}', 'FaturaController@destroy');                                                   // Pronto
+            Route::get('/fatura/{id}', 'FaturaController@show')->name('apropriacao.fatura');                                            // ...
+            Route::get('/fatura/{id}/manual', 'FaturaController@editar')->name('apropriacao.fatura.editar');                            // ...
+            Route::get('/fatura/{apropriacaoFatura}/dochabil', 'FaturaController@documentoHabil')->name('apropriacao.fatura.dochabil'); // Pronto
+        });
+
+        // Módulo Empenho
+        Route::group([
+            'prefix' => 'empenho',
+            'namespace' => 'Empenho\\',
+            'as' => 'empenho.',
+            'middleware' => ['auth', 'permission:empenho_minuta_acesso', 'verify.step.empenho'],
+        ], function () {
+
+            /**
+             *
+             * Minuta Empenho - Genéricos
+             *
+             **/
+
+            CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
+
+            Route::get('minuta/{minuta_id}/atualizarsituacaominuta', 'MinutaEmpenhoCrudController@executarAtualizacaoSituacaoMinuta')
+                ->name('minuta.atualizar.situacao');
+
+            //passo 1
+            Route::get('buscacompra', 'CompraSiasgCrudController@create')
+                ->name('minuta.etapa.compra');
+
+            Route::post('buscacompra', 'CompraSiasgCrudController@store');
+
+            //passo 2
+            Route::get('fornecedor/{minuta_id}', 'FornecedorEmpenhoController@index')
+                ->name('minuta.etapa.fornecedor');
+
+            //passo 3
+            Route::get('item/{minuta_id}/{fornecedor_id}', 'FornecedorEmpenhoController@item')
+                ->name('minuta.etapa.item');
+
+            Route::post('item', 'FornecedorEmpenhoController@store')
+                ->name('minuta.etapa.item.store');
+
+            Route::put('item', 'FornecedorEmpenhoController@update')
+                ->name('minuta.etapa.item.update');
+
+            //passo 4
+            Route::get('saldo/{minuta_id}', 'SaldoContabilMinutaController@index')
+                ->name('minuta.etapa.saldocontabil');
+
+            Route::get('saldo/gravar/{minuta_id}', 'SaldoContabilMinutaController@store')
+                ->name('minuta.gravar.saldocontabil');
+
+            Route::post('saldo/gravar/saldo/minuta', 'SaldoContabilMinutaController@atualizaMinuta')
+                ->name('minuta.atualizar.saldo');
+
+            Route::post('saldo/inserir/celula', 'SaldoContabilMinutaController@inserirCelulaOrcamentaria')
+                ->name('saldo.inserir.modal');
+
+            //passo 5
+            Route::get('subelemento/{minuta_id}', 'SubelementoController@index')
+                ->name('minuta.etapa.subelemento');
+            /*Route::get('subelemento/{minuta_id}/edit', 'SubelementoController@index')
+                ->name('minuta.etapa.subelemento.edit');*/
+            Route::post('subelemento', 'SubelementoController@store')
+                ->name('subelemento.store');
+            Route::put('subelemento', 'SubelementoController@update')
+                ->name('subelemento.update');
+
+            //passo 6
+
+            Route::post('minuta/inserir/fornecedor', 'MinutaEmpenhoCrudController@inserirFornecedorModal')
+                ->name('minuta.inserir.fornecedor');
+
+            //passo 7
+            CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create', 'show']]);
+
+            Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
+                ->name('minuta.etapa.passivo-anterior');
+
+            //alteracao minuta
+            Route::group(['prefix' => 'minuta/{minuta_id}'], function () {
+                CRUD::resource('alteracao', 'MinutaAlteracaoCrudController');
+                Route::get('alteracao-dt', 'MinutaAlteracaoCrudController@ajax')->name('crud.alteracao.ajax');
+            });
 
         });
 
-    });
+        Route::get('/tags', function () {
+            return view('tags');
+        });
+        Route::get('/tags/find', 'Select2Ajax\TagController@find');
+    }
+);

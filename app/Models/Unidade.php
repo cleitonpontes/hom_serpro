@@ -11,10 +11,11 @@ class Unidade extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'unidade';
 
-    use SoftDeletes;
     protected $table = 'unidades';
 
     protected $fillable = [
@@ -38,6 +39,7 @@ class Unidade extends Model
         'sigilo',
 
     ];
+
     public function buscaUnidadeExecutoraPorCodigo($codigo)
     {
         $unidade = $this->where('codigo', $codigo)
@@ -72,7 +74,6 @@ class Unidade extends Model
         }
 
         return $tipo;
-
     }
 
     public function getMunicipio()
@@ -81,11 +82,43 @@ class Unidade extends Model
             return '';
         return $this->municipio->nome;
     }
+
     public function getUF()
     {
         if (!$this->municipio_id)
             return '';
         return $this->municipio->estado->sigla;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
+
+    public function compras()
+    {
+        return $this->hasMany(Siasgcompra::class, 'unidade_id');
+    }
+
+    public function configuracao()
+    {
+        return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
+    }
+
+    public function contratos()
+    {
+        return $this->hasMany(Contrato::class, 'unidade_id');
+    }
+
+    public function minuta_empenhos()
+    {
+        return $this->hasMany(MinutaEmpenho::class);
+    }
+
+    public function municipio()
+    {
+        return $this->belongsTo(Municipio::class, 'municipio_id');
     }
 
     public function orgao()
@@ -98,24 +131,15 @@ class Unidade extends Model
         return $this->belongsToMany(BackpackUser::class, 'unidadesusers', 'unidade_id', 'user_id');
     }
 
-    public function contratos()
+    public function compraItem()
     {
-        return $this->hasMany(Contrato::class, 'unidade_id');
+        return $this->belongsToMany(
+            'App\Models\Unidade',
+            'compra_item_unidade',
+            'compra_item_id',
+            'unidade_id'
+        );
     }
 
-    public function compras()
-    {
-        return $this->hasMany(Siasgcompra::class, 'unidade_id');
-    }
-
-    public function configuracao()
-    {
-        return $this->hasOne(Unidadeconfiguracao::class, 'unidade_id');
-    }
-
-    public function municipio()
-    {
-        return $this->belongsTo(Municipio::class, 'municipio_id');
-    }
 
 }

@@ -7,6 +7,7 @@ use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
+use App\Models\ContratoPublicacoes;
 use Illuminate\Support\Facades\DB;
 
 class ContratohistoricoObserve
@@ -33,6 +34,15 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
+
+        if($contratohistorico->tipo_id == 60 || $contratohistorico->tipo_id == 65) {
+            ContratoPublicacoes::create([
+                'contratohistorico_id' => $contratohistorico->id,
+                'data_publicacao' => $contratohistorico->data_publicacao,
+                'status' => 'Pendente',
+                'situacao' => 'Não Publicado'
+            ]);
+        }
     }
 
     /**

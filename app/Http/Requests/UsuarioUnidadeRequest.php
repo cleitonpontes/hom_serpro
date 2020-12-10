@@ -31,8 +31,8 @@ class UsuarioUnidadeRequest extends FormRequest
             'cpf' => "required|cpf|unique:users,cpf,{$id}",
             'name' => 'required|max:255',
             'email' => "required|email|max:255|unique:users,email,{$id}",
-            'ugprimaria' => "required",
-            'roles' => "required",
+            'ugprimaria' => "required_if:situacao,1",
+            'roles' => "required_if:situacao,1",
         ];
     }
 
@@ -65,6 +65,8 @@ class UsuarioUnidadeRequest extends FormRequest
             'email.email' => 'E-mail inválido!',
             'email.required' => 'O campo "E-mail" é obrigatório!',
             'email.max' => 'O campo "E-mail" deve ser no máximo 255 caracteres!',
+            'ugprimaria.required_if' => 'O campo UG/UASG Padrão é obrigatório quando a situação for ativo',
+            'roles.required_if' => 'O campo Grupos de Usuário é obrigatório quando a situação for ativo',
         ];
     }
 }

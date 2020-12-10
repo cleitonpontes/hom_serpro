@@ -63,12 +63,34 @@ class ConsultafaturaCrudController extends CrudController
         $this->crud->addClause('leftJoin', 'justificativafatura',
             'justificativafatura.id', '=', 'contratofaturas.justificativafatura_id'
         );
+        $this->crud->addClause('leftJoin', 'apropriacoes_faturas_contratofaturas',
+            'apropriacoes_faturas_contratofaturas.contratofaturas_id', '=', 'contratofaturas.id'
+        );
+
         $this->crud->addClause('select', [
-            'contratofaturas.*'
+            'contratofaturas.*',
+            'apropriacoes_faturas_contratofaturas.contratofaturas_id'
         ]);
 
         // Apenas ocorrências da unidade atual
         $this->crud->addClause('where', 'unidades.codigo', '=', session('user_ug'));
+
+        $this->crud->enableBulkActions();
+
+        $this->crud->addButton(
+            'line',
+            'apropriacao_fatura',
+            'view',
+            'crud::buttons.apropriacao_fatura',
+            'end'
+        );
+
+        $this->crud->addButton(
+            'bottom',
+            'apropriacao_fatura',
+            'view',
+            'crud::buttons.bulk_apropriacao_fatura'
+        );
 
         /*
         |--------------------------------------------------------------------------

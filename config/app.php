@@ -15,6 +15,8 @@ return [
         'emprpp' => '622920107', // 6.2.2.9.2.01.07 = EMPENHOS LIQUIDADOS A PAGAR INSCRITO EM RPP
     ],
 
+    'conta_contabil_credito_disponivel' => '622110000',
+
     'modalidades_sem_exigencia' => [
         'Inexigibilidade',
         'Não se Aplica'
@@ -170,6 +172,22 @@ return [
         "E" => "E - Ativo CLT",
     ],
 
+    'natureza_despesa_cipi' => [
+        '443051',
+        '443251',
+        '444051',
+        '444251',
+        '445051',
+        '447251',
+        '448051',
+        '449051',
+        '449151',
+        '449251',
+        '449351',
+        '449451',
+        '449551',
+        '449651',
+    ],
 
     /*
     |--------------------------------------------------------------------------

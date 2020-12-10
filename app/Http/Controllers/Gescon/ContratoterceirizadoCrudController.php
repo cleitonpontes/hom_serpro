@@ -59,6 +59,7 @@ class ContratoterceirizadoCrudController extends CrudController
             $this->crud->AllowAccess('update');
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -426,7 +427,7 @@ class ContratoterceirizadoCrudController extends CrudController
 
         $aux_transporte = str_replace(',', '.', str_replace('.','',$request->input('aux_transporte')));
         $request->request->set('aux_transporte', number_format(floatval($aux_transporte),2,'.',''));
-        
+
         if($request->input('data_fim')){
             $request->request->set('situacao', false);
         }

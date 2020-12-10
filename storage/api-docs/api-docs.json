@@ -466,6 +466,63 @@
                 }
             }
         },
+        "/api/contrato/ugorigem/{codigo_uasg}/numeroano/{numeroano_contrato}": {
+            "get": {
+                "tags": [
+                    "contratos"
+                ],
+                "summary": "Retorna um contrato por sua UASG e pelo seu número",
+                "description": "Retorna um Json com o contrato por sua UASG e pelo seu número",
+                "operationId": "App\\Http\\Controllers\\Api\\ContratoController::contratoUASGeContratoAno",
+                "parameters": [
+                    {
+                        "name": "codigo_uasg",
+                        "in": "path",
+                        "description": "Codigo da UASG",
+                        "required": true
+                    },
+                    {
+                        "name": "numeroano_contrato",
+                        "in": "path",
+                        "description": "Número e Ano do contrato devem ser inseridos concatenados, sem a barra e com os nove caracteres (utilizando zeros se necessário '000292020')",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 9,
+                            "minLength": 9
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Contrato por UASG e pelo número retornado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contratos_ug"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "O parâmetro 'numeroano_contrato' foi enviado com um tamanho inválido. Número e Ano do contrato devem ser inseridos concatenados, sem a barra e com os nove caracteres (utilizando zeros se necessário '000292020')",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "type": "string",
+                                            "example": "O parametro 'numeroano_contrato' foi enviado com um tamanho invalido"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/contrato/ug/{unidade_codigo}": {
             "get": {
                 "tags": [

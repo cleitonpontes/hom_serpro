@@ -68,4 +68,10 @@ class Catmatseritem extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
+
+    public function setDescricaoAttribute($value)
+    {
+        $this->attributes['descricao'] = mb_strtoupper($value);
+    }
+
 }
