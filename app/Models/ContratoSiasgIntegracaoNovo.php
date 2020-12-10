@@ -19,9 +19,11 @@ class ContratoSiasgIntegracaoNovo extends Model
    */
     public function executaAtualizacaoContratos(Siasgcontrato $siasgcontrato)
     {
+
         if ($siasgcontrato->situacao != 'Importado') {
             return '';
         }
+
 
         $json = json_decode($siasgcontrato->json);
         $fornecedor = $this->buscaFornecedorCpfCnpjIdgener($json->data->dadosContrato->cpfCnpjfornecedor, $json->data->dadosContrato->nomefornecedor, $siasgcontrato);
@@ -40,6 +42,11 @@ class ContratoSiasgIntegracaoNovo extends Model
             if ($json->data->dadosContrato->uasgSubRogada != '000000') {
                 $subrogacao = $this->verificaSubrrogacao($contrato);
             }
+            if(is_null($json->data->dadosEventos)){
+               $rescisao = $this->inserirRecisao($contrato, $json);
+            }
+           // dd(is_null($json->data->dadosEventos));
+
 
             //evento rescisão
             //precisamos inserir a rescisão do contrato
@@ -54,6 +61,23 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         return $contrato;
 
+    }
+
+    private function inserirRecisao(Contrato $contrato, $json)
+    {
+        $rescisao = Contratohistorico::updateOrCreate([
+            'contrato_id' => $contrato->id,
+            'tipo_id' => 191
+        ],
+        [
+            'objeto' => 'RESCISÃO DO CONTRATO NÚMERO: ' . $contrato->numero,
+            'numero' => $contrato->numero,
+            'data_assinatura' => $json->data->dadosContrato->dataPublicacao,
+            'data_publicacao' => $json->data->dadosContrato->dataPublicacao,
+            'vigencia_fim' => $json->data->dadosContrato->dataPublicacao
+        ]
+        );
+        return $rescisao;
     }
 
     private function verificaSubrrogacao(Contrato $contrato)
