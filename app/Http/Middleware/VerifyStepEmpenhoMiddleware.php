@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\ContaCorrentePassivoAnterior;
+use App\Models\Codigoitem;
 use Closure;
 use Illuminate\Http\Request;
 use Route;
@@ -70,6 +71,17 @@ class VerifyStepEmpenhoMiddleware
                 }
             }
             $minuta = MinutaEmpenho::find($minuta_id);
+
+            if($minuta->situacao->descricao == 'ERRO') {
+
+                $situacao = Codigoitem::wherehas('codigo', function ($q) {
+                    $q->where('descricao', '=', 'Situações Minuta Empenho');
+                })
+                    ->where('descricao', 'EM ANDAMENTO')
+                    ->first();
+                $minuta->situacao_id = $situacao->id;
+                $minuta->save();
+            }
 
             if ($minuta && ($minuta->etapa >= $this->rotas[Route::current()->action['as']]
                     || ($minuta->etapa === 2 && $this->rotas[Route::current()->action['as']] === 3))
