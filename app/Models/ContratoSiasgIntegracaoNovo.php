@@ -252,12 +252,9 @@ class ContratoSiasgIntegracaoNovo extends Model
 
     private function inserirContratoItem(Catmatseritem $catmatseritem, Contrato $contrato, $item)
     {
+
         $tipo_id = $catmatseritem->catmatsergrupo->tipo_id;
         $grupo_id = $catmatseritem->grupo_id;
-
-       var_dump($contrato->id);
-       var_dump($item);
-
 
         $contratoitem = Contratoitem::create([
             'contrato_id' => $contrato->id,
@@ -267,11 +264,9 @@ class ContratoSiasgIntegracaoNovo extends Model
             'quantidade' => intval($item->quantidade),
             'valorunitario' => number_format($item->valorUnitario, 2, '.', ''),
             'valortotal' => number_format(intval($item->quantidade) * number_format($item->valorUnitario, 2, '.', ''), 2, '.', ''),
-            'numero_item_compra' => $item['numeroItem']
+            'numero_item_compra' => $item->numeroItem
         ]);
-
         return $contratoitem;
-
     }
 
     private function buscaItensCatmatCatser($item)

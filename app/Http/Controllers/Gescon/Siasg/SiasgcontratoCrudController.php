@@ -493,7 +493,7 @@ class SiasgcontratoCrudController extends CrudController
 
            //$retorno = json_decode($retorno);
             //dd($retorno->data->dadosItens); die();
-           
+
            /*if(!is_null($retorno->data)){
                 if (!is_null($retorno->data->dadosTermoAditivos)) {
                     dump('achei');
