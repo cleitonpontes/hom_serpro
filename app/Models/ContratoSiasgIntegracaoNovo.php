@@ -24,9 +24,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         }
 
         $json = json_decode($siasgcontrato->json);
-
         $fornecedor = $this->buscaFornecedorCpfCnpjIdgener($json->data->dadosContrato->cpfCnpjfornecedor, $json->data->dadosContrato->nomefornecedor, $siasgcontrato);
-
         $contrato = $this->verificaContratoUnidade($siasgcontrato, $fornecedor, $json);
 
         if (isset($contrato->id)) {
@@ -241,24 +239,25 @@ class ContratoSiasgIntegracaoNovo extends Model
 
     private function verificaItensContrato($itens, Contrato $contrato)
     {
-        $contrato->itens()->delete();
+      $contrato->itens()->delete();
 
         foreach ($itens as $item) {
             $catmatseritem = $this->buscaItensCatmatCatser($item);
-
             if (isset($catmatseritem->id)) {
                 $contratoitem = $this->inserirContratoItem($catmatseritem, $contrato, $item);
             }
         }
-
         return $contratoitem;
-
     }
 
     private function inserirContratoItem(Catmatseritem $catmatseritem, Contrato $contrato, $item)
     {
         $tipo_id = $catmatseritem->catmatsergrupo->tipo_id;
         $grupo_id = $catmatseritem->grupo_id;
+
+       var_dump($contrato->id);
+       var_dump($item);
+
 
         $contratoitem = Contratoitem::create([
             'contrato_id' => $contrato->id,
@@ -267,7 +266,8 @@ class ContratoSiasgIntegracaoNovo extends Model
             'catmatseritem_id' => $catmatseritem->id,
             'quantidade' => intval($item->quantidade),
             'valorunitario' => number_format($item->valorUnitario, 2, '.', ''),
-            'valortotal' => number_format(intval($item->quantidade) * number_format($item->valorUnitario, 2, '.', ''), 2, '.', '')
+            'valortotal' => number_format(intval($item->quantidade) * number_format($item->valorUnitario, 2, '.', ''), 2, '.', ''),
+            'numero_item_compra' => $item['numeroItem']
         ]);
 
         return $contratoitem;
