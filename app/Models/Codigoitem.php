@@ -47,8 +47,8 @@ class Codigoitem extends Model
         return $this->belongsToMany(
             'App\Models\Contratohistorico',
             'contratohistoricoqualificacao',
-            'contratohistorico_id',
-            'tipo_id'
+            'tipo_id',
+            'contratohistorico_id'
         );
     }
     /*
