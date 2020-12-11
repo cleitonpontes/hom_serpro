@@ -42,11 +42,8 @@ class ContratoSiasgIntegracaoNovo extends Model
             if ($json->data->dadosContrato->uasgSubRogada != '000000') {
                 $this->verificaSubrrogacao($contrato);
             }
-            if($json->data->dadosEventos == 20){
-               $rescisao = $this->verificaRecisao($contrato, $json);
-            }
-           // dd(is_null($json->data->dadosEventos));
 
+            $this->verificaRecisao($contrato, $json);
 
             //evento rescisão
             //precisamos inserir a rescisão do contrato
@@ -65,19 +62,27 @@ class ContratoSiasgIntegracaoNovo extends Model
 
     private function verificaRecisao(Contrato $contrato, $json)
     {
-        $rescisao = Contratohistorico::updateOrCreate([
-            'contrato_id' => $contrato->id,
-            'tipo_id' => 191
-        ],
-        [
-            'objeto' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
-            'numero' => $contrato->numero,
-            'data_assinatura' => $json->data->dadosContrato->dataPublicacao,
-            'data_publicacao' => $json->data->dadosContrato->dataPublicacao,
-            'vigencia_fim' => $json->data->dadosContrato->dataPublicacao
-        ]
-        );
-        return $rescisao;
+        $dadosEventos = $json->data->dadosEventos;
+        $filtroEventos = array_filter($dadosEventos, function($evento){ return $evento->tipoEvento == 20; });
+        $filtroEventosCount = (is_array($filtroEventos) ? count($filtroEventos) : 0);
+
+        if($filtroEventosCount > 0) {
+            $dataPublicacao = current($filtroEventos)->daPublicacao;
+            $rescisao = Contratohistorico::updateOrCreate([
+                'contrato_id' => $contrato->id,
+                'tipo_id' => 191
+            ],
+                [
+                    'objeto' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
+                    'numero' => $contrato->numero,
+                    'data_assinatura' => $dataPublicacao,
+                    'data_publicacao' => $dataPublicacao,
+                    'vigencia_fim' => $dataPublicacao,
+                    'situacao' => true
+                ]
+            );
+            return $rescisao;
+        }
     }
 
     private function verificaSubrrogacao(Contrato $contrato)
