@@ -626,11 +626,10 @@ class AditivoCrudController extends CrudController
                 $catmatseritem = Catmatseritem::find($catmatseritem_id);
 
                 $contratoItem = new Contratoitem();
-                if($request['id']){
-                    $contratoItem = Contratoitem::find($request['id']);
+                if($request['id'][$key]){
+                    $contratoItem = Contratoitem::find($request['id'][$key]);
                 }
 
-                $contratoItem = new Contratoitem();
                 $contratoItem->contrato_id = $request['contrato_id'];
                 $contratoItem->tipo_id = $request['tipo_item_id'][$key];
                 $contratoItem->grupo_id = $catmatseritem->grupo_id;
