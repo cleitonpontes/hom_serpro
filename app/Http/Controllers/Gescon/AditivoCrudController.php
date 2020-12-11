@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Contratoitem;
 use App\Models\Fornecedor;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use FormBuilder;
@@ -378,9 +380,7 @@ class AditivoCrudController extends CrudController
             [
                 'name' => 'itens',
                 'type' => 'itens_contrato_aditivo_list',
-                'label' => 'Teste',
                 'tab' => 'Itens do contrato',
-                'form' => $this->retonaFormModal()
             ],
             [   // Date
                 'name' => 'vigencia_inicio',
@@ -533,6 +533,10 @@ class AditivoCrudController extends CrudController
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
         }
 
+        if(!empty($request->get('qtd_item'))) {
+            $this->alterarItensContrato($request->all());
+        }
+
         $request->request->set('retroativo_valor', $retroativo_valor);
 
 
@@ -558,6 +562,11 @@ class AditivoCrudController extends CrudController
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
         }else{
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
+        }
+
+        // altera os itens do contrato
+        if(!empty($request->get('qtd_item'))) {
+            $this->alterarItensContrato($request->all());
         }
 
         $request->request->set('retroativo_valor', $retroativo_valor);
@@ -607,8 +616,42 @@ class AditivoCrudController extends CrudController
         return $content;
     }
 
-    public function retonaFormModal()
-    {
-        return FormBuilder::create(InserirItemContratoMinutaForm::class);
+    public function alterarItensContrato($request){
+
+        DB::beginTransaction();
+        try {
+            foreach ($request['qtd_item'] as $key => $qtd) {
+
+                $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
+                $catmatseritem = Catmatseritem::find($catmatseritem_id);
+
+                $contratoItem = new Contratoitem();
+                if($request['id']){
+                    $contratoItem = Contratoitem::find($request['id']);
+                }
+
+                $contratoItem = new Contratoitem();
+                $contratoItem->contrato_id = $request['contrato_id'];
+                $contratoItem->tipo_id = $request['tipo_item_id'][$key];
+                $contratoItem->grupo_id = $catmatseritem->grupo_id;
+                $contratoItem->catmatseritem_id = $catmatseritem->id;
+                $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
+                $contratoItem->quantidade = (double)$qtd;
+                $contratoItem->valorunitario = $request['vl_unit'][$key];
+                $contratoItem->valortotal = $request['vl_total'][$key];
+                $contratoItem->data_inicio = $request['data_inicio'][$key];
+                $contratoItem->periodicidade = $request['periodicidade'][$key];
+                $contratoItem->save();
+
+                //VERIFICAR SE VAI SER NECESSÁRIO
+//                $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
+
+            }
+            DB::commit();
+
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
     }
 }

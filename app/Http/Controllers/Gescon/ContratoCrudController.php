@@ -1712,6 +1712,18 @@ class ContratoCrudController extends CrudController
     public function retonaItensContrato($contrato_id)
     {
         return Contratoitem::where('contrato_id','=',$contrato_id)
+            ->select(
+                'contratoitens.id',
+                'codigoitens.descricao',
+                'contratoitens.descricao_complementar',
+                'contratoitens.quantidade',
+                'contratoitens.valorunitario',
+                'contratoitens.valortotal',
+                'contratoitens.periodicidade',
+                'contratoitens.data_inicio',
+                'contratoitens.catmatseritem_id',
+                'contratoitens.tipo_id'
+            )
             ->join('codigoitens', 'codigoitens.id', '=', 'tipo_id')->get()->toArray();
     }
 }

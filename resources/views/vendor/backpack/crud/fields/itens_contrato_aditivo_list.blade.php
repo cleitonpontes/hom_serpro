@@ -304,8 +304,8 @@
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_id+'">';
-                cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id" value="'+item.compra_item_unidade_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
+                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
@@ -338,7 +338,13 @@
 
             function buscarItenContrato()
             {
-                var contrato_id = 63877;
+
+                // pegando o ID do contrato pela url
+                var url_string = window.location.href;
+                var urlPagina = new URL(url_string);
+                var regex = /(contrato[/])(.*)([/]aditivos)/;
+                var contrato_id = regex.exec(urlPagina)[2];
+
                 var url = "{{route('itens.contrato',':contrato_id')}}";
                 url = url.replace(':contrato_id', contrato_id);
 
