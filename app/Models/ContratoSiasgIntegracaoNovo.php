@@ -45,15 +45,6 @@ class ContratoSiasgIntegracaoNovo extends Model
 
             $this->verificaRecisao($contrato, $json);
 
-            //evento rescisão
-            //precisamos inserir a rescisão do contrato
-            //campo para inserção automatica
-            //observação = "RESCISÃO DO CONTRATO NÚMERO: {NUMERO/ANO}."
-            //processo = replica dado processo do contrato
-            //data_assinatura = DA-PUBLICACAO
-            //data_publicação = DA-PUBLICACAO
-            //data_vigencia_fim  = DA-PUBLICACAO
-
         }
 
         return $contrato;

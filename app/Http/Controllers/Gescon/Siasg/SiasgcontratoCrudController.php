@@ -464,48 +464,10 @@ class SiasgcontratoCrudController extends CrudController
 
         foreach ($siasgcontratos as $siasgcontrato) {
             if (isset($siasgcontrato->id)) {
-                //AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
-                $this->atualizaSiasgContrato($siasgcontrato);
+                AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
             }
 
         }
-    }
-
-    public function atualizaSiasgContrato($siasgcontrato)
-    {
-
-        $tipoconsulta = 'DadosContrato';
-
-
-        $dado = [
-            'contrato' => $siasgcontrato->unidade->codigosiasg . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
-        ];
-
-        if ($siasgcontrato->sisg == false) {
-
-            $tipoconsulta = 'ContratoNaoSisg';
-
-            $dado = [
-                'contratoNSisg' => $siasgcontrato->unidade->codigosiasg . str_pad($siasgcontrato->codigo_interno, 10, " ") . $siasgcontrato->tipo->descres . $siasgcontrato->numero . $siasgcontrato->ano
-            ];
-
-        }
-
-        $apiSiasg = new ApiSiasg;
-        $retorno = $apiSiasg->executaConsulta($tipoconsulta, $dado);
-
-       $siasgcontrato_atualizado = $siasgcontrato->atualizaJsonMensagemSituacao($siasgcontrato->id, $retorno);
-
-       if ($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado') {
-           $contratoSiagIntegracao = new ContratoSiasgIntegracaoNovo;
-           $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
-
-           if (isset($contrato->id)) {
-               $siasgcontrato_atualizado->contrato_id = $contrato->id;
-               $siasgcontrato_atualizado->save();
-           }
-       }
-
     }
 
     public function importaManualmenteContratoSemCompra()
