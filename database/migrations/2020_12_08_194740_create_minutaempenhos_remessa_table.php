@@ -13,7 +13,7 @@ class CreateMinutaempenhosRemessaTable extends Migration
     public function up()
     {
         Schema::create('minutaempenhos_remessa', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->integer('minutaempenho_id')->unsigned()->index();
             $table->foreign('minutaempenho_id')->references('id')->on('minutaempenhos')->onDelete('cascade');
             $table->integer('situacao_id')->unsigned()->index();

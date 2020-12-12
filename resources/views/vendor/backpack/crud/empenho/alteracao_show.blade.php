@@ -66,6 +66,7 @@
                     <div class="box-body">
                         <form action="/empenho/subelemento" method="POST">
                             <input type="hidden" id="minuta_id" name="minuta_id" value="{{$crud->getCurrentEntryId()}}">
+                            <input type="hidden" id="remessa_id" name="remessa_id" value="{{Route::current()->parameter('remessa')}}">
                         @csrf <!-- {{ csrf_field() }} -->
 
                             <div class="box-body">
@@ -306,9 +307,11 @@
         function salvarTabelasSiafi(event) {
 
             var minuta_id = $('#minuta_id').val();
+            var remessa_id = $('#remessa_id').val();
 
-            var url = "{{route('popula.tabelas.siafi.alt',['minuta_id'=>':minuta_id', 'remessa'=>1])}}";
+            var url = "{{route('popula.tabelas.siafi.alt',['minuta_id'=>':minuta_id', 'remessa'=>':remessa_id'])}}";
             url = url.replace(':minuta_id', minuta_id);
+            url = url.replace(':remessa_id', remessa_id);
             // console.log(url);return;
 
             axios.request(url)

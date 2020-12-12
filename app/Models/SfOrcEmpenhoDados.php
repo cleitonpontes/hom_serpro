@@ -46,7 +46,8 @@ class SfOrcEmpenhoDados extends Model
         'txtdescricao',
         'numro', // numero??
         'mensagemretorno',
-        'situacao'
+        'situacao',
+        'alteracao'
     ];
 
     /*

@@ -49,7 +49,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
 //        $minuta_id = $this->crud->getCurrentEntryId();
         $minuta_id = Route::current()->parameter('minuta_id');
-        $this->remessa = Route::current()->parameter('alteracao');
+        $this->remessa = Route::current()->parameter('remessa');
 //        dd($this->remessa);
         $this->crud->getCurrentEntryId();
 //        dd($remessa);
@@ -76,7 +76,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->addClause('select', [
             'minutaempenhos.*',
-            'compra_item_minuta_empenho.remessa'
+            'compra_item_minuta_empenho.minutaempenhos_remessa_id'
         ])->distinct();
 
         $this->crud->addClause(
@@ -120,16 +120,18 @@ class MinutaAlteracaoCrudController extends CrudController
         //dd('store alteracao', $request->all());
         $minuta_id = $request->get('minuta_id');
 
-        $rota = $this->setRoute($minuta_id);
-
         $compra_item_ids = $request->compra_item_id;
 
         $valores = $request->valor_total;
 
-        $remessa = CompraItemMinutaEmpenho::where('minutaempenho_id', $request->minuta_id)
+        $remessa = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $request->minuta_id)
+            ->join(
+                'minutaempenhos_remessa',
+                'minutaempenhos_remessa.minutaempenho_id',
+                '=',
+                'compra_item_minuta_empenho.minutaempenho_id'
+            )
             ->max('remessa');
-
-
 //        dd($compra_item_ids);
 //        $compra_item_ids = array_map(
 //            function ($compra_item_ids) use ($minuta_id) {
@@ -147,6 +149,8 @@ class MinutaAlteracaoCrudController extends CrudController
                 'situacao_id' => 214,
                 'remessa' => $remessa + 1
             ]);
+
+            $rota = $this->setRoute($minuta_id, $minutaEmpenhoRemessa->id);
 
             array_walk($valores, function (&$value, $key) use ($request, $minutaEmpenhoRemessa) {
 
@@ -171,34 +175,32 @@ class MinutaAlteracaoCrudController extends CrudController
                     'minutaempenho_id' => $request->minuta_id,
                     'subelemento_id' => $request->subitem[$key],
                     'operacao_id' => $operacao[0],
-                    'remessa_id' => $minutaEmpenhoRemessa->id,
+                    'minutaempenhos_remessa_id' => $minutaEmpenhoRemessa->id,
                     'quantidade' => $quantidade,
                     'valor' => $valor,
                 ];
             });
 
-
             CompraItemMinutaEmpenho::insert($valores);
-
 
             foreach ($valores as $index => $valor) {
                 $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $valor['compra_item_id'])
                     ->where('unidade_id', session('user_ug_id'))
                     ->first();
-
+//                ;dd($compraItemUnidade->getBindings(),$compraItemUnidade->toSql());
+//                dd($this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo);
+//                dd($compraItemUnidade);
+//                dd($this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo);
                 $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo;
+//                dd(11);
                 $compraItemUnidade->save();
             }
-
-
-//            $modMinuta = MinutaEmpenho::find($minuta_id);
-//            $modMinuta->etapa = 6;
-//            $modMinuta->valor_total = $request->valor_utilizado;
-//            $modMinuta->save();
-
+//            dd(123);
+//
             DB::commit();
 //            return Redirect::to($rota . ($remessa + 1));
-            return Redirect::to($rota . $remessa->id);
+            //TODO ARRUMAR ROTA PARA SHOW
+            return Redirect::to($rota);
         } catch (Exception $exc) {
             DB::rollback();
         }
@@ -237,7 +239,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
         $this->crud->addClause(
             'where',
-            'compra_item_minuta_empenho.remessa',
+            'compra_item_minuta_empenho.minutaempenhos_remessa_id',
             '=',
             $params['remessa']
         );
@@ -951,7 +953,7 @@ class MinutaAlteracaoCrudController extends CrudController
 //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
             ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
-            ->where('compra_item_minuta_empenho.remessa', $remessa)
+            ->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa)
             ->select([
                 DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
                 DB::raw('fornecedores.nome AS "Fornecedor"'),
@@ -1353,14 +1355,15 @@ class MinutaAlteracaoCrudController extends CrudController
             . "' data-tipo='' name='compra_item_id[]' value='" . $item['compra_item_id'] . "'   > ";
     }
 
-    private function setRoute($minuta_id): string
+    private function setRoute($minuta_id, $remessa_id): string
     {
 
         $minuta = MinutaEmpenho::where('id', $minuta_id)->select('passivo_anterior')->first();
 
         if ($minuta->passivo_anterior) {
-            return "empenho/minuta/{$minuta_id}/alteracao/passivo-anterior/";
+            return "empenho/minuta/{$minuta_id}/alteracao/passivo-anterior/{$remessa_id}";
         }
-        return "empenho/minuta/{$minuta_id}/alteracao/";
+
+        return "empenho/minuta/{$minuta_id}/alteracao/{$remessa_id}/{$minuta_id}";
     }
 }

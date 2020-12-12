@@ -107,11 +107,16 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        dump($request->all());
+        DB::enableQueryLog();
 
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
+
+        $remessa = $request->remessa;
+//        dump(DB::getQueryLog());
+//        dd($remessa);
         DB::beginTransaction();
         try {
-
             if ($request->passivo_anterior == 1) {
                 //caso precise injetar o valor padrão na consulta
                 if (!str_contains($request->conta_corrente_json, '{"conta_corrente":')) {
@@ -153,9 +158,10 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
                     }
 
                     $itens = array_map(
-                        function ($itens) use ($request) {
+                        function ($itens) use ($request,$remessa) {
                             $itens['minutaempenho_id'] = $request->minutaempenho_id;
                             $itens['conta_corrente_json'] = $request->conta_corrente_json;
+                            $itens['minutaempenhos_remessa_id'] = $remessa;
                             return $itens;
                         },
                         $itens
@@ -173,7 +179,8 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
 
             $minuta->save();
-            DB::commit();
+            dd(DB::getQueryLog());
+//            DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
             dd($exc);
@@ -184,6 +191,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+//        dd('22');
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
         $itens = json_decode($request->get('conta_corrente_json'), true);
         $arrayPassivoAnterior = ContaCorrentePassivoAnterior::where(
@@ -199,6 +207,16 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             },
             $itens
         );
+
+        $remessa = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $request->minuta_id)
+            ->join(
+                'minutaempenhos_remessa',
+                'minutaempenhos_remessa.minutaempenho_id',
+                '=',
+                'compra_item_minuta_empenho.minutaempenho_id'
+            )
+            ->max('remessa');
+        dd($remessa);
 
         DB::beginTransaction();
         try {

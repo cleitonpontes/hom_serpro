@@ -11,6 +11,7 @@ use App\Models\CompraItemUnidade;
 use App\Models\ContaCorrentePassivoAnterior;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
+use App\Models\MinutaEmpenhoRemessa;
 use App\Models\Naturezasubitem;
 use App\Models\SaldoContabil;
 use App\Models\SfCelulaOrcamentaria;
@@ -19,6 +20,7 @@ use App\Models\SfOperacaoItemEmpenho;
 use App\Models\SfOrcEmpenhoDados;
 use App\Models\SfPassivoAnterior;
 use App\Models\SfPassivoPermanente;
+use App\Models\SfRegistroAlteracao;
 use App\Models\Unidade;
 use App\Models\Catmatseritem;
 use App\XML\ApiSiasg;
@@ -28,6 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Route;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CompraTrait;
+
 //use function GuzzleHttp\Promise\all;
 
 class MinutaEmpenhoController extends Controller
@@ -35,9 +38,8 @@ class MinutaEmpenhoController extends Controller
 
     use CompraTrait;
 
-    public function populaTabelasSiafi(Request $request)
+    public function populaTabelasSiafi(Request $request): array
     {
-//        dd(333);
         $retorno['resultado'] = false;
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
@@ -57,7 +59,7 @@ class MinutaEmpenhoController extends Controller
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
             DB::rollback();
-            dd($exc);
+//            dd($exc);
         }
 
         return $retorno;
@@ -137,28 +139,31 @@ class MinutaEmpenhoController extends Controller
     {
 
         $modCompraItemEmpenho = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)
-            ->where('remessa', $remessa_id)
+            ->where('minutaempenhos_remessa_id', $remessa_id)
             ->get();
 //        dd($modCompraItemEmpenho);
 
         foreach ($modCompraItemEmpenho as $key => $item) {
-            $modSfItemEmpenho = new SfItemEmpenho();
-            $modSubelemento = Naturezasubitem::find($item->subelemento_id);
-            $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
-            $modSfItemEmpenho->numseqitem = $key + 1;
-            $modSfItemEmpenho->codsubelemento = $modSubelemento->codigo;
-            $modSfItemEmpenho->descricao = $this->buscaDescricao($item->compra_item_id);
-            $modSfItemEmpenho->save();
+            if ($item->operacao !== 'NENHUMA') {
+                $modSfItemEmpenho = new SfItemEmpenho();
+                $modSubelemento = Naturezasubitem::find($item->subelemento_id);
+                $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
+                $modSfItemEmpenho->numseqitem = $key + 1;
+                $modSfItemEmpenho->codsubelemento = $modSubelemento->codigo;
+                $modSfItemEmpenho->descricao = $this->buscaDescricao($item->compra_item_id);
+                $modSfItemEmpenho->save();
 
-            $this->gravaSfOperacaoItemEmpenho($modSfItemEmpenho, $item);
+                $this->gravaSfOperacaoItemEmpenho($modSfItemEmpenho, $item);
+            }
         }
     }
 
     public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, CompraItemMinutaEmpenho $item)
     {
+
         $modSfOpItemEmpenho = new SfOperacaoItemEmpenho();
         $modSfOpItemEmpenho->sfitemempenho_id = $modSfItemEmpenho->id;
-        $modSfOpItemEmpenho->tipooperacaoitemempenho = 'INCLUSAO'; // Incluir nas tabelas codigo (OPERACAOITEMEMPENHO) e codigoitens (INCLUSÃO - REFORCO - ANULACAO - CANCELAMENTO)
+        $modSfOpItemEmpenho->tipooperacaoitemempenho = $item->operacao; // Incluir nas tabelas codigo (OPERACAOITEMEMPENHO) e codigoitens (INCLUSÃO - REFORCO - ANULACAO - CANCELAMENTO)
         $modSfOpItemEmpenho->quantidade = $item->quantidade;
         $modSfOpItemEmpenho->vlrunitario = ($item->valor / $item->quantidade);
         $modSfOpItemEmpenho->vlroperacao = $item->valor;
@@ -251,39 +256,34 @@ class MinutaEmpenhoController extends Controller
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
 
-    public function populaTabelasSiafiAlteracao(Request $request)
+    public function populaTabelasSiafiAlteracao(): array
     {
-//        $params = Route::current()->parameters();
-//        dd($params);
         $retorno['resultado'] = false;
         $minuta_id = Route::current()->parameter('minuta_id');
         $remessa_id = Route::current()->parameter('remessa');
+
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
-        $modSaldoContabil = SaldoContabil::find($modMinutaEmpenho->saldo_contabil_id);
-//        dd($minuta_id,$modMinutaEmpenho,$modSaldoContabil);
+        $modRemessa = MinutaEmpenhoRemessa::find($remessa_id);
 
         DB::beginTransaction();
         try {
-            //todo gravar remessa
             $sforcempenhodadosalt = $this->gravaSfOrcEmpenhoDadosAlt($modMinutaEmpenho);
-//            dump($sforcempenhodadosalt);
 
-//            $this->gravaSfCelulaOrcamentaria($sforcempenhodados, $modSaldoContabil);
-            //TODO VERIFICAR GRAVACAO PASSIVO ANTERIOR ALT
             if ($modMinutaEmpenho->passivo_anterior) {
                 $this->gravaSfPassivoAnterior($sforcempenhodadosalt, $modMinutaEmpenho);
             }
 
-            //todo verificar tipo de alteracaono gravaitens
             $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodadosalt, $remessa_id);
-            //todo gravar registroalteracao
-            $this->gravaMinuta($modMinutaEmpenho);
+
+            $this->gravaSfRegistroAlteracao($sforcempenhodadosalt);
+
+            $this->gravaRemessa($modRemessa);
 
             DB::commit();
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
             DB::rollback();
-            dd($exc);
+//            dd($exc);
         }
 
         return $retorno;
@@ -291,6 +291,7 @@ class MinutaEmpenhoController extends Controller
 
     public function gravaSfOrcEmpenhoDadosAlt(MinutaEmpenho $modMinutaEmpenho)
     {
+//        dd($modMinutaEmpenho->max_remessa);
         $modSfOrcEmpenhoDados = new SfOrcEmpenhoDados();
 
         $ugemitente = Unidade::find($modMinutaEmpenho->unidade_id);
@@ -304,8 +305,29 @@ class MinutaEmpenhoController extends Controller
 
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
+        $modSfOrcEmpenhoDados->alteracao = true;
+        $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
 
         $modSfOrcEmpenhoDados->save();
         return $modSfOrcEmpenhoDados;
+    }
+
+    public function gravaSfRegistroAlteracao(SfOrcEmpenhoDados $sforcempenhodados)
+    {
+        $sfRegistroAlteracao = new SfRegistroAlteracao();
+        $sfRegistroAlteracao->sforcempenhodado_id = $sforcempenhodados->id;
+        $sfRegistroAlteracao->save();
+    }
+
+    public function gravaRemessa(MinutaEmpenhoRemessa $modRemessa)
+    {
+        $situacao = Codigoitem::wherehas('codigo', function ($q) {
+            $q->where('descricao', '=', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EM PROCESSAMENTO')
+            ->first();
+
+        $modRemessa->situacao_id = $situacao->id;
+        $modRemessa->save();
     }
 }

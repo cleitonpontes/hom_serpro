@@ -26,6 +26,7 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 {
     public function setup()
     {
+
 //        dd(123);
         $minuta_id = Route::current()->parameter('minuta_id');
         $remessa = Route::current()->parameter('remessa');
@@ -68,7 +69,7 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
         $this->crud->addClause('join', 'compras', 'compras.id', '=', 'minutaempenhos.compra_id');
         $this->crud->addClause('join', 'compra_item_minuta_empenho', 'compra_item_minuta_empenho.minutaempenho_id', '=', 'minutaempenhos.id');
         $this->crud->addClause('where', 'minutaempenhos.id', $minuta_id);
-        $this->crud->addClause('where', 'compra_item_minuta_empenho.remessa', $remessa);
+        $this->crud->addClause('where', 'compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa);
 //        $this->crud->addClause('join', 'compra_items', 'compra_items.compra_id', '=', 'compras.id');
         $this->crud->groupBy(["conta_corrente_passivo_anterior.id", "minutaempenhos.id", "fornecedores.cpf_cnpj_idgener"]);
         $this->crud->addClause(
@@ -113,8 +114,10 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        dump('store');
 
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
+        dd($minuta);
 
         DB::beginTransaction();
         try {
@@ -190,12 +193,14 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        dump('update');
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
         $itens = json_decode($request->get('conta_corrente_json'), true);
         $arrayPassivoAnterior = ContaCorrentePassivoAnterior::where(
             'minutaempenho_id',
             $request->minutaempenho_id
         )->get()->toArray();
+        dd($arrayPassivoAnterior);
 
         $itens = array_map(
             function ($itens) use ($request, $arrayPassivoAnterior) {
@@ -210,11 +215,6 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
         try {
             $this->deletaPassivoAnterior($arrayPassivoAnterior);
             ContaCorrentePassivoAnterior::insert($itens);
-            $minuta->etapa = 8;
-            $minuta->passivo_anterior = $request->passivo_anterior;
-            $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
-
-            $minuta->save();
             DB::commit();
         } catch (Exception $exc) {
             //  dd($exc);

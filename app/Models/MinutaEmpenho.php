@@ -210,6 +210,11 @@ class MinutaEmpenho extends Model
         return $this->hasMany(ContaCorrentePassivoAnterior::class, 'minutaempenho_id');
     }
 
+    public function remessa()
+    {
+        return $this->hasMany(MinutaEmpenhoRemessa::class, 'minutaempenho_id');
+    }
+
     public function situacao()
     {
         return $this->belongsTo(Codigoitem::class, 'situacao_id');
@@ -251,6 +256,11 @@ class MinutaEmpenho extends Model
     public function getLeiAttribute()
     {
         return $this->compra()->first()->lei;
+    }
+
+    public function getMaxRemessaAttribute()
+    {
+        return $this->remessa()->max('id');
     }
 
     public function getSituacaoDescricaoAttribute()
