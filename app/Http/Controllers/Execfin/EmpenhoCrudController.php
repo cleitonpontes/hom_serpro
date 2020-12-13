@@ -728,7 +728,7 @@ class EmpenhoCrudController extends CrudController
 //            ? $this->buscaDadosFileGetContents($url)
 //            : $this->buscaDadosCurl($url);
 
-        $dados = $this->buscaDadosFileGetContents($url, $this->montaContextJsonGetPeerFalse());
+        $dados = $this->buscaDadosCurl($url);
 
         $pkcount = is_array($dados) ? count($dados) : 0;
         if ($pkcount > 0) {
