@@ -728,7 +728,7 @@ class EmpenhoCrudController extends CrudController
 //            ? $this->buscaDadosFileGetContents($url)
 //            : $this->buscaDadosCurl($url);
 
-        $dados = $this->buscaDadosFileGetContents($url);
+        $dados = $this->buscaDadosFileGetContents($url, $this->montaContextJsonGetPeerFalse());
 
         $pkcount = is_array($dados) ? count($dados) : 0;
         if ($pkcount > 0) {
@@ -886,6 +886,21 @@ class EmpenhoCrudController extends CrudController
             }
         }
 
+    }
+
+    public function montaContextJsonGetPeerFalse()
+    {
+        $context_options = array(
+            'https' => array(
+                'method' => 'GET',
+                'header' => "Content-type: application/json"
+            ),
+            'ssl' => array(
+                'verify_peer' => false,
+            )
+        );
+
+        return stream_context_create($context_options);
     }
 
 }

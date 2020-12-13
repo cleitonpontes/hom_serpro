@@ -18,8 +18,12 @@ trait Busca
         return json_decode($data, true);
     }
 
-    public function buscaDadosFileGetContents($url) : array
+    public function buscaDadosFileGetContents($url, $context = null) : array
     {
+        if($context){
+            return json_decode(file_get_contents($url, false, $context), true);
+        }
+
         return json_decode(file_get_contents($url), true);
     }
 
