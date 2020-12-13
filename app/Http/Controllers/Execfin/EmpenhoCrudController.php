@@ -724,11 +724,11 @@ class EmpenhoCrudController extends CrudController
         $migracao_url = config('migracao.api_sta');
         $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
 
-//        $dados = (env('APP_ENV', 'production') === 'production')
-//            ? $this->buscaDadosFileGetContents($url)
-//            : $this->buscaDadosCurl($url);
+        $dados = (env('APP_ENV', 'production') === 'production')
+            ? $this->buscaDadosFileGetContents($url)
+            : $this->buscaDadosCurl($url);
 
-        $dados = $this->buscaDadosCurl($url);
+//        $dados = $this->buscaDadosCurl($url);
 
         $pkcount = is_array($dados) ? count($dados) : 0;
         if ($pkcount > 0) {
