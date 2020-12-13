@@ -64,12 +64,12 @@ class ContratoSiasgIntegracaoNovo extends Model
                 'tipo_id' => 191
             ],
                 [
-                    'objeto' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
-                    'numero' => $contrato->numero,
+                    'observacao' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
+                    'processo' => $contrato->processo,
                     'data_assinatura' => $dataPublicacao,
                     'data_publicacao' => $dataPublicacao,
                     'vigencia_fim' => $dataPublicacao,
-                    'situacao' => true
+                    'situacao' => false
                 ]
             );
             return $rescisao;
