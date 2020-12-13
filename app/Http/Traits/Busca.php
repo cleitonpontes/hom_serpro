@@ -11,10 +11,9 @@ trait Busca
         curl_setopt($ch, CURLOPT_TIMEOUT, 180);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 180);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.A.B.C Safari/525.13");
         curl_setopt($ch, CURLOPT_URL, $url);
         $data = curl_exec($ch);
-        $data = utf8_encode($data);
+
         curl_close($ch);
 
         return json_decode($data, true);
