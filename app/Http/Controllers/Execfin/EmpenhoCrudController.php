@@ -891,12 +891,13 @@ class EmpenhoCrudController extends CrudController
     public function montaContextJsonGetPeerFalse()
     {
         $context_options = array(
-            'https' => array(
-                'method' => 'GET',
-                'header' => "Content-type: application/json"
-            ),
+//            'https' => array(
+//                'method' => 'GET',
+//                'header' => "Content-type: application/json"
+//            ),
             'ssl' => array(
                 'verify_peer' => false,
+                "verify_peer_name"=>false,
             )
         );
 
