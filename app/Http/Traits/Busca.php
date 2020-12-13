@@ -7,8 +7,8 @@ trait Busca
     public function buscaDadosCurl($url) : array
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 180);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 180);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
         $data = curl_exec($ch);
