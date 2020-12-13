@@ -31,22 +31,49 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         if (isset($contrato->id)) {
             if (isset($json->data->dadosTermoAditivos) and $json->data->dadosTermoAditivos != null) {
-                $termoaditivo = $this->verificaAditivos($json->data->dadosTermoAditivos, $contrato, $siasgcontrato);
+                $this->verificaAditivos($json->data->dadosTermoAditivos, $contrato, $siasgcontrato);
             }
             if (isset($json->data->dadosItens) and $json->data->dadosItens != null) {
-                $itens = $this->verificaItensContrato($json->data->dadosItens, $contrato);
+                $this->verificaItensContrato($json->data->dadosItens, $contrato);
             }
             if (isset($json->data->dadosEmpenhos) and $json->data->dadosEmpenhos != null) {
-                $empenhos = $this->verificaEmpenhosContrato($json->data->dadosEmpenhos, $contrato);
+                $this->verificaEmpenhosContrato($json->data->dadosEmpenhos, $contrato);
             }
             if ($json->data->dadosContrato->uasgSubRogada != '000000') {
-                $subrogacao = $this->verificaSubrrogacao($contrato);
+                $this->verificaSubrrogacao($contrato);
             }
+
+            $this->verificaRecisao($contrato, $json);
 
         }
 
         return $contrato;
 
+    }
+
+    private function verificaRecisao(Contrato $contrato, $json)
+    {
+        $dadosEventos = $json->data->dadosEventos;
+        $filtroEventos = array_filter($dadosEventos, function($evento){ return $evento->tipoEvento == 20; });
+        $filtroEventosCount = (is_array($filtroEventos) ? count($filtroEventos) : 0);
+
+        if($filtroEventosCount > 0) {
+            $dataPublicacao = current($filtroEventos)->daPublicacao;
+            $rescisao = Contratohistorico::updateOrCreate([
+                'contrato_id' => $contrato->id,
+                'tipo_id' => 191
+            ],
+                [
+                    'observacao' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
+                    'processo' => $contrato->processo,
+                    'data_assinatura' => $dataPublicacao,
+                    'data_publicacao' => $dataPublicacao,
+                    'vigencia_fim' => $dataPublicacao,
+                    'situacao' => false
+                ]
+            );
+            return $rescisao;
+        }
     }
 
     private function verificaSubrrogacao(Contrato $contrato)
@@ -122,6 +149,40 @@ class ContratoSiasgIntegracaoNovo extends Model
         return $contratoempenho;
     }
 
+    public function retornaTipoTermoAditivo($aditivo,Contrato $contrato, $fornecedor){
+
+        $tipoTA[] = '8';
+
+        if(($aditivo->valorTotal) <> ($contrato->valor_global)){
+            $tipoTA[] = '1';
+        }
+
+        if(strtotime($aditivo->dataFim) <> strtotime($contrato->vigencia_fim)){
+            $tipoTA[] = '2';
+        }
+
+        if(($fornecedor->id) <> ($contrato->fornecedor_id)){
+            $tipoTA[] = '3';
+        }
+
+        return $tipoTA;
+
+    }
+
+    private function buscaTipos($qualificacoes)
+    {
+
+        $tipos = Codigoitem::select('id')
+            ->whereHas('codigo', function ($query) {
+                $query->where('descricao', '=', 'Tipo Qualificacao Contrato');
+            })
+            ->wherein('descres',$qualificacoes)
+            ->get()
+            ->toArray();
+
+        return $tipos;
+    }
+
     private function verificaAditivos($aditivos, Contrato $contrato, Siasgcontrato $siasgcontrato)
     {
         $dtinicio_old = $contrato->vigencia_inicio;
@@ -136,7 +197,7 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         foreach ($aditivos as $key => $aditivo) {
 
-            $busca = $this->buscaAditivo($aditivo->nuTermo, $contrato);
+            $termoAditivo = $this->buscaAditivo($aditivo->nuTermo, $contrato);
 
             if ($aditivo->dataInicio != '00000000') {
                 $dtinicio_old = $this->formataDataSiasg($aditivo->dataInicio);
@@ -152,12 +213,15 @@ class ContratoSiasgIntegracaoNovo extends Model
                     $vlrparcela = $this->formataDecimalSiasg($aditivo->valorParcela);
                 }else{
                     $vlrinicial = $this->formataDecimalSiasg($aditivo->valorTotal);
-                    $vlrglobal = $this->formataDecimalSiasg(($key == 0) ? ($vlrglobal - $vlrinicial) : ($aditivos[$key - 1]->valorTotal - $vlrinicial)) ;
+//                    $vlrglobal = $this->formataDecimalSiasg(($key == 0) ? ($vlrglobal - $vlrinicial) : ($aditivos[$key - 1]->valorTotal - $vlrinicial)) ;
+                    $vlrglobal = $this->formataDecimalSiasg($aditivo->valorTotal);
                     $numparcelas = (isset($aditivo->valorParcela) and $aditivo->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($vlrinicial) / $this->formataDecimalSiasg($aditivo->valorParcela)) : 1;
                     $vlrparcela = $this->formataDecimalSiasg($aditivo->valorParcela);
                 }
             }
             $fornecedor = $this->buscaFornecedorCpfCnpjIdgener($aditivo->cpfCnpjFornecedor, $aditivo->nomeFornecedor, $siasgcontrato);
+            $arrayTipoTA = $this->retornaTipoTermoAditivo($aditivo,$contrato,$fornecedor);
+
 
             $dados = [
                 'numero' => $this->formataNumeroContratoLicitacao($aditivo->nuTermo),
@@ -179,13 +243,39 @@ class ContratoSiasgIntegracaoNovo extends Model
                 'supressao' => $aditivo->supressao
             ];
 
-            if (!isset($busca->id)) {
+            if (!isset($termoAditivo->id)) {
                 $contratohistorico = Contratohistorico::create($dados);
+                $this->gravaTiposTermoAditivo($contratohistorico,$arrayTipoTA);
+            }else{
+                $dados = [
+                    'fornecedor_id' => $fornecedor->id,
+                    'data_assinatura' => $this->formataDataSiasg($aditivo->dataAssinatura),
+                    'data_publicacao' => $this->formataDataSiasg($aditivo->dataPublicacao),
+                    'observacao' => mb_strtoupper(trim($aditivo->objeto), 'UTF-8'),
+                    'vigencia_inicio' => $dtinicio_old,
+                    'vigencia_fim' => $dtfim_old,
+                    'valor_global' => $vlrglobal,
+                    'num_parcelas' => $numparcelas,
+                    'valor_parcela' => $vlrparcela,
+                ];
+                $termoAditivo->update($dados);
+                $this->gravaTiposTermoAditivo($termoAditivo,$arrayTipoTA);
             }
         }
 
         return $aditivos;
+    }
 
+    public function gravaTiposTermoAditivo(Contratohistorico $contratohistorico,$arrayTipoTA){
+
+            $contratohistorico->qualificacoes()->detach();
+
+            foreach ($arrayTipoTA as $tipo) {
+                $contratohistoricoqualificacao = new ContratoHistoricoQualificacao();
+                $contratohistoricoqualificacao->contratohistorico_id = $contratohistorico->id;
+                $contratohistoricoqualificacao->tipo_id = (int)$tipo;
+                $contratohistoricoqualificacao->save();
+            }
     }
 
     private function buscaAditivo($numero, Contrato $contrato)
@@ -239,11 +329,10 @@ class ContratoSiasgIntegracaoNovo extends Model
             'catmatseritem_id' => $catmatseritem->id,
             'quantidade' => intval($item->quantidade),
             'valorunitario' => number_format($item->valorUnitario, 2, '.', ''),
-            'valortotal' => number_format(intval($item->quantidade) * number_format($item->valorUnitario, 2, '.', ''), 2, '.', '')
+            'valortotal' => number_format(intval($item->quantidade) * number_format($item->valorUnitario, 2, '.', ''), 2, '.', ''),
+            'numero_item_compra' => $item->numeroItem
         ]);
-
         return $contratoitem;
-
     }
 
     private function buscaItensCatmatCatser($item)
@@ -287,6 +376,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $nome = trim($nomefornecedor);
         $fornecedor = null;
 
+
         if ($cpfCnpjfornecedor == 'ESTRANGEIRO') {
 
             $fornecedor_id = $this->returnaFornecedorIdPorEmpenhos($siasgcontrato);
@@ -294,13 +384,13 @@ class ContratoSiasgIntegracaoNovo extends Model
             if ($fornecedor_id != null) {
                 $fornecedor = Fornecedor::find($fornecedor_id);
             } else {
-                $fornecedor = Fornecedor::where('nome', 'ilike', '%' . trim($nomefornecedor) . '%')
+                $fornecedor = Fornecedor::where('nome', 'ilike', '%' . $nome . '%')
                     ->first();
 
                 if (!$fornecedor) {
-                    $cpf_cnpj_idgener = $cpfCnpjfornecedor;
+                    $cpf_cnpj_idgener = "ESTRANGEIRO_".mb_strtoupper(preg_replace('/\s/', '_', $cpfCnpjfornecedor.'_' .$nome), 'UTF-8');
                     $tipo = 'IDGENERICO';
-                    $nome = 'Alterar para ID Genérico SIAFI';
+                    //$nome = 'Alterar para ID Genérico SIAFI'; //trimnomefornecedor($)
                     $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $cpf_cnpj_idgener)
                         ->first();
                 }
@@ -320,7 +410,6 @@ class ContratoSiasgIntegracaoNovo extends Model
 
             $fornecedor = Fornecedor::create($dado);
         }
-
         return $fornecedor;
     }
 
@@ -394,7 +483,18 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $novoDado = [
             'unidadeorigem_id' => $dado['unidadeorigem_id'],
-            'unidadecompra_id' => $dado['unidadecompra_id']
+            'unidadecompra_id' => $dado['unidadecompra_id'],
+            'tipo_id' => $dado['tipo_id'],
+            'vigencia_inicio' => $dado['vigencia_inicio'],
+            'vigencia_fim' => $dado['vigencia_fim'],
+            'valor_global' => $dado['valor_global'],
+            'data_publicacao' => $dado['data_publicacao'],
+            'data_assinatura' => $dado['data_assinatura'],
+            'fornecedor_id' => $dado['fornecedor_id'],
+            'unidade_id' => $dado['unidade_id'],
+            'objeto' => $dado['objeto'],
+            'modalidade_id' => $dado['modalidade_id'],
+            'numero_compra' => $dado['numero_compra'],
         ];
 
         $contrato = Contrato::find($contrato_alteracao->id);
@@ -462,6 +562,8 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['num_parcelas'] = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($json->data->dadosContrato->valorTotal) / $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela)) : 1;
         $dado['valor_parcela'] = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela) : $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['valor_acumulado'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
+        $dado['numero_compra'] = $siasgcontrato->compra->id;
+        $dado['modalidade_id'] = $siasgcontrato->compra->modalidade_id;
 
         return $dado;
     }

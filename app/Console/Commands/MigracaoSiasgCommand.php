@@ -69,7 +69,7 @@ class MigracaoSiasgCommand extends Command
                         ->where('numero', $numero)
                         ->first();
 
-                    if (!isset($busca->id)) {
+                    if (!isset($busca->id)) { 
                         $dados = [
                             'unidade_id' => $unidade->id,
                             'modalidade_id' => $modalidade->id,

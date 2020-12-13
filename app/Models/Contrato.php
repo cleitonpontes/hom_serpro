@@ -56,7 +56,8 @@ class Contrato extends Model
         'situacao_siasg',
         'situacao',
         'unidades_requisitantes',
-        'unidadecompra_id'
+        'unidadecompra_id',
+        'numero_compra'
     ];
 
     /*
@@ -609,6 +610,16 @@ class Contrato extends Model
             'amparo_legal_contrato',
             'contrato_id',
             'amparo_legal_id'
+        );
+    }
+
+    public function minutasempenho()
+    {
+        return $this->belongsToMany(
+            'App\Models\MinutaEmpenho',
+            'contrato_minuta_empenho_pivot',
+            'contrato_id',
+            'minuta_empenho_id'
         );
     }
 
