@@ -7,9 +7,11 @@
             <div class="login-logo">
                 <a href="{{ url('/inicio') }}">
                     <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents("../public/img/logo.png")) ?>" width="200px"
-                         alt="{!! env('APP_NAME') !!}"></a>
+                         alt="{!! env('APP_NAME') !!}"></a><br>
             </div>
-
+            <div class="comment" align="right" style="color: red;">
+               <i><b>{!! config('app.app_amb') !!}</b></i>
+            </div>
             <div class="box">
                 <div class="box-body">
                     <form class="col-md-12 p-t-10" role="form" method="POST"
