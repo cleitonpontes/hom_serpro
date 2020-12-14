@@ -742,41 +742,38 @@ class EmpenhoCrudController extends CrudController
                 $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                     ->first();
 
-                $empenho = Empenho::where('numero', '=', trim($d['numero']))
-                    ->where('unidade_id', '=', $unidade->id)
-                    ->first();
+                if (isset($naturezadespesa->id)) {
 
-                if (!isset($empenho->id)) {
-                    $empenho = Empenho::create([
-                        'numero' => trim($d['numero']),
-                        'unidade_id' => $unidade->id,
-                        'fornecedor_id' => $credor->id,
-                        'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezadespesa->id,
-                        'fonte' => trim($d['fonte']),
-                    ]);
-                } else {
-                    $empenho->fornecedor_id = $credor->id;
-                    $empenho->planointerno_id = $pi->id;
-                    $empenho->naturezadespesa_id = $naturezadespesa->id;
-                    $empenho->fonte = trim($d['fonte']);
-                    $empenho->save();
-                }
+                    $empenho = Empenho::updateOrCreate(
+                        [
+                            'numero' => trim($d['numero']),
+                            'unidade_id' => $unidade->id
+                        ],
+                        [
+                            'fornecedor_id' => $credor->id,
+                            'planointerno_id' => $pi->id,
+                            'naturezadespesa_id' => $naturezadespesa->id,
+                            'fonte' => trim($d['fonte']),
+                        ]
+                    );
 
-                foreach ($d['itens'] as $item) {
-                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
-                        ->where('naturezadespesa_id', $naturezadespesa->id)
-                        ->first();
+                    foreach ($d['itens'] as $item) {
+                        $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                            ->where('naturezadespesa_id', $naturezadespesa->id)
+                            ->first();
 
-                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                        ->first();
+                        if (isset($naturezasubitem->id)) {
+                            $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                                ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                                ->first();
 
-                    if (!$empenhodetalhado) {
-                        $empenhodetalhado = Empenhodetalhado::create([
-                            'empenho_id' => $empenho->id,
-                            'naturezasubitem_id' => $naturezasubitem->id
-                        ]);
+                            if (!$empenhodetalhado) {
+                                $empenhodetalhado = Empenhodetalhado::create([
+                                    'empenho_id' => $empenho->id,
+                                    'naturezasubitem_id' => $naturezasubitem->id
+                                ]);
+                            }
+                        }
                     }
                 }
             }
@@ -810,50 +807,40 @@ class EmpenhoCrudController extends CrudController
 
     public function buscaFornecedor($credor)
     {
-        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
-            ->first();
-
-        if (!isset($fornecedor->id)) {
-            $tipo = 'JURIDICA';
-            if (strlen($credor['cpfcnpjugidgener']) == 14) {
-                $tipo = 'FISICA';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
-                $tipo = 'IDGENERICO';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
-                $tipo = 'UG';
-            }
-
-            $fornecedor = Fornecedor::create([
-                'tipo_fornecedor' => $tipo,
-                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
-                'nome' => strtoupper(trim($credor['nome']))
-            ]);
-
-        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
-            $fornecedor->nome = strtoupper(trim($credor['nome']));
-            $fornecedor->save();
+        $tipo = 'JURIDICA';
+        if (strlen($credor['cpfcnpjugidgener']) == 14) {
+            $tipo = 'FISICA';
+        } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
+            $tipo = 'IDGENERICO';
+        } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+            $tipo = 'UG';
         }
+
+        $fornecedor = Fornecedor::updateOrCreate(
+            [
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener']
+            ],
+            [
+                'tipo_fornecedor' => $tipo,
+                'nome' => strtoupper(trim($credor['nome']))
+            ]
+        );
 
         return $fornecedor;
     }
 
     public function buscaPi($pi)
     {
-        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
-            ->first();
-
-        if (!$planointerno) {
-            $planointerno = Planointerno::create([
-                'codigo' => $pi['picodigo'],
+        $planointerno = Planointerno::updateOrCreate(
+            [
+                'codigo' => $pi['picodigo']
+            ],
+            [
                 'descricao' => strtoupper($pi['pidescricao']),
                 'situacao' => true
-            ]);
-        } else {
-            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
-                $planointerno->descricao = strtoupper($pi['pidescricao']);
-                $planointerno->save();
-            }
-        }
+            ]
+        );
+
         return $planointerno;
     }
 
@@ -897,7 +884,7 @@ class EmpenhoCrudController extends CrudController
 //            ),
             'ssl' => array(
                 'verify_peer' => false,
-                "verify_peer_name"=>false,
+                "verify_peer_name" => false,
             )
         );
 
