@@ -17,6 +17,7 @@
                     <thead>
                     <tr>
                         <th class="text-center">Tipo Item</th>
+                        <th class="text-center">Número</th>
                         <th class="text-center">Item</th>
                         <th class="text-center">Quantidade</th>
                         <th class="text-center">Valor Unitário</th>
@@ -62,6 +63,10 @@
                         <label for="qtd_item" class="control-label">Item</label>
                         <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="qtd_item" class="control-label">Número</label>
+                        <input class="form-control" id="numero_item" maxlength="5" name="numero_item" type="number">
                     </div>
                     <div class="form-group">
                         <label for="qtd_item" class="control-label">Quantidade</label>
@@ -236,6 +241,7 @@
                     'tipo_item_id' : $('#tipo_item').val(),
                     'catmatseritem_id' : item.id,
                     'descricaodetalhada': item.descricao,
+                    'numero':$('#numero_item').val(),
                     'quantidade' : $('#quantidade_item').val(),
                     'valor_unitario': $('#valor_unit').val(),
                     'valor_total': $('#valor_total').val(),
@@ -249,6 +255,7 @@
             function resetarCamposFormulario(){
                 $('#tipo_item').val('');
                 $('#item').val('').change();
+                $('#numero_item').val('');
                 $('#quantidade_item').val('');
                 $('#valor_unit').val('');
                 $('#valor_total').val('');
@@ -309,6 +316,7 @@
                 var newRow = $("<tr>");
                 var cols = "";
                 cols += '<td>'+item.tipo_item+'</td>';
+                cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricaodetalhada+'</td>';
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
@@ -319,6 +327,7 @@
                 cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
                     '</button>';
+                cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id" value="'+item.compra_item_unidade_id+'">';

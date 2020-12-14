@@ -95,7 +95,6 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -160,8 +159,11 @@ class ContratoCrudController extends CrudController
                 $contratoItem->valortotal = $request['vl_total'][$key];
                 $contratoItem->data_inicio = $request['data_inicio'][$key];
                 $contratoItem->periodicidade = $request['periodicidade'][$key];
+                $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
                 $contratoItem->save();
-                $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
+                if($request['compra_item_unidade_id'][$key] !== 'undefined'){
+                    $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
+                }
             }
             DB::commit();
 
