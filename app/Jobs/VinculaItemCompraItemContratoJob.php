@@ -28,14 +28,17 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
      */
     private $contrato;
 
+    private $dados;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Contrato $contrato)
+    public function __construct($dados)
     {
-        $this->contrato = $contrato;
+        $this->contrato = Contrato::find($dados['id']);
+        $this->dados = $dados;
     }
 
     /**
@@ -45,9 +48,14 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
      */
     public function handle()
     {
-            $compraSiasg = $this->consultaCompraSiasg($this->contrato);
-            if(isset($compraSiasg->data->compraSispp)) {
-                $params = $this->montaParametrosCompra($compraSiasg, $this->contrato);
+
+        $compraSiasg = $this->consultaCompraSiasg($this->dados);
+
+        DB::beginTransaction();
+        try {
+        if(isset($compraSiasg->data->compraSispp)) {
+                $params = $this->montaParametrosCompra($compraSiasg, $this->dados);
+
                 $compra = $this->updateOrCreateCompra($params);
 
                 if ($compraSiasg->data->compraSispp->tipoCompra == 1) {
@@ -58,19 +66,25 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
                     $this->gravaParametroItensdaCompraSISRPCommand($compraSiasg, $compra);
                 }
 
-                $this->vincularItemCompraAoItemContrato($this->contrato,$compra);
+                $this->vincularItemCompraAoItemContrato($this->contrato,$this->dados,$compra);
             }
+            DB::commit();
+
+        } catch (Exception $exc) {
+            dd($exc);
+            DB::rollback();
+        }
     }
 
 
 
-    public function vincularItemCompraAoItemContrato($contrato,$compra)
+    public function vincularItemCompraAoItemContrato($contrato,$dados,$compra)
     {
 
         foreach ($contrato->itens as $item) {
 
             $contratoitem_id = $item->id;
-            $unidadecompra_id = $contrato->uasgCompra_id;
+            $unidadecompra_id = $dados['uasgCompra_id'];
             $contrato_numero_item_compra = $item->numero_item_compra;
 
             $itemCompra = $compra->compra_item->where('numero', $contrato_numero_item_compra)->first();
@@ -103,34 +117,34 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
 
     }
 
-    public function consultaCompraSiasg($contrato)
+    public function consultaCompraSiasg($dados)
     {
         $apiSiasg = new ApiSiasg();
 
         $params = [
-            'modalidade' => $contrato->modalidade,
-            'numeroAno' => $contrato->numeroAno,
-            'uasgCompra' => $contrato->uasgUsuario,
-            'uasgUsuario' => $contrato->uasgCompra
+            'modalidade' => $dados['modalidade'],
+            'numeroAno' => $dados ['numeroAno'],
+            'uasgCompra' => $dados ['uasgUsuario'],
+            'uasgUsuario' => $dados ['uasgCompra']
         ];
 
-        $contrato = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
+        $compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
 
-        return $contrato;
+        return $compra;
     }
 
 
-    public function montaParametrosCompra($compraSiasg, $contrato)
+    public function montaParametrosCompra($compraSiasg, $dados)
     {
-        $numero = (substr($contrato->numeroAno,0,5));
-        $ano = (substr($contrato->numeroAno,5,4));
+        $numero = (substr($dados['numeroAno'],0,5));
+        $ano = (substr($dados['numeroAno'],5,4));
 
         $params = [];
         $unidade_subrogada = $compraSiasg->data->compraSispp->subrogada;
 
-        $params['unidadeorigem_id'] = $contrato->uasgUsuario_id;
+        $params['unidadeorigem_id'] = $dados['uasgUsuario_id'];
         $params['unidade_subrrogada_id'] = ($unidade_subrogada <> '000000') ? (int)$this->buscaIdUnidade($unidade_subrogada) : null;
-        $params['modalidade_id'] = $this->buscaModalidade($contrato->modalidade);
+        $params['modalidade_id'] = $this->buscaModalidade($dados['modalidade']);
         $params['tipo_compra_id'] = $this->buscaTipoCompra($compraSiasg->data->compraSispp->tipoCompra);
         $params['numero_ano'] = $numero."/".$ano;
         $params['inciso'] = $compraSiasg->data->compraSispp->inciso;
@@ -176,6 +190,7 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
                 'lei' => $params['lei']
             ]
         );
+
         return $compra;
     }
 
