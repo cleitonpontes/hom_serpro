@@ -63,6 +63,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             ],
                 [
                     'observacao' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
+                    'numero' => $contrato->numero,
                     'processo' => $contrato->processo,
                     'data_assinatura' => $dataPublicacao,
                     'data_publicacao' => $dataPublicacao,
