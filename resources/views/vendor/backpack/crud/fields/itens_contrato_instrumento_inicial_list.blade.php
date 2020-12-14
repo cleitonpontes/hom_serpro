@@ -358,7 +358,7 @@
             function buscarItenContrato()
             {
                 var contrato_id = $("[name=contrato_id]").val();
-                var url = "{{route('itens.contrato',':contrato_id')}}";
+                var url = "{{route('saldo.historico.item.contrato',':contrato_id')}}";
                 url = url.replace(':contrato_id', contrato_id);
 
                 axios.request(url)

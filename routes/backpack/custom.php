@@ -160,7 +160,8 @@ Route::group([
             CRUD::resource('fornecedor', 'FornecedorCrudController');
             CRUD::resource('indicador', 'IndicadorCrudController');
             CRUD::resource('encargo', 'EncargoCrudController');
-            Route::get( '/itens-contrato/{contrato_id}','ContratoCrudController@retonaItensContrato')->name('itens.contrato');
+            Route::get( '/saldo-historico-itens/{contrato_id}',
+                'ContratoCrudController@retonaSaldoHistoricoItensContrato')->name('saldo.historico.item.contrato');
 
             Route::group([
                 'prefix' => 'siasg',

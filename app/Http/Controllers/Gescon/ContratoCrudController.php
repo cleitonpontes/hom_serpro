@@ -13,6 +13,7 @@ use App\Models\Contratoitem;
 use App\Models\ContratoMinutaEmpenho;
 use App\Models\MinutaEmpenho;
 use App\Models\Fornecedor;
+use App\Models\Saldohistoricoitem;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use FormBuilder;
@@ -1707,22 +1708,29 @@ class ContratoCrudController extends CrudController
             ->toArray();
     }
 
-    public function retonaItensContrato($contrato_id)
+    // Metodo para retonar os itens do saldo historico do contrato
+    public function retonaSaldoHistoricoItensContrato($contrato_id)
     {
-        return Contratoitem::where('contrato_id','=',$contrato_id)
+        return Saldohistoricoitem::whereHas('contratoItem', function($q) use ($contrato_id){
+            $q->whereHas('contrato', function ($o) use($contrato_id){
+                $o->where('id',$contrato_id);
+            });
+        })
             ->select(
                 'contratoitens.id',
                 'codigoitens.descricao',
                 'contratoitens.descricao_complementar',
                 'contratoitens.quantidade',
-                'contratoitens.valorunitario',
-                'contratoitens.valortotal',
-                'contratoitens.periodicidade',
-                'contratoitens.data_inicio',
+                'saldohistoricoitens.valorunitario',
+                'saldohistoricoitens.valortotal',
+                'saldohistoricoitens.periodicidade',
+                'saldohistoricoitens.data_inicio',
                 'contratoitens.catmatseritem_id',
                 'contratoitens.tipo_id',
                 'contratoitens.numero_item_compra as numero'
             )
-            ->join('codigoitens', 'codigoitens.id', '=', 'tipo_id')->get()->toArray();
+             ->leftJoin('contratoitens', 'saldohistoricoitens.contratoitem_id', '=', 'contratoitens.id')
+             ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+        ->get()->toArray();
     }
 }
