@@ -127,7 +127,7 @@
                 const $tableID = $('#table');
 
                  $('#numero_item').mask('99999');
-                
+
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
