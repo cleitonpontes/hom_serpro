@@ -427,8 +427,8 @@ class Contratohistorico extends ContratoBase
         return $this->belongsToMany(
             'App\Models\Codigoitem',
             'contratohistoricoqualificacao',
-            'tipo_id',
-            'contratohistorico_id'
+            'contratohistorico_id',
+            'tipo_id'
         );
     }
 
