@@ -63,6 +63,13 @@
             $('#next_aba').show();
         });
 
+        $('body').on('click','#itensdocontrato', function(event){
+            $('#botoes_contrato').hide();
+            $('#cancelar').hide();
+            $('#prev_aba').show();
+            $('#next_aba').show();
+        });
+
         $('body').on('change','#select2_ajax_multiple_minutasempenho', function(event){
             carregaitens(event, minutas_id);
         });
@@ -142,10 +149,9 @@
             if (null_or_empty("#select2_ajax_multiple_minutasempenho")) {
                 // resetar os campos
                 $('select[name=unidadecompra_id]').val('').change();
-                $("select[name=modalidade_id]").val(172).change();
+                $('select[name=modalidade_id]').val('').change();
                 $('#select2_ajax_multiple_amparoslegais').val('').change();
-                $("#licitacao_numero").val('');
-                $("select[name=modalidade_id]" ).attr('disabled', 'disabled');
+                $('#licitacao_numero').val('');
             }
         });
     });
@@ -441,10 +447,10 @@
                 break;
             case 'itensdocontrato':
 
-                $('#botoes_contrato').show();
-                $('#cancelar').show();
+                $('#botoes_contrato').hide();
+                $('#cancelar').hide();
                 $('#prev_aba').show();
-                $('#next_aba').hide();
+                $('#next_aba').show();
                 break;
             case 'vigenciavalores':
 
