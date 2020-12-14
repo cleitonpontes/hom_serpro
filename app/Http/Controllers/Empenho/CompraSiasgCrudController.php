@@ -88,9 +88,10 @@ class CompraSiasgCrudController extends CrudController
 
     private function fields(Collection $modalidades): void
     {
+        $this->setFielContrato();
+        $this->setFieldUnidadeCompra();
         $this->setFieldModalidade($modalidades);
         $this->setFieldNumeroAno();
-        $this->setFieldUnidadeCompra();
     }
 
     private function setFieldModalidade($modalidade): void
@@ -126,6 +127,20 @@ class CompraSiasgCrudController extends CrudController
             'model' => "App\Models\Unidade",
             'data_source' => url("api/unidade"),
             'placeholder' => "Selecione a Unidade",
+            'minimum_input_length' => 2
+        ]);
+    }
+
+    private function setFielContrato(){
+        $this->crud->addField([
+            'label' => "Contrato",
+            'type' => "select2_from_ajax",
+            'name' => 'id',
+            'entity' => 'contratos',
+            'attribute' => "numero",
+            'model' => "App\Models\Contrato",
+            'data_source' => url("api/contrato/numero"),
+            'placeholder' => "Selecione um Contrato",
             'minimum_input_length' => 2
         ]);
     }

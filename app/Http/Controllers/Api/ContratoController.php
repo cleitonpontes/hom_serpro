@@ -28,6 +28,22 @@ use Illuminate\Http\Request;
 
 class ContratoController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $search_term = $request->input('q');
+
+        if ($search_term) {
+            $results = Contrato::where(
+                [
+                    ['unidade_id', '=', session()->get('user_ug_id')],
+                    ['numero', 'LIKE', "%$search_term%"]
+                ]
+            )->paginate(20);
+        }
+        return $results;
+    }
+
         /**
      * @OA\Get(
      *     tags={"contratos"},
