@@ -26,9 +26,16 @@ class ImportacaoCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
+        if (!backpack_user()->hasRole('Administrador') or
+            !backpack_user()->hasRole('Administrador Órgão') or
+            !backpack_user()->hasRole('Administrador Unidade')) {
+            abort('403', config('app.erro_permissao'));
+        }
+
         $this->crud->setModel('App\Models\Importacao');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'admin/importacao');
         $this->crud->setEntityNameStrings('importacao', 'importações');
+        $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
 
         /*
         |--------------------------------------------------------------------------
@@ -121,17 +128,6 @@ class ImportacaoCrudController extends CrudController
     {
         return [
             [
-                'name' => 'getContrato',
-                'label' => 'Número Contrato', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getContrato', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-            ],
-            [
                 'name' => 'nome_arquivo',
                 'label' => 'Nome Arquivo',
                 'type' => 'text',
@@ -153,10 +149,53 @@ class ImportacaoCrudController extends CrudController
                 'visibleInShow' => true,
             ],
             [
+                'name' => 'getContrato',
+                'label' => 'Número Contrato', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getContrato', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'getGrupoUsuarios',
+                'label' => 'Grupo Usuário', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getGrupoUsuarios', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+            ],
+            [
                 'name' => 'getUnidade',
                 'label' => 'Unidade Gestora', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getUnidade', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'arquivos',
+                'label' => 'Arquivos',
+                'type' => 'upload_multiple',
+                'disk' => 'local',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'mensagem',
+                'label' => 'Mensagem',
+                'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true,
                 'visibleInModal' => true,
@@ -168,17 +207,6 @@ class ImportacaoCrudController extends CrudController
                 'label' => 'Situacao', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getSituacao', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-            ],
-            [
-                'name' => 'arquivos',
-                'label' => 'Arquivos',
-                'type' => 'upload_multiple',
-                'disk' => 'local',
                 'orderable' => true,
                 'visibleInTable' => true,
                 'visibleInModal' => true,

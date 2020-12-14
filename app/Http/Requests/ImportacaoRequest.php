@@ -28,13 +28,20 @@ class ImportacaoRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+        $nome_arquivo = $this->nome_arquivo ?? "NULL";
 
         $arquivos = ($this->arquivos) ? '|mimetypes:text/plain,text/csv' : "NULL";
 
         return [
             'nome_arquivo' => 'required|max:255',
+            'unidade_id' => [
+                'required',
+                (new Unique('importacoes','unidade_id'))
+                    ->ignore($id)
+                    ->where('nome_arquivo',$nome_arquivo)
+            ],
             'tipo_id' => 'required',
-            'unidade_id' => 'required',
             'contrato_id' => Rule::requiredIf(function () {
                 $tipo = Codigoitem::find($this->tipo_id);
                 if(isset($tipo->descricao)){
