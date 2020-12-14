@@ -29,6 +29,8 @@ class ImportacaoRequest extends FormRequest
     public function rules()
     {
 
+        $arquivos = ($this->arquivos) ? '|mimetypes:text/plain,text/csv' : "NULL";
+
         return [
             'nome_arquivo' => 'required|max:255',
             'tipo_id' => 'required',
@@ -53,7 +55,7 @@ class ImportacaoRequest extends FormRequest
             }),
             'situacao_id' => 'required',
             'delimitador' => 'required|max:1' ,
-            'arquivos.*' => 'required',
+            'arquivos.*' => 'required'.$arquivos,
         ];
     }
 
