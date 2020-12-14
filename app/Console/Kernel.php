@@ -142,9 +142,9 @@ class Kernel extends ConsoleKernel
     {
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
             ->timezone('America/Sao_Paulo')
-//            ->weekdays()
+            ->weekdays()
             ->everyMinute();
-//            ->between('7:00', '22:00');
+            ->between('7:00', '22:00');
     }
 
     protected function criarJobLimparActivityLogs()
