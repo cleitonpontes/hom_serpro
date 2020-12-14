@@ -101,7 +101,12 @@ class CompraSiasgCrudController extends CrudController
             'label' => "Modalidade Licitação",
             'type' => 'select2_from_array',
             'options' => $modalidade,
-            'allows_null' => true
+            'allows_null' => true,
+            'attributes' => [
+                'disabled' => 'disabled',
+                'class' => 'form-control select2_from_array opc_compra',
+                'id' => 'opc_compra_modalidade'
+            ],
         ]);
     }
 
@@ -110,7 +115,11 @@ class CompraSiasgCrudController extends CrudController
         $this->crud->addField([
             'name' => 'numero_ano',
             'label' => 'Numero / Ano',
-            'type' => 'numcontrato'
+            'type' => 'numcontrato',
+            'attributes' => [
+                'disabled' => 'disabled',
+                'class' => 'form-control opc_compra',
+            ],
         ]);
     }
 
@@ -122,6 +131,11 @@ class CompraSiasgCrudController extends CrudController
             'name' => 'unidade_origem_id',
             'entity' => 'unidade_origem',
             'attribute' => "codigo",
+            'attributes' => [
+                'disabled' => 'disabled',
+                'class' => 'form-control opc_compra',
+                'id' => 'opc_compra_unidade'
+            ],
             'attribute2' => "nomeresumido",
             'process_results_template' => 'gescon.process_results_unidade',
             'model' => "App\Models\Unidade",
@@ -141,7 +155,11 @@ class CompraSiasgCrudController extends CrudController
             'model' => "App\Models\Contrato",
             'data_source' => url("api/contrato/numero"),
             'placeholder' => "Selecione um Contrato",
-            'minimum_input_length' => 2
+            'minimum_input_length' => 2,
+            'attributes' => [
+                'class' => 'form-control opc_contrato',
+                'id' => 'opc_contrato_numero'
+            ],
         ]);
     }
 

@@ -45,9 +45,18 @@
 		    <div class="row display-flex-wrap">
 		      <!-- load the view from the application if it exists, otherwise load the one in the package -->
 		      @if(view()->exists('vendor.backpack.crud.form_content'))
-		      	@include('vendor.backpack.crud.form_content', [ 'fields' => $crud->getFields('create'), 'action' => 'create' ])
-		      @else
-		      	@include('crud::form_content', [ 'fields' => $crud->getFields('create'), 'action' => 'create' ])
+                    <div class="box box-solid box-primary">
+                        <div class="box-header">
+                            <h3 class="box-title label-title">Tipo: </h3>
+                            <input type="radio" value="1" checked name="tipoEmpenho" id="opc_contrato">
+                            <label for="opc_contrato" class="margin-right-10"><h3 class="box-title">Contrato</h3></label>
+                            <input type="radio" value="2" name="tipoEmpenho" id="opc_compra">
+                            <label for="opc_compra" class="margin-right-10"><h3 class="box-title">Compra</h3></label>
+                        </div>
+                        <div>
+                            @include('crud::form_content', [ 'fields' => $crud->getFields('create'), 'action' => 'create' ])
+                        </div>
+                    </div>
 		      @endif
 		    </div><!-- /.box-body -->
               <div class="">
@@ -58,5 +67,54 @@
 		  </form>
 	</div>
 </div>
-
 @endsection
+@push('after_scripts')
+    <style type="text/css">
+        .margin-right-10{
+            margin-right: 10px;
+            cursor: pointer
+        }
+        .label-title{
+            margin-right: 10px !important;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            toogleRadioTipoEmpenho();
+        });
+
+        function toogleRadioTipoEmpenho() {
+            $('input[type=radio][name=tipoEmpenho]').change(function() {
+                switch (this.value){
+                    case '1': habilitarFormParaContrato(); break;
+                    case '2': habilitarFormParaCompra(); break;
+                }
+            });
+        }
+
+        function habilitarFormParaContrato() {
+            $('.opc_compra').prop("disabled", true);
+            $('.opc_contrato').prop("disabled", false);
+            limpaForm();
+        }
+
+        function habilitarFormParaCompra() {
+            $('.opc_compra').prop("disabled", false);
+            $('.opc_contrato').prop("disabled", true);
+            limpaForm();
+        }
+
+        function limpaForm() {
+            $('.opc_contrato option').remove();
+            $('#select2_ajax_unidade_origem_id option').remove();
+            $('#numero_ano').val('');
+            limpaSelect2FromArray();
+        }
+
+        function limpaSelect2FromArray(){
+            $('#select2-opc_compra_modalidade-container').attr('title', 'Selecione...');
+            $('#select2-opc_compra_modalidade-container').text('Selecione...');
+        }
+    </script>
+@endpush
