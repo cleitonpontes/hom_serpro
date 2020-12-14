@@ -579,8 +579,13 @@ class AditivoCrudController extends CrudController
         }
 
         $request->request->set('retroativo_valor', $retroativo_valor);
-        $request->request->set('tipo_id', '65');
-        $request->request->set('situacao', true);
+        $tipo_id = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Tipo de Contrato');
+        })
+            ->where('descricao', 'Termo Aditivo')
+            ->first();
+
+        $request->request->set('tipo_id',  $tipo_id->id);
 
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
