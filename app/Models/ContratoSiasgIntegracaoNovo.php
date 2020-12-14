@@ -44,7 +44,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             }
 
             if (isset($json->data->dadosEventos) and $json->data->dadosEventos != null) {
-                $this->verificaRecisao($contrato, $json);
+                $this->verificaRecisao($json->data->dadosEventos,$contrato);
             }
 
         }
@@ -53,22 +53,24 @@ class ContratoSiasgIntegracaoNovo extends Model
 
     }
 
-    private function verificaRecisao(Contrato $contrato, $json)
+    private function verificaRecisao($eventos,Contrato $contrato)
     {
-        $dataPublicacao = $json->data->dadosEventos->daPublicacao;
-        $rescisao = Contratohistorico::updateOrCreate([
-            'contrato_id' => $contrato->id,
-            'tipo_id' => 191
-        ],
-            [
-                'observacao' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
-                'processo' => $contrato->processo,
-                'data_assinatura' => $dataPublicacao,
-                'data_publicacao' => $dataPublicacao,
-                'vigencia_fim' => $dataPublicacao,
-                'situacao' => false
-            ]
-        );
+        foreach ($eventos as $evento) {
+            $dataPublicacao = $evento->daPublicacao;
+            $rescisao = Contratohistorico::updateOrCreate([
+                'contrato_id' => $contrato->id,
+                'tipo_id' => 191
+            ],
+                [
+                    'observacao' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
+                    'processo' => $contrato->processo,
+                    'data_assinatura' => $dataPublicacao,
+                    'data_publicacao' => $dataPublicacao,
+                    'vigencia_fim' => $dataPublicacao,
+                    'situacao' => false
+                ]
+            );
+        }
         return $rescisao;
     }
 
