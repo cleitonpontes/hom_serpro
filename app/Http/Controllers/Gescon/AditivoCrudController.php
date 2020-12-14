@@ -287,11 +287,6 @@ class AditivoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato->id,
             ],
-            [   // Hidden
-                'name' => 'tipo_id',
-                'type' => 'hidden',
-                'default' => 65,
-            ],
             [       // Select2Multiple = n-n relationship (with pivot table)
                 'label' => 'Qualificação',
                 'name' => 'qualificacoes',
