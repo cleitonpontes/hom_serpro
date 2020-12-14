@@ -1720,7 +1720,8 @@ class ContratoCrudController extends CrudController
                 'contratoitens.periodicidade',
                 'contratoitens.data_inicio',
                 'contratoitens.catmatseritem_id',
-                'contratoitens.tipo_id'
+                'contratoitens.tipo_id',
+                'contratoitens.numero_item_compra as numero'
             )
             ->join('codigoitens', 'codigoitens.id', '=', 'tipo_id')->get()->toArray();
     }

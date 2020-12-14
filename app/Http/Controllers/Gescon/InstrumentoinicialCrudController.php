@@ -100,8 +100,7 @@ class InstrumentoinicialCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
-
-        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos);
+        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in InstrumentoinicialRequest
@@ -346,9 +345,14 @@ class InstrumentoinicialCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos)
+    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id)
     {
         $campos = [
+            [   // Hidden
+                'name' => 'contrato_id',
+                'type' => 'hidden',
+                'default' => $contrato_id,
+            ],
             [ // select_from_array
                 'name' => 'receita_despesa',
                 'label' => "Receita / Despesa",
@@ -562,6 +566,11 @@ class InstrumentoinicialCrudController extends CrudController
                 'label' => 'Número Licitação',
                 'type' => 'numlicitacao',
                 'tab' => 'Dados Contrato',
+            ],
+            [
+                'name' => 'itens',
+                'type' => 'itens_contrato_instrumento_inicial_list',
+                'tab' => 'Itens do contrato',
             ],
             [   // Date
                 'name' => 'vigencia_inicio',
