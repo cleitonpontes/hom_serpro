@@ -9,6 +9,7 @@ use App\Models\Contrato;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 /**
  * Class ImportacaoCrudController
@@ -83,7 +84,35 @@ class ImportacaoCrudController extends CrudController
             ->where('situacao', true)
             ->orderBy('contratos.numero', 'asc')->pluck('nome', 'id')->toArray();
 
-        $campos = $this->campos($tipos, $unidade, $contratos, $situacoes);
+
+        if(backpack_user()->hasRole('Administrador Unidade')){
+            $roles = Role::where('guard_name','web')
+                ->where('name','<>','Administrador')
+                ->where('name','<>','Administrador Órgão')
+                ->where('name','<>','Administrador Unidade')
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        if(backpack_user()->hasRole('Administrador Órgão')){
+            $roles = Role::where('guard_name','web')
+                ->where('name','<>','Administrador')
+                ->where('name','<>','Administrador Órgão')
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        if(backpack_user()->hasRole('Administrador')){
+            $roles = Role::where('guard_name','web')
+                ->where('name','<>','Administrador')
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        $campos = $this->campos($tipos, $unidade, $contratos, $situacoes, $roles);
         $this->crud->addFields($campos);
 
     }
@@ -160,7 +189,7 @@ class ImportacaoCrudController extends CrudController
         ];
     }
 
-    public function campos($tipos, $unidade, $contratos, $situacoes)
+    public function campos($tipos, $unidade, $contratos, $situacoes, $roles)
     {
         return [
             [
@@ -187,6 +216,13 @@ class ImportacaoCrudController extends CrudController
                 'label' => "Contrato",
                 'type' => 'select2_from_array',
                 'options' => $contratos,
+                'allows_null' => true,
+            ],
+            [
+                'name' => 'role_id',
+                'label' => "Grupo Usuário",
+                'type' => 'select2_from_array',
+                'options' => $roles,
                 'allows_null' => true,
             ],
             [

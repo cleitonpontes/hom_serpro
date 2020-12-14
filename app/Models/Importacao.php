@@ -32,6 +32,7 @@ class Importacao extends Model
         'tipo_id',
         'unidade_id',
         'contrato_id',
+        'role_id',
         'situacao_id',
         'delimitador',
         'arquivos',
