@@ -66,7 +66,7 @@
                     </div>
                     <div class="form-group">
                         <label for="qtd_item" class="control-label">Número</label>
-                        <input class="form-control" id="numero_item" maxlength="5" name="numero_item" type="number">
+                        <input class="form-control" id="numero_item"  name="numero_item" type="text">
                     </div>
                     <div class="form-group">
                         <label for="qtd_item" class="control-label">Quantidade</label>
@@ -126,6 +126,8 @@
             $(document).ready(function () {
                 const $tableID = $('#table');
 
+                 $('#numero_item').mask('99999');
+                
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
@@ -371,3 +373,4 @@
         </script>
     @endpush
 @endif
+
