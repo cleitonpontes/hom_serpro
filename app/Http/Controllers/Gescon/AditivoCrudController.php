@@ -287,6 +287,11 @@ class AditivoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato->id,
             ],
+            [   // Hidden
+                'name' => 'tipo_id',
+                'type' => 'hidden',
+                'default' => 65,
+            ],
             [       // Select2Multiple = n-n relationship (with pivot table)
                 'label' => 'Qualificação',
                 'name' => 'qualificacoes',
@@ -538,9 +543,11 @@ class AditivoCrudController extends CrudController
         }
 
         $request->request->set('retroativo_valor', $retroativo_valor);
-
+        $request->request->set('tipo_id', '65');
+        $request->request->set('situacao', true);
 
         $redirect_location = parent::storeCrud($request);
+
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
@@ -570,6 +577,8 @@ class AditivoCrudController extends CrudController
         }
 
         $request->request->set('retroativo_valor', $retroativo_valor);
+        $request->request->set('tipo_id', '65');
+        $request->request->set('situacao', true);
 
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);

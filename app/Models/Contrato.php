@@ -264,6 +264,7 @@ class Contrato extends Model
 
     public function atualizaContratoFromHistorico(string $contrato_id, array $array)
     {
+        $array['situacao'] = true;
         $this->where('id', '=', $contrato_id)
             ->update($array);
 
