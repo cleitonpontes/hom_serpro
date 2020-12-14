@@ -5,13 +5,15 @@
  * Date: 28/11/2018
  * Time: 15:58
  */
+
 namespace App\Http\Traits;
 
 use App\Models\Unidade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
-trait Users{
+trait Users
+{
     public function buscaUg()
     {
         $ug = [];
@@ -35,5 +37,17 @@ trait Users{
         asort($ug);
 
         return $ug;
+    }
+
+    public function geraSenhaAleatoria()
+    {
+        $chars = '0123456789';
+        $max = strlen($chars) - 1;
+        $senha = "NOVA";
+        for ($i = 0; $i < 4; $i++) {
+            $senha .= $chars{mt_rand(0, $max)};
+        }
+
+        return $senha;
     }
 }
