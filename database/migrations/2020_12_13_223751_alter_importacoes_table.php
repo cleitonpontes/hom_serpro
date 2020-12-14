@@ -16,6 +16,7 @@ class AlterImportacoesTable extends Migration
         Schema::table('importacoes', function (Blueprint $table) {
             $table->integer('contrato_id')->nullable()->change();
             $table->integer('role_id')->nullable();
+            $table->text('arquivos')->change();
             $table->string('mensagem')->nullable();
 
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
@@ -31,6 +32,7 @@ class AlterImportacoesTable extends Migration
     {
         Schema::table('importacoes', function (Blueprint $table) {
             $table->integer('contrato_id')->nullable(false)->change();
+            $table->string('arquivos')->change();
             $table->dropColumn('role_id')->change();
             $table->dropColumn('mensagem')->change();
         });
