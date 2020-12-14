@@ -289,7 +289,11 @@ class ImportacaoCrudController extends CrudController
     {
         $redirect_location = parent::storeCrud($request);
 
-        $this->verificaTipoIniciarExecucao($this->crud->entry);
+        $situacao_id = $this->crud->entry->situacao_id;
+        $situacao = Codigoitem::find($situacao_id);
+        if ($situacao->descricao == 'Pendente de Execução') {
+            $this->verificaTipoIniciarExecucao($this->crud->entry);
+        }
 
         return $redirect_location;
 
@@ -300,7 +304,11 @@ class ImportacaoCrudController extends CrudController
 
         $redirect_location = parent::updateCrud($request);
 
-        $this->verificaTipoIniciarExecucao($this->crud->entry);
+        $situacao_id = $this->crud->entry->situacao_id;
+        $situacao = Codigoitem::find($situacao_id);
+        if ($situacao->descricao == 'Pendente de Execução') {
+            $this->verificaTipoIniciarExecucao($this->crud->entry);
+        }
 
         return $redirect_location;
     }
@@ -318,6 +326,15 @@ class ImportacaoCrudController extends CrudController
                 $this->lerArquivoImportacao($arquivo, $tipo->descricao, $dados_importacao);
             }
         }
+
+        $nova_situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Situação Arquivo');
+        })
+            ->where('descricao', 'Executado')->first();
+
+        $dados_importacao->situacao_id = $nova_situacao->id;
+        $dados_importacao->save();
+
     }
 
 
@@ -340,16 +357,13 @@ class ImportacaoCrudController extends CrudController
         fclose($arquivo);
     }
 
-
     private function criaJobsInsercaoUsuarioEmMassa($linha, $dados_importacao)
     {
         $array_dado = explode($dados_importacao->delimitador, $linha);
         $pkcount = is_array($array_dado) ? count($array_dado) : 0;
         if ($pkcount > 0) {
-//            $this->executaInsercaoMassa($array_dado, $dados_importacao);
             InserirUsuarioEmMassaJob::dispatch($array_dado, $dados_importacao);
         }
-
     }
 
     private function criaJobsInsercaoTerceirizadoEmMassa($linha, $dados_importacao)
@@ -382,7 +396,7 @@ class ImportacaoCrudController extends CrudController
                 $i++;
             }
         }
-        if(strlen($dado[3]) == 6) {
+        if (strlen($dado[3]) == 6) {
             $ugprimaria = $this->buscaUgPorCodigo(trim($dado[3]));
         }
 
@@ -394,39 +408,60 @@ class ImportacaoCrudController extends CrudController
             $senha = $this->geraSenhaAleatoria();
         }
 
-        $user = null;
-        if($ugprimaria != '' or $ugprimaria != null){
-            $user = BackpackUser::firstOrCreate(
-                [
-                    'cpf' => $cpf,
-                    'email' => $email,
-                ],
-                [
-                    'name' => $nome,
-                    'email' => $email,
-                    'ugprimaria' => $ugprimaria,
-                    'password' => bcrypt($senha),
-                    'situacao' => true
-                ]
-            );
-        }
+        $user = $this->buscaUsuario($cpf, $email);
 
-        if($user){
+        if(!$user){
+            if ($ugprimaria != '' or $ugprimaria != null) {
+                $user = BackpackUser::firstOrCreate(
+                    [
+                        'cpf' => $cpf,
+                        'email' => $email,
+                    ],
+                    [
+                        'name' => $nome,
+                        'email' => $email,
+                        'ugprimaria' => $ugprimaria,
+                        'password' => bcrypt($senha),
+                        'situacao' => true
+                    ]
+                );
+            }
+
+            if ($user) {
+                $role = Role::find($dados_importacao->role_id);
+                $user->assignRole($role->name);
+                if (count($ugsecundaria)) {
+                    $user->unidades()->attach($ugsecundaria);
+                }
+                if ($email != $dado[0] . "@alteraremail.com") {
+                    $dados = [
+                        'cpf' => $cpf,
+                        'nome' => $nome,
+                        'senha' => $senha,
+                    ];
+                    $user->notify(new PasswordUserNotification($dados));
+                }
+            }
+        }else{
             $role = Role::find($dados_importacao->role_id);
             $user->assignRole($role->name);
-            if(count($ugsecundaria)){
+            if (count($ugsecundaria)) {
                 $user->unidades()->attach($ugsecundaria);
-            }
-            if($email != $dado[0]."@alteraremail.com"){
-                $dados = [
-                    'cpf' => $cpf,
-                    'nome' => $nome,
-                    'senha' => $senha,
-                ];
-                $user->notify(new PasswordUserNotification($dados));
             }
         }
 
+    }
+
+    private function buscaUsuario($cpf, $email)
+    {
+        $user = BackpackUser::where('email',$email)->first();
+        if(!isset($user->id)){
+            $user = BackpackUser::where('cpf',$cpf)->first();
+        }
+        if(!isset($user->id)){
+            return null;
+        }
+        return $user;
     }
 
     private function buscaUgPorCodigo($cod)
