@@ -300,14 +300,13 @@
             }
 
             function adicionaLinhaItem(item){
-                console.log(item);
                 // var compra_itens_id = $("[name='compra_itens_id[]']");
                 // compra_itens_id.push(item.id);
 
                 var newRow = $("<tr>");
                 var cols = "";
                 cols += '<td>'+item.descricao+'</td>';
-                cols += '<td><input type="text" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'" readonly></td>';
+                cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricao_complementar+'</td>';
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" value="'+item.quantidade+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
@@ -315,9 +314,11 @@
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
 
+                cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
-                cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_id+'">';
+                cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
+                cols += '<input type="hidden" name="saldo_historico_item_id[]" id="saldo_historico_item_id" value="'+item.saldo_historico_item_id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
@@ -370,7 +371,6 @@
                     })
                     .finally()
             }
-
         </script>
     @endpush
 @endif
