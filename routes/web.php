@@ -51,6 +51,9 @@ Route::group([
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
 
+Route::get('/test/job', 'TestController@contrato');
+
+
 
 Route::group(
     [
