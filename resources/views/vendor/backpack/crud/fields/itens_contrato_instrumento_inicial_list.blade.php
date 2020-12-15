@@ -280,23 +280,23 @@
             }
 
             function atualizarValorTotal(tr){
-                var qtd_item = parseFloat($(tr).find('td').eq(2).find('input').val());
-                var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
+                var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
+                var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
-                parseFloat($(tr).find('td').eq(4).find('input').val(qtd_item * vl_unit));
+                parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
             }
 
             function atualizarQuantidade(tr){
-                var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
-                var valor_total_item = parseFloat($(tr).find('td').eq(4).find('input').val());
+                var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
+                var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
 
-                parseFloat($(tr).find('td').eq(2).find('input').val(valor_total_item / vl_unit));
+                parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
             }
 
             function atualizarDataInicioItens(){
                 $("#table-itens").find('tr').each(function(){
-                    if ($(this).find('td').eq(6).find('input').val() === "") {
-                        $(this).find('td').eq(6).find('input').val($('input[name=data_assinatura]').val());
+                    if ($(this).find('td').eq(7).find('input').val() === "") {
+                        $(this).find('td').eq(7).find('input').val($('input[name=data_assinatura]').val());
                     }
                 });
             }
@@ -322,9 +322,9 @@
                     '</button>';
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
-                cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_id+'">';
+                cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
+                cols += '<input type="hidden" name="saldo_historico_item_id[]" id="saldo_historico_item_id" value="'+item.saldo_historico_item_id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);

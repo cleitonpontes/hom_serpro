@@ -1717,7 +1717,7 @@ class ContratoCrudController extends CrudController
             });
         })
             ->select(
-                'contratoitens.id',
+                'saldohistoricoitens.id as saldo_historico_item_id',
                 'codigoitens.descricao',
                 'contratoitens.descricao_complementar',
                 'contratoitens.quantidade',
