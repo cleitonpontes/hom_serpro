@@ -121,7 +121,7 @@ class ContratohistoricoObserve
             $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
 
             if($tipo instanceof Codigoitem){
-                $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico);
+                $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico,$contrato_id);
 
                 $contrato = new Contrato();
                 $contrato->atualizaContratoFromHistorico($contrato_id, $array);
