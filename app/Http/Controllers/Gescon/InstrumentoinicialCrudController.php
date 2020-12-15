@@ -658,6 +658,10 @@ class InstrumentoinicialCrudController extends CrudController
             $this->alterarSaldoHistoricoItens($request->all());
         }
 
+        if(!empty($request->get('excluir_item'))) {
+            $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
+        }
+
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -738,5 +742,21 @@ class InstrumentoinicialCrudController extends CrudController
         $contratoItem->periodicidade = $request['periodicidade'][$key];
         $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
         $contratoItem->save();
+    }
+
+    private function excluirSaldoHistoricoItem($arrIdItens)
+    {
+        DB::beginTransaction();
+        try {
+            foreach ($arrIdItens as $id) {
+                $item = Saldohistoricoitem::find($id);
+                $item->delete();
+            }
+            DB::commit();
+
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
     }
 }

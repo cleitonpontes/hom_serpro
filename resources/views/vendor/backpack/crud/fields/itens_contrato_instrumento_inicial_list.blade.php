@@ -32,6 +32,9 @@
                     </tbody>
                 </table>
             </div>
+            <div id="itens-para-excluir">
+
+            </div>
         </div>
     </div>
     <!-- Editable table -->
@@ -380,8 +383,22 @@
 
             function removeLinha(elemento){
                 var tr = $(elemento).closest('tr');
-                tr.remove();
-                calculaTotalGlobal()
+                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#saldo_historico_item_id').val();
+                if (historicoSaldoItemId === 'undefined'){
+                    tr.remove();
+                    calculaTotalGlobal()
+                } else {
+                    removerSaldoHistoricoItem(historicoSaldoItemId);
+                    tr.remove();
+                    calculaTotalGlobal()
+                }
+            }
+
+            function removerSaldoHistoricoItem(historicoSaldoItemId){
+                var newItem = $("#itens-para-excluir");
+                var cols = "";
+                cols += '<input type="hidden" name="excluir_item[]" value="'+historicoSaldoItemId+'">';
+                newItem.append(cols);
             }
 
         </script>
