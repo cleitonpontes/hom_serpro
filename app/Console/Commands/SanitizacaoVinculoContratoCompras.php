@@ -52,8 +52,9 @@ class SanitizacaoVinculoContratoCompras extends Command
             ->join('unidades', 'contratos.unidadeorigem_id', '=', 'unidades.id')
             ->join(DB::raw('unidades unidadescompra') , 'contratos.unidadecompra_id', '=', 'unidadescompra.id')
             ->join('codigoitens', 'codigoitens.id', '=', 'contratos.modalidade_id')
+            ->wherein('contratos.id',[28432])
             ->get();
-        dd($dados);
+
         $this->comment('### Sanitização em andamento!');
 
         foreach ($dados as $dado) {

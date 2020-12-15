@@ -32,6 +32,9 @@
                     </tbody>
                 </table>
             </div>
+            <div id="itens-para-excluir">
+
+            </div>
         </div>
     </div>
     <!-- Editable table -->
@@ -66,7 +69,7 @@
                     </div>
                     <div class="form-group">
                         <label for="qtd_item" class="control-label">Número</label>
-                        <input class="form-control" id="numero_item"  name="numero_item" type="text">
+                        <input class="form-control" id="numero_item" maxlength="5" name="numero_item" type="number">
                     </div>
                     <div class="form-group">
                         <label for="qtd_item" class="control-label">Quantidade</label>
@@ -126,10 +129,12 @@
             $(document).ready(function () {
                 const $tableID = $('#table');
 
-                 $('#numero_item').mask('99999');
-
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
+                });
+
+                $('body').on('click','#itensdocontrato', function(event){
+                    buscarItenContrato();
                 });
 
                 $('body').on('change','#tipo_item', function(event){
@@ -173,7 +178,8 @@
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-                $('body').on('change','input[name="periodicidade"]',function(event){
+                $('body').on('change','input[name="periodicidade[]"]',function(event){
+                    calculaTotalGlobal();
                     atualizarValorParcela();
                 });
 
@@ -182,6 +188,7 @@
                     atualizarValorParcela();
                 });
 
+                // remover item do contrato
                 $('body').on('click','#remove_item', function(event){
                     removeLinha(this);
                 });
@@ -239,17 +246,18 @@
             function prepararItemParaIncluirGrid(item)
             {
                 item = {
-                    'tipo_item' : $('#tipo_item :selected').text(),
-                    'tipo_item_id' : $('#tipo_item').val(),
-                    'catmatseritem_id' : item.id,
-                    'descricaodetalhada': item.descricao,
+                    'descricao' : $('#tipo_item :selected').text(),
+                    'descricao_complementar': item.descricao,
                     'numero':$('#numero_item').val(),
                     'quantidade' : $('#quantidade_item').val(),
-                    'valor_unitario': $('#valor_unit').val(),
-                    'valor_total': $('#valor_total').val(),
+                    'valorunitario': $('#valor_unit').val(),
+                    'valortotal': $('#valor_total').val(),
                     'periodicidade': $('#periodicidade_item').val(),
-                    'data_inicio': $('#dt_inicio').val()
+                    'data_inicio': $('#dt_inicio').val(),
+                    'catmatseritem_id' : item.id,
+                    'tipo_item_id' : $('#tipo_item').val(),
                 }
+
                 adicionaLinhaItem(item);
                 resetarCamposFormulario();
             }
@@ -276,55 +284,44 @@
             }
 
             function atualizarValorTotal(tr){
-                var qtd_item = parseFloat($(tr).find('td').eq(2).find('input').val());
-                var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
+                var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
+                var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
-                parseFloat($(tr).find('td').eq(4).find('input').val(qtd_item * vl_unit));
+                parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
+                calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
-                var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
-                var valor_total_item = parseFloat($(tr).find('td').eq(4).find('input').val());
+                var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
+                var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
 
-                parseFloat($(tr).find('td').eq(2).find('input').val(valor_total_item / vl_unit));
+                parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
+                calculaTotalGlobal();
             }
 
             function atualizarDataInicioItens(){
                 $("#table-itens").find('tr').each(function(){
-                    if ($(this).find('td').eq(6).find('input').val() === "") {
-                        $(this).find('td').eq(6).find('input').val($('input[name=data_assinatura]').val());
+                    if ($(this).find('td').eq(7).find('input').val() === "") {
+                        $(this).find('td').eq(7).find('input').val($('input[name=data_assinatura]').val());
                     }
                 });
             }
 
             function adicionaLinhaItem(item){
 
-                var compra_itens_id = $("[name='compra_itens_id[]']");
-                compra_itens_id.push(item.id);
-                var vl_unit = item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2});
-                var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
-
-                // se vier data dos dados do contrato preencher com a data default
-                var data_inicio = $('input[name=data_assinatura]').val();
-                if ($('input[name=dt_inicio]').val()) {
-                    data_inicio = $('input[name=dt_inicio]').val();
-                }
-
-                var periodicidade = 1;
-                if ($('#periodicidade_item').val()) {
-                    periodicidade = $('#periodicidade_item').val();
-                }
+                // var compra_itens_id = $("[name='compra_itens_id[]']");
+                // compra_itens_id.push(item.id);
 
                 var newRow = $("<tr>");
                 var cols = "";
-                cols += '<td>'+item.tipo_item+'</td>';
+                cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
-                cols += '<td>'+item.descricaodetalhada+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
-                cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
-                cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
+                cols += '<td>'+item.descricao_complementar+'</td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" value="'+item.quantidade+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"></td>';
+                cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
+                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
                 cols += '<td>';
                 cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
@@ -332,28 +329,23 @@
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
-                cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id" value="'+item.compra_item_unidade_id+'">';
-                cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricaodetalhada+'">';
+                cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
+                cols += '<input type="hidden" name="saldo_historico_item_id[]" id="saldo_historico_item_id" value="'+item.saldo_historico_item_id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
             }
 
-            function removeLinha(elemento){
-                var tr = $(elemento).closest('tr');
-                tr.remove();
-                calculaTotalGlobal()
-            }
-
             function calculaTotalGlobal(){
                 var valor_total = 0;
                 $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(4).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
+                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
+                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
+                console.log(valor_total);
                 $('#valor_global').val(valor_total);
                 atualizarValorParcela();
             }
@@ -370,7 +362,49 @@
                 $("#item").append(newRow);
             }
 
+            function buscarItenContrato()
+            {
+                var contrato_id = $("[name=contrato_id]").val();
+                var url = "{{route('saldo.historico.item.contrato',':contrato_id')}}";
+                url = url.replace(':contrato_id', contrato_id);
+
+                axios.request(url)
+                    .then(response => {
+                        var itens = response.data;
+                        var qtd_itens = itens.length;
+                        itens.forEach(function (item) {
+                            var linhas = $("#table-itens tr").length;
+                            if(qtd_itens > linhas){
+                                adicionaLinhaItem(item);
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        alert(error);
+                    })
+                    .finally()
+            }
+
+            function removeLinha(elemento){
+                var tr = $(elemento).closest('tr');
+                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#saldo_historico_item_id').val();
+                if (historicoSaldoItemId === 'undefined'){
+                    tr.remove();
+                    calculaTotalGlobal()
+                } else {
+                    removerSaldoHistoricoItem(historicoSaldoItemId);
+                    tr.remove();
+                    calculaTotalGlobal()
+                }
+            }
+
+            function removerSaldoHistoricoItem(historicoSaldoItemId){
+                var newItem = $("#itens-para-excluir");
+                var cols = "";
+                cols += '<input type="hidden" name="excluir_item[]" value="'+historicoSaldoItemId+'">';
+                newItem.append(cols);
+            }
+
         </script>
     @endpush
 @endif
-
