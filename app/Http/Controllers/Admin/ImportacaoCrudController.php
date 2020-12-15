@@ -445,6 +445,8 @@ class ImportacaoCrudController extends CrudController
         }else{
             $role = Role::find($dados_importacao->role_id);
             $user->assignRole($role->name);
+            $user->ugprimaria = $ugprimaria;
+            $user->save();
             if (count($ugsecundaria)) {
                 $user->unidades()->attach($ugsecundaria);
             }
