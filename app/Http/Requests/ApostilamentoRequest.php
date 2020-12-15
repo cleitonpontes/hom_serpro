@@ -30,6 +30,8 @@ class ApostilamentoRequest extends FormRequest
         $contrato_id = $this->contrato_id ?? "NULL";
         $tipo_id = $this->tipo_id ?? "NULL";
 
+        $this->hoje = date('Y-m-d');
+
         return [
             'numero' => [
                 'required',
@@ -40,7 +42,7 @@ class ApostilamentoRequest extends FormRequest
             ],
             'contrato_id' => 'required',
             'unidade_id' => 'required',
-            'data_assinatura' => 'required|date',
+            'data_assinatura' => "required|date|before_or_equal:{$this->hoje}",
             'data_inicio_novo_valor' => 'required|date|after_or_equal:data_assinatura',
             'novo_num_parcelas' => 'required',
             'novo_valor_parcela' => 'required',
