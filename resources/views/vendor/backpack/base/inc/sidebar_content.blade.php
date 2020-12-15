@@ -490,6 +490,12 @@
                             </a>
                         </li>
                         <li>
+                            <a href='{{ backpack_url('/admin/failedjobs') }}'>
+                                <i class='fa fa-list'></i>
+                                <span>Failed Jobs</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href='{{ backpack_url('/admin/feriado') }}'>
                                 <i class='fa fa-list'></i>
                                 <span>Feriado</span>

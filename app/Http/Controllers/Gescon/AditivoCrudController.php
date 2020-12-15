@@ -78,10 +78,8 @@ class AditivoCrudController extends CrudController
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
         $tipos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
+            $query->where('descricao', '=', 'Tipo Qualificacao Contrato');
         })
-            ->where('descricao', '=', 'Termo Aditivo')
-//            ->where('descricao', '<>', 'Termo de Apostilamento')
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
@@ -285,16 +283,18 @@ class AditivoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato->id,
             ],
-            [
-                // select_from_array
-                'name' => 'tipo_id',
-                'label' => "Tipo",
-                'type' => 'select_from_array',
-                'options' => $tipos,
-                'allows_null' => false,
+            [       // Select2Multiple = n-n relationship (with pivot table)
+                'label' => 'Qualificação',
+                'name' => 'qualificacoes',
+                'type' => 'select2_from_ajax_multiple_qualificacao',
+                'entity' => 'qualificacoes',
+                'placeholder' => 'Selecione as qualificações',
+                'minimum_input_length' => 0,
+                'data_source' => url('api/qualificacao'),
+                'model' => 'App\Models\Codigoitem',
+                'attribute' => 'descricao',
+                'pivot' => true,
                 'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
                 'name' => 'numero',
@@ -305,7 +305,7 @@ class AditivoCrudController extends CrudController
             ],
             [
                 'name' => 'observacao',
-                'label' => 'Observação',
+                'label' => 'Objeto do TA',
                 'type' => 'textarea',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"

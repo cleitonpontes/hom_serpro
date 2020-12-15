@@ -9,6 +9,7 @@ use App\Models\Contrato;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 /**
  * Class ImportacaoCrudController
@@ -25,9 +26,16 @@ class ImportacaoCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
+        if (!backpack_user()->hasRole('Administrador') or
+            !backpack_user()->hasRole('Administrador Órgão') or
+            !backpack_user()->hasRole('Administrador Unidade')) {
+            abort('403', config('app.erro_permissao'));
+        }
+
         $this->crud->setModel('App\Models\Importacao');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'admin/importacao');
         $this->crud->setEntityNameStrings('importacao', 'importações');
+        $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
 
         /*
         |--------------------------------------------------------------------------
@@ -83,7 +91,35 @@ class ImportacaoCrudController extends CrudController
             ->where('situacao', true)
             ->orderBy('contratos.numero', 'asc')->pluck('nome', 'id')->toArray();
 
-        $campos = $this->campos($tipos, $unidade, $contratos, $situacoes);
+
+        if(backpack_user()->hasRole('Administrador Unidade')){
+            $roles = Role::where('guard_name','web')
+                ->where('name','<>','Administrador')
+                ->where('name','<>','Administrador Órgão')
+                ->where('name','<>','Administrador Unidade')
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        if(backpack_user()->hasRole('Administrador Órgão')){
+            $roles = Role::where('guard_name','web')
+                ->where('name','<>','Administrador')
+                ->where('name','<>','Administrador Órgão')
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        if(backpack_user()->hasRole('Administrador')){
+            $roles = Role::where('guard_name','web')
+                ->where('name','<>','Administrador')
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        $campos = $this->campos($tipos, $unidade, $contratos, $situacoes, $roles);
         $this->crud->addFields($campos);
 
     }
@@ -91,17 +127,6 @@ class ImportacaoCrudController extends CrudController
     public function colunas()
     {
         return [
-            [
-                'name' => 'getContrato',
-                'label' => 'Número Contrato', // Table column heading
-                'type' => 'model_function',
-                'function_name' => 'getContrato', // the method in your Model
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-            ],
             [
                 'name' => 'nome_arquivo',
                 'label' => 'Nome Arquivo',
@@ -124,10 +149,53 @@ class ImportacaoCrudController extends CrudController
                 'visibleInShow' => true,
             ],
             [
+                'name' => 'getContrato',
+                'label' => 'Número Contrato', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getContrato', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'getGrupoUsuarios',
+                'label' => 'Grupo Usuário', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getGrupoUsuarios', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+            ],
+            [
                 'name' => 'getUnidade',
                 'label' => 'Unidade Gestora', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getUnidade', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => false,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'arquivos',
+                'label' => 'Arquivos',
+                'type' => 'upload_multiple',
+                'disk' => 'local',
+                'orderable' => true,
+                'visibleInTable' => true,
+                'visibleInModal' => true,
+                'visibleInExport' => true,
+                'visibleInShow' => true,
+            ],
+            [
+                'name' => 'mensagem',
+                'label' => 'Mensagem',
+                'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true,
                 'visibleInModal' => true,
@@ -145,22 +213,11 @@ class ImportacaoCrudController extends CrudController
                 'visibleInExport' => true,
                 'visibleInShow' => true,
             ],
-            [
-                'name' => 'arquivos',
-                'label' => 'Arquivos',
-                'type' => 'upload_multiple',
-                'disk' => 'local',
-                'orderable' => true,
-                'visibleInTable' => true,
-                'visibleInModal' => true,
-                'visibleInExport' => true,
-                'visibleInShow' => true,
-            ],
 
         ];
     }
 
-    public function campos($tipos, $unidade, $contratos, $situacoes)
+    public function campos($tipos, $unidade, $contratos, $situacoes, $roles)
     {
         return [
             [
@@ -187,6 +244,13 @@ class ImportacaoCrudController extends CrudController
                 'label' => "Contrato",
                 'type' => 'select2_from_array',
                 'options' => $contratos,
+                'allows_null' => true,
+            ],
+            [
+                'name' => 'role_id',
+                'label' => "Grupo Usuário",
+                'type' => 'select2_from_array',
+                'options' => $roles,
                 'allows_null' => true,
             ],
             [

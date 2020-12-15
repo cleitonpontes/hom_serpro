@@ -2,19 +2,14 @@
 
 namespace App\Models;
 
-use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Codigoitem extends Model
+class Failedjobs extends Model
 {
     use CrudTrait;
-    use LogsActivity;
-    use SoftDeletes;
-
-    protected static $logFillable = true;
-    protected static $logName = 'codigoitens';
 
     /*
     |--------------------------------------------------------------------------
@@ -22,8 +17,19 @@ class Codigoitem extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'codigoitens';
-    protected $fillable = ['codigo_id', 'descres', 'descricao'];
+    protected $table = 'failed_jobs';
+    // protected $primaryKey = 'id';
+    // public $timestamps = false;
+    // protected $guarded = ['id'];
+    protected $fillable = [
+        'connection',
+        'queue',
+        'payload',
+        'exception',
+        'failed_at'
+    ];
+    // protected $hidden = [];
+    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
@@ -37,20 +43,6 @@ class Codigoitem extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function codigo()
-    {
-        return $this->belongsTo(Codigo::class, 'codigo_id');
-    }
-
-    public function contratohistoricos()
-    {
-        return $this->belongsToMany(
-            'App\Models\Contratohistorico',
-            'contratohistoricoqualificacao',
-            'tipo_id',
-            'contratohistorico_id'
-        );
-    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES
