@@ -178,7 +178,8 @@
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-                $('body').on('change','input[name="periodicidade"]',function(event){
+                $('body').on('change','input[name="periodicidade[]"]',function(event){
+                    calculaTotalGlobal();
                     atualizarValorParcela();
                 });
 
@@ -287,6 +288,7 @@
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
                 parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
+                calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
@@ -294,6 +296,7 @@
                 var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
 
                 parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
+                calculaTotalGlobal();
             }
 
             function atualizarDataInicioItens(){
@@ -337,11 +340,12 @@
             function calculaTotalGlobal(){
                 var valor_total = 0;
                 $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(4).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
+                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
+                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
+                console.log(valor_total);
                 $('#valor_global').val(valor_total);
                 atualizarValorParcela();
             }
