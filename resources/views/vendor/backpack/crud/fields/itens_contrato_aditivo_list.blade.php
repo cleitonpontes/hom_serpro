@@ -13,10 +13,12 @@
                 </span>
                 <br>
                 <br>
+                <div class="table-responsive">
                 <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                     <tr>
                         <th class="text-center">Tipo Item</th>
+                        <th class="text-center">Número</th>
                         <th class="text-center">Item</th>
                         <th class="text-center">Quantidade</th>
                         <th class="text-center">Valor Unitário</th>
@@ -29,6 +31,7 @@
 
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -50,7 +53,7 @@
                 </div>
                 <div class="modal-body" id="textoModal">
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Tipo Item</label>
+                        <label for="tipo_item" class="control-label">Tipo Item</label>
                         <select class="form-control" style="width:100%;" id="tipo_item">
                             <option value="">Selecione</option>
                             <option value="149">Material</option>
@@ -58,12 +61,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Item</label>
+                        <label for="item" class="control-label">Item</label>
                         <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Quantidade</label>
+                        <label for="numero_item" class="control-label">Número</label>
+                        <input class="form-control" id="numero_item"  name="numero_item" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="quantidade_item" class="control-label">Quantidade</label>
                         <input class="form-control" id="quantidade_item" maxlength="10" name="quantidade_item" type="number">
                     </div>
                     <div class="form-group">
@@ -119,6 +126,8 @@
 
             $(document).ready(function () {
                 const $tableID = $('#table');
+
+                $('#numero_item').mask('99999');
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
@@ -235,6 +244,7 @@
                     'descricao_complementar': item.descricao,
                     'quantidade' : $('#quantidade_item').val(),
                     'valorunitario': $('#valor_unit').val(),
+                    'numero':$('#numero_item').val(),
                     'valortotal': $('#valor_total').val(),
                     'periodicidade': $('#periodicidade_item').val(),
                     'data_inicio': $('#dt_inicio').val(),
@@ -250,6 +260,7 @@
                 $('#tipo_item').val('');
                 $('#item').val('').change();
                 $('#quantidade_item').val('');
+                $('#numero_item').val('');
                 $('#valor_unit').val('');
                 $('#valor_total').val('');
                 $('#periodicidade_item').val('');
@@ -289,23 +300,24 @@
             }
 
             function adicionaLinhaItem(item){
-
+                console.log(item);
                 // var compra_itens_id = $("[name='compra_itens_id[]']");
                 // compra_itens_id.push(item.id);
 
                 var newRow = $("<tr>");
                 var cols = "";
                 cols += '<td>'+item.descricao+'</td>';
+                cols += '<td><input type="text" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'" readonly></td>';
                 cols += '<td>'+item.descricao_complementar+'</td>';
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" value="'+item.quantidade+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
+
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
