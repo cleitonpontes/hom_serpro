@@ -13,6 +13,7 @@ use App\Models\Contratoitem;
 use App\Models\ContratoMinutaEmpenho;
 use App\Models\MinutaEmpenho;
 use App\Models\Fornecedor;
+use App\Models\Saldohistoricoitem;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use FormBuilder;
@@ -97,7 +98,6 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -162,8 +162,11 @@ class ContratoCrudController extends CrudController
                 $contratoItem->valortotal = $request['vl_total'][$key];
                 $contratoItem->data_inicio = $request['data_inicio'][$key];
                 $contratoItem->periodicidade = $request['periodicidade'][$key];
+                $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
                 $contratoItem->save();
-                $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
+                if($request['compra_item_unidade_id'][$key] !== 'undefined'){
+                    $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
+                }
             }
             DB::commit();
 
@@ -871,11 +874,7 @@ class ContratoCrudController extends CrudController
             'type' => 'select2_from_array',
             'options' => $modalidades,
             'allows_null' => true,
-            'tab' => $this->tab,
-            'default'    => 172,
-            'attributes' => [
-                'disabled' => 'disabled',
-            ],
+            'tab' => $this->tab
         ]);
     }
 
@@ -1005,8 +1004,7 @@ class ContratoCrudController extends CrudController
             'name' => 'itens',
             'type' => 'itens_contrato_list',
             'label' => 'Teste',
-            'tab' => $this->tab,
-            'form' => $this->retonaFormModal()
+            'tab' => $this->tab
         ]);
     }
 
@@ -1107,7 +1105,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'valor_global',
             'label' => 'Valor Global',
-            'type' => 'money',
+            'type' => 'number',
             'attributes' => [
                 'id' => 'valor_global',
             ],
@@ -1136,7 +1134,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'valor_parcela',
             'label' => 'Valor Parcela',
-            'type' => 'money',
+            'type' => 'number',
             'attributes' => [
                 'id' => 'valor_parcela',
             ],
@@ -1708,8 +1706,29 @@ class ContratoCrudController extends CrudController
             ->toArray();
     }
 
-    public function retonaFormModal()
+    // Metodo para retonar os itens do saldo historico do contrato
+    public function retonaSaldoHistoricoItensContrato($contrato_id)
     {
-        return FormBuilder::create(InserirItemContratoMinutaForm::class);
+        return Saldohistoricoitem::whereHas('contratoItem', function($q) use ($contrato_id){
+            $q->whereHas('contrato', function ($o) use($contrato_id){
+                $o->where('id',$contrato_id);
+            });
+        })
+            ->select(
+                'saldohistoricoitens.id as saldo_historico_item_id',
+                'codigoitens.descricao',
+                'contratoitens.descricao_complementar',
+                'contratoitens.quantidade',
+                'saldohistoricoitens.valorunitario',
+                'saldohistoricoitens.valortotal',
+                'saldohistoricoitens.periodicidade',
+                'saldohistoricoitens.data_inicio',
+                'contratoitens.catmatseritem_id',
+                'contratoitens.tipo_id',
+                'contratoitens.numero_item_compra as numero'
+            )
+             ->leftJoin('contratoitens', 'saldohistoricoitens.contratoitem_id', '=', 'contratoitens.id')
+             ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+        ->get()->toArray();
     }
 }
