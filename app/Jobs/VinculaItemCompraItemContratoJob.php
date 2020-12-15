@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Http\Traits\CompraTrait;
 use App\Models\Codigoitem;
 use App\Models\Compra;
-use App\Models\CompraItem;
 use App\Models\CompraItemUnidade;
 use App\Models\Comprasitemunidadecontratoitens;
 use App\Models\Contrato;
