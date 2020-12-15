@@ -381,7 +381,7 @@ class AditivoCrudController extends CrudController
             ],
             [
                 'name' => 'itens',
-                'type' => 'itens_contrato_aditivo_list',
+                'type' => 'itens_contrato_aditivo_apostilamento_list',
                 'tab' => 'Itens do contrato',
             ],
             [   // Date
@@ -634,7 +634,7 @@ class AditivoCrudController extends CrudController
         return $content;
     }
 
-    public function alterarItensContrato($request, Contratohistorico $contratohistorico){
+    public function alterarItensContrato($request){
 
         DB::beginTransaction();
         try {
@@ -663,34 +663,6 @@ class AditivoCrudController extends CrudController
         }
     }
 
-    public function created(Contratoitem $contratoitem)
-    {
-        $contratohistorico = Contratohistorico::whereHas('tipo', function ($query) {
-            $query->where('descricao', '<>', 'Termo Aditivo')
-                ->where('descricao', '<>', 'Termo de Apostilamento');
-        })
-            ->where('contrato_id', $contratoitem->contrato_id)
-            ->first();
-
-        $codigoitem = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', 'Tipo Saldo Itens');
-        })
-            ->where('descricao', 'Saldo Inicial Contrato Historico')
-            ->first();
-
-        $saldohistoricoitem = $contratohistorico->saldosItens()->create([
-            'contratoitem_id' => $contratoitem->id,
-            'tiposaldo_id' => $codigoitem->id,
-            'quantidade' => $contratoitem->quantidade,
-            'valorunitario' => $contratoitem->valorunitario,
-            'valortotal' => $contratoitem->valortotal,
-            'periodicidade' => $contratoitem->periodicidade,
-            'data_inicio' => $contratoitem->data_inicio,
-            'numero_item_compra' => $contratoitem->numero_item_compra,
-        ]);
-
-    }
-
     private function criarNovoContratoItem($key, $request)
     {
         $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
@@ -702,7 +674,7 @@ class AditivoCrudController extends CrudController
         $contratoItem->grupo_id = $catmatseritem->grupo_id;
         $contratoItem->catmatseritem_id = $catmatseritem->id;
         $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
-        $contratoItem->quantidade = (double)$request['qtd_item'];
+        $contratoItem->quantidade = (double)$request['qtd_item'][$key];
         $contratoItem->valorunitario = $request['vl_unit'][$key];
         $contratoItem->valortotal = $request['vl_total'][$key];
         $contratoItem->data_inicio = $request['data_inicio'][$key];

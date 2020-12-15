@@ -39,7 +39,6 @@ class ApostilamentoRequest extends FormRequest
                     ->where('tipo_id',$tipo_id)
             ],
             'contrato_id' => 'required',
-            'tipo_id' => 'required',
             'unidade_id' => 'required',
             'data_assinatura' => 'required|date',
             'data_inicio_novo_valor' => 'required|date|after_or_equal:data_assinatura',
