@@ -70,7 +70,7 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
             DB::commit();
 
         } catch (Exception $exc) {
-            dd($exc);
+
             DB::rollback();
             }
     }
