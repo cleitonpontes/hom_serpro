@@ -22,14 +22,16 @@
         justify-content: space-around;       
         font-family: Arial, sans-serif;
         margin-top: -1rem;
+        margin-left: 1rem;
     }
     .styledList li{
         list-style-type: '✔ ' !important;
-        margin: 0.7rem 1rem;
+        margin: 0.7rem 2rem;
     }
     @media only screen and (max-width: 1000px){
         .styledList{
             grid-template-columns: auto;
+            justify-content: start;
         }
     }
 </style>
@@ -122,7 +124,7 @@ Além disso é ainda possível:
     </li>
 </ul>
 
-<ul class="list" style="margin: -2rem 0 1rem 4rem;">
+<ul class="list" style="margin: -2rem 0 2rem 4rem;">
     <li>
         Gestão da Conta Vinculada
     </li>
@@ -154,34 +156,34 @@ Além disso é ainda possível:
 
 <ul class="styledList" style="grid-template-columns: auto; justify-content: start;">
     <li>
-        Gestão da Conta Vinculada
+        Integração com SEI (incorporação e geração de documentos)
     </li>
     <li>
-        Gestão por Fato Gerador
+        Aplicativo mobile
     </li>
     <li>
-        Cadastro de IMR (ANS)
+        Recebimento automático de faturas e interação direta com o fornecedor
     </li>
     <li>
-        Cadastrar Situação RH
+        Ordem de pagamento automatizada
     </li>
     <li>
-        Cadastrar Situação RH
+        Criação do Contrato diretamente no sistema, após o resultado da compra
     </li>
     <li>
-        Cadastrar Situação RH
+        Integração com CAGED (informações de terceirizados)
     </li>
     <li>
-        Cadastrar Situação RH
+        Integração com SICAF (pesquisa automatizada de certidões)
     </li>
     <li>
-        Cadastrar Situação RH
+        Integração com SIORG (validação da estrutura organizacional)
     </li>
     <li>
-        Cadastrar Situação RH
+        Integração com Spiunet (cadastro de edificações)
     </li>
     <li>
-        Cadastrar Situação RH
+        Integração com outros sistemas de compras e gestão contratual
     </li>
 </ul>
 

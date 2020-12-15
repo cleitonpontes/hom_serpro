@@ -64,9 +64,9 @@
     }
 </style>
 
-# Comprasnet Contratos - Gestão contratual e financeira
-
 <img src="./assets/apresentacao/logo.png" class="logo" alt="LOGO"/>
+
+# Comprasnet Contratos - Gestão contratual e financeira
 
 Com foco na busca pela eficiência da gestão e na melhoria do desempenho das instituições públicas, o Ministério da Economia, em parceria com a Advocacia-Geral da União, ofertam aos órgãos e entidades da administração pública direta, autárquica e fundacional, incluindo as empresas estatais, o **Comprasnet Contratos**. A ferramenta faz parte das medidas de eficiência organizacional para o aprimoramento da administração pública federal direta, autárquica e fundacional estabelecidas pelo Decreto nº 9.739, de 28 de março de 2019 (Art. 6º, IX).
 

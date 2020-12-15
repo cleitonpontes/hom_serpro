@@ -35,9 +35,9 @@
     }
 </style>
 
-# Orientações Iniciais
-
 <img src="../assets/orientacoes/image2.png" class="logo" alt="LOGO"/>
+
+# Orientações Iniciais
 
 O **Comprasnet Contratos** é uma ferramenta disponibilizada em parceria com a Advocacia-Geral da União. Para iniciar o uso da ferramenta, é necessário ler as orientações abaixo e observar os procedimentos de cadastro, observando a estratégia definida pela Secretaria de Gestão, órgão central do Sistema Integrado de Serviços Gerais (SISG).
 

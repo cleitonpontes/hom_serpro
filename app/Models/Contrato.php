@@ -56,7 +56,8 @@ class Contrato extends Model
         'situacao_siasg',
         'situacao',
         'unidades_requisitantes',
-        'unidadecompra_id'
+        'unidadecompra_id',
+        'numero_compra'
     ];
 
     /*

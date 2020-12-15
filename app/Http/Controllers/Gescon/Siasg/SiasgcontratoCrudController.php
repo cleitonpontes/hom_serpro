@@ -466,6 +466,7 @@ class SiasgcontratoCrudController extends CrudController
             if (isset($siasgcontrato->id)) {
                 AtualizaSiasgContratoJob::dispatch($siasgcontrato)->onQueue('siasgcontrato');
             }
+
         }
     }
 
@@ -498,8 +499,6 @@ class SiasgcontratoCrudController extends CrudController
             ];
 
             $siasgcontrato = $this->verificaSiasgContratosExiste($dados);
-
-            dd($siasgcontrato);
 
             ($unidade_id != 0 and !isset($siasgcontrato->id)) ? $this->insereContratoSiasg($dados) : '';
 
