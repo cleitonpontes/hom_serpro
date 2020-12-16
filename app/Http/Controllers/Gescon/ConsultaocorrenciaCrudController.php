@@ -126,7 +126,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratos.numero', 'ilike', "%" . $searchTerm . "%");
+                }
             ],
             [
                 'name' => 'getFornecedor',
@@ -153,7 +156,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratos.objeto', 'ilike', "%" . $searchTerm . "%");
+                }
             ],
             [
                 'name' => 'getVigenciaInicio',
@@ -190,7 +196,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratos.valor_global', 'ilike', "%" . $searchTerm . "%");
+                }
             ],
             [
                 'name' => 'contrato.num_parcelas',
@@ -200,7 +209,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratos.num_parcelas', 'ilike', "%" . $searchTerm . "%");
+                }
             ],
             [
                 'name' => 'getValorParcela',
@@ -213,7 +225,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => false,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratos.valor_parcela', 'ilike', "%" . $searchTerm . "%");
+                }
             ],
             [
                 'name' => 'getNumero',
@@ -225,7 +240,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratoocorrencias.numero', 'ilike', "%" . $searchTerm . "%");
+                }
             ],
             [
                 'name' => 'data',
@@ -264,7 +282,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratoocorrencias.ocorrencia', 'ilike', "%" . $searchTerm . "%");
+                }
             ],
             [
                 'name' => 'notificapreposto',
@@ -291,7 +312,10 @@ class ConsultaocorrenciaCrudController extends CrudController
                 'visibleInTable' => true,
                 'visibleInModal' => true,
                 'visibleInExport' => true,
-                'visibleInShow' => true
+                'visibleInShow' => true,
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratoocorrencias.emailpreposto', 'ilike', "%" . $searchTerm . "%");
+                }
             ],
             [
                 'name' => 'numeroocorrencia',
