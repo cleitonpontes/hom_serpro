@@ -381,7 +381,7 @@ class AditivoCrudController extends CrudController
             ],
             [
                 'name' => 'itens',
-                'type' => 'itens_contrato_aditivo_apostilamento_list',
+                'type' => 'itens_contrato_aditivo_list',
                 'tab' => 'Itens do contrato',
             ],
             [   // Date

@@ -180,11 +180,6 @@
                     atualizarValorParcela();
                 });
 
-                //quando altera o campo de quantidade de parcela atualizar o valor da parcela no caso de apostilamento
-                $('body').on('change','#novo_num_parcelas',function(){
-                    atualizarValorParcelaApostilamento();
-                });
-
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#periodicidade',function(event){
                     calculaTotalGlobal();
@@ -193,11 +188,6 @@
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#valor_global',function(event){
                     atualizarValorParcela();
-                });
-
-                //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-                $('body').on('change','#novo_valor_global',function(event){
-                    atualizarValorParcelaApostilamento();
                 });
 
                 function atualizarSelectItem(){
@@ -290,14 +280,6 @@
                 $('#valor_parcela').val(valor_global / numero_parcelas);
             }
 
-            //atualiza o valor da parcela do contrato para termo de apostilamento
-            function atualizarValorParcelaApostilamento()
-            {
-                valor_global = $('#novo_valor_global').val();
-                numero_parcelas = $('#novo_num_parcelas').val();
-                $('#novo_valor_parcela').val(valor_global / numero_parcelas);
-            }
-
             function atualizarValorTotal(tr){
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
@@ -354,14 +336,9 @@
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
-                // quanto se tratar de termo aditivo
                 $('#valor_global').val(valor_total);
 
-                // quanto se tratar de apostilamento
-                $('#novo_valor_global').val(valor_total);
-
                 atualizarValorParcela();
-                atualizarValorParcelaApostilamento();
             }
 
             function resetarSelect(){

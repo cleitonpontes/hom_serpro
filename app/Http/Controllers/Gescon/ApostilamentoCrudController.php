@@ -282,7 +282,7 @@ class ApostilamentoCrudController extends CrudController
             ],
             [
                 'name' => 'itens',
-                'type' => 'itens_contrato_aditivo_apostilamento_list',
+                'type' => 'itens_contrato_apostilamento_list',
                 'tab' => 'Itens do contrato',
             ],
             [   // Date
@@ -536,8 +536,6 @@ class ApostilamentoCrudController extends CrudController
             'novo_num_parcelas',
             'data_inicio_novo_valor',
         ]);
-
-
         return $content;
     }
 
@@ -545,22 +543,12 @@ class ApostilamentoCrudController extends CrudController
         DB::beginTransaction();
         try {
             foreach ($request['qtd_item'] as $key => $qtd) {
-
                 if($request['saldo_historico_item_id'][$key] !== 'undefined'){
-
-
                     $saldoHistoricoIten = Saldohistoricoitem::find($request['saldo_historico_item_id'][$key]);
-                    $saldoHistoricoIten->quantidade = (double)$qtd;
                     $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
                     $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
-                    $saldoHistoricoIten->data_inicio = $request['data_inicio'][$key];
-                    $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
-                    $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
                     $saldoHistoricoIten->save();
-                } else {
-                    $this->criarNovoContratoItem($key, $request);
                 }
-
             }
             DB::commit();
         } catch (Exception $exc) {
@@ -568,25 +556,4 @@ class ApostilamentoCrudController extends CrudController
             dd($exc);
         }
     }
-
-    private function criarNovoContratoItem($key, $request)
-    {
-        $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
-        $catmatseritem = Catmatseritem::find($catmatseritem_id);
-
-        $contratoItem = new Contratoitem();
-        $contratoItem->contrato_id = $request['contrato_id'];
-        $contratoItem->tipo_id = $request['tipo_item_id'][$key];
-        $contratoItem->grupo_id = $catmatseritem->grupo_id;
-        $contratoItem->catmatseritem_id = $catmatseritem->id;
-        $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
-        $contratoItem->quantidade = (double)$request['qtd_item'][$key];
-        $contratoItem->valorunitario = $request['vl_unit'][$key];
-        $contratoItem->valortotal = $request['vl_total'][$key];
-        $contratoItem->data_inicio = $request['data_inicio'][$key];
-        $contratoItem->periodicidade = $request['periodicidade'][$key];
-        $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
-        $contratoItem->save();
-    }
-
 }
