@@ -57,7 +57,7 @@ class SanitizacaoVinculoContratoCompras extends Command
         $this->comment('### Sanitização em andamento!');
 
         foreach ($dados as $dado) {
-            VinculaItemCompraItemContratoJob::dispatch($dado)->onQueue('sanitizacao_contrato_compra');
+            VinculaItemCompraItemContratoJob::dispatch($dado)->onQueue('siasgcompra');
         }
 
         $this->line('Jobs de Sanitização criados.');
