@@ -36,8 +36,8 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
      */
     public function __construct($dados)
     {
-        $this->contrato = Contrato::find($dados['id']);
         $this->dados = $dados;
+        $this->contrato = Contrato::find($dados['id']);
     }
 
     /**
@@ -100,7 +100,7 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
                     'contratoitem_id' => $contratoitem_id
                 ];
 
-                $vinculo = Comprasitemunidadecontratoitens::updateOrCreate(
+                Comprasitemunidadecontratoitens::updateOrCreate(
                     [
                         'compra_item_unidade_id' => $compra_item_unidade_id,
                         'contratoitem_id' => $contratoitem_id
@@ -110,6 +110,26 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
                         'contratoitem_id' => $contratoitem_id
                     ]
                 );
+
+                $compra_item_unidade = CompraItemUnidade::find($compra_item_unidade_id);
+
+                $sum = CompraItemUnidade::where('compra_item_unidade.id',$compra_item_unidade_id)
+                    ->join('compras_item_unidade_contratoitens',
+                        'compras_item_unidade_contratoitens.compra_item_unidade_id',
+                        '=',
+                        'compra_item_unidade.id'
+                    )
+                    ->join('contratoitens',
+                        'contratoitens.id',
+                        '='
+                        ,'compras_item_unidade_contratoitens.contratoitem_id'
+                    )
+                    ->select(DB::raw("sum(contratoitens.quantidade)"))
+                    ->groupBy('compra_item_unidade.id')->first();
+
+                $compra_item_unidade->quantidade_saldo_contratado = $sum->sum;
+
+                $compra_item_unidade->save();
 
             }
         }
