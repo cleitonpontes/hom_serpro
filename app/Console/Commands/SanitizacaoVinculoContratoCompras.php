@@ -52,7 +52,7 @@ class SanitizacaoVinculoContratoCompras extends Command
             ->join('unidades', 'contratos.unidadeorigem_id', '=', 'unidades.id')
             ->join(DB::raw('unidades unidadescompra') , 'contratos.unidadecompra_id', '=', 'unidadescompra.id')
             ->join('codigoitens', 'codigoitens.id', '=', 'contratos.modalidade_id')
-            ->get();
+            ->get()->toArray();
 
         $this->comment('### Sanitização em andamento!');
 
