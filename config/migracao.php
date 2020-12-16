@@ -8,7 +8,7 @@
 return [
     'migracao_contratos' => env('MIGRACAO_CONTRATOS', 'https://conta.agu.gov.br/migracao_contratos/xxxx'),
     'migracao_empenhos' => env('MIGRACAO_EMPENHOS', 'https://conta.agu.gov.br/migracao_empenhos/leitura.php'),
-    'api_sta' => env('API_STA_HOST','sta.agu.gov.br'),
+    'api_sta' => env('API_STA_HOST','https://sta.agu.gov.br'),
 
     // migração tse -> agu
     'tipo_contrato_padrao' => env('TIPO_CONTRATO_PADRAO',60),

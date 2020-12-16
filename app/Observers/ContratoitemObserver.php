@@ -30,7 +30,10 @@ class ContratoitemObserver
             'tiposaldo_id' => $codigoitem->id,
             'quantidade' => $contratoitem->quantidade,
             'valorunitario' => $contratoitem->valorunitario,
-            'valortotal' => $contratoitem->valortotal
+            'valortotal' => $contratoitem->valortotal,
+            'periodicidade' => $contratoitem->periodicidade,
+            'data_inicio' => $contratoitem->data_inicio,
+            'numero_item_compra' => $contratoitem->numero_item_compra,
         ]);
 
     }

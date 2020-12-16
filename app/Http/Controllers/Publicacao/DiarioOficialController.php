@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Soap;
+namespace App\Http\Controllers\Publicacao;
 
 use App\Models\Contratohistorico;
 use App\Models\ContratoPublicacoes;
@@ -58,9 +58,9 @@ class DiarioOficialController extends BaseSoapController
 
             $arrayPreview = $this->montaOficioPreview($contratoHistorico);
             $responsePreview = $this->soapClient->OficioPreview($arrayPreview);
-
+            dd($responsePreview);
             if(!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)){
-                $contratoPublicacoes->staus = 'Erro Preview!';
+                $contratoPublicacoes->status = 'Erro Preview!';
                 $contratoPublicacoes->situacao = 'Preview não enviado!';
                 $contratoPublicacoes->log = json_encode($responsePreview);
                 $contratoPublicacoes->save();
