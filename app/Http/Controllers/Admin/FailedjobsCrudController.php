@@ -37,11 +37,16 @@ class FailedjobsCrudController extends CrudController
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
+        $this->crud->allowAccess('show');
+
+
+        $this->crud->enableExportButtons();
+
 
 
         // colunas da listagem
-        // $colunas = $this->Colunas();
-        // $this->crud->addColumns($colunas);
+        $colunas = $this->Colunas();
+        $this->crud->addColumns($colunas);
 
 
 
@@ -53,7 +58,7 @@ class FailedjobsCrudController extends CrudController
         */
 
         // TODO: remove setFromDb() and manually define Fields and Columns
-        $this->crud->setFromDb();
+        // $this->crud->setFromDb();
 
         // add asterisk for fields that are required in FailedjobsRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -65,34 +70,16 @@ class FailedjobsCrudController extends CrudController
     {
 
         $colunas = [
-            [
-                'name'  => 'payload',
-                'label' => 'Payload',
-                'type'  => 'text',
-                'limit' => 505,
-                'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
-                'visibleInModal' => true, // would make the modal too big
-                'visibleInExport' => true, // not important enough
-                'visibleInShow' => true, // sure, why not
 
-
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('feriados.data', 'ilike', "%$searchTerm%");
-                // },
-            ],
             [
                 'name'  => 'connection',
                 'label' => 'Connection',
                 'type'  => 'text',
-                // 'limit' => 50,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-
-
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 //     $query->orWhere('feriados.data', 'ilike', "%$searchTerm%");
                 // },
@@ -101,82 +88,57 @@ class FailedjobsCrudController extends CrudController
                 'name'  => 'queue',
                 'label' => 'Queue',
                 'type'  => 'text',
-                // 'limit' => 50,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-
-
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 //     $query->orWhere('feriados.data', 'ilike', "%$searchTerm%");
                 // },
             ],
+
+            [
+                'name'  => 'payload',
+                'label' => 'Payload',
+                'type'  => 'text',
+                'orderable' => true,
+                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('feriados.data', 'ilike', "%$searchTerm%");
+                // },
+            ],
+
             [
                 'name'  => 'exception',
                 'label' => 'Exception',
                 'type'  => 'text',
-                // 'limit' => 50,
                 'orderable' => true,
-                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-
-
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('feriados.data', 'ilike', "%$searchTerm%");
+                //     $query->orWhere('exception', 'ilike', "%$searchTerm%");
                 // },
             ],
             [
                 'name'  => 'failed_at',
                 'label' => 'Failed at',
                 'type'  => 'text',
-                // 'limit' => 50,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-
-
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 //     $query->orWhere('feriados.data', 'ilike', "%$searchTerm%");
                 // },
             ],
-        //     [
-        //         'name'  => 'descricao_feriado',
-        //         'label' => 'Descrição',
-        //         'type'  => 'text',
-        //         'orderable' => true,
-        //         'visibleInTable' => true,
-        //         'visibleInModal' => true,
-        //         'visibleInExport' => true,
-        //         'visibleInShow' => false,
-        //         'searchLogic' => function (Builder $query, $column, $searchTerm) {
-        //             $query->orWhere('feriados.descricao', 'ilike', "%$searchTerm%");
-        //         },
-        //         'orderLogic' => function ($query, $column, $columnDirection) {
-        //             return $query->orderBy('feriados.descricao', $columnDirection);
-        //         }
-        //     ],
-        //     [
-        //         'name'  => 'tipo_id',
-        //         'label' => 'Tipo Feriado',
-        //         'type'  => 'text',
-        //         'orderable' => true,
-        //         'visibleInTable' => true,
-        //         'visibleInModal' => true,
-        //         'visibleInExport' => true,
-        //         'visibleInShow' => true,
-        //         'searchLogic' => function (Builder $query, $column, $searchTerm) {
-        //             $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
-        //         },
-        //         'orderLogic' => function ($query, $column, $columnDirection) {
-        //             return $query->orderBy('codigoitens.descricao', $columnDirection);
-        //         }
-        //     ],
+
         ];
         return $colunas;
     }
