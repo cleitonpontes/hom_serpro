@@ -40,7 +40,7 @@ class SanitizacaoVinculoContratoCompras extends Command
      */
     public function handle()
     {
-        $results = Contrato::select(
+        $dados = Contrato::select(
             'contratos.id',
             DB::raw("replace(licitacao_numero,'/','') as \"numeroAno\""),
             'codigoitens.descres as modalidade',
@@ -56,9 +56,10 @@ class SanitizacaoVinculoContratoCompras extends Command
 
         $this->comment('### Sanitização em andamento!');
 
-        foreach ($results as $result) {
-            VinculaItemCompraItemContratoJob::dispatch($result->toArray())->onQueue('sanitizacao_contrato_compra');
+        foreach ($dados as $dado) {
+            VinculaItemCompraItemContratoJob::dispatch($dado)->onQueue('sanitizacao_contrato_compra');
         }
+
         $this->line('Jobs de Sanitização criados.');
 
     }
