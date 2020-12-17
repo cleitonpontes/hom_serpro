@@ -25,6 +25,7 @@
                         <th class="text-center">Valor Total</th>
                         <th class="text-center">Periodicidade</th>
                         <th class="text-center">Data Início</th>
+                        <th class="text-center">Ações</th>
                     </tr>
                     </thead>
                     <tbody id="table-itens">
@@ -190,6 +191,10 @@
                     atualizarValorParcela();
                 });
 
+                $('body').on('click','#remove_item',function(event){
+                    removeLinha(this);
+                });
+
                 function atualizarSelectItem(){
                     $('#item').select2({
                         ajax: {
@@ -315,8 +320,10 @@
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
-                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
-
+                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
+                cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
+                    '<i class="fa fa-trash"></i>'+
+                    '</button>';
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
@@ -392,6 +399,17 @@
                         alert(error);
                     })
                     .finally()
+            }
+
+            function removeLinha(elemento){
+                var tr = $(elemento).closest('tr');
+                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#id').val();
+                if (historicoSaldoItemId === 'undefined'){
+                    tr.remove();
+                    calculaTotalGlobal()
+                } else {
+                    alert('Esse item não pode ser exluído. Só é permitido alterar.')
+                }
             }
         </script>
     @endpush
