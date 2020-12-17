@@ -16,6 +16,7 @@ use FormBuilder;
 use App\Http\Requests\AditivoRequest as StoreRequest;
 use App\Http\Requests\AditivoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use http\Env\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -558,10 +559,6 @@ class AditivoCrudController extends CrudController
             dd($exc);
         }
 
-//        if (!empty($request->get('qtd_item'))) {
-//            $this->alterarItensContrato($request->all(), $this->crud->entry);
-//        }
-
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
@@ -602,7 +599,7 @@ class AditivoCrudController extends CrudController
 
             // altera os itens do contrato
             if (!empty($request->get('qtd_item'))) {
-                $this->alterarItensContrato($request->all());
+                $this->alterarItensContrato($request);
             }
             DB::commit();
         } catch (Exception $exc) {
@@ -650,8 +647,9 @@ class AditivoCrudController extends CrudController
         return $content;
     }
 
-    private function alterarItensContrato($request)
+    private function alterarItensContrato(UpdateRequest $request)
     {
+        $request = $request->all();
         foreach ($request['qtd_item'] as $key => $qtd) {
 
             if ($request['id'][$key] !== 'undefined') {
@@ -668,7 +666,7 @@ class AditivoCrudController extends CrudController
         }
     }
 
-    private function criarNovoContratoItem($key, $request)
+    private function criarNovoContratoItem($key, $request, $contratoHistoricoId = null )
     {
         $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
         $catmatseritem = Catmatseritem::find($catmatseritem_id);
@@ -685,8 +683,8 @@ class AditivoCrudController extends CrudController
         $contratoItem->data_inicio = $request['data_inicio'][$key];
         $contratoItem->periodicidade = $request['periodicidade'][$key];
         $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
+        $contratoItem->contratohistorico_id = $contratoHistoricoId;
         $contratoItem->save();
-//        dd($contratoItem);
     }
 
     private function criarSaldoHistoricoItens(StoreRequest $request, Contratohistorico $contratoHistorico)
@@ -712,7 +710,7 @@ class AditivoCrudController extends CrudController
                 $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
                 $saldoHistoricoIten->save();
             } else {
-                $this->criarNovoContratoItem($key, $request->all());
+                $this->criarNovoContratoItem($key, $request->all(), $contratoHistorico->id);
             }
         }
     }

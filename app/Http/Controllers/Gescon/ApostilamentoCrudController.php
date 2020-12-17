@@ -27,6 +27,7 @@ class ApostilamentoCrudController extends CrudController
     public function setup()
     {
         $contrato_id = \Route::current()->parameter('contrato_id');
+        $apostilamento_id = \Route::current()->parameter('apostilamento');
 
         $contrato = Contrato::where('id', '=', $contrato_id)
             ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
@@ -96,7 +97,7 @@ class ApostilamentoCrudController extends CrudController
             ->toArray();
 
 
-        $campos = $this->Campos($fornecedores, $tipos, $contrato_id, $unidade);
+        $campos = $this->Campos($fornecedores, $tipos, $contrato_id, $unidade, $apostilamento_id);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in ApostilamentoRequest
@@ -221,7 +222,7 @@ class ApostilamentoCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $tipos, $contrato_id, $unidade)
+    public function Campos($fornecedores, $tipos, $contrato_id, $unidade, $apostilamento_id)
     {
         $contrato = Contrato::find($contrato_id);
 
@@ -230,6 +231,11 @@ class ApostilamentoCrudController extends CrudController
                 'name' => 'receita_despesa',
                 'type' => 'hidden',
                 'default' => $contrato->receita_despesa,
+            ],
+            [   // Hidden
+                'name' => 'apostilamento_id',
+                'type' => 'hidden',
+                'default' => $apostilamento_id,
             ],
             [   // Hidden
                 'name' => 'contrato_id',
@@ -448,12 +454,24 @@ class ApostilamentoCrudController extends CrudController
 
 
         $request->request->set('retroativo_valor', $retroativo_valor);
+        DB::beginTransaction();
+        try {
+            // your additional operations before save here
+            $redirect_location = parent::storeCrud($request);
+            // your additional operations after save here
+            // use $this->data['entry'] or $this->crud->entry
 
-        $redirect_location = parent::storeCrud($request);
-        // your additional operations after save here
-        if(!empty($request->get('qtd_item'))) {
-            $this->alterarItensContrato($request->all(),$this->crud->entry);
+            // altera os itens do contrato
+            if(!empty($request->get('qtd_item'))) {
+                $this->criarSaldoHistoricoItens($request->all(),$this->crud->entry);
+            }
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
         }
+        // your additional operations after save here
+
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
@@ -545,8 +563,8 @@ class ApostilamentoCrudController extends CrudController
         DB::beginTransaction();
         try {
             foreach ($request['qtd_item'] as $key => $qtd) {
-                if($request['saldo_historico_item_id'][$key] !== 'undefined'){
-                    $saldoHistoricoIten = Saldohistoricoitem::find($request['saldo_historico_item_id'][$key]);
+                if($request['item_id'][$key] !== 'undefined'){
+                    $saldoHistoricoIten = Saldohistoricoitem::find($request['item_id'][$key]);
                     $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
                     $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
                     $saldoHistoricoIten->save();
@@ -556,6 +574,30 @@ class ApostilamentoCrudController extends CrudController
         } catch (Exception $exc) {
             DB::rollback();
             dd($exc);
+        }
+    }
+
+    private function criarSaldoHistoricoItens($request, Contratohistorico $contratoHistorico)
+    {
+        $codigoitem = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Tipo Saldo Itens');
+        })
+            ->where('descricao', 'Saldo Inicial Contrato Historico')
+            ->first();
+
+        foreach ($request['qtd_item'] as $key => $qtd) {
+            $saldoHistoricoIten = new Saldohistoricoitem();
+            $saldoHistoricoIten->saldoable_type = 'App\Models\Contratohistorico';
+            $saldoHistoricoIten->saldoable_id = $contratoHistorico->id;
+            $saldoHistoricoIten->contratoitem_id = $request['item_id'][$key];
+            $saldoHistoricoIten->tiposaldo_id = $codigoitem->id;
+            $saldoHistoricoIten->quantidade = (double)$qtd;
+            $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
+            $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
+            $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
+            $saldoHistoricoIten->data_inicio = $request['data_inicio'][$key];
+            $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
+            $saldoHistoricoIten->save();
         }
     }
 }

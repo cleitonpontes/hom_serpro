@@ -65,7 +65,7 @@
                 });
 
                 $('body').on('click','#itensdocontrato', function(event){
-                    buscarItenContrato();
+                    buscarItens();
                 });
 
                 //quando altera o campo de valor unitario do item re-calcula os valores
@@ -83,6 +83,14 @@
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#novo_valor_global',function(event){
                     atualizarValorParcelaApostilamento();
+                });
+
+                $('body').submit(function(){
+                    $('input[name="qtd_item[]"]').prop('disabled', false);
+                    $('input[name="vl_unit[]"]').prop('disabled', false);
+                    $('input[name="vl_total[]"]').prop('disabled', false);
+                    $('input[name="periodicidade[]"]').prop('disabled', false);
+                    $('input[name="data_inicio[]"]').prop('disabled', false);
                 });
             });
 
@@ -108,7 +116,7 @@
                 cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricao_complementar+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" value="'+item.quantidade+'" disabled></td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd_item" value="'+item.quantidade+'" disabled></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"disabled></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'" disabled></td>';
@@ -118,7 +126,7 @@
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="saldo_historico_item_id[]" id="saldo_historico_item_id" value="'+item.saldo_historico_item_id+'">';
+                cols += '<input type="hidden" name="item_id[]" id="item_id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
@@ -139,13 +147,32 @@
 
                 atualizarValorParcelaApostilamento();
             }
-            function buscarItenContrato()
-            {
-                var contrato_id = $("[name=contrato_id]").val();
-                var url = "{{route('saldo.historico.itens',':contrato_id')}}";
-                url = url.replace(':contrato_id', contrato_id);
 
-                axios.request(url)
+            function buscarItens()
+            {
+                if($("[name=apostilamento_id]").val()){
+                    buscarSaldoHistoricoItens();
+                } else{
+                    buscarContratoItens();
+                }
+            }
+
+            function buscarSaldoHistoricoItens(){
+                var apostilamento_id = $("[name=apostilamento_id]").val();
+                var url = "{{route('saldo.historico.itens',':id')}}";
+                url = url.replace(':id', apostilamento_id);
+                carregarItens(url);
+            }
+
+            function buscarContratoItens(){
+                var contrato_id = $("[name=contrato_id]").val();
+                var url = "{{route('contrato.item',':contrato_id')}}";
+                url = url.replace(':contrato_id', contrato_id);
+                carregarItens(url);
+            }
+
+            function carregarItens(url){
+                axios.get(url)
                     .then(response => {
                         var itens = response.data;
                         var qtd_itens = itens.length;

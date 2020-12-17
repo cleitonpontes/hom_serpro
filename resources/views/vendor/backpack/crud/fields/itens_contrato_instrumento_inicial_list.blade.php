@@ -18,7 +18,6 @@
                         <th class="text-center">Valor Total</th>
                         <th class="text-center">Periodicidade</th>
                         <th class="text-center">Data Início</th>
-                        <th class="text-center">Ações</th>
                     </tr>
                     </thead>
                     <tbody id="table-itens">
@@ -159,13 +158,12 @@
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
-                cols += '<td>';
 
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="saldo_historico_item_id[]" id="saldo_historico_item_id" value="'+item.saldo_historico_item_id+'">';
+                cols += '<input type="hidden" name="saldo_historico_id[]" id="saldo_historico_id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
@@ -186,9 +184,9 @@
 
             function buscarItenContrato()
             {
-                var contrato_id = $("[name=contrato_id]").val();
-                var url = "{{route('saldo.historico.itens',':contrato_id')}}";
-                url = url.replace(':contrato_id', contrato_id);
+                var instrumentoinicial_id = $("[name=instrumentoinicial_id]").val();
+                var url = "{{route('saldo.historico.itens',':id')}}";
+                url = url.replace(':id', instrumentoinicial_id);
 
                 axios.request(url)
                     .then(response => {
