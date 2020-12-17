@@ -795,7 +795,7 @@ class EmpenhoCrudController extends CrudController
 
         foreach ($unidades as $unidade) {
             for ($i = $ano_antigo; $i <= $ano_corrente; $i++) {
-                MigracaoCargaEmpenhoJob::dispatch($unidade->id, $i)->onQueue('migracaocargaempenho');
+                MigracaoCargaEmpenhoJob::dispatch($unidade->id, $i)->onQueue('migracaoempenho');
             }
         }
 
