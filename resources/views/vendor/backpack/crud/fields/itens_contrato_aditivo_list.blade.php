@@ -134,7 +134,7 @@
                 });
 
                 $('body').on('click','#itensdocontrato', function(event){
-                    buscarItenContrato();
+                    buscarItens();
                 });
 
                 $('body').on('change','#tipo_item', function(event){
@@ -321,7 +321,7 @@
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="saldo_historico_item_id[]" id="saldo_historico_item_id" value="'+item.saldo_historico_item_id+'">';
+                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
@@ -353,13 +353,31 @@
                 $("#item").append(newRow);
             }
 
-            function buscarItenContrato()
+            function buscarItens()
             {
-                var contrato_id = $("[name=contrato_id]").val();
-                var url = "{{route('saldo.historico.item.contrato',':contrato_id')}}";
-                url = url.replace(':contrato_id', contrato_id);
+                if($("[name=aditivo_id]").val()){
+                    buscarSaldoHistoricoItens();
+                } else{
+                    buscarContratoItens();
+                }
+            }
 
-                axios.request(url)
+            function buscarSaldoHistoricoItens(){
+                var aditivo_id = $("[name=aditivo_id]").val();
+                var url = "{{route('saldo.historico.itens',':id')}}";
+                url = url.replace(':id', aditivo_id);
+                carregarItens(url);
+            }
+
+            function buscarContratoItens(){
+                var contrato_id = $("[name=contrato_id]").val();
+                var url = "{{route('contrato.item',':contrato_id')}}";
+                url = url.replace(':contrato_id', contrato_id);
+                carregarItens(url);
+            }
+
+            function carregarItens(url){
+                axios.get(url)
                     .then(response => {
                         var itens = response.data;
                         var qtd_itens = itens.length;

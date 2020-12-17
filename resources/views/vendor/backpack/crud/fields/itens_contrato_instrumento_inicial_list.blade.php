@@ -5,12 +5,6 @@
     <div class="card">
         <div class="card-body">
             <div>
-                <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Inserir Item <i class="fa fa-plus"></i>
-                            </button>
-                </span>
                 <br>
                 <br>
                 <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
@@ -34,68 +28,6 @@
             </div>
             <div id="itens-para-excluir">
 
-            </div>
-        </div>
-    </div>
-    <!-- Editable table -->
-
-    <!-- Janela modal para inserção de registros -->
-    <div id="inserir_item" tabindex="-1" class="modal fade"
-         role="dialog"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">
-                        Novo Item
-                    </h3>
-                    <button type="button" class="close" id="fechar_modal" data-dismiss="modal" aria-label="Fechar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="textoModal">
-                    <div class="form-group">
-                        <label for="qtd_item" class="control-label">Tipo Item</label>
-                        <select class="form-control" style="width:100%;" id="tipo_item">
-                            <option value="">Selecione</option>
-                            <option value="149">Material</option>
-                            <option value="150">Serviço</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="qtd_item" class="control-label">Item</label>
-                        <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="qtd_item" class="control-label">Número</label>
-                        <input class="form-control" id="numero_item" maxlength="5" name="numero_item" type="number">
-                    </div>
-                    <div class="form-group">
-                        <label for="qtd_item" class="control-label">Quantidade</label>
-                        <input class="form-control" id="quantidade_item" maxlength="10" name="quantidade_item" type="number">
-                    </div>
-                    <div class="form-group">
-                        <label for="vl_unit" class="control-label">Valor Unitário</label>
-                        <input class="form-control" id="valor_unit" name="valor_unit" type="number">
-                    </div>
-                    <div class="form-group">
-                        <label for="vl_total" class="control-label">Valor Total</label>
-                        <input class="form-control" id="valor_total" name="valor_total" type="number">
-                    </div>
-                    <div class="form-group">
-                        <label for="periodicidade" class="control-label">Periodicidade</label>
-                        <input class="form-control" id="periodicidade_item" maxlength="10" name="periodicidade_item" type="number">
-                    </div>
-                    <div class="form-group">
-                        <label for="data_inicio" class="control-label">Data Início</label>
-                        <input class="form-control" id="dt_inicio" name="dt_inicio" type="date">
-                    </div>
-                    <button class="btn btn-danger" type="submit" data-dismiss="modal"><i class="fa fa-reply"></i> Cancelar</button>
-                    <button class="btn btn-success" type="button" data-dismiss="modal" id="btn_inserir_item"><i class="fa fa-save"></i> Incluir</button>
-                </div>
-                <div class="modal-footer">
-                </div>
             </div>
         </div>
     </div>
@@ -142,14 +74,6 @@
                     atualizarSelectItem();
                 });
 
-                $('body').on('click','#btn_inserir_item', function(event){
-                    if(!$('#item').val()){
-                        alert('Não foi encontrado nenhum item para incluir à lista.');
-                    }else{
-                        buscarItem($('#item').val());
-                    }
-                });
-
                 $('body').on('change','.itens', function(event){
                     calculaTotalGlobal();
                 });
@@ -187,91 +111,7 @@
                 $('body').on('change','#valor_global',function(event){
                     atualizarValorParcela();
                 });
-
-                // remover item do contrato
-                $('body').on('click','#remove_item', function(event){
-                    removeLinha(this);
-                });
-
-                function atualizarSelectItem(){
-                    $('#item').select2({
-                        ajax: {
-                            url: urlItens(),
-                            dataType: 'json',
-                            delay: 250,
-                            processResults: function (data) {
-                                return {
-                                    results:  $.map(data.data, function (item) {
-                                        return {
-                                            text: item.descricao,
-                                            id: item.id
-                                        }
-                                    })
-                                };
-                            },
-                            cache: true
-                        }
-                    });
-                    $('.selection .select2-selection').css("height","34px").css('border-color','#d2d6de');
-                }
-
-                function urlItens(){
-                    var url = '{{route('busca.catmatseritens.portipo',':tipo_id')}}';
-                    url = url.replace(':tipo_id', $('#tipo_item').val());
-                    return url;
-                }
             });
-
-            function addOption(valor) {
-                var option = new Option(valor, valor);
-                var select = document.getElementById("tipo_item");
-                select.add(option);
-            }
-
-            function buscarItem(id)
-            {
-                var url = "{{route('busca.catmatseritens.id',':id')}}";
-                url = url.replace(':id', id);
-
-                axios.request(url)
-                    .then(response => {
-                        prepararItemParaIncluirGrid(response.data);
-                    })
-                    .catch(error => {
-                        alert(error);
-                    })
-                    .finally()
-            }
-
-            function prepararItemParaIncluirGrid(item)
-            {
-                item = {
-                    'descricao' : $('#tipo_item :selected').text(),
-                    'descricao_complementar': item.descricao,
-                    'numero':$('#numero_item').val(),
-                    'quantidade' : $('#quantidade_item').val(),
-                    'valorunitario': $('#valor_unit').val(),
-                    'valortotal': $('#valor_total').val(),
-                    'periodicidade': $('#periodicidade_item').val(),
-                    'data_inicio': $('#dt_inicio').val(),
-                    'catmatseritem_id' : item.id,
-                    'tipo_item_id' : $('#tipo_item').val(),
-                }
-
-                adicionaLinhaItem(item);
-                resetarCamposFormulario();
-            }
-
-            function resetarCamposFormulario(){
-                $('#tipo_item').val('');
-                $('#item').val('').change();
-                $('#numero_item').val('');
-                $('#quantidade_item').val('');
-                $('#valor_unit').val('');
-                $('#valor_total').val('');
-                $('#periodicidade_item').val('');
-                $('#dt_inicio').val('');
-            }
 
             //atualiza o valor da parcela do contrato
             function atualizarValorParcela()
@@ -309,9 +149,6 @@
 
             function adicionaLinhaItem(item){
 
-                // var compra_itens_id = $("[name='compra_itens_id[]']");
-                // compra_itens_id.push(item.id);
-
                 var newRow = $("<tr>");
                 var cols = "";
                 cols += '<td>'+item.descricao+'</td>';
@@ -323,9 +160,7 @@
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
                 cols += '<td>';
-                cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
-                    '<i class="fa fa-trash"></i>'+
-                    '</button>';
+
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
@@ -345,21 +180,8 @@
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
-                console.log(valor_total);
                 $('#valor_global').val(valor_total);
                 atualizarValorParcela();
-            }
-
-            function resetarSelect(){
-                $("#item option").remove();
-                var newRow = '<option value="">Selecione...</option>';
-                $("#item").append(newRow);
-            }
-
-            function carregarOptionsSelect(item)
-            {
-                var newRow = '<option value="'+ item.id+'">'+item.descricao+'</option>';
-                $("#item").append(newRow);
             }
 
             function buscarItenContrato()
@@ -384,27 +206,6 @@
                     })
                     .finally()
             }
-
-            function removeLinha(elemento){
-                var tr = $(elemento).closest('tr');
-                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#saldo_historico_item_id').val();
-                if (historicoSaldoItemId === 'undefined'){
-                    tr.remove();
-                    calculaTotalGlobal()
-                } else {
-                    removerSaldoHistoricoItem(historicoSaldoItemId);
-                    tr.remove();
-                    calculaTotalGlobal()
-                }
-            }
-
-            function removerSaldoHistoricoItem(historicoSaldoItemId){
-                var newItem = $("#itens-para-excluir");
-                var cols = "";
-                cols += '<input type="hidden" name="excluir_item[]" value="'+historicoSaldoItemId+'">';
-                newItem.append(cols);
-            }
-
         </script>
     @endpush
 @endif

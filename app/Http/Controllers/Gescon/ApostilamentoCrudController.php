@@ -446,14 +446,14 @@ class ApostilamentoCrudController extends CrudController
 
         $request->request->set('tipo_id',  $tipo_id->id);
 
-        if(!empty($request->get('qtd_item'))) {
-            $this->alterarItensContrato($request->all(),$this->crud->entry);
-        }
 
         $request->request->set('retroativo_valor', $retroativo_valor);
 
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
+        if(!empty($request->get('qtd_item'))) {
+            $this->alterarItensContrato($request->all(),$this->crud->entry);
+        }
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
@@ -490,9 +490,6 @@ class ApostilamentoCrudController extends CrudController
 
         $request->request->set('tipo_id',  $tipo_id->id);
 
-        if(!empty($request->get('qtd_item'))) {
-            $this->alterarItensContrato($request->all(),$this->crud->entry);
-        }
 
         $request->request->set('retroativo_valor', $retroativo_valor);
 
@@ -500,6 +497,11 @@ class ApostilamentoCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
+
+        if(!empty($request->get('qtd_item'))) {
+            $this->alterarItensContrato($request->all(),$this->crud->entry);
+        }
+
         return $redirect_location;
     }
 
