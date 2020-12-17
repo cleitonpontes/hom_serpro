@@ -50,7 +50,8 @@ class MinutaEmpenho extends Model
         'tipo_empenho_id',
         'tipo_minuta_empenho',
         'unidade_id',
-        'valor_total'
+        'valor_total',
+        'empenhocontrato'
     ];
 
     /*

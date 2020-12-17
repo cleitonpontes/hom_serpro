@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Traits\Formatador;
 use App\Models\Orgao;
+use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Expr\BinaryOp\Concat;
 use function foo\func;
 use App\Models\Unidade;
 use App\Models\Contrato;
@@ -34,14 +36,28 @@ class ContratoController extends Controller
         $search_term = $request->input('q');
 
         if ($search_term) {
-            $results = Contrato::where(
-                [
-                    ['unidade_id', '=', session()->get('user_ug_id')],
-                    ['numero', 'LIKE', "%$search_term%"]
-                ]
-            )->paginate(20);
+
+            $results = Contrato::select(DB::raw("CONCAT(contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS numero"), 'contratos.id')
+                ->where(
+                    [
+                        ['unidade_id', '=', session()->get('user_ug_id')],
+                        ['situacao', '=', true],
+                        ['numero', 'LIKE', "%$search_term%"]
+                    ]
+                )
+                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id' )
+                ->orderby('fornecedores.nome', 'asc')
+                ->paginate(20);
+
+             return $results;
         }
-        return $results;
+
+
+
+
+//
+
+
     }
 
         /**

@@ -6,6 +6,7 @@
     //dd(session('empenho_etapa'));
     //dd(session()->all());
         // Busca url da rota
+
         $request = Request();
         $url = $request->path();
 
@@ -20,7 +21,7 @@
 
         // Itens do cabeçalho
 
-        $passos[1] = 'Compra';
+        $passos[1] = 'Contrato/Compra';
         $passos[2] = 'Fornecedor';
         $passos[3] = 'Itens';
         $passos[4] = 'Crédito disponível';

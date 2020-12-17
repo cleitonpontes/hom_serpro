@@ -249,16 +249,18 @@
                             <i class="fa fa-save"></i> Emitir Empenho SIAFI
                         </button>
                     </div>
-                    <div class="col-md-3">
-                        <button type="button" class="btn btn-primary"
-                                @if (!(($entry->situacao_descricao == 'EM PROCESSAMENTO'|| $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
-                                    disabled
-                                @endif
-                                id="empenhar_outro_fornecedor"
-                        >
-                            <i class="fa fa-plus"></i> Empenhar outro Fornecedor
-                        </button>
-                    </div>
+                    @if ($entry->empenhocontrato == false)
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary"
+                                    @if (!(($entry->situacao_descricao == 'EM PROCESSAMENTO'|| $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
+                                        disabled
+                                    @endif
+                                    id="empenhar_outro_fornecedor"
+                            >
+                                <i class="fa fa-plus"></i> Empenhar outro Fornecedor
+                            </button>
+                        </div>
+                    @endif
                     <div class="col-md-3" align="right">
                         <button type="button" class="btn btn-primary" id="finalizar"
                             {{($entry->situacao_descricao !== 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
@@ -266,102 +268,102 @@
                         </button>
                     </div>
 
-                </div>
-            </div>
-
         </div>
+        </div>
+
     </div>
+</div>
 @endsection
 
 
 @section('after_styles')
-    <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/crud.css') }}">
-    <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/show.css') }}">
+<link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/crud.css') }}">
+<link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/show.css') }}">
 @endsection
 
 @section('after_scripts')
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-    <script src="{{ asset('vendor/backpack/crud/js/crud.js') }}"></script>
-    <script src="{{ asset('vendor/backpack/crud/js/show.js') }}"></script>
-    <script type="text/javascript">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="{{ asset('vendor/backpack/crud/js/crud.js') }}"></script>
+<script src="{{ asset('vendor/backpack/crud/js/show.js') }}"></script>
+<script type="text/javascript">
 
-        $(document).ready(function () {
+$(document).ready(function () {
 
-            $('body').on('click', '#emitir_empenho_siafi', function (event) {
-                salvarTabelasSiafi(event);
-                $('#emitir_empenho_siafi').attr('disabled', true);
-                $('#voltar').attr('disabled', true);
-                $('#empenhar_outro_fornecedor').removeAttr('disabled');
-                $('#finalizar').removeAttr('disabled');
-            });
+$('body').on('click', '#emitir_empenho_siafi', function (event) {
+salvarTabelasSiafi(event);
+$('#emitir_empenho_siafi').attr('disabled', true);
+$('#voltar').attr('disabled', true);
+$('#empenhar_outro_fornecedor').removeAttr('disabled');
+$('#finalizar').removeAttr('disabled');
+});
 
-            $('body').on('click', '#empenhar_outro_fornecedor', function (event) {
-                empenharOutroFornecedor(event);
-                $('#empenhar_outro_fornecedor').attr('disabled', true);
-                $('#emitir_empenho_siafi').removeAttr('disabled');
-                $('#finalizar').attr('disabled', true);
-            });
+$('body').on('click', '#empenhar_outro_fornecedor', function (event) {
+empenharOutroFornecedor(event);
+$('#empenhar_outro_fornecedor').attr('disabled', true);
+$('#emitir_empenho_siafi').removeAttr('disabled');
+$('#finalizar').attr('disabled', true);
+});
 
-            $('body').on('click', '#finalizar', function (event) {
-                window.location.href = "{{route('empenho.crud./minuta.index')}}";
-            });
+$('body').on('click', '#finalizar', function (event) {
+window.location.href = "{{route('empenho.crud./minuta.index')}}";
+});
 
-            $('body').on('click', '#voltar', function (event) {
-                window.location.href = "{{route('empenho.crud.passivo-anterior.edit', ['minuta_id' => session('conta_id')])}}";
-            });
-        });
+$('body').on('click', '#voltar', function (event) {
+window.location.href = "{{route('empenho.crud.passivo-anterior.edit', ['minuta_id' => session('conta_id')])}}";
+});
+});
 
-        function salvarTabelasSiafi(event) {
+function salvarTabelasSiafi(event) {
 
-            var minuta_id = $('#minuta_id').val();
+var minuta_id = $('#minuta_id').val();
 
-            var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
-            url = url.replace(':minuta_id', minuta_id);
+var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
+url = url.replace(':minuta_id', minuta_id);
 
-            axios.request(url)
-                .then(response => {
-                    dados = response.data
-                    if (dados.resultado == true) {
-                        Swal.fire(
-                            'Sucesso!',
-                            'Empenho salvo com sucesso!',
-                            'success'
-                        )
-                    } else {
-                        Swal.fire(
-                            'Alerta!',
-                            'Houve um problema ao tentar salvar os dados.',
-                            'warning'
-                        )
-                    }
-                })
-                .catch(error => {
-                    alert(error);
-                })
-                .finally()
-            event.preventDefault()
-        }
+axios.request(url)
+.then(response => {
+    dados = response.data
+    if (dados.resultado == true) {
+        Swal.fire(
+            'Sucesso!',
+            'Empenho salvo com sucesso!',
+            'success'
+        )
+    } else {
+        Swal.fire(
+            'Alerta!',
+            'Houve um problema ao tentar salvar os dados.',
+            'warning'
+        )
+    }
+})
+.catch(error => {
+    alert(error);
+})
+.finally()
+event.preventDefault()
+}
 
-        function empenharOutroFornecedor(event) {
+function empenharOutroFornecedor(event) {
 
-            var minuta_id = $('#minuta_id').val();
-            var url = "{{route('novo.empenho.compra',':minuta_id')}}";
-            url = url.replace(':minuta_id', minuta_id);
-            axios.request(url)
-                .then(response => {
-                    var nova_minuta_id = response.data
-                    var url = "{{route('empenho.minuta.etapa.fornecedor',':minuta_id')}}";
-                    url = url.replace(':minuta_id', nova_minuta_id);
-                    console.log(url);
-                    window.location.href = url;
-                })
-                .catch(error => {
-                    alert(error);
-                })
-                .finally()
-            event.preventDefault()
-        }
+var minuta_id = $('#minuta_id').val();
+var url = "{{route('novo.empenho.compra',':minuta_id')}}";
+url = url.replace(':minuta_id', minuta_id);
+axios.request(url)
+.then(response => {
+    var nova_minuta_id = response.data
+    var url = "{{route('empenho.minuta.etapa.fornecedor',':minuta_id')}}";
+    url = url.replace(':minuta_id', nova_minuta_id);
+    console.log(url);
+    window.location.href = url;
+})
+.catch(error => {
+    alert(error);
+})
+.finally()
+event.preventDefault()
+}
 
-    </script>
+</script>
 @endsection
