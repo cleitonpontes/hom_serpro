@@ -278,6 +278,12 @@ class AditivoCrudController extends CrudController
     {
         $contrato = Contrato::find($contrato_id);
 
+        $options = Codigoitem::select('codigoitens.descricao')
+            ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
+            ->where('codigos.descricao', '=', 'Tipo Qualificacao Contrato')->get()->toArray();
+
+        $options = json_encode($options);
+
         $campos = [
             [   // Hidden
                 'name' => 'receita_despesa',
@@ -289,6 +295,12 @@ class AditivoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato->id,
             ],
+            [   // Hidden
+                'name' => 'options_qualificacao',
+                'type' => 'hidden',
+                'default' => $options,
+            ],
+
             [       // Select2Multiple = n-n relationship (with pivot table)
                 'label' => 'Qualificação',
                 'name' => 'qualificacoes',
@@ -314,8 +326,10 @@ class AditivoCrudController extends CrudController
                 'label' => 'Objeto do TA',
                 'type' => 'textarea',
                 'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
+                    'onkeyup' => "maiuscula(this)",
+                    'readonly' => 'readonly'
                 ],
+                'default' => $contrato->objeto,
                 'tab' => 'Dados Gerais',
             ],
             [ // select_from_array
@@ -324,9 +338,9 @@ class AditivoCrudController extends CrudController
                 'type' => 'select_from_array',
                 'options' => $unidade,
                 'allows_null' => false,
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
+                'attributes' => [
+                    'readonly' => 'readonly'
+                ],
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
@@ -339,6 +353,10 @@ class AditivoCrudController extends CrudController
                 'entity' => 'fornecedor', // the method that defines the relationship in your Model
                 'attribute' => "cpf_cnpj_idgener", // foreign key attribute that is shown to user
                 'attribute2' => "nome", // foreign key attribute that is shown to user
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
+                'default' => $contrato->fornecedor_id,
                 'process_results_template' => 'gescon.process_results_fornecedor',
                 'model' => "App\Models\Fornecedor", // foreign key model
                 'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
@@ -346,17 +364,6 @@ class AditivoCrudController extends CrudController
                 'minimum_input_length' => 2, // minimum characters to type before querying results
                 'tab' => 'Dados Aditivo',
             ],
-//            [ // select_from_array
-//                'name' => 'fornecedor_id',
-//                'label' => "Fornecedor",
-//                'type' => 'select2_from_array',
-//                'options' => $fornecedores,
-//                'allows_null' => true,
-//                'default' => $contrato->fornecedor_id,
-//                'tab' => 'Dados Aditivo',
-////                'default' => 'one',
-//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-//            ],
             [   // Date
                 'name' => 'data_assinatura',
                 'label' => 'Data Assinatura Aditivo',
@@ -375,7 +382,8 @@ class AditivoCrudController extends CrudController
                 'type' => 'textarea',
                 'default' => $contrato->info_complementar,
                 'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
+                    'onkeyup' => "maiuscula(this)",
+                    'readonly' => 'readonly'
                 ],
                 'tab' => 'Dados Aditivo',
             ],
@@ -389,6 +397,9 @@ class AditivoCrudController extends CrudController
                 'label' => 'Data Vig. Início',
                 'type' => 'date',
                 'default' => $contrato->vigencia_inicio,
+                'attributes' => [
+                    'readonly' => 'readonly'
+                ],
                 'tab' => 'Vigência / Valores',
             ],
             [   // Date
@@ -396,6 +407,9 @@ class AditivoCrudController extends CrudController
                 'label' => 'Data Vig. Fim',
                 'type' => 'date',
                 'default' => $contrato->vigencia_fim,
+                'attributes' => [
+                    'readonly' => 'readonly'
+                ],
                 'tab' => 'Vigência / Valores',
             ],
             [   // Number
@@ -405,6 +419,7 @@ class AditivoCrudController extends CrudController
                 // optionals
                 'attributes' => [
                     'id' => 'valor_global',
+                    'readonly' => 'readonly'
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => number_format($contrato->valor_global, 2, ',', '.'),
@@ -419,6 +434,7 @@ class AditivoCrudController extends CrudController
                 'attributes' => [
                     "step" => "any",
                     "min" => '1',
+                    'readonly' => 'readonly'
                 ], // allow decimals
                 'default' => $contrato->num_parcelas,
 //                'prefix' => "R$",
@@ -432,6 +448,7 @@ class AditivoCrudController extends CrudController
                 // optionals
                 'attributes' => [
                     'id' => 'valor_parcela',
+                    'readonly' => 'readonly'
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => number_format($contrato->valor_parcela, 2, ',', '.'),
