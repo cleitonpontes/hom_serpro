@@ -290,13 +290,10 @@
             //atualiza o valor da parcela do contrato
             function atualizarValorParcela(parcela)
             {
-                // calculaTotalGlobal();
                 var valor_global = $('#valor_global').val();
-                var numero_parcelas = $('#num_parcelas').val();
                 var valor_parcela = valor_global / parcela;
 
-                $('#valor_parcela').val(parseFloat(valor_parcela.toLocaleString('en-US', {minimumFractionDigits: 4})));
-
+                $('#valor_parcela').val(parseFloat(valor_parcela.toFixed(4)));
             }
 
             /**
@@ -313,7 +310,7 @@
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
                 var vltotal = qtd_item * vl_unit;
-                $(tr).find('td').eq(5).find('input').val(parseFloat(vltotal.toFixed(2)));
+                $(tr).find('td').eq(5).find('input').val(parseFloat(vltotal.toFixed(4)));
                 calculaTotalGlobal();
             }
 
@@ -321,7 +318,7 @@
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
                 var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
                 var quantidade = valor_total_item / vl_unit;
-                $(tr).find('td').eq(3).find('input').val(parseFloat(quantidade.toFixed(2)));
+                $(tr).find('td').eq(3).find('input').val(parseFloat(quantidade.toFixed(4)));
                 calculaTotalGlobal();
             }
 
@@ -357,9 +354,9 @@
                 cols += '<td>'+item.tipo_item+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricaodetalhada+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+qtd+'" value="'+qtd+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="'+item.quantidade_autorizada+'" min="'+qtd+'" value="'+qtd+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+vl_unit+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" step="0.0001" id="vl_total"value="'+vl_total+'"></td>';
                 cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
                 cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
                 cols += '<td>';
@@ -397,8 +394,7 @@
                         $('#num_parcelas').val(parcela);
                     }
                 });
-                console.log(parcela);
-                $('#valor_global').val(parseFloat(valor_total.toFixed(2)));
+                $('#valor_global').val(parseFloat(valor_total.toFixed(4)));
                 atualizarValorParcela(parcela);
             }
 
