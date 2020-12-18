@@ -286,25 +286,31 @@
             //atualiza o valor da parcela do contrato para termo aditivo
             function atualizarValorParcela()
             {
+                var valor_global = $('#valor_global').val();
+                var numero_parcelas = $('#num_parcelas').val();
+                var valor_parcela = valor_global / numero_parcelas;
 
-                valor_global = $('#valor_global').val();
-                numero_parcelas = $('#num_parcelas').val();
-
-                $('#valor_parcela').val(valor_global / numero_parcelas);
+                $('#valor_parcela').val(parseFloat(valor_parcela.toLocaleString('en-US', {minimumFractionDigits: 4})));
             }
 
             function atualizarValorTotal(tr){
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
-                parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
+                var valor_total = qtd_item * vl_unit;
+
+                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toLocaleString('en-US', {minimumFractionDigits: 4})));
+                calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
-                var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
-                var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
+                var vl_unit = $(tr).find('td').eq(4).find('input').val();
+                var valor_total_item = $(tr).find('td').eq(5).find('input').val();
 
-                parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
+                var quantidade = valor_total_item / vl_unit;
+
+                $(tr).find('td').eq(3).find('input').val(parseFloat(quantidade.toLocaleString('en-US', {minimumFractionDigits: 4})));
+                calculaTotalGlobal();
             }
 
             function atualizarDataInicioItens(){
@@ -326,7 +332,7 @@
                 cols += '<td>'+item.descricao_complementar+'</td>';
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" value="'+item.quantidade+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total" value="'+item.valortotal+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
                 cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
@@ -351,8 +357,7 @@
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
-                $('#valor_global').val(valor_total);
-
+                $('#valor_global').val(parseFloat(valor_total.toLocaleString('en-US', {minimumFractionDigits: 4})));
                 atualizarValorParcela();
             }
 

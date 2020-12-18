@@ -268,27 +268,30 @@
             //atualiza o valor da parcela do contrato
             function atualizarValorParcela()
             {
+                var valor_global = $('#valor_global').val();
+                var numero_parcelas = $('#num_parcelas').val();
+                var valor_parcela = valor_global / numero_parcelas;
 
-                valor_global = $('#valor_global').val();
-                numero_parcelas = $('#num_parcelas').val();
-
-                $('#valor_parcela').val(valor_global / numero_parcelas);
+                $('#valor_parcela').val(parseFloat(valor_parcela.toLocaleString('en-US', {minimumFractionDigits: 4})));
             }
 
             function atualizarValorTotal(tr){
-
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
-                parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
+                var valor_total = qtd_item * vl_unit;
+
+                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toLocaleString('en-US', {minimumFractionDigits: 4})));
                 calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
-                var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
-                var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
+                var vl_unit = $(tr).find('td').eq(4).find('input').val();
+                var valor_total_item = $(tr).find('td').eq(5).find('input').val();
 
-                parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
+                var quantidade = valor_total_item / vl_unit;
+
+                $(tr).find('td').eq(3).find('input').val(parseFloat(quantidade.toLocaleString('en-US', {minimumFractionDigits: 4})));
                 calculaTotalGlobal();
             }
 
@@ -323,9 +326,9 @@
                 cols += '<td>'+item.tipo_item+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricaodetalhada+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" step="0.0001"  value="'+vl_unit+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total" step="0.0001" value="'+vl_total+'"></td>';
                 cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
                 cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
                 cols += '<td>';
@@ -354,12 +357,12 @@
             function calculaTotalGlobal(){
                 var valor_total = 0;
                 $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(4).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
+                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
+                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
-                $('#valor_global').val(valor_total);
+                $('#valor_global').val(parseFloat(valor_total.toLocaleString('en-US', {minimumFractionDigits: 4})));
                 atualizarValorParcela();
             }
 

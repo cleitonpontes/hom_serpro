@@ -596,10 +596,11 @@ class InstrumentoinicialCrudController extends CrudController
             [   // Number
                 'name' => 'valor_global',
                 'label' => 'Valor Global',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'valor_global',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
@@ -621,10 +622,11 @@ class InstrumentoinicialCrudController extends CrudController
             [   // Number
                 'name' => 'valor_parcela',
                 'label' => 'Valor Parcela',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'valor_parcela',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
