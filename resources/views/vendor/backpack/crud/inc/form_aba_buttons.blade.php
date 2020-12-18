@@ -63,6 +63,13 @@
             $('#next_aba').show();
         });
 
+        $('body').on('click','#itensdocontrato', function(event){
+            $('#botoes_contrato').hide();
+            $('#cancelar').hide();
+            $('#prev_aba').show();
+            $('#next_aba').show();
+        });
+
         $('body').on('change','#select2_ajax_multiple_minutasempenho', function(event){
             carregaitens(event, minutas_id);
         });
@@ -125,72 +132,20 @@
             removeLinha(this);
         });
 
-        $('body').on('click','#btn_inserir_item', function(event){
-            if(!$('#item').val()){
-                alert('Não foi encontrado nenhum item para incluir à lista.');
-            }else{
-                buscarItem($('#item').val());
-            }
-        });
-
         $(document).on('change', '#select2_ajax_multiple_minutasempenho', function () {
             if (!null_or_empty("#select2_ajax_multiple_minutasempenho")) {
-                $("select[name=modalidade_id]" ).removeAttr("disabled");
-                buscarModalidade();
+                buscarCamposAutoPreenchimento();
             }
 
             if (null_or_empty("#select2_ajax_multiple_minutasempenho")) {
                 // resetar os campos
                 $('select[name=unidadecompra_id]').val('').change();
-                $("select[name=modalidade_id]").val(172).change();
+                $('select[name=modalidade_id]').val('').change();
                 $('#select2_ajax_multiple_amparoslegais').val('').change();
-                $("#licitacao_numero").val('');
-                $("select[name=modalidade_id]" ).attr('disabled', 'disabled');
+                $('#licitacao_numero').val('');
             }
         });
     });
-
-    function buscarItem(id)
-    {
-        var url = "{{route('busca.catmatseritens.id',':id')}}";
-        url = url.replace(':id', id);
-
-        axios.request(url)
-            .then(response => {
-                prepararItemParaIncluirGrid(response.data);
-            })
-            .catch(error => {
-                alert(error);
-            })
-            .finally()
-    }
-
-    function prepararItemParaIncluirGrid(item)
-    {
-        item = {
-            'tipo_item' : $('#tipo_item :selected').text(),
-            'tipo_item_id' : $('#tipo_item').val(),
-            'catmatseritem_id' : item.id,
-            'descricaodetalhada': item.descricao,
-            'quantidade' : $('#quantidade_item').val(),
-            'valor_unitario': $('#valor_unit').val(),
-            'valor_total': $('#valor_total').val(),
-            'periodicidade': $('#periodicidade_item').val(),
-            'data_inicio': $('#dt_inicio').val()
-        }
-        adicionaLinhaItem(item);
-        resetarCamposFormulario();
-    }
-
-    function resetarCamposFormulario(){
-            $('#tipo_item').val('');
-            $('#item').val('').change();
-            $('#quantidade_item').val('');
-            $('#valor_unit').val('');
-            $('#valor_total').val('');
-            $('#periodicidade_item').val('');
-            $('#dt_inicio').val('');
-    }
 
     //atualiza o valor da parcela do contrato
     function atualizarValorParcela()
@@ -213,7 +168,7 @@
     }
 
     //busca a modalidade de acordo com a primeira minuta de empenho selecionada para popular os campos
-    function buscarModalidade()
+    function buscarCamposAutoPreenchimento()
     {
         var arrayMinutas = $("#select2_ajax_multiple_minutasempenho").val();
 
@@ -309,13 +264,14 @@
         }
 
         var periodicidade = 1;
-        if ($('#periodicidade').val()) {
-            periodicidade = $('#periodicidade').val();
+        if ($('#periodicidade_item').val()) {
+            periodicidade = $('#periodicidade_item').val();
         }
 
         var newRow = $("<tr>");
         var cols = "";
         cols += '<td>'+item.tipo_item+'</td>';
+        cols += '<td>'+item.numero+'</td>';
         cols += '<td>'+item.descricaodetalhada+'</td>';
         cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
         cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
@@ -326,6 +282,7 @@
         cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
                 '</button>';
+        cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
         cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
         cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
         cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id" value="'+item.compra_item_unidade_id+'">';
@@ -441,10 +398,10 @@
                 break;
             case 'itensdocontrato':
 
-                $('#botoes_contrato').show();
-                $('#cancelar').show();
+                $('#botoes_contrato').hide();
+                $('#cancelar').hide();
                 $('#prev_aba').show();
-                $('#next_aba').hide();
+                $('#next_aba').show();
                 break;
             case 'vigenciavalores':
 

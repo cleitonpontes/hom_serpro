@@ -26,7 +26,10 @@ class Saldohistoricoitem extends Model
         'tiposaldo_id',
         'quantidade',
         'valorunitario',
-        'valortotal'
+        'valortotal',
+        'periodicidade',
+        'data_inicio',
+        'numero_item_compra'
     ];
 
     public function getContratoItem()

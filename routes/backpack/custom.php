@@ -27,6 +27,9 @@ Route::group([
             //busca empenhos via ajax
             Route::get('empenho', 'EmpenhoController@index');
             Route::get('empenho/{id}', 'EmpenhoController@show');
+
+            Route::get('codigoitemAmparoLegal', 'CodigoitemController@index');    // amparo legal
+
             Route::get('unidade', 'UnidadeController@index');
             Route::get('unidade/{id}', 'UnidadeController@show');
             Route::get('unidadecomorgao', 'UnidadeComOrgaoController@index');
@@ -87,6 +90,7 @@ Route::group([
             Route::get('orcamentario', 'OrcamentarioController@index')->name('painel.orcamentario');
         });
 
+
         Route::group([
             'prefix' => 'admin',
             'namespace' => 'Admin',
@@ -108,6 +112,7 @@ Route::group([
             CRUD::resource('importacao', 'ImportacaoCrudController');
             CRUD::resource('ipsacesso', 'IpsacessoCrudController');
             CRUD::resource('feriado', 'FeriadoCrudController');
+            CRUD::resource('amparolegal', 'AmparoLegalCrudController');
 
 
             // Exportações Downloads
@@ -160,6 +165,8 @@ Route::group([
             CRUD::resource('fornecedor', 'FornecedorCrudController');
             CRUD::resource('indicador', 'IndicadorCrudController');
             CRUD::resource('encargo', 'EncargoCrudController');
+            Route::get( '/saldo-historico-itens/{contrato_id}',
+                'ContratoCrudController@retonaSaldoHistoricoItensContrato')->name('saldo.historico.item.contrato');
 
             Route::group([
                 'prefix' => 'siasg',

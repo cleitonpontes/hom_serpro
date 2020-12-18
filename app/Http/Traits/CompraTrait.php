@@ -49,9 +49,19 @@ trait CompraTrait
 
     public function gravaParametroItensdaCompraSISPP($compraSiasg, $compra): void
     {
-//        $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $compra);
         $unidade_autorizada_id = session('user_ug_id');
+        $this->gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
 
+    public function gravaParametroItensdaCompraSISPPCommand($compraSiasg, $compra): void
+    {
+        $unidade_autorizada_id = $compra->unidade_origem_id;
+        $this->gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id);
+
+    }
+
+    private function gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id):void
+    {
         if (!is_null($compraSiasg->data->itemCompraSisppDTO)) {
             foreach ($compraSiasg->data->itemCompraSisppDTO as $key => $item) {
                 $catmatseritem = $this->gravaCatmatseritem($item);
@@ -69,33 +79,43 @@ trait CompraTrait
 
     public function gravaParametroItensdaCompraSISRP($compraSiasg, $compra): void
     {
-//        $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $compra);
         $unidade_autorizada_id = session('user_ug_id');
+        $this->gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
+
+    public function gravaParametroItensdaCompraSISRPCommand($compraSiasg, $compra): void
+    {
+        $unidade_autorizada_id = $compra->unidade_origem_id;
+        $this->gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
+
+    private function gravaParametroSISRP($compraSiasg, $compra,$unidade_autorizada_id):void
+    {
         $consultaCompra = new ApiSiasg();
 
-            if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
-                foreach ($compraSiasg->data->linkSisrpCompleto as $key => $item) {
-                    $dadosItemCompra = ($consultaCompra->consultaCompraByUrl($item->linkSisrpCompleto));
-                    $tipoUasg = (substr($item->linkSisrpCompleto, -1));
-                    $dadosata = (object)$dadosItemCompra['data']['dadosAta'];
-                    $gerenciadoraParticipante = (object)$dadosItemCompra['data']['dadosGerenciadoraParticipante'];
-                    $carona = $dadosItemCompra['data']['dadosCarona'];
-                    $dadosFornecedor = $dadosItemCompra['data']['dadosFornecedor'];
+        if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
+            foreach ($compraSiasg->data->linkSisrpCompleto as $key => $item) {
+                $dadosItemCompra = ($consultaCompra->consultaCompraByUrl($item->linkSisrpCompleto));
+                $tipoUasg = (substr($item->linkSisrpCompleto, -1));
+                $dadosata = (object)$dadosItemCompra['data']['dadosAta'];
+                $gerenciadoraParticipante = (object)$dadosItemCompra['data']['dadosGerenciadoraParticipante'];
+                $carona = $dadosItemCompra['data']['dadosCarona'];
+                $dadosFornecedor = $dadosItemCompra['data']['dadosFornecedor'];
 
-                    $catmatseritem = $this->gravaCatmatseritem($dadosata);
+                $catmatseritem = $this->gravaCatmatseritem($dadosata);
 
-                    $modcompraItem = new CompraItem();
-                    $compraItem = $modcompraItem->updateOrCreateCompraItemSisrp($compra, $catmatseritem, $dadosata);
+                $modcompraItem = new CompraItem();
+                $compraItem = $modcompraItem->updateOrCreateCompraItemSisrp($compra, $catmatseritem, $dadosata);
 
-                    foreach ($dadosFornecedor as $key => $itemfornecedor) {
-                        $fornecedor = $this->retornaFornecedor((object)$itemfornecedor);
+                foreach ($dadosFornecedor as $key => $itemfornecedor) {
+                    $fornecedor = $this->retornaFornecedor((object)$itemfornecedor);
 
-                        $this->gravaCompraItemFornecedor($compraItem->id, (object)$itemfornecedor, $fornecedor);
-                    }
-                    $this->gravaCompraItemUnidadeSisrp($compraItem, $unidade_autorizada_id, $item, $gerenciadoraParticipante, $carona, $dadosFornecedor, $tipoUasg);
-
+                    $this->gravaCompraItemFornecedor($compraItem->id, (object)$itemfornecedor, $fornecedor);
                 }
+                $this->gravaCompraItemUnidadeSisrp($compraItem, $unidade_autorizada_id, $item, $gerenciadoraParticipante, $carona, $dadosFornecedor, $tipoUasg);
+
             }
+        }
     }
 
     public function retornaUnidadeAutorizada($compraSiasg, $compra)

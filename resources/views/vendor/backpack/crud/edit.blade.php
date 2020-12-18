@@ -19,6 +19,8 @@
 @if ($crud->hasAccess('list'))
     @if(Route::current()->getName() == 'crud.feriado.edit')
         <a href="{{ $crud->route }}" class="hidden-print"><i class="fa fa-angle-double-left"></i> {{ trans('backpack::crud.back_to_all') }} <span>{{ $crud->entity_name_plural }}</span></a>
+    @elseif(Route::current()->getName() == 'crud.amparolegal.edit')
+        <a href="{{ $crud->route }}" class="hidden-print"><i class="fa fa-angle-double-left"></i> {{ trans('backpack::crud.back_to_all') }} <span>{{ $crud->entity_name_plural }}</span></a>
     @else
     	<a href="{{ starts_with(URL::previous(), url($crud->route)) ? URL::previous() : url($crud->route) }}" class="hidden-print"><i class="fa fa-angle-double-left"></i> {{ trans('backpack::crud.back_to_all') }} <span>{{ $crud->entity_name_plural }}</span></a>
     @endif

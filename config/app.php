@@ -2,6 +2,8 @@
 
 return [
 
+    'app_amb' => env('APP_AMB', 'Ambiente Produção'),
+
     'google_analytics' => env('GOOGLE_ANALYTICS',''),
 
     //contas contábeis empenhodetalhado

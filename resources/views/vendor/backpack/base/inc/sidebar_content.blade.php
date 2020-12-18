@@ -448,6 +448,13 @@
                     </a>
                     <ul class="treeview-menu">
                         <li>
+                            <a href='{{ backpack_url('/admin/amparolegal') }}'>
+                                <i class='fa fa-list'></i>
+                                <span>Amparo Legal</span>
+                            </a>
+                        </li>
+
+                        <li>
                             <a href="{{ backpack_url('/admin/catmatseratualizacao') }}">
                                 <i class="fa fa-list"></i>
                                 <span>Atualização CatMatSer</span>
