@@ -266,9 +266,9 @@
                     'catmatseritem_id' : item.id,
                     'descricaodetalhada': item.descricao,
                     'numero':$('#numero_item').val(),
-                    'quantidade' : parseFloat(($('#quantidade_item').val()).toFixed(2)),
-                    'valor_unitario': parseFloat(($('#valor_unit').val()).toFixed(2)),
-                    'valor_total': parseFloat(($('#valor_total').val()).toFixed(2)),
+                    'quantidade' : $('#quantidade_item').val(),
+                    'valor_unitario': $('#valor_unit').val(),
+                    'valor_total': $('#valor_total').val(),
                     'periodicidade': $('#periodicidade_item').val(),
                     'data_inicio': $('#dt_inicio').val()
                 }
@@ -290,12 +290,13 @@
             //atualiza o valor da parcela do contrato
             function atualizarValorParcela(parcela)
             {
-                calculaTotalGlobal();
+                // calculaTotalGlobal();
                 var valor_global = $('#valor_global').val();
                 var numero_parcelas = $('#num_parcelas').val();
                 var valor_parcela = valor_global / parcela;
 
                 $('#valor_parcela').val(parseFloat(valor_parcela.toLocaleString('en-US', {minimumFractionDigits: 4})));
+
             }
 
             /**
@@ -388,15 +389,12 @@
                 var valor_total = 0;
                 $("#table-itens").find('tr').each(function(){
                     var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
-                    //console.log('Valor total do item: '+total_item);
                     var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
-                    // console.log('Periodicidade: '+periodicidade);
                     var total_iten = (total_item * periodicidade);
-                    // console.log('ValorTotal * Periodicidade = '+total_item);
                     valor_total += total_iten;
-                    // console.log('Valor Global: '+valor_total);
                     if(periodicidade > parcela){
                         parcela = periodicidade;
+                        $('#num_parcelas').val(parcela);
                     }
                 });
                 console.log(parcela);
