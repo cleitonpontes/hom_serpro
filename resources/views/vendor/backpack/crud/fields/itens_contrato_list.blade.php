@@ -293,7 +293,7 @@
                 var valor_global = $('#valor_global').val();
                 var valor_parcela = valor_global / parcela;
 
-                $('#valor_parcela').val(parseFloat(valor_parcela.toFixed(4)));
+                $('#valor_parcela').val(parseFloat(valor_parcela.toFixed(2)));
             }
 
             /**
@@ -394,7 +394,7 @@
                         $('#num_parcelas').val(parcela);
                     }
                 });
-                $('#valor_global').val(parseFloat(valor_total.toFixed(4)));
+                $('#valor_global').val(parseFloat(valor_total.toFixed(2)));
                 atualizarValorParcela(parcela);
             }
 
