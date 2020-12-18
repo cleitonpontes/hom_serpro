@@ -55,6 +55,7 @@ class JustificativafaturaCrudController extends CrudController
     }
     public function Colunas()
     {
+
         $colunas = [
             [
                 'name' => 'nome',

@@ -113,6 +113,7 @@ Route::group([
             CRUD::resource('importacao', 'ImportacaoCrudController');
             CRUD::resource('ipsacesso', 'IpsacessoCrudController');
             CRUD::resource('feriado', 'FeriadoCrudController');
+            CRUD::resource('failedjobs', 'FailedjobsCrudController');
             CRUD::resource('amparolegal', 'AmparoLegalCrudController');
 
 
