@@ -281,6 +281,7 @@
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
                 parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
+                calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
@@ -288,6 +289,7 @@
                 var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
 
                 parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
+                calculaTotalGlobal();
             }
 
             function atualizarDataInicioItens(){
@@ -339,6 +341,8 @@
 
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
+                calculaTotalGlobal();
+
             }
 
             function removeLinha(elemento){
