@@ -19,6 +19,8 @@ class UpdateFlagVisibleCodigoItem extends Migration
         //executa seed atualização
         \Illuminate\Support\Facades\Artisan::call('db:seed', array('--class' => 'UpdateCodigoItemFlagVisibleByDescresSeeder'));
 
+        \Illuminate\Support\Facades\Artisan::call('db:seed', array('--class' => 'TipoQualificacaoSeeder'));
+
     }
 
     /**
