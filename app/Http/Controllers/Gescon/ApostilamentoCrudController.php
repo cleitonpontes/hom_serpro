@@ -311,6 +311,7 @@ class ApostilamentoCrudController extends CrudController
                 // optionals
                 'attributes' => [
                     'id' => 'novo_valor_global',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => $contrato->valor_global,
@@ -338,6 +339,7 @@ class ApostilamentoCrudController extends CrudController
                 // optionals
                 'attributes' => [
                     'id' => 'novo_valor_parcela',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => $contrato->valor_parcela,

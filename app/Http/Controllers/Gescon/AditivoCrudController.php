@@ -415,7 +415,8 @@ class AditivoCrudController extends CrudController
                 // optionals
                 'attributes' => [
                     'id' => 'valor_global',
-                    'readonly' => 'readonly'
+                    'readonly' => 'readonly',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => number_format($contrato->valor_global, 2, ',', '.'),
@@ -444,7 +445,8 @@ class AditivoCrudController extends CrudController
                 // optionals
                 'attributes' => [
                     'id' => 'valor_parcela',
-                    'readonly' => 'readonly'
+                    'readonly' => 'readonly',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => number_format($contrato->valor_parcela, 2, ',', '.'),
