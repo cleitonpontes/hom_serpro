@@ -39,7 +39,6 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
         */
 
         $this->defineConfiguracaoPadrao();
-
     }
 
     public function show($id)
@@ -73,15 +72,17 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
     protected function aplicaFiltrosEspecificos(): void
     {
 
-        $this->crud->addFilter([
+        $this->crud->addFilter(
+            [
             'name' => 'numero',
             'type' => 'text',
             'label' => 'Número Contrato'
-        ], 
-            false
-        , function ($value) {
-            $this->crud->addClause('where' , 'contratos.numero', 'LIKE', "%$value%");
-        });
+            ],
+            false,
+            function ($value) {
+                $this->crud->addClause('where', 'contratos.numero', 'LIKE', "%$value%");
+            }
+        );
 
         $this->crud->addFilter([
             'name' => 'receita_despesa',
@@ -91,8 +92,11 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
             'R' => 'Receita',
             'D' => 'Despesa',
         ], function ($value) {
-            $this->crud->addClause('whereIn'
-                , 'contratos.receita_despesa', json_decode($value));
+            $this->crud->addClause(
+                'whereIn',
+                'contratos.receita_despesa',
+                json_decode($value)
+            );
         });
 
         $tipos = Codigoitem::whereHas('codigo', function ($query) {
@@ -104,63 +108,83 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
-        $this->crud->addFilter([
-            'name' => 'tipo_contrato',
-            'type' => 'select2_multiple',
-            'label' => 'Tipo'
-        ], $tipos
-            , function ($value) {
-                $this->crud->addClause('whereIn'
-                    , 'contratos.tipo_id', json_decode($value));
-            });
+        $this->crud->addFilter(
+            [
+                'name' => 'tipo_contrato',
+                'type' => 'select2_multiple',
+                'label' => 'Tipo'
+            ],
+            $tipos,
+            function ($value) {
+                $this->crud->addClause(
+                    'whereIn',
+                    'contratos.tipo_id',
+                    json_decode($value)
+                );
+            }
+        );
 
         $categorias = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Categoria Contrato');
         })->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
-        $this->crud->addFilter([
-            'name' => 'categorias',
-            'type' => 'select2_multiple',
-            'label' => 'Categorias'
-        ], $categorias
-            , function ($values) {
-                $this->crud->addClause('whereIn'
-                    , 'contratos.categoria_id', json_decode($values));
-            });
+        $this->crud->addFilter(
+            [
+                'name' => 'categorias',
+                'type' => 'select2_multiple',
+                'label' => 'Categorias'
+            ],
+            $categorias,
+            function ($values) {
+                $this->crud->addClause(
+                    'whereIn',
+                    'contratos.categoria_id',
+                    json_decode($values)
+                );
+            }
+        );
 
-        $this->crud->addFilter([
-            'type' => 'date_range',
-            'name' => 'vigencia_inicio',
-            'label' => 'Vigência Inicio'
-        ],
+        $this->crud->addFilter(
+            [
+                'type' => 'date_range',
+                'name' => 'vigencia_inicio',
+                'label' => 'Vigência Inicio'
+            ],
             false,
-            function ($value) { // if the filter is active, apply these constraints
+            function ($value) {
+                // if the filter is active, apply these constraints
                 $dates = json_decode($value);
                 $this->crud->addClause('where', 'contratos.vigencia_inicio', '>=', $dates->from);
                 $this->crud->addClause('where', 'contratos.vigencia_inicio', '<=', $dates->to . ' 23:59:59');
-            });
+            }
+        );
 
-        $this->crud->addFilter([
-            'type' => 'date_range',
-            'name' => 'vigencia_fim',
-            'label' => 'Vigência Fim'
-        ],
+        $this->crud->addFilter(
+            [
+                'type' => 'date_range',
+                'name' => 'vigencia_fim',
+                'label' => 'Vigência Fim'
+            ],
             false,
-            function ($value) { // if the filter is active, apply these constraints
+            function ($value) {
+                // if the filter is active, apply these constraints
                 $dates = json_decode($value);
                 $this->crud->addClause('where', 'contratos.vigencia_fim', '>=', $dates->from);
                 $this->crud->addClause('where', 'contratos.vigencia_fim', '<=', $dates->to . ' 23:59:59');
-            });
+            }
+        );
 
-        $this->crud->addFilter([
-            'name' => 'valor_global',
-            'type' => 'range',
-            'label' => 'Valor Global',
-            'label_from' => 'Vlr Mínimo',
-            'label_to' => 'Vlr Máximo'
-        ],
+        $this->crud->addFilter(
+            [
+                'name' => 'valor_global',
+                'type' => 'range',
+                'label' => 'Valor Global',
+                'label_from' => 'Vlr Mínimo',
+                'label_to' => 'Vlr Máximo'
+            ],
             false,
-            function ($value) { // if the filter is active
+            function ($value) {
+                // if the filter is active
                 $range = json_decode($value);
                 if ($range->from) {
                     $this->crud->addClause('where', 'contratos.valor_global', '>=', (float)$range->from);
@@ -168,17 +192,20 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                 if ($range->to) {
                     $this->crud->addClause('where', 'contratos.valor_global', '<=', (float)$range->to);
                 }
-            });
+            }
+        );
 
-        $this->crud->addFilter([
-            'name' => 'valor_parcela',
-            'type' => 'range',
-            'label' => 'Valor Parcela',
-            'label_from' => 'Vlr Mínimo',
-            'label_to' => 'Vlr Máximo'
-        ],
+        $this->crud->addFilter(
+            [
+                'name' => 'valor_parcela',
+                'type' => 'range',
+                'label' => 'Valor Parcela',
+                'label_from' => 'Vlr Mínimo',
+                'label_to' => 'Vlr Máximo'
+            ],
             false,
-            function ($value) { // if the filter is active
+            function ($value) {
+                // if the filter is active
                 $range = json_decode($value);
                 if ($range->from) {
                     $this->crud->addClause('where', 'contratos.valor_parcela', '>=', (float)$range->from);
@@ -186,7 +213,8 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
                 if ($range->to) {
                     $this->crud->addClause('where', 'contratos.valor_parcela', '<=', (float)$range->to);
                 }
-            });
+            }
+        );
     }
 
     protected function adicionaColunasEspecificasNaListagem(): void
