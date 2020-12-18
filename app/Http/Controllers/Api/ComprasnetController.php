@@ -105,7 +105,7 @@ class ComprasnetController extends Controller
                     'fornecedor' => @$dado->contrato->fornecedor->cpf_cnpj_idgener,
                     'vigencia_fim_inicial' => @$instrumento_inicial->vigencia_fim,
                     'vigencia_fim' => @$dado->contrato->vigencia_fim,
-                    'quantidade_item' => @number_format($dado->quantidade,0),
+                    'quantidade_item' => @number_format($dado->quantidade,0,'',''),
                     'valor_unitario_item' => @$dado->valorunitario,
                     'valor_total_item' => @$dado->valortotal,
                     'situacao_publicacao' => 'PUBLICADO'
