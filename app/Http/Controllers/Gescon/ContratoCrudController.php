@@ -727,6 +727,7 @@ class ContratoCrudController extends CrudController
         $this->tab = 'Itens do contrato';
 
         $this->adicionaCampoItensContrato();
+        $this->adicionaCampoRecuperaGridItens();
 
         $this->tab = 'Vigência / Valores';
 
@@ -795,18 +796,16 @@ class ContratoCrudController extends CrudController
             'minimum_input_length' => 2,
             'tab' => $this->tab
         ]);
+    }
 
+    protected function adicionaCampoRecuperaGridItens(){
         $this->crud->addField([
-            'label' => "teste",
+            'label' => "adicionaCampoRecuperaGridItens",
             'type' => "hidden",
-            'name' => 'teste',
+            'name' => 'adicionaCampoRecuperaGridItens',
             'default' => "{{old('name')}}",
             'tab' => $this->tab
         ]);
-
-        //$request->flashOnly(['teste']);
-        //dd($request);
-
     }
 
 

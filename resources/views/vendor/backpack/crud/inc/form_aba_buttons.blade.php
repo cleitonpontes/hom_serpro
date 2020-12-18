@@ -28,11 +28,6 @@
 @push('after_scripts')
 <script type="text/javascript">
     $(document).ready(function() {
-        var valueHidden = $('input[name=teste]').val();
-        if(valueHidden !== '{'+'{'+'old(' +'\'name\''+ ')}}'){
-            console.log(valueHidden);
-            $('#table').html(valueHidden);
-        }
 
         valor_global = 0;
         retornoAjax = 0;
@@ -100,30 +95,22 @@
             minutas_id = retornaMinutaIds();
         });
 
-        $("form").submit(function (event) {
-            var y = $('#table').html();
-            $('input[name=teste]').val(y);
-        });
-
         //quando altera o campo de quantidade do item re-calcula os valores
         $('body').on('change','[name="qtd_item[]"]',function(event){
             var tr = this.closest('tr');
             atualizarValorTotal(tr);
-            atualizarCurrentAtribute(event);
         });
 
         //quando altera o campo de valor unitario do item re-calcula os valores
         $('body').on('change','input[name="vl_unit[]"]',function(event){
             var tr = this.closest('tr');
             atualizarValorTotal(tr);
-            atualizarCurrentAtribute(event);
         });
 
         //quando altera o campo de valor total do item re-calcula a quantidade
         $('body').on('change','[name="vl_total[]"]',function(event){
             var tr = this.closest('tr');
             atualizarQuantidade(tr);
-            atualizarCurrentAtribute(event);
         });
 
         //quando altera o campo de quantidade de parcela atualizar o valor da parcela
@@ -132,14 +119,8 @@
         });
 
         //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-        $('body').on('change','input[name="periodicidade[]"]',function(event){
+        $('body').on('change','input[name="periodicidade"]',function(event){
             atualizarValorParcela();
-            atualizarCurrentAtribute(event);
-        });
-
-
-        $('body').on('change','input[name="data_inicio[]"]',function(event){
-            atualizarCurrentAtribute(event);
         });
 
         //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
@@ -165,15 +146,6 @@
             }
         });
     });
-
-    /**
-     * atualiza o value do atributo no html
-     * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
-     * @param event
-     */
-    function atualizarCurrentAtribute(event) {
-        event.currentTarget.setAttribute("value", event.currentTarget.value);
-    }
 
     //atualiza o valor da parcela do contrato
     function atualizarValorParcela()
