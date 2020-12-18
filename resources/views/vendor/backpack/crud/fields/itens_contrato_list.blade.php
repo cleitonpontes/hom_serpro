@@ -290,11 +290,21 @@
             //atualiza o valor da parcela do contrato
             function atualizarValorParcela(parcela)
             {
+                calculaTotalGlobal();
                 var valor_global = $('#valor_global').val();
                 var numero_parcelas = $('#num_parcelas').val();
-                var valor_parcela = valor_global / numero_parcelas;
+                var valor_parcela = valor_global / parcela;
 
                 $('#valor_parcela').val(parseFloat(valor_parcela.toLocaleString('en-US', {minimumFractionDigits: 4})));
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizarCurrentAtribute(event) {
+                event.currentTarget.setAttribute("value", event.currentTarget.value);
             }
 
             function atualizarValorTotal(tr){
