@@ -25,6 +25,7 @@
                         <th class="text-center">Valor Total</th>
                         <th class="text-center">Periodicidade</th>
                         <th class="text-center">Data Início</th>
+                        <th class="text-center">Ações</th>
                     </tr>
                     </thead>
                     <tbody id="table-itens">
@@ -134,7 +135,7 @@
                 });
 
                 $('body').on('click','#itensdocontrato', function(event){
-                    buscarItenContrato();
+                    buscarItens();
                 });
 
                 $('body').on('change','#tipo_item', function(event){
@@ -158,33 +159,40 @@
                 $('body').on('change','[name="qtd_item[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
+                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de valor unitario do item re-calcula os valores
                 $('body').on('change','input[name="vl_unit[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
+                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de valor total do item re-calcula a quantidade
                 $('body').on('change','[name="vl_total[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarQuantidade(tr);
+                    calculaTotalGlobal();
                 });
 
-                //quando altera o campo de quantidade de parcela atualizar o valor da parcela
-                $('body').on('change','#num_parcelas',function(event){
+                //quando altera o campo de quantidade de parcela atualizar o valor da parcela no caso de aditivo
+                $('body').on('change','#num_parcelas',function(){
                     atualizarValorParcela();
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-                $('body').on('change','input[name="periodicidade"]',function(event){
-                    atualizarValorParcela();
+                $('body').on('change','#periodicidade',function(event){
+                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#valor_global',function(event){
                     atualizarValorParcela();
+                });
+
+                $('body').on('click','#remove_item',function(event){
+                    removeLinha(this);
                 });
 
                 /**
@@ -275,7 +283,7 @@
                 $('#dt_inicio').val('');
             }
 
-            //atualiza o valor da parcela do contrato
+            //atualiza o valor da parcela do contrato para termo aditivo
             function atualizarValorParcela()
             {
 
@@ -320,13 +328,15 @@
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
-                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
-
+                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
+                cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
+                    '<i class="fa fa-trash"></i>'+
+                    '</button>';
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="saldo_historico_item_id[]" id="saldo_historico_item_id" value="'+item.saldo_historico_item_id+'">';
+                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
@@ -336,12 +346,13 @@
             function calculaTotalGlobal(){
                 var valor_total = 0;
                 $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(4).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
+                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
+                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
                 $('#valor_global').val(valor_total);
+
                 atualizarValorParcela();
             }
 
@@ -357,13 +368,31 @@
                 $("#item").append(newRow);
             }
 
-            function buscarItenContrato()
+            function buscarItens()
             {
-                var contrato_id = $("[name=contrato_id]").val();
-                var url = "{{route('saldo.historico.item.contrato',':contrato_id')}}";
-                url = url.replace(':contrato_id', contrato_id);
+                if($("[name=aditivo_id]").val()){
+                    buscarSaldoHistoricoItens();
+                } else{
+                    buscarContratoItens();
+                }
+            }
 
-                axios.request(url)
+            function buscarSaldoHistoricoItens(){
+                var aditivo_id = $("[name=aditivo_id]").val();
+                var url = "{{route('saldo.historico.itens',':id')}}";
+                url = url.replace(':id', aditivo_id);
+                carregarItens(url);
+            }
+
+            function buscarContratoItens(){
+                var contrato_id = $("[name=contrato_id]").val();
+                var url = "{{route('contrato.item',':contrato_id')}}";
+                url = url.replace(':contrato_id', contrato_id);
+                carregarItens(url);
+            }
+
+            function carregarItens(url){
+                axios.get(url)
                     .then(response => {
                         var itens = response.data;
                         var qtd_itens = itens.length;
@@ -378,6 +407,17 @@
                         alert(error);
                     })
                     .finally()
+            }
+
+            function removeLinha(elemento){
+                var tr = $(elemento).closest('tr');
+                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#id').val();
+                if (historicoSaldoItemId === 'undefined'){
+                    tr.remove();
+                    calculaTotalGlobal()
+                } else {
+                    alert('Esse item não pode ser exluído. Só é permitido alterar.')
+                }
             }
             /*---------------------------HABILITA-E-DESABILITA-CAMPOS---------------------------*/
             function onChangeSelectQualificacao() {

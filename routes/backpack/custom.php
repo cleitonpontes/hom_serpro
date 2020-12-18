@@ -60,7 +60,8 @@ Route::group([
             Route::get('inserir/item/modal/{tipo_id}/{contacorrente}', 'ContratoItensMinutaController@inserirIten')->name('item.inserir.modal');
             Route::get('buscar/itens/modal/{minutas_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
             Route::get('buscar/campos/contrato/empenho/{id}', 'ContratoController@buscarCamposParaCadastroContratoPorIdEmpenho')->name('buscar.campos.contrato.empenho');
-
+            Route::get( '/saldo-historico-itens/{id}',
+                'SaldoHistoricoItemController@retonaSaldoHistoricoItens')->name('saldo.historico.itens');
         });
 
         // if not otherwise configured, setup the dashboard routes
@@ -165,8 +166,10 @@ Route::group([
             CRUD::resource('fornecedor', 'FornecedorCrudController');
             CRUD::resource('indicador', 'IndicadorCrudController');
             CRUD::resource('encargo', 'EncargoCrudController');
-            Route::get( '/saldo-historico-itens/{contrato_id}',
-                'ContratoCrudController@retonaSaldoHistoricoItensContrato')->name('saldo.historico.item.contrato');
+
+
+            Route::get( '/buscar-contrato-itens/{contrato_id}',
+                'ContratoitemCrudController@retonaContratoItem')->name('contrato.item');
 
             Route::group([
                 'prefix' => 'siasg',

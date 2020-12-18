@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Traits\Formatador;
+use App\Models\Codigoitem;
+use App\Models\Contratoitem;
+use App\Models\Unidade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class ComprasnetController extends Controller
 {
+    use Formatador;
+
     public function getContratosEmpenhosPorItens(Request $request)
     {
         $dados['uasg'] = $request->uasg;
@@ -34,7 +40,7 @@ class ComprasnetController extends Controller
 
                     ],
                     'empenhos' => [
-                        
+
                     ],
                 ],
             ]
@@ -45,21 +51,86 @@ class ComprasnetController extends Controller
 
     public function getDadosContratosPorItem(Request $request)
     {
-        $retorno = [
-            'unidade_origem' => '110161',
-            'unidade_atual' => '110161',
-            'numero_contrato' => '00001/2019',
-            'tipo' => '50',
-            'fornecedor' => '00.000.000/0001-91',
-            'vigencia_fim_inicial' => '2019-12-31',
-            'vigencia_fim' => '2020-12-31',
-            'quantidade_item' => '3502',
-            'valor_unitario_item' => '10.0500',
-            'valor_total_item' => '35195.10',
-            'situacao_publicacao' => 'PUBLICADO'
-        ];
+        $retorno = [];
+
+        if (empty($request->uasgCompra) or empty($request->modalidade) or empty($request->numeroCompra) or empty($request->numeroCompra) or empty($request->numeroItem)) {
+            return $retorno;
+        }
+
+        //obrigatorios
+        $dados['uasgCompra'] = $request->uasgCompra;
+        $dados['modalidade'] = $request->modalidade;
+        $dados['numeroAnoCompra'] = $request->numeroCompra . '/' . $request->anoCompra;
+        $dados['item_compra'] = str_pad($request->numeroItem, 5, "0", STR_PAD_LEFT);
+
+        //opcionais
+        $dados['uasg_contrato'] = @$request->uasgContrato;
+        $dados['fornecedor'] = @$request->fornecedor;
+
+        $unidade_compra = ($dados['uasgCompra']) ? $this->buscaUnidadePorCodigo($dados['uasgCompra']) : null;
+        $modalidade = ($dados['modalidade']) ? $this->buscaModalidadePorCodigo($dados['modalidade']) : null;
+        $unidade_contrato = ($dados['uasg_contrato']) ? $this->buscaUnidadePorCodigo($dados['uasg_contrato']) : null;
+
+        if (isset($unidade_compra->id) and isset($modalidade->id)) {
+
+            $dados = Contratoitem::whereHas('contrato', function ($q) use ($dados, $unidade_compra,$modalidade, $unidade_contrato){
+                $q->where('unidadecompra_id',$unidade_compra->id)
+                    ->where('modalidade_id',$modalidade->id)
+                    ->where('licitacao_numero',$dados['numeroAnoCompra']);
+                if(isset($unidade_contrato->id)){
+                    $q->where('unidade_id',$unidade_contrato->id);
+                }
+                if($dados['fornecedor']){
+                    $q->whereHas('fornecedor', function ($f) use($dados){
+                        $f->where('cpf_cnpj_idgener',$this->formataCnpjCpf($dados['fornecedor']));
+                    });
+                }
+            })
+                ->where('numero_item_compra',$dados['item_compra'])
+                ->get();
+
+
+            foreach ($dados as $dado){
+                $instrumento_inicial = $dado->contrato->historico()->whereHas('tipo', function ($t){
+                    $t->where('descricao', '<>', 'Termo Aditivo')
+                        ->where('descricao', '<>', 'Termo de Apostilamento')
+                        ->where('descricao', '<>', 'Termo de Rescisão');
+                })->first();
+
+                $retorno[] = [
+                    'unidade_origem' => @$dado->contrato->unidadeorigem->codigo,
+                    'unidade_atual' => @$dado->contrato->unidade->codigo,
+                    'numero_contrato' => @$dado->contrato->numero,
+                    'tipo' => @$dado->contrato->tipo->descres,
+                    'fornecedor' => @$dado->contrato->fornecedor->cpf_cnpj_idgener,
+                    'vigencia_fim_inicial' => @$instrumento_inicial->vigencia_fim,
+                    'vigencia_fim' => @$dado->contrato->vigencia_fim,
+                    'quantidade_item' => @$dado->quantidade,
+                    'valor_unitario_item' => @$dado->valorunitario,
+                    'valor_total_item' => @$dado->valortotal,
+                    'situacao_publicacao' => 'PUBLICADO'
+                ];
+            }
+        }
 
         return $retorno;
+    }
+
+    private function buscaUnidadePorCodigo(string $codigo)
+    {
+        $unidade = Unidade::where('codigo', $codigo)->first();
+        return $unidade;
+    }
+
+    private function buscaModalidadePorCodigo(string $codigo)
+    {
+        $modalidade = Codigoitem::whereHas('codigo', function ($q) {
+            $q->where('descricao', 'Modalidade Licitação');
+        })
+            ->where('descres', $codigo)
+            ->first();
+
+        return $modalidade;
     }
 
 }
