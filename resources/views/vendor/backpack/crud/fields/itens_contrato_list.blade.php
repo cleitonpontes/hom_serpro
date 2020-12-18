@@ -276,10 +276,10 @@
             }
 
             function atualizarValorTotal(tr){
-                var qtd_item = parseFloat($(tr).find('td').eq(2).find('input').val());
-                var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
+                var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
+                var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
-                parseFloat($(tr).find('td').eq(4).find('input').val(qtd_item * vl_unit));
+                parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
             }
 
             function atualizarQuantidade(tr){

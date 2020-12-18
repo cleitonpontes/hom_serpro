@@ -440,6 +440,4 @@ class SaldohistoricoitemCrudController extends CrudController
 
         return $contratoitens->toArray();
     }
-
-
 }
