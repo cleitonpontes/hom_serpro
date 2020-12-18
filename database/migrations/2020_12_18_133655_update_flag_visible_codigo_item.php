@@ -16,8 +16,9 @@ class UpdateFlagVisibleCodigoItem extends Migration
         //atualiza arquivos com composer
         exec('composer dumpautoload');
 
-        $seed = new UpdateCodigoItemFlagVisibleByDescresSeeder();
-        $seed->run();
+        //executa seed atualização
+        \Illuminate\Support\Facades\Artisan::call('db:seed', array('--class' => 'UpdateCodigoItemFlagVisibleByDescresSeeder'));
+
     }
 
     /**
