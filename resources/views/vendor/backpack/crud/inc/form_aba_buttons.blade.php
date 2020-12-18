@@ -83,53 +83,11 @@
             $('#cancelar').show();
             $('#prev_aba').show();
             $('#next_aba').hide();
-            calculaTotalGlobal();
-        });
-
-        $('body').on('change','.itens', function(event){
-            calculaTotalGlobal();
         });
 
         $("[name='minutasempenho[]']").on('change',function(event){
             minutas_id = [];
             minutas_id = retornaMinutaIds();
-        });
-
-        //quando altera o campo de quantidade do item re-calcula os valores
-        $('body').on('change','[name="qtd_item[]"]',function(event){
-            var tr = this.closest('tr');
-            atualizarValorTotal(tr);
-        });
-
-        //quando altera o campo de valor unitario do item re-calcula os valores
-        $('body').on('change','input[name="vl_unit[]"]',function(event){
-            var tr = this.closest('tr');
-            atualizarValorTotal(tr);
-        });
-
-        //quando altera o campo de valor total do item re-calcula a quantidade
-        $('body').on('change','[name="vl_total[]"]',function(event){
-            var tr = this.closest('tr');
-            atualizarQuantidade(tr);
-        });
-
-        //quando altera o campo de quantidade de parcela atualizar o valor da parcela
-        $('body').on('change','#num_parcelas',function(event){
-            atualizarValorParcela();
-        });
-
-        //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-        $('body').on('change','input[name="periodicidade"]',function(event){
-            atualizarValorParcela();
-        });
-
-        //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-        $('body').on('change','#valor_global',function(event){
-            atualizarValorParcela();
-        });
-
-        $('body').on('click','#remove_item', function(event){
-            removeLinha(this);
         });
 
         $(document).on('change', '#select2_ajax_multiple_minutasempenho', function () {
@@ -203,24 +161,10 @@
         event.preventDefault()
     }
 
-    function atualizarValorTotal(tr){
-        var qtd_item = parseFloat($(tr).find('td').eq(2).find('input').val());
-        var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
-
-        parseFloat($(tr).find('td').eq(4).find('input').val(qtd_item * vl_unit));
-    }
-
-    function atualizarQuantidade(tr){
-        var vl_unit = parseFloat($(tr).find('td').eq(3).find('input').val());
-        var valor_total_item = parseFloat($(tr).find('td').eq(4).find('input').val());
-
-        parseFloat($(tr).find('td').eq(2).find('input').val(valor_total_item / vl_unit));
-    }
-
     function atualizarDataInicioItens(){
         $("#table-itens").find('tr').each(function(){
-            if ($(this).find('td').eq(6).find('input').val() === "") {
-                $(this).find('td').eq(6).find('input').val($('input[name=data_assinatura]').val());
+            if ($(this).find('td').eq(7).find('input').val() === "") {
+                $(this).find('td').eq(7).find('input').val($('input[name=data_assinatura]').val());
             }
         });
     }
@@ -250,67 +194,6 @@
         return array_minutas_id;
     }
 
-    function adicionaLinhaItem(item){
-
-        var compra_itens_id = $("[name='compra_itens_id[]']");
-        compra_itens_id.push(item.id);
-        var vl_unit = item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2});
-        var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
-
-        // se vier data dos dados do contrato preencher com a data default
-        var data_inicio = $('input[name=data_assinatura]').val();
-        if ($('input[name=data_inicio]').val()) {
-            data_inicio = $('input[name=data_inicio]').val();
-        }
-
-        var periodicidade = 1;
-        if ($('#periodicidade_item').val()) {
-            periodicidade = $('#periodicidade_item').val();
-        }
-
-        var newRow = $("<tr>");
-        var cols = "";
-        cols += '<td>'+item.tipo_item+'</td>';
-        cols += '<td>'+item.numero+'</td>';
-        cols += '<td>'+item.descricaodetalhada+'</td>';
-        cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
-        cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
-        cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
-        cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
-        cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
-        cols += '<td>';
-        cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
-                    '<i class="fa fa-trash"></i>'+
-                '</button>';
-        cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
-        cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
-        cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
-        cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id" value="'+item.compra_item_unidade_id+'">';
-        cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricaodetalhada+'">';
-        cols += '</td>';
-
-        newRow.append(cols);
-        $("#table-itens").append(newRow);
-    }
-
-    function removeLinha(elemento){
-        var tr = $(elemento).closest('tr');
-        tr.remove();
-        calculaTotalGlobal()
-    }
-
-    function calculaTotalGlobal(){
-        var valor_total = 0;
-        $("#table-itens").find('tr').each(function(){
-            var total_item = parseFloat($(this).find('td').eq(4).find('input').val());
-            var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
-            var total_iten = (total_item * periodicidade);
-            valor_total += total_iten;
-        });
-        $('#valor_global').val(valor_total);
-        atualizarValorParcela();
-    }
-
     function carregaitens(event,minutas_id) {
 
         $("#table-itens tr").remove();
@@ -337,44 +220,6 @@
                 .finally()
             event.preventDefault()
         }
-    }
-
-    function carregaitensmodal(tipo) {
-
-        resetarSelect();
-
-        if (tipo.value){
-            var tipo_id = tipo.value;
-
-            var url = "{{route('busca.catmatseritens.portipo',':tipo_id')}}";
-
-            url = url.replace(':tipo_id', tipo_id);
-
-            axios.request(url)
-                .then(response => {
-                    var itens = response.data.data;
-
-                    itens.forEach(function (item) {
-                        carregarOptionsSelect(item);
-                    });
-                })
-                .catch(error => {
-                    alert(error);
-                })
-                .finally()
-        }
-    }
-
-    function resetarSelect(){
-        $("#item option").remove();
-        var newRow = '<option value="">Selecione...</option>';
-        $("#item").append(newRow);
-    }
-
-    function carregarOptionsSelect(item)
-    {
-        var newRow = '<option value="'+ item.id+'">'+item.descricao+'</option>';
-        $("#item").append(newRow);
     }
 
     function habilitaDesabilitaBotoes(){
