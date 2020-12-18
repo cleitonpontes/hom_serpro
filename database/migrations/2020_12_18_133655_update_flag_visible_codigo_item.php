@@ -13,6 +13,9 @@ class UpdateFlagVisibleCodigoItem extends Migration
      */
     public function up()
     {
+        //atualiza arquivos com composer
+        exec('composer dumpautoload');
+
         $seed = new UpdateCodigoItemFlagVisibleByDescresSeeder();
         $seed->run();
     }
@@ -24,6 +27,6 @@ class UpdateFlagVisibleCodigoItem extends Migration
      */
     public function down()
     {
-        
+
     }
 }
