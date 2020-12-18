@@ -150,8 +150,8 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
         $params = [
             'modalidade' => $dados['modalidade'],
             'numeroAno' => $dados ['numeroAno'],
-            'uasgCompra' => $dados ['uasgUsuario'],
-            'uasgUsuario' => $dados ['uasgCompra']
+            'uasgCompra' => $dados ['uasgCompra'],
+            'uasgUsuario' => $dados ['uasgUsuario']
         ];
 
         $compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
