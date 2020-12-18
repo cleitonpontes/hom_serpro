@@ -195,6 +195,13 @@
                     removeLinha(this);
                 });
 
+                /**
+                 * necessario remover o disabled do campo fornecedor_id(select2_from_ajax) para ele ser submetido
+                 **/
+                $('body').submit(function(){
+                    $('#select2_ajax_fornecedor_id').prop('disabled', false);
+                });
+
                 function atualizarSelectItem(){
                     $('#item').select2({
                         ajax: {
@@ -222,6 +229,7 @@
                     url = url.replace(':tipo_id', $('#tipo_item').val());
                     return url;
                 }
+                onChangeSelectQualificacao();
             });
 
             function addOption(valor) {
@@ -410,6 +418,97 @@
                 } else {
                     alert('Esse item não pode ser exluído. Só é permitido alterar.')
                 }
+            }
+            /*---------------------------HABILITA-E-DESABILITA-CAMPOS---------------------------*/
+            function onChangeSelectQualificacao() {
+                $('#select2_ajax_multiple_qualificacoes').change(function () {
+                    var array_selected = [],
+                        arrayItemQualificacao = [];
+
+                    var selected = $("[name='qualificacoes[]']").find(':selected');
+                    arrayItemQualificacao = JSON.parse($("input[name=options_qualificacao]").val());
+
+                    selected.each(function (index, option) {
+                        array_selected[index] = option.text;
+                    })
+                    var arrayNameCamposHabilitarDesabilitar = recuperarArrObjCampos(arrayItemQualificacao);
+                    habilitarDesabilitarCampos(array_selected, arrayNameCamposHabilitarDesabilitar);
+                });
+            }
+
+            function habilitarDesabilitarCampos(array_selected, arrayNameCamposHabilitarDesabilitar) {
+                arrayNameCamposHabilitarDesabilitar.forEach(function (objCampo) {
+                    var booSelected = $.inArray(objCampo.id, array_selected) !== -1;
+                    objCampo.arrInput.forEach(function (inputElement) {
+
+                        if (inputElement.name !== 'fornecedor_id') {
+                            $('[name=' + inputElement.name + ']').prop("readonly", !booSelected);
+                            $('[name=' + inputElement.name + ']').val(function (index, currentValue) {
+                                return !booSelected ? inputElement.oldValue : currentValue;
+                            });
+                        }
+                        if (inputElement.name === 'fornecedor_id') {
+                            $('[name=' + inputElement.name + ']').prop("disabled", !booSelected);
+                            $('[name=' + inputElement.name + ']').append(function (index, currentHtml) {
+                                return !booSelected ? inputElement.oldValue : currentHtml;
+                            })
+                        }
+                    });
+                });
+            }
+
+            function getOldValue(name) {
+                //trata campo select2_from_ajax de fornecedor
+                if (name === 'fornecedor_id') {
+                    $('#select2_ajax_fornecedor_id option:first').remove(); //remove opcao Selecione...
+                    return $('#select2_ajax_fornecedor_id').html();
+
+                }
+                return $('[name=' + name + ']').data('val', $('[name=' + name + ']').val())[0].defaultValue;
+            }
+
+            function recuperarArrObjCampos(arrayItemQualificacao) {
+                let arrObjCampos = [];
+                arrayItemQualificacao.forEach(function (qualificacaoItem, index){
+
+                    switch (qualificacaoItem.descricao) {
+                        case 'ACRÉSCIMO / SUPRESSÃO':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'valor_global', oldValue: getOldValue('valor_global')},
+                                    {name: 'valor_parcela', oldValue: getOldValue('valor_parcela')},
+                                    {name: 'num_parcelas', oldValue: getOldValue('num_parcelas')}
+                                ]
+                            })
+                            break;
+                            case 'VIGÊNCIA':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'vigencia_inicio', oldValue: getOldValue('vigencia_inicio')},
+                                    {name: 'vigencia_fim', oldValue: getOldValue('vigencia_fim')}]
+                            })
+                            break;
+                            case 'FORNECEDOR':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'fornecedor_id', oldValue: getOldValue('fornecedor_id')}
+                                ]
+                            })
+                            break;
+                            case 'INFORMATIVO':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'observacao', oldValue: getOldValue('observacao')}
+                                ]
+                            },)
+                            break;
+                    }
+                });
+                return arrObjCampos;
             }
         </script>
     @endpush
