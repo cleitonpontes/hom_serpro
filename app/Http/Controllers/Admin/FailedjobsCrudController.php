@@ -32,6 +32,9 @@ class FailedjobsCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/failedjobs');
         $this->crud->setEntityNameStrings('Failed Jobs', 'Failed Jobs');
 
+        $this->crud->addClause('orderby', 'failed_at', 'DESC');
+
+
 
         backpack_user()->hasRole('Administrador') ? $this->crud->allowAccess('show') : $this->crud->denyAccess('show');
         $this->crud->denyAccess('create');
