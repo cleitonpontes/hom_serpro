@@ -101,7 +101,6 @@
         });
 
         $("form").submit(function (event) {
-            $('#periodicidade').val($('#periodicidade').val());
             var y = $('#table').html();
             $('input[name=teste]').val(y);
         });
@@ -110,21 +109,21 @@
         $('body').on('change','[name="qtd_item[]"]',function(event){
             var tr = this.closest('tr');
             atualizarValorTotal(tr);
-            eitaCarai(event);
+            atualizarCurrentAtribute(event);
         });
 
         //quando altera o campo de valor unitario do item re-calcula os valores
         $('body').on('change','input[name="vl_unit[]"]',function(event){
             var tr = this.closest('tr');
             atualizarValorTotal(tr);
-            eitaCarai(event);
+            atualizarCurrentAtribute(event);
         });
 
         //quando altera o campo de valor total do item re-calcula a quantidade
         $('body').on('change','[name="vl_total[]"]',function(event){
             var tr = this.closest('tr');
             atualizarQuantidade(tr);
-            eitaCarai(event);
+            atualizarCurrentAtribute(event);
         });
 
         //quando altera o campo de quantidade de parcela atualizar o valor da parcela
@@ -135,12 +134,12 @@
         //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
         $('body').on('change','input[name="periodicidade[]"]',function(event){
             atualizarValorParcela();
-            eitaCarai(event);
+            atualizarCurrentAtribute(event);
         });
 
 
         $('body').on('change','input[name="data_inicio[]"]',function(event){
-            eitaCarai(event);
+            atualizarCurrentAtribute(event);
         });
 
         //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
@@ -167,8 +166,12 @@
         });
     });
 
-    function eitaCarai(event) {
-        console.log(event.currentTarget.value, 'tesar');
+    /**
+     * atualiza o value do atributo no html
+     * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+     * @param event
+     */
+    function atualizarCurrentAtribute(event) {
         event.currentTarget.setAttribute("value", event.currentTarget.value);
     }
 
