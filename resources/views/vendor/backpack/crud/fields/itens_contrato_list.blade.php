@@ -154,7 +154,6 @@
                 });
 
                 $('body').on('change','.itens', function(event){
-                    // atualizarValorParcela(parcela);
                     calculaTotalGlobal();
                 });
 
@@ -291,22 +290,11 @@
             //atualiza o valor da parcela do contrato
             function atualizarValorParcela(parcela)
             {
-                calculaTotalGlobal();
-                valor_global = $('#valor_global').val();
-                numero_parcelas = $('#num_parcelas').val();
+                var valor_global = $('#valor_global').val();
+                var numero_parcelas = $('#num_parcelas').val();
+                var valor_parcela = valor_global / numero_parcelas;
 
-                var valor_parcela = valor_global / parcela;
-
-                $('#valor_parcela').val(parseFloat(valor_parcela.toFixed(2)));
-            }
-
-            /**
-             * atualiza o value do atributo no html
-             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
-             * @param event
-             */
-            function atualizarCurrentAtribute(event) {
-                event.currentTarget.setAttribute("value", event.currentTarget.value);
+                $('#valor_parcela').val(parseFloat(valor_parcela.toLocaleString('en-US', {minimumFractionDigits: 4})));
             }
 
             function atualizarValorTotal(tr){
@@ -388,7 +376,6 @@
 
             function calculaTotalGlobal(){
                 var valor_total = 0;
-
                 $("#table-itens").find('tr').each(function(){
                     var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
                     //console.log('Valor total do item: '+total_item);

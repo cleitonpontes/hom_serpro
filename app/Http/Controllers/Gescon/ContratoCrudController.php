@@ -1123,6 +1123,7 @@ class ContratoCrudController extends CrudController
             'attributes' => [
                 "step" => "0.01",
                 'id' => 'valor_global',
+                'step' => '0.0001',
             ],
             'prefix' => "R$",
             'tab' => $this->tab
@@ -1153,6 +1154,7 @@ class ContratoCrudController extends CrudController
             'attributes' => [
                 "step" => "0.01",
                 'id' => 'valor_parcela',
+                'step' => '0.0001',
             ],
             'prefix' => "R$",
             'tab' => $this->tab

@@ -7,6 +7,7 @@ use App\Models\Codigoitem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
+use App\Rules\NaoAceitarMinutaCompraDiferente;
 
 class ContratoRequest extends FormRequest
 {
@@ -36,6 +37,7 @@ class ContratoRequest extends FormRequest
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
         $this->data_atual = date('Y-m-d');
+        $this->minutasempenho = $this->minutasempenho ?? [];
 
         return [
 //            'numero' => [
@@ -46,6 +48,7 @@ class ContratoRequest extends FormRequest
 //            ],
             'numero' => 'required',
             'fornecedor_id' => 'required',
+            'minutasempenho' => new NaoAceitarMinutaCompraDiferente,
             'tipo_id' => 'required',
             'categoria_id' => 'required',
             'receita_despesa' => 'required',
@@ -113,6 +116,7 @@ class ContratoRequest extends FormRequest
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
             'data_assinatura.before_or_equal' => "A data da assinatura deve ser menor que  {$data_amanha} ",
             'data_publicacao.after' => "A data da publicação deve ser maior que {$hoje} ",
+            'minutasempenho.required_if' => 'teste'
         ];
     }
 }
