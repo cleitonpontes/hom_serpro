@@ -124,7 +124,7 @@
         <script type="text/javascript">
 
             $(document).ready(function () {
-
+                valor_global = 0;
                 parcela = 1;
 
                 const $tableID = $('#table');
@@ -267,9 +267,9 @@
                     'catmatseritem_id' : item.id,
                     'descricaodetalhada': item.descricao,
                     'numero':$('#numero_item').val(),
-                    'quantidade' : $('#quantidade_item').val(),
-                    'valor_unitario': $('#valor_unit').val(),
-                    'valor_total': $('#valor_total').val(),
+                    'quantidade' : parseFloat(($('#quantidade_item').val()).toFixed(2)),
+                    'valor_unitario': parseFloat(($('#valor_unit').val()).toFixed(2)),
+                    'valor_total': parseFloat(($('#valor_total').val()).toFixed(2)),
                     'periodicidade': $('#periodicidade_item').val(),
                     'data_inicio': $('#dt_inicio').val()
                 }
@@ -294,9 +294,10 @@
                 calculaTotalGlobal();
                 valor_global = $('#valor_global').val();
                 numero_parcelas = $('#num_parcelas').val();
-                console.log('numero_percelas: '+numero_parcelas);
-                console.log('parcela: '+ parcela);
-                $('#valor_parcela').val(valor_global / parcela);
+
+                var valor_parcela = valor_global / parcela;
+
+                $('#valor_parcela').val(parseFloat(valor_parcela.toFixed(2)));
             }
 
             /**
@@ -312,16 +313,16 @@
 
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
-
-                parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
+                var vltotal = qtd_item * vl_unit;
+                $(tr).find('td').eq(5).find('input').val(parseFloat(vltotal.toFixed(2)));
                 calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
                 var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
-
-                parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
+                var quantidade = valor_total_item / vl_unit;
+                $(tr).find('td').eq(3).find('input').val(parseFloat(quantidade.toFixed(2)));
                 calculaTotalGlobal();
             }
 
@@ -337,6 +338,7 @@
 
                 var compra_itens_id = $("[name='compra_itens_id[]']");
                 compra_itens_id.push(item.id);
+                var qtd = item.quantidade;
                 var vl_unit = item.valor_unitario;
                 var vl_total = item.valor_total;
 
@@ -356,7 +358,7 @@
                 cols += '<td>'+item.tipo_item+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricaodetalhada+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+qtd+'" value="'+qtd+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
                 cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
@@ -401,7 +403,7 @@
                     }
                 });
                 console.log(parcela);
-                $('#valor_global').val(parseFloat(valor_total));
+                $('#valor_global').val(parseFloat(valor_total.toFixed(2)));
                 atualizarValorParcela(parcela);
             }
 

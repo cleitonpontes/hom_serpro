@@ -1121,6 +1121,7 @@ class ContratoCrudController extends CrudController
             'label' => 'Valor Global',
             'type' => 'number',
             'attributes' => [
+                "step" => "0.01",
                 'id' => 'valor_global',
             ],
             'prefix' => "R$",
@@ -1150,6 +1151,7 @@ class ContratoCrudController extends CrudController
             'label' => 'Valor Parcela',
             'type' => 'number',
             'attributes' => [
+                "step" => "0.01",
                 'id' => 'valor_parcela',
             ],
             'prefix' => "R$",
