@@ -102,6 +102,7 @@ class FailedjobsCrudController extends CrudController
                 'name'  => 'payload',
                 'label' => 'Payload',
                 'type'  => 'text',
+                'limit' => 9999,
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
@@ -116,6 +117,7 @@ class FailedjobsCrudController extends CrudController
                 'name'  => 'exception',
                 'label' => 'Exception',
                 'type'  => 'text',
+                'limit' => 9999,
                 'orderable' => true,
                 'visibleInTable' => false, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
