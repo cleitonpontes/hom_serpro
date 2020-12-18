@@ -36,6 +36,7 @@ class Contratoitem extends Model
         'valorunitario',
         'valortotal',
         'numero_item_compra',
+        'contratohistorico_id'
     ];
 
     /*

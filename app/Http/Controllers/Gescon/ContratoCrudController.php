@@ -404,7 +404,7 @@ class ContratoCrudController extends CrudController
 
             $linhas = $pdf->NbLines($cell_width, utf8_decode(($registro->tipo()->first()->descricao))) *5;
             $pdf->SetFont('Arial', 'B', 7);
-            //A MultiCell quebra a linha atual após ser exibida e ao usá-la fora da última coluna o ponto XY deve 
+            //A MultiCell quebra a linha atual após ser exibida e ao usá-la fora da última coluna o ponto XY deve
             //ser atualizado para continuar na linha atual.
             $current_y = $pdf->GetY();
             $current_x = $pdf->GetX();
@@ -1704,31 +1704,5 @@ class ContratoCrudController extends CrudController
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
-    }
-
-    // Metodo para retonar os itens do saldo historico do contrato
-    public function retonaSaldoHistoricoItensContrato($contrato_id)
-    {
-        return Saldohistoricoitem::whereHas('contratoItem', function($q) use ($contrato_id){
-            $q->whereHas('contrato', function ($o) use($contrato_id){
-                $o->where('id',$contrato_id);
-            });
-        })
-            ->select(
-                'saldohistoricoitens.id as saldo_historico_item_id',
-                'codigoitens.descricao',
-                'contratoitens.descricao_complementar',
-                'contratoitens.quantidade',
-                'saldohistoricoitens.valorunitario',
-                'saldohistoricoitens.valortotal',
-                'saldohistoricoitens.periodicidade',
-                'saldohistoricoitens.data_inicio',
-                'contratoitens.catmatseritem_id',
-                'contratoitens.tipo_id',
-                'contratoitens.numero_item_compra as numero'
-            )
-             ->leftJoin('contratoitens', 'saldohistoricoitens.contratoitem_id', '=', 'contratoitens.id')
-             ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
-        ->get()->toArray();
     }
 }

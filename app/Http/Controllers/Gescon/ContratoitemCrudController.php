@@ -445,5 +445,29 @@ class ContratoitemCrudController extends CrudController
         return Saldohistoricoitem::where('contratoitem_id',$id)->count();;
     }
 
+    /* Metodo para retonar os itens contrato item
+     * utilizado para listar os items em: Termo aditivo e termo de apostilamento
+     *
+     * return array contratoitens
+     */
+    public function retonaContratoItem($contrato_id)
+    {
+        return Contratoitem::where('contrato_id','=',$contrato_id)
+            ->select(
+                'contratoitens.id',
+                'codigoitens.descricao',
+                'contratoitens.descricao_complementar',
+                'contratoitens.quantidade',
+                'contratoitens.valorunitario',
+                'contratoitens.valortotal',
+                'contratoitens.periodicidade',
+                'contratoitens.data_inicio',
+                'contratoitens.catmatseritem_id',
+                'contratoitens.tipo_id',
+                'contratoitens.numero_item_compra as numero'
+            )
+            ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+            ->get()->toArray();
+    }
 
 }
