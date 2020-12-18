@@ -124,6 +124,9 @@
         <script type="text/javascript">
 
             $(document).ready(function () {
+
+                parcela = 1;
+
                 const $tableID = $('#table');
 
                  $('#numero_item').mask('99999');
@@ -151,6 +154,7 @@
                 });
 
                 $('body').on('change','.itens', function(event){
+                    // atualizarValorParcela(parcela);
                     calculaTotalGlobal();
                 });
 
@@ -177,12 +181,13 @@
 
                 //quando altera o campo de quantidade de parcela atualizar o valor da parcela
                 $('body').on('change','#num_parcelas',function(event){
-                    atualizarValorParcela();
+                    atualizarValorParcela(parcela);
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','input[name="periodicidade[]"]',function(event){
-                    atualizarValorParcela();
+                    calculaTotalGlobal();
+                    atualizarValorParcela(parcela);
                     atualizarCurrentAtribute(event);
                 });
 
@@ -192,7 +197,7 @@
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#valor_global',function(event){
-                    atualizarValorParcela();
+                    atualizarValorParcela(parcela);
                 });
 
                 $('body').on('click','#remove_item', function(event){
@@ -284,13 +289,14 @@
             }
 
             //atualiza o valor da parcela do contrato
-            function atualizarValorParcela()
+            function atualizarValorParcela(parcela)
             {
-
+                calculaTotalGlobal();
                 valor_global = $('#valor_global').val();
                 numero_parcelas = $('#num_parcelas').val();
-
-                $('#valor_parcela').val(valor_global / numero_parcelas);
+                console.log('numero_percelas: '+numero_parcelas);
+                console.log('parcela: '+ parcela);
+                $('#valor_parcela').val(valor_global / parcela);
             }
 
             /**
@@ -331,8 +337,8 @@
 
                 var compra_itens_id = $("[name='compra_itens_id[]']");
                 compra_itens_id.push(item.id);
-                var vl_unit = item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2});
-                var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
+                var vl_unit = item.valor_unitario;
+                var vl_total = item.valor_total;
 
                 // se vier data dos dados do contrato preencher com a data default
                 var data_inicio = $('input[name=data_assinatura]').val();
@@ -350,7 +356,7 @@
                 cols += '<td>'+item.tipo_item+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricaodetalhada+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
                 cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
@@ -380,14 +386,23 @@
 
             function calculaTotalGlobal(){
                 var valor_total = 0;
+
                 $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(4).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
+                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
+                    //console.log('Valor total do item: '+total_item);
+                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
+                    // console.log('Periodicidade: '+periodicidade);
                     var total_iten = (total_item * periodicidade);
+                    // console.log('ValorTotal * Periodicidade = '+total_item);
                     valor_total += total_iten;
+                    // console.log('Valor Global: '+valor_total);
+                    if(periodicidade > parcela){
+                        parcela = periodicidade;
+                    }
                 });
-                $('#valor_global').val(valor_total);
-                atualizarValorParcela();
+                console.log(parcela);
+                $('#valor_global').val(parseFloat(valor_total));
+                atualizarValorParcela(parcela);
             }
 
             function resetarSelect(){
