@@ -36,6 +36,7 @@ class Contratoitem extends Model
         'valorunitario',
         'valortotal',
         'numero_item_compra',
+        'contratohistorico_id'
     ];
 
     /*
@@ -55,6 +56,9 @@ class Contratoitem extends Model
             $contratoitem->quantidade = $saldoitem->quantidade;
             $contratoitem->valorunitario = $saldoitem->valorunitario;
             $contratoitem->valortotal = $saldoitem->valortotal;
+            $contratoitem->periodicidade = $saldoitem->periodicidade;
+            $contratoitem->data_inicio = $saldoitem->data_inicio;
+            $contratoitem->numero_item_compra = $saldoitem->numero_item_compra;
             $contratoitem->save();
         }
     }
@@ -141,6 +145,11 @@ class Contratoitem extends Model
     public function tipo()
     {
         return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
+
+    public function saldoHistoricoItens()
+    {
+        return $this->morphToMany(Saldohistoricoitem::class, 'saldoable');
     }
 
     /*

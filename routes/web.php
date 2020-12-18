@@ -40,8 +40,8 @@ Route::group([
 });
 
 Route::group([
-    'prefix' => 'publicacao',
-    'namespace' => 'Publicacao',
+    'prefix' => 'soap',
+    'namespace' => 'Soap',
 ], function () {
 //    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
     Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
@@ -50,6 +50,9 @@ Route::group([
 
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+
+Route::get('/test/job', 'TestController@contrato');
+
 
 
 Route::group(
@@ -225,7 +228,7 @@ Route::group(
         // Módulo Apropriação da Fatura
         Route::group([
             'prefix' => 'apropriacao',
-            'namespace' => 'apropriacao',
+            'namespace' => 'Apropriacao',
             'middleware' => 'auth',
             // 'middleware' = 'permission:apropriacao_fatura'
         ], function () {
@@ -253,6 +256,9 @@ Route::group(
              **/
 
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
+
+            Route::get('minuta/{minuta_id}/atualizarsituacaominuta', 'MinutaEmpenhoCrudController@executarAtualizacaoSituacaoMinuta')
+                ->name('minuta.atualizar.situacao');
 
             //passo 1
             Route::get('buscacompra', 'CompraSiasgCrudController@create')
@@ -299,11 +305,20 @@ Route::group(
 
             //passo 6
 
+            Route::post('minuta/inserir/fornecedor', 'MinutaEmpenhoCrudController@inserirFornecedorModal')
+                ->name('minuta.inserir.fornecedor');
+
             //passo 7
             CRUD::resource('passivo-anterior', 'ContaCorrentePassivoAnteriorCrudController', ['except' => ['create', 'show']]);
 
             Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
                 ->name('minuta.etapa.passivo-anterior');
+
+            //alteracao minuta
+            Route::group(['prefix' => 'minuta/{minuta_id}'], function () {
+                CRUD::resource('alteracao', 'MinutaAlteracaoCrudController');
+                Route::get('alteracao-dt', 'MinutaAlteracaoCrudController@ajax')->name('crud.alteracao.ajax');
+            });
 
         });
 

@@ -13,6 +13,7 @@
                 </span>
                 <br>
                 <br>
+                <div class="table-responsive">
                 <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
                     <thead>
                     <tr>
@@ -31,6 +32,7 @@
 
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -52,7 +54,7 @@
                 </div>
                 <div class="modal-body" id="textoModal">
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Tipo Item</label>
+                        <label for="tipo_item" class="control-label">Tipo Item</label>
                         <select class="form-control" style="width:100%;" id="tipo_item">
                             <option value="">Selecione</option>
                             <option value="149">Material</option>
@@ -60,16 +62,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Item</label>
+                        <label for="item" class="control-label">Item</label>
                         <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Número</label>
+                        <label for="numero_item" class="control-label">Número</label>
                         <input class="form-control" id="numero_item"  name="numero_item" type="text">
                     </div>
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Quantidade</label>
+                        <label for="quantidade_item" class="control-label">Quantidade</label>
                         <input class="form-control" id="quantidade_item" maxlength="10" name="quantidade_item" type="number">
                     </div>
                     <div class="form-group">
@@ -126,10 +128,14 @@
             $(document).ready(function () {
                 const $tableID = $('#table');
 
-                 $('#numero_item').mask('99999');
+                $('#numero_item').mask('99999');
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
+                });
+
+                $('body').on('click','#itensdocontrato', function(event){
+                    buscarItens();
                 });
 
                 $('body').on('change','#tipo_item', function(event){
@@ -153,28 +159,31 @@
                 $('body').on('change','[name="qtd_item[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
+                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de valor unitario do item re-calcula os valores
                 $('body').on('change','input[name="vl_unit[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
+                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de valor total do item re-calcula a quantidade
                 $('body').on('change','[name="vl_total[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarQuantidade(tr);
+                    calculaTotalGlobal();
                 });
 
-                //quando altera o campo de quantidade de parcela atualizar o valor da parcela
-                $('body').on('change','#num_parcelas',function(event){
+                //quando altera o campo de quantidade de parcela atualizar o valor da parcela no caso de aditivo
+                $('body').on('change','#num_parcelas',function(){
                     atualizarValorParcela();
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-                $('body').on('change','input[name="periodicidade"]',function(event){
-                    atualizarValorParcela();
+                $('body').on('change','#periodicidade',function(event){
+                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
@@ -182,8 +191,15 @@
                     atualizarValorParcela();
                 });
 
-                $('body').on('click','#remove_item', function(event){
+                $('body').on('click','#remove_item',function(event){
                     removeLinha(this);
+                });
+
+                /**
+                 * necessario remover o disabled do campo fornecedor_id(select2_from_ajax) para ele ser submetido
+                 **/
+                $('body').submit(function(){
+                    $('#select2_ajax_fornecedor_id').prop('disabled', false);
                 });
 
                 function atualizarSelectItem(){
@@ -213,6 +229,7 @@
                     url = url.replace(':tipo_id', $('#tipo_item').val());
                     return url;
                 }
+                onChangeSelectQualificacao();
             });
 
             function addOption(valor) {
@@ -239,17 +256,18 @@
             function prepararItemParaIncluirGrid(item)
             {
                 item = {
-                    'tipo_item' : $('#tipo_item :selected').text(),
-                    'tipo_item_id' : $('#tipo_item').val(),
-                    'catmatseritem_id' : item.id,
-                    'descricaodetalhada': item.descricao,
-                    'numero':$('#numero_item').val(),
+                    'descricao' : $('#tipo_item :selected').text(),
+                    'descricao_complementar': item.descricao,
                     'quantidade' : $('#quantidade_item').val(),
-                    'valor_unitario': $('#valor_unit').val(),
-                    'valor_total': $('#valor_total').val(),
+                    'valorunitario': $('#valor_unit').val(),
+                    'numero':$('#numero_item').val(),
+                    'valortotal': $('#valor_total').val(),
                     'periodicidade': $('#periodicidade_item').val(),
-                    'data_inicio': $('#dt_inicio').val()
+                    'data_inicio': $('#dt_inicio').val(),
+                    'catmatseritem_id' : item.id,
+                    'tipo_item_id' : $('#tipo_item').val(),
                 }
+
                 adicionaLinhaItem(item);
                 resetarCamposFormulario();
             }
@@ -257,15 +275,15 @@
             function resetarCamposFormulario(){
                 $('#tipo_item').val('');
                 $('#item').val('').change();
-                $('#numero_item').val('');
                 $('#quantidade_item').val('');
+                $('#numero_item').val('');
                 $('#valor_unit').val('');
                 $('#valor_total').val('');
                 $('#periodicidade_item').val('');
                 $('#dt_inicio').val('');
             }
 
-            //atualiza o valor da parcela do contrato
+            //atualiza o valor da parcela do contrato para termo aditivo
             function atualizarValorParcela()
             {
 
@@ -276,12 +294,10 @@
             }
 
             function atualizarValorTotal(tr){
-
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
                 parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
-                calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
@@ -289,7 +305,6 @@
                 var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
 
                 parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
-                calculaTotalGlobal();
             }
 
             function atualizarDataInicioItens(){
@@ -301,65 +316,43 @@
             }
 
             function adicionaLinhaItem(item){
-
-                var compra_itens_id = $("[name='compra_itens_id[]']");
-                compra_itens_id.push(item.id);
-                var vl_unit = item.valor_unitario.toLocaleString('pt-br', {minimumFractionDigits: 2});
-                var vl_total = item.valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
-
-                // se vier data dos dados do contrato preencher com a data default
-                var data_inicio = $('input[name=data_assinatura]').val();
-                if ($('input[name=dt_inicio]').val()) {
-                    data_inicio = $('input[name=dt_inicio]').val();
-                }
-
-                var periodicidade = 1;
-                if ($('#periodicidade_item').val()) {
-                    periodicidade = $('#periodicidade_item').val();
-                }
+                // var compra_itens_id = $("[name='compra_itens_id[]']");
+                // compra_itens_id.push(item.id);
 
                 var newRow = $("<tr>");
                 var cols = "";
-                cols += '<td>'+item.tipo_item+'</td>';
+                cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
-                cols += '<td>'+item.descricaodetalhada+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" max="'+item.quantidade_autorizada+'" min="'+item.quantidade+'" value="'+item.quantidade.toLocaleString('pt-br', {minimumFractionDigits: 2})+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+vl_unit+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+vl_total+'"></td>';
-                cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
-                cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
-                cols += '<td>';
-                cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
+                cols += '<td>'+item.descricao_complementar+'</td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" value="'+item.quantidade+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"></td>';
+                cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
+                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
+                cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
                     '</button>';
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
-                cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id" value="'+item.compra_item_unidade_id+'">';
-                cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricaodetalhada+'">';
+                cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
+                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
-                calculaTotalGlobal();
-
-            }
-
-            function removeLinha(elemento){
-                var tr = $(elemento).closest('tr');
-                tr.remove();
-                calculaTotalGlobal()
             }
 
             function calculaTotalGlobal(){
                 var valor_total = 0;
                 $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(4).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
+                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
+                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
                 $('#valor_global').val(valor_total);
+
                 atualizarValorParcela();
             }
 
@@ -375,7 +368,148 @@
                 $("#item").append(newRow);
             }
 
+            function buscarItens()
+            {
+                if($("[name=aditivo_id]").val()){
+                    buscarSaldoHistoricoItens();
+                } else{
+                    buscarContratoItens();
+                }
+            }
+
+            function buscarSaldoHistoricoItens(){
+                var aditivo_id = $("[name=aditivo_id]").val();
+                var url = "{{route('saldo.historico.itens',':id')}}";
+                url = url.replace(':id', aditivo_id);
+                carregarItens(url);
+            }
+
+            function buscarContratoItens(){
+                var contrato_id = $("[name=contrato_id]").val();
+                var url = "{{route('contrato.item',':contrato_id')}}";
+                url = url.replace(':contrato_id', contrato_id);
+                carregarItens(url);
+            }
+
+            function carregarItens(url){
+                axios.get(url)
+                    .then(response => {
+                        var itens = response.data;
+                        var qtd_itens = itens.length;
+                        itens.forEach(function (item) {
+                            var linhas = $("#table-itens tr").length;
+                            if(qtd_itens > linhas){
+                                adicionaLinhaItem(item);
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        alert(error);
+                    })
+                    .finally()
+            }
+
+            function removeLinha(elemento){
+                var tr = $(elemento).closest('tr');
+                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#id').val();
+                if (historicoSaldoItemId === 'undefined'){
+                    tr.remove();
+                    calculaTotalGlobal()
+                } else {
+                    alert('Esse item não pode ser exluído. Só é permitido alterar.')
+                }
+            }
+            /*---------------------------HABILITA-E-DESABILITA-CAMPOS---------------------------*/
+            function onChangeSelectQualificacao() {
+                $('#select2_ajax_multiple_qualificacoes').change(function () {
+                    var array_selected = [],
+                        arrayItemQualificacao = [];
+
+                    var selected = $("[name='qualificacoes[]']").find(':selected');
+                    arrayItemQualificacao = JSON.parse($("input[name=options_qualificacao]").val());
+
+                    selected.each(function (index, option) {
+                        array_selected[index] = option.text;
+                    })
+                    var arrayNameCamposHabilitarDesabilitar = recuperarArrObjCampos(arrayItemQualificacao);
+                    habilitarDesabilitarCampos(array_selected, arrayNameCamposHabilitarDesabilitar);
+                });
+            }
+
+            function habilitarDesabilitarCampos(array_selected, arrayNameCamposHabilitarDesabilitar) {
+                arrayNameCamposHabilitarDesabilitar.forEach(function (objCampo) {
+                    var booSelected = $.inArray(objCampo.id, array_selected) !== -1;
+                    objCampo.arrInput.forEach(function (inputElement) {
+
+                        if (inputElement.name !== 'fornecedor_id') {
+                            $('[name=' + inputElement.name + ']').prop("readonly", !booSelected);
+                            $('[name=' + inputElement.name + ']').val(function (index, currentValue) {
+                                return !booSelected ? inputElement.oldValue : currentValue;
+                            });
+                        }
+                        if (inputElement.name === 'fornecedor_id') {
+                            $('[name=' + inputElement.name + ']').prop("disabled", !booSelected);
+                            $('[name=' + inputElement.name + ']').append(function (index, currentHtml) {
+                                return !booSelected ? inputElement.oldValue : currentHtml;
+                            })
+                        }
+                    });
+                });
+            }
+
+            function getOldValue(name) {
+                //trata campo select2_from_ajax de fornecedor
+                if (name === 'fornecedor_id') {
+                    $('#select2_ajax_fornecedor_id option:first').remove(); //remove opcao Selecione...
+                    return $('#select2_ajax_fornecedor_id').html();
+
+                }
+                return $('[name=' + name + ']').data('val', $('[name=' + name + ']').val())[0].defaultValue;
+            }
+
+            function recuperarArrObjCampos(arrayItemQualificacao) {
+                let arrObjCampos = [];
+                arrayItemQualificacao.forEach(function (qualificacaoItem, index){
+
+                    switch (qualificacaoItem.descricao) {
+                        case 'ACRÉSCIMO / SUPRESSÃO':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'valor_global', oldValue: getOldValue('valor_global')},
+                                    {name: 'valor_parcela', oldValue: getOldValue('valor_parcela')},
+                                    {name: 'num_parcelas', oldValue: getOldValue('num_parcelas')}
+                                ]
+                            })
+                            break;
+                            case 'VIGÊNCIA':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'vigencia_inicio', oldValue: getOldValue('vigencia_inicio')},
+                                    {name: 'vigencia_fim', oldValue: getOldValue('vigencia_fim')}]
+                            })
+                            break;
+                            case 'FORNECEDOR':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'fornecedor_id', oldValue: getOldValue('fornecedor_id')}
+                                ]
+                            })
+                            break;
+                            case 'INFORMATIVO':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'observacao', oldValue: getOldValue('observacao')}
+                                ]
+                            },)
+                            break;
+                    }
+                });
+                return arrObjCampos;
+            }
         </script>
     @endpush
 @endif
-

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Contratoitem;
 use App\Models\Fornecedor;
+use App\Models\Saldohistoricoitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -25,6 +28,7 @@ class InstrumentoinicialCrudController extends CrudController
     {
 
         $contrato_id = \Route::current()->parameter('contrato_id');
+        $instrumentoinicial_id = \Route::current()->parameter('instrumentoinicial');
 
         $contrato = Contrato::where('id','=',$contrato_id)
             ->where('unidade_id','=',session()->get('user_ug_id'))->first();
@@ -100,8 +104,7 @@ class InstrumentoinicialCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
-
-        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos);
+        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in InstrumentoinicialRequest
@@ -346,9 +349,19 @@ class InstrumentoinicialCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos)
+    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id,$instrumentoinicial_id)
     {
         $campos = [
+            [   // Hidden
+                'name' => 'contrato_id',
+                'type' => 'hidden',
+                'default' => $contrato_id,
+            ],
+            [   // Hidden
+                'name' => 'instrumentoinicial_id',
+                'type' => 'hidden',
+                'default' => $instrumentoinicial_id,
+            ],
             [ // select_from_array
                 'name' => 'receita_despesa',
                 'label' => "Receita / Despesa",
@@ -563,6 +576,11 @@ class InstrumentoinicialCrudController extends CrudController
                 'type' => 'numlicitacao',
                 'tab' => 'Dados Contrato',
             ],
+            [
+                'name' => 'itens',
+                'type' => 'itens_contrato_instrumento_inicial_list',
+                'tab' => 'Itens do contrato',
+            ],
             [   // Date
                 'name' => 'vigencia_inicio',
                 'label' => 'Data Vig. Início',
@@ -642,9 +660,11 @@ class InstrumentoinicialCrudController extends CrudController
         $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
         $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
 
-
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
+        if(!empty($request->get('qtd_item'))) {
+            $this->alterarSaldoHistoricoItens($request->all());
+        }
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
@@ -678,5 +698,26 @@ class InstrumentoinicialCrudController extends CrudController
 
 
         return $content;
+    }
+
+    private function alterarSaldoHistoricoItens($request)
+    {
+        DB::beginTransaction();
+        try {
+            foreach ($request['qtd_item'] as $key => $qtd) {
+                $saldoHistoricoIten = Saldohistoricoitem::find($request['saldo_historico_id'][$key]);
+                $saldoHistoricoIten->quantidade = (double)$qtd;
+                $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
+                $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
+                $saldoHistoricoIten->data_inicio = $request['data_inicio'][$key];
+                $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
+                $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
+                $saldoHistoricoIten->save();
+            }
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
     }
 }

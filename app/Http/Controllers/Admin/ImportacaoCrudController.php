@@ -4,8 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ImportacaoRequest as StoreRequest;
 use App\Http\Requests\ImportacaoRequest as UpdateRequest;
+use App\Http\Traits\Formatador;
+use App\Http\Traits\Users;
+use App\Jobs\InserirUsuarioEmMassaJob;
+use App\Models\BackpackUser;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Importacao;
+use App\Models\Unidade;
+use App\Notifications\PasswordUserNotification;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +25,8 @@ use Spatie\Permission\Models\Role;
  */
 class ImportacaoCrudController extends CrudController
 {
+
+    use Users, Formatador;
 
     public function setup()
     {
@@ -45,7 +54,6 @@ class ImportacaoCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
         $this->crud->enableExportButtons();
-
 
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -92,28 +100,28 @@ class ImportacaoCrudController extends CrudController
             ->orderBy('contratos.numero', 'asc')->pluck('nome', 'id')->toArray();
 
 
-        if(backpack_user()->hasRole('Administrador Unidade')){
-            $roles = Role::where('guard_name','web')
-                ->where('name','<>','Administrador')
-                ->where('name','<>','Administrador Órgão')
-                ->where('name','<>','Administrador Unidade')
+        if (backpack_user()->hasRole('Administrador Unidade')) {
+            $roles = Role::where('guard_name', 'web')
+                ->where('name', '<>', 'Administrador')
+                ->where('name', '<>', 'Administrador Órgão')
+                ->where('name', '<>', 'Administrador Unidade')
                 ->orderBy('name')
                 ->pluck('name', 'id')
                 ->toArray();
         }
 
-        if(backpack_user()->hasRole('Administrador Órgão')){
-            $roles = Role::where('guard_name','web')
-                ->where('name','<>','Administrador')
-                ->where('name','<>','Administrador Órgão')
+        if (backpack_user()->hasRole('Administrador Órgão')) {
+            $roles = Role::where('guard_name', 'web')
+                ->where('name', '<>', 'Administrador')
+                ->where('name', '<>', 'Administrador Órgão')
                 ->orderBy('name')
                 ->pluck('name', 'id')
                 ->toArray();
         }
 
-        if(backpack_user()->hasRole('Administrador')){
-            $roles = Role::where('guard_name','web')
-                ->where('name','<>','Administrador')
+        if (backpack_user()->hasRole('Administrador')) {
+            $roles = Role::where('guard_name', 'web')
+                ->where('name', '<>', 'Administrador')
                 ->orderBy('name')
                 ->pluck('name', 'id')
                 ->toArray();
@@ -279,21 +287,190 @@ class ImportacaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
+
+        $situacao_id = $this->crud->entry->situacao_id;
+        $situacao = Codigoitem::find($situacao_id);
+        if ($situacao->descricao == 'Pendente de Execução') {
+            $this->verificaTipoIniciarExecucao($this->crud->entry);
+        }
+
         return $redirect_location;
 
     }
 
     public function update(UpdateRequest $request)
     {
-        // your additional operations before save here
+
         $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
+
+        $situacao_id = $this->crud->entry->situacao_id;
+        $situacao = Codigoitem::find($situacao_id);
+        if ($situacao->descricao == 'Pendente de Execução') {
+            $this->verificaTipoIniciarExecucao($this->crud->entry);
+        }
+
         return $redirect_location;
     }
 
+    private function verificaTipoIniciarExecucao($dados_importacao)
+    {
+        $tipo = Codigoitem::find($dados_importacao->tipo_id);
+
+        foreach ($dados_importacao->arquivos as $arquivo) {
+            if ($tipo->descricao == 'Usuários') {
+                $this->lerArquivoImportacao($arquivo, $tipo->descricao, $dados_importacao);
+            }
+
+            if ($tipo->descricao == 'Terceirizado') {
+                $this->lerArquivoImportacao($arquivo, $tipo->descricao, $dados_importacao);
+            }
+        }
+
+        $nova_situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Situação Arquivo');
+        })
+            ->where('descricao', 'Executado')->first();
+
+        $dados_importacao->situacao_id = $nova_situacao->id;
+        $dados_importacao->save();
+
+    }
+
+
+    private function lerArquivoImportacao($nome_arquivo, $tipo, $dados_importacao)
+    {
+        $path = env('APP_PATH') . "storage/app/";
+
+        $arquivo = fopen($path . $nome_arquivo, 'r');
+
+        while (!feof($arquivo)) {
+            $linha = fgets($arquivo, 1024);
+            if ($tipo == 'Usuários') {
+                $this->criaJobsInsercaoUsuarioEmMassa($linha, $dados_importacao);
+            }
+
+            if ($tipo == 'Terceirizado') {
+                $this->criaJobsInsercaoTerceirizadoEmMassa($arquivo, $dados_importacao);
+            }
+        }
+        fclose($arquivo);
+    }
+
+    private function criaJobsInsercaoUsuarioEmMassa($linha, $dados_importacao)
+    {
+        $array_dado = explode($dados_importacao->delimitador, $linha);
+        $pkcount = is_array($array_dado) ? count($array_dado) : 0;
+        if ($pkcount > 0) {
+            InserirUsuarioEmMassaJob::dispatch($array_dado, $dados_importacao);
+        }
+    }
+
+    private function criaJobsInsercaoTerceirizadoEmMassa($linha, $dados_importacao)
+    {
+
+    }
+
+    private function montaArrayDado($linha, $delimitador)
+    {
+        return explode($delimitador, $linha);
+    }
+
+    public function executaInsercaoMassa($dado, Importacao $dados_importacao)
+    {
+        $cpf = $this->formataCpf($dado[0]);
+        $nome = strtoupper(trim($dado[1]));
+        $ugprimaria = '';
+        $ugsecundaria = [];
+
+        if (strlen($dado[3]) > 6) {
+            $ugs = explode(',', trim($dado[3]));
+            $i = 0;
+            foreach ($ugs as $ug) {
+                dump(trim($ug));
+                if ($i == 0) {
+                    $ugprimaria = $this->buscaUgPorCodigo(trim($ug));
+                } else {
+                    $ugsecundaria[] .= $this->buscaUgPorCodigo(trim($ug));
+                }
+                $i++;
+            }
+        }
+        if (strlen($dado[3]) == 6) {
+            $ugprimaria = $this->buscaUgPorCodigo(trim($dado[3]));
+        }
+
+        if ($dado[2] == '') {
+            $email = $dado[0] . "@alteraremail.com";
+            $senha = substr($dado[0], 0, 6) . substr(strtolower($dado[1]), 0, 2);
+        } else {
+            $email = $dado[2];
+            $senha = $this->geraSenhaAleatoria();
+        }
+
+        $user = $this->buscaUsuario($cpf, $email);
+
+        if(!$user){
+            if ($ugprimaria != '' or $ugprimaria != null) {
+                $user = BackpackUser::firstOrCreate(
+                    [
+                        'cpf' => $cpf,
+                        'email' => $email,
+                    ],
+                    [
+                        'name' => $nome,
+                        'email' => $email,
+                        'ugprimaria' => $ugprimaria,
+                        'password' => bcrypt($senha),
+                        'situacao' => true
+                    ]
+                );
+            }
+
+            if ($user) {
+                $role = Role::find($dados_importacao->role_id);
+                $user->assignRole($role->name);
+                if (count($ugsecundaria)) {
+                    $user->unidades()->attach($ugsecundaria);
+                }
+                if ($email != $dado[0] . "@alteraremail.com") {
+                    $dados = [
+                        'cpf' => $cpf,
+                        'nome' => $nome,
+                        'senha' => $senha,
+                    ];
+                    $user->notify(new PasswordUserNotification($dados));
+                }
+            }
+        }else{
+            $role = Role::find($dados_importacao->role_id);
+            $user->assignRole($role->name);
+            $user->ugprimaria = $ugprimaria;
+            $user->save();
+            if (count($ugsecundaria)) {
+                $user->unidades()->attach($ugsecundaria);
+            }
+        }
+
+    }
+
+    private function buscaUsuario($cpf, $email)
+    {
+        $user = BackpackUser::where('email',$email)->first();
+        if(!isset($user->id)){
+            $user = BackpackUser::where('cpf',$cpf)->first();
+        }
+        if(!isset($user->id)){
+            return null;
+        }
+        return $user;
+    }
+
+    private function buscaUgPorCodigo($cod)
+    {
+        $unidade = Unidade::where('codigo', $cod)
+            ->first();
+
+        return $unidade->id;
+    }
 }

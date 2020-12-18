@@ -112,16 +112,20 @@ class ContratohistoricoObserve
     private function atualizaContrato($contratohistorico)
     {
 
+
         foreach ($contratohistorico as $h) {
 
             $contrato_id = $h->contrato_id;
             $arrayhistorico = $h->toArray();
 
             $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
-            $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico, $contrato_id);
 
-            $contrato = new Contrato();
-            $contrato->atualizaContratoFromHistorico($contrato_id, $array);
+            if($tipo instanceof Codigoitem){
+                $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico,$contrato_id);
+
+                $contrato = new Contrato();
+                $contrato->atualizaContratoFromHistorico($contrato_id, $array);
+            }
 
         }
     }
