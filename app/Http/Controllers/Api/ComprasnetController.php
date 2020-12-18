@@ -106,7 +106,7 @@ class ComprasnetController extends Controller
                     'vigencia_fim_inicial' => @$instrumento_inicial->vigencia_fim,
                     'vigencia_fim' => @$dado->contrato->vigencia_fim,
                     'quantidade_item' => @$dado->quantidade,
-                    'valor_unitario_item' => @$dado->valorunitario,
+                    'valor_unitario_item' => @number_format($dado->valorunitario,0),
                     'valor_total_item' => @$dado->valortotal,
                     'situacao_publicacao' => 'PUBLICADO'
                 ];
