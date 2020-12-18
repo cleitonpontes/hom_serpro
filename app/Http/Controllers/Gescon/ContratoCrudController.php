@@ -22,6 +22,7 @@ use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Request;
 
 // TODO: Apagar classes sem uso
 use App\Models\Contratohistorico;
@@ -404,7 +405,7 @@ class ContratoCrudController extends CrudController
 
             $linhas = $pdf->NbLines($cell_width, utf8_decode(($registro->tipo()->first()->descricao))) *5;
             $pdf->SetFont('Arial', 'B', 7);
-            //A MultiCell quebra a linha atual após ser exibida e ao usá-la fora da última coluna o ponto XY deve 
+            //A MultiCell quebra a linha atual após ser exibida e ao usá-la fora da última coluna o ponto XY deve
             //ser atualizado para continuar na linha atual.
             $current_y = $pdf->GetY();
             $current_x = $pdf->GetX();
@@ -694,9 +695,11 @@ class ContratoCrudController extends CrudController
 
     protected function adicionaCampos()
     {
+        $request = Request();
+
         $this->tab = 'Dados do contrato';
 
-        $this->adicionaCampoFornecedor();
+        $this->adicionaCampoFornecedor($request);
         $this->adicionarMinutasDeEmpenho();
         $this->adicionaCampoDataAssinatura();
         $this->adicionaCampoDataPublicacao();
@@ -776,7 +779,7 @@ class ContratoCrudController extends CrudController
         $this->aplicaFiltroSituacao();
     }
 
-    protected function adicionaCampoFornecedor()
+    protected function adicionaCampoFornecedor($request)
     {
         $this->crud->addField([
             'label' => "Fornecedor",
@@ -792,6 +795,18 @@ class ContratoCrudController extends CrudController
             'minimum_input_length' => 2,
             'tab' => $this->tab
         ]);
+
+        $this->crud->addField([
+            'label' => "teste",
+            'type' => "hidden",
+            'name' => 'teste',
+            'default' => "{{old('name')}}",
+            'tab' => $this->tab
+        ]);
+
+        //$request->flashOnly(['teste']);
+        //dd($request);
+
     }
 
 
