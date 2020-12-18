@@ -306,7 +306,7 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
         $this->crud->addField([
             'name' => 'conta_corrente_json',
             'label' => 'Conta Corrente',
-            'type' => 'empenho_table',
+            'type' => 'empenho_nova_table',
             'entity_singular' => 'options', // used on the "Add X" button
             'columns' => [
                 'conta_corrente' => 'Número Conta Corrente',
