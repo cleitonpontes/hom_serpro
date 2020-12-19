@@ -58,6 +58,10 @@
         <script type="text/javascript">
 
             $(document).ready(function () {
+
+                valor_global = 0;
+                parcela = 1;
+
                 const $tableID = $('#table');
 
                 $tableID.on('click', '.table-remove', function () {
@@ -97,44 +101,57 @@
 
                 //quando altera o campo de quantidade de parcela atualizar o valor da parcela
                 $('body').on('change','#num_parcelas',function(event){
-                    atualizarValorParcela();
+                    atualizarParcela();
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','input[name="periodicidade[]"]',function(event){
                     calculaTotalGlobal();
-                    atualizarValorParcela();
+                    atualizarValorParcela(parcela);
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#valor_global',function(event){
-                    atualizarValorParcela();
+                    atualizarValorParcela(parcela);
                 });
             });
 
             //atualiza o valor da parcela do contrato
-            function atualizarValorParcela()
+            function atualizarValorParcela(parcela)
             {
+                var valor_global = $('#valor_global').val();
+                var valor_parcela = valor_global / parcela;
 
-                valor_global = $('#valor_global').val();
-                numero_parcelas = $('#num_parcelas').val();
+                $('#valor_parcela').val(parseFloat(valor_parcela.toFixed(4)));
+            }
 
-                $('#valor_parcela').val(valor_global / numero_parcelas);
+            //atualiza o valor da parcela do contrato
+            function atualizarParcela()
+            {
+                var valor_global = $('#valor_global').val();
+                var num_parcelas = $('#num_parcelas').val();
+                var valor = valor_global / num_parcelas;
+
+                $('#valor_parcela').val(parseFloat(valor.toFixed(4)));
             }
 
             function atualizarValorTotal(tr){
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
-                parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
+                var valor_total = qtd_item * vl_unit;
+
+                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toFixed(4)));
                 calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
-                var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
-                var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
+                var vl_unit = $(tr).find('td').eq(4).find('input').val();
+                var valor_total_item = $(tr).find('td').eq(5).find('input').val();
 
-                parseFloat($(tr).find('td').eq(3).find('input').val(valor_total_item / vl_unit));
+                var quantidade = valor_total_item / vl_unit;
+
+                $(tr).find('td').eq(3).find('input').val(parseFloat(quantidade.toFixed(4)));
                 calculaTotalGlobal();
             }
 
@@ -153,9 +170,9 @@
                 cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricao_complementar+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd" value="'+item.quantidade+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd"  step="0.0001" value="'+item.quantidade+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit"  step="0.0001" value="'+item.valorunitario+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total" step="0.0001" value="'+item.valortotal+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
 
@@ -177,9 +194,13 @@
                     var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
+                    if(periodicidade > parcela){
+                        parcela = periodicidade;
+                        $('#num_parcelas').val(parcela);
+                    }
                 });
-                $('#valor_global').val(valor_total);
-                atualizarValorParcela();
+                $('#valor_global').val(parseFloat(valor_total.toFixed(4)));
+                atualizarValorParcela(parcela);
             }
 
             function buscarItenContrato()

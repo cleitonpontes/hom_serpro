@@ -411,11 +411,12 @@ class AditivoCrudController extends CrudController
             [   // Number
                 'name' => 'valor_global',
                 'label' => 'Valor Global',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'valor_global',
-                    'readonly' => 'readonly'
+                    'readonly' => 'readonly',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => number_format($contrato->valor_global, 2, ',', '.'),
@@ -440,11 +441,12 @@ class AditivoCrudController extends CrudController
             [   // Number
                 'name' => 'valor_parcela',
                 'label' => 'Valor Parcela',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'valor_parcela',
-                    'readonly' => 'readonly'
+                    'readonly' => 'readonly',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => number_format($contrato->valor_parcela, 2, ',', '.'),

@@ -22,6 +22,7 @@ use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Request;
 
 // TODO: Apagar classes sem uso
 use App\Models\Contratohistorico;
@@ -694,9 +695,11 @@ class ContratoCrudController extends CrudController
 
     protected function adicionaCampos()
     {
+        $request = Request();
+
         $this->tab = 'Dados do contrato';
 
-        $this->adicionaCampoFornecedor();
+        $this->adicionaCampoFornecedor($request);
         $this->adicionarMinutasDeEmpenho();
         $this->adicionaCampoDataAssinatura();
         $this->adicionaCampoDataPublicacao();
@@ -724,6 +727,7 @@ class ContratoCrudController extends CrudController
         $this->tab = 'Itens do contrato';
 
         $this->adicionaCampoItensContrato();
+        $this->adicionaCampoRecuperaGridItens();
 
         $this->tab = 'Vigência / Valores';
 
@@ -776,7 +780,7 @@ class ContratoCrudController extends CrudController
         $this->aplicaFiltroSituacao();
     }
 
-    protected function adicionaCampoFornecedor()
+    protected function adicionaCampoFornecedor($request)
     {
         $this->crud->addField([
             'label' => "Fornecedor",
@@ -794,6 +798,16 @@ class ContratoCrudController extends CrudController
         ]);
     }
 
+    protected function adicionaCampoRecuperaGridItens(){
+        $this->crud->addField([
+            'label' => "adicionaCampoRecuperaGridItens",
+            'type' => "hidden",
+            'name' => 'adicionaCampoRecuperaGridItens',
+            'default' => "{{old('name')}}",
+            'tab' => $this->tab
+        ]);
+    }
+
 
     protected function adicionarMinutasDeEmpenho()
     {
@@ -801,7 +815,7 @@ class ContratoCrudController extends CrudController
             'label' => 'Minutas de Empenho',
             'name' => 'minutasempenho',
             'placeholder' => 'Selecione minutas de empenho',
-            'type' => 'select2_from_ajax_multiple',
+            'type' => 'select2_from_ajax_multiple_minuta',
             'entity' => 'minutaempenho',
             'attribute' => 'nome_minuta_empenho',
             'model' => 'App\Models\MinutaEmpenho',
@@ -1107,7 +1121,9 @@ class ContratoCrudController extends CrudController
             'label' => 'Valor Global',
             'type' => 'number',
             'attributes' => [
+                "step" => "0.01",
                 'id' => 'valor_global',
+                'step' => '0.0001',
             ],
             'prefix' => "R$",
             'tab' => $this->tab
@@ -1136,7 +1152,9 @@ class ContratoCrudController extends CrudController
             'label' => 'Valor Parcela',
             'type' => 'number',
             'attributes' => [
+                "step" => "0.01",
                 'id' => 'valor_parcela',
+                'step' => '0.0001',
             ],
             'prefix' => "R$",
             'tab' => $this->tab

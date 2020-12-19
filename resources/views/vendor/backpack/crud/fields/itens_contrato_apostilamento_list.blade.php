@@ -97,16 +97,21 @@
             //atualiza o valor da parcela do contrato para termo de apostilamento
             function atualizarValorParcelaApostilamento()
             {
-                valor_global = $('#novo_valor_global').val();
-                numero_parcelas = $('#novo_num_parcelas').val();
-                $('#novo_valor_parcela').val(valor_global / numero_parcelas);
+                var valor_global = $('#novo_valor_global').val();
+                var numero_parcelas = $('#novo_num_parcelas').val();
+                var valor_parcela = valor_global / numero_parcelas;
+
+                $('#novo_valor_parcela').val(parseFloat(valor_parcela.toFixed(2)));
             }
 
             function atualizarValorTotal(tr){
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
 
-                parseFloat($(tr).find('td').eq(5).find('input').val(qtd_item * vl_unit));
+                var valor_total = qtd_item * vl_unit;
+
+                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toFixed(4)));
+                calculaTotalGlobal();
             }
 
             function adicionaLinhaItem(item){
@@ -116,9 +121,9 @@
                 cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.descricao_complementar+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd_item" value="'+item.quantidade+'" disabled></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit" value="'+item.valorunitario+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"value="'+item.valortotal+'"disabled></td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]"  step="0.0001" id="qtd_item" value="'+item.quantidade+'" disabled></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit"  step="0.0001" value="'+item.valorunitario+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"  step="0.0001" value="'+item.valortotal+'"disabled></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'" disabled></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'" disabled>';
 
@@ -131,6 +136,7 @@
 
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
+                calculaTotalGlobal();
             }
 
             function calculaTotalGlobal(){
@@ -141,9 +147,7 @@
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
-
-                // quanto se tratar de apostilamento
-                $('#novo_valor_global').val(valor_total);
+                $('#novo_valor_global').val(parseFloat(valor_total.toFixed(2)));
 
                 atualizarValorParcelaApostilamento();
             }
