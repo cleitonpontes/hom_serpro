@@ -40,18 +40,17 @@ class ComprasnetController extends Controller
                 $contratos = $this->buscaContratosItemUnidadeCompra($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
 
                 $array_contratos = [];
-                foreach ($contratos as $contrato){
+                foreach ($contratos as $contrato) {
                     $unidadeorigem = $contrato->unidadeorigem->codigo;
                     $unidadeatual = $contrato->unidade->codigo;
                     $unidadesubrrogacao = ($unidadeorigem == $unidadeatual) ? '000000' : $unidadeatual;
                     $tipo = $contrato->tipo->descres;
-                    $numero_contrato = str_replace('/' , '', $contrato->numero);
+                    $numero_contrato = str_replace('/', '', $contrato->numero);
 
                     $array_contratos[] = $unidadeorigem . $tipo . $numero_contrato . $unidadesubrrogacao;
                 }
 
                 $array_empenhos = [];
-
 
 
                 $retorno['itens'][] = [
@@ -99,7 +98,8 @@ class ComprasnetController extends Controller
         })
             ->where('modalidade_id', $modalidade)
             ->where('unidadecompra_id', $unidade)
-            ->where('licitacao_numero', $numeroAnoCompra);
+            ->where('licitacao_numero', $numeroAnoCompra)
+            ->where('situacao',true);
 
         return $contratos->get();
 
@@ -109,7 +109,7 @@ class ComprasnetController extends Controller
     {
         $array = [];
 
-        if($itens){
+        if ($itens) {
             $itens = str_replace(']', '', str_replace('[', '', $itens));
 
             if (strpos($itens, ',') !== false) {
