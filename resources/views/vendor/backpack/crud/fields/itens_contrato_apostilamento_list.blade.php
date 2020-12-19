@@ -101,7 +101,7 @@
                 var numero_parcelas = $('#novo_num_parcelas').val();
                 var valor_parcela = valor_global / numero_parcelas;
 
-                $('#novo_valor_parcela').val(parseFloat(valor_parcela.toLocaleString('en-US', {minimumFractionDigits: 4})));
+                $('#novo_valor_parcela').val(parseFloat(valor_parcela.toFixed(2)));
             }
 
             function atualizarValorTotal(tr){
@@ -110,7 +110,7 @@
 
                 var valor_total = qtd_item * vl_unit;
 
-                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toLocaleString('en-US', {minimumFractionDigits: 4})));
+                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toFixed(4)));
                 calculaTotalGlobal();
             }
 
@@ -136,6 +136,7 @@
 
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
+                calculaTotalGlobal();
             }
 
             function calculaTotalGlobal(){
@@ -146,7 +147,7 @@
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                 });
-                $('#novo_valor_global').val(parseFloat(valor_total.toLocaleString('en-US', {minimumFractionDigits: 4})));
+                $('#novo_valor_global').val(parseFloat(valor_total.toFixed(2)));
 
                 atualizarValorParcelaApostilamento();
             }
