@@ -11,7 +11,7 @@ class SfOrcEmpenhoDados extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    use SoftDeletes;
+//    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -69,6 +69,11 @@ class SfOrcEmpenhoDados extends Model
     public function passivos_anteriores()
     {
         return $this->hasMany(SfPassivoAnterior::class, 'sforcempenhodado_id');
+    }
+
+    public function itens_empenho()
+    {
+        return $this->hasMany(SfItemEmpenho::class, 'sforcempenhodado_id');
     }
 
     /*

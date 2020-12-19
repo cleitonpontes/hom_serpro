@@ -36,7 +36,7 @@ class ContratohistoricoObserve
 
 
         if($contratohistorico->tipo_id == 60 || $contratohistorico->tipo_id == 65) {
-            Contratopublicacoes::create([
+            ContratoPublicacoes::create([
                 'contratohistorico_id' => $contratohistorico->id,
                 'data_publicacao' => $contratohistorico->data_publicacao,
                 'status' => 'Pendente',
@@ -112,28 +112,32 @@ class ContratohistoricoObserve
     private function atualizaContrato($contratohistorico)
     {
 
+
         foreach ($contratohistorico as $h) {
 
             $contrato_id = $h->contrato_id;
             $arrayhistorico = $h->toArray();
 
             $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
-            $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico);
 
-            $contrato = new Contrato();
-            $contrato->atualizaContratoFromHistorico($contrato_id, $array);
+            if($tipo instanceof Codigoitem){
+                $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico,$contrato_id);
+
+                $contrato = new Contrato();
+                $contrato->atualizaContratoFromHistorico($contrato_id, $array);
+            }
 
         }
     }
 
-    public function retornaArrayContratoHistorico(Codigoitem $tipo,array $arrayhistorico)
+    public function retornaArrayContratoHistorico(Codigoitem $tipo,array $arrayhistorico, $contrato_id)
     {
         switch ($tipo->descricao) {
             case 'Termo de Rescisão':
                 return $this->retornaArrayRescisao($arrayhistorico);
                 break;
             case 'Termo Aditivo':
-                return $this->retornaArrayAditivo($arrayhistorico);
+                return $this->retornaArrayAditivo($arrayhistorico, $contrato_id);
                 break;
             case 'Termo de Apostilamento':
                 return $this->retornaArrayApostilamento($arrayhistorico);
@@ -141,19 +145,25 @@ class ContratohistoricoObserve
             default:
                 return $this->retornaArrayDefault($arrayhistorico);
         }
-
-
     }
 
-    public function retornaArrayAditivo(array $arrayhistorico)
+    public function retornaArrayAditivo(array $arrayhistorico, $contrato_id)
     {
+
+        $novo_valor = $arrayhistorico['valor_global'];
+
+        if($arrayhistorico['supressao'] == 'S'){
+            $contrato = Contrato::find($contrato_id);
+            $novo_valor = $contrato->valor_global - $novo_valor;
+        }
+
         $arrayAditivo = [
             'fornecedor_id' => $arrayhistorico['fornecedor_id'],
             'unidade_id' => $arrayhistorico['unidade_id'],
             'info_complementar' => $arrayhistorico['info_complementar'],
             'vigencia_inicio' => $arrayhistorico['vigencia_inicio'],
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
-            'valor_global' => $arrayhistorico['valor_global'],
+            'valor_global' => $novo_valor,
             'num_parcelas' => $arrayhistorico['num_parcelas'],
             'valor_parcela' => $arrayhistorico['valor_parcela']
         ];

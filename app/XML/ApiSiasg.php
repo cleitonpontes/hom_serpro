@@ -44,7 +44,9 @@ class ApiSiasg
 
         $servico_especifico = $this->retornaServicoEspecifico($servico);
         $url = $this->url_servico . $servico_especifico;
+
         $parametros = $this->trataParametros($params);
+
         try {
             $retorno = file_get_contents($url . $parametros, false, $this->context);
         } catch (\Exception $e) {
@@ -71,11 +73,27 @@ class ApiSiasg
             case 'DADOSCONTRATO':
                 $complemento_url = 'contrato/v1/dadoscontrato?';
                 break;
+            case 'COMPRASISPP':
+                $complemento_url = 'compra/v1/sispp?';
+                break;
         }
         return $complemento_url;
     }
 
     private function consultaCompra(array $dado_consulta)
+    {
+//        $params = [
+//            'ano' => $dado_consulta['ano'],
+//            'modalidade' => $dado_consulta['modalidade'],
+//            'numero' => $dado_consulta['numero'],
+//            'uasg' => $dado_consulta['uasg']
+//        ];
+
+        return $this->submit('CONTRATOCOMPRA', $dado_consulta);
+    }
+
+    
+    private function consultaContratoCompra(array $dado_consulta)
     {
 //        $params = [
 //            'ano' => $dado_consulta['ano'],
@@ -110,9 +128,20 @@ class ApiSiasg
         return $this->submit('DADOSCONTRATO', $dado_consulta);
     }
 
+    private function consultaCompraSispp(array $dado_consulta)
+    {
+        return $this->submit('COMPRASISPP', $dado_consulta);
+    }
+
     private function trataParametros(array $params)
     {
         return http_build_query($params,'','&');
+    }
+
+    public function consultaCompraByUrl($url)
+    {
+        $retorno = file_get_contents($url, false, $this->context);
+        return  json_decode($retorno, true);
     }
 
 }

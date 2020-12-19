@@ -44,13 +44,20 @@ class UsuarioOrgaoCrudController extends CrudController
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuarioorgao');
         $this->crud->setEntityNameStrings('Usuário Órgão: ' . $orgao->codigo, 'Usuários Órgão: ' . $orgao->codigo);
-        $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
+        $this->crud->addClause('leftjoin', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         $this->crud->addClause('select', 'users.*');
-        $this->crud->addClause('whereHas', 'unidade', function ($u) use ($unidades_orgao) {
-            $u->whereHas('users', function ($t) use($unidades_orgao){
-                $t->whereIn('unidade_id', $unidades_orgao);
+        $this->crud->query->where(function ($q)  use ($unidades_orgao) {
+            $q->whereHas('unidade', function ($u) use ($unidades_orgao) {
+                $u->whereHas('users', function ($t) use($unidades_orgao){
+                    $t->whereIn('unidade_id', $unidades_orgao);
+                });
+                $u->orWhereIn('id', $unidades_orgao);
+            })
+            ->orWhere('users.situacao','=',0)
+            ->orWhere(function ($q) {
+                $q->whereNull('users.ugprimaria')
+                    ->where('users.situacao','=',1);
             });
-            $u->orWhereIn('id', $unidades_orgao);
         });
 
         $this->crud->enableExportButtons();
@@ -328,6 +335,11 @@ class UsuarioOrgaoCrudController extends CrudController
             return redirect()->back();
         }else{
             // your additional operations before save here
+            if($request->input('situacao') == false){ // 0 = false = inativo
+                $request->request->set('ugprimaria', null);
+                $request->request->set('unidades', null);
+                $request->request->set('roles', null);
+            }
             $redirect_location = parent::updateCrud($request);
             // your additional operations after save here
             // use $this->data['entry'] or $this->crud->entry

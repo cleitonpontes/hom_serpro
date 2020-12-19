@@ -16,16 +16,16 @@ class CreateSforcempenhodadosTable extends Migration
         Schema::create('sforcempenhodados', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('minutaempenho_id');
-            $table->integer('ugemitente');
-            $table->integer('anoempenho');
-            $table->integer('tipoempenho');
-            $table->integer('numempenho')->nullable();
+            $table->integer('ugemitente'); //exemplo 110161
+            $table->integer('anoempenho'); //2020
+            $table->integer('tipoempenho'); //1 - Ordinário, 3 - Estimativo ou 5 - Global
+            $table->integer('numempenho')->nullable(); //400001 a 800000
             $table->date('dtemis');
             $table->string('txtprocesso', 20)->nullable();
             $table->decimal('vlrtaxacambio', 10,4)->nullable();
-            $table->decimal('vlrempenho', 17,2)->nullable();
-            $table->string('codfavorecido', 14);
-            $table->integer('codamparolegal');
+            $table->decimal('vlrempenho', 17,2)->nullable(); //soma dos itens
+            $table->string('codfavorecido', 14); //cnpj ou cpf ou ug ou idgenerico
+            $table->integer('codamparolegal'); // codigo do amparo legal
             $table->string('txtinfocompl')->nullable();
             $table->integer('codtipotransf')->nullable();
             $table->string('txtlocalentrega', 250)->nullable();

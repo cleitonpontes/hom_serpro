@@ -7,6 +7,7 @@ use App\Models\Codigoitem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
+use App\Rules\NaoAceitarMinutaCompraDiferente;
 
 class ContratoRequest extends FormRequest
 {
@@ -35,8 +36,8 @@ class ContratoRequest extends FormRequest
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
-        $data_publicacao = "required|date|after:{$this->data_limiteinicio}|after_or_equal:data_assinatura";
-
+        $this->data_atual = date('Y-m-d');
+        $this->minutasempenho = $this->minutasempenho ?? [];
 
         return [
 //            'numero' => [
@@ -47,6 +48,7 @@ class ContratoRequest extends FormRequest
 //            ],
             'numero' => 'required',
             'fornecedor_id' => 'required',
+            'minutasempenho' => new NaoAceitarMinutaCompraDiferente,
             'tipo_id' => 'required',
             'categoria_id' => 'required',
             'receita_despesa' => 'required',
@@ -73,8 +75,9 @@ class ContratoRequest extends FormRequest
                 }
                 return true;
             }),
-            'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:vigencia_inicio",
-            'data_publicacao' => $data_publicacao,
+
+            'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:vigencia_inicio|before_or_equal:{$this->data_atual}",
+            'data_publicacao' => "required|date|after:{$this->data_atual}",
             'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
             'valor_global' => 'required',
@@ -106,9 +109,14 @@ class ContratoRequest extends FormRequest
     public function messages()
     {
         $data_limite = implode('/',array_reverse(explode('-',$this->data_limite)));
+        $hoje = date('d/m/Y');
+        $data_amanha = date('d/m/Y', strtotime('+1 day'));
 
         return [
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
+            'data_assinatura.before_or_equal' => "A data da assinatura deve ser menor que  {$data_amanha} ",
+            'data_publicacao.after' => "A data da publicação deve ser maior que {$hoje} ",
+            'minutasempenho.required_if' => 'teste'
         ];
     }
 }

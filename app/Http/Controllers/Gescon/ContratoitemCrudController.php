@@ -182,6 +182,31 @@ class ContratoitemCrudController extends CrudController
 
             ],
             [
+                'name' => 'periodicidade',
+                'label' => 'Periodicidade', // Table column heading
+                'type' => 'number',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
+            ],
+            [
+                'name' => 'data_inicio',
+                'label' => 'Data Início',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'formatValorUnitarioItem',
                 'label' => 'Valor Unitário', // Table column heading
                 'type' => 'model_function',
@@ -296,6 +321,16 @@ class ContratoitemCrudController extends CrudController
 //                ], // allow decimals
 //                'prefix' => "R$",
             ],
+            [
+                'name' => 'periodicidade',
+                'label' => 'Periodicidade', // Table column heading
+                'type' => 'number',
+            ],
+            [
+                'name' => 'data_inicio',
+                'label' => 'Data Início',
+                'type' => 'date',
+            ],
             [   // Number
                 'name' => 'valorunitario',
                 'label' => 'Valor Unitário',
@@ -383,6 +418,8 @@ class ContratoitemCrudController extends CrudController
             'tipo_id',
             'grupo_id',
             'catmatseritem_id',
+            'periodicidade',
+            'data_inicio',
             'valorunitario',
             'valortotal',
         ]);
@@ -408,5 +445,29 @@ class ContratoitemCrudController extends CrudController
         return Saldohistoricoitem::where('contratoitem_id',$id)->count();;
     }
 
+    /* Metodo para retonar os itens contrato item
+     * utilizado para listar os items em: Termo aditivo e termo de apostilamento
+     *
+     * return array contratoitens
+     */
+    public function retonaContratoItem($contrato_id)
+    {
+        return Contratoitem::where('contrato_id','=',$contrato_id)
+            ->select(
+                'contratoitens.id',
+                'codigoitens.descricao',
+                'contratoitens.descricao_complementar',
+                'contratoitens.quantidade',
+                'contratoitens.valorunitario',
+                'contratoitens.valortotal',
+                'contratoitens.periodicidade',
+                'contratoitens.data_inicio',
+                'contratoitens.catmatseritem_id',
+                'contratoitens.tipo_id',
+                'contratoitens.numero_item_compra as numero'
+            )
+            ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+            ->get()->toArray();
+    }
 
 }

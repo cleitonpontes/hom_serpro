@@ -11,7 +11,7 @@ class CompraItemMinutaEmpenho extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    use SoftDeletes;
+//    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -28,12 +28,21 @@ class CompraItemMinutaEmpenho extends Model
     ];
 
     protected $fillable = [
-        'compra_item_id',   // Chave composta: 1/2
-        'minutaempenho_id', // Chave composta: 2/2
+        'compra_item_id',   // Chave composta: 1/3
+        'minutaempenho_id', // Chave composta: 2/3
         'subelemento_id',
+        'operacao_id',
+        'remessa', // Chave composta: 3/3
         'quantidade',
-        'valor'
+        'valor',
     ];
+
+    /**
+     * Informa que não utilizará os campos create_at e update_at do Laravel
+     *
+     * @var boolean
+     */
+    public $timestamps = true;
 
     /*
     |--------------------------------------------------------------------------

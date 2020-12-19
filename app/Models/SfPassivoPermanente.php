@@ -11,7 +11,7 @@ class SfPassivoPermanente extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    use SoftDeletes;
+//    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------

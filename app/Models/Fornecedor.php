@@ -6,12 +6,14 @@ use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Http\Traits\Formatador;
 
 class Fornecedor extends Model
 {
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
+    use Formatador;
 
     /*
     |--------------------------------------------------------------------------
@@ -56,6 +58,14 @@ class Fornecedor extends Model
         }
     }
 
+    public function buscaFornecedorPorNumero($numero)
+    {
+        $Numeroformatado = $numero === 'ESTRANGEIRO' ? 'ESTRANGEIRO' : $this->formataCnpjCpf($numero);
+        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', $Numeroformatado)->first();
+        return $fornecedor;
+
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -80,6 +90,16 @@ class Fornecedor extends Model
     public function minuta_empenhos()
     {
         return $this->hasMany(MinutaEmpenho::class, 'fornecedor_empenho_id');
+    }
+
+    public function compraItem()
+    {
+        return $this->belongsToMany(
+            'App\Models\Fornecedor',
+            'compra_item_fornecedor',
+            'compra_item_id',
+            'fornecedor_id'
+        );
     }
 
     /*

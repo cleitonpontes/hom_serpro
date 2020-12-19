@@ -2,6 +2,8 @@
 
 return [
 
+    'app_amb' => env('APP_AMB', 'Ambiente Produção'),
+
     'google_analytics' => env('GOOGLE_ANALYTICS',''),
 
     //contas contábeis empenhodetalhado
@@ -14,6 +16,8 @@ return [
         'empemliqrpnp' => '622920106', // 6.2.2.9.2.01.06 = EMPENHOS EM LIQUIDACAO INSCRITOS EM RPNP
         'emprpp' => '622920107', // 6.2.2.9.2.01.07 = EMPENHOS LIQUIDADOS A PAGAR INSCRITO EM RPP
     ],
+
+    'conta_contabil_credito_disponivel' => '622110000',
 
     'modalidades_sem_exigencia' => [
         'Inexigibilidade',
@@ -170,6 +174,22 @@ return [
         "E" => "E - Ativo CLT",
     ],
 
+    'natureza_despesa_cipi' => [
+        '443051',
+        '443251',
+        '444051',
+        '444251',
+        '445051',
+        '447251',
+        '448051',
+        '449051',
+        '449151',
+        '449251',
+        '449351',
+        '449451',
+        '449551',
+        '449651',
+    ],
 
     /*
     |--------------------------------------------------------------------------

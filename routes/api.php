@@ -17,16 +17,29 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+//API Campos Transparência Index
 Route::group([
     'namespace' => 'Api',
 ], function () {
-
     //API Campos Transparência Index
     Route::get('transparenciaorgaos', 'ApiTransparenciaController@orgaos');
     Route::get('transparenciaunidades', 'ApiTransparenciaController@unidades');
     Route::get('transparenciafornecedores', 'ApiTransparenciaController@fornecedores');
     Route::get('transparenciacontratos', 'ApiTransparenciaController@contratos');
+});
 
+
+Route::group([
+    'namespace' => 'Api',
+    'middleware'=> 'throttleIp'
+], function () {
+
+    Route::group([
+        'prefix' => 'comprasnet'
+    ], function (){
+        Route::post('/contratosempenhos', 'ComprasnetController@getContratosEmpenhosPorItens');
+        Route::get('/contratos', 'ComprasnetController@getDadosContratosPorItem');
+    });
 
     //API Consulta Contratos
     Route::group([

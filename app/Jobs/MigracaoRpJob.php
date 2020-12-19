@@ -82,12 +82,14 @@ class MigracaoRpJob implements ShouldQueue
                     'fornecedor_id' => $credor->id,
                     'planointerno_id' => $pi_id,
                     'naturezadespesa_id' => $naturezadespesa->id,
+                    'fonte' => trim($d['fonte']),
                     'rp' => 1
                 ]);
             } else {
                 $empenho->fornecedor_id = $credor->id;
                 $empenho->planointerno_id = $pi_id;
                 $empenho->naturezadespesa_id = $naturezadespesa->id;
+                $empenho->fonte = trim($d['fonte']);
                 $empenho->deleted_at = null;
                 $empenho->rp = 1;
                 $empenho->save();

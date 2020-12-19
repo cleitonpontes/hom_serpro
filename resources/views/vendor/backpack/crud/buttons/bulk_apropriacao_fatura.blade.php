@@ -1,4 +1,4 @@
-@if ($crud->hasAccess('update') && $crud->bulk_actions)
+@if (backpack_user()->hasRole('Execução Financeira') && $crud->bulk_actions)
     <a href="javascript:void(0)"
        onclick="bulkApropriaFaturas(this)"
        class="btn btn-primary btn-sm bulk-button"

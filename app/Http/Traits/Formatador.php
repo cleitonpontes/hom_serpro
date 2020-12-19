@@ -100,21 +100,19 @@ trait Formatador
 
     public function retornaTipoFornecedor($dado)
     {
-        $retorno = 'UG';
 
-        if (strlen($dado) == 9) {
-            $retorno = 'IDGENERICO';
+        if (strlen($dado) == 9 || $dado === 'ESTRANGEIRO') {
+            return 'IDGENERICO';
         }
 
         if (strlen($dado) == 11) {
-            $retorno = 'FISICA';
+            return 'FISICA';
         }
 
         if (strlen($dado) == 14) {
-            $retorno = 'JURIDICA';
+            return 'JURIDICA';
         }
-
-        return $retorno;
+        return 'UG';
     }
 
     public function formataCnpj($numero)
@@ -146,5 +144,19 @@ trait Formatador
     public function retornaFormatoAmericano($valor)
     {
         return str_replace(',', '.', str_replace('.', '', $valor));
+    }
+
+    /**
+     * Retorna campo com a descricao detalhada para visualização na tabela
+     * @param string $descricao
+     * @param string $descricaocompleta
+     * @return string
+     */
+    public function retornaDescricaoDetalhada(string $descricao, string $descricaocompleta): string
+    {
+        $retorno = '';
+        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i>';
+
+        return $retorno;
     }
 }
