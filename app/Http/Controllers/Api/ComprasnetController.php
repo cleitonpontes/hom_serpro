@@ -15,6 +15,12 @@ class ComprasnetController extends Controller
 
     public function getContratosEmpenhosPorItens(Request $request)
     {
+        $retorno = [];
+
+        if (empty($request->uasg) or empty($request->modalidade) or empty($request->numero) or empty($request->ano) or empty($request->itens)) {
+            return $retorno;
+        }
+
         $dados['uasg'] = $request->uasg;
         $dados['modalidade'] = $request->modalidade;
         $dados['numero'] = $request->numero;
