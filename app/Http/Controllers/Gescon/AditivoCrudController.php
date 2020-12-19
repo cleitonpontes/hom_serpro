@@ -411,7 +411,7 @@ class AditivoCrudController extends CrudController
             [   // Number
                 'name' => 'valor_global',
                 'label' => 'Valor Global',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'valor_global',
@@ -441,7 +441,7 @@ class AditivoCrudController extends CrudController
             [   // Number
                 'name' => 'valor_parcela',
                 'label' => 'Valor Parcela',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'valor_parcela',
