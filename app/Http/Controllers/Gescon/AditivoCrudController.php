@@ -51,6 +51,11 @@ class AditivoCrudController extends CrudController
         $this->crud->setModel('App\Models\Contratohistorico');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/aditivos');
         $this->crud->setEntityNameStrings('Termo Aditivo', 'Termos Aditivos');
+
+        $this->crud->setCreateContentClass('col-md-12');
+        $this->crud->setEditContentClass('col-md-12');
+
+
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratohistorico.*');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);

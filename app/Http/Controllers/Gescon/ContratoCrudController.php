@@ -17,6 +17,7 @@ use App\Models\Saldohistoricoitem;
 use App\PDF\Pdf;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use FormBuilder;
+
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratoRequest as StoreRequest;
 use App\Http\Requests\ContratoRequest as UpdateRequest;
@@ -56,6 +57,8 @@ class ContratoCrudController extends CrudController
         $this->crud->setModel('App\Models\Contrato');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato');
         $this->crud->setEntityNameStrings('Contrato', 'Contratos');
+        $this->crud->setCreateContentClass('col-md-12');
+        $this->crud->setEditContentClass('col-md-12');
         $this->crud->setEditView('vendor.backpack.crud.contrato.create');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
@@ -99,6 +102,7 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+//        dd('store');
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -108,26 +112,35 @@ class ContratoCrudController extends CrudController
 
         // Caso tenha empenho preenchido utilizar os campos de unidade, modalidade e numero da licitacao de acordo
         // com a compra da minuta de empenho descartando os valores inseridos pelo usuário
-        if(!empty($request->get('minutasempenho'))){
+        if (!empty($request->get('minutasempenho'))) {
             $camposBaseadosEmpenho = $this->buscarCamposBaseadosEmpenho(current($request->get('minutasempenho')));
             $request->request->set('unidadecompra_id', $camposBaseadosEmpenho['unidade_id']);
             $request->request->set('modalidade_id', $camposBaseadosEmpenho['modalidade_id']);
             $request->request->set('licitacao_numero', $camposBaseadosEmpenho['compra_numero_ano']);
         }
 
-        $redirect_location = parent::storeCrud($request);
-        $contrato_id = $this->crud->getCurrentEntryId();
-        $request->request->set('contrato_id',$contrato_id);
+        DB::beginTransaction();
+        try {
+//            dd($request->all());
+            $redirect_location = parent::storeCrud($request);
+            $contrato_id = $this->crud->getCurrentEntryId();
+            dd('chega fdp');
+            $request->request->set('contrato_id', $contrato_id);
+            if (!empty($request->get('qtd_item'))) {
+                $this->inserirItensContrato($request->all());
+            }
 
-        if(!empty($request->get('qtd_item'))) {
-            $this->inserirItensContrato($request->all());
+            if (!empty($request->get('minuta_id'))) {
+                $this->vincularMinutaContrato($request->all());
+            }
+
+            DB::commit();
+
+            return $redirect_location;
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
         }
-
-        if(!empty($request->get('minuta_id'))) {
-            $this->vincularMinutaContrato($request->all());
-        }
-
-        return $redirect_location;
     }
 
     private function buscarCamposBaseadosEmpenho($idEmpenho)
@@ -137,74 +150,65 @@ class ContratoCrudController extends CrudController
             "minutaempenhos.unidade_id",
             "compras.numero_ano as compra_numero_ano"
         )
-        ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
-        ->where('minutaempenhos.id',$idEmpenho)->firstOrFail()->toArray();
+            ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+            ->where('minutaempenhos.id', $idEmpenho)->firstOrFail()->toArray();
 
         return $camposContrato;
     }
 
-    public function inserirItensContrato($request){
+    public function inserirItensContrato($request)
+    {
 
-        DB::beginTransaction();
-        try {
-            foreach ($request['qtd_item'] as $key => $qtd) {
+//        dd($request);
+        foreach ($request['qtd_item'] as $key => $qtd) {
+            $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
+            $catmatseritem = Catmatseritem::find($catmatseritem_id);
 
-                $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
-                $catmatseritem = Catmatseritem::find($catmatseritem_id);
+            $contratoItem = new Contratoitem();
+            $contratoItem->contrato_id = $request['contrato_id'];
+            $contratoItem->tipo_id = $request['tipo_item_id'][$key];
+            $contratoItem->grupo_id = $catmatseritem->grupo_id;
+            $contratoItem->catmatseritem_id = $catmatseritem->id;
+            $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
+            $contratoItem->quantidade = (double)$qtd;
+            $contratoItem->valorunitario = $request['vl_unit'][$key];
+            $contratoItem->valortotal = $request['vl_total'][$key];
+            $contratoItem->data_inicio = $request['data_inicio'][$key];
+            $contratoItem->periodicidade = $request['periodicidade'][$key];
+            $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
+            $contratoItem->save();
+            if ($request['compra_item_unidade_id'][$key] !== 'undefined') {
+//            dump($contratoItem);
 
-                $contratoItem = new Contratoitem();
-                $contratoItem->contrato_id = $request['contrato_id'];
-                $contratoItem->tipo_id = $request['tipo_item_id'][$key];
-                $contratoItem->grupo_id = $catmatseritem->grupo_id;
-                $contratoItem->catmatseritem_id = $catmatseritem->id;
-                $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
-                $contratoItem->quantidade = (double)$qtd;
-                $contratoItem->valorunitario = $request['vl_unit'][$key];
-                $contratoItem->valortotal = $request['vl_total'][$key];
-                $contratoItem->data_inicio = $request['data_inicio'][$key];
-                $contratoItem->periodicidade = $request['periodicidade'][$key];
-                $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
-                $contratoItem->save();
-                if($request['compra_item_unidade_id'][$key] !== 'undefined'){
-                    $this->vincularContratoItensCompraItemUnidade($contratoItem,$request);
-                }
+                $this->vincularContratoItensCompraItemUnidade($contratoItem, $request['compra_item_unidade_id'][$key]);
             }
-            DB::commit();
-
-        } catch (Exception $exc) {
-            DB::rollback();
-            dd($exc);
         }
     }
 
-    public function vincularMinutaContrato($request){
-        DB::beginTransaction();
-        try {
-            foreach ($request['minuta_id'] as $minuta_id) {
-                $contratoMinuta = new ContratoMinutaEmpenho();
-                $contratoMinuta->contrato_id = $request['contrato_id'];
-                $contratoMinuta->minuta_empenho_id = $minuta_id;
-                $contratoMinuta->save();
-            }
-            DB::commit();
-
-        } catch (Exception $exc) {
-            DB::rollback();
-            dd($exc);
+    public function vincularMinutaContrato($request)
+    {
+        foreach ($request['minuta_id'] as $minuta_id) {
+            $contratoMinuta = new ContratoMinutaEmpenho();
+            $contratoMinuta->contrato_id = $request['contrato_id'];
+            $contratoMinuta->minuta_empenho_id = $minuta_id;
+            $contratoMinuta->save();
         }
     }
 
-    public function vincularContratoItensCompraItemUnidade($contratoItem,$request){
-            foreach ($request['compra_item_unidade_id'] as $key => $compra_item_unidade_id) {
-                $compraItemUnidade_ContratoItem = new Comprasitemunidadecontratoitens();
-                $compraItemUnidade_ContratoItem->contratoitem_id = $contratoItem->id;
-                $compraItemUnidade_ContratoItem->compra_item_unidade_id = $compra_item_unidade_id;
-                $compraItemUnidade_ContratoItem->save();
-            }
+    public function vincularContratoItensCompraItemUnidade($contratoItem, $compra_item_unidade_id)
+    {
+//        dd($contratoItem, $compra_item_unidade_id);
+//        foreach ($request['compra_item_unidade_id'] as $key => $compra_item_unidade_id) {
+        $compraItemUnidade_ContratoItem = new Comprasitemunidadecontratoitens();
+        $compraItemUnidade_ContratoItem->contratoitem_id = $contratoItem->id;
+        $compraItemUnidade_ContratoItem->compra_item_unidade_id = $compra_item_unidade_id;
+        $compraItemUnidade_ContratoItem->save();
+//        }
     }
 
     public function update(UpdateRequest $request)
     {
+        dd('up');
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -263,7 +267,7 @@ class ContratoCrudController extends CrudController
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(20, 5, utf8_decode("Fornecedor: "), 0, 0, 'L');
         $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(18, 5,utf8_decode(strlen($contrato->fornecedor->nome) > 65 ? substr($contrato->fornecedor->nome,0,65)." [...]" : $contrato->fornecedor->nome), 0, 0, 'L');
+        $pdf->Cell(18, 5, utf8_decode(strlen($contrato->fornecedor->nome) > 65 ? substr($contrato->fornecedor->nome, 0, 65) . " [...]" : $contrato->fornecedor->nome), 0, 0, 'L');
 
         $pdf->SetY("40");
         $pdf->SetFont('Arial', '', 8);
@@ -346,10 +350,10 @@ class ContratoCrudController extends CrudController
 
         //numero de caracteres fonte 9 por linha 100
 
-        $pdf->SetY(80 + ($pdf->NbLines(161, utf8_decode($contrato->objeto))*5));
+        $pdf->SetY(80 + ($pdf->NbLines(161, utf8_decode($contrato->objeto)) * 5));
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(0, 5, utf8_decode("Informação Complementar: "), 0, 0, 'L');
-        $pdf->SetY(85 + ($pdf->NbLines(161, utf8_decode($contrato->objeto))*5));
+        $pdf->SetY(85 + ($pdf->NbLines(161, utf8_decode($contrato->objeto)) * 5));
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->MultiCell(0, 5, utf8_decode($contrato->info_complementar), 0, 'J');
 
@@ -357,11 +361,15 @@ class ContratoCrudController extends CrudController
         $pdf->AddPage();
         $pdf->SetY("28");
         $pdf->SetFont('Arial', 'BIU', 10);
-        $pdf->Cell(0, 5
-            , utf8_decode("Histórico do Contrato") . ' - Contrato num.: '
+        $pdf->Cell(
+            0,
+            5,
+            utf8_decode("Histórico do Contrato") . ' - Contrato num.: '
             . utf8_decode($contrato->numero) . ' - UG: '
-            . utf8_decode($contrato->unidade->codigo . " - " . $contrato->unidade->nomeresumido)
-            , 0, 0, 'C'
+            . utf8_decode($contrato->unidade->codigo . " - " . $contrato->unidade->nomeresumido),
+            0,
+            0,
+            'C'
         );
         $cell_width = 23;
         $pdf->SetY(35);
@@ -403,7 +411,7 @@ class ContratoCrudController extends CrudController
 
             $pdf->SetY($row_resp);
 
-            $linhas = $pdf->NbLines($cell_width, utf8_decode(($registro->tipo()->first()->descricao))) *5;
+            $linhas = $pdf->NbLines($cell_width, utf8_decode(($registro->tipo()->first()->descricao))) * 5;
             $pdf->SetFont('Arial', 'B', 7);
             //A MultiCell quebra a linha atual após ser exibida e ao usá-la fora da última coluna o ponto XY deve
             //ser atualizado para continuar na linha atual.
@@ -414,7 +422,7 @@ class ContratoCrudController extends CrudController
 
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell($cell_width, $linhas, $registro->numero, 1, 0, 'C');
-            $pdf->Cell($cell_width, $linhas, implode('/',array_reverse(explode('-', $registro->data_assinatura))), 1, 0, 'C');
+            $pdf->Cell($cell_width, $linhas, implode('/', array_reverse(explode('-', $registro->data_assinatura))), 1, 0, 'C');
             $pdf->Cell($cell_width, $linhas, implode('/', array_reverse(explode('-', $registro->vigencia_inicio))), 1, 0, 'C');
             $pdf->Cell($cell_width, $linhas, implode('/', array_reverse(explode('-', $registro->vigencia_fim))), 1, 0, 'C');
             $pdf->Cell($cell_width, $linhas, number_format($registro->valor_global, 2, ',', "."), 1, 0, 'R');
@@ -424,14 +432,14 @@ class ContratoCrudController extends CrudController
             $row_resp += $linhas;
             $pdf->SetY($row_resp);
 
-            $linhas = $pdf->NbLines(161, utf8_decode($registro->observacao)) *5;
+            $linhas = $pdf->NbLines(161, utf8_decode($registro->observacao)) * 5;
             $pdf->SetFont('Arial', 'B', 7);
             $pdf->Cell($cell_width, $linhas, utf8_decode("Observação"), 1, 0, 'C');
 
             $pdf->SetFont('Arial', '', 7);
             $pdf->MultiCell(161, 5, utf8_decode($registro->observacao), 1);
 
-            $row_resp += $linhas +5;
+            $row_resp += $linhas + 5;
         }
 
         //responsaveis do contrato
@@ -616,7 +624,6 @@ class ContratoCrudController extends CrudController
         $row_resp = 40 + 5;
 
         foreach ($empenhos as $empenho) {
-
             if ($row_resp >= 260) {
                 $row_resp = 35;
                 $pdf->AddPage();
@@ -798,7 +805,8 @@ class ContratoCrudController extends CrudController
         ]);
     }
 
-    protected function adicionaCampoRecuperaGridItens(){
+    protected function adicionaCampoRecuperaGridItens()
+    {
         $this->crud->addField([
             'label' => "adicionaCampoRecuperaGridItens",
             'type' => "hidden",
@@ -880,7 +888,7 @@ class ContratoCrudController extends CrudController
     {
         $modalidades = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Modalidade Licitação');
-        })->where('visivel',true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+        })->where('visivel', true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $this->crud->addField([
             'name' => 'modalidade_id',
@@ -901,6 +909,7 @@ class ContratoCrudController extends CrudController
             'tab' => $this->tab
         ]);
     }
+
     protected function adicionaCampoAmparoLegal()
     {
         $this->crud->addField([
@@ -1136,7 +1145,7 @@ class ContratoCrudController extends CrudController
             'name' => 'num_parcelas',
             'label' => 'Núm. Parcelas',
             'type' => 'number',
-            'default'=>'1',
+            'default' => '1',
             'attributes' => [
                 "step" => "any",
                 "min" => '1',
@@ -1518,11 +1527,12 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltroFornecedor()
     {
-        $this->crud->addFilter([
-            'name' => 'fornecedor',
-            'type' => 'select2_multiple',
-            'label' => 'Fornecedor'
-        ],
+        $this->crud->addFilter(
+            [
+                'name' => 'fornecedor',
+                'type' => 'select2_multiple',
+                'label' => 'Fornecedor'
+            ],
             $this->retornaFornecedores(),
             function ($value) {
                 $this->crud->addClause(
@@ -1536,14 +1546,16 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltroReceitaDespesa()
     {
-        $this->crud->addFilter([
-            'name' => 'receita_despesa',
-            'type' => 'select2_multiple',
-            'label' => 'Receita / Despesa'
-        ], [
-            'R' => 'Receita',
-            'D' => 'Despesa',
-        ],
+        $this->crud->addFilter(
+            [
+                'name' => 'receita_despesa',
+                'type' => 'select2_multiple',
+                'label' => 'Receita / Despesa'
+            ],
+            [
+                'R' => 'Receita',
+                'D' => 'Despesa',
+            ],
             function ($value) {
                 $this->crud->addClause(
                     'whereIn',
@@ -1556,11 +1568,12 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltroTipo()
     {
-        $this->crud->addFilter([
-            'name' => 'tipo_contrato',
-            'type' => 'select2_multiple',
-            'label' => 'Tipo'
-        ],
+        $this->crud->addFilter(
+            [
+                'name' => 'tipo_contrato',
+                'type' => 'select2_multiple',
+                'label' => 'Tipo'
+            ],
             $this->retornaTipos(),
             function ($value) {
                 $this->crud->addClause(
@@ -1574,11 +1587,12 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltroCategoria()
     {
-        $this->crud->addFilter([
-            'name' => 'categorias',
-            'type' => 'select2_multiple',
-            'label' => 'Categorias'
-        ],
+        $this->crud->addFilter(
+            [
+                'name' => 'categorias',
+                'type' => 'select2_multiple',
+                'label' => 'Categorias'
+            ],
             $this->retornaCategorias(),
             function ($values) {
                 $this->crud->addClause(
@@ -1592,11 +1606,12 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltroDataVigenciaInicio()
     {
-        $this->crud->addFilter([
-            'type' => 'date_range',
-            'name' => 'vigencia_inicio',
-            'label' => 'Vigência Inicio'
-        ],
+        $this->crud->addFilter(
+            [
+                'type' => 'date_range',
+                'name' => 'vigencia_inicio',
+                'label' => 'Vigência Inicio'
+            ],
             false,
             function ($value) {
                 $dates = json_decode($value);
@@ -1609,11 +1624,12 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltroDataVigenciaTermino()
     {
-        $this->crud->addFilter([
-            'type' => 'date_range',
-            'name' => 'vigencia_fim',
-            'label' => 'Vigência Fim'
-        ],
+        $this->crud->addFilter(
+            [
+                'type' => 'date_range',
+                'name' => 'vigencia_fim',
+                'label' => 'Vigência Fim'
+            ],
             false,
             function ($value) {
                 $dates = json_decode($value);
@@ -1626,13 +1642,14 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltroValorGlobal()
     {
-        $this->crud->addFilter([
-            'name' => 'valor_global',
-            'type' => 'range',
-            'label' => 'Valor Global',
-            'label_from' => 'Vlr Mínimo',
-            'label_to' => 'Vlr Máximo'
-        ],
+        $this->crud->addFilter(
+            [
+                'name' => 'valor_global',
+                'type' => 'range',
+                'label' => 'Valor Global',
+                'label_from' => 'Vlr Mínimo',
+                'label_to' => 'Vlr Máximo'
+            ],
             false,
             function ($value) {
                 $range = json_decode($value);
@@ -1649,13 +1666,14 @@ class ContratoCrudController extends CrudController
 
     protected function aplicaFiltroValorParcela()
     {
-        $this->crud->addFilter([
-            'name' => 'valor_parcela',
-            'type' => 'range',
-            'label' => 'Valor Parcela',
-            'label_from' => 'Vlr Mínimo',
-            'label_to' => 'Vlr Máximo'
-        ],
+        $this->crud->addFilter(
+            [
+                'name' => 'valor_parcela',
+                'type' => 'range',
+                'label' => 'Valor Parcela',
+                'label_from' => 'Vlr Mínimo',
+                'label_to' => 'Vlr Máximo'
+            ],
             false,
             function ($value) {
                 $range = json_decode($value);
@@ -1680,15 +1698,19 @@ class ContratoCrudController extends CrudController
             '1' => 'Ativo',
             '0' => 'Inativo',
         ], function ($value) {
-            $this->crud->addClause('whereIn'
-                , 'contratos.situacao', json_decode($value));
+            $this->crud->addClause(
+                'whereIn',
+                'contratos.situacao',
+                json_decode($value)
+            );
         });
     }
 
     private function retornaFornecedores()
     {
         return Fornecedor::select(
-            DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'cpf_cnpj_idgener'
+            DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"),
+            'cpf_cnpj_idgener'
         )
             ->whereHas(
                 'contratos',
