@@ -15,26 +15,29 @@ use App\Models\Contrato;
 use App\Models\Fornecedor;
 use App\Models\Orgao;
 use App\Models\Unidade;
+use FormBuilder;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 use MaddHatter\LaravelFullcalendar\Calendar;
 use function foo\func;
 
 class IndexController extends Controller
 {
     protected $data = []; // the information we send to the view
-    const TIPO_NUMERO_CONTRATOS_TOTAL = 'TOTAL';
-    const TIPO_NUMERO_CONTRATOS_30 = '30';
-    const TIPO_NUMERO_CONTRATOS_3060 = '3060';
-    const TIPO_NUMERO_CONTRATOS_6090 = '6090';
-    const TIPO_NUMERO_CONTRATOS_90180 = '90180';
-    const TIPO_NUMERO_CONTRATOS_180 = '180';
+    public const TIPO_NUMERO_CONTRATOS_TOTAL = 'TOTAL';
+    public const TIPO_NUMERO_CONTRATOS_30 = '30';
+    public const TIPO_NUMERO_CONTRATOS_3060 = '3060';
+    public const TIPO_NUMERO_CONTRATOS_6090 = '6090';
+    public const TIPO_NUMERO_CONTRATOS_90180 = '90180';
+    public const TIPO_NUMERO_CONTRATOS_180 = '180';
 
     /**
      * Show the admin dashboard.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index(Request $request)
     {
@@ -43,7 +46,8 @@ class IndexController extends Controller
         $this->data['title'] = "Área Consulta Pública";//trans('backpack::base.dashboard'); // set the page title
         $filtro = [];
 
-        $form = \FormBuilder::create(TransparenciaIndexForm::class,
+        $form = FormBuilder::create(
+            TransparenciaIndexForm::class,
             [
                 'method' => 'GET',
                 'model' => ($request->input()) ? $request->input() : '',
@@ -60,63 +64,148 @@ class IndexController extends Controller
         $graficoCategoriaContratos = $this->geraGraficoCategoriaContratos($filtro);
         $graficoContratosPorAno = $this->geraGraficoContratosPorAno($filtro);
 
-        $datas_anoref['inicio_cronograma'] = $base->retornaDataMaisOuMenosQtdTipoFormato('Y','-','2', 'years', date('Y-m-d'));
-        $datas_anoref['fim_cronograma'] = $base->retornaDataMaisOuMenosQtdTipoFormato('Y','+','2', 'years', date('Y-m-d'));
-        $graficoContratosCronograma = $this->geraGraficoContratosCronograma($filtro,$datas_anoref);
+        $datas_anoref['inicio_cronograma'] = $base->retornaDataMaisOuMenosQtdTipoFormato(
+            'Y',
+            '-',
+            '2',
+            'years',
+            date('Y-m-d')
+        );
+        $datas_anoref['fim_cronograma'] = $base->retornaDataMaisOuMenosQtdTipoFormato(
+            'Y',
+            '+',
+            '2',
+            'years',
+            date('Y-m-d')
+        );
+        $graficoContratosCronograma = $this->geraGraficoContratosCronograma($filtro, $datas_anoref);
 
-        $dt30 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','30', 'days', date('Y-m-d'));
-        $dt60 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','60', 'days', date('Y-m-d'));
-        $dt90 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','90', 'days', date('Y-m-d'));
-        $dt180 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','180', 'days', date('Y-m-d'));
-        $dt999 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','+','99', 'years', date('Y-m-d'));
-        $dt000 = $base->retornaDataMaisOuMenosQtdTipoFormato('Y-m-d','-','99', 'years', date('Y-m-d'));
+        $dt30 = $base->retornaDataMaisOuMenosQtdTipoFormato(
+            'Y-m-d',
+            '+',
+            '30',
+            'days',
+            date('Y-m-d')
+        );
+        $dt60 = $base->retornaDataMaisOuMenosQtdTipoFormato(
+            'Y-m-d',
+            '+',
+            '60',
+            'days',
+            date('Y-m-d')
+        );
+        $dt90 = $base->retornaDataMaisOuMenosQtdTipoFormato(
+            'Y-m-d',
+            '+',
+            '90',
+            'days',
+            date('Y-m-d')
+        );
+        $dt180 = $base->retornaDataMaisOuMenosQtdTipoFormato(
+            'Y-m-d',
+            '+',
+            '180',
+            'days',
+            date('Y-m-d')
+        );
+        $dt999 = $base->retornaDataMaisOuMenosQtdTipoFormato(
+            'Y-m-d',
+            '+',
+            '99',
+            'years',
+            date('Y-m-d')
+        );
+        $dt000 = $base->retornaDataMaisOuMenosQtdTipoFormato(
+            'Y-m-d',
+            '-',
+            '99',
+            'years',
+            date('Y-m-d')
+        );
 
-        $url_datas['dt30'] = '{"from":"'.$dt000.'","to":"'.$dt30.'"}';
-        $url_datas['dt3060'] = '{"from":"'.$dt30.'","to":"'.$dt60.'"}';
-        $url_datas['dt6090'] = '{"from":"'.$dt60.'","to":"'.$dt90.'"}';
-        $url_datas['dt90180'] = '{"from":"'.$dt90.'","to":"'.$dt180.'"}';
-        $url_datas['dt180'] = '{"from":"'.$dt180.'","to":"'.$dt999.'"}';
+        $url_datas['dt30'] = '{"from":"' . $dt000 . '","to":"' . $dt30 . '"}';
+        $url_datas['dt3060'] = '{"from":"' . $dt30 . '","to":"' . $dt60 . '"}';
+        $url_datas['dt6090'] = '{"from":"' . $dt60 . '","to":"' . $dt90 . '"}';
+        $url_datas['dt90180'] = '{"from":"' . $dt90 . '","to":"' . $dt180 . '"}';
+        $url_datas['dt180'] = '{"from":"' . $dt180 . '","to":"' . $dt999 . '"}';
 
         $url_filtro = '';
         if (isset($filtro['orgao'])) {
-            $url_filtro .= 'orgao=["' . strval($filtro['orgao']) . '"]&';
+            $url_filtro .= 'orgao=["' . (string)$filtro['orgao'] . '"]&';
         }
         if (isset($filtro['unidade'])) {
-            $url_filtro .= 'unidade=["' . strval($filtro['unidade']) . '"]&';
+            $url_filtro .= 'unidade=' . (string)$filtro['unidade'] . '&';
         }
         if (isset($filtro['fornecedor'])) {
-            $url_filtro .= 'fornecedor=["' . strval($filtro['fornecedor']) . '"]&';
+            $url_filtro .= 'fornecedor=' . (string)$filtro['fornecedor'] . '&';
         }
         if (isset($filtro['contrato'])) {
-            //Funciona também sem o urlencode
-            $url_filtro .= 'numero=' . urlencode(strval($filtro['contrato'])) . '&';
+            $url_filtro .= 'numero=' . (string)$filtro['contrato'] . '&';
+
         }
 
-        $this->data['contratos_total_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_TOTAL,
-            $filtro);
-        $this->data['contratos_vencer30_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_30,
-            $filtro, [$dt30]);
-        $this->data['contratos_vencer3060_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_3060,
-            $filtro, [$dt30, $dt60]);
-        $this->data['contratos_vencer6090_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_6090,
-            $filtro, [$dt60, $dt90]);
-        $this->data['contratos_vencer90180_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_90180,
-            $filtro, [$dt90, $dt180]);
-        $this->data['contratos_vencer180_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(self::TIPO_NUMERO_CONTRATOS_180,
-            $filtro, [$dt180]);
+        $this->data['contratos_total_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(
+            self::TIPO_NUMERO_CONTRATOS_TOTAL,
+            $filtro
+        );
+        $this->data['contratos_vencer30_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(
+            self::TIPO_NUMERO_CONTRATOS_30,
+            $filtro,
+            [$dt30]
+        );
+        $this->data['contratos_vencer3060_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(
+            self::TIPO_NUMERO_CONTRATOS_3060,
+            $filtro,
+            [$dt30, $dt60]
+        );
+        $this->data['contratos_vencer6090_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(
+            self::TIPO_NUMERO_CONTRATOS_6090,
+            $filtro,
+            [$dt60, $dt90]
+        );
+        $this->data['contratos_vencer90180_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(
+            self::TIPO_NUMERO_CONTRATOS_90180,
+            $filtro,
+            [$dt90, $dt180]
+        );
+        $this->data['contratos_vencer180_numero'] = $this->buscaNumeroContratosPorPeriodoVencimento(
+            self::TIPO_NUMERO_CONTRATOS_180,
+            $filtro,
+            [$dt180]
+        );
         $this->data['contratos_total_percentual'] = '100%';
 
         if ($this->data['contratos_total_numero'] > 0) {
-            $this->data['contratos_vencer30_percentual'] = number_format($this->data['contratos_vencer30_numero'] / $this->data['contratos_total_numero'] * 100,
-                    0, ',', '') . '%';
-            $this->data['contratos_vencer3060_percentual'] = number_format($this->data['contratos_vencer3060_numero'] / $this->data['contratos_total_numero'] * 100,
-                    0, ',', '') . '%';
-            $this->data['contratos_vencer6090_percentual'] = number_format($this->data['contratos_vencer6090_numero'] / $this->data['contratos_total_numero'] * 100,
-                    0, ',', '') . '%';
-            $this->data['contratos_vencer90180_percentual'] = number_format($this->data['contratos_vencer90180_numero'] / $this->data['contratos_total_numero'] * 100,
-                    0, ',', '') . '%';
-            $this->data['contratos_vencer180_percentual'] = number_format($this->data['contratos_vencer180_numero'] / $this->data['contratos_total_numero'] * 100,
-                    0, ',', '') . '%';
+            $this->data['contratos_vencer30_percentual'] = number_format(
+                $this->data['contratos_vencer30_numero'] / $this->data['contratos_total_numero'] * 100,
+                0,
+                ',',
+                ''
+            ) . '%';
+            $this->data['contratos_vencer3060_percentual'] = number_format(
+                $this->data['contratos_vencer3060_numero'] / $this->data['contratos_total_numero'] * 100,
+                0,
+                ',',
+                ''
+            ) . '%';
+            $this->data['contratos_vencer6090_percentual'] = number_format(
+                $this->data['contratos_vencer6090_numero'] / $this->data['contratos_total_numero'] * 100,
+                0,
+                ',',
+                ''
+            ) . '%';
+            $this->data['contratos_vencer90180_percentual'] = number_format(
+                $this->data['contratos_vencer90180_numero'] / $this->data['contratos_total_numero'] * 100,
+                0,
+                ',',
+                ''
+            ) . '%';
+            $this->data['contratos_vencer180_percentual'] = number_format(
+                $this->data['contratos_vencer180_numero'] / $this->data['contratos_total_numero'] * 100,
+                0,
+                ',',
+                ''
+            ) . '%';
         } else {
             $this->data['contratos_vencer30_percentual'] = '0%';
             $this->data['contratos_vencer3060_percentual'] = '0%';
@@ -140,9 +229,9 @@ class IndexController extends Controller
     private function geraGraficoContratosCronograma(array $filtro = null, array $datas = null)
     {
         $base = new AdminController();
-        $anoref=[];
-        for($datas['inicio_cronograma'];$datas['inicio_cronograma'] <= $datas['fim_cronograma'];$datas['inicio_cronograma']++){
-            $anoref[] =  strval($datas['inicio_cronograma']);
+        $anoref = [];
+        for ($datas['inicio_cronograma']; $datas['inicio_cronograma'] <= $datas['fim_cronograma']; $datas['inicio_cronograma']++) {
+            $anoref[] = strval($datas['inicio_cronograma']);
         }
 
         $referencias = DB::table('contratocronograma');
@@ -153,8 +242,8 @@ class IndexController extends Controller
         $referencias->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $referencias->where('unidades.sigilo', '=', false);
         $referencias->where('contratos.situacao', '=', true);
-        $referencias->where('contratocronograma.deleted_at', '=', null );
-        $referencias->whereIn('contratocronograma.anoref',$anoref);
+        $referencias->where('contratocronograma.deleted_at', '=', null);
+        $referencias->whereIn('contratocronograma.anoref', $anoref);
         $referencias->groupBy(['anoref', 'mesref']);
         $referencias->orderBy('anoref', 'asc');
         $referencias->orderBy('mesref', 'asc');
@@ -181,7 +270,7 @@ class IndexController extends Controller
         $valores->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $valores->where('unidades.sigilo', '=', false);
         $valores->where('contratos.situacao', '=', true);
-        $valores->where('contratocronograma.deleted_at', '=', null );
+        $valores->where('contratocronograma.deleted_at', '=', null);
         $valores->whereIn('contratocronograma.anoref', $anoref);
         $valores->groupBy(['anoref', 'mesref']);
         $valores->orderBy('anoref', 'asc');
@@ -335,7 +424,6 @@ class IndexController extends Controller
             $contratos->where('orgaos.codigo', $filtro['orgao']);
         }
         if (isset($filtro['unidade'])) {
-
             $contratos->where('unidades.codigo', $filtro['unidade']);
         }
         if (isset($filtro['fornecedor'])) {
@@ -498,8 +586,10 @@ class IndexController extends Controller
             }
 
             if ($key == 'fornecedor') {
-                $fornecedor = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"),
-                    'cpf_cnpj_idgener')
+                $fornecedor = Fornecedor::select(
+                    DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"),
+                    'cpf_cnpj_idgener'
+                )
                     ->where('cpf_cnpj_idgener', $value)
                     ->pluck('nome', 'cpf_cnpj_idgener')
                     ->toArray();
@@ -520,5 +610,4 @@ class IndexController extends Controller
             'contrato' => $contrato
         ];
     }
-
 }
