@@ -341,7 +341,7 @@
                 var cols = "";
                 cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
-                cols += '<td>'+item.descricao_complementar+'</td>';
+                cols += '<td>'+item.codigo_siasg+' - '+item.descricao_complementar+'</td>';
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]" step="0.0001" id="qtd" value="'+item.quantidade+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" step="0.0001" id="vl_total" value="'+item.valortotal+'"></td>';
