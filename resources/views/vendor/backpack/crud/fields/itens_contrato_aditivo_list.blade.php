@@ -216,7 +216,7 @@
                                 return {
                                     results:  $.map(data.data, function (item) {
                                         return {
-                                            text: item.descricao,
+                                            text: item.codigo_siasg +' - '+ item.descricao,
                                             id: item.id
                                         }
                                     })
