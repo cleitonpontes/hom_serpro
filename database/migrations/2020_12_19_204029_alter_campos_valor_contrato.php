@@ -14,10 +14,10 @@ class AlterCamposValorContrato extends Migration
     public function up()
     {
         Schema::table('contratos', function (Blueprint $table) {
-            $table->decimal('valor_inicial',19,4)->default(0)->change();
-            $table->decimal('valor_global',19,4)->default(0)->change();
-            $table->decimal('valor_parcela',19,4)->default(0)->change();
-            $table->decimal('valor_acumulado',19,4)->default(0)->change();
+            $table->decimal('valor_inicial',19,4)->change();
+            $table->decimal('valor_global',19,4)->change();
+            $table->decimal('valor_parcela',19,4)->change();
+            $table->decimal('valor_acumulado',19,4)->change();
         });
     }
 
@@ -29,10 +29,10 @@ class AlterCamposValorContrato extends Migration
     public function down()
     {
         Schema::table('contratos', function (Blueprint $table) {
-            $table->decimal('valor_inicial',17,2)->default(0)->change();
-            $table->decimal('valor_global',17,2)->default(0)->change();
-            $table->decimal('valor_parcela',17,2)->default(0)->change();
-            $table->decimal('valor_acumulado',17,2)->default(0)->change();
+            $table->decimal('valor_inicial',17,2)->change();
+            $table->decimal('valor_global',17,2)->change();
+            $table->decimal('valor_parcela',17,2)->change();
+            $table->decimal('valor_acumulado',17,2)->change();
         });
     }
 }

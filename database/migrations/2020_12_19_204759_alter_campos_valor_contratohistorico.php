@@ -14,13 +14,13 @@ class AlterCamposValorContratohistorico extends Migration
     public function up()
     {
         Schema::table('contratohistorico', function (Blueprint $table) {
-            $table->decimal('valor_inicial',19,4)->default(0)->change();
-            $table->decimal('valor_global',19,4)->default(0)->change();
-            $table->decimal('valor_parcela',19,4)->default(0)->change();
-            $table->decimal('valor_acumulado',19,4)->default(0)->change();
-            $table->decimal('novo_valor_global',19,4)->default(0)->change();
-            $table->decimal('novo_valor_parcela',19,4)->default(0)->change();
-            $table->decimal('retroativo_valor',19,4)->default(0)->change();
+            $table->decimal('valor_inicial',19,4)->change();
+            $table->decimal('valor_global',19,4)->change();
+            $table->decimal('valor_parcela',19,4)->change();
+            $table->decimal('valor_acumulado',19,4)->change();
+            $table->decimal('novo_valor_global',19,4)->change();
+            $table->decimal('novo_valor_parcela',19,4)->change();
+            $table->decimal('retroativo_valor',19,4)->change();
         });
     }
 
@@ -32,13 +32,13 @@ class AlterCamposValorContratohistorico extends Migration
     public function down()
     {
         Schema::table('contratohistorico', function (Blueprint $table) {
-            $table->decimal('valor_inicial',17,2)->default(0)->change();
-            $table->decimal('valor_global',17,2)->default(0)->change();
-            $table->decimal('valor_parcela',17,2)->default(0)->change();
-            $table->decimal('valor_acumulado',17,2)->default(0)->change();
-            $table->decimal('novo_valor_global',17,2)->default(0)->change();
-            $table->decimal('novo_valor_parcela',17,2)->default(0)->change();
-            $table->decimal('retroativo_valor',17,2)->default(0)->change();
+            $table->decimal('valor_inicial',17,2)->change();
+            $table->decimal('valor_global',17,2)->change();
+            $table->decimal('valor_parcela',17,2)->change();
+            $table->decimal('valor_acumulado',17,2)->change();
+            $table->decimal('novo_valor_global',17,2)->change();
+            $table->decimal('novo_valor_parcela',17,2)->change();
+            $table->decimal('retroativo_valor',17,2)->change();
         });
     }
 }
