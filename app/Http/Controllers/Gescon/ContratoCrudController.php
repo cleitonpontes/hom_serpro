@@ -815,7 +815,7 @@ class ContratoCrudController extends CrudController
             'label' => 'Minutas de Empenho',
             'name' => 'minutasempenho',
             'placeholder' => 'Selecione minutas de empenho',
-            'type' => 'select2_from_ajax_multiple',
+            'type' => 'select2_from_ajax_multiple_minuta',
             'entity' => 'minutaempenho',
             'attribute' => 'nome_minuta_empenho',
             'model' => 'App\Models\MinutaEmpenho',
