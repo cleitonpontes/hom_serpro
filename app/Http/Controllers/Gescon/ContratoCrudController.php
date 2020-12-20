@@ -102,7 +102,6 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-//        dd('store');
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
@@ -121,10 +120,8 @@ class ContratoCrudController extends CrudController
 
         DB::beginTransaction();
         try {
-//            dd($request->all());
             $redirect_location = parent::storeCrud($request);
             $contrato_id = $this->crud->getCurrentEntryId();
-            dd('chega fdp');
             $request->request->set('contrato_id', $contrato_id);
             if (!empty($request->get('qtd_item'))) {
                 $this->inserirItensContrato($request->all());
@@ -139,7 +136,7 @@ class ContratoCrudController extends CrudController
             return $redirect_location;
         } catch (Exception $exc) {
             DB::rollback();
-            dd($exc);
+//            dd($exc);
         }
     }
 
@@ -159,7 +156,6 @@ class ContratoCrudController extends CrudController
     public function inserirItensContrato($request)
     {
 
-//        dd($request);
         foreach ($request['qtd_item'] as $key => $qtd) {
             $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
             $catmatseritem = Catmatseritem::find($catmatseritem_id);
@@ -178,8 +174,6 @@ class ContratoCrudController extends CrudController
             $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
             $contratoItem->save();
             if ($request['compra_item_unidade_id'][$key] !== 'undefined') {
-//            dump($contratoItem);
-
                 $this->vincularContratoItensCompraItemUnidade($contratoItem, $request['compra_item_unidade_id'][$key]);
             }
         }
@@ -197,18 +191,15 @@ class ContratoCrudController extends CrudController
 
     public function vincularContratoItensCompraItemUnidade($contratoItem, $compra_item_unidade_id)
     {
-//        dd($contratoItem, $compra_item_unidade_id);
-//        foreach ($request['compra_item_unidade_id'] as $key => $compra_item_unidade_id) {
         $compraItemUnidade_ContratoItem = new Comprasitemunidadecontratoitens();
         $compraItemUnidade_ContratoItem->contratoitem_id = $contratoItem->id;
         $compraItemUnidade_ContratoItem->compra_item_unidade_id = $compra_item_unidade_id;
         $compraItemUnidade_ContratoItem->save();
-//        }
     }
 
     public function update(UpdateRequest $request)
     {
-        dd('up');
+
         $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
         $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
 
