@@ -226,7 +226,7 @@
                                 return {
                                     results: $.map(data.data, function (item) {
                                         return {
-                                            text: item.descricao,
+                                            text:  item.codigo_siasg + ' - ' +item.descricao,
                                             id: item.id
                                         }
                                     })
@@ -356,12 +356,12 @@
 
                 var newRow = $("<tr>");
                 var cols = "";
-                cols += '<td>' + item.tipo_item + '</td>';
-                cols += '<td>' + item.numero + '</td>';
-                cols += '<td>' + item.descricaodetalhada + '</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="' + item.quantidade_autorizada + '" min="' + qtd + '" value="' + qtd + '"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="' + vl_unit + '"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" step="0.0001" id="vl_total"value="' + vl_total + '"></td>';
+                cols += '<td>'+item.tipo_item+'</td>';
+                cols += '<td>'+item.numero+'</td>';
+                cols += '<td>'+item.codigo_siasg + ' - ' +item.descricaocatmatseritens+'</td>';
+                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="'+item.quantidade_autorizada+'" min="'+qtd+'" value="'+qtd+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+vl_unit+'"></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" step="0.0001" id="vl_total"value="'+vl_total+'"></td>';
                 cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
                 cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
                 cols += '<td>';

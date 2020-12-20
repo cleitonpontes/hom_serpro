@@ -457,7 +457,7 @@ class ContratoitemCrudController extends CrudController
                 'contratoitens.id',
                 'catmatseritens.codigo_siasg',
                 'codigoitens.descricao',
-                'contratoitens.descricao_complementar',
+                'catmatseritens.descricao as descricao_complementar',
                 'contratoitens.quantidade',
                 'contratoitens.valorunitario',
                 'contratoitens.valortotal',

@@ -21,7 +21,7 @@ class SaldoHistoricoItemController extends Controller
                 'saldohistoricoitens.id',
                 'codigoitens.descricao',
                 'catmatseritens.codigo_siasg',
-                'contratoitens.descricao_complementar',
+                'catmatseritens.descricao as descricao_complementar',
                 'contratoitens.quantidade',
                 'saldohistoricoitens.valorunitario',
                 'saldohistoricoitens.valortotal',
