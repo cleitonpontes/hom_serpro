@@ -539,12 +539,12 @@ class AditivoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
 
-        $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
-        $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
+        $valor_parcela = $request->input('valor_parcela');
+        $request->request->set('valor_parcela', $valor_parcela);
 
-        $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
-        $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
-        $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
+        $valor_global = $request->input('valor_global');
+        $request->request->set('valor_global', $valor_global);
+        $request->request->set('valor_inicial', $valor_global);
 
         $soma_subtrai = $request->input('retroativo_soma_subtrai');
 
@@ -590,11 +590,11 @@ class AditivoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
-        $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
+        $valor_parcela = $request->input('valor_parcela');
+        $request->request->set('valor_parcela', $valor_parcela);
 
-        $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
-        $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
+        $valor_global = $request->input('valor_global');
+        $request->request->set('valor_global', $valor_global);
 
         $soma_subtrai = $request->input('retroativo_soma_subtrai');
 

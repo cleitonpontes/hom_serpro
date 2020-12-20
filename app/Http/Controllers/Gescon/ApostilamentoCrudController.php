@@ -488,17 +488,17 @@ class ApostilamentoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $novo_valor_parcela = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_parcela'))));
-        $request->request->set('novo_valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
-        $request->request->set('valor_parcela', number_format($novo_valor_parcela, 2, '.', ''));
+        $novo_valor_parcela = $request->input('novo_valor_parcela');
+        $request->request->set('novo_valor_parcela', $novo_valor_parcela);
+        $request->request->set('valor_parcela', $novo_valor_parcela);
 
         $novo_num_parcelas = $request->input('novo_num_parcelas');
         $request->request->set('num_parcelas', $novo_num_parcelas);
 
-        $novo_valor_global = floatval(str_replace(',', '.', str_replace('.', '', $request->input('novo_valor_global'))));
-        $request->request->set('novo_valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
-        $request->request->set('valor_global', number_format(floatval($novo_valor_global), 2, '.', ''));
-        $request->request->set('valor_inicial', number_format(floatval($novo_valor_global), 2, '.', ''));
+        $novo_valor_global = $request->input('novo_valor_global');
+        $request->request->set('novo_valor_global', $novo_valor_global);
+        $request->request->set('valor_global', $novo_valor_global);
+        $request->request->set('valor_inicial', $novo_valor_global);
 
         $soma_subtrai = $request->input('retroativo_soma_subtrai');
 
