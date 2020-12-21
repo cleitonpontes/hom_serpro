@@ -538,7 +538,6 @@ class AditivoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-
         $valor_parcela = $request->input('valor_parcela');
         $request->request->set('valor_parcela', $valor_parcela);
 
@@ -676,8 +675,8 @@ class AditivoCrudController extends CrudController
         $request = $request->all();
         foreach ($request['qtd_item'] as $key => $qtd) {
 
-            if ($request['id'][$key] !== 'undefined') {
-                $saldoHistoricoIten = Saldohistoricoitem::find($request['id'][$key]);
+            if ($request['aditivo_item_id'][$key] !== 'undefined') {
+                $saldoHistoricoIten = Saldohistoricoitem::find($request['aditivo_item_id'][$key]);
                 $saldoHistoricoIten->quantidade = (double)$qtd;
                 $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
                 $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
@@ -720,11 +719,11 @@ class AditivoCrudController extends CrudController
             ->first();
 
         foreach ($request['qtd_item'] as $key => $qtd) {
-            if ($request['id'][$key] !== 'undefined') {
+            if ($request['aditivo_item_id'][$key] !== 'undefined') {
                 $saldoHistoricoIten = new Saldohistoricoitem();
                 $saldoHistoricoIten->saldoable_type = 'App\Models\Contratohistorico';
                 $saldoHistoricoIten->saldoable_id = $contratoHistorico->id;
-                $saldoHistoricoIten->contratoitem_id = $request['id'][$key];
+                $saldoHistoricoIten->contratoitem_id = $request['aditivo_item_id'][$key];
                 $saldoHistoricoIten->tiposaldo_id = $codigoitem->id;
                 $saldoHistoricoIten->quantidade = (double)$qtd;
                 $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
