@@ -354,7 +354,7 @@
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
+                cols += '<input type="hidden" name="aditivo_item_id[]" id="aditivo_item_id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
