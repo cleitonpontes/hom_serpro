@@ -34,6 +34,7 @@ class SaldoHistoricoItemController extends Controller
             ->leftJoin('contratoitens', 'saldohistoricoitens.contratoitem_id', '=', 'contratoitens.id')
             ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
             ->leftJoin('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
+            ->whereNull('contratoitens.deleted_at')
             ->get()->toArray();
     }
 }
