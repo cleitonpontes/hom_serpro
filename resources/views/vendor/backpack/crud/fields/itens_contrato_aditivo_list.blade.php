@@ -6,10 +6,10 @@
         <div class="card-body">
             <div>
                 <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Inserir Item <i class="fa fa-plus"></i>
-                            </button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#inserir_item">
+                        Inserir Item <i class="fa fa-plus"></i>
+                    </button>
                 </span>
                 <br>
                 <br>
@@ -242,8 +242,7 @@
                 select.add(option);
             }
 
-            function buscarItem(id)
-            {
+            function buscarItem(id){
                 var url = "{{route('busca.catmatseritens.id',':id')}}";
                 url = url.replace(':id', id);
 
