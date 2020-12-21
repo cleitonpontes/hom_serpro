@@ -262,6 +262,7 @@
                 item = {
                     'descricao' : $('#tipo_item :selected').text(),
                     'descricao_complementar': item.descricao,
+                    'codigo_siasg': item.codigo_siasg,
                     'quantidade' : $('#quantidade_item').val(),
                     'valorunitario': $('#valor_unit').val(),
                     'numero':$('#numero_item').val(),
