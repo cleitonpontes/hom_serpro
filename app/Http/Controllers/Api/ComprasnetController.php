@@ -47,7 +47,7 @@ class ComprasnetController extends Controller
                     $tipo = $contrato->tipo->descres;
                     $numero_contrato = str_replace('/', '', $contrato->numero);
 
-                    $array_contratos[] = $unidadeorigem . $tipo . $numero_contrato . $unidadesubrrogacao;
+                    $array_contratos[] .= $unidadeorigem . $tipo . $numero_contrato . $unidadesubrrogacao;
                 }
 
                 $array_empenhos = [];
