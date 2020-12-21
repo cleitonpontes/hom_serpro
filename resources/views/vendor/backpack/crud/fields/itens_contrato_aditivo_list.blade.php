@@ -445,6 +445,7 @@
             function initSelectQualificacao(){
                 var arrayNameCamposHabilitarDesabilitar = recuperarArrObjCampos(tratarArrayItemQualificacao()[1]);
                 habilitarDesabilitarCampos(tratarArrayItemQualificacao()[0], arrayNameCamposHabilitarDesabilitar);
+                habilitarDesabilitarCamposItens();
             }
 
             function onChangeSelectQualificacao() {
