@@ -7,15 +7,21 @@
     $old_value = old(square_brackets_to_dots($field['name'])) ?? $field['value'] ?? $field['default'] ?? false
 @endphp
 
+@if ($old_value)
+    @php
+        $item = $connected_entity->find($old_value)
+    @endphp
+@endif
+
 <div @include('crud::inc.field_wrapper_attributes') >
     <label>{!! $field['label'] !!}</label>
 
-{{--    @if(isset($field['attribute']) && strpos($item->{$field['attribute']},'ESTRANGEIRO') )--}}
+        @if ( strpos($item->{$field['attribute']},'ESTRANGEIRO') !== false)
         <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal"
                 data-target="#inserir_novo_credor">
             Novo <i class="fa fa-plus"></i>
         </button>
-{{--    @endif--}}
+    @endif
 
 
     <?php $entity_model = $crud->model; ?>
@@ -28,9 +34,6 @@
     >
 
         @if ($old_value)
-            @php
-                $item = $connected_entity->find($old_value)
-            @endphp
             @if ($item)
 
                 {{-- allow clear --}}
@@ -144,7 +147,7 @@
                                 allowClear: true,
                             @endif
                             @if ( strpos($item->{$field['attribute']},'ESTRANGEIRO') === false)
-                                readOnly: true,
+                                disabled:readonly,
                             @endif
 
                         ajax: {
