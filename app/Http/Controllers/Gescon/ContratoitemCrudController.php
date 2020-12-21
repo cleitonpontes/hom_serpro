@@ -455,8 +455,9 @@ class ContratoitemCrudController extends CrudController
         return Contratoitem::where('contrato_id','=',$contrato_id)
             ->select(
                 'contratoitens.id',
+                'catmatseritens.codigo_siasg',
                 'codigoitens.descricao',
-                'contratoitens.descricao_complementar',
+                'catmatseritens.descricao as descricao_complementar',
                 'contratoitens.quantidade',
                 'contratoitens.valorunitario',
                 'contratoitens.valortotal',
@@ -467,6 +468,7 @@ class ContratoitemCrudController extends CrudController
                 'contratoitens.numero_item_compra as numero'
             )
             ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+            ->leftJoin('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
             ->get()->toArray();
     }
 
