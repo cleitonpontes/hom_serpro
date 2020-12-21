@@ -7,16 +7,10 @@
     $old_value = old(square_brackets_to_dots($field['name'])) ?? $field['value'] ?? $field['default'] ?? false
 @endphp
 
-@if ($old_value)
-    @php
-        $item = $connected_entity->find($old_value)
-    @endphp
-@endif
-
 <div @include('crud::inc.field_wrapper_attributes') >
     <label>{!! $field['label'] !!}</label>
 
-        @if ( strpos($item->{$field['attribute']},'ESTRANGEIRO') !== false)
+    @if (strpos($field['attribute'],'ESTRANGEIRO') !== false or strpos($item->{$field['attribute']},'ESTRANGEIRO') !== false)
         <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal"
                 data-target="#inserir_novo_credor">
             Novo <i class="fa fa-plus"></i>
@@ -34,6 +28,9 @@
     >
 
         @if ($old_value)
+            @php
+                $item = $connected_entity->find($old_value)
+            @endphp
             @if ($item)
 
                 {{-- allow clear --}}
@@ -144,11 +141,11 @@
 
                         {{-- allow clear --}}
                             @if ($entity_model::isColumnNullable($field['name']))
-                                allowClear: true,
-                            @endif
+                        allowClear: true,
+                        @endif
                             @if ( strpos($item->{$field['attribute']},'ESTRANGEIRO') === false)
-                                disabled:readonly,
-                            @endif
+                        disabled: readonly,
+                        @endif
 
                         ajax: {
                             url: "{{ $field['data_source'] }}",
