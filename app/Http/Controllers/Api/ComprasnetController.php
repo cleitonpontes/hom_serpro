@@ -100,7 +100,6 @@ class ComprasnetController extends Controller
             ->where('modalidade_id', $modalidade)
             ->where('unidadecompra_id', $unidade)
             ->where('licitacao_numero', $numeroAnoCompra)
-            //todo verificar saldo total
             ->where('situacao',true);
 
         return $contratos->get();
