@@ -10,7 +10,7 @@
 <div @include('crud::inc.field_wrapper_attributes') >
     <label>{!! $field['label'] !!}</label>
 
-    @if (strpos($field['attribute'],'ESTRANGEIRO') !== false or strpos($item->{$field['attribute']},'ESTRANGEIRO') !== false)
+    @if (strpos($field['attribute'],'ESTRANGEIRO') !== false)
         <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal"
                 data-target="#inserir_novo_credor">
             Novo <i class="fa fa-plus"></i>
