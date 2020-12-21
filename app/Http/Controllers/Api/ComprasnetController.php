@@ -47,7 +47,7 @@ class ComprasnetController extends Controller
                     $tipo = $contrato->tipo->descres;
                     $numero_contrato = str_replace('/', '', $contrato->numero);
 
-                    $array_contratos[] = $unidadeorigem . $tipo . $numero_contrato . $unidadesubrrogacao;
+                    $array_contratos[] .= $unidadeorigem . $tipo . $numero_contrato . $unidadesubrrogacao;
                 }
 
                 $array_empenhos = [];
@@ -94,7 +94,8 @@ class ComprasnetController extends Controller
     private function buscaContratosItemUnidadeCompra(string $item, int $modalidade, int $unidade, string $numeroAnoCompra)
     {
         $contratos = Contrato::whereHas('itens', function ($i) use ($item) {
-            $i->where('numero_item_compra', $item);
+            $i->where('numero_item_compra', $item)
+            ->where('valortotal','>',0);
         })
             ->where('modalidade_id', $modalidade)
             ->where('unidadecompra_id', $unidade)
