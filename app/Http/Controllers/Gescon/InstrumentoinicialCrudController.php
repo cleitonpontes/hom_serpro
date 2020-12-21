@@ -16,6 +16,7 @@ use App\Http\Requests\InstrumentoinicialRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use Route;
 
 /**
  * Class InstrumentoinicialCrudController
@@ -27,12 +28,12 @@ class InstrumentoinicialCrudController extends CrudController
     public function setup()
     {
 
-        $contrato_id = \Route::current()->parameter('contrato_id');
-        $instrumentoinicial_id = \Route::current()->parameter('instrumentoinicial');
+        $contrato_id = Route::current()->parameter('contrato_id');
+        $instrumentoinicial_id = Route::current()->parameter('instrumentoinicial');
 
-        $contrato = Contrato::where('id','=',$contrato_id)
-            ->where('unidade_id','=',session()->get('user_ug_id'))->first();
-        if(!$contrato){
+        $contrato = Contrato::where('id', '=', $contrato_id)
+            ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
+        if (!$contrato) {
             abort('403', config('app.erro_permissao'));
         }
 
@@ -51,14 +52,16 @@ class InstrumentoinicialCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\Contratohistorico');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/instrumentoinicial');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/instrumentoinicial');
         $this->crud->setEntityNameStrings('Instrumento Inicial', 'Instrumento Inicial');
+        $this->crud->setCreateContentClass('col-md-12');
+        $this->crud->setEditContentClass('col-md-12');
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratohistorico.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratohistorico.unidade_id');
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratohistorico.*');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
-        foreach ($tps as $t){
+        foreach ($tps as $t) {
             $this->crud->addClause('where', 'tipo_id', '<>', $t);
         }
 
@@ -92,7 +95,7 @@ class InstrumentoinicialCrudController extends CrudController
 
         $modalidades = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Modalidade Licitação');
-        })->where('visivel',true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+        })->where('visivel', true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $tipos = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
@@ -349,7 +352,7 @@ class InstrumentoinicialCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id,$instrumentoinicial_id)
+    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id)
     {
         $campos = [
             [   // Hidden
@@ -426,7 +429,7 @@ class InstrumentoinicialCrudController extends CrudController
                 'placeholder' => 'Selecione...', // placeholder for the select
                 'minimum_input_length' => 0, // minimum characters to type before querying results
                 'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
-                'method'                    => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
+                'method' => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
                 'tab' => 'Dados Gerais',
             ],
             [
@@ -640,12 +643,12 @@ class InstrumentoinicialCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
-        $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
+        $valor_parcela = $request->input('valor_parcela');
+        $request->request->set('valor_parcela', $valor_parcela);
 
-        $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
-        $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
-        $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
+        $valor_global = $request->input('valor_global');
+        $request->request->set('valor_global', $valor_global);
+        $request->request->set('valor_inicial', $valor_global);
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
 
@@ -656,15 +659,15 @@ class InstrumentoinicialCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
-        $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
+        $valor_parcela = $request->input('valor_parcela');
+        $request->request->set('valor_parcela', $valor_parcela);
 
-        $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
-        $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
+        $valor_global = $request->input('valor_global');
+        $request->request->set('valor_global', $valor_global);
 
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
-        if(!empty($request->get('qtd_item'))) {
+        if (!empty($request->get('qtd_item'))) {
             $this->alterarSaldoHistoricoItens($request->all());
         }
         // your additional operations after save here
