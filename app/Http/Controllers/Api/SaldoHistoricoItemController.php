@@ -21,7 +21,7 @@ class SaldoHistoricoItemController extends Controller
                 'saldohistoricoitens.id',
                 'codigoitens.descricao',
                 'catmatseritens.codigo_siasg',
-                'contratoitens.descricao_complementar',
+                'catmatseritens.descricao as descricao_complementar',
                 'contratoitens.quantidade',
                 'saldohistoricoitens.valorunitario',
                 'saldohistoricoitens.valortotal',
@@ -34,6 +34,7 @@ class SaldoHistoricoItemController extends Controller
             ->leftJoin('contratoitens', 'saldohistoricoitens.contratoitem_id', '=', 'contratoitens.id')
             ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
             ->leftJoin('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
+            ->whereNull('contratoitens.deleted_at')
             ->get()->toArray();
     }
 }
