@@ -58,12 +58,16 @@ class DiarioOficialController extends BaseSoapController
 
             $arrayPreview = $this->montaOficioPreview($contratoHistorico);
             $responsePreview = $this->soapClient->OficioPreview($arrayPreview);
-            dd($responsePreview);
+            dump($responsePreview);
             if(!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)){
+
                 $contratoPublicacoes->status = 'Erro Preview!';
                 $contratoPublicacoes->situacao = 'Preview não enviado!';
-                $contratoPublicacoes->log = json_encode($responsePreview);
+                $contratoPublicacoes->log = $this->retornaErroValidacoesDOU($responsePreview);
+                $contratoPublicacoes->texto_dou = $this->retornaTextoModelo($contratoHistorico);
+                $contratoPublicacoes->publicar = false;
                 $contratoPublicacoes->save();
+
                 \Alert::warning('Houve um erro ao enviar o Preview - Verifique o Log !')->flash();
                 return redirect()->back();
             }
@@ -72,6 +76,7 @@ class DiarioOficialController extends BaseSoapController
             $contratoPublicacoes->situacao = 'Enviado';
             $contratoPublicacoes->texto_dou = $this->retornaTextoModelo($contratoHistorico);
             $contratoPublicacoes->save();
+            dd($contratoPublicacoes);
             $this->oficioConfirmacao($contratoHistorico,$contratoPublicacoes);
 
         }
@@ -80,6 +85,21 @@ class DiarioOficialController extends BaseSoapController
         }
     }
 
+    public function retornaErroValidacoesDOU($responsePreview){
+
+        $erro = 'VERIFICAR : ';
+
+        $erro .= ($responsePreview->out->validacaoCliente != "OK")? 'CLENTE: '.$responsePreview->out->validacaoCliente.' | ':'';
+        $erro .= ($responsePreview->out->validacaoDataPublicacao != "OK")? 'DATA PUBLICACAO: '.$responsePreview->out->validacaoDataPublicacao.' | ':'';
+        $erro .= ($responsePreview->out->validacaoIdentificadorNorma != "OK")? 'IDENTIFICOR NORMA: '.$responsePreview->out->validacaoIdentificadorNorma.' | ':'';
+        $erro .= ($responsePreview->out->validacaoIdentificadorTipoPagamento != "OK")? 'TIPO PAGAMENTO: '.$responsePreview->out->validacaoIdentificadorTipoPagamento.' | ':'';
+        $erro .= ($responsePreview->out->validacaoNUP != "OK")? 'NUP: '.$responsePreview->out->validacaoNUP.' | ':'';
+        $erro .= ($responsePreview->out->validacaoRTF != "OK")? 'TEXTO RTF: '.$responsePreview->out->validacaoRTF.' | ':'';
+        $erro .= ($responsePreview->out->validacaoSIORGCliente != "OK")? 'SIORG CLIENT: '.$responsePreview->out->validacaoSIORGCliente.' | ':'';
+        $erro .= ($responsePreview->out->validacaoSIORGMateria != "OK")? 'SIORG MATERIA: '.$responsePreview->out->validacaoSIORGMateria.' | ':'';
+
+        return $erro;
+    }
 
     public function oficioConfirmacao(Contratohistorico  $contratoHistorico,ContratoPublicacoes $contratoPublicacoes){
         try {
@@ -95,6 +115,7 @@ class DiarioOficialController extends BaseSoapController
                 \Alert::warning('Houve um erro ao confirmar o Ofício - Verifique o Log !')->flash();
                 return redirect()->back();
             }
+
             $contratoPublicacoes->status = 'Oficio';
             $contratoPublicacoes->situacao = 'Confirmado';
             $contratoPublicacoes->transacao_id = $arrayConfirmacao['dados']['IDTransacao'];
@@ -124,7 +145,7 @@ class DiarioOficialController extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134;
-        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = 37003;
         $dados ['dados']['motivoIsencao'] = 9;
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
@@ -234,6 +255,7 @@ class DiarioOficialController extends BaseSoapController
 
     public function retornaTextoModeloContrato(Contratohistorico $contratoHistorico)
     {
+
         $contrato = $contratoHistorico->contrato;
         $TextoModelo = "##ATO EXTRATO DE CONTRATO Nº ".$contratoHistorico->numero." - UASG ".$contratoHistorico->getUnidade()."
         Nº Processo: ".$contrato->processo.".
@@ -250,8 +272,12 @@ class DiarioOficialController extends BaseSoapController
     public function retornaTextoModelorAditivo(Contratohistorico $contratoHistorico)
     {
         $contrato = $contratoHistorico->contrato;
+
         $textomodelo = "##ATO EXTRATO DE TERMO ADITIVO Nº ".$contratoHistorico->numero." - UASG ".$contratoHistorico->getUnidade()." Número do Contrato: ".$contrato->numero.". Nº Processo: ".$contrato->processo.".
                         ##TEX ".strtoupper($contrato->modalidade->descricao)." Nº ".$contrato->licitacao_numero.". Contratante: ".$contrato->unidade->nome.". CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.". Contratado : ".$contratoHistorico->fornecedor->nome." -.Objeto: ".$contratoHistorico->objeto." Fundamento Legal: ".$contrato->retornaAmparo().". Vigência: ".$contratoHistorico->getVigenciaInicio()." a ".$contratoHistorico->getVigenciaFim().". ".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].". Data de Assinatura: 01/04/2020.";
+        return $textomodelo;
+
+
         return $textomodelo;
     }
 
