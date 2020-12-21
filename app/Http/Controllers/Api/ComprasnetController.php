@@ -94,11 +94,13 @@ class ComprasnetController extends Controller
     private function buscaContratosItemUnidadeCompra(string $item, int $modalidade, int $unidade, string $numeroAnoCompra)
     {
         $contratos = Contrato::whereHas('itens', function ($i) use ($item) {
-            $i->where('numero_item_compra', $item);
+            $i->where('numero_item_compra', $item)
+            ->where('valortotal','>',0);
         })
             ->where('modalidade_id', $modalidade)
             ->where('unidadecompra_id', $unidade)
             ->where('licitacao_numero', $numeroAnoCompra)
+            //todo verificar saldo total
             ->where('situacao',true);
 
         return $contratos->get();
