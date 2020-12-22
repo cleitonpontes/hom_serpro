@@ -297,6 +297,13 @@ class ApostilamentoCrudController extends CrudController
                 'type' => 'itens_contrato_apostilamento_list',
                 'tab' => 'Itens do contrato',
             ],
+            [
+                'label' => "adicionaCampoRecuperaGridItens",
+                'type' => "hidden",
+                'name' => 'adicionaCampoRecuperaGridItens',
+                'default' => "{{old('name')}}",
+                'tab' => 'Itens do contrato'
+            ],
             [   // Date
                 'name' => 'data_assinatura',
                 'label' => 'Data Assinatura Apostilamento',

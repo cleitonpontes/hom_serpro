@@ -135,6 +135,11 @@
 
                 $('#numero_item').mask('99999');
 
+                var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
+                if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
+                    $('#table').html(valueHidden);
+                }
+
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
@@ -196,6 +201,12 @@
                     }else{
                         buscarItem($('#item').val());
                     }
+                });
+
+                $('form').submit(function(){
+                    atualizaValueHTMLCamposAbaItem();
+                    var htmlGridItem = $('#table').html();
+                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
                 });
             });
 
@@ -401,6 +412,29 @@
                 var cols = "";
                 cols += '<input type="hidden" name="excluir_item[]" value="'+historicoSaldoItemId+'">';
                 newItem.append(cols);
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizaValueHTMLCamposAbaItem() {
+                $('[name="qtd_item[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_unit[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="periodicidade[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="data_inicio[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
             }
         </script>
     @endpush
