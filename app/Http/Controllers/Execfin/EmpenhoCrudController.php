@@ -20,6 +20,7 @@ use App\Models\Planointerno;
 use App\Models\SfOrcEmpenhoDados;
 use App\Models\Unidade;
 use App\STA\ConsultaApiSta;
+use App\XML\ApiSiasg;
 use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -873,6 +874,49 @@ class EmpenhoCrudController extends CrudController
             }
         }
 
+    }
+
+    public function enviaEmpenhoSiasgTeste()
+    {
+        $apiSiasg = new ApiSiasg();
+
+        $array = [
+            "anoEmpenho" => "2020",
+            "chaveCompra" => "11016105000292019",
+            "chaveContratoContinuado" => "11016150000452019000000",
+            "dataEmissao" => "20201221",
+            "favorecido" => "08685242000178",
+            "fonte" => "0100000000",
+            "itemEmpenho" => [
+                [
+                    "numeroItemCompra" => "1",
+                    "numeroItemEmpenho" => "1",
+                    "quantidadeEmpenhada" => "1",
+                    "subelemento" => "16",
+                    "tipoEmpenhoOperacao" => "A",
+                    "valorUnitarioItem" => "2.53"
+                ],
+            ],
+            "nd" => "339039",
+            "numeroEmpenho" => "2020NE000024",
+            "planoInterno" => "AGU0042",
+            "ptres" => "118494",
+            "tipoCompra" => "1",
+            "tipoEmpenho" => "O",
+            "tipoUASG" => "G",
+            "uasgUsuario" => "110161",
+            "ugEmitente" => "110161",
+            "ugr" => "",
+            "valorTotalEmpenho" => "2.53"
+        ];
+
+        $retorno = $apiSiasg->executaConsulta('Empenho', $array,'POST');
+
+        if($retorno['messagem'] !== 'Sucesso'){
+            return 'Erro: ' . $retorno['messagem'];
+        }else{
+            return 'Teste Ok';
+        }
     }
 
     public function montaContextJsonGetPeerFalse()

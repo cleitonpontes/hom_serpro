@@ -279,6 +279,7 @@ Route::group([
 
             CRUD::resource('empenho', 'EmpenhoCrudController');
             Route::get('incluirnovoempenho','EmpenhoCrudController@incluirEmpenhoSiafi');
+            Route::get('enviaempenhosiasg','EmpenhoCrudController@enviaEmpenhoSiasgTeste');
             CRUD::resource('situacaosiafi', 'ExecsfsituacaoCrudController');
             CRUD::resource('rhsituacao', 'RhsituacaoCrudController');
             CRUD::resource('rhrubrica', 'RhrubricaCrudController');
