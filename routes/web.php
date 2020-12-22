@@ -44,8 +44,9 @@ Route::group([
     'namespace' => 'Publicacao',
 ], function () {
 //    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
-    Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
-    Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialController@oficioPreview')->name('soap.oficio.preview');
+    Route::get('/consulta-feriado', 'DiarioOficialClass@consultaTodosFeriado')->name('soap.consulta.feriado');
+    Route::get('/consulta-situacao', 'DiarioOficialClass@executaJobAtualizaSituacaoPublicacao')->name('soap.consulta.situacao');
+    Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialClass@oficioPreview')->name('soap.oficio.preview');
 });
 
 

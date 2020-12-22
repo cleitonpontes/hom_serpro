@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Publicacao;
 
+use App\Jobs\AtualizaSituacaoPublicacaoJob;
+use App\Models\Codigoitem;
 use App\Models\Contratohistorico;
 use App\Models\ContratoPublicacoes;
 use App\Models\Empenho;
@@ -11,17 +13,22 @@ use PHPRtfLite;
 use PHPRtfLite_Font;
 
 
-class DiarioOficialController extends BaseSoapController
+class DiarioOficialClass extends BaseSoapController
 {
+
     private $soapClient;
     private $securityNS = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
-    private $Urlwsdl = 'https://homologwsincom.in.gov.br/services/servicoIN?wsdl';
-    private $username = 'andre.castro';
-    private $password = 'acesso123';
+    private $Urlwsdl;
+    private $username;
+    private $password;
 
 
     public function __construct()
     {
+        $this->Urlwsdl = config("publicacao.sistema.diario_oficial_uniao");
+        $this->username = env('PUBLICACAO_DOU_USER');
+        $this->password = env('PUBLICACAO_DOU_PWD');
+
         self::setWsdl($this->Urlwsdl);
         $node1 = new SoapVar($this->username, XSD_STRING, null, null, 'Username', $this->securityNS);
         $node2 = new SoapVar($this->password, XSD_STRING, null, null, 'Password', $this->securityNS);
@@ -44,6 +51,20 @@ class DiarioOficialController extends BaseSoapController
         }
     }
 
+    public function consultaSituacaoOficio($oficio_id){
+        try {
+
+            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
+            $dados ['dados']['IDOficio'] = $oficio_id;
+
+            return $this->soapClient->ConsultaAcompanhamentoOficio($dados);
+
+        }
+        catch(\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
 
     public function oficioPreview($contrato_id){
         try {
@@ -58,7 +79,7 @@ class DiarioOficialController extends BaseSoapController
 
             $arrayPreview = $this->montaOficioPreview($contratoHistorico);
             $responsePreview = $this->soapClient->OficioPreview($arrayPreview);
-            dump($responsePreview);
+
             if(!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)){
 
                 $contratoPublicacoes->status = 'Erro Preview!';
@@ -76,9 +97,9 @@ class DiarioOficialController extends BaseSoapController
             $contratoPublicacoes->situacao = 'Enviado';
             $contratoPublicacoes->texto_dou = $this->retornaTextoModelo($contratoHistorico);
             $contratoPublicacoes->save();
-            dd($contratoPublicacoes);
-            $this->oficioConfirmacao($contratoHistorico,$contratoPublicacoes);
 
+            $this->oficioConfirmacao($contratoHistorico,$contratoPublicacoes);
+            dd('fim');
         }
         catch(\Exception $e) {
             return $e->getMessage();
@@ -136,7 +157,7 @@ class DiarioOficialController extends BaseSoapController
     public function montaOficioPreview(Contratohistorico $contratoHistorico)
     {
 
-        $dados ['dados']['CPF'] = '01895591111';
+        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = $this->retornaNumeroEmpenho($contratoHistorico)['numero'];
@@ -145,7 +166,7 @@ class DiarioOficialController extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134;
-        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = 37003;
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
         $dados ['dados']['motivoIsencao'] = 9;
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
@@ -155,7 +176,7 @@ class DiarioOficialController extends BaseSoapController
 
     public function montaOficioConfirmacao(Contratohistorico $contratoHistorico)
     {
-        $dados ['dados']['CPF'] = '01895591111';
+        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
         $dados ['dados']['IDTransacao'] = $contratoHistorico->unidade->nomeresumido.$this->generateRandonNumbers(13);
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
@@ -165,7 +186,7 @@ class DiarioOficialController extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134;
-        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
         $dados ['dados']['motivoIsencao'] = 9;
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
@@ -241,6 +262,7 @@ class DiarioOficialController extends BaseSoapController
 
     public function retornaTextoModelo(Contratohistorico $contratoHistorico)
     {
+
         switch ($contratoHistorico->getTipo()){
             case "Contrato":
                 $textomodelo = $this->retornaTextoModeloContrato($contratoHistorico);
@@ -260,7 +282,7 @@ class DiarioOficialController extends BaseSoapController
         $TextoModelo = "##ATO EXTRATO DE CONTRATO Nº ".$contratoHistorico->numero." - UASG ".$contratoHistorico->getUnidade()."
         Nº Processo: ".$contrato->processo.".
         ##TEX ".strtoupper($contrato->modalidade->descricao)." SRP Nº ".$contrato->licitacao_numero.". Contratante: ".$contrato->unidade->nome.".
-        CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.". Contratado : ".$contratoHistorico->fornecedor->nome." -.
+        Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener." - ".$contratoHistorico->fornecedor->nome." -.
         Objeto: ".$contratoHistorico->objeto.".
         Fundamento Legal: ".$contrato->retornaAmparo()." . Vigência: ".$contratoHistorico->getVigenciaInicio()." a ".$contratoHistorico->getVigenciaFim() .
             ". Valor Total: R$".$contratoHistorico->getValorGlobal().".".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].". Data de Assinatura: ".$contratoHistorico->data_assinatura.".";
@@ -274,7 +296,7 @@ class DiarioOficialController extends BaseSoapController
         $contrato = $contratoHistorico->contrato;
 
         $textomodelo = "##ATO EXTRATO DE TERMO ADITIVO Nº ".$contratoHistorico->numero." - UASG ".$contratoHistorico->getUnidade()." Número do Contrato: ".$contrato->numero.". Nº Processo: ".$contrato->processo.".
-                        ##TEX ".strtoupper($contrato->modalidade->descricao)." Nº ".$contrato->licitacao_numero.". Contratante: ".$contrato->unidade->nome.". CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.". Contratado : ".$contratoHistorico->fornecedor->nome." -.Objeto: ".$contratoHistorico->objeto." Fundamento Legal: ".$contrato->retornaAmparo().". Vigência: ".$contratoHistorico->getVigenciaInicio()." a ".$contratoHistorico->getVigenciaFim().". ".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].". Data de Assinatura: 01/04/2020.";
+                        ##TEX ".strtoupper($contrato->modalidade->descricao)." Nº ".$contrato->licitacao_numero.". Contratante: ".$contrato->unidade->nome.". Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener." - ".$contratoHistorico->fornecedor->nome." -.Objeto: ".$contratoHistorico->objeto." Fundamento Legal: ".$contrato->retornaAmparo().". Vigência: ".$contratoHistorico->getVigenciaInicio()." a ".$contratoHistorico->getVigenciaFim().". ".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].". Data de Assinatura: 01/04/2020.";
         return $textomodelo;
 
 
@@ -293,5 +315,47 @@ class DiarioOficialController extends BaseSoapController
         return $randomString;
     }
 
+
+
+    public function executaJobAtualizaSituacaoPublicacao()
+    {
+        $model = new ContratoPublicacoes;
+        $publicacoes = $model->retornaPublicacoesEnviadas();
+
+        foreach ($publicacoes as $publicacao) {
+            if (isset($publicacao->id)) {
+                //AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
+                $retorno = $this->consultaSituacaoOficio($publicacao->oficio_id);
+                if($retorno->out->validacaoIdOficio == "OK"){
+                    $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
+                    if($status != "PUBLICADA"){
+                        $tipoSituacao = 'TRANSFERIDO PARA IMPRENSA';
+                        $this->atualizaPublicacao($publicacao,$status,$tipoSituacao);
+                    }else{
+                        $tipoSituacao = 'PUBLICADO';
+                        $this->atualizaPublicacao($publicacao,$status,$tipoSituacao);
+                    }
+                }
+            }
+        }
+        dd('fim');
+    }
+
+
+    public function atualizaPublicacao($publicacao,$status,$tipoSituacao)
+    {
+        $publicacao->status_publicacao_id = $this->retornaIdTipoSituacao($tipoSituacao);
+        $publicacao->status = $status;
+        $publicacao->save();
+    }
+
+    public function retornaIdTipoSituacao($tipoSituacao)
+    {
+        return Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Situacao Publicacao');
+        })
+            ->where('descricao', '=', $tipoSituacao)
+            ->first()->id;
+    }
 }
 
