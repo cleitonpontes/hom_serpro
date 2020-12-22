@@ -71,9 +71,9 @@ class JobsCrudController extends CrudController
                 'name'  => 'queue',
                 'label' => 'Queue',
                 'type'  => 'text',
-                'limit' => 9999,
+                'limit' => 100,
                 'orderable' => true,
-                'visibleInTable' => false, // no point, since it's a large text
+                'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
