@@ -188,7 +188,7 @@ class ComprasnetController extends Controller
                      *  01 - TRANSFERIDO PARA IMPRENSA
                      *  02 - PUBLICADO
                      *  03 - INFORMADO
-                     *  05  - A PUBLICAR
+                     *  05 - A PUBLICAR
                      *  07 - DEVOLVIDO PELA IMPRENSA
                      *  08 - EVENTO DE RESCISÃO PUBLICADO
                      *  09 - EVENTO DE RESCISÃO A PUBLICAR
