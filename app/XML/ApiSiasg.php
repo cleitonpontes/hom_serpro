@@ -92,7 +92,7 @@ class ApiSiasg
         return $this->submit('CONTRATOCOMPRA', $dado_consulta);
     }
 
-    
+
     private function consultaContratoCompra(array $dado_consulta)
     {
 //        $params = [
