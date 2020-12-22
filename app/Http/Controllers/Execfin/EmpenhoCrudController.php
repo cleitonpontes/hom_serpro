@@ -871,6 +871,12 @@ class EmpenhoCrudController extends CrudController
                 $ano = '2020';
                 $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
                 $empenho->update($retorno);
+
+                if($retorno['situacao'] == 'EMITIDO'){
+                    //todo inserir empenho na tabela empenho
+                    //todo criar job para devolver informação para o SIASG
+                }
+
             }
         }
 
