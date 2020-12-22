@@ -603,6 +603,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 DB::raw('fornecedores.nome AS "Fornecedor"'),
                 DB::raw('codigoitens.descricao AS "Tipo do Item"'),
                 DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
+                DB::raw('compra_items.numero AS "Número do Item"'),
                 DB::raw('catmatseritens.descricao AS "Descrição"'),
                 DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
                 DB::raw('naturezasubitem.codigo || \' - \' || naturezasubitem.descricao AS "ND Detalhada"'),

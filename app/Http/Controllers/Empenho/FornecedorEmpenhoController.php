@@ -156,6 +156,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
             ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+            ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
             ->where('compra_item_unidade.quantidade_saldo', '>', 0)
             ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
             ->where(function ($query) use ($fornecedor_id) {
@@ -165,7 +166,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             ->select([
                 'compra_items.id',
                 'codigoitens.descricao',
-                'catmatseritem_id',
+                'catmatseritens.codigo_siasg',
                 'compra_items.descricaodetalhada',
                 DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                 'compra_item_unidade.quantidade_saldo',
@@ -238,8 +239,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'title' => 'Tipo',
             ])
             ->addColumn([
-                'data' => 'catmatseritem_id',
-                'name' => 'catmatseritem_id',
+                'data' => 'codigo_siasg',
+                'name' => 'codigo_siasg',
                 'title' => 'Codigo',
             ])
             ->addColumn([
