@@ -135,6 +135,11 @@
 
                 $('#numero_item').mask('99999');
 
+                var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
+                if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
+                    $('#table').html(valueHidden);
+                }
+
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
@@ -196,6 +201,12 @@
                     }else{
                         buscarItem($('#item').val());
                     }
+                });
+
+                $('form').submit(function(){
+                    atualizaValueHTMLCamposAbaItem();
+                    var htmlGridItem = $('#table').html();
+                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
                 });
             });
 
@@ -338,17 +349,6 @@
                 return url;
             }
 
-            function removeLinha(elemento){
-                var tr = $(elemento).closest('tr');
-                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#saldo_historico_id').val();
-                if (historicoSaldoItemId === 'undefined'){
-                    tr.remove();
-                    calculaTotalGlobal()
-                } else {
-                    alert('Esse item não pode ser exluído. Só é permitido alterar.')
-                }
-            }
-
             function buscarItem(id){
                 var url = "{{route('busca.catmatseritens.id',':id')}}";
                 url = url.replace(':id', id);
@@ -392,6 +392,49 @@
                 $('#valor_total').val('');
                 $('#periodicidade_item').val('');
                 $('#dt_inicio').val('');
+            }
+
+            function removeLinha(elemento){
+                var tr = $(elemento).closest('tr');
+                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#saldo_historico_id').val();
+                if (historicoSaldoItemId === 'undefined'){
+                    tr.remove();
+                    calculaTotalGlobal()
+                } else {
+                    removerSaldoHistoricoItem(historicoSaldoItemId);
+                    tr.remove();
+                    calculaTotalGlobal()
+                }
+            }
+
+            function removerSaldoHistoricoItem(historicoSaldoItemId){
+                var newItem = $("#itens-para-excluir");
+                var cols = "";
+                cols += '<input type="hidden" name="excluir_item[]" value="'+historicoSaldoItemId+'">';
+                newItem.append(cols);
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizaValueHTMLCamposAbaItem() {
+                $('[name="qtd_item[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_unit[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="periodicidade[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="data_inicio[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
             }
         </script>
     @endpush

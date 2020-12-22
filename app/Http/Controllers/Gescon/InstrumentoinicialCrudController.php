@@ -584,6 +584,13 @@ class InstrumentoinicialCrudController extends CrudController
                 'type' => 'itens_contrato_instrumento_inicial_list',
                 'tab' => 'Itens do contrato',
             ],
+            [
+                'label' => "adicionaCampoRecuperaGridItens",
+                'type' => "hidden",
+                'name' => 'adicionaCampoRecuperaGridItens',
+                'default' => "{{old('name')}}",
+                'tab' => 'Itens do contrato'
+            ],
             [   // Date
                 'name' => 'vigencia_inicio',
                 'label' => 'Data Vig. Início',
@@ -676,6 +683,11 @@ class InstrumentoinicialCrudController extends CrudController
             if (!empty($request->get('qtd_item'))) {
                 $this->alterarItens($request->all());
             }
+
+            if(!empty($request->get('excluir_item'))) {
+                $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
+            }
+
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
@@ -752,5 +764,13 @@ class InstrumentoinicialCrudController extends CrudController
         $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
         $contratoItem->contratohistorico_id = $contratoHistoricoId;
         $contratoItem->save();
+    }
+
+    private function excluirSaldoHistoricoItem($arrIdItens)
+    {
+        foreach ($arrIdItens as $id) {
+            $item = Saldohistoricoitem::find($id);
+            $item->delete();
+        }
     }
 }

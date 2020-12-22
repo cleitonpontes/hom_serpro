@@ -182,7 +182,17 @@ class ComprasnetController extends Controller
                     'quantidade_item' => @number_format($dado->quantidade, 0, '', ''),
                     'valor_unitario_item' => @$dado->valorunitario,
                     'valor_total_item' => @$dado->valortotal,
-                    'situacao_publicacao' => 'PUBLICADO'
+                    'situacao_publicacao' => '02'
+                    /*
+                     *  todo implementar esse retorno.
+                     *  01 - TRANSFERIDO PARA IMPRENSA
+                     *  02 - PUBLICADO
+                     *  03 - INFORMADO
+                     *  05 - A PUBLICAR
+                     *  07 - DEVOLVIDO PELA IMPRENSA
+                     *  08 - EVENTO DE RESCISÃO PUBLICADO
+                     *  09 - EVENTO DE RESCISÃO A PUBLICAR
+                     */
                 ];
             }
         }

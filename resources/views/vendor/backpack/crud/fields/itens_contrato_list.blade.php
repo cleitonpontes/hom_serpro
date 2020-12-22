@@ -169,21 +169,18 @@
                 $('body').on('change', '[name="qtd_item[]"]', function (event) {
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
-                    atualizarCurrentAtribute(event);
                 });
 
                 //quando altera o campo de valor unitario do item re-calcula os valores
                 $('body').on('change', 'input[name="vl_unit[]"]', function (event) {
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
-                    atualizarCurrentAtribute(event);
                 });
 
                 //quando altera o campo de valor total do item re-calcula a quantidade
                 $('body').on('change', '[name="vl_total[]"]', function (event) {
                     var tr = this.closest('tr');
                     atualizarQuantidade(tr);
-                    atualizarCurrentAtribute(event);
                 });
 
                 //quando altera o campo de quantidade de parcela atualizar o valor da parcela
@@ -195,11 +192,6 @@
                 $('body').on('change', 'input[name="periodicidade[]"]', function (event) {
                     calculaTotalGlobal();
                     atualizarValorParcela(parcela);
-                    atualizarCurrentAtribute(event);
-                });
-
-                $('body').on('change', 'input[name="data_inicio[]"]', function (event) {
-                    atualizarCurrentAtribute(event);
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
@@ -212,6 +204,7 @@
                 });
 
                 $("form").submit(function (event) {
+                    atualizaValueHTMLCamposAbaItem();
                     var y = $('#table').html();
                     $('input[name=adicionaCampoRecuperaGridItens]').val(y);
                 });
@@ -270,7 +263,8 @@
                     'tipo_item': $('#tipo_item :selected').text(),
                     'tipo_item_id': $('#tipo_item').val(),
                     'catmatseritem_id': item.id,
-                    'descricaodetalhada': item.descricao,
+                    'descricaocatmatseritens': item.descricao,
+                    'codigo_siasg': item.codigo_siasg,
                     'numero': $('#numero_item').val(),
                     'quantidade': $('#quantidade_item').val(),
                     'valor_unitario': $('#valor_unit').val(),
@@ -301,17 +295,7 @@
                 $('#valor_parcela').val(parseFloat(valor_parcela.toFixed(2)));
             }
 
-            /**
-             * atualiza o value do atributo no html
-             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
-             * @param event
-             */
-            function atualizarCurrentAtribute(event) {
-                event.currentTarget.setAttribute("value", event.currentTarget.value);
-            }
-
             function atualizarValorTotal(tr) {
-
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
                 var vltotal = qtd_item * vl_unit;
@@ -412,6 +396,29 @@
             function carregarOptionsSelect(item) {
                 var newRow = '<option value="' + item.id + '">' + item.descricao + '</option>';
                 $("#item").append(newRow);
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizaValueHTMLCamposAbaItem() {
+                $('[name="qtd_item[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_unit[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="periodicidade[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="data_inicio[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
             }
 
         </script>

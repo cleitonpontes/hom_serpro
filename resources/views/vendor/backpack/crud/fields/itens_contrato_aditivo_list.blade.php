@@ -134,6 +134,11 @@
 
                 $('#numero_item').mask('99999');
 
+                var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
+                if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
+                    $('#table').html(valueHidden);
+                }
+
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
@@ -204,6 +209,9 @@
                  **/
                 $('body').submit(function(){
                     $('#select2_ajax_fornecedor_id').prop('disabled', false);
+                    atualizaValueHTMLCamposAbaItem();
+                    var htmlGridItem = $('#table').html();
+                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
                 });
 
                 function atualizarSelectItem(){
@@ -262,6 +270,7 @@
                 item = {
                     'descricao' : $('#tipo_item :selected').text(),
                     'descricao_complementar': item.descricao,
+                    'codigo_siasg': item.codigo_siasg,
                     'quantidade' : $('#quantidade_item').val(),
                     'valorunitario': $('#valor_unit').val(),
                     'numero':$('#numero_item').val(),
@@ -354,7 +363,7 @@
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
+                cols += '<input type="hidden" name="aditivo_item_id[]" id="aditivo_item_id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
@@ -553,6 +562,29 @@
                     }
                 });
                 return arrObjCampos;
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizaValueHTMLCamposAbaItem() {
+                $('[name="qtd_item[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_unit[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="periodicidade[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="data_inicio[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
             }
         </script>
     @endpush

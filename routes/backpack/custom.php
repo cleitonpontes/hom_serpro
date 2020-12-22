@@ -114,6 +114,7 @@ Route::group([
             CRUD::resource('ipsacesso', 'IpsacessoCrudController');
             CRUD::resource('feriado', 'FeriadoCrudController');
             CRUD::resource('failedjobs', 'FailedjobsCrudController');
+            CRUD::resource('jobs', 'JobsCrudController');
             CRUD::resource('amparolegal', 'AmparoLegalCrudController');
 
 
@@ -279,6 +280,7 @@ Route::group([
 
             CRUD::resource('empenho', 'EmpenhoCrudController');
             Route::get('incluirnovoempenho','EmpenhoCrudController@incluirEmpenhoSiafi');
+            Route::get('enviaempenhosiasg','EmpenhoCrudController@enviaEmpenhoSiasgTeste');
             CRUD::resource('situacaosiafi', 'ExecsfsituacaoCrudController');
             CRUD::resource('rhsituacao', 'RhsituacaoCrudController');
             CRUD::resource('rhrubrica', 'RhrubricaCrudController');

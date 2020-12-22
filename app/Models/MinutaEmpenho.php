@@ -268,6 +268,12 @@ class MinutaEmpenho extends Model
         return $this->situacao()->first()->descricao;
     }
 
+    public function getFornecedorEmpenhoCpfcnpjidgenerSessaoAttribute()
+    {
+        $fornecedor = $this->fornecedor_empenho()->first();
+        return $fornecedor->cpf_cnpj_idgener ?? '';
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS
