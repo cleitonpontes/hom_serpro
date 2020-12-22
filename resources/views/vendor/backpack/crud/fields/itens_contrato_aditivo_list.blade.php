@@ -134,6 +134,11 @@
 
                 $('#numero_item').mask('99999');
 
+                var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
+                if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
+                    $('#table').html(valueHidden);
+                }
+
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
@@ -204,6 +209,9 @@
                  **/
                 $('body').submit(function(){
                     $('#select2_ajax_fornecedor_id').prop('disabled', false);
+                    atualizaValueHTMLCamposAbaItem();
+                    var htmlGridItem = $('#table').html();
+                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
                 });
 
                 function atualizarSelectItem(){
@@ -554,6 +562,29 @@
                     }
                 });
                 return arrObjCampos;
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizaValueHTMLCamposAbaItem() {
+                $('[name="qtd_item[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_unit[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="periodicidade[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="data_inicio[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
             }
         </script>
     @endpush

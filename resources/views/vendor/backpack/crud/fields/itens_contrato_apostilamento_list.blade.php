@@ -60,6 +60,11 @@
 
                 $('#numero_item').mask('99999');
 
+                var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
+                if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
+                    $('#table').html(valueHidden);
+                }
+
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
@@ -69,7 +74,7 @@
                 });
 
                 //quando altera o campo de valor unitario do item re-calcula os valores
-                $('body').on('change','input[name="vl_unit[]"]',function(){
+                $('body').on('change','input[name="vl_unit[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
                     calculaTotalGlobal();
@@ -86,6 +91,10 @@
                 });
 
                 $('body').submit(function(){
+                    atualizaValueHTMLCamposAbaItem();
+                    var htmlGridItem = $('#table').html();
+                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
+
                     $('input[name="qtd_item[]"]').prop('disabled', false);
                     $('input[name="vl_unit[]"]').prop('disabled', false);
                     $('input[name="vl_total[]"]').prop('disabled', false);
@@ -191,6 +200,29 @@
                         alert(error);
                     })
                     .finally()
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizaValueHTMLCamposAbaItem() {
+                $('[name="qtd_item[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_unit[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="periodicidade[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="data_inicio[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
             }
         </script>
     @endpush

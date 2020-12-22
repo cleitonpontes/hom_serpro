@@ -393,6 +393,13 @@ class AditivoCrudController extends CrudController
                 'type' => 'itens_contrato_aditivo_list',
                 'tab' => 'Itens do contrato',
             ],
+            [
+                'label' => "adicionaCampoRecuperaGridItens",
+                'type' => "hidden",
+                'name' => 'adicionaCampoRecuperaGridItens',
+                'default' => "{{old('name')}}",
+                'tab' => 'Itens do contrato'
+            ],
             [   // Date
                 'name' => 'vigencia_inicio',
                 'label' => 'Data Vig. Início',
