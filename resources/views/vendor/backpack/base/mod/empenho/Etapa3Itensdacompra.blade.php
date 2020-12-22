@@ -53,7 +53,6 @@
     {!! $html->scripts() !!}
     <script type="text/javascript">
         $(document).ready(function () {
-
             $('#selectAll').click(function () {
                 var checkedStatus = this.checked;
                 $('input[type=checkbox]').each(function () {

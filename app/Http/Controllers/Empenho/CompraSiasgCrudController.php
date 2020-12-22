@@ -9,6 +9,7 @@ use App\Models\Catmatseritem;
 use App\Models\Codigo;
 use App\Models\Codigoitem;
 use App\Models\Compra;
+use App\Models\Contrato;
 use App\Models\CompraItem;
 use App\Models\CompraItemFornecedor;
 use App\Models\CompraItemMinutaEmpenho;
@@ -174,56 +175,164 @@ class CompraSiasgCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        //BUSCAR COMPRA por CONTRATO
+        if ($request->tipoEmpenho == 1) {
+            $contrato = Contrato::find($request->id);
+            $dadosContrato = $this->consultaContratoSiasg($contrato);
+            $apiSiasg = new ApiSiasg();
 
-        $retornoSiasg = $this->consultaCompraSiasg($request);
-
-        if (is_null($retornoSiasg->data)) {
-            return redirect('/empenho/buscacompra')->with('alert-warning', $retornoSiasg->messagem);
-        }
-
-        $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
-
-        if (is_null($unidade_autorizada_id)) {
-            return redirect('/empenho/buscacompra')
-                ->with('alert-warning', 'Você não tem permissão para realizar empenho para este unidade!');
-        }
-
-        $this->montaParametrosCompra($retornoSiasg, $request);
-
-//        $compra = $this->verificaCompraExiste($request);
-
-        $situacao = Codigoitem::wherehas('codigo', function ($q) {
-            $q->where('descricao', '=', 'Situações Minuta Empenho');
-        })
-            ->where('descricao', 'EM ANDAMENTO')
-            ->first();
-        DB::beginTransaction();
-        try {
-            $compra = $this->updateOrCreateCompra($request);
-
-            if ($retornoSiasg->data->compraSispp->tipoCompra == 1) {
-                $this->gravaParametroItensdaCompraSISPP($retornoSiasg, $compra);
+            if (is_null($dadosContrato->data)) {
+                return redirect('/empenho/buscacompra')->with('alert-warning', $dadosContrato->messagem);
             }
 
-            if ($retornoSiasg->data->compraSispp->tipoCompra == 2) {
-                $this->gravaParametroItensdaCompraSISRP($retornoSiasg, $compra);
+            $params = [
+                'modalidade' => $dadosContrato->data->dadosContrato->modLicitacao,
+                'numeroAno' => $dadosContrato->data->dadosContrato->numeroAno,
+                'uasgCompra' => $dadosContrato->data->dadosContrato->uasg,
+                'uasgUsuario' => session('user_ug')
+            ];
+
+            //pegar a compra
+            $retorno_compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
+
+            if (is_null($retorno_compra->data)) {
+
+                $compra = $this->verificaCompraExisteParamContrato($contrato);
+
+                if (!$compra) {
+                    return redirect('/empenho/buscacompra')->with('alert-warning', $retorno_compra->messagem);
+                }
+                $retorno_compra = $compra;
+            }
+
+            $unidade_autorizada = $this->verificaPermissaoUasgCompraParamContrato($retorno_compra, $contrato);
+
+            if (is_null($unidade_autorizada)) {
+                return redirect('/empenho/buscacompra')
+                    ->with('alert-warning', 'Você não tem permissão para realizar empenho para esta unidade!');
+            }
+
+            $request->request->set('numero_ano', $contrato->numero);
+            $request->request->set('unidade_origem_id', $contrato->unidadeorigem_id);
+            $request->request->set('modalidade_id', $dadosContrato->data->dadosContrato->modLicitacao);
+
+            $this->montaParametrosCompra($retorno_compra, $request);
+
+            $situacao = Codigoitem::wherehas('codigo', function ($q) {
+                $q->where('descricao', '=', 'Situações Minuta Empenho');
+            })
+                ->where('descricao', 'EM ANDAMENTO')
+                ->first();
+
+            DB::beginTransaction();
+
+            try {
+
+                $compra = $this->updateOrCreateCompra($request);
+
+                if ($retorno_compra->data->compraSispp->tipoCompra == 1) {
+                    $this->gravaParametroItensdaCompraSISPP($retorno_compra, $compra);
+                    if (!is_null($retorno_compra->data->itemCompraSisppDTO)) {
+                        $fornecedor = new Fornecedor();
+                        $fornecedor = $fornecedor->buscaFornecedorPorNumero(
+                            $retorno_compra->data->itemCompraSisppDTO[0]->niFornecedor
+                        );
+                    }
+                }
+
+                if ($retorno_compra->data->compraSispp->tipoCompra == 2) {
+                    $this->gravaParametroItensdaCompraSISRP($retorno_compra, $compra);
+                    if (!is_null($retorno_compra->data->linkSisrpCompleto)) {
+                        dd($retorno_compra->data->linkSisrpCompleto);
+                    }
+                }
+
+                $minutaEmpenho = $this->gravaMinutaEmpenho([
+                    'situacao_id' => $situacao->id,
+                    'compra_id' => $compra->id,
+                    'unidade_origem_id' => $compra->unidade_origem_id,
+                    'unidade_id' => $unidade_autorizada,
+                    'modalidade_id' => $compra->modalidade_id,
+                    'numero_ano' => $compra->numero_ano,
+                    'fornecedor_compra_id' => $fornecedor->id,
+                    'numero_contrato' => $contrato->numero,
+                    'empenhocontrato' => true
+                ]);
+
+                DB::commit();
+
+                return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
+
+
+            } catch (Exception $exc) {
+                DB::rollback();
             }
 
 
-            $minutaEmpenho = $this->gravaMinutaEmpenho([
-                'situacao_id' => $situacao->id,
-                'compra_id' => $compra->id,
-                'unidade_origem_id' => $compra->unidade_origem_id,
-                'unidade_id' => $unidade_autorizada_id,
-                'modalidade_id' => $compra->modalidade_id,
-                'numero_ano' => $compra->numero_ano
-            ]);
+        }
 
-            DB::commit();
+        //BUSCAR COMPRA
+        if ($request->tipoEmpenho == 2) {
 
-            return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
-        } catch (Exception $exc) {
-            DB::rollback();
+            $retornoSiasg = $this->consultaCompraSiasg($request);
+
+            if (is_null($retornoSiasg->data)) {
+
+                $compra = $this->verificaCompraExiste($request);
+
+                if (!$compra) {
+                    return redirect('/empenho/buscacompra')->with('alert-warning', $retornoSiasg->messagem);
+                }
+
+                $retornoSiasg = $compra;
+
+            }
+        //    $unidade_autorizada_id = '6625';
+            $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
+
+            if (is_null($unidade_autorizada_id)) {
+                return redirect('/empenho/buscacompra')
+                    ->with('alert-warning', 'Você não tem permissão para realizar empenho para esta unidade!');
+            }
+
+            $this->montaParametrosCompra($retornoSiasg, $request);
+
+            $situacao = Codigoitem::wherehas('codigo', function ($q) {
+                $q->where('descricao', '=', 'Situações Minuta Empenho');
+            })
+                ->where('descricao', 'EM ANDAMENTO')
+                ->first();
+
+            DB::beginTransaction();
+
+            try {
+                $compra = $this->updateOrCreateCompra($request);
+
+                if ($retornoSiasg->data->compraSispp->tipoCompra == 1) {
+                    $this->gravaParametroItensdaCompraSISPP($retornoSiasg, $compra);
+                }
+
+                if ($retornoSiasg->data->compraSispp->tipoCompra == 2) {
+                    $this->gravaParametroItensdaCompraSISRP($retornoSiasg, $compra);
+                }
+
+
+                $minutaEmpenho = $this->gravaMinutaEmpenho([
+                    'situacao_id' => $situacao->id,
+                    'compra_id' => $compra->id,
+                    'unidade_origem_id' => $compra->unidade_origem_id,
+                    'unidade_id' => $unidade_autorizada_id,
+                    'modalidade_id' => $compra->modalidade_id,
+                    'numero_ano' => $compra->numero_ano,
+                    'empenhocontrato' => false
+                ]);
+
+                DB::commit();
+
+                return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
+            } catch (Exception $exc) {
+                DB::rollback();
+            }
         }
     }
 
@@ -267,6 +376,23 @@ class CompraSiasgCrudController extends CrudController
         return $compra;
     }
 
+    public function consultaContratoSiasg($contrato)
+    {
+        $apiSiasg = new ApiSiasg();
+        $tipo = Codigoitem::find($contrato->tipo_id);
+        $numero_ano = explode('/', $contrato->numero);
+        $uasgCompra = Unidade::find($contrato->unidadeorigem_id);
+
+        $dado = [
+            'contrato' => $uasgCompra->codigosiasg . $tipo->descres . $numero_ano[0] . $numero_ano[1]
+        ];
+
+        $dados = json_decode($apiSiasg->executaConsulta('dadoscontrato', $dado));
+
+        return $dados;
+
+    }
+
     public function verificaPermissaoUasgCompra($compraSiasg, $request)
     {
         $unidade_autorizada_id = null;
@@ -283,6 +409,26 @@ class CompraSiasgCrudController extends CrudController
             $unidade_autorizada_id = session('user_ug_id');
         }
         return $unidade_autorizada_id;
+    }
+
+    public function verificaPermissaoUasgCompraParamContrato($compraSiasg, $contrato)
+    {
+        $unidade_autorizada = null;
+        $uasgCompra = Unidade::find($contrato->unidadeorigem_id);
+
+        $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
+        $subrrogada = $compraSiasg->data->compraSispp->subrogada;
+        if ($tipoCompra == $this::SISPP) {
+            if ($subrrogada <> '000000') {
+                ($subrrogada == session('user_ug')) ? $unidade_autorizada = session('user_ug_id') : '';
+            } else {
+                ($uasgCompra->id == session('user_ug_id'))
+                    ? $unidade_autorizada = $uasgCompra->id : '';
+            }
+        } else {
+            $unidade_autorizada = session('user_ug_id');
+        }
+        return $unidade_autorizada;
     }
 
     public function montaParametrosCompra($compraSiasg, $request): void
@@ -319,6 +465,19 @@ class CompraSiasgCrudController extends CrudController
         return $compra;
     }
 
+    public function verificaCompraExisteParamContrato($contrato)
+    {
+        $uasgCompra = Unidade::find($contrato->unidadeorigem_id);
+
+        $compra = Compra::where('unidade_origem_id', $uasgCompra->id)
+            ->where('modalidade_id', $contrato->modalidade_id)
+            ->where('numero_ano', $contrato->numero)
+           // ->where('tipo_compra_id', $contrato->get('tipo_compra_id'))
+            ->first();
+
+        return $compra;
+    }
+
 
     public function gravaMinutaEmpenho($params)
     {
@@ -326,8 +485,18 @@ class CompraSiasgCrudController extends CrudController
         $minutaEmpenho->unidade_id = $params['unidade_id'];
         $minutaEmpenho->compra_id = $params['compra_id'];
         $minutaEmpenho->situacao_id = $params['situacao_id'];
-        $minutaEmpenho->etapa = 2;
         $minutaEmpenho->informacao_complementar = $this->retornaInfoComplementar($params);
+        $etapa = 2;
+
+        if (isset($params['fornecedor_compra_id'])) {
+            $minutaEmpenho->fornecedor_compra_id = $params['fornecedor_compra_id'];
+            $minutaEmpenho->fornecedor_empenho_id = $params['fornecedor_compra_id'];
+            $minutaEmpenho->numero_contrato = $params['numero_contrato'];
+            $minutaEmpenho->empenhocontrato = $params['empenhocontrato'];
+            $etapa = 3;
+        }
+
+        $minutaEmpenho->etapa = $etapa;
 
         $minutaEmpenho->save();
         return $minutaEmpenho;
