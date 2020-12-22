@@ -873,7 +873,7 @@ class EmpenhoCrudController extends CrudController
                 $empenho->update($retorno);
 
                 if($retorno['situacao'] == 'EMITIDO'){
-                    //todo inserir empenhos na tabela empenho
+                    //todo inserir empenho na tabela empenho
                     //todo criar job para devolver informação para o SIASG
                 }
 
