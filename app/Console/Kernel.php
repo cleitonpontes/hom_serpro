@@ -52,6 +52,7 @@ class Kernel extends ConsoleKernel
         $this->criarJobAtualizarSfPadrao();
         $this->criarJobAtualizacaoSiasgContratos();
         $this->criarJobAtualizacaoSiasgCompras();
+        $this->executaConsumoWsSiafiEmpenho();
 
         //agendamentos
         $this->criarJobAtualizarND();
@@ -88,6 +89,17 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->weekdays()
             ->everyMinute();
+    }
+
+    protected function executaConsumoWsSiafiEmpenho()
+    {
+        $this->schedule->call(
+            'App\Http\Controllers\Execfin\EmpenhoCrudController@incluirEmpenhoSiafi'
+        )
+            ->timezone('America/Sao_Paulo')
+            ->weekdays()
+            ->everyMinute()
+            ->between('9:00', '19:30');
     }
 
     protected function criarJobEnviarEmailsAlertas()

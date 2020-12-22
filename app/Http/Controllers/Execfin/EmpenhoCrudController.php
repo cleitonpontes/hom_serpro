@@ -868,7 +868,7 @@ class EmpenhoCrudController extends CrudController
         if ($empenhos) {
             foreach ($empenhos as $empenho) {
                 $ws_siafi = new Execsiafi;
-                $ano = '2020';
+                $ano = date('Y');
                 $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
                 $empenho->update($retorno);
 
