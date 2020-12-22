@@ -325,22 +325,27 @@ class DiarioOficialClass extends BaseSoapController
         foreach ($publicacoes as $publicacao) {
             if (isset($publicacao->id)) {
                 //AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
-                $retorno = $this->consultaSituacaoOficio($publicacao->oficio_id);
-                if($retorno->out->validacaoIdOficio == "OK"){
-                    $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
-                    if($status != "PUBLICADA"){
-                        $tipoSituacao = 'TRANSFERIDO PARA IMPRENSA';
-                        $this->atualizaPublicacao($publicacao,$status,$tipoSituacao);
-                    }else{
-                        $tipoSituacao = 'PUBLICADO';
-                        $this->atualizaPublicacao($publicacao,$status,$tipoSituacao);
-                    }
-                }
+                $this->testaAtualizacaoStatusPublicacao($publicacao);
             }
         }
         dd('fim');
     }
 
+
+    public function testaAtualizacaoStatusPublicacao($publicacao)
+    {
+        $retorno = $this->consultaSituacaoOficio($publicacao->oficio_id);
+        if($retorno->out->validacaoIdOficio == "OK"){
+            $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
+            if($status != "PUBLICADA"){
+                $tipoSituacao = 'TRANSFERIDO PARA IMPRENSA';
+                $this->atualizaPublicacao($publicacao,$status,$tipoSituacao);
+            }else{
+                $tipoSituacao = 'PUBLICADO';
+                $this->atualizaPublicacao($publicacao,$status,$tipoSituacao);
+            }
+        }
+    }
 
     public function atualizaPublicacao($publicacao,$status,$tipoSituacao)
     {
