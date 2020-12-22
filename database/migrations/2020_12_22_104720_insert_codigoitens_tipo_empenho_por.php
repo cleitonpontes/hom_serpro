@@ -17,7 +17,7 @@ class InsertCodigoitensTipoEmpenhoPor extends Migration
     {
         $codigo = Codigo::create([
             'descricao' => 'Tipo Empenho Por',
-            'visivel' => true
+            'visivel' => false
         ]);
 
         Codigoitem::create([
@@ -51,7 +51,7 @@ class InsertCodigoitensTipoEmpenhoPor extends Migration
     {
         Codigo::where([
             'descricao' => 'Tipo Empenho Por',
-            'visivel' => true
+            'visivel' => false
         ])->forceDelete();
 
     }
