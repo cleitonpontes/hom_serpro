@@ -53,10 +53,10 @@ class AtualizaSituacaoPublicacaoJob implements ShouldQueue
 
                 if($status != "PUBLICADA"){
                     $tipoSituacao = 'TRANSFERIDO PARA IMPRENSA';
-                    $this->atualizaPublicacao($status,$tipoSituacao);
+                    $this->atualizaPublicacao($retorno,$tipoSituacao);
                 }else{
                     $tipoSituacao = 'PUBLICADO';
-                    $this->atualizaPublicacao($status,$tipoSituacao);
+                    $this->atualizaPublicacao($retorno,$tipoSituacao);
                 }
 
             }
@@ -70,10 +70,18 @@ class AtualizaSituacaoPublicacaoJob implements ShouldQueue
     }
 
 
-    public function atualizaPublicacao($status,$tipoSituacao)
+    public function atualizaPublicacao($retorno,$tipoSituacao)
     {
+        $link = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->linkPublicacao;
+        $pagina = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->paginaPublicacao;
+        $motivo_devolucao = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->motivoDevolucao;
+
         $this->publicacao->status_publicacao_id = $this->retornaIdTipoSituacao($tipoSituacao);
-        $this->publicacao->status = $status;
+        $this->publicacao->status =  $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
+        $this->publicacao->link_publicacao = $link;
+        $this->publicacao->pagina_publicacao = $pagina;
+        $this->publicacao->motivo_devolucao = $motivo_devolucao;
+        $this->publicacao->secao_jornal = 3;
         $this->publicacao->save();
     }
 

@@ -127,7 +127,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->everyMinute();
+            ->at('08:00');
     }
 
     protected function criarJobAtualizarSaldoDeEmpenhos()

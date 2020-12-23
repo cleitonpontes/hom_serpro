@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Publicacao;
 
 use Alert;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Jobs\AtualizaSituacaoPublicacaoJob;
 use App\Jobs\PublicaPreviewOficioJob;
 use App\Models\Codigoitem;
@@ -18,6 +19,8 @@ use PHPRtfLite_Font;
 
 class DiarioOficialClass extends BaseSoapController
 {
+
+    use BuscaCodigoItens;
 
     private $soapClient;
     private $securityNS = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
@@ -409,25 +412,37 @@ class DiarioOficialClass extends BaseSoapController
     public function testaAtualizacaoStatusPublicacao($publicacao)
     {
         $retorno = $this->consultaSituacaoOficio($publicacao->oficio_id);
+
         if ($retorno->out->validacaoIdOficio == "OK") {
             $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
             if ($status != "PUBLICADA") {
                 $tipoSituacao = 'TRANSFERIDO PARA IMPRENSA';
-                $this->atualizaPublicacao($publicacao, $status, $tipoSituacao);
+                $this->atualizaPublicacao($publicacao, $retorno, $tipoSituacao);
             } else {
                 $tipoSituacao = 'PUBLICADO';
-                $this->atualizaPublicacao($publicacao, $status, $tipoSituacao);
+                $this->atualizaPublicacao($publicacao, $retorno, $tipoSituacao);
             }
         }
         dd('fim');
     }
 
 
-    public function atualizaPublicacao($publicacao, $status, $tipoSituacao)
+    public function atualizaPublicacao($publicacao, $retorno, $tipoSituacao)
     {
-        $publicacao->status_publicacao_id = $this->retornaIdTipoSituacao($tipoSituacao);
-        $publicacao->status = $status;
+        $link = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->linkPublicacao;
+        $pagina = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->paginaPublicacao;
+        $motivo_devolucao = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->motivoDevolucao;
+        $codigo = 'Situacao Publicacao';
+
+        $publicacao->status_publicacao_id = $this->retornaIdCodigoItem($codigo,$tipoSituacao);
+        $publicacao->status =  $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
+        $publicacao->link_publicacao = $link;
+        $publicacao->pagina_publicacao = $pagina;
+        $publicacao->motivo_devolucao = $motivo_devolucao;
+        $publicacao->secao_jornal = 3;
+
         $publicacao->save();
+
     }
 
     public function retornaIdTipoSituacao($tipoSituacao)
@@ -438,6 +453,7 @@ class DiarioOficialClass extends BaseSoapController
             ->where('descricao', '=', $tipoSituacao)
             ->first()->id;
     }
+
 
     private function retornaDataFormatada($data)
     {
