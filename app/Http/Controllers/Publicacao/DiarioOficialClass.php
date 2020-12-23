@@ -174,6 +174,7 @@ class DiarioOficialClass extends BaseSoapController
 
     public function montaOficioPreview(Contratohistorico $contratoHistorico)
     {
+
         $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
@@ -306,12 +307,15 @@ class DiarioOficialClass extends BaseSoapController
 
         $contrato = $contratoHistorico->contrato;
         $TextoModelo = "##ATO EXTRATO DE CONTRATO Nº " . $contratoHistorico->numero . " - UASG " . $contratoHistorico->getUnidade() . "
-        Nº Processo: " . $contrato->processo . ".
-        ##TEX " . strtoupper($contrato->modalidade->descricao) . " SRP Nº " . $contrato->licitacao_numero . ". Contratante: " . $contrato->unidade->nome . ".
-        Contratado: " . $contratoHistorico->fornecedor->cpf_cnpj_idgener . " - " . $contratoHistorico->fornecedor->nome . " -.
-        Objeto: " . $contratoHistorico->objeto . ".
-        Fundamento Legal: " . $contrato->retornaAmparo() . " . Vigência: " . $contratoHistorico->getVigenciaInicio() . " a " . $contratoHistorico->getVigenciaFim() .
-            ". Valor Total: R$" . $contratoHistorico->getValorGlobal() . "." . $this->retornaNumeroEmpenho($contratoHistorico)['texto'] . ". Data de Assinatura: " . $this->retornaDataFormatada($contratoHistorico->data_assinatura) . ".";
+            Nº Processo: " . $contrato->processo . ".
+            ##TEX " . strtoupper($contrato->modalidade->descricao) . " SRP Nº " . $contrato->licitacao_numero . ". Contratante: " . $contrato->unidade->nome . ".
+            Contratado: " . $contratoHistorico->fornecedor->cpf_cnpj_idgener . " - " . $contratoHistorico->fornecedor->nome . " -.
+            Objeto: " . $contratoHistorico->objeto . ".
+            Fundamento Legal: " . $contrato->retornaAmparo() .
+            " . Vigência: " . $contratoHistorico->getVigenciaInicio() . " a " . $contratoHistorico->getVigenciaFim() .
+            ". Valor Total: R$" . $contratoHistorico->getValorGlobal() . "." . $this->retornaNumeroEmpenho($contratoHistorico)['texto'] .
+            ". Data de Assinatura: " . $this->retornaDataFormatada($contratoHistorico->data_assinatura) . ".".
+            "##ASS COMPRASNET 4.0 - " . date_format(new \DateTime(), 'd/m/Y') . ".";
 
         return $TextoModelo;
     }
@@ -331,36 +335,25 @@ class DiarioOficialClass extends BaseSoapController
             ". Contratante: ".$contrato->unidade->nome.
             ". CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.
             ". Contratado : ".$contratoHistorico->fornecedor->nome.
-            " -.Objeto: ".$contratoHistorico->objeto.
+            " .Objeto: ".$contratoHistorico->objeto.
             " Fundamento Legal: ".$contrato->retornaAmparo().
             ". Vigência: ".$contratoHistorico->getVigenciaInicio().
             " a ".$contratoHistorico->getVigenciaFim().". ".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].
-            ". Data de Assinatura: " . $this->retornaDataFormatada($contratoHistorico->data_assinatura) . ".";
-        return $textomodelo;
+            ". Valor Total: " . $contratoHistorico->valor_global .
+            ". Data de Assinatura: " . $this->retornaDataFormatada($contratoHistorico->data_assinatura)  . ".
+            ##ASS COMPRASNET 4.0 - " . date_format(new \DateTime(), 'd/m/Y') . ".";
 
+        //##ATO EXTRATO DE TERMO ADITIVO Nº |contratoHistorico_numero| - UASG |contratoHistorico_getUnidade| Número do Contrato: |contrato_numero|. Nº Processo: |contrato_processo|. ##TEX |contrato_modalidade_descricao|. Nº |contrato_licitacao_numero|. Contratante: |contrato_unidade_nome|. CNPJ Contratado: |contratoHistorico_fornecedor_cpf_cnpj_idgener|. Contratado : |contratoHistorico_fornecedor_nome|. Objeto: |contratoHistorico_objeto|. Fundamento Legal: |contrato_retornaAmparo|. Vigência: |contratoHistorico_getVigenciaInicio| a |contratoHistorico_getVigenciaFim|. |numero_empenho|. Data de Assinatura: |contratoHistorico_data_assinatura|. ##ASS COMPRASNET 4.0 - |contratoHistorico_data_assinatura|.
         return $textomodelo;
     }
 
     public function retornaTextoModeloApostilamento(Contratohistorico $contratoHistorico)
     {
-        $contrato = $contratoHistorico->contrato;
-
         $textomodelo =
-            "##ATO EXTRATO DE TERMO APOSTILAMENTO Nº ".$contratoHistorico->numero.
-            " - UASG ".$contratoHistorico->getUnidade().
-            " Número do Contrato: ".$contrato->numero.
-            ". Nº Processo: ".$contrato->processo.".
-            ##TEX ".strtoupper($contrato->modalidade->descricao)." Nº ".$contrato->licitacao_numero.
-            ". Contratante: ".$contrato->unidade->nome.
-            ". CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.
-            ". Contratado : ".$contratoHistorico->fornecedor->nome.
-            " -.Objeto: ".$contratoHistorico->objeto.
-            " Fundamento Legal: ".$contrato->retornaAmparo().
-            ". Vigência: ".$contratoHistorico->getVigenciaInicio().
-            " a ".$contratoHistorico->getVigenciaFim().". ".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].
-            ". Data de Assinatura: " . $this->retornaDataFormatada($contratoHistorico->data_assinatura) . ".";
-
-        return $textomodelo;
+            "##ATO EXTRATO DE TERMO APOSTILAMENTO.
+            ##TEX ".$contratoHistorico->objeto.
+            "##ASS COMPRASNET 4.0 - " . date_format(new \DateTime(), 'd/m/Y') . ".";
+        ##ATO EXTRATO DE TERMO APOSTILAMENTO. ##TEX |contratoHistorico_objeto|. ##ASS COMPRASNET 4.0 - |contratoHistorico_data_assinatura|.
 
         return $textomodelo;
     }
@@ -371,21 +364,17 @@ class DiarioOficialClass extends BaseSoapController
 
         $textomodelo =
             "##ATO EXTRATO DE TERMO DE RECISÃO Nº ".$contratoHistorico->numero.
-            " - UASG ".$contratoHistorico->getUnidade().
-            " Número do Contrato: ".$contrato->numero.
-            ". Nº Processo: ".$contrato->processo.".
-            ##TEX ".strtoupper($contrato->modalidade->descricao).
-            " Nº ".$contrato->licitacao_numero.
+            "##TEX ".
+            ". Nº Processo: ".$contrato->processo.
             ". Contratante: ".$contrato->unidade->nome.
             ". CNPJ Contratado: ".$contratoHistorico->fornecedor->cpf_cnpj_idgener.
             ". Contratado : ".$contratoHistorico->fornecedor->nome.
-            " -.Objeto: ".$contratoHistorico->objeto.
-            " Fundamento Legal: ".$contrato->retornaAmparo().
-            ". Vigência: ".$contratoHistorico->getVigenciaInicio().
-            " a ".$contratoHistorico->getVigenciaFim().
-            ". ".$this->retornaNumeroEmpenho($contratoHistorico)['texto'].
-            ". Data de Assinatura: " . $this->retornaDataFormatada($contratoHistorico->data_assinatura) . ".";
-        return $textomodelo;
+            ". Objeto: ".$contratoHistorico->objeto.
+            ". Fundamento Legal: ".$contrato->retornaAmparo().
+            ". Data de Rescisão: " . $this->retornaDataFormatada($contratoHistorico->vigencia_fim) . ".".
+            "##ASS COMPRASNET 4.0 - " . date_format(new \DateTime(), 'd/m/Y') . ".";
+
+        // ##ATO EXTRATO DE TERMO DE RECISÃO Nº |contratoHistorico_numero|. ##TEX Nº Processo: |contrato_processo|. Contratante: |contrato_unidade_nome|. CNPJ Contratado: |contratoHistorico_fornecedor_cpf_cnpj_idgener|. Contratado : |contratoHistorico_fornecedor_nome|. Objeto: |contratoHistorico_objeto|. Fundamento Legal: |contrato_retornaAmparo|. Data de Rescisão: |contratoHistorico_data_assinatura|. ##ASS COMPRASNET 4.0 - |contratoHistorico_data_assinatura|.
 
         return $textomodelo;
     }
