@@ -13,6 +13,6 @@ class ContratopublicacaoObserver
     {
 //        dd($publicacao, $publicacao->contratohistorico);
 
-        PublicaPreviewOficioJob::dispatch($publicacao)->onQueue('envia_preview_oficio');
+        //PublicaPreviewOficioJob::dispatch($publicacao)->onQueue('envia_preview_oficio');
     }
 }

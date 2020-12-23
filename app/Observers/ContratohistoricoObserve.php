@@ -9,6 +9,7 @@ use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
 use App\Models\ContratoPublicacoes;
 use DateTime;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ContratohistoricoObserve
@@ -35,7 +36,7 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
-        $situacao = $this->setSituacao($contratohistorico->unidade->sisg);
+        $situacao = $this->setSituacao($contratohistorico->unidade->sisg, $contratohistorico->data_publicacao);
 
         //TODO VERIRFICAR ESTES TIPOS
         if ($contratohistorico->tipo_id == 60 || $contratohistorico->tipo_id == 65) {
@@ -256,12 +257,21 @@ class ContratohistoricoObserve
         return $calendario;
     }
 
-    private function setSituacao($sisg)
+    private function setSituacao($sisg, $data)
     {
+
+        $data = Carbon::createFromFormat('Y-m-d', $data);
+//        dd($data);
+
         $situacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Situacao Publicacao');
         })
             ->select('codigoitens.id');
+
+        if ($data->lte(Carbon::now())) {
+            return $situacao->where('descricao', 'PUBLICADO')->first();
+        }
+
         if ($sisg) {
             return $situacao->where('descricao', 'A PUBLICAR')->first();
         }

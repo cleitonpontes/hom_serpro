@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Publicacao;
 
 use Alert;
 use App\Jobs\AtualizaSituacaoPublicacaoJob;
+use App\Jobs\PublicaPreviewOficioJob;
 use App\Models\Codigoitem;
 use App\Models\Contratohistorico;
 use App\Models\ContratoPublicacoes;
 use App\Models\Empenho;
 use Exception;
+use Illuminate\Support\Carbon;
 use SoapHeader;
 use SoapVar;
 use PHPRtfLite;
@@ -83,6 +85,20 @@ class DiarioOficialClass extends BaseSoapController
         }
     }
 
+
+    public function oficioPreviewNovo()
+    {
+        $data = Carbon::createFromFormat('Y-m-d', date('Y-m-d'));
+
+        $contratoPublicacoes = ContratoPublicacoes::where('data_publicacao', $data->addDay())
+            ->orderBy('id', 'desc')
+            ->get();
+
+        foreach ($contratoPublicacoes as $contratoPublicacao) {
+            PublicaPreviewOficioJob::dispatch($contratoPublicacao)->onQueue('envia_preview_oficio');
+        }
+    }
+
     private function enviaPublicacao($contratoHistorico, $contratoPublicacoes)
     {
         $arrayPreview = $this->montaOficioPreview($contratoHistorico);
@@ -90,22 +106,22 @@ class DiarioOficialClass extends BaseSoapController
 
         if (!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)) {
             $contratoPublicacoes->status = 'Erro Preview!';
-            $contratoPublicacoes->situacao = 'Preview não enviado!';
+            $contratoPublicacoes->status_publicacao_id = $this->retornaIdTipoSituacao('DEVOLVIDO PELA IMPRENSA');
             $contratoPublicacoes->log = $this->retornaErroValidacoesDOU($responsePreview);
             $contratoPublicacoes->texto_dou = $this->retornaTextoModelo($contratoHistorico);
             $contratoPublicacoes->publicar = false;
             $contratoPublicacoes->save();
 
-            Alert::warning('Houve um erro ao enviar o Preview - Verifique o Log !')->flash();
-            return redirect()->back();
+            return false;
         }
 
         $contratoPublicacoes->status = 'Preview';
-        $contratoPublicacoes->situacao = 'Enviado';
         $contratoPublicacoes->texto_dou = $this->retornaTextoModelo($contratoHistorico);
         $contratoPublicacoes->save();
 
         $this->oficioConfirmacao($contratoHistorico, $contratoPublicacoes);
+
+        return true;
     }
 
     public function retornaErroValidacoesDOU($responsePreview)
@@ -132,23 +148,24 @@ class DiarioOficialClass extends BaseSoapController
 
             $responseConfirmacao = $this->soapClient->OficioConfirmacao($arrayConfirmacao);
             if (!isset($responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao)) {
-                $contratoPublicacoes->staus = 'Erro Ofício!';
-                $contratoPublicacoes->situacao = 'Oficio não confirmado!';
+                $contratoPublicacoes->status = 'Erro Ofício!';
+
+
+                $contratoPublicacoes->status_publicacao_id = $this->retornaIdTipoSituacao('DEVOLVIDO PELA IMPRENSA');
                 $contratoPublicacoes->log = json_encode($responseConfirmacao);
                 $contratoPublicacoes->save();
-                Alert::warning('Houve um erro ao confirmar o Ofício - Verifique o Log !')->flash();
-                return redirect()->back();
+
+                return false;
             }
 
             $contratoPublicacoes->status = 'Oficio';
-            $contratoPublicacoes->situacao = 'Confirmado';
+            $contratoPublicacoes->status_publicacao_id = $this->retornaIdTipoSituacao('PUBLICADO');
             $contratoPublicacoes->transacao_id = $arrayConfirmacao['dados']['IDTransacao'];
             $contratoPublicacoes->materia_id = $responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDMateria;
             $contratoPublicacoes->oficio_id = $responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDOficio;
             $contratoPublicacoes->save();
 
-            Alert::success('Enviado com sucesso - Aguarde Atualizacao !')->flash();
-            return redirect()->route('listar.historico', ['contrato_id' => $contratoHistorico->contrato_id]);
+            return true;
         } catch (Exception $e) {
             return $e->getMessage();
         }

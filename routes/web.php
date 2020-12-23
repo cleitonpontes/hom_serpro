@@ -47,6 +47,7 @@ Route::group([
     Route::get('/consulta-feriado', 'DiarioOficialClass@consultaTodosFeriado')->name('soap.consulta.feriado');
     Route::get('/consulta-situacao', 'DiarioOficialClass@executaJobAtualizaSituacaoPublicacao')->name('soap.consulta.situacao');
     Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialClass@oficioPreview')->name('soap.oficio.preview');
+    Route::get('/oficio-preview-novo/{contrato_id?}', 'DiarioOficialClass@oficioPreviewNovo')->name('soap.oficio.preview');
 });
 
 
