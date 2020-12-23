@@ -25,8 +25,8 @@
                 <th class="text-center">Item</th>
                 <th class="text-center">Quantidade</th>
                 <th class="text-center">Valor Unitário</th>
-                <th class="text-center">Valor Total</th>
                 <th class="text-center">Qtd. Parcela</th>
+                <th class="text-center">Valor Total</th>
                 <th class="text-center">Data Início</th>
                 <th class="text-center">Ações</th>
             </tr>
@@ -294,13 +294,13 @@
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
                 var vltotal = qtd_item * vl_unit;
-                $(tr).find('td').eq(5).find('input').val(parseFloat(vltotal.toFixed(4)));
+                $(tr).find('td').eq(6).find('input').val(parseFloat(vltotal.toFixed(4)));
                 calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr) {
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
-                var valor_total_item = parseFloat($(tr).find('td').eq(5).find('input').val());
+                var valor_total_item = parseFloat($(tr).find('td').eq(6).find('input').val());
                 var quantidade = valor_total_item / vl_unit;
                 $(tr).find('td').eq(3).find('input').val(parseFloat(quantidade.toFixed(4)));
                 calculaTotalGlobal();
@@ -340,8 +340,8 @@
                 cols += '<td>'+item.codigo_siasg + ' - ' +item.descricaocatmatseritens+'</td>';
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="'+item.quantidade_autorizada+'" min="'+qtd+'" value="'+qtd+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+vl_unit+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" step="0.0001" id="vl_total"value="'+vl_total+'"></td>';
                 cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" step="0.0001" id="vl_total"value="'+vl_total+'"></td>';
                 cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
                 cols += '<td>';
                 cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">' +
@@ -369,8 +369,8 @@
             function calculaTotalGlobal() {
                 var valor_total = 0;
                 $("#table-itens").find('tr').each(function () {
-                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
+                    var total_item = parseFloat($(this).find('td').eq(6).find('input').val());
+                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
                     var total_iten = (total_item * periodicidade);
                     valor_total += total_iten;
                     if (periodicidade > parcela) {
