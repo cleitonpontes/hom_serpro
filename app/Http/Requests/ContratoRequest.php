@@ -32,7 +32,8 @@ class ContratoRequest extends FormRequest
     public function rules()
     {
         $id = $this->id ?? "NULL";
-        $unidade_id = $this->unidade_id ?? "NULL";
+        $unidadeorigem_id = $this->unidadeorigem_id ?? "NULL";
+        $tipo_id = $this->tipo_id ?? "NULL";
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
@@ -40,13 +41,13 @@ class ContratoRequest extends FormRequest
         $this->minutasempenho = $this->minutasempenho ?? [];
 
         return [
-//            'numero' => [
-//                'required',
-//                (new Unique('contratos','numero'))
-//                    ->ignore($id)
-//                    ->where('unidade_id',$unidade_id)
-//            ],
-            'numero' => 'required',
+            'numero' => [
+                'required',
+                (new Unique('contratos', 'numero'))
+                    ->ignore($id)
+                    ->where('unidadeorigem_id', $unidadeorigem_id)
+                    ->where('tipo_id',$tipo_id)
+            ],
             'fornecedor_id' => 'required',
             'minutasempenho' => new NaoAceitarMinutaCompraDiferente,
             'tipo_id' => 'required',
@@ -59,8 +60,8 @@ class ContratoRequest extends FormRequest
             'modalidade_id' => 'required',
             'licitacao_numero' => Rule::requiredIf(function () {
                 $modalidade = Codigoitem::find($this->modalidade_id);
-                if(isset($modalidade->descricao)){
-                    if(in_array($modalidade->descricao,config('app.modalidades_sem_exigencia'))){
+                if (isset($modalidade->descricao)) {
+                    if (in_array($modalidade->descricao, config('app.modalidades_sem_exigencia'))) {
                         return false;
                     }
                 }
@@ -68,8 +69,8 @@ class ContratoRequest extends FormRequest
             }),
             'unidadecompra_id' => Rule::requiredIf(function () {
                 $modalidade = Codigoitem::find($this->modalidade_id);
-                if(isset($modalidade->descricao)){
-                    if(in_array($modalidade->descricao,config('app.modalidades_sem_exigencia'))){
+                if (isset($modalidade->descricao)) {
+                    if (in_array($modalidade->descricao, config('app.modalidades_sem_exigencia'))) {
                         return false;
                     }
                 }
@@ -108,7 +109,7 @@ class ContratoRequest extends FormRequest
      */
     public function messages()
     {
-        $data_limite = implode('/',array_reverse(explode('-',$this->data_limite)));
+        $data_limite = implode('/', array_reverse(explode('-', $this->data_limite)));
         $hoje = date('d/m/Y');
         $data_amanha = date('d/m/Y', strtotime('+1 day'));
 
