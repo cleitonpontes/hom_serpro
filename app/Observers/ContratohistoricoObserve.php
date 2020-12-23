@@ -161,7 +161,7 @@ class ContratohistoricoObserve
             'fornecedor_id' => $arrayhistorico['fornecedor_id'],
             'unidade_id' => $arrayhistorico['unidade_id'],
             'info_complementar' => $arrayhistorico['info_complementar'],
-            'vigencia_inicio' => $arrayhistorico['vigencia_inicio'],
+//            'vigencia_inicio' => $arrayhistorico['vigencia_inicio'],
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'valor_global' => $novo_valor,
             'num_parcelas' => $arrayhistorico['num_parcelas'],
