@@ -29,7 +29,7 @@
                 @else
                     <option value="{{ $item->getKey() }}" selected>
                         {{ $item->{$field['attribute']} }}
-                        {{ $connected_entity->retornaConsultaMultiSelect($item) }}
+                        {{ $connected_entity->retornaConsultaMultiSelect($item) }} 
                     </option>
                 @endif
             @endforeach
