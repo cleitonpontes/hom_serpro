@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Soap;
+namespace App\Http\Controllers\Publicacao;
 
 use App\Models\Contratohistorico;
 use App\Models\ContratoPublicacoes;

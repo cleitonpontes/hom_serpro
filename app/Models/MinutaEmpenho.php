@@ -96,6 +96,23 @@ class MinutaEmpenho extends Model
             ->where('minutaempenhos.id', $this->id)->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
     }
 
+    public function retornaConsultaMultiSelect($item)
+    {
+     $minuta =  $this->select(['minutaempenhos.id as id_minuta',
+        DB::raw("CONCAT(unidades.codigosiasg,'  ',codigoitens.descres, '  ' ,compras.numero_ano, ' - ',
+                                    minutaempenhos.numero_empenho_sequencial, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
+                             as nome_minuta_empenho")])->distinct()
+        ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
+        ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
+        ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
+        ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
+         ->where('minutaempenhos.id', $item->id)
+         ->first();
+
+         return  $minuta->nome_minuta_empenho;
+
+    }
+
     public function atualizaFornecedorCompra($fornecedor_id)
     {
         $this->fornecedor_compra_id = $fornecedor_id;
@@ -216,6 +233,16 @@ class MinutaEmpenho extends Model
         return $this->belongsTo(Codigoitem::class, 'situacao_id');
     }
 
+    public function contrato()
+    {
+        return $this->belongsToMany(
+            'App\Models\Contrato',
+            'contrato_minuta_empenho_pivot',
+            'minuta_empenho_id',
+            'contrato_id'
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -257,6 +284,12 @@ class MinutaEmpenho extends Model
     public function getSituacaoDescricaoAttribute()
     {
         return $this->situacao()->first()->descricao;
+    }
+
+    public function getFornecedorEmpenhoCpfcnpjidgenerSessaoAttribute()
+    {
+        $fornecedor = $this->fornecedor_empenho()->first();
+        return $fornecedor->cpf_cnpj_idgener ?? '';
     }
 
     /*

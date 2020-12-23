@@ -20,6 +20,7 @@ use App\Models\Planointerno;
 use App\Models\SfOrcEmpenhoDados;
 use App\Models\Unidade;
 use App\STA\ConsultaApiSta;
+use App\XML\ApiSiasg;
 use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -724,9 +725,11 @@ class EmpenhoCrudController extends CrudController
         $migracao_url = config('migracao.api_sta');
         $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
 
-        $dados = (env('APP_ENV', 'production') === 'production')
-            ? $this->buscaDadosFileGetContents($url)
-            : $this->buscaDadosCurl($url);
+//        $dados = (env('APP_ENV', 'production') === 'production')
+//            ? $this->buscaDadosFileGetContents($url)
+//            : $this->buscaDadosCurl($url);
+
+        $dados = $this->buscaDadosFileGetContents($url);
 
         $pkcount = is_array($dados) ? count($dados) : 0;
         if ($pkcount > 0) {
@@ -740,41 +743,38 @@ class EmpenhoCrudController extends CrudController
                 $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
                     ->first();
 
-                $empenho = Empenho::where('numero', '=', trim($d['numero']))
-                    ->where('unidade_id', '=', $unidade->id)
-                    ->first();
+                if (isset($naturezadespesa->id)) {
 
-                if (!isset($empenho->id)) {
-                    $empenho = Empenho::create([
-                        'numero' => trim($d['numero']),
-                        'unidade_id' => $unidade->id,
-                        'fornecedor_id' => $credor->id,
-                        'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezadespesa->id,
-                        'fonte' => trim($d['fonte']),
-                    ]);
-                } else {
-                    $empenho->fornecedor_id = $credor->id;
-                    $empenho->planointerno_id = $pi->id;
-                    $empenho->naturezadespesa_id = $naturezadespesa->id;
-                    $empenho->fonte = trim($d['fonte']);
-                    $empenho->save();
-                }
+                    $empenho = Empenho::updateOrCreate(
+                        [
+                            'numero' => trim($d['numero']),
+                            'unidade_id' => $unidade->id
+                        ],
+                        [
+                            'fornecedor_id' => $credor->id,
+                            'planointerno_id' => $pi->id,
+                            'naturezadespesa_id' => $naturezadespesa->id,
+                            'fonte' => trim($d['fonte']),
+                        ]
+                    );
 
-                foreach ($d['itens'] as $item) {
-                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
-                        ->where('naturezadespesa_id', $naturezadespesa->id)
-                        ->first();
+                    foreach ($d['itens'] as $item) {
+                        $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
+                            ->where('naturezadespesa_id', $naturezadespesa->id)
+                            ->first();
 
-                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                        ->first();
+                        if (isset($naturezasubitem->id)) {
+                            $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
+                                ->where('naturezasubitem_id', '=', $naturezasubitem->id)
+                                ->first();
 
-                    if (!$empenhodetalhado) {
-                        $empenhodetalhado = Empenhodetalhado::create([
-                            'empenho_id' => $empenho->id,
-                            'naturezasubitem_id' => $naturezasubitem->id
-                        ]);
+                            if (!$empenhodetalhado) {
+                                $empenhodetalhado = Empenhodetalhado::create([
+                                    'empenho_id' => $empenho->id,
+                                    'naturezasubitem_id' => $naturezasubitem->id
+                                ]);
+                            }
+                        }
                     }
                 }
             }
@@ -796,7 +796,7 @@ class EmpenhoCrudController extends CrudController
 
         foreach ($unidades as $unidade) {
             for ($i = $ano_antigo; $i <= $ano_corrente; $i++) {
-                MigracaoCargaEmpenhoJob::dispatch($unidade->id, $i)->onQueue('migracaocargaempenho');
+                MigracaoCargaEmpenhoJob::dispatch($unidade->id, $i)->onQueue('migracaoempenho');
             }
         }
 
@@ -808,50 +808,40 @@ class EmpenhoCrudController extends CrudController
 
     public function buscaFornecedor($credor)
     {
-        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
-            ->first();
-
-        if (!isset($fornecedor->id)) {
-            $tipo = 'JURIDICA';
-            if (strlen($credor['cpfcnpjugidgener']) == 14) {
-                $tipo = 'FISICA';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
-                $tipo = 'IDGENERICO';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
-                $tipo = 'UG';
-            }
-
-            $fornecedor = Fornecedor::create([
-                'tipo_fornecedor' => $tipo,
-                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
-                'nome' => strtoupper(trim($credor['nome']))
-            ]);
-
-        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
-            $fornecedor->nome = strtoupper(trim($credor['nome']));
-            $fornecedor->save();
+        $tipo = 'JURIDICA';
+        if (strlen($credor['cpfcnpjugidgener']) == 14) {
+            $tipo = 'FISICA';
+        } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
+            $tipo = 'IDGENERICO';
+        } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+            $tipo = 'UG';
         }
+
+        $fornecedor = Fornecedor::updateOrCreate(
+            [
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener']
+            ],
+            [
+                'tipo_fornecedor' => $tipo,
+                'nome' => strtoupper(trim($credor['nome']))
+            ]
+        );
 
         return $fornecedor;
     }
 
     public function buscaPi($pi)
     {
-        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
-            ->first();
-
-        if (!$planointerno) {
-            $planointerno = Planointerno::create([
-                'codigo' => $pi['picodigo'],
+        $planointerno = Planointerno::updateOrCreate(
+            [
+                'codigo' => $pi['picodigo']
+            ],
+            [
                 'descricao' => strtoupper($pi['pidescricao']),
                 'situacao' => true
-            ]);
-        } else {
-            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
-                $planointerno->descricao = strtoupper($pi['pidescricao']);
-                $planointerno->save();
-            }
-        }
+            ]
+        );
+
         return $planointerno;
     }
 
@@ -878,12 +868,77 @@ class EmpenhoCrudController extends CrudController
         if ($empenhos) {
             foreach ($empenhos as $empenho) {
                 $ws_siafi = new Execsiafi;
-                $ano = '2020';
+                $ano = date('Y');
                 $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
                 $empenho->update($retorno);
+
+                if($retorno['situacao'] == 'EMITIDO'){
+                    //todo inserir empenho na tabela empenho
+                    //todo criar job para devolver informação para o SIASG
+                }
+
             }
         }
 
+    }
+
+    public function enviaEmpenhoSiasgTeste()
+    {
+        $apiSiasg = new ApiSiasg();
+
+        $array = [
+            "anoEmpenho" => "2020",
+            "chaveCompra" => "11016105000292019",
+            "chaveContratoContinuado" => "11016150000452019000000",
+            "dataEmissao" => "20201221",
+            "favorecido" => "08685242000178",
+            "fonte" => "0100000000",
+            "itemEmpenho" => [
+                [
+                    "numeroItemCompra" => "1",
+                    "numeroItemEmpenho" => "1",
+                    "quantidadeEmpenhada" => "1",
+                    "subelemento" => "16",
+                    "tipoEmpenhoOperacao" => "A",
+                    "valorUnitarioItem" => "2.53"
+                ],
+            ],
+            "nd" => "339039",
+            "numeroEmpenho" => "2020NE000024",
+            "planoInterno" => "AGU0042",
+            "ptres" => "118494",
+            "tipoCompra" => "1",
+            "tipoEmpenho" => "O",
+            "tipoUASG" => "G",
+            "uasgUsuario" => "110161",
+            "ugEmitente" => "110161",
+            "ugr" => "",
+            "valorTotalEmpenho" => "2.53"
+        ];
+
+        $retorno = $apiSiasg->executaConsulta('Empenho', $array,'POST');
+
+        if($retorno['messagem'] !== 'Sucesso'){
+            return 'Erro: ' . $retorno['messagem'];
+        }else{
+            return 'Teste Ok';
+        }
+    }
+
+    public function montaContextJsonGetPeerFalse()
+    {
+        $context_options = array(
+//            'https' => array(
+//                'method' => 'GET',
+//                'header' => "Content-type: application/json"
+//            ),
+            'ssl' => array(
+                'verify_peer' => false,
+                "verify_peer_name" => false,
+            )
+        );
+
+        return stream_context_create($context_options);
     }
 
 }

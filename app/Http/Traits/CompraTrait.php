@@ -47,9 +47,18 @@ trait CompraTrait
 
     public function gravaParametroItensdaCompraSISPP($compraSiasg, $compra): void
     {
-//        $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $compra);
         $unidade_autorizada_id = session('user_ug_id');
+        $this->gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
 
+    public function gravaParametroItensdaCompraSISPPCommand($compraSiasg, $compra): void
+    {
+        $unidade_autorizada_id = $compra->unidade_origem_id;
+        $this->gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
+
+    private function gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id): void
+    {
         if (!is_null($compraSiasg->data->itemCompraSisppDTO)) {
             foreach ($compraSiasg->data->itemCompraSisppDTO as $key => $item) {
                 $catmatseritem = $this->gravaCatmatseritem($item);
@@ -67,8 +76,18 @@ trait CompraTrait
 
     public function gravaParametroItensdaCompraSISRP($compraSiasg, $compra): void
     {
-//        $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $compra);
         $unidade_autorizada_id = session('user_ug_id');
+        $this->gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
+
+    public function gravaParametroItensdaCompraSISRPCommand($compraSiasg, $compra): void
+    {
+        $unidade_autorizada_id = $compra->unidade_origem_id;
+        $this->gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
+
+    private function gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id): void
+    {
         $consultaCompra = new ApiSiasg();
 
         if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
@@ -124,6 +143,7 @@ trait CompraTrait
 
     public function gravaCatmatseritem($item)
     {
+
         $MATERIAL = [149, 194];
         $SERVICO = [150, 195];
 
@@ -131,7 +151,7 @@ trait CompraTrait
         $tipo = ['S' => $SERVICO[0], 'M' => $MATERIAL[0]];
         $catGrupo = ['S' => $SERVICO[1], 'M' => $MATERIAL[1]];
         $catmatseritem = Catmatseritem::updateOrCreate(
-            ['codigo_siasg' => (int)$codigo_siasg],
+            ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
             ['descricao' => $item->descricao, 'grupo_id' => $catGrupo[$item->tipo]]
         );
         return $catmatseritem;
@@ -162,24 +182,9 @@ trait CompraTrait
     public function retornaFornecedor($item)
     {
         $fornecedor = new Fornecedor();
-
-        if ($item->niFornecedor === 'ESTRANGEIRO') {
-            $cpf_cnpj_idgener =
-                mb_strtoupper(preg_replace('/\s/', '_', $item->niFornecedor . '_' . $item->nomeFornecedor), 'UTF-8');
-
-            $retorno = $fornecedor->buscaFornecedorPorNumero($cpf_cnpj_idgener);
-
-            if (is_null($retorno)) {
-                $fornecedor->tipo_fornecedor = 'IDGENERICO';
-                $fornecedor->cpf_cnpj_idgener = $cpf_cnpj_idgener;
-                $fornecedor->nome = $item->nomeFornecedor;
-                $fornecedor->save();
-                return $fornecedor;
-            }
-            return $retorno;
-        }
-
         $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
+
+        //TODO UPDATE OR INSERT FORNECEDOR
         if (is_null($retorno)) {
             $fornecedor->tipo_fornecedor = $fornecedor->retornaTipoFornecedor($item->niFornecedor);
             $fornecedor->cpf_cnpj_idgener = $fornecedor->formataCnpjCpf($item->niFornecedor);
