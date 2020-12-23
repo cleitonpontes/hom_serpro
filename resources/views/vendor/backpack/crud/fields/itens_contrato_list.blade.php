@@ -10,8 +10,8 @@
     </div>
     <div class="col-xs-6 col-md-3 col-md-offset-3 text-right">
             <div class="input-group">
-                <div class="input-group-addon">Valor Global R$:</div>
-                <input type="text" class="form-control" id="valorGlobalAbaItem" readonly placeholder="Valor Global">
+                <div class="input-group-addon">Valor Total Item R$:</div>
+                <input type="text" class="form-control" id="valorTotalItem" readonly value="0">
             </div>
     </div>
                 <br>
@@ -357,13 +357,21 @@
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
                 calculaTotalGlobal();
-
+                calculaTotalItens();
             }
 
             function removeLinha(elemento) {
                 var tr = $(elemento).closest('tr');
                 tr.remove();
                 calculaTotalGlobal()
+            }
+
+            function calculaTotalItens(){
+                let totalItens = 0;
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    totalItens = parseFloat(totalItens) + parseFloat(elementInput.value);
+                })
+                $('#valorTotalItem').val(totalItens.toFixed(2));
             }
 
             function calculaTotalGlobal() {
@@ -379,7 +387,7 @@
                     }
                 });
                 $('#valor_global').val(parseFloat(valor_total.toFixed(2)));
-                $('#valorGlobalAbaItem').val(parseFloat(valor_total.toFixed(2)));
+                calculaTotalItens();
                 atualizarValorParcela(parcela);
             }
 
