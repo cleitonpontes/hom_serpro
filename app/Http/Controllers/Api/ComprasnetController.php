@@ -24,7 +24,7 @@ class ComprasnetController extends Controller
 
         $dados['uasg'] = @str_pad($request->uasg, 6, "0", STR_PAD_LEFT);
         $dados['modalidade'] = @str_pad($request->modalidade, 2, "0", STR_PAD_LEFT);
-        $dados['numeroAno'] = @@str_pad($request->numero, 5, "0", STR_PAD_LEFT) . '/' . @$request->ano;
+        $dados['numeroAno'] = @str_pad($request->numero, 5, "0", STR_PAD_LEFT) . '/' . @$request->ano;
         $dados['itens'] = $this->trataItens($request->itens);
 
         $unidade = $this->buscaUnidadePorCodigo($dados['uasg']);
