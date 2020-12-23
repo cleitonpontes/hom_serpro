@@ -275,8 +275,7 @@ class MinutaEmpenhoController extends Controller
         if ($form['fornecedor_id']) {
             $options
                 ->select(['minutaempenhos.id',
-                    DB::raw("CONCAT(unidades.codigosiasg,'  ',codigoitens.descres, '  ' ,compras.numero_ano, ' - ',
-                                    minutaempenhos.numero_empenho_sequencial, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
+                    DB::raw("CONCAT(minutaempenhos.mensagem_siafi, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
                              as nome_minuta_empenho")])
                 ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
                 ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
