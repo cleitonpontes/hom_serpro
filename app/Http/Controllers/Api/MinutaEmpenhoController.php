@@ -67,7 +67,7 @@ class MinutaEmpenhoController extends Controller
         $tipoEmpenho = Codigoitem::find($modMinutaEmpenho->tipo_empenho_id);
         $favorecido = Fornecedor::find($modMinutaEmpenho->fornecedor_empenho_id);
         $amparoLegal = AmparoLegal::find($modMinutaEmpenho->amparo_legal_id);
-        $ugemitente = Unidade::find($modMinutaEmpenho->unidade_id);
+        $ugemitente = Unidade::find($modMinutaEmpenho->saldo_contabil->unidade_id);
         $codfavorecido = (str_replace('-', '', str_replace('/', '', str_replace('.', '', $favorecido->cpf_cnpj_idgener))));
 
         $modSfOrcEmpenhoDados->minutaempenho_id = $modMinutaEmpenho->id;
