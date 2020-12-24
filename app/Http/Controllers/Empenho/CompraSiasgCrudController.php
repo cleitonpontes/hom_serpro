@@ -254,7 +254,7 @@ class CompraSiasgCrudController extends CrudController
             $unidade_autorizada_id = session('user_ug_id');
         }
 
-        dd('fim');
+        dd('fim', $subrrogada);
 
         return $unidade_autorizada_id;
     }
