@@ -140,6 +140,10 @@ class ApiSiasg
 
     public function consultaCompraByUrl($url)
     {
+        if(!isset($this->context)){
+            $this->context = $this->montaHeader();
+        }
+
         $retorno = file_get_contents($url, false, $this->context);
         return  json_decode($retorno, true);
     }

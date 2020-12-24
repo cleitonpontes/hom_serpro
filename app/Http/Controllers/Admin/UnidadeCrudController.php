@@ -619,7 +619,7 @@ class UnidadeCrudController extends CrudController
     public function executaRotinaAlertaMensal()
     {
         $alerta = new AlertaContratoJob();
-        $alerta->extratoMensal();
+//        $alerta->extratoMensal();
 
         if (backpack_user()) {
             Alert::success('Alerta Mensal executado com Sucesso!')->flash();
