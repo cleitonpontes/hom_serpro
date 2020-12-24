@@ -239,9 +239,8 @@ class CompraSiasgCrudController extends CrudController
         $unidade_autorizada_id = null;
         $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
         $subrrogada = $compraSiasg->data->compraSispp->subrogada;
-        dd($subrrogada, $tipoCompra);
         if ($tipoCompra == $this::SISPP) {
-            if ($subrrogada <> '000000') {
+            if ($subrrogada != '000000') {
                 ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = session('user_ug_id') : '';
             } else {
                 ($request->unidade_origem_id == session('user_ug_id'))
