@@ -437,6 +437,19 @@ class InstrumentoinicialCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
+                'label' => 'Amparo Legal',
+                'name' => 'amparolegal',
+                'type' => 'select2_from_ajax_multiple_alias',
+                'entity' => 'amparolegal',
+                'placeholder' => 'Selecione o Amparo Legal',
+                'minimum_input_length' => 0,
+                'data_source' => url('api/amparolegal'),
+                'model' => 'App\Models\AmparoLegal',
+                'attribute' => 'campo_api_amparo',
+                'pivot' => true,
+                'tab' => 'Dados Contrato',
+            ],
+            [
                 'name' => 'licitacao_numero',
                 'label' => 'Número Licitação',
                 'type' => 'numlicitacao',
