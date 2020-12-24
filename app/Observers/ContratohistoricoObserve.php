@@ -44,7 +44,10 @@ class ContratohistoricoObserve
                 'contratohistorico_id' => $contratohistorico->id,
                 'data_publicacao' => $contratohistorico->data_publicacao,
                 'status' => 'Pendente',
-                'status_publicacao_id' => $situacao->id
+                'status_publicacao_id' => $situacao->id,
+                //TODO VERIFICAR PELA UASG SE É ISENTO e MOTIVO DE ISENCAO, SE NÃO FOR, VERIFICAR O TIPO DE PAGAMENTO
+                'tipo_pagamento_id' => '',
+                'motivo_isencao' => ''
             ]);
             dd(1232223);
         }
