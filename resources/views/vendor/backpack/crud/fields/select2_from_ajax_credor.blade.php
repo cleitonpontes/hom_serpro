@@ -10,7 +10,7 @@
 <div @include('crud::inc.field_wrapper_attributes') >
     <label>{!! $field['label'] !!}</label>
 
-    @if (strpos($field['attribute'],'ESTRANGEIRO') !== false)
+    @if (strpos(session()->get('fornecedor_cpf_cnpj_idgener'),'ESTRANGEIRO') !== false)
         <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal"
                 data-target="#inserir_novo_credor">
             Novo <i class="fa fa-plus"></i>
@@ -143,7 +143,7 @@
                             @if ($entity_model::isColumnNullable($field['name']))
                         allowClear: true,
                         @endif
-                            @if ( strpos($item->{$field['attribute']},'ESTRANGEIRO') === false)
+                            @if (strpos(session()->get('fornecedor_cpf_cnpj_idgener'),'ESTRANGEIRO') === false)
                         disabled: readonly,
                         @endif
 
