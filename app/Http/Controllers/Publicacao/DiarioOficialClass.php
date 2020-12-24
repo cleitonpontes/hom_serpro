@@ -308,19 +308,29 @@ class DiarioOficialClass extends BaseSoapController
     public function retornaTextoModeloContrato(Contratohistorico $contratoHistorico)
     {
 
-        $contrato = $contratoHistorico->contrato;
-        $TextoModelo = "##ATO EXTRATO DE CONTRATO Nº " . $contratoHistorico->numero . " - UASG " . $contratoHistorico->getUnidade() . "
-            Nº Processo: " . $contrato->processo . ".
-            ##TEX " . strtoupper($contrato->modalidade->descricao) . " SRP Nº " . $contrato->licitacao_numero . ". Contratante: " . $contrato->unidade->nome . ".
-            Contratado: " . $contratoHistorico->fornecedor->cpf_cnpj_idgener . " - " . $contratoHistorico->fornecedor->nome . " -.
-            Objeto: " . $contratoHistorico->objeto . ".
-            Fundamento Legal: " . $contrato->retornaAmparo() .
-            " . Vigência: " . $contratoHistorico->getVigenciaInicio() . " a " . $contratoHistorico->getVigenciaFim() .
-            ". Valor Total: R$" . $contratoHistorico->getValorGlobal() . "." . $this->retornaNumeroEmpenho($contratoHistorico)['texto'] .
-            ". Data de Assinatura: " . $this->retornaDataFormatada($contratoHistorico->data_assinatura) . ".".
-            "##ASS COMPRASNET 4.0 - " . date_format(new \DateTime(), 'd/m/Y') . ".";
+        //todo buscar do banco e atualizar o modelo
+        $padraoPublicacaoContrato = '##ATO EXTRATO DE CONTRATO Nº |contratoHistorico_numero| - UASG |contratoHistorico_unidade|';
 
-        return $TextoModelo;
+        $contrato = $contratoHistorico->contrato;
+
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_numero|', $contratoHistorico->numero, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_getUnidade|', $contratoHistorico->getUnidade(), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contrato_processo|', $contrato->processo, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contrato_modalidade_descricao|', $contrato->modalidade->descricao, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contrato_licitacao_numero|', $contrato->licitacao_numero, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contrato_unidade_nome|', $contrato->unidade->nome, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_fornecedor_cpf_cnpj_idgener|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_fornecedor_nome|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_objeto|', $contratoHistorico->objeto, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contrato_retornaAmparo|', $contrato->retornaAmparo(), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_getVigenciaInicio|', $contratoHistorico->getVigenciaInicio(), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_getVigenciaFim|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_valor_global|', $contratoHistorico->valor_global, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|numero_empenho|', $this->retornaNumeroEmpenho($contratoHistorico)['texto'], $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|contratoHistorico_data_assinatura|', $this->retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|data_assinatura_sistema|', date_format(new \DateTime(), 'd/m/Y'), $padraoPublicacaoContrato);
+
+        return $padraoPublicacaoContrato;
     }
 
     public function retornaTextoModelorAditivo(Contratohistorico $contratoHistorico)
@@ -348,39 +358,38 @@ class DiarioOficialClass extends BaseSoapController
         $padraoPublicacaoAditivo = str_replace('|contratoHistorico_data_assinatura|', $this->retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoAditivo);
         $padraoPublicacaoAditivo = str_replace('|data_assinatura_sistema|', date_format(new \DateTime(), 'd/m/Y'), $padraoPublicacaoAditivo);
 
-
         return $padraoPublicacaoAditivo;
     }
 
     public function retornaTextoModeloApostilamento(Contratohistorico $contratoHistorico)
     {
         //todo buscar do banco
-        $padraoPublicacaoAditivo = '##ATO EXTRATO DE TERMO APOSTILAMENTO. ##TEX |contratoHistorico_objeto|. ##ASS COMPRASNET 4.0 - |contratoHistorico_data_assinatura|.'
+        $padraoPublicacaoApostilamento = '##ATO EXTRATO DE TERMO APOSTILAMENTO. ##TEX |contratoHistorico_objeto|. ##ASS COMPRASNET 4.0 - |contratoHistorico_data_assinatura|.';
 
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_objeto|', $contratoHistorico->objeto, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|data_assinatura_sistema|', date_format(new \DateTime(), 'd/m/Y'), $padraoPublicacaoAditivo);
+        $padraoPublicacaoApostilamento = str_replace('|contratoHistorico_objeto|', $contratoHistorico->objeto, $padraoPublicacaoApostilamento);
+        $padraoPublicacaoApostilamento = str_replace('|data_assinatura_sistema|', date_format(new \DateTime(), 'd/m/Y'), $padraoPublicacaoApostilamento);
 
-        return $padraoPublicacaoAditivo;
+        return $padraoPublicacaoApostilamento;
     }
 
     public function retornaTextoModeloRescisão(Contratohistorico $contratoHistorico)
     {
         //todo buscar do banco
-        $padraoPublicacaoAditivo = '##ATO EXTRATO DE TERMO DE RECISÃO Nº |contratoHistorico_numero|. ##TEX Nº Processo: |contrato_processo|. Contratante: |contrato_unidade_nome|. CNPJ Contratado: |contratoHistorico_fornecedor_cpf_cnpj_idgener|. Contratado : |contratoHistorico_fornecedor_nome|. Objeto: |contratoHistorico_objeto|. Fundamento Legal: |contrato_retornaAmparo|. Data de Rescisão: |contratoHistorico_data_assinatura|. ##ASS COMPRASNET 4.0 - |data_assinatura_sistema|.';
+        $padraoPublicacaoRecisao = '##ATO EXTRATO DE TERMO DE RECISÃO Nº |contratoHistorico_numero|. ##TEX Nº Processo: |contrato_processo|. Contratante: |contrato_unidade_nome|. CNPJ Contratado: |contratoHistorico_fornecedor_cpf_cnpj_idgener|. Contratado : |contratoHistorico_fornecedor_nome|. Objeto: |contratoHistorico_objeto|. Fundamento Legal: |contrato_retornaAmparo|. Data de Rescisão: |contratoHistorico_data_assinatura|. ##ASS COMPRASNET 4.0 - |data_assinatura_sistema|.';
 
         $contrato = $contratoHistorico->contrato;
 
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_numero|', $contratoHistorico->numero, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contrato_processo|', $contrato->processo, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contrato_unidade_nome|', $contrato->unidade->nome, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_fornecedor_cpf_cnpj_idgener|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_fornecedor_nome|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_objeto|', $contratoHistorico->objeto, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contrato_retornaAmparo|', $contrato->retornaAmparo(), $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_data_assinatura|', $this->retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|data_assinatura_sistema|', date_format(new \DateTime(), 'd/m/Y'), $padraoPublicacaoAditivo);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_numero|', $contratoHistorico->numero, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contrato_processo|', $contrato->processo, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contrato_unidade_nome|', $contrato->unidade->nome, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_fornecedor_cpf_cnpj_idgener|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_fornecedor_nome|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_objeto|', $contratoHistorico->objeto, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contrato_retornaAmparo|', $contrato->retornaAmparo(), $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_data_assinatura|', $this->retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|data_assinatura_sistema|', date_format(new \DateTime(), 'd/m/Y'), $padraoPublicacaoRecisao);
 
-        return $padraoPublicacaoAditivo;
+        return $padraoPublicacaoRecisao;
     }
 
     function generateRandonNumbers($length = 10)
@@ -454,7 +463,6 @@ class DiarioOficialClass extends BaseSoapController
             ->where('descricao', '=', $tipoSituacao)
             ->first()->id;
     }
-
 
     private function retornaDataFormatada($data)
     {
