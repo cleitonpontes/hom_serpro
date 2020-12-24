@@ -473,15 +473,6 @@ class InstrumentoinicialCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
-                'name' => 'observacao',
-                'label' => 'Observação',
-                'type' => 'textarea',
-                'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
-                ],
-                'tab' => 'Características do contrato',
-            ],
-            [
                 // select_from_array
                 'name' => 'tipo_id',
                 'label' => "Tipo",
@@ -494,6 +485,15 @@ class InstrumentoinicialCrudController extends CrudController
                 'tab' => 'Características do contrato',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'subtipo',
+                'label' => 'Subtipo',
+                'type' => 'textarea',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
+                'tab' => 'Características do contrato',
             ],
             [ // select_from_array
                 'name' => 'categoria_id',
