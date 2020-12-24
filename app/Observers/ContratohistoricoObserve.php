@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Http\Traits\BuscaCodigoItens;
 use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 
 class ContratohistoricoObserve
 {
+
+    use BuscaCodigoItens;
 
     public function __construct(Contratocronograma $contratocronograma)
     {
@@ -166,7 +169,7 @@ class ContratohistoricoObserve
             'fornecedor_id' => $arrayhistorico['fornecedor_id'],
             'unidade_id' => $arrayhistorico['unidade_id'],
             'info_complementar' => $arrayhistorico['info_complementar'],
-            'vigencia_inicio' => $arrayhistorico['vigencia_inicio'],
+//            'vigencia_inicio' => $arrayhistorico['vigencia_inicio'],
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'valor_global' => $novo_valor,
             'num_parcelas' => $arrayhistorico['num_parcelas'],
@@ -262,9 +265,7 @@ class ContratohistoricoObserve
 
     private function setSituacao($sisg, $data)
     {
-
         $data = Carbon::createFromFormat('Y-m-d', $data);
-//        dd($data);
 
         $situacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Situacao Publicacao');
@@ -281,4 +282,6 @@ class ContratohistoricoObserve
 
         return $situacao->where('descricao', 'INFORMADO')->first();
     }
+
+
 }

@@ -112,7 +112,7 @@ class DiarioOficialClass extends BaseSoapController
             $contratoPublicacoes->status_publicacao_id = $this->retornaIdTipoSituacao('DEVOLVIDO PELA IMPRENSA');
             $contratoPublicacoes->log = $this->retornaErroValidacoesDOU($responsePreview);
             $contratoPublicacoes->texto_dou = $this->retornaTextoRtf($contratoHistorico);
-            //$contratoPublicacoes->publicar = false;
+
             $contratoPublicacoes->save();
 
             return false;
@@ -181,7 +181,7 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
-        $dados ['dados']['empenho'] = $this->retornaNumeroEmpenho($contratoHistorico)['numero'];
+        $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
         $dados ['dados']['identificadorTipoPagamento'] = 149;
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
@@ -201,7 +201,7 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['IDTransacao'] = $contratoHistorico->unidade->nomeresumido . $this->generateRandonNumbers(13);
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
-        $dados ['dados']['empenho'] = $this->retornaNumeroEmpenho($contratoHistorico)['numero'];
+        $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
         $dados ['dados']['identificadorTipoPagamento'] = 149;
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
@@ -322,7 +322,7 @@ class DiarioOficialClass extends BaseSoapController
             " . Vigência: " . $contratoHistorico->getVigenciaInicio() . " a " . $contratoHistorico->getVigenciaFim() .
             ". Valor Total: R$" . $contratoHistorico->getValorGlobal() . "." . $this->retornaNumeroEmpenho($contratoHistorico)['texto'] .
             ". Data de Assinatura: " . $this->retornaDataFormatada($contratoHistorico->data_assinatura) . ".".
-            "##ASS COMPRASNET 4.0 - " . date_format(new \DateTime(), 'd/m/Y') . ".";
+            "##ASS COMPRASNET 4.0 - " . $data . ".";
 
         $padraoPublicacaoContrato = str_replace('|contratoHistorico_numero|', $contratoHistorico->numero, $padraoPublicacaoContrato);
         $padraoPublicacaoContrato = str_replace('|contratoHistorico_getUnidade|', $contratoHistorico->getUnidade(), $padraoPublicacaoContrato);
@@ -339,7 +339,7 @@ class DiarioOficialClass extends BaseSoapController
         $padraoPublicacaoContrato = str_replace('|contratoHistorico_valor_global|', $contratoHistorico->valor_global, $padraoPublicacaoContrato);
         $padraoPublicacaoContrato = str_replace('|numero_empenho|', $this->retornaNumeroEmpenho($contratoHistorico)['texto'], $padraoPublicacaoContrato);
         $padraoPublicacaoContrato = str_replace('|contratoHistorico_data_assinatura|', $this->retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|data_assinatura_sistema|', date_format(new \DateTime(), 'd/m/Y'), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|data_assinatura_sistema|', $data, $padraoPublicacaoContrato);
 
         return $padraoPublicacaoContrato;
     }
@@ -390,7 +390,7 @@ class DiarioOficialClass extends BaseSoapController
         $padraoPublicacaoApostilamento = '##ATO EXTRATO DE TERMO APOSTILAMENTO. ##TEX |contratoHistorico_objeto|. ##ASS COMPRASNET 4.0 - |contratoHistorico_data_assinatura|.';
 
         $padraoPublicacaoApostilamento = str_replace('|contratoHistorico_objeto|', $contratoHistorico->objeto, $padraoPublicacaoApostilamento);
-        $padraoPublicacaoApostilamento = str_replace('|data_assinatura_sistema|', date_format(new \DateTime(), 'd/m/Y'), $padraoPublicacaoApostilamento);
+        $padraoPublicacaoApostilamento = str_replace('|data_assinatura_sistema|', $data, $padraoPublicacaoApostilamento);
 
         return $padraoPublicacaoApostilamento;
     }
@@ -399,7 +399,7 @@ class DiarioOficialClass extends BaseSoapController
     {
         $data = date('d/m/Y');
         //todo buscar do banco
-        $padraoPublicacaoAditivo = '##ATO EXTRATO DE TERMO DE RECISÃO Nº |contratoHistorico_numero|.
+        $padraoPublicacaoRecisao = '##ATO EXTRATO DE TERMO DE RECISÃO Nº |contratoHistorico_numero|.
 
         ##TEX Nº Processo: |contrato_processo|. Contratante: |contrato_unidade_nome|. CNPJ Contratado: |contratoHistorico_fornecedor_cpf_cnpj_idgener|. Contratado : |contratoHistorico_fornecedor_nome|. Objeto: |contratoHistorico_objeto|. Fundamento Legal: |contrato_retornaAmparo|. Data de Rescisão: |contratoHistorico_data_assinatura|.
 
@@ -408,15 +408,15 @@ class DiarioOficialClass extends BaseSoapController
 
         $contrato = $contratoHistorico->contrato;
 
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_numero|', $contratoHistorico->numero, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contrato_processo|', $contrato->processo, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contrato_unidade_nome|', $contrato->unidade->nome, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_fornecedor_cpf_cnpj_idgener|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_fornecedor_nome|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_objeto|', $contratoHistorico->objeto, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contrato_retornaAmparo|', $contrato->retornaAmparo(), $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|contratoHistorico_data_assinatura|', $this->retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|data_assinatura_sistema|', $data, 'd/m/Y'), $padraoPublicacaoAditivo);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_numero|', $contratoHistorico->numero, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contrato_processo|', $contrato->processo, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contrato_unidade_nome|', $contrato->unidade->nome, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_fornecedor_cpf_cnpj_idgener|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_fornecedor_nome|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_objeto|', $contratoHistorico->objeto, $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contrato_retornaAmparo|', $contrato->retornaAmparo(), $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|contratoHistorico_data_assinatura|', $this->retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|data_assinatura_sistema|', $data,$padraoPublicacaoRecisao);
 
         return $padraoPublicacaoRecisao;
     }
@@ -440,11 +440,11 @@ class DiarioOficialClass extends BaseSoapController
 
         foreach ($publicacoes as $publicacao) {
             if (isset($publicacao->id)) {
-                //AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
-                $this->testaAtualizacaoStatusPublicacao($publicacao);
+                AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
+                //$this->testaAtualizacaoStatusPublicacao($publicacao);
             }
         }
-        dd('fim');
+
     }
 
 
