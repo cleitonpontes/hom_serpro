@@ -63,6 +63,12 @@ class Contratoitem extends Model
         }
     }
 
+    public function deletaContratoItem(Saldohistoricoitem $saldohistoricoitem)
+    {
+        $contratoitem = Contratoitem::find($saldohistoricoitem->contratoitem_id);
+        $contratoitem->delete();
+    }
+
     public function getContrato()
     {
         if ($this->contrato_id) {

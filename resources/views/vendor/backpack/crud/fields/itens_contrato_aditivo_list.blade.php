@@ -6,10 +6,10 @@
         <div class="card-body">
             <div>
                 <span class="table-up">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#inserir_item">
-                                Inserir Item <i class="fa fa-plus"></i>
-                            </button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#inserir_item">
+                        Inserir Item <i class="fa fa-plus"></i>
+                    </button>
                 </span>
                 <br>
                 <br>
@@ -134,6 +134,11 @@
 
                 $('#numero_item').mask('99999');
 
+                var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
+                if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
+                    $('#table').html(valueHidden);
+                }
+
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
                 });
@@ -204,6 +209,9 @@
                  **/
                 $('body').submit(function(){
                     $('#select2_ajax_fornecedor_id').prop('disabled', false);
+                    atualizaValueHTMLCamposAbaItem();
+                    var htmlGridItem = $('#table').html();
+                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
                 });
 
                 function atualizarSelectItem(){
@@ -233,6 +241,7 @@
                     url = url.replace(':tipo_id', $('#tipo_item').val());
                     return url;
                 }
+                initSelectQualificacao();
                 onChangeSelectQualificacao();
             });
 
@@ -242,8 +251,7 @@
                 select.add(option);
             }
 
-            function buscarItem(id)
-            {
+            function buscarItem(id){
                 var url = "{{route('busca.catmatseritens.id',':id')}}";
                 url = url.replace(':id', id);
 
@@ -262,6 +270,7 @@
                 item = {
                     'descricao' : $('#tipo_item :selected').text(),
                     'descricao_complementar': item.descricao,
+                    'codigo_siasg': item.codigo_siasg,
                     'quantidade' : $('#quantidade_item').val(),
                     'valorunitario': $('#valor_unit').val(),
                     'numero':$('#numero_item').val(),
@@ -334,19 +343,19 @@
             }
 
             function adicionaLinhaItem(item){
-                // var compra_itens_id = $("[name='compra_itens_id[]']");
-                // compra_itens_id.push(item.id);
 
-                var newRow = $("<tr>");
-                var cols = "";
+                var newRow = $("<tr>"),
+                    cols = "",
+                    propReadOnly = $.inArray('ACRÉSCIMO / SUPRESSÃO', tratarArrayItemQualificacao()[0]) !== -1 ? '' : 'readOnly';
+
                 cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.codigo_siasg+' - '+item.descricao_complementar+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" step="0.0001" id="qtd" value="'+item.quantidade+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+item.valorunitario+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" step="0.0001" id="vl_total" value="'+item.valortotal+'"></td>';
-                cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
-                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
+                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="number"  name="qtd_item[]" step="0.0001" id="qtd" value="'+item.quantidade+'"></td>';
+                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+item.valorunitario+'"></td>';
+                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="number"  name="vl_total[]" step="0.0001" id="vl_total" value="'+item.valortotal+'"></td>';
+                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
+                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
                 cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
                     '</button>';
@@ -354,7 +363,7 @@
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="id[]" id="id" value="'+item.id+'">';
+                cols += '<input type="hidden" name="aditivo_item_id[]" id="aditivo_item_id" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
@@ -442,20 +451,42 @@
                 }
             }
             /*---------------------------HABILITA-E-DESABILITA-CAMPOS---------------------------*/
+            function initSelectQualificacao(){
+                var arrayNameCamposHabilitarDesabilitar = recuperarArrObjCampos(tratarArrayItemQualificacao()[1]);
+                habilitarDesabilitarCampos(tratarArrayItemQualificacao()[0], arrayNameCamposHabilitarDesabilitar);
+                habilitarDesabilitarCamposItens();
+            }
+
             function onChangeSelectQualificacao() {
                 $('#select2_ajax_multiple_qualificacoes').change(function () {
-                    var array_selected = [],
-                        arrayItemQualificacao = [];
-
-                    var selected = $("[name='qualificacoes[]']").find(':selected');
-                    arrayItemQualificacao = JSON.parse($("input[name=options_qualificacao]").val());
-
-                    selected.each(function (index, option) {
-                        array_selected[index] = option.text;
-                    })
-                    var arrayNameCamposHabilitarDesabilitar = recuperarArrObjCampos(arrayItemQualificacao);
-                    habilitarDesabilitarCampos(array_selected, arrayNameCamposHabilitarDesabilitar);
+                    var arrayNameCamposHabilitarDesabilitar = recuperarArrObjCampos(tratarArrayItemQualificacao()[1]);
+                    habilitarDesabilitarCampos(tratarArrayItemQualificacao()[0], arrayNameCamposHabilitarDesabilitar);
+                    habilitarDesabilitarCamposItens();
                 });
+            }
+
+            function habilitarDesabilitarCamposItens(){
+                if($('.input-itens').length){
+                    let booAcrescimoSelecionado = $.inArray('ACRÉSCIMO / SUPRESSÃO', tratarArrayItemQualificacao()[0]) !== -1;
+                        $('.input-itens').prop("readonly", !booAcrescimoSelecionado);
+                        if(!booAcrescimoSelecionado){
+                            $('#table-itens').empty();
+                            buscarItens();
+                        }
+                }
+            }
+
+            function tratarArrayItemQualificacao(){
+                var array_selected = [],
+                    arrayItemQualificacao = [];
+
+                var selected = $("[name='qualificacoes[]']").find(':selected');
+                arrayItemQualificacao = JSON.parse($("input[name=options_qualificacao]").val());
+
+                selected.each(function (index, option) {
+                    array_selected[index] = option.text;
+                })
+                return[array_selected, arrayItemQualificacao];
             }
 
             function habilitarDesabilitarCampos(array_selected, arrayNameCamposHabilitarDesabilitar) {
@@ -531,6 +562,29 @@
                     }
                 });
                 return arrObjCampos;
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizaValueHTMLCamposAbaItem() {
+                $('[name="qtd_item[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_unit[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="periodicidade[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="data_inicio[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
             }
         </script>
     @endpush

@@ -587,6 +587,13 @@ class InstrumentoinicialCrudController extends CrudController
                 'type' => 'itens_contrato_instrumento_inicial_list',
                 'tab' => 'Itens do contrato',
             ],
+            [
+                'label' => "adicionaCampoRecuperaGridItens",
+                'type' => "hidden",
+                'name' => 'adicionaCampoRecuperaGridItens',
+                'default' => "{{old('name')}}",
+                'tab' => 'Itens do contrato'
+            ],
             [   // Date
                 'name' => 'vigencia_inicio',
                 'label' => 'Data Vig. Início',
@@ -667,13 +674,28 @@ class InstrumentoinicialCrudController extends CrudController
         $valor_global = $request->input('valor_global');
         $request->request->set('valor_global', $valor_global);
 
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        if (!empty($request->get('qtd_item'))) {
-            $this->alterarSaldoHistoricoItens($request->all());
+        DB::beginTransaction();
+        try {
+            // your additional operations before save here
+            $redirect_location = parent::updateCrud($request);
+            // your additional operations after save here
+            // use $this->data['entry'] or $this->crud->entry
+
+            // altera os itens do contrato
+            if (!empty($request->get('qtd_item'))) {
+                $this->alterarItens($request->all());
+            }
+
+            if(!empty($request->get('excluir_item'))) {
+                $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
+            }
+
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
         }
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
+
         return $redirect_location;
     }
 
@@ -707,11 +729,10 @@ class InstrumentoinicialCrudController extends CrudController
         return $content;
     }
 
-    private function alterarSaldoHistoricoItens($request)
+    private function alterarItens($request)
     {
-        DB::beginTransaction();
-        try {
-            foreach ($request['qtd_item'] as $key => $qtd) {
+        foreach ($request['qtd_item'] as $key => $qtd) {
+            if ($request['saldo_historico_id'][$key] !== 'undefined') {
                 $saldoHistoricoIten = Saldohistoricoitem::find($request['saldo_historico_id'][$key]);
                 $saldoHistoricoIten->quantidade = (double)$qtd;
                 $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
@@ -720,11 +741,38 @@ class InstrumentoinicialCrudController extends CrudController
                 $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
                 $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
                 $saldoHistoricoIten->save();
+            } else {
+                $this->criarNovoContratoItem($key, $request);
             }
-            DB::commit();
-        } catch (Exception $exc) {
-            DB::rollback();
-            dd($exc);
+        }
+    }
+
+    private function criarNovoContratoItem($key, $request, $contratoHistoricoId = null )
+    {
+        $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
+        $catmatseritem = Catmatseritem::find($catmatseritem_id);
+
+        $contratoItem = new Contratoitem();
+        $contratoItem->contrato_id = $request['contrato_id'];
+        $contratoItem->tipo_id = $request['tipo_item_id'][$key];
+        $contratoItem->grupo_id = $catmatseritem->grupo_id;
+        $contratoItem->catmatseritem_id = $catmatseritem->id;
+        $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
+        $contratoItem->quantidade = (double)$request['qtd_item'][$key];
+        $contratoItem->valorunitario = $request['vl_unit'][$key];
+        $contratoItem->valortotal = $request['vl_total'][$key];
+        $contratoItem->data_inicio = $request['data_inicio'][$key];
+        $contratoItem->periodicidade = $request['periodicidade'][$key];
+        $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
+        $contratoItem->contratohistorico_id = $contratoHistoricoId;
+        $contratoItem->save();
+    }
+
+    private function excluirSaldoHistoricoItem($arrIdItens)
+    {
+        foreach ($arrIdItens as $id) {
+            $item = Saldohistoricoitem::find($id);
+            $item->delete();
         }
     }
 }

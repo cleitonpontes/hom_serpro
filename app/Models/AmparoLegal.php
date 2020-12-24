@@ -5,6 +5,7 @@ namespace App\Models;
 // use App\Models\AmparoLegalRestricao;
 
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -112,6 +113,23 @@ class AmparoLegal extends Model
             $resultado .= $descricaoCodigoitem['descricao'].', ';
         }
         return $resultado;
+    }
+
+    public function retornaConsultaMultiSelect($item)
+    {
+        $amparo =  $this->select([
+            'id',
+            DB::raw("ato_normativo ||
+                    case when (artigo is not null)  then ' - Artigo: ' || artigo else '' end ||
+                    case when (paragrafo is not null)  then ' - Parágrafo: ' || paragrafo else '' end ||
+                    case when (inciso is not null)  then ' - Inciso: ' || inciso else '' end ||
+                    case when (alinea is not null)  then ' - Alinea: ' || alinea else '' end
+                    as campo_api_amparo")
+        ])->where('id', $item->id)
+            ->first();
+
+        return  $amparo->campo_api_amparo;
+
     }
 
 

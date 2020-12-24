@@ -46,8 +46,6 @@ class PublicaPreviewOficioJob implements ShouldQueue
         DB::beginTransaction();
         try {
             $this->diarioOficial->enviaPublicacao($this->contratoHistorico, $this->publicacao);
-
-
 //            $retorno = $this->diarioOficial->consultaSituacaoOficio($this->publicacao->id);
 
             DB::commit();

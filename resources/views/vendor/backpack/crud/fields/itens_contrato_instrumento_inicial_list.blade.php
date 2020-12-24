@@ -5,6 +5,12 @@
     <div class="card">
         <div class="card-body">
             <div>
+                <span class="table-up">
+                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#inserir_item">
+                        Inserir Item <i class="fa fa-plus"></i>
+                    </button>
+                </span>
                 <br>
                 <br>
                 <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
@@ -18,6 +24,7 @@
                         <th class="text-center">Valor Total</th>
                         <th class="text-center">Periodicidade</th>
                         <th class="text-center">Data Início</th>
+                        <th class="text-center">Ações</th>
                     </tr>
                     </thead>
                     <tbody id="table-itens">
@@ -30,6 +37,68 @@
             </div>
         </div>
     </div>
+
+    <!-- Janela modal para inserção de registros -->
+    <div id="inserir_item" tabindex="-1" class="modal fade"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        Novo Item
+                    </h3>
+                    <button type="button" class="close" id="fechar_modal" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="textoModal">
+                    <div class="form-group">
+                        <label for="tipo_item" class="control-label">Tipo Item</label>
+                        <select class="form-control" style="width:100%;" id="tipo_item">
+                            <option value="">Selecione</option>
+                            <option value="149">Material</option>
+                            <option value="150">Serviço</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="item" class="control-label">Item</label>
+                        <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numero_item" class="control-label">Número</label>
+                        <input class="form-control" id="numero_item"  name="numero_item" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="quantidade_item" class="control-label">Quantidade</label>
+                        <input class="form-control" id="quantidade_item" maxlength="10" name="quantidade_item" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="vl_unit" class="control-label">Valor Unitário</label>
+                        <input class="form-control" id="valor_unit" name="valor_unit" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="vl_total" class="control-label">Valor Total</label>
+                        <input class="form-control" id="valor_total" name="valor_total" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="periodicidade" class="control-label">Periodicidade</label>
+                        <input class="form-control" id="periodicidade_item" maxlength="10" name="periodicidade_item" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="data_inicio" class="control-label">Data Início</label>
+                        <input class="form-control" id="dt_inicio" name="dt_inicio" type="date">
+                    </div>
+                    <button class="btn btn-danger" type="submit" data-dismiss="modal"><i class="fa fa-reply"></i> Cancelar</button>
+                    <button class="btn btn-success" type="button" data-dismiss="modal" id="btn_inserir_item"><i class="fa fa-save"></i> Incluir</button>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     {{-- HINT --}}
     @if (isset($field['hint']))
@@ -63,6 +132,13 @@
                 parcela = 1;
 
                 const $tableID = $('#table');
+
+                $('#numero_item').mask('99999');
+
+                var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
+                if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
+                    $('#table').html(valueHidden);
+                }
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
@@ -113,6 +189,24 @@
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#valor_global',function(event){
                     atualizarValorParcela(parcela);
+                });
+
+                $('body').on('click','#remove_item',function(){
+                    removeLinha(this);
+                });
+
+                $('body').on('click','#btn_inserir_item', function(event){
+                    if(!$('#item').val()){
+                        alert('Não foi encontrado nenhum item para incluir à lista.');
+                    }else{
+                        buscarItem($('#item').val());
+                    }
+                });
+
+                $('form').submit(function(){
+                    atualizaValueHTMLCamposAbaItem();
+                    var htmlGridItem = $('#table').html();
+                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
                 });
             });
 
@@ -174,8 +268,10 @@
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit"  step="0.0001" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total" step="0.0001" value="'+item.valortotal+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
-                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
-
+                cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
+                cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
+                    '<i class="fa fa-trash"></i>'+
+                    '</button>';
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
@@ -224,6 +320,121 @@
                         alert(error);
                     })
                     .finally()
+            }
+
+            function atualizarSelectItem(){
+                $('#item').select2({
+                    ajax: {
+                        url: urlItens(),
+                        dataType: 'json',
+                        delay: 250,
+                        processResults: function (data) {
+                            return {
+                                results:  $.map(data.data, function (item) {
+                                    return {
+                                        text: item.codigo_siasg +' - '+ item.descricao,
+                                        id: item.id
+                                    }
+                                })
+                            };
+                        },
+                        cache: true
+                    }
+                });
+                $('.selection .select2-selection').css("height","34px").css('border-color','#d2d6de');
+            }
+            function urlItens(){
+                let url = '{{route('busca.catmatseritens.portipo',':tipo_id')}}';
+                url = url.replace(':tipo_id', $('#tipo_item').val());
+                return url;
+            }
+
+            function buscarItem(id){
+                var url = "{{route('busca.catmatseritens.id',':id')}}";
+                url = url.replace(':id', id);
+
+                axios.request(url)
+                    .then(response => {
+                        prepararItemParaIncluirGrid(response.data);
+                    })
+                    .catch(error => {
+                        alert(error);
+                    })
+                    .finally()
+            }
+
+            function prepararItemParaIncluirGrid(item)
+            {
+                item = {
+                    'descricao' : $('#tipo_item :selected').text(),
+                    'descricao_complementar': item.descricao,
+                    'quantidade' : $('#quantidade_item').val(),
+                    'valorunitario': $('#valor_unit').val(),
+                    'numero':$('#numero_item').val(),
+                    'valortotal': $('#valor_total').val(),
+                    'periodicidade': $('#periodicidade_item').val(),
+                    'data_inicio': $('#dt_inicio').val(),
+                    'catmatseritem_id' : item.id,
+                    'tipo_item_id' : $('#tipo_item').val(),
+                    'codigo_siasg' : item.codigo_siasg,
+                }
+
+                adicionaLinhaItem(item);
+                resetarCamposFormulario();
+            }
+
+            function resetarCamposFormulario(){
+                $('#tipo_item').val('');
+                $('#item').val('').change();
+                $('#quantidade_item').val('');
+                $('#numero_item').val('');
+                $('#valor_unit').val('');
+                $('#valor_total').val('');
+                $('#periodicidade_item').val('');
+                $('#dt_inicio').val('');
+            }
+
+            function removeLinha(elemento){
+                var tr = $(elemento).closest('tr');
+                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#saldo_historico_id').val();
+                if (historicoSaldoItemId === 'undefined'){
+                    tr.remove();
+                    calculaTotalGlobal()
+                } else {
+                    removerSaldoHistoricoItem(historicoSaldoItemId);
+                    tr.remove();
+                    calculaTotalGlobal()
+                }
+            }
+
+            function removerSaldoHistoricoItem(historicoSaldoItemId){
+                var newItem = $("#itens-para-excluir");
+                var cols = "";
+                cols += '<input type="hidden" name="excluir_item[]" value="'+historicoSaldoItemId+'">';
+                newItem.append(cols);
+            }
+
+            /**
+             * atualiza o value do atributo no html
+             * necessario para recuperar a tabela de itens com os ultimos dados inseridos nos inputs
+             * @param event
+             */
+            function atualizaValueHTMLCamposAbaItem() {
+                $('[name="qtd_item[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_unit[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="periodicidade[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
+                $('[name="data_inicio[]"]').each(function(index, elementInput){
+                    elementInput.setAttribute('value', elementInput.value);
+                })
             }
         </script>
     @endpush
