@@ -239,23 +239,16 @@ class CompraSiasgCrudController extends CrudController
         $unidade_autorizada_id = null;
         $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
         $subrrogada = $compraSiasg->data->compraSispp->subrogada;
-        dump($subrrogada);
         if ($tipoCompra == $this::SISPP) {
-            dump('entrei tipo');
             if ($subrrogada != '000000') {
-                dump('entrei subrrogada');
                 ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = session('user_ug_id') : '';
             } else {
-                dump('entrei subrrogada else');
                 ($request->unidade_origem_id == session('user_ug_id'))
                     ? $unidade_autorizada_id = $request->unidade_origem_id : '';
             }
         } else {
-            dump('entrei tipo else');
             $unidade_autorizada_id = session('user_ug_id');
         }
-
-        dd('fim', $subrrogada);
 
         return $unidade_autorizada_id;
     }
