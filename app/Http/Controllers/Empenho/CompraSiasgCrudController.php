@@ -35,8 +35,8 @@ class CompraSiasgCrudController extends CrudController
 
     public const MATERIAL = [149, 194];
     public const SERVICO = [150, 195];
-    public const SISPP = "1";
-    public const SISRP = "2";
+    public const SISPP = 1;
+    public const SISRP = 2;
 
 //    const TIPOCOMPRASIASG =
 
@@ -240,15 +240,22 @@ class CompraSiasgCrudController extends CrudController
         $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
         $subrrogada = $compraSiasg->data->compraSispp->subrogada;
         if ($tipoCompra == $this::SISPP) {
+            dump('entrei tipo');
             if ($subrrogada != '000000') {
+                dump('entrei subrrogada');
                 ($subrrogada == session('user_ug')) ? $unidade_autorizada_id = session('user_ug_id') : '';
             } else {
+                dump('entrei subrrogada else');
                 ($request->unidade_origem_id == session('user_ug_id'))
                     ? $unidade_autorizada_id = $request->unidade_origem_id : '';
             }
         } else {
+            dump('entrei tipo else');
             $unidade_autorizada_id = session('user_ug_id');
         }
+
+        dd('fim');
+
         return $unidade_autorizada_id;
     }
 
