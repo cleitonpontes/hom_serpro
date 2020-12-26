@@ -310,7 +310,7 @@ class AditivoCrudController extends CrudController
                 'placeholder' => 'Selecione as qualificações',
                 'minimum_input_length' => 0,
                 'data_source' => url('api/qualificacao'),
-                'model' => 'App\Models\Codigoitem',
+                'model' => 'App\Models\ContratoHistoricoQualificacao',
                 'attribute' => 'descricao',
                 'pivot' => true,
                 'tab' => 'Dados Gerais',

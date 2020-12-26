@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterContratoItensValoresQuatroCasasDecimais extends Migration
+class AlterContratoitensCollumnPeriodicidadeDefault extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,7 @@ class AlterContratoItensValoresQuatroCasasDecimais extends Migration
     public function up()
     {
         Schema::table('contratoitens', function (Blueprint $table) {
-            $table->decimal('valorunitario',19,4)->default(0)->change();
-            $table->decimal('valortotal',19,4)->default(0)->change();
+            $table->integer('periodicidade')->default(1)->change();
         });
     }
 
@@ -27,8 +26,7 @@ class AlterContratoItensValoresQuatroCasasDecimais extends Migration
     public function down()
     {
         Schema::table('contratoitens', function (Blueprint $table) {
-            $table->decimal('valorunitario',17,2)->default(0)->change();
-            $table->decimal('valortotal',17,2)->default(0)->change();
+            $table->integer('periodicidade')->nullable()->change();
         });
     }
 }
