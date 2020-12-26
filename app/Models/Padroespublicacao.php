@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use App\Http\Traits\Formatador;
+use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class ContratoPublicacoes extends ContratoBase
+class Padroespublicacao extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    use Formatador;
 
     protected static $logFillable = true;
-    protected static $logName = 'contratopublicacoes';
+    protected static $logName = 'padroespublicacao';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,55 +21,61 @@ class ContratoPublicacoes extends ContratoBase
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'contratopublicacoes';
+    protected $table = 'padroespublicacao';
+    // protected $primaryKey = 'id';
+    // public $timestamps = false;
+    // protected $guarded = ['id'];
     protected $fillable = [
-        'contratohistorico_id',
-        'data_publicacao',
-        'empenho',
-        'hash',
-        'link_publicacao',
-        'log',
-        'materia_id',
-        'motivo_devolucao',
-        'motivo_isencao_id',
-        'oficio_id',
-        'pagina_publicacao',
-        'secao_jornal',
-        'situacao',
-        'status',
-        'status_publicacao_id',
-        'texto_dou',
-        'texto_rtf',
-        'tipo_pagamento_id',
-        'transacao_id',
+        'tipo_contrato_id',
+        'tipo_mudanca_id',
+        'texto_padrao',
+        'identificador_norma_id',
     ];
+    // protected $hidden = [];
+    // protected $dates = [];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getTipoContrato()
+    {
+        $codigo = Codigoitem::find($this->tipo_contrato_id);
 
-    public function retornaPublicacoesEnviadas(){
-
-        $status_id = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Situacao Publicacao');
-        })
-            ->where('descres', '=', '01')
-            ->first()->id;
-
-        return $this->whereNotNull('oficio_id')->where('status_publicacao_id',$status_id)->get();
+        return $codigo->descricao;
     }
+    public function getTipoMudanca()
+    {
+        $codigo = Codigoitem::find($this->tipo_mudanca_id);
 
+        return $codigo->descricao;
+    }
+    public function getIdentificadorNorma()
+    {
+        $codigo = Codigoitem::find($this->identificador_norma_id);
+
+        return $codigo->descricao;
+    }
 
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function contratohistorico()
+    public function tipoContrato()
     {
-        return $this->belongsTo(Contratohistorico::class, 'contratohistorico_id');
+        $this->belongsTo(Codigoitem::class, 'tipo_contrato_id');
+    }
+
+    public function tipoMudanca()
+    {
+        $this->belongsTo(Codigoitem::class, 'tipo_mudanca_id');
+    }
+
+    public function identificadorNorma()
+    {
+        $this->belongsTo(Codigoitem::class, 'identificador_norma_id');
     }
 
 
@@ -90,5 +96,4 @@ class ContratoPublicacoes extends ContratoBase
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-
 }
