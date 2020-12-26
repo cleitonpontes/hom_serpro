@@ -22,9 +22,9 @@ class ComprasnetController extends Controller
             return $retorno;
         }
 
-        $dados['uasg'] = @$request->uasg;
-        $dados['modalidade'] = @$request->modalidade;
-        $dados['numeroAno'] = @$request->numero . '/' . @$request->ano;
+        $dados['uasg'] = @str_pad($request->uasg, 6, "0", STR_PAD_LEFT);
+        $dados['modalidade'] = @str_pad($request->modalidade, 2, "0", STR_PAD_LEFT);
+        $dados['numeroAno'] = @str_pad($request->numero, 5, "0", STR_PAD_LEFT) . '/' . @$request->ano;
         $dados['itens'] = $this->trataItens($request->itens);
 
         $unidade = $this->buscaUnidadePorCodigo($dados['uasg']);
@@ -132,13 +132,13 @@ class ComprasnetController extends Controller
         }
 
         //obrigatorios
-        $dados['uasgCompra'] = $request->uasgCompra;
-        $dados['modalidade'] = $request->modalidade;
-        $dados['numeroAnoCompra'] = $request->numeroCompra . '/' . $request->anoCompra;
+        $dados['uasgCompra'] = str_pad($request->uasgCompra, 6, "0", STR_PAD_LEFT);
+        $dados['modalidade'] = str_pad($request->modalidade, 2, "0", STR_PAD_LEFT);
+        $dados['numeroAnoCompra'] = str_pad($request->numeroCompra, 5, "0", STR_PAD_LEFT) . '/' . $request->anoCompra;
         $dados['item_compra'] = str_pad($request->numeroItem, 5, "0", STR_PAD_LEFT);
 
         //opcionais
-        $dados['uasg_contrato'] = @$request->uasgContrato;
+        $dados['uasg_contrato'] = @str_pad($request->uasgContrato, 6, "0", STR_PAD_LEFT);
         $dados['fornecedor'] = @$request->fornecedor;
 
         $unidade_compra = ($dados['uasgCompra']) ? $this->buscaUnidadePorCodigo($dados['uasgCompra']) : null;
@@ -146,7 +146,6 @@ class ComprasnetController extends Controller
         $unidade_contrato = ($dados['uasg_contrato']) ? $this->buscaUnidadePorCodigo($dados['uasg_contrato']) : null;
 
         if (isset($unidade_compra->id) and isset($modalidade->id)) {
-
             $dados = Contratoitem::whereHas('contrato', function ($q) use ($dados, $unidade_compra, $modalidade, $unidade_contrato) {
                 $q->where('unidadecompra_id', $unidade_compra->id)
                     ->where('modalidade_id', $modalidade->id)
@@ -162,7 +161,6 @@ class ComprasnetController extends Controller
             })
                 ->where('numero_item_compra', $dados['item_compra'])
                 ->get();
-
 
             foreach ($dados as $dado) {
                 $instrumento_inicial = $dado->contrato->historico()->whereHas('tipo', function ($t) {

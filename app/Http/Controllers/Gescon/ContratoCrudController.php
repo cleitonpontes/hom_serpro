@@ -814,7 +814,7 @@ class ContratoCrudController extends CrudController
             'label' => 'Minutas de Empenho',
             'name' => 'minutasempenho',
             'placeholder' => 'Selecione minutas de empenho',
-            'type' => 'select2_from_ajax_multiple_minuta',
+            'type' => 'select2_from_ajax_multiple_alias',
             'entity' => 'minutaempenho',
             'attribute' => 'nome_minuta_empenho',
             'model' => 'App\Models\MinutaEmpenho',
@@ -906,7 +906,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addField([
             'label' => 'Amparo Legal',
             'name' => 'amparoslegais',
-            'type' => 'select2_from_ajax_multiple',
+            'type' => 'select2_from_ajax_multiple_alias',
             'entity' => 'amparoslegais',
             'placeholder' => 'Selecione o Amparo Legal',
             'minimum_input_length' => 0,
