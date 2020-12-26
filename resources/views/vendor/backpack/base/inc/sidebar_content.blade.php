@@ -502,6 +502,12 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ backpack_url('/admin/padroespublicacao') }}">
+                                <i class="fa fa-list"></i>
+                                <span>Padrões publicações</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ backpack_url('/admin/tipolistafatura') }}">
                                 <i class="fa fa-list"></i>
                                 <span>Tipo lista fatura</span>
