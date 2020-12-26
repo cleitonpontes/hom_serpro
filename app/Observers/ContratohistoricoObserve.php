@@ -41,8 +41,9 @@ class ContratohistoricoObserve
 
         $situacao = $this->setSituacao($contratohistorico->unidade->sisg, $contratohistorico->data_publicacao);
 
-        //TODO VERIRFICAR ESTES TIPOS
-        if ($contratohistorico->tipo_id == 60 || $contratohistorico->tipo_id == 65) {
+        $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
+        $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
+        if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
             ContratoPublicacoes::create([
                 'contratohistorico_id' => $contratohistorico->id,
                 'data_publicacao' => $contratohistorico->data_publicacao,
@@ -52,7 +53,6 @@ class ContratohistoricoObserve
                 'tipo_pagamento_id' => '',
                 'motivo_isencao' => ''
             ]);
-            dd(1232223);
         }
     }
 
@@ -282,6 +282,4 @@ class ContratohistoricoObserve
 
         return $situacao->where('descricao', 'INFORMADO')->first();
     }
-
-
 }
