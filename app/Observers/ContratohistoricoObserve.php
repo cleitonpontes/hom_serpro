@@ -69,9 +69,6 @@ class ContratohistoricoObserve
     {
         $sisg = $contratohistorico->unidade->sisg;
 
-        dump($contratohistorico->publicacao()->get());
-        dump($contratohistorico->getOriginal());
-        dd($this->retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR'));
 
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
