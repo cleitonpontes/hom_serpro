@@ -328,7 +328,6 @@ class AditivoCrudController extends CrudController
                 'type' => 'textarea',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)",
-                    'readonly' => 'readonly'
                 ],
                 'default' => $contrato->objeto,
                 'tab' => 'Dados Gerais',
@@ -384,7 +383,6 @@ class AditivoCrudController extends CrudController
                 'default' => $contrato->info_complementar,
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)",
-                    'readonly' => 'readonly'
                 ],
                 'tab' => 'Dados Aditivo',
             ],
@@ -437,13 +435,12 @@ class AditivoCrudController extends CrudController
             ],
             [   // Number
                 'name' => 'num_parcelas',
-                'label' => 'Núm. Percelas',
+                'label' => 'Núm. Parcelas',
                 'type' => 'number',
                 // optionals
                 'attributes' => [
                     "step" => "any",
                     "min" => '1',
-                    'readonly' => 'readonly'
                 ], // allow decimals
                 'default' => $contrato->num_parcelas,
 //                'prefix' => "R$",
@@ -473,6 +470,9 @@ class AditivoCrudController extends CrudController
                 'type' => 'radio',
                 'options' => [0 => 'Não', 1 => 'Sim'],
                 'default' => 0,
+                'attributes' => [
+                    'disabled' => 'disabled',
+                ],
                 'inline' => true,
                 'tab' => 'Retroativo',
             ],
@@ -482,6 +482,11 @@ class AditivoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => config('app.meses_referencia_fatura'),
                 'allows_null' => true,
+                'attributes' => [
+                    'id' => 'retroativo_mesref_de',
+                    'disabled' => 'disabled'
+                ],
+                'default' => 04,
                 'tab' => 'Retroativo',
             ],
             [ // select_from_array
@@ -491,6 +496,9 @@ class AditivoCrudController extends CrudController
                 'options' => config('app.anos_referencia_fatura'),
 //                'default'    => date('Y'),
                 'allows_null' => true,
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
                 'tab' => 'Retroativo',
             ],
             [ // select_from_array
@@ -499,6 +507,9 @@ class AditivoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => config('app.meses_referencia_fatura'),
                 'allows_null' => true,
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
                 'tab' => 'Retroativo',
             ],
             [ // select_from_array
@@ -508,6 +519,9 @@ class AditivoCrudController extends CrudController
                 'options' => config('app.anos_referencia_fatura'),
 //                'default'    => date('Y'),
                 'allows_null' => true,
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
                 'tab' => 'Retroativo',
             ],
             [   // Date
@@ -522,6 +536,9 @@ class AditivoCrudController extends CrudController
                 'type' => 'radio',
                 'options' => [1 => 'Soma', 0 => 'Subtrai'],
                 'default' => 1,
+                'attributes' => [
+                    'disabled' => 'disabled',
+                ],
                 'inline' => true,
                 'tab' => 'Retroativo',
             ],

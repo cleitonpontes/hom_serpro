@@ -116,7 +116,7 @@ class ApostilamentoCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'observacao',
-                'label' => 'Observação',
+                'label' => 'Objeto do Apostilamento',
                 'type' => 'text',
                 'limit' => 1000,
                 'orderable' => true,
@@ -272,7 +272,7 @@ class ApostilamentoCrudController extends CrudController
             ],
             [
                 'name' => 'observacao',
-                'label' => 'Observação',
+                'label' => 'Objeto do Apostilamento',
                 'type' => 'textarea',
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)"
@@ -325,6 +325,7 @@ class ApostilamentoCrudController extends CrudController
                 'attributes' => [
                     'id' => 'novo_valor_global',
                     'step' => '0.0001',
+                    'readOnly' => 'readOnly'
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => $contrato->valor_global,
@@ -353,6 +354,7 @@ class ApostilamentoCrudController extends CrudController
                 'attributes' => [
                     'id' => 'novo_valor_parcela',
                     'step' => '0.0001',
+                    'readOnly' => 'readOnly'
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => $contrato->valor_parcela,

@@ -9,6 +9,7 @@ use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\ContaCorrentePassivoAnterior;
+use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\Naturezasubitem;
@@ -259,7 +260,7 @@ class MinutaEmpenhoController extends Controller
         $search_term = $request->input('q');
 
         $form = collect($request->input('form'))->pluck('value', 'name');
-
+        $arr_contrato_minuta_empenho_pivot = ContratoMinutaEmpenho::select('minuta_empenho_id')->get()->toArray();
         $situacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Situações Minuta Empenho');
         })
@@ -275,16 +276,17 @@ class MinutaEmpenhoController extends Controller
         if ($form['fornecedor_id']) {
             $options
                 ->select(['minutaempenhos.id',
-                    DB::raw("CONCAT(unidades.codigosiasg,'  ',codigoitens.descres, '  ' ,compras.numero_ano, ' - ',
-                                    minutaempenhos.numero_empenho_sequencial, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
+                    DB::raw("CONCAT(minutaempenhos.mensagem_siafi, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
                              as nome_minuta_empenho")])
+                ->distinct('minutaempenhos.id')
                 ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
                 ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
                 ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
                 ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
                 ->where('minutaempenhos.fornecedor_compra_id', $form['fornecedor_id'])
                 ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
-                ->where('minutaempenhos.situacao_id', '=', $situacao->id);
+                ->where('minutaempenhos.situacao_id', '=', $situacao->id)
+                ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot);
         }
 
         if ($search_term) {
