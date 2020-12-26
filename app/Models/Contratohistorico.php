@@ -410,7 +410,7 @@ class Contratohistorico extends ContratoBase
 
     public function publicacao()
     {
-        return $this->hasOne(Contratopublicacoes::class, 'contratohistorico_id');
+        return $this->hasMany(Contratopublicacoes::class, 'contratohistorico_id');
     }
 
     public function amparolegal()
