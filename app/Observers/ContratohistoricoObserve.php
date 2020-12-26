@@ -51,7 +51,7 @@ class ContratohistoricoObserve
                 'data_publicacao' => $contratohistorico->data_publicacao,
                 'status' => 'Pendente',
                 'status_publicacao_id' => (int)$situacao->id,
-                //TODO VERIFICAR PELA UASG SE É ISENTO e MOTIVO DE ISENCAO, SE NÃO FOR, VERIFICAR O TIPO DE PAGAMENTO
+
                 'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento','Isento'),
                 'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção','Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
             ]);
@@ -80,8 +80,6 @@ class ContratohistoricoObserve
         $cronograma = Contratocronograma::where('contrato_id', $contratohistorico->contrato_id)
             ->delete();
 
-        $publicacao = $contratohistorico->publicacao()->get();
-
         ContratoPublicacoes::updateOrCreate([
             [
                 'contratohistorico_id' => $contratohistorico->id,
@@ -93,24 +91,11 @@ class ContratohistoricoObserve
                 'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção','Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
             ]
 
-
-
-
         ]);
 
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
-    }
-
-    private function retornaTipoPagamento($contratohistorico){
-
-        $sisg = $contratohistorico->unidade->sisg;
-        if($sisg){
-            return $this->retornaIdCodigoItem('Forma Pagamento','Isento');
-        }
-        return $this->retornaIdCodigoItem('Forma Pagamento','Isento');
-
     }
 
 
