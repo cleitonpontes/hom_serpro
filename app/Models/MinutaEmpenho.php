@@ -95,21 +95,27 @@ class MinutaEmpenho extends Model
             ->where('minutaempenhos.id', $this->id)->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
     }
 
+    /**
+     * Método Necessário para mostrar valor escolhido do campo multiselect após submeter
+     * quando o attribute o campo estiver referenciando um alias na consulta da API
+     * obrigatório quando utilizar campo select2_from_ajax_multiple_alias
+     * @return  string nome_minuta_empenho
+     */
     public function retornaConsultaMultiSelect($item)
     {
-     $minuta =  $this->select(['minutaempenhos.id as id_minuta',
-        DB::raw("CONCAT(unidades.codigosiasg,'  ',codigoitens.descres, '  ' ,compras.numero_ano, ' - ',
-                                    minutaempenhos.numero_empenho_sequencial, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
-                             as nome_minuta_empenho")])->distinct()
-        ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
-        ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
-        ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
-        ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
-         ->where('minutaempenhos.id', $item->id)
+     $minuta =  $this
+            ->select(['minutaempenhos.id',
+                DB::raw("CONCAT(minutaempenhos.mensagem_siafi, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
+                                 as nome_minuta_empenho")])
+            ->distinct('minutaempenhos.id')
+            ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
+            ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
+            ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
+            ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
+             ->where('minutaempenhos.id', $item->id)
          ->first();
 
          return  $minuta->nome_minuta_empenho;
-
     }
 
     public function atualizaFornecedorCompra($fornecedor_id)
