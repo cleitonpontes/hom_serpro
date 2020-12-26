@@ -15,8 +15,8 @@
                         <th class="text-center">Item</th>
                         <th class="text-center">Quantidade</th>
                         <th class="text-center">Valor Unitário</th>
-                        <th class="text-center">Valor Total</th>
                         <th class="text-center">Qtd. Parcela</th>
+                        <th class="text-center">Valor Total</th>
                         <th class="text-center">Data Início</th>
                     </tr>
                     </thead>
