@@ -37,6 +37,7 @@ class ContratoPublicacoes extends ContratoBase
         'secao_jornal',
         'situacao',
         'status',
+        'status_publicacao_id',
         'texto_dou',
         'texto_rtf',
         'tipo_pagamento_id',

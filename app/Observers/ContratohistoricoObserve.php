@@ -50,12 +50,17 @@ class ContratohistoricoObserve
                 'contratohistorico_id' => $contratohistorico->id,
                 'data_publicacao' => $contratohistorico->data_publicacao,
                 'status' => 'Pendente',
-                'status_publicacao_id' => (int)$situacao->id,
+                'status_publicacao_id' => $situacao->id,
 
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento','Isento'),
-                'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção','Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
+                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+                'motivo_isencao' =>
+                    ($sisg)
+                        ? $this->retornaIdCodigoItem(
+                            'Motivo Isenção',
+                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+                        )
+                        : ''
             ]);
-
         }
     }
 
@@ -80,12 +85,12 @@ class ContratohistoricoObserve
         ContratoPublicacoes::updateOrCreate([
             [
                 'contratohistorico_id' => $contratohistorico->id,
-                'status_publicacao_id' => $this->retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR'),
+                'status_publicacao_id' => $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR'),
             ],
             [
                 'data_publicacao' => $contratohistorico->data_publicacao,
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento','Isento'),
-                'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção','Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
+                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+                'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
             ]
 
         ]);
@@ -302,6 +307,4 @@ class ContratohistoricoObserve
 
         return $situacao->where('descricao', 'INFORMADO')->first();
     }
-
-
 }
