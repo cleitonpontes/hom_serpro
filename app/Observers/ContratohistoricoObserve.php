@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Http\Controllers\Publicacao\DiarioOficialClass;
 use App\Http\Traits\BuscaCodigoItens;
 use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
@@ -51,7 +52,7 @@ class ContratohistoricoObserve
                 'data_publicacao' => $contratohistorico->data_publicacao,
                 'status' => 'Pendente',
                 'status_publicacao_id' => $situacao->id,
-
+                'texto_dou' => DiarioOficialClass::retornaTextoModelo($contratohistorico),
                 'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
                 'motivo_isencao' =>
                     ($sisg)
@@ -74,6 +75,7 @@ class ContratohistoricoObserve
     {
         $sisg = $contratohistorico->unidade->sisg;
 
+        dd(DiarioOficialClass::retornaTextoretificacao($contratohistorico));
 
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
@@ -89,6 +91,7 @@ class ContratohistoricoObserve
             ],
             [
                 'data_publicacao' => $contratohistorico->data_publicacao,
+                'texto_dou' => DiarioOficialClass::retornaTextoretificacao($contratohistorico),
                 'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
                 'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
             ]
