@@ -6,7 +6,7 @@
         <div class="card-body">
             <div>
                 <span class="table-up">
-                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                    <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"
                             data-target="#inserir_item">
                         Inserir Item <i class="fa fa-plus"></i>
                     </button>
@@ -22,8 +22,8 @@
                         <th class="text-center">Item</th>
                         <th class="text-center">Quantidade</th>
                         <th class="text-center">Valor Unitário</th>
+                        <th class="text-center">Qtd. Parcela</th>
                         <th class="text-center">Valor Total</th>
-                        <th class="text-center">Periodicidade</th>
                         <th class="text-center">Data Início</th>
                         <th class="text-center">Ações</th>
                     </tr>
@@ -137,6 +137,7 @@
                 var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
                 if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
                     $('#table').html(valueHidden);
+                    calculaTotalGlobal();
                 }
 
                 $tableID.on('click', '.table-remove', function () {
@@ -168,14 +169,12 @@
                 $('body').on('change','[name="qtd_item[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
-                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de valor unitario do item re-calcula os valores
                 $('body').on('change','input[name="vl_unit[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
-                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de valor total do item re-calcula a quantidade
@@ -192,7 +191,8 @@
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#periodicidade',function(event){
-                    calculaTotalGlobal();
+                    var tr = this.closest('tr');
+                    atualizarValorTotal(tr);
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
@@ -204,11 +204,14 @@
                     removeLinha(this);
                 });
 
-                /**
-                 * necessario remover o disabled do campo fornecedor_id(select2_from_ajax) para ele ser submetido
-                 **/
                 $('body').submit(function(){
+
                     $('#select2_ajax_fornecedor_id').prop('disabled', false);
+                    $('#retroativo_1').prop('disabled', false);
+                    $('#retroativo_2').prop('disabled', false);
+                    $('#retroativo_soma_subtrai_1').prop('disabled', false);
+                    $('#retroativo_soma_subtrai_2').prop('disabled', false);
+
                     atualizaValueHTMLCamposAbaItem();
                     var htmlGridItem = $('#table').html();
                     $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
@@ -318,15 +321,15 @@
             function atualizarValorTotal(tr){
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
-                var valor_total = qtd_item * vl_unit;
-
-                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toFixed(4)));
+                var periodicidade = parseInt($(tr).find('td').eq(5).find('input').val());
+                var vltotal = qtd_item * vl_unit * periodicidade;
+                $(tr).find('td').eq(6).find('input').val(parseFloat(vltotal.toFixed(4)));
                 calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
                 var vl_unit = $(tr).find('td').eq(4).find('input').val();
-                var valor_total_item = $(tr).find('td').eq(5).find('input').val();
+                var valor_total_item = $(tr).find('td').eq(6).find('input').val();
 
                 var quantidade = valor_total_item / vl_unit;
 
@@ -346,16 +349,18 @@
 
                 var newRow = $("<tr>"),
                     cols = "",
-                    propReadOnly = $.inArray('ACRÉSCIMO / SUPRESSÃO', tratarArrayItemQualificacao()[0]) !== -1 ? '' : 'readOnly';
+                    propReadOnly = $.inArray('ACRÉSCIMO / SUPRESSÃO', tratarArrayItemQualificacao()[0]) !== -1 ? '' : 'readOnly',
+                    propReadOnlyReajuste = $.inArray('REAJUSTE', tratarArrayItemQualificacao()[0]) !== -1 ? '' : 'readOnly',
+                    vl_total = parseInt(item.quantidade) * parseFloat(item.valorunitario) * item.periodicidade;
 
                 cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.codigo_siasg+' - '+item.descricao_complementar+'</td>';
-                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="number"  name="qtd_item[]" step="0.0001" id="qtd" value="'+item.quantidade+'"></td>';
-                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+item.valorunitario+'"></td>';
-                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="number"  name="vl_total[]" step="0.0001" id="vl_total" value="'+item.valortotal+'"></td>';
-                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
-                cols += '<td><input class="form-control input-itens" '+ propReadOnly +' type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
+                cols += '<td><input class="form-control input-item input-item-acrescimo" '+ propReadOnly +' type="number"  name="qtd_item[]" step="0.0001" id="qtd" value="'+item.quantidade+'"></td>';
+                cols += '<td><input class="form-control input-item input-item-vl-unitario" '+ propReadOnlyReajuste +' type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+item.valorunitario+'"></td>';
+                cols += '<td><input class="form-control input-item input-item-acrescimo" '+ propReadOnly +' type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
+                cols += '<td><input class="form-control input-item" readonly type="number"  name="vl_total[]" step="0.0001" id="vl_total" value="'+vl_total+'"></td>';
+                cols += '<td><input class="form-control input-item" readonly type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
                 cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
                     '</button>';
@@ -372,18 +377,19 @@
             }
 
             function calculaTotalGlobal(){
-                var valor_total = 0;
+                let totalItens = 0;
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    totalItens = parseFloat(totalItens) + parseFloat(elementInput.value);
+                })
+                $('#valor_global').val(totalItens.toFixed(2));
+
                 $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
-                    var total_iten = (total_item * periodicidade);
-                    valor_total += total_iten;
-                    if(periodicidade > parcela){
+                    //seta num_parcelas
+                    if (periodicidade > parcela) {
                         parcela = periodicidade;
                         $('#num_parcelas').val(parcela);
                     }
                 });
-                $('#valor_global').val(parseFloat(valor_total.toFixed(4)));
                 atualizarValorParcela(parcela);
             }
 
@@ -465,14 +471,17 @@
                 });
             }
 
-            function habilitarDesabilitarCamposItens(){
-                if($('.input-itens').length){
-                    let booAcrescimoSelecionado = $.inArray('ACRÉSCIMO / SUPRESSÃO', tratarArrayItemQualificacao()[0]) !== -1;
-                        $('.input-itens').prop("readonly", !booAcrescimoSelecionado);
-                        if(!booAcrescimoSelecionado){
-                            $('#table-itens').empty();
-                            buscarItens();
-                        }
+            function habilitarDesabilitarCamposItens() {
+                let booAcrescimoSelecionado = $.inArray('ACRÉSCIMO / SUPRESSÃO', tratarArrayItemQualificacao()[0]) !== -1;
+                let booReajusteSelecionado = $.inArray('REAJUSTE', tratarArrayItemQualificacao()[0]) !== -1;
+                $('#btn-inserir-item').prop('disabled', !booAcrescimoSelecionado);
+                if ($('.input-item').length) {
+                    $('.input-item-acrescimo').prop("readonly", !booAcrescimoSelecionado);
+                    $('.input-item-vl-unitario').prop("readonly", !booReajusteSelecionado);
+                    if (!booAcrescimoSelecionado || !booReajusteSelecionado) {
+                        $('#table-itens').empty();
+                        buscarItens();
+                    }
                 }
             }
 
@@ -494,7 +503,12 @@
                     var booSelected = $.inArray(objCampo.id, array_selected) !== -1;
                     objCampo.arrInput.forEach(function (inputElement) {
 
-                        if (inputElement.name !== 'fornecedor_id') {
+                        if (
+                            inputElement.name !== 'fornecedor_id' &&
+                            inputElement.name !== 'retroativo_mesref_de' &&
+                            inputElement.name !== 'retroativo' &&
+                            inputElement.name !== 'retroativo_soma_subtrai'
+                        ) {
                             $('[name=' + inputElement.name + ']').prop("readonly", !booSelected);
                             $('[name=' + inputElement.name + ']').val(function (index, currentValue) {
                                 return !booSelected ? inputElement.oldValue : currentValue;
@@ -506,18 +520,42 @@
                                 return !booSelected ? inputElement.oldValue : currentHtml;
                             })
                         }
+
+                        if (
+                            inputElement.name === 'retroativo_mesref_de' ||
+                            inputElement.name === 'retroativo_anoref_de' ||
+                            inputElement.name === 'retroativo_mesref_ate' ||
+                            inputElement.name === 'retroativo_anoref_ate'
+                        ) {
+                            $('[name=' + inputElement.name + ']').prop("disabled", !booSelected);
+                        }
+
+                        if (inputElement.name === 'retroativo') {
+                            $('[name=' + inputElement.name + ']').prop("disabled", !booSelected);
+                        }
+
+                        if (inputElement.name === 'retroativo_soma_subtrai') {
+                            $('[name=' + inputElement.name + ']').prop("disabled", !booSelected);
+                        }
                     });
                 });
             }
 
             function getOldValue(name) {
-                //trata campo select2_from_ajax de fornecedor
-                if (name === 'fornecedor_id') {
-                    $('#select2_ajax_fornecedor_id option:first').remove(); //remove opcao Selecione...
-                    return $('#select2_ajax_fornecedor_id').html();
+                switch (name) {
+                    case 'fornecedor_id':
+                        $('#select2_ajax_fornecedor_id option:first').remove(); //remove opcao Selecione...
+                        return $('#select2_ajax_fornecedor_id').html();
+                        break;
+
+                        case 'retroativo_mesref_de':
+
+                        break;
+                    default:
+                        return $('[name=' + name + ']').data('val', $('[name=' + name + ']').val())[0].defaultValue;
+
 
                 }
-                return $('[name=' + name + ']').data('val', $('[name=' + name + ']').val())[0].defaultValue;
             }
 
             function recuperarArrObjCampos(arrayItemQualificacao) {
@@ -525,16 +563,6 @@
                 arrayItemQualificacao.forEach(function (qualificacaoItem, index){
 
                     switch (qualificacaoItem.descricao) {
-                        case 'ACRÉSCIMO / SUPRESSÃO':
-                            arrObjCampos.push({
-                                id: qualificacaoItem.descricao,
-                                arrInput: [
-                                    {name: 'valor_global', oldValue: getOldValue('valor_global')},
-                                    {name: 'valor_parcela', oldValue: getOldValue('valor_parcela')},
-                                    {name: 'num_parcelas', oldValue: getOldValue('num_parcelas')}
-                                ]
-                            })
-                            break;
                             case 'VIGÊNCIA':
                             arrObjCampos.push({
                                 id: qualificacaoItem.descricao,
@@ -551,11 +579,18 @@
                                 ]
                             })
                             break;
-                            case 'INFORMATIVO':
+                            case 'REAJUSTE':
                             arrObjCampos.push({
                                 id: qualificacaoItem.descricao,
                                 arrInput: [
-                                    {name: 'observacao', oldValue: getOldValue('observacao')}
+                                    {name: 'retroativo_mesref_de', oldValue: getOldValue('retroativo_mesref_de')},
+                                    {name: 'retroativo_anoref_de', oldValue: getOldValue('retroativo_anoref_de')},
+                                    {name: 'retroativo_mesref_ate', oldValue: getOldValue('retroativo_mesref_ate')},
+                                    {name: 'retroativo_anoref_ate', oldValue: getOldValue('retroativo_anoref_ate')},
+                                    {name: 'retroativo_vencimento', oldValue: getOldValue('retroativo_vencimento')},
+                                    {name: 'retroativo_valor', oldValue: getOldValue('retroativo_valor')},
+                                    {name: 'retroativo', oldValue: getOldValue('retroativo')},
+                                    {name: 'retroativo_soma_subtrai', oldValue: getOldValue('retroativo')},
                                 ]
                             },)
                             break;
