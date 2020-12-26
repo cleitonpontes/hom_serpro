@@ -37,6 +37,16 @@ class ContratoPublicacoes extends ContratoBase
     |--------------------------------------------------------------------------
     */
 
+    public function retornaPublicacoesEnviadas(){
+
+        $status_id = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Situacao Publicacao');
+        })
+            ->where('descres', '=', '01')
+            ->first()->id;
+
+        return $this->whereNotNull('oficio_id')->where('status_publicacao_id',$status_id)->get();
+    }
 
 
     /*

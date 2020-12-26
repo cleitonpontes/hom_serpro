@@ -52,6 +52,7 @@ class Kernel extends ConsoleKernel
         $this->criarJobAtualizarSfPadrao();
         $this->criarJobAtualizacaoSiasgContratos();
         $this->criarJobAtualizacaoSiasgCompras();
+        $this->criarJobAtualizaStatusPublicacao();
         $this->executaConsumoWsSiafiEmpenho();
 
         //agendamentos
@@ -129,6 +130,16 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->weekdays()
             ->at('08:30');
+    }
+
+    protected function criarJobAtualizaStatusPublicacao()
+    {
+        $this->schedule->call(
+            'App\Http\Controllers\Publicacao\DiarioOficialClass@executaJobAtualizaSituacaoPublicacao'
+        )
+            ->timezone('America/Sao_Paulo')
+            ->weekdays()
+            ->at('08:00');
     }
 
     protected function criarJobAtualizarSaldoDeEmpenhos()
