@@ -115,6 +115,12 @@ class AmparoLegal extends Model
         return $resultado;
     }
 
+    /**
+     * Método Necessário para mostrar valor escolhido do campo multiselect após submeter
+     * quando o attribute o campo estiver referenciando um alias na consulta da API
+     * obrigatório quando utilizar campo select2_from_ajax_multiple_alias
+     * @return  string campo_api_amparo
+     */
     public function retornaConsultaMultiSelect($item)
     {
         $amparo =  $this->select([
