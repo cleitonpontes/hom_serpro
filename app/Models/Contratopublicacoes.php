@@ -25,10 +25,23 @@ class ContratoPublicacoes extends ContratoBase
     protected $fillable = [
         'contratohistorico_id',
         'data_publicacao',
-        'texto_rtf',
+        'empenho',
         'hash',
+        'link_publicacao',
+        'log',
+        'materia_id',
+        'motivo_devolucao',
+        'motivo_isencao_id',
+        'oficio_id',
+        'pagina_publicacao',
+        'secao_jornal',
+        'situacao',
         'status',
-        'situacao'
+        'status_publicacao_id',
+        'texto_dou',
+        'texto_rtf',
+        'tipo_pagamento_id',
+        'transacao_id',
     ];
 
     /*
