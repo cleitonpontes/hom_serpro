@@ -116,6 +116,7 @@ Route::group([
             CRUD::resource('failedjobs', 'FailedjobsCrudController');
             CRUD::resource('jobs', 'JobsCrudController');
             CRUD::resource('amparolegal', 'AmparoLegalCrudController');
+            CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
 
 
             // Exportações Downloads
