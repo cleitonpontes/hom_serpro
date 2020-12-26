@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Traits\BuscaCodigoItens;
 use App\Http\Traits\Formatador;
 use App\Observers\ContratoObserve;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use function foo\func;
 
 class ContratoSiasgIntegracaoNovo extends Model
 {
-    use Formatador;
+    use Formatador, BuscaCodigoItens;
 
 
     /*
@@ -151,18 +152,18 @@ class ContratoSiasgIntegracaoNovo extends Model
     public function retornaTipoTermoAditivo($aditivo, Contrato $contrato, $fornecedor)
     {
 
-        $tipoTA[] = '8';
+        $tipoTA[] = $this->retornaIdCodigoItem('Tipo Qualificacao Contrato','INFORMATIVO');;
 
         if (($aditivo->valorTotal) <> ($contrato->valor_global)) {
-            $tipoTA[] = '1';
+            $tipoTA[] = $this->retornaIdCodigoItem('Tipo Qualificacao Contrato','ACRÉSCIMO / SUPRESSÃO');
         }
 
         if (strtotime($aditivo->dataFim) <> strtotime($contrato->vigencia_fim)) {
-            $tipoTA[] = '2';
+            $tipoTA[] = $this->retornaIdCodigoItem('Tipo Qualificacao Contrato','VIGÊNCIA');
         }
 
         if (($fornecedor->id) <> ($contrato->fornecedor_id)) {
-            $tipoTA[] = '3';
+            $tipoTA[] = $this->retornaIdCodigoItem('Tipo Qualificacao Contrato','FORNECEDOR');
         }
 
         return $tipoTA;
