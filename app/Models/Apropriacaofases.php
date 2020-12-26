@@ -28,6 +28,8 @@ class Apropriacaofases extends Model
 
     protected $fillable = ['id', 'fase'];
 
+    public $timestamps = false;
+
     public function descricao()
     {
         return $this->belongsTo('App\Models\Apropriacao', 'fases_id');

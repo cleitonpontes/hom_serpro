@@ -50,7 +50,8 @@ class ContratoPublicacoes extends ContratoBase
     |--------------------------------------------------------------------------
     */
 
-    public function retornaPublicacoesEnviadas(){
+    public function retornaPublicacoesEnviadas()
+    {
 
         $status_id = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Situacao Publicacao');
@@ -58,7 +59,7 @@ class ContratoPublicacoes extends ContratoBase
             ->where('descres', '=', '01')
             ->first()->id;
 
-        return $this->whereNotNull('oficio_id')->where('status_publicacao_id',$status_id)->get();
+        return $this->whereNotNull('oficio_id')->where('status_publicacao_id', $status_id)->get();
     }
 
 
@@ -74,8 +75,9 @@ class ContratoPublicacoes extends ContratoBase
 
     public function statusPublicacao()
     {
-        return $this->belongsTo(Codigoitem::class, 'status_publicacao_id');
+        return $this->belongsTo(Codigoitem::class,'status_publicacao_id');
     }
+
 
     /*
     |--------------------------------------------------------------------------
