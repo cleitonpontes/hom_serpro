@@ -52,7 +52,7 @@ class ContratohistoricoObserve
                 'data_publicacao' => $contratohistorico->data_publicacao,
                 'status' => 'Pendente',
                 'status_publicacao_id' => $situacao->id,
-                'texto_dou' => DiarioOficialClass::retornaTextoModelo($contratohistorico),
+                'texto_dou' => @DiarioOficialClass::retornaTextoModelo($contratohistorico),
                 'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
                 'motivo_isencao' =>
                     ($sisg)
@@ -91,7 +91,7 @@ class ContratohistoricoObserve
             ],
             [
                 'data_publicacao' => $contratohistorico->data_publicacao,
-                'texto_dou' => DiarioOficialClass::retornaTextoretificacao($contratohistorico),
+                'texto_dou' => @DiarioOficialClass::retornaTextoretificacao($contratohistorico),
                 'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
                 'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
             ]
