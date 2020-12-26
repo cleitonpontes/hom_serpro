@@ -24,7 +24,7 @@ class Apropriacaofases extends Model
 
     const APROP_FASE_FINALIZADA = 8;
 
-    protected $table = 'apropriacoes';
+    protected $table = 'apropriacoes_fases';
 
     protected $fillable = ['id', 'fase'];
 
