@@ -75,8 +75,6 @@ class ContratohistoricoObserve
     {
         $sisg = $contratohistorico->unidade->sisg;
 
-//        dd(DiarioOficialClass::retornaTextoretificacao($contratohistorico));
-
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
             ->get();
@@ -95,7 +93,6 @@ class ContratohistoricoObserve
                 'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
                 'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
             ]
-
         ]);
 
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);

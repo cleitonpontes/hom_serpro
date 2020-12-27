@@ -272,6 +272,8 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $contratohistorico->qualificacoes()->detach();
 
+        dd($arrayTipoTA);
+
         foreach ($arrayTipoTA as $tipo) {
             $contratohistoricoqualificacao = new ContratoHistoricoQualificacao();
             $contratohistoricoqualificacao->contratohistorico_id = $contratohistorico->id;
