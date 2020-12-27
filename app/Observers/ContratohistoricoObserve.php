@@ -32,7 +32,7 @@ class ContratohistoricoObserve
      */
     public function created(Contratohistorico $contratohistorico)
     {
-        $sisg = $contratohistorico->unidade->sisg;
+        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
 
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
@@ -42,7 +42,7 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
-        $situacao = $this->setSituacao($sisg, $contratohistorico->data_publicacao);
+       // $situacao = $this->setSituacao($sisg, $contratohistorico->data_publicacao);
 
         $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
         $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
@@ -73,7 +73,7 @@ class ContratohistoricoObserve
      */
     public function updated(Contratohistorico $contratohistorico)
     {
-        $sisg = $contratohistorico->unidade->sisg;
+        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
 
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
