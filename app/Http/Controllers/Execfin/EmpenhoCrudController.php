@@ -729,7 +729,12 @@ class EmpenhoCrudController extends CrudController
 //            ? $this->buscaDadosFileGetContents($url)
 //            : $this->buscaDadosCurl($url);
 
-        $dados = $this->buscaDadosFileGetContents($url);
+        $context = stream_context_create(array('http' => array(
+            'timeout' => 180,
+            'ignore_errors' => true,
+        )));
+
+        $dados = $this->buscaDadosFileGetContents($url, $context);
 
         $pkcount = is_array($dados) ? count($dados) : 0;
         if ($pkcount > 0) {
@@ -872,7 +877,7 @@ class EmpenhoCrudController extends CrudController
                 $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
                 $empenho->update($retorno);
 
-                if($retorno['situacao'] == 'EMITIDO'){
+                if ($retorno['situacao'] == 'EMITIDO') {
                     //todo inserir empenho na tabela empenho
                     //todo criar job para devolver informação para o SIASG
                 }
@@ -916,11 +921,11 @@ class EmpenhoCrudController extends CrudController
             "valorTotalEmpenho" => "2.53"
         ];
 
-        $retorno = $apiSiasg->executaConsulta('Empenho', $array,'POST');
+        $retorno = $apiSiasg->executaConsulta('Empenho', $array, 'POST');
 
-        if($retorno['messagem'] !== 'Sucesso'){
+        if ($retorno['messagem'] !== 'Sucesso') {
             return 'Erro: ' . $retorno['messagem'];
-        }else{
+        } else {
             return 'Teste Ok';
         }
     }
