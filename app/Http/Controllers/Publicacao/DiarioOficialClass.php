@@ -506,8 +506,8 @@ class DiarioOficialClass extends BaseSoapController
     public static function retornaTextoretificacao(Contratohistorico $contratoHistorico)
     {
         $data = date('d/m/Y');
-        dump($contratoHistorico);
-        dd($contratoHistorico->getOriginal());
+//        dump($contratoHistorico);
+//        dd($contratoHistorico->getOriginal());
         $contrato = $contratoHistorico->contrato;
         $publicacao = $contratoHistorico->publicacao;
         $tipocontrato = Codigoitem::where('id',$contratoHistorico->tipo_id)->first();
@@ -518,7 +518,7 @@ class DiarioOficialClass extends BaseSoapController
             " publicado no D.O de ".self::retornaDataFormatada($contratoHistorico->data_publicacao).", ".
             "Seção 3, Pág.".$publicacao->pagina_publicacao.". Onde se lê:
             ##ASS COMPRASNET 4.0 - $data.";
-        dd($textomodelo);
+//        dd($textomodelo);
 
         return $textomodelo;
     }
