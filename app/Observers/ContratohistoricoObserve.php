@@ -47,21 +47,21 @@ class ContratohistoricoObserve
         $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
         $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
         if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
-            ContratoPublicacoes::create([
-                'contratohistorico_id' => $contratohistorico->id,
-                'data_publicacao' => $contratohistorico->data_publicacao,
-                'status' => 'Pendente',
-                'status_publicacao_id' => $situacao->id,
-                'texto_dou' => @DiarioOficialClass::retornaTextoModelo($contratohistorico),
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                'motivo_isencao' =>
-                    ($sisg)
-                        ? $this->retornaIdCodigoItem(
-                            'Motivo Isenção',
-                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
-                        )
-                        : ''
-            ]);
+//            ContratoPublicacoes::create([
+//                'contratohistorico_id' => $contratohistorico->id,
+//                'data_publicacao' => $contratohistorico->data_publicacao,
+//                'status' => 'Pendente',
+//                'status_publicacao_id' => $situacao->id,
+//                'texto_dou' => '',//@DiarioOficialClass::retornaTextoModelo($contratohistorico),
+//                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+//                'motivo_isencao' =>
+//                    ($sisg)
+//                        ? $this->retornaIdCodigoItem(
+//                            'Motivo Isenção',
+//                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+//                        )
+//                        : ''
+//            ]);
         }
     }
 
@@ -82,18 +82,20 @@ class ContratohistoricoObserve
         $cronograma = Contratocronograma::where('contrato_id', $contratohistorico->contrato_id)
             ->delete();
 
-        ContratoPublicacoes::updateOrCreate([
-            [
-                'contratohistorico_id' => $contratohistorico->id,
-                'status_publicacao_id' => $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR'),
-            ],
-            [
-                'data_publicacao' => $contratohistorico->data_publicacao,
-                'texto_dou' => @DiarioOficialClass::retornaTextoretificacao($contratohistorico),
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
-            ]
-        ]);
+
+//        $publicacao = ContratoPublicacoes::updateOrCreate([
+//            [
+//                'contratohistorico_id' => $contratohistorico->id,
+//                'status_publicacao_id' => $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR'),
+//            ],
+//            [
+//                'data_publicacao' => $contratohistorico->data_publicacao,
+//                'texto_dou' => '',//@DiarioOficialClass::retornaTextoretificacao($contratohistorico),
+//                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+//                'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
+//            ]
+//        ]);
+
 
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
