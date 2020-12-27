@@ -730,7 +730,7 @@ class EmpenhoCrudController extends CrudController
 //            : $this->buscaDadosCurl($url);
 
         $context = stream_context_create(array('http' => array(
-            'timeout' => 180,
+            'timeout' => 300,
             'ignore_errors' => true,
         )));
 
