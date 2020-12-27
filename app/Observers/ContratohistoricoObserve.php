@@ -75,7 +75,7 @@ class ContratohistoricoObserve
     {
         $sisg = $contratohistorico->unidade->sisg;
 
-        dd(DiarioOficialClass::retornaTextoretificacao($contratohistorico));
+//        dd(DiarioOficialClass::retornaTextoretificacao($contratohistorico));
 
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
