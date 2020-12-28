@@ -173,9 +173,11 @@ class ComprasnetController extends Controller
                 $ultimo_historico = $dado->contrato->historico()->latest()->first();
                 $publicacao = $ultimo_historico->publicacao()->latest()->first();
 
+                $unidade_atual = ($dado->contrato->unidade->codigo == $dado->contrato->unidadeorigem->codigo) ? null : $dado->contrato->unidade->codigo;
+
                 $retorno[] = [
                     'unidade_origem' => @$dado->contrato->unidadeorigem->codigo,
-                    'unidade_atual' => @$dado->contrato->unidade->codigo,
+                    'unidade_atual' => @$unidade_atual,
                     'numero_contrato' => @$dado->contrato->numero,
                     'tipo' => @$dado->contrato->tipo->descres,
                     'fornecedor' => @$dado->contrato->fornecedor->cpf_cnpj_idgener,
