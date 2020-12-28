@@ -525,6 +525,8 @@ class DiarioOficialClass extends BaseSoapController
         $retificacoes = self::retornaAlteracoes($contratoHistorico);
 
         dd($retificacoes);
+//        dump($contratoHistorico);
+//        dd($contratoHistorico->getOriginal());
         $contrato = $contratoHistorico->contrato;
         $publicacao = $contratoHistorico->publicacao;
 
