@@ -13,6 +13,7 @@ use App\Models\ContratoPublicacoes;
 use App\Models\Empenho;
 use App\Models\Fornecedor;
 use App\Models\Padroespublicacao;
+use App\Models\Unidade;
 use Exception;
 use Illuminate\Support\Carbon;
 use SoapHeader;
@@ -298,7 +299,7 @@ class DiarioOficialClass extends BaseSoapController
                 $textomodelo = self::retornaTextoModeloContrato($contratoHistorico);
                 break;
             case "Termo Aditivo":
-                $textomodelo = self::retornaTextoretificacao($contratoHistorico);
+                $textomodelo = self::retornaTextoModelorAditivo($contratoHistorico);
                 break;
             case "Termo Apostilamento":
                 $textomodelo = self::retornaTextoModeloApostilamento($contratoHistorico);
@@ -522,11 +523,15 @@ class DiarioOficialClass extends BaseSoapController
     {
         $data = date('d/m/Y');
 
+        $tipocontrato = self::retornaIdCodigoItem('Tipo de Contrato','Termo de Rescisão');
+        $tipomudanca = self::retornaIdCodigoItem('Tipo Publicacao','INCLUSAO');
+
+        $padrao = Padroespublicacao::where('tipo_contrato_id',$tipocontrato)
+            ->where('tipo_mudanca_id',$tipomudanca)->first();
+
         $retificacoes = self::retornaAlteracoes($contratoHistorico);
 
-        dd($retificacoes);
-//        dump($contratoHistorico);
-//        dd($contratoHistorico->getOriginal());
+        dump($retificacoes);
         $contrato = $contratoHistorico->contrato;
         $publicacao = $contratoHistorico->publicacao;
 
@@ -536,7 +541,7 @@ class DiarioOficialClass extends BaseSoapController
             "##ATO RETIFICAÇÃO
             ##TEX No Extrato de $tipocontrato->descricao Nº ".$contratoHistorico->numero.
             " publicado no D.O de ".self::retornaDataFormatada($contratoHistorico->data_publicacao).", ".
-            "Seção 3, Pág.".$publicacao->pagina_publicacao." ".self::retornaAlteracoes($contratoHistorico).
+            "Seção 3, Pág.".((isset($publicacao->pagina_publicacao))?$publicacao->pagina_publicacao:0).". ".self::retornaAlteracoes($contratoHistorico).
             "##ASS COMPRASNET 4.0 - $data.";
         dd($textomodelo);
 
@@ -626,7 +631,20 @@ class DiarioOficialClass extends BaseSoapController
         }
         return $retificacaoProcesso;
     }
+    private static function verificaRetificacaoNumero($le,$leia,$original,$mudancas,$tipocontrato){
 
+        $retificacaoNumero = '';
+
+        if (isset($mudancas['numero'])){
+            $le .= 'EXTRATO DE '.$tipocontrato.': ';
+            $leia .= 'EXTRATO DE '.$tipocontrato.': ';
+            if($mudancas['numero'] != $original['numero']){
+                $retificacaoNumero = $le.$original['numero'].'. '
+                    .$leia.$mudancas['numero'].'. ';
+            }
+        }
+        return $retificacaoNumero;
+    }
 
     private static function verificaRetificacaoUnidadeOrigem($le,$leia,$original,$mudancas){
         $retificacaoUnidadeOrigem = '';
@@ -635,8 +653,10 @@ class DiarioOficialClass extends BaseSoapController
             $le .= 'UASG: ';
             $leia .= 'UASG: ';
             if($mudancas['unidadeorigem_id'] != $original['unidadeorigem_id']){
-                $retificacaoUnidadeOrigem = $le.$original['unidadeorigem_id'].'. '
-                    .$leia.$mudancas['unidadeorigem_id'].'. ';
+                $uasgOriginal = Unidade::where('id',$original['unidadeorigem_id'])->first();
+                $novaUasg = Unidade::where('id',$mudancas['unidadeorigem_id'])->first();
+                $retificacaoUnidadeOrigem = $le.$uasgOriginal->codigo.' - '.$uasgOriginal->nomeresumido.'. '
+                    .$leia.$novaUasg->codigo.' - '.$novaUasg->nomeresumido.'. ';
             }
         }
         return $retificacaoUnidadeOrigem;
@@ -659,18 +679,20 @@ class DiarioOficialClass extends BaseSoapController
 
     private static function retornaAlteracoes($contratoHistorico)
     {
+        $tipocontrato = Codigoitem::where('id',$contratoHistorico->tipo_id)->first()->descricao;
+
         $retificacoes = '';
         $le = 'Onde se lê: ';
         $leia = '. Leia-se: ';
         $original = $contratoHistorico->getOriginal();
         $mudancas = $contratoHistorico->getChanges();
         $tipo_id = self::retornaIdCodigoItem('Tipo de Contrato','Contrato');
-        dump($mudancas);
-        dump($original);
+
         $retificacoes .= self::verificaRetificacaoValor($le,$leia,$original,$mudancas);
         $retificacoes .= self::verificaRetificacaoVigencia($le,$leia,$original,$mudancas);
         $retificacoes .= self::verificaRetificacaoFornecedor($le,$leia,$original,$mudancas);
         $retificacoes .= self::verificaRetificacaoDtAssinatura($le,$leia,$original,$mudancas);
+        $retificacoes .= self::verificaRetificacaoNumero($le,$leia,$original,$mudancas,$tipocontrato);
         if($contratoHistorico->tipo_id == $tipo_id){
             $retificacoes .= self::verificaRetificacaoObjeto($le,$leia,$original,$mudancas);
             $retificacoes .= self::verificaRetificacaoProcesso($le,$leia,$original,$mudancas);
@@ -678,12 +700,7 @@ class DiarioOficialClass extends BaseSoapController
         }else{
             $retificacoes .= self::verificaRetificacaoObservacao($le,$leia,$original,$mudancas);
         }
-
-
-        dd($retificacoes);
-        dd($contratoHistorico->getOriginal());
-
-
+        return $retificacoes;
     }
 
     private static function retornaFornecedorById($fornecedor_id)
