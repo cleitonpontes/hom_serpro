@@ -441,6 +441,7 @@ class AditivoCrudController extends CrudController
                 'attributes' => [
                     "step" => "any",
                     "min" => '1',
+                    'readonly' => 'readonly',
                 ], // allow decimals
                 'default' => $contrato->num_parcelas,
 //                'prefix' => "R$",

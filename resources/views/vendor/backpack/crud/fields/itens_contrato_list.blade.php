@@ -10,7 +10,7 @@
     </div>
     <div class="col-xs-6 col-md-3 col-md-offset-3 text-right">
             <div class="input-group">
-                <div class="input-group-addon">Valor Total Item R$:</div>
+                <div class="input-group-addon">Valor total do Contrato:</div>
                 <input type="text" class="form-control" id="valorTotalItem" readonly value="0">
             </div>
     </div>
@@ -25,7 +25,7 @@
                 <th class="text-center">Item</th>
                 <th class="text-center">Quantidade</th>
                 <th class="text-center">Valor Unitário</th>
-                <th class="text-center">Qtd. Parcela</th>
+                <th class="text-center">Qtd. parcelas</th>
                 <th class="text-center">Valor Total</th>
                 <th class="text-center">Data Início</th>
                 <th class="text-center">Ações</th>
@@ -335,7 +335,7 @@
                 if ($('#periodicidade_item').val()) {
                     periodicidade = $('#periodicidade_item').val();
                 }
-                console.log(parseInt(qtd), parseFloat(vl_unit));
+                console.log(qtd);
                 var vl_total = parseInt(qtd) * parseFloat(vl_unit) * periodicidade;
 
                 var newRow = $("<tr>");
@@ -385,8 +385,8 @@
                 })
                 $('#valor_global').val(totalItens.toFixed(2));
                 $('#valorTotalItem').val(totalItens.toFixed(2));
-
                 $("#table-itens").find('tr').each(function () {
+                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
                     //seta num_parcelas
                     if (periodicidade > parcela) {
                         parcela = periodicidade;
