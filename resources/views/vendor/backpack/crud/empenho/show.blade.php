@@ -240,7 +240,7 @@
                     <div class="col-md-3" align="right">
 
                         <button type="button" class="btn btn-primary"
-                                @if ($entry->situacao_descricao === 'EM ANDAMENTO' && $entry->etapa === 8)
+                                @if (($entry->situacao_descricao === 'EM ANDAMENTO' || $entry->situacao_descricao === 'ERRO') && $entry->etapa === 8)
                                 id="emitir_empenho_siafi"
                                 @else
                                 disabled
@@ -251,7 +251,7 @@
                     </div>
                     <div class="col-md-3">
                         <button type="button" class="btn btn-primary"
-                                @if (!(($entry->situacao_descricao == 'EM PROCESSAMENTO'|| $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
+                                @if (!(($entry->situacao_descricao === 'EM PROCESSAMENTO' || $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
                                     disabled
                                 @endif
                                 id="empenhar_outro_fornecedor"
