@@ -43,7 +43,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
 
         if ($codigoitem->descres == 'CON') {
-
 //            dd($modMinutaEmpenho->contrato()->first()->fornecedor);
 
 //            $fornecedores = [0 => ["id" => 11,
@@ -52,11 +51,12 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 //    "situacao_sicaf" => "1"]];
 
             //$fornecedores = $modMinutaEmpenho->contrato()->first()->fornecedor;
-            $fornecedores = MinutaEmpenho::join('contrato_minuta_empenho_pivot',
+            $fornecedores = MinutaEmpenho::join(
+                'contrato_minuta_empenho_pivot',
                 'contrato_minuta_empenho_pivot.minuta_empenho_id',
                 '=',
                 'minutaempenhos.id'
-            )->join('contratos', 'contratos.id','=','contrato_minuta_empenho_pivot.contrato_id')
+            )->join('contratos', 'contratos.id', '=', 'contrato_minuta_empenho_pivot.contrato_id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
                 ->where('minutaempenhos.id', $minuta_id)
                 ->select([
@@ -356,8 +356,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $minuta_id = $request->minuta_id;
         $fornecedor_id = $request->fornecedor_id;
         $itens = $request->itens;
-        $amparo = $minuta->retornaAmparoPorMinuta();
-        dd($amparo);
+        //$amparo = $minuta->retornaAmparoPorMinuta();
+//        dd($amparo);
 
         if (!isset($itens)) {
             Alert::error('Escolha pelo menos 1 item da compra.')->flash();
@@ -377,7 +377,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         DB::beginTransaction();
         try {
-
             $codigoitem = Codigoitem::find($minuta->tipo_empenhopor_id);
 
             if ($codigoitem->descres == 'CON') {
