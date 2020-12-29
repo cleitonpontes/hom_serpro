@@ -38,6 +38,13 @@ class ObrigatorioSeNaturezaIgual implements Rule
     public function passes($attribute, $value): bool
     {
 
+
+
+        $natureza = MinutaEmpenho::whereHas('saldo_contabil',function ($s) use(){
+
+        });
+
+
         $natureza = MinutaEmpenho::join(
         'saldo_contabil',
         'saldo_contabil.id',
@@ -55,8 +62,10 @@ class ObrigatorioSeNaturezaIgual implements Rule
             ->select(
                 [
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
-                ])
-            ->get();
+                ]);
+//            ->first();
+
+        dd($natureza->toSql());
 
         return $natureza->isEmpty();
 
