@@ -314,9 +314,19 @@ class ContratohistoricoObserve
 
     private function atualizaMinutasContrato($contratohistorico)
     {
-        $comodato_id = Codigoitem::where('descricao', 'Comodato')->first()->id;
+        // tipos que são permitidos manipular as minutas de empenho do contrato
+        $tiposPermitidos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Termo Aditivo')
+            ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->where('descricao', '<>', 'Termo de Rescisão')
+            ->orderBy('descricao')
+            ->pluck('id')
+            ->toArray();
 
-        if ($comodato_id == $contratohistorico->tipo_id) {
+        if (in_array($contratohistorico->tipo_id, $tiposPermitidos)) {
+            dd('entrou');
             $contrato = Contrato::find($contratohistorico->contrato_id);
             $contrato->minutasempenho()->detach();
 
