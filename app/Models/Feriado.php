@@ -4,15 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-
 use App\Models\Codigoitem;
-
-
-
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Feriado extends Model
 {
     use CrudTrait;
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------

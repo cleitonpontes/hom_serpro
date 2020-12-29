@@ -11,6 +11,7 @@ class Apropriacaonotaempenho extends Model
 
     use CrudTrait;
     use LogsActivity;
+
     protected static $logFillable = true;
     protected static $logName = 'apropriacoes_nota_empenho';
     /**

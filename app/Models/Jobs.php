@@ -10,6 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Jobs extends Model
 {
     use CrudTrait;
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------
