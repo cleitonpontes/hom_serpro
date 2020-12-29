@@ -58,11 +58,11 @@ class ObrigatorioSeNaturezaIgual implements Rule
                 ])
             ->get();
 
-        if ($natureza->isEmpty()) {
-            return true;
+        if (!$natureza->isEmpty() and !$value) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
