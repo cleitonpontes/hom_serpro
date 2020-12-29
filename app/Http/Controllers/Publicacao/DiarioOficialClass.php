@@ -451,8 +451,8 @@ class DiarioOficialClass extends BaseSoapController
 
         foreach ($publicacoes as $publicacao) {
             if (isset($publicacao->id)) {
-                //AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
-                $this->testaAtualizacaoStatusPublicacao($publicacao);
+                AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
+//                $this->testaAtualizacaoStatusPublicacao($publicacao);
             }
         }
 
