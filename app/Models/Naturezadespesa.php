@@ -11,15 +11,14 @@ class Naturezadespesa extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    protected static $logFillable = true;
-    protected static $logName = 'naturezadespesa';
     use SoftDeletes;
 
+    protected static $logFillable = true;
+    protected static $logName = 'naturezadespesa';
     protected $fillable = [
         'codigo',
         'descricao'
     ];
-
     protected $table = 'naturezadespesa';
 
     public function buscaNaturezadespesa(array $dado)

@@ -6,11 +6,12 @@ use App\Http\Traits\Formatador;
 use App\Observers\ContratoObserve;
 use Illuminate\Database\Eloquent\Model;
 use function foo\func;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContratoSiasgIntegracao extends Model
 {
     use Formatador;
-
+    use LogsActivity;
 
     /*
    |--------------------------------------------------------------------------

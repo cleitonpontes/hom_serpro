@@ -3,9 +3,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Empenhos extends Model
 {
+    use LogsActivity;
 
     /**
      * Retorna Empenhos e Fontes conforme $ano e $conta informada

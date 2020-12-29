@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class AmparoLegalContratohistorico extends Model
 {
-
+    use LogsActivity;
 
     protected $table = 'amparo_legal_contratohistorico';
     protected $primaryKey = ['contratohistorico_id', 'amparo_legal_id'];
