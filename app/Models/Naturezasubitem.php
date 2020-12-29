@@ -13,12 +13,9 @@ class Naturezasubitem extends Model
     use CrudTrait;
     use LogsActivity;
 
-
     protected static $logFillable = true;
     protected static $logName = 'naturezasubitem';
-
     protected $table = 'naturezasubitem';
-
 
     public function buscaNaturezaSubitem(array $dado, Naturezadespesa $naturezadespesa)
     {

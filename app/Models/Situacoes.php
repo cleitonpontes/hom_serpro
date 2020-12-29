@@ -3,9 +3,11 @@ namespace App\Models;
 
 // use DB;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Situacoes extends Model
 {
+    use LogsActivity;
 
     /**
      * Informa que não utilizará os campos create_at e update_at do Laravel
@@ -44,7 +46,7 @@ class Situacoes extends Model
 
     /**
      * Retorna dados para composição da listagem para identificação de situações
-     * 
+     *
      * @return array
      */
     public function retornaListagemComoArray()

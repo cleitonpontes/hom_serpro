@@ -39,27 +39,30 @@ class ObrigatorioSeNaturezaIgual implements Rule
     {
 
         $natureza = MinutaEmpenho::join(
-        'saldo_contabil',
-        'saldo_contabil.id',
-        '=',
-        'minutaempenhos.saldo_contabil_id'
-    )
-        ->join(
-            'naturezadespesa',
-            'naturezadespesa.codigo',
+            'saldo_contabil',
+            'saldo_contabil.id',
             '=',
-            DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
+            'minutaempenhos.saldo_contabil_id'
         )
-        ->where('minutaempenhos.id', $this->minuta_id)
-        ->whereIn('naturezadespesa.codigo',  $this->natureza_cipi)
+            ->join(
+                'naturezadespesa',
+                'naturezadespesa.codigo',
+                '=',
+                DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
+            )
+            ->where('minutaempenhos.id', $this->minuta_id)
+            ->whereIn('naturezadespesa.codigo', $this->natureza_cipi)
             ->select(
                 [
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                 ])
             ->get();
 
-        return $natureza->isEmpty();
+        if (!$natureza->isEmpty() and !$value) {
+            return false;
+        }
 
+        return true;
     }
 
     /**
@@ -67,7 +70,8 @@ class ObrigatorioSeNaturezaIgual implements Rule
      *
      * @return string
      */
-    public function message()
+    public
+    function message()
     {
         return 'Campo obrigatório para a natureza da despesa do Crédito Orçamentário. ';
     }

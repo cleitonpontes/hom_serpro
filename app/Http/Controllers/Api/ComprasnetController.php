@@ -24,7 +24,7 @@ class ComprasnetController extends Controller
 
         $dados['uasg'] = @str_pad($request->uasg, 6, "0", STR_PAD_LEFT);
         $dados['modalidade'] = @str_pad($request->modalidade, 2, "0", STR_PAD_LEFT);
-        $dados['numeroAno'] = @@str_pad($request->numero, 5, "0", STR_PAD_LEFT) . '/' . @$request->ano;
+        $dados['numeroAno'] = @str_pad($request->numero, 5, "0", STR_PAD_LEFT) . '/' . @$request->ano;
         $dados['itens'] = $this->trataItens($request->itens);
 
         $unidade = $this->buscaUnidadePorCodigo($dados['uasg']);
@@ -95,12 +95,12 @@ class ComprasnetController extends Controller
     {
         $contratos = Contrato::whereHas('itens', function ($i) use ($item) {
             $i->where('numero_item_compra', $item)
-            ->where('valortotal','>',0);
+                ->where('valortotal', '>', 0);
         })
             ->where('modalidade_id', $modalidade)
             ->where('unidadecompra_id', $unidade)
             ->where('licitacao_numero', $numeroAnoCompra)
-            ->where('situacao',true);
+            ->where('situacao', true);
 
         return $contratos->get();
 
@@ -127,7 +127,7 @@ class ComprasnetController extends Controller
     {
         $retorno = [];
 
-        if (empty($request->uasgCompra) or empty($request->modalidade) or empty($request->numeroCompra) or empty($request->numeroCompra) or empty($request->numeroItem)) {
+        if (empty($request->uasgCompra) or empty($request->modalidade) or empty($request->numeroCompra) or empty($request->anoCompra) or empty($request->numeroItem)) {
             return $retorno;
         }
 
@@ -144,6 +144,7 @@ class ComprasnetController extends Controller
         $unidade_compra = ($dados['uasgCompra']) ? $this->buscaUnidadePorCodigo($dados['uasgCompra']) : null;
         $modalidade = ($dados['modalidade']) ? $this->buscaModalidadePorCodigo($dados['modalidade']) : null;
         $unidade_contrato = ($dados['uasg_contrato']) ? $this->buscaUnidadePorCodigo($dados['uasg_contrato']) : null;
+
 
         if (isset($unidade_compra->id) and isset($modalidade->id)) {
             $dados = Contratoitem::whereHas('contrato', function ($q) use ($dados, $unidade_compra, $modalidade, $unidade_contrato) {
@@ -169,9 +170,14 @@ class ComprasnetController extends Controller
                         ->where('descricao', '<>', 'Termo de Rescisão');
                 })->first();
 
+                $ultimo_historico = $dado->contrato->historico()->latest()->first();
+                $publicacao = $ultimo_historico->publicacao()->latest()->first();
+
+                $unidade_atual = ($dado->contrato->unidade->codigo == $dado->contrato->unidadeorigem->codigo) ? null : $dado->contrato->unidade->codigo;
+
                 $retorno[] = [
                     'unidade_origem' => @$dado->contrato->unidadeorigem->codigo,
-                    'unidade_atual' => @$dado->contrato->unidade->codigo,
+                    'unidade_atual' => @$unidade_atual,
                     'numero_contrato' => @$dado->contrato->numero,
                     'tipo' => @$dado->contrato->tipo->descres,
                     'fornecedor' => @$dado->contrato->fornecedor->cpf_cnpj_idgener,
@@ -180,7 +186,7 @@ class ComprasnetController extends Controller
                     'quantidade_item' => @number_format($dado->quantidade, 0, '', ''),
                     'valor_unitario_item' => @$dado->valorunitario,
                     'valor_total_item' => @$dado->valortotal,
-                    'situacao_publicacao' => '02'
+                    'situacao_publicacao' => @$publicacao->statusPublicacao->descres,
                     /*
                      *  todo implementar esse retorno.
                      *  01 - TRANSFERIDO PARA IMPRENSA
@@ -196,6 +202,11 @@ class ComprasnetController extends Controller
         }
 
         return $retorno;
+    }
+
+    private function buscaUltimaPublicacao(int $contratohistorico_id)
+    {
+
     }
 
     private function buscaUnidadePorCodigo(string $codigo)

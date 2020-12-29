@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use App\Http\Traits\BuscaCodigoItens;
 use App\Http\Traits\Formatador;
 use App\Observers\ContratoObserve;
 use Illuminate\Database\Eloquent\Model;
 use function foo\func;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContratoSiasgIntegracaoNovo extends Model
 {
-    use Formatador;
+    use Formatador, BuscaCodigoItens, LogsActivity;
 
 
     /*
@@ -68,7 +70,8 @@ class ContratoSiasgIntegracaoNovo extends Model
                     'data_assinatura' => $dataPublicacao,
                     'data_publicacao' => $dataPublicacao,
                     'vigencia_fim' => $dataPublicacao,
-                    'situacao' => false
+                    'situacao' => false,
+                    'publicado' => true
                 ]
             );
         }
@@ -151,18 +154,18 @@ class ContratoSiasgIntegracaoNovo extends Model
     public function retornaTipoTermoAditivo($aditivo, Contrato $contrato, $fornecedor)
     {
 
-        $tipoTA[] = '8';
+        $tipoTA[] = $this->retornaIdCodigoItem('Tipo Qualificacao Contrato','INFORMATIVO');;
 
         if (($aditivo->valorTotal) <> ($contrato->valor_global)) {
-            $tipoTA[] = '1';
+            $tipoTA[] = $this->retornaIdCodigoItem('Tipo Qualificacao Contrato','ACRÉSCIMO / SUPRESSÃO');
         }
 
         if (strtotime($aditivo->dataFim) <> strtotime($contrato->vigencia_fim)) {
-            $tipoTA[] = '2';
+            $tipoTA[] = $this->retornaIdCodigoItem('Tipo Qualificacao Contrato','VIGÊNCIA');
         }
 
         if (($fornecedor->id) <> ($contrato->fornecedor_id)) {
-            $tipoTA[] = '3';
+            $tipoTA[] = $this->retornaIdCodigoItem('Tipo Qualificacao Contrato','FORNECEDOR');
         }
 
         return $tipoTA;
@@ -240,7 +243,8 @@ class ContratoSiasgIntegracaoNovo extends Model
                 'valor_global' => $vlrglobal,
                 'num_parcelas' => $numparcelas,
                 'valor_parcela' => $vlrparcela,
-                'supressao' => $aditivo->supressao
+                'supressao' => $aditivo->supressao,
+                'publicado' => true
             ];
 
             if (!isset($termoAditivo->id)) {
@@ -257,6 +261,7 @@ class ContratoSiasgIntegracaoNovo extends Model
                     'valor_global' => $vlrglobal,
                     'num_parcelas' => $numparcelas,
                     'valor_parcela' => $vlrparcela,
+                    'publicado' => true,
                 ];
                 $termoAditivo->update($dados);
                 $this->gravaTiposTermoAditivo($termoAditivo, $arrayTipoTA);
@@ -496,6 +501,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             'objeto' => $dado['objeto'],
             'modalidade_id' => $dado['modalidade_id'],
             'numero_compra' => $dado['numero_compra'],
+            'publicado' => true,
         ];
 
         $contrato = Contrato::find($contrato_alteracao->id);
@@ -565,6 +571,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['valor_acumulado'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['numero_compra'] = $siasgcontrato->compra->id;
         $dado['modalidade_id'] = $siasgcontrato->compra->modalidade_id;
+        $dado['publicado'] = true;
 
         return $dado;
     }

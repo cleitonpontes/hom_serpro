@@ -29,6 +29,8 @@ class AditivoRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->id ?? "NULL";
+        $tipo_id = $this->tipo_id ?? "NULL";
         $contrato_id = $this->contrato_id ?? "NULL";
         $this->data_limite = date('Y-m-d', strtotime('+50 year'));
 
@@ -39,7 +41,9 @@ class AditivoRequest extends FormRequest
             'numero' => [
                 'required',
                 (new Unique('contratohistorico','numero'))
+                    ->ignore($id)
                     ->where('contrato_id',$contrato_id)
+                    ->where('tipo_id',$tipo_id)
             ],
             'fornecedor_id' => 'required',
             'contrato_id' => 'required',

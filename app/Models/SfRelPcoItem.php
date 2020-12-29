@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class SfRelPcoItem extends Model
 {
+    use LogsActivity;
+
     /**
      * Informa que não utilizará os campos create_at e update_at do Laravel
      *

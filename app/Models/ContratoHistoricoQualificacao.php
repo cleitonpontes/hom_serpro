@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContratoHistoricoQualificacao extends Model
 {
+    use LogsActivity;
+
     protected $table = 'contratohistoricoqualificacao';
 
     protected $fillable = [

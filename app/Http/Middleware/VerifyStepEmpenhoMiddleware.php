@@ -45,7 +45,7 @@ class VerifyStepEmpenhoMiddleware
                 session(['conta_id' => '']);
                 session(['fornecedor_compra' => '']);
                 session(['fornecedor_cpf_cnpj_idgener' => '']);
-                session(['situacao_id' => '']);
+                session(['situacao' => '']);
                 session(['unidade_ajax_id' => '']);
                 return $next($request);
             }

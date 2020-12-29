@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
-
 use App\Http\Controllers\AdminController;
-
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Funcionarioscontratoconta extends Model
 {
     use CrudTrait;
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------

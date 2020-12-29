@@ -67,6 +67,7 @@ class ContratoController extends Controller
      *     summary="Retorna uma lista de orgãos com contratos ativos",
      *     description="Retorna um Json de orgãos com contratos ativos",
      *     path="/api/contrato/orgaos",
+     *     path="/api/contrato/orgaos",
      *     @OA\Response(
      *         response=200,
      *         description="Lista de orgãos com contratos ativos retornada com sucesso",

@@ -88,9 +88,9 @@
                             quietMillis: 250,
                             data: function (params) {
                                 return {
-                                    q: params.term, // search term
-                                    page: params.page, // pagination
-                                    form: form.serializeArray() // all other form inputs
+                                 //   q: params.term, // search term
+                                    //page: params.page, // pagination
+                                   // form: form.serializeArray() // all other form inputs
                                 };
                             },
                             @if(isset($field['process_results_template']))
@@ -117,13 +117,10 @@
                     });
                 }
             });
-         
+
             $("[name='qualificacoes[]']").on('change',function(event){
                 qualificacao_id = [];
-                qualificacao_id = retornaQualificacaoIds();     
-
-                
-
+                qualificacao_id = retornaQualificacaoIds();
             });
 
             function retornaQualificacaoIds(){
@@ -133,7 +130,7 @@
                     array_qualificacoes_id[index] = option.value;
                 })
                 return array_qualificacoes_id;
-            }           
+            }
 
             @if (isset($field['dependencies']))
             @foreach (array_wrap($field['dependencies']) as $dependency)

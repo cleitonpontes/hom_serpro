@@ -10,6 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Failedjobs extends Model
 {
     use CrudTrait;
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------

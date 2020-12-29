@@ -33,7 +33,7 @@ class JobsCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/jobs');
         $this->crud->setEntityNameStrings('jobs', 'jobs');
 
-        $this->crud->addClause('orderby', 'created_at', 'DESC');
+        $this->crud->addClause('orderby', 'attempts', 'DESC');
 
         backpack_user()->hasRole('Administrador') ? $this->crud->allowAccess('show') : $this->crud->denyAccess('show');
         $this->crud->denyAccess('create');

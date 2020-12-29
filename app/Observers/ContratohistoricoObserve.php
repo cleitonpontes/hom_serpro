@@ -2,16 +2,23 @@
 
 namespace App\Observers;
 
+use App\Http\Controllers\Publicacao\DiarioOficialClass;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
+use App\Models\ContratoHistoricoMinutaEmpenho;
 use App\Models\ContratoPublicacoes;
+use DateTime;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ContratohistoricoObserve
 {
+
+    use BuscaCodigoItens;
 
     public function __construct(Contratocronograma $contratocronograma)
     {
@@ -21,65 +28,97 @@ class ContratohistoricoObserve
     /**
      * Handle the contratohistorico "created" event.
      *
-     * @param  \App\Models\Contratohistorico $contratohistorico
+     * @param Contratohistorico $contratohistorico
      * @return void
      */
     public function created(Contratohistorico $contratohistorico)
     {
+        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
+
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura','ASC')
+            ->orderBy('data_assinatura', 'ASC')
             ->get();
 
         $this->contratocronograma->inserirCronogramaFromHistorico($contratohistorico);
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
+       // $situacao = $this->setSituacao($sisg, $contratohistorico->data_publicacao);
 
-        if($contratohistorico->tipo_id == 60 || $contratohistorico->tipo_id == 65) {
-            ContratoPublicacoes::create([
-                'contratohistorico_id' => $contratohistorico->id,
-                'data_publicacao' => $contratohistorico->data_publicacao,
-                'status' => 'Pendente',
-                'situacao' => 'Não Publicado'
-            ]);
+        $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
+        $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
+        if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
+//            ContratoPublicacoes::create([
+//                'contratohistorico_id' => $contratohistorico->id,
+//                'data_publicacao' => $contratohistorico->data_publicacao,
+//                'status' => 'Pendente',
+//                'status_publicacao_id' => $situacao->id,
+//                'texto_dou' => '',//@DiarioOficialClass::retornaTextoModelo($contratohistorico),
+//                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+//                'motivo_isencao' =>
+//                    ($sisg)
+//                        ? $this->retornaIdCodigoItem(
+//                            'Motivo Isenção',
+//                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+//                        )
+//                        : ''
+//            ]);
         }
     }
 
     /**
      * Handle the contratohistorico "updated" event.
      *
-     * @param  \App\Models\Contratohistorico $contratohistorico
+     * @param Contratohistorico $contratohistorico
      * @return void
      */
     public function updated(Contratohistorico $contratohistorico)
     {
+        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
+
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura','ASC')
+            ->orderBy('data_assinatura', 'ASC')
             ->get();
 
-        $cronograma = Contratocronograma::where('contrato_id',$contratohistorico->contrato_id)
+        $cronograma = Contratocronograma::where('contrato_id', $contratohistorico->contrato_id)
             ->delete();
+
+
+//        $publicacao = ContratoPublicacoes::updateOrCreate([
+//            [
+//                'contratohistorico_id' => $contratohistorico->id,
+//                'status_publicacao_id' => $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR'),
+//            ],
+//            [
+//                'data_publicacao' => $contratohistorico->data_publicacao,
+//                'texto_dou' => '',//@DiarioOficialClass::retornaTextoretificacao($contratohistorico),
+//                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+//                'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
+//            ]
+//        ]);
+
 
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
+        $this->atualizaMinutasContrato($contratohistorico);
         $this->createEventCalendar($contratohistorico);
-
     }
+
 
     /**
      * Handle the contratohistorico "deleted" event.
      *
-     * @param  \App\Models\Contratohistorico $contratohistorico
+     * @param Contratohistorico $contratohistorico
      * @return void
      */
     public function deleted(Contratohistorico $contratohistorico)
     {
 
         $historico = Contratohistorico::where('contrato_id', '=', $contratohistorico->contrato_id)
-            ->orderBy('data_assinatura','ASC')
+            ->orderBy('data_assinatura', 'ASC')
             ->get();
 
-        $cronograma = Contratocronograma::where('contrato_id',$contratohistorico->contrato_id)
+        $cronograma = Contratocronograma::where('contrato_id', $contratohistorico->contrato_id)
             ->delete();
 
 //        $contratohistorico->cronograma()->delete();
@@ -90,7 +129,7 @@ class ContratohistoricoObserve
     /**
      * Handle the contratohistorico "restored" event.
      *
-     * @param  \App\Models\Contratohistorico $contratohistorico
+     * @param Contratohistorico $contratohistorico
      * @return void
      */
     public function restored(Contratohistorico $contratohistorico)
@@ -101,7 +140,7 @@ class ContratohistoricoObserve
     /**
      * Handle the contratohistorico "force deleted" event.
      *
-     * @param  \App\Models\Contratohistorico $contratohistorico
+     * @param Contratohistorico $contratohistorico
      * @return void
      */
     public function forceDeleted(Contratohistorico $contratohistorico)
@@ -114,23 +153,21 @@ class ContratohistoricoObserve
 
 
         foreach ($contratohistorico as $h) {
-
             $contrato_id = $h->contrato_id;
             $arrayhistorico = $h->toArray();
 
             $tipo = Codigoitem::find($arrayhistorico['tipo_id']);
 
-            if($tipo instanceof Codigoitem){
-                $array = $this->retornaArrayContratoHistorico($tipo,$arrayhistorico,$contrato_id);
+            if ($tipo instanceof Codigoitem) {
+                $array = $this->retornaArrayContratoHistorico($tipo, $arrayhistorico, $contrato_id);
 
                 $contrato = new Contrato();
                 $contrato->atualizaContratoFromHistorico($contrato_id, $array);
             }
-
         }
     }
 
-    public function retornaArrayContratoHistorico(Codigoitem $tipo,array $arrayhistorico, $contrato_id)
+    public function retornaArrayContratoHistorico(Codigoitem $tipo, array $arrayhistorico, $contrato_id)
     {
         switch ($tipo->descricao) {
             case 'Termo de Rescisão':
@@ -152,7 +189,7 @@ class ContratohistoricoObserve
 
         $novo_valor = $arrayhistorico['valor_global'];
 
-        if($arrayhistorico['supressao'] == 'S'){
+        if ($arrayhistorico['supressao'] == 'S') {
             $contrato = Contrato::find($contrato_id);
             $novo_valor = $contrato->valor_global - $novo_valor;
         }
@@ -167,7 +204,7 @@ class ContratohistoricoObserve
             'num_parcelas' => $arrayhistorico['num_parcelas'],
             'valor_parcela' => $arrayhistorico['valor_parcela']
         ];
-        (isset($arrayhistorico['situacao']))?$arrayAditivo['situacao'] = $arrayhistorico['situacao'] : "";
+        (isset($arrayhistorico['situacao'])) ? $arrayAditivo['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayAditivo;
     }
 
@@ -180,7 +217,7 @@ class ContratohistoricoObserve
             'num_parcelas' => $arrayhistorico['num_parcelas'],
             'valor_parcela' => $arrayhistorico['valor_parcela']
         ];
-        (isset($arrayhistorico['situacao']))?$arrayApostilamento['situacao'] = $arrayhistorico['situacao'] : "";
+        (isset($arrayhistorico['situacao'])) ? $arrayApostilamento['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayApostilamento;
     }
 
@@ -214,7 +251,7 @@ class ContratohistoricoObserve
             return trim($a) !== "";
         });
 
-        if(isset($arrayhistorico['situacao'])){
+        if (isset($arrayhistorico['situacao'])) {
             $arrayDefault['situacao'] = $arrayhistorico['situacao'];
         }
 
@@ -228,32 +265,77 @@ class ContratohistoricoObserve
         $fornecedor = $contrato->fornecedor->cpf_cnpj_idgener . ' - ' . $contrato->fornecedor->nome;
         $ug = $contrato->unidade->codigo . ' - ' . $contrato->unidade->nomeresumido;
 
-        $tituloinicio = 'Início Vigência Contrato: ' . $contrato->numero. ' Fornecedor: ' . $fornecedor . ' da UG: ' . $ug;
-        $titulofim = 'Fim Vigência Contrato: ' . $contrato->numero. ' Fornecedor: ' . $fornecedor . ' da UG: ' . $ug;
+        $tituloinicio = 'Início Vigência Contrato: ' . $contrato->numero . ' Fornecedor: ' . $fornecedor . ' da UG: ' . $ug;
+        $titulofim = 'Fim Vigência Contrato: ' . $contrato->numero . ' Fornecedor: ' . $fornecedor . ' da UG: ' . $ug;
 
-        $events= [
+        $events = [
             [
                 'title' => $tituloinicio,
-                'start_date' => new \DateTime($contrato->vigencia_inicio),
-                'end_date' => new \DateTime($contrato->vigencia_inicio),
+                'start_date' => new DateTime($contrato->vigencia_inicio),
+                'end_date' => new DateTime($contrato->vigencia_inicio),
                 'unidade_id' => $contrato->unidade_id
             ],
             [
                 'title' => $titulofim,
-                'start_date' => new \DateTime($contrato->vigencia_fim),
-                'end_date' => new \DateTime($contrato->vigencia_fim),
+                'start_date' => new DateTime($contrato->vigencia_fim),
+                'end_date' => new DateTime($contrato->vigencia_fim),
                 'unidade_id' => $contrato->unidade_id
             ]
 
         ];
 
-        foreach ($events as $e){
+        foreach ($events as $e) {
             $calendario = new CalendarEvent();
             $calendario->insertEvents($e);
         }
 
         return $calendario;
-
     }
 
+    private function setSituacao($sisg, $data)
+    {
+        $data = Carbon::createFromFormat('Y-m-d', $data);
+
+        $situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situacao Publicacao');
+        })
+            ->select('codigoitens.id');
+
+        if ($data->lte(Carbon::now())) {
+            return $situacao->where('descricao', 'PUBLICADO')->first();
+        }
+
+        if ($sisg) {
+            return $situacao->where('descricao', 'A PUBLICAR')->first();
+        }
+
+        return $situacao->where('descricao', 'INFORMADO')->first();
+    }
+
+    private function atualizaMinutasContrato($contratohistorico)
+    {
+        // tipos que são permitidos manipular as minutas de empenho do contrato
+        $tiposPermitidos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Termo Aditivo')
+            ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->where('descricao', '<>', 'Termo de Rescisão')
+            ->orderBy('descricao')
+            ->pluck('id')
+            ->toArray();
+
+        if (in_array($contratohistorico->tipo_id, $tiposPermitidos)) {
+            $contrato = Contrato::find($contratohistorico->contrato_id);
+            $contrato->minutasempenho()->detach();
+
+            //todas minutas que serão vinculadas
+            $arrContratoHistoricoMinutaEmpenho = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id','=', $contratohistorico->id)->get();
+
+            // vincula os empenhos ao contrato
+            foreach ($arrContratoHistoricoMinutaEmpenho as $contratoHistoricoMinutaEmpenho) {
+                $contrato->minutasempenho()->attach($contratoHistoricoMinutaEmpenho->minuta_empenho_id);
+            }
+        }
+    }
 }

@@ -15,8 +15,8 @@
                         <th class="text-center">Item</th>
                         <th class="text-center">Quantidade</th>
                         <th class="text-center">Valor Unitário</th>
+                        <th class="text-center">Qtd. parcelas</th>
                         <th class="text-center">Valor Total</th>
-                        <th class="text-center">Periodicidade</th>
                         <th class="text-center">Data Início</th>
                     </tr>
                     </thead>
@@ -63,6 +63,7 @@
                 var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
                 if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
                     $('#table').html(valueHidden);
+                    calculaTotalGlobal();
                 }
 
                 $tableID.on('click', '.table-remove', function () {
@@ -77,7 +78,6 @@
                 $('body').on('change','input[name="vl_unit[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
-                    calculaTotalGlobal();
                 });
 
                 //quando altera o campo de quantidade de parcela atualizar o valor da parcela no caso de apostilamento
@@ -116,10 +116,9 @@
             function atualizarValorTotal(tr){
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
-
-                var valor_total = qtd_item * vl_unit;
-
-                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toFixed(4)));
+                var periodicidade = parseInt($(tr).find('td').eq(5).find('input').val());
+                var vltotal = qtd_item * vl_unit * periodicidade;
+                $(tr).find('td').eq(6).find('input').val(parseFloat(vltotal.toFixed(4)));
                 calculaTotalGlobal();
             }
 
@@ -132,8 +131,8 @@
                 cols += '<td>'+item.codigo_siasg + ' - ' +item.descricao_complementar+'</td>';
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]"  step="0.0001" id="qtd_item" value="'+item.quantidade+'" disabled></td>';
                 cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit"  step="0.0001" value="'+item.valorunitario+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"  step="0.0001" value="'+item.valortotal+'"disabled></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'" disabled></td>';
+                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total"  step="0.0001" value="'+item.valortotal+'"disabled></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'" disabled>';
 
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
@@ -149,14 +148,11 @@
             }
 
             function calculaTotalGlobal(){
-                var valor_total = 0;
-                $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
-                    var total_iten = (total_item * periodicidade);
-                    valor_total += total_iten;
-                });
-                $('#novo_valor_global').val(parseFloat(valor_total.toFixed(2)));
+                let totalItens = 0;
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    totalItens = parseFloat(totalItens) + parseFloat(elementInput.value);
+                })
+                $('#novo_valor_global').val(parseFloat(totalItens.toFixed(2)));
 
                 atualizarValorParcelaApostilamento();
             }

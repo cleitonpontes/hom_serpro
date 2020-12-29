@@ -240,7 +240,7 @@
                     <div class="col-md-3" align="right">
 
                         <button type="button" class="btn btn-primary"
-                                @if ($entry->situacao_descricao === 'EM ANDAMENTO' && $entry->etapa === 8)
+                                @if (($entry->situacao_descricao === 'EM ANDAMENTO' || $entry->situacao_descricao === 'ERRO') && $entry->etapa === 8)
                                 id="emitir_empenho_siafi"
                                 @else
                                 disabled
@@ -249,18 +249,17 @@
                             <i class="fa fa-save"></i> Emitir Empenho SIAFI
                         </button>
                     </div>
-
                     @if ($entry->empenhocontrato == false)
-                        <div class="col-md-3">
-                            <button type="button" class="btn btn-primary"
-                                    @if (!(($entry->situacao_descricao == 'EM PROCESSAMENTO'|| $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-primary"
+                                @if (!(($entry->situacao_descricao === 'EM PROCESSAMENTO' || $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
                                     disabled
-                                    @endif
-                                    id="empenhar_outro_fornecedor"
-                            >
-                                <i class="fa fa-plus"></i> Empenhar outro Fornecedor
-                            </button>
-                        </div>
+                                @endif
+                                id="empenhar_outro_fornecedor"
+                        >
+                            <i class="fa fa-plus"></i> Empenhar outro Fornecedor
+                        </button>
+                    </div>
                     @endif
                     <div class="col-md-3" align="right">
                         <button type="button" class="btn btn-primary" id="finalizar"
@@ -321,7 +320,7 @@
 
             var url = "{{route('popula.tabelas.siafi',':minuta_id')}}";
             url = url.replace(':minuta_id', minuta_id);
-console.log(url);
+
             axios.request(url)
                 .then(response => {
                     dados = response.data

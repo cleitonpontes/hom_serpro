@@ -11,6 +11,7 @@ use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoCargaEmpenhoJob;
 use App\Jobs\MigracaoempenhoJob;
 use App\Jobs\MigracaoRpJob;
+use App\Models\BackpackUser;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
@@ -729,7 +730,12 @@ class EmpenhoCrudController extends CrudController
 //            ? $this->buscaDadosFileGetContents($url)
 //            : $this->buscaDadosCurl($url);
 
-        $dados = $this->buscaDadosFileGetContents($url);
+        $context = stream_context_create(array('http' => array(
+            'timeout' => 600,
+            'ignore_errors' => true,
+        )));
+
+        $dados = $this->buscaDadosFileGetContents($url, $context);
 
         $pkcount = is_array($dados) ? count($dados) : 0;
         if ($pkcount > 0) {
@@ -867,12 +873,14 @@ class EmpenhoCrudController extends CrudController
 
         if ($empenhos) {
             foreach ($empenhos as $empenho) {
+                $user = BackpackUser::where('cpf',$empenho->cpf_user)
+                    ->first();
                 $ws_siafi = new Execsiafi;
                 $ano = date('Y');
-                $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
+                $retorno = $ws_siafi->incluirNe($user, $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
                 $empenho->update($retorno);
 
-                if($retorno['situacao'] == 'EMITIDO'){
+                if ($retorno['situacao'] == 'EMITIDO') {
                     //todo inserir empenho na tabela empenho
                     //todo criar job para devolver informação para o SIASG
                 }
@@ -916,11 +924,11 @@ class EmpenhoCrudController extends CrudController
             "valorTotalEmpenho" => "2.53"
         ];
 
-        $retorno = $apiSiasg->executaConsulta('Empenho', $array,'POST');
+        $retorno = $apiSiasg->executaConsulta('Empenho', $array, 'POST');
 
-        if($retorno['messagem'] !== 'Sucesso'){
+        if ($retorno['messagem'] !== 'Sucesso') {
             return 'Erro: ' . $retorno['messagem'];
-        }else{
+        } else {
             return 'Teste Ok';
         }
     }

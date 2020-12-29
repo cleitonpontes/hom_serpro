@@ -6,6 +6,7 @@ use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratoitem;
+use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\Saldohistoricoitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -365,85 +366,6 @@ class InstrumentoinicialCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $instrumentoinicial_id,
             ],
-            [ // select_from_array
-                'name' => 'receita_despesa',
-                'label' => "Receita / Despesa",
-                'type' => 'select_from_array',
-                'options' => [
-                    'D' => 'Despesa',
-                    'R' => 'Receita',
-                ],
-                'default' => 'D',
-                'allows_null' => false,
-                'tab' => 'Dados Gerais',
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [
-                'name' => 'observacao',
-                'label' => 'Observação',
-                'type' => 'textarea',
-                'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
-                ],
-                'tab' => 'Dados Gerais',
-            ],
-            [
-                // select_from_array
-                'name' => 'tipo_id',
-                'label' => "Tipo",
-                'type' => 'select2_from_array',
-                'options' => $tipos,
-                'attributes' => [
-                    'id' => 'tipo_contrato',
-                ],
-                'allows_null' => true,
-                'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [ // select_from_array
-                'name' => 'categoria_id',
-                'label' => "Categoria",
-                'type' => 'select2_from_array',
-                'options' => $categorias,
-                'allows_null' => true,
-                'tab' => 'Dados Gerais',
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-            [ // select2_from_ajax: 1-n relationship
-                'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
-                'label' => "Subcategoria", // Table column heading
-                'type' => 'select2_from_ajax',
-                'model' => 'App\Models\OrgaoSubcategoria',
-                'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
-                'attribute' => 'descricao', // foreign key attribute that is shown to user
-                'data_source' => url('api/orgaosubcategoria'), // url to controller search function (with /{id} should return model)
-                'placeholder' => 'Selecione...', // placeholder for the select
-                'minimum_input_length' => 0, // minimum characters to type before querying results
-                'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
-                'method' => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
-                'tab' => 'Dados Gerais',
-            ],
-            [
-                'name' => 'numero',
-                'label' => 'Número do instrumento',
-                'type' => 'numcontrato',
-                'tab' => 'Dados Gerais',
-            ],
-            [
-                'name' => 'processo',
-                'label' => 'Número Processo',
-                'type' => 'numprocesso',
-                'tab' => 'Dados Gerais',
-            ],
             [
                 // 1-n relationship
                 'label' => "Fornecedor", // Table column heading
@@ -457,66 +379,25 @@ class InstrumentoinicialCrudController extends CrudController
                 'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
                 'placeholder' => "Selecione o fornecedor", // placeholder for the select
                 'minimum_input_length' => 2, // minimum characters to type before querying results
-                'tab' => 'Dados Gerais',
-            ],
-//            [ // select_from_array
-//                'name' => 'fornecedor_id',
-//                'label' => "Fornecedor",
-//                'type' => 'select2_from_array',
-//                'options' => $fornecedores,
-//                'allows_null' => true,
-//                'tab' => 'Dados Gerais',
-////                'default' => 'one',
-//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-//            ],
-            [
-                // 1-n relationship
-                'label' => "Unidade Gestora Origem", // Table column heading
-                'type' => "select2_from_ajax",
-                'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
-                'entity' => 'unidadeorigem', // the method that defines the relationship in your Model
-                'attribute' => "codigo", // foreign key attribute that is shown to user
-                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
-                'process_results_template' => 'gescon.process_results_unidade',
-                'model' => "App\Models\Unidade", // foreign key model
-                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
-                'placeholder' => "Selecione a Unidade", // placeholder for the select
-                'minimum_input_length' => 2, // minimum characters to type before querying results
-                'tab' => 'Dados Gerais',
-            ],
-            [ // select_from_array
-                'name' => 'unidade_id',
-                'label' => "Unidade Gestora",
-                'type' => 'select2_from_array',
-                'options' => $unidade,
-                'allows_null' => false,
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-                'tab' => 'Dados Gerais',
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+                'tab' => 'Dados Contrato',
             ],
             [
-                'name' => 'unidades_requisitantes',
-                'label' => 'Unidades Requisitantes',
-                'type' => 'text',
-                'tab' => 'Dados Gerais',
+                'label' => 'Minutas de Empenho',
+                'name' => 'minutasempenho',
+                'type' => 'select2_from_ajax_multiple_alias',
+                'entity' => 'minutaempenho',
+                'placeholder' => 'Selecione minutas de empenho',
+                'minimum_input_length' => 0,
+                'attribute' => 'nome_minuta_empenho',
+                'data_source' => url('api/minutaempenhoparacontrato'),
+                'model' => 'App\Models\MinutaEmpenho',
+                'dependencies' => ['fornecedor_id'],
+                'pivot' => true,
+                'wrapperAttributes' => [
+                    'title' => '{uasg} {modalidade} {numeroAno} - Nº do(s) Empenho(s) - Data de Emissão'
+                ],
+                'tab' => 'Dados Contrato',
             ],
-            [ // select_from_array
-                'name' => 'situacao',
-                'label' => "Situação",
-                'type' => 'select_from_array',
-                'options' => [1 => 'Ativo', 0 => 'Inativo'],
-                'allows_null' => false,
-                'tab' => 'Dados Gerais',
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
-//                'default' => 'one',
-                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-            ],
-
             [   // Date
                 'name' => 'data_assinatura',
                 'label' => 'Data Assinatura',
@@ -574,11 +455,164 @@ class InstrumentoinicialCrudController extends CrudController
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [
+                'label' => 'Amparo Legal',
+                'name' => 'amparolegal',
+                'type' => 'select2_from_ajax_multiple_alias',
+                'entity' => 'amparolegal',
+                'placeholder' => 'Selecione o Amparo Legal',
+                'minimum_input_length' => 0,
+                'data_source' => url('api/amparolegal'),
+                'model' => 'App\Models\AmparoLegal',
+                'attribute' => 'campo_api_amparo',
+                'pivot' => true,
+                'tab' => 'Dados Contrato',
+            ],
+            [
                 'name' => 'licitacao_numero',
                 'label' => 'Número Licitação',
                 'type' => 'numlicitacao',
                 'tab' => 'Dados Contrato',
             ],
+            [ // select_from_array
+                'name' => 'receita_despesa',
+                'label' => "Receita / Despesa",
+                'type' => 'select_from_array',
+                'options' => [
+                    'D' => 'Despesa',
+                    'R' => 'Receita',
+                ],
+                'default' => 'D',
+                'allows_null' => false,
+                'tab' => 'Características do contrato',
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                // select_from_array
+                'name' => 'tipo_id',
+                'label' => "Tipo",
+                'type' => 'select2_from_array',
+                'options' => $tipos,
+                'attributes' => [
+                    'id' => 'tipo_contrato',
+                ],
+                'allows_null' => true,
+                'tab' => 'Características do contrato',
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [
+                'name' => 'subtipo',
+                'label' => 'Subtipo',
+                'type' => 'textarea',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
+                'tab' => 'Características do contrato',
+            ],
+            [ // select_from_array
+                'name' => 'categoria_id',
+                'label' => "Categoria",
+                'type' => 'select2_from_array',
+                'options' => $categorias,
+                'allows_null' => true,
+                'tab' => 'Características do contrato',
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+            [ // select2_from_ajax: 1-n relationship
+                'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
+                'label' => "Subcategoria", // Table column heading
+                'type' => 'select2_from_ajax',
+                'model' => 'App\Models\OrgaoSubcategoria',
+                'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
+                'attribute' => 'descricao', // foreign key attribute that is shown to user
+                'data_source' => url('api/orgaosubcategoria'), // url to controller search function (with /{id} should return model)
+                'placeholder' => 'Selecione...', // placeholder for the select
+                'minimum_input_length' => 0, // minimum characters to type before querying results
+                'dependencies' => ['categoria_id'], // when a dependency changes, this select2 is reset to null
+                'method' => 'GET', // optional - HTTP method to use for the AJAX call (GET, POST)
+                'tab' => 'Características do contrato',
+            ],
+            [
+                'name' => 'numero',
+                'label' => 'Contrato',
+                'type' => 'numcontrato',
+                'tab' => 'Características do contrato',
+            ],
+            [
+                'name' => 'processo',
+                'label' => 'Número Processo',
+                'type' => 'numprocesso',
+                'tab' => 'Características do contrato',
+            ],
+            [
+                // 1-n relationship
+                'label' => "Unidade Gestora Origem", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
+                'entity' => 'unidadeorigem', // the method that defines the relationship in your Model
+                'attribute' => "codigo", // foreign key attribute that is shown to user
+                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
+                'model' => "App\Models\Unidade", // foreign key model
+                'data_source' => url("api/unidade"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione a Unidade", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+                'tab' => 'Características do contrato',
+            ],
+
+            [ // select_from_array
+                'name' => 'unidade_id',
+                'label' => "Unidade Gestora",
+                'type' => 'select2_from_array',
+                'options' => $unidade,
+                'allows_null' => false,
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+                'tab' => 'Características do contrato',
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+
+            [
+                'name' => 'unidades_requisitantes',
+                'label' => 'Unidades Requisitantes',
+                'type' => 'text',
+                'tab' => 'Características do contrato',
+            ],
+            [ // select_from_array
+                'name' => 'situacao',
+                'label' => "Situação",
+                'type' => 'select_from_array',
+                'options' => [1 => 'Ativo', 0 => 'Inativo'],
+                'allows_null' => false,
+                'tab' => 'Características do contrato',
+//                'attributes' => [
+//                    'disabled' => 'disabled',
+//                ],
+//                'default' => 'one',
+                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+            ],
+
+//            [ // select_from_array
+//                'name' => 'fornecedor_id',
+//                'label' => "Fornecedor",
+//                'type' => 'select2_from_array',
+//                'options' => $fornecedores,
+//                'allows_null' => true,
+//                'tab' => 'Dados Gerais',
+////                'default' => 'one',
+//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+//            ],
+
             [
                 'name' => 'itens',
                 'type' => 'itens_contrato_instrumento_inicial_list',
@@ -611,6 +645,7 @@ class InstrumentoinicialCrudController extends CrudController
                 'attributes' => [
                     'id' => 'valor_global',
                     'step' => '0.0001',
+                    'readOnly' => 'readOnly'
                 ], // allow decimals
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
@@ -637,12 +672,12 @@ class InstrumentoinicialCrudController extends CrudController
                 'attributes' => [
                     'id' => 'valor_parcela',
                     'step' => '0.0001',
+                    'readOnly' => 'readOnly'
                 ], // allow decimals
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
                 // 'suffix' => ".00",
             ],
-
         ];
 
         return $campos;

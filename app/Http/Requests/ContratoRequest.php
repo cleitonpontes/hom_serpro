@@ -32,7 +32,8 @@ class ContratoRequest extends FormRequest
     public function rules()
     {
         $id = $this->id ?? "NULL";
-        $unidade_id = $this->unidade_id ?? "NULL";
+        $unidadeorigem_id = $this->unidadeorigem_id ?? "NULL";
+        $tipo_id = $this->tipo_id ?? "NULL";
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
@@ -40,13 +41,13 @@ class ContratoRequest extends FormRequest
         $this->minutasempenho = $this->minutasempenho ?? [];
 
         return [
-//            'numero' => [
-//                'required',
-//                (new Unique('contratos','numero'))
-//                    ->ignore($id)
-//                    ->where('unidade_id',$unidade_id)
-//            ],
-            'numero' => 'required',
+            'numero' => [
+                'required',
+                (new Unique('contratos', 'numero'))
+                    ->ignore($id)
+                    ->where('unidadeorigem_id', $unidadeorigem_id)
+                    ->where('tipo_id',$tipo_id)
+            ],
             'fornecedor_id' => 'required',
             'minutasempenho' => new NaoAceitarMinutaCompraDiferente,
             'tipo_id' => 'required',
@@ -59,8 +60,8 @@ class ContratoRequest extends FormRequest
             'modalidade_id' => 'required',
             'licitacao_numero' => Rule::requiredIf(function () {
                 $modalidade = Codigoitem::find($this->modalidade_id);
-                if(isset($modalidade->descricao)){
-                    if(in_array($modalidade->descricao,config('app.modalidades_sem_exigencia'))){
+                if (isset($modalidade->descricao)) {
+                    if (in_array($modalidade->descricao, config('app.modalidades_sem_exigencia'))) {
                         return false;
                     }
                 }
@@ -68,8 +69,8 @@ class ContratoRequest extends FormRequest
             }),
             'unidadecompra_id' => Rule::requiredIf(function () {
                 $modalidade = Codigoitem::find($this->modalidade_id);
-                if(isset($modalidade->descricao)){
-                    if(in_array($modalidade->descricao,config('app.modalidades_sem_exigencia'))){
+                if (isset($modalidade->descricao)) {
+                    if (in_array($modalidade->descricao, config('app.modalidades_sem_exigencia'))) {
                         return false;
                     }
                 }
@@ -108,7 +109,7 @@ class ContratoRequest extends FormRequest
      */
     public function messages()
     {
-        $data_limite = implode('/',array_reverse(explode('-',$this->data_limite)));
+        $data_limite = implode('/', array_reverse(explode('-', $this->data_limite)));
         $hoje = date('d/m/Y');
         $data_amanha = date('d/m/Y', strtotime('+1 day'));
 
@@ -116,7 +117,21 @@ class ContratoRequest extends FormRequest
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
             'data_assinatura.before_or_equal' => "A data da assinatura deve ser menor que  {$data_amanha} ",
             'data_publicacao.after' => "A data da publicação deve ser maior que {$hoje} ",
-            'minutasempenho.required_if' => 'teste'
+            'fornecedor_id.required' => 'O campo fornecedor é obrigatório',
+            'data_assinatura.required' => 'O campo data da assinatura é obrigatório',
+            'data_publicacao.required' => 'O campo data da publicação é obrigatório',
+            'unidadecompra_id.required' => 'O campo unidade da compra é obrigatório',
+            'modalidade_id.required' => 'O campo modalidade licitação é obrigatório',
+            'amparoslegais.required' => 'O campo amparo legal é obrigatório',
+            'licitacao_numero.required' => 'O campo número da licitação é obrigatório',
+            'tipo_id.required' => 'O campo tipo é obrigatório',
+            'categoria_id.required' => 'O campo categoria é obrigatório',
+            'numero.required' => 'O campo número do contrato é obrigatório',
+            'processo.required' => 'O campo número do processo é obrigatório',
+            'unidadeorigem_id.required' => 'O campo unidade gestora origem é obrigatório',
+            'vigencia_inicio.required' => 'O campo data de início da vigência é obrigatório',
+            'vigencia_fim.required' => 'O campo data fim da vigência é obrigatório',
+            'valor_parcela.required' => 'O campo valor da parcela é obrigatório',
         ];
     }
 }
