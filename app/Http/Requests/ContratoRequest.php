@@ -117,7 +117,21 @@ class ContratoRequest extends FormRequest
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
             'data_assinatura.before_or_equal' => "A data da assinatura deve ser menor que  {$data_amanha} ",
             'data_publicacao.after' => "A data da publicação deve ser maior que {$hoje} ",
-            'minutasempenho.required_if' => 'teste'
+            'fornecedor_id.required' => 'O campo fornecedor é obrigatório',
+            'data_assinatura.required' => 'O campo data da assinatura é obrigatório',
+            'data_publicacao.required' => 'O campo data da publicação é obrigatório',
+            'unidadecompra_id.required' => 'O campo unidade da compra é obrigatório',
+            'modalidade_id.required' => 'O campo modalidade licitação é obrigatório',
+            'amparoslegais.required' => 'O campo amparo legal é obrigatório',
+            'licitacao_numero.required' => 'O campo número da licitação é obrigatório',
+            'tipo_id.required' => 'O campo tipo é obrigatório',
+            'categoria_id.required' => 'O campo categoria é obrigatório',
+            'numero.required' => 'O campo número do contrato é obrigatório',
+            'processo.required' => 'O campo número do processo é obrigatório',
+            'unidadeorigem_id.required' => 'O campo unidade gestora origem é obrigatório',
+            'vigencia_inicio.required' => 'O campo data de início da vigência é obrigatório',
+            'vigencia_fim.required' => 'O campo data fim da vigência é obrigatório',
+            'valor_parcela.required' => 'O campo valor da parcela é obrigatório',
         ];
     }
 }

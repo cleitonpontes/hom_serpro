@@ -645,6 +645,7 @@ class InstrumentoinicialCrudController extends CrudController
                 'attributes' => [
                     'id' => 'valor_global',
                     'step' => '0.0001',
+                    'readOnly' => 'readOnly'
                 ], // allow decimals
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
@@ -671,6 +672,7 @@ class InstrumentoinicialCrudController extends CrudController
                 'attributes' => [
                     'id' => 'valor_parcela',
                     'step' => '0.0001',
+                    'readOnly' => 'readOnly'
                 ], // allow decimals
                 'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
