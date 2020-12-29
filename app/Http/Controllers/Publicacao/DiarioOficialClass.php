@@ -345,6 +345,40 @@ class DiarioOficialClass extends BaseSoapController
         return $padraoPublicacaoContrato;
     }
 
+
+    public static function retornaTextoContrato(Contratohistorico $contratoHistorico)
+    {
+        $data = date('d/m/Y');
+        $unidade = ($contratoHistorico->getUnidadeOrigem())?$contratoHistorico->getUnidadeOrigem():$contratoHistorico->getUnidade();
+        $tipocontrato = self::retornaIdCodigoItem('Tipo de Contrato','Contrato');
+        $tipomudanca = self::retornaIdCodigoItem('Tipo Publicacao','INCLUSAO');
+
+        $padrao = Padroespublicacao::where('tipo_contrato_id',$tipocontrato)
+            ->where('tipo_mudanca_id',$tipomudanca)->first();
+
+        $padraoPublicacaoContrato = $padrao->texto_padrao;
+
+        $contrato = $contratoHistorico->contrato;
+
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETUNIDADE|', $unidade, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATO_PROCESSO|', $contrato->processo, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATO_MODALIDADE_DESCRICAO|', $contrato->modalidade->descricao, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATO_LICITACAO_NUMERO|', $contrato->licitacao_numero, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATO_UNIDADE_NOME|', $contrato->unidade->nome, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_FORNECEDOR_CPF_CNPJ_IDGENER|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->objeto, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATO_RETORNAAMPARO|', $contrato->retornaAmparo(), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->getVigenciaInicio(), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETVIGENCIAFIM|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', $contratoHistorico->valor_global, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_DATA_ASSINATURA|', self::retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoContrato);
+
+        return $padraoPublicacaoContrato;
+    }
+
     public static function retornaTextoModelorAditivo(Contratohistorico $contratoHistorico)
     {
         $data = date('d/m/Y');
@@ -444,8 +478,8 @@ class DiarioOficialClass extends BaseSoapController
 
         foreach ($publicacoes as $publicacao) {
             if (isset($publicacao->id)) {
-                AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
-                //$this->testaAtualizacaoStatusPublicacao($publicacao);
+                //AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
+                $this->testaAtualizacaoStatusPublicacao($publicacao);
             }
         }
 
