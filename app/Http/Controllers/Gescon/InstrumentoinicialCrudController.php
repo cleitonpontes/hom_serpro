@@ -357,7 +357,7 @@ class InstrumentoinicialCrudController extends CrudController
     {
         $campos = [
             [   // Hidden
-                'name' => 'id_contrato',
+                'name' => 'contrato_id',
                 'type' => 'hidden',
                 'default' => $contrato_id,
             ],
@@ -784,7 +784,7 @@ class InstrumentoinicialCrudController extends CrudController
         $catmatseritem = Catmatseritem::find($catmatseritem_id);
 
         $contratoItem = new Contratoitem();
-        $contratoItem->contrato_id = $request['id_contrato'];
+        $contratoItem->contrato_id = $request['contrato_id'];
         $contratoItem->tipo_id = $request['tipo_item_id'][$key];
         $contratoItem->grupo_id = $catmatseritem->grupo_id;
         $contratoItem->catmatseritem_id = $catmatseritem->id;
