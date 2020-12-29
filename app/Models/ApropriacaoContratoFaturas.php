@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+
 
 class ApropriacaoContratoFaturas extends Model
 {
+    use LogsActivity;
+
     protected $table = 'apropriacoes_faturas_contratofaturas';
     protected $primaryKey = ['apropriacoes_faturas_id', 'contratofaturas_id'];
     protected $fillable = [
