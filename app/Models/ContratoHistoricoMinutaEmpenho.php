@@ -4,20 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ContratoMinutaEmpenho extends Model
+class ContratoHistoricoMinutaEmpenho extends Model
 {
     protected $table = 'contrato_minuta_empenho_pivot';
 
     public $timestamps = false;
 
     protected $fillable = [
-        'contrato_id',
+        'contrato_historico_id',
         'minuta_empenho_id'
     ];
 
-    public function contratos()
+    public function contratohistorico()
     {
-        return $this->belongsTo(Contratos::class, 'contrato_id');
+        return $this->belongsTo(Contratohistorico::class, 'contrato_historico_id');
     }
 
     public function minutasempenho()
@@ -25,3 +25,6 @@ class ContratoMinutaEmpenho extends Model
         return $this->belongsTo(MinutaEmpenho::class, 'minuta_empenho_id');
     }
 }
+
+
+
