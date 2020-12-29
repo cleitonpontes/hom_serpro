@@ -11,6 +11,7 @@ use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoCargaEmpenhoJob;
 use App\Jobs\MigracaoempenhoJob;
 use App\Jobs\MigracaoRpJob;
+use App\Models\BackpackUser;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
@@ -872,9 +873,11 @@ class EmpenhoCrudController extends CrudController
 
         if ($empenhos) {
             foreach ($empenhos as $empenho) {
+                $user = BackpackUser::where('cpf',$empenho->cpf_user)
+                    ->first();
                 $ws_siafi = new Execsiafi;
                 $ano = date('Y');
-                $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
+                $retorno = $ws_siafi->incluirNe($user, $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
                 $empenho->update($retorno);
 
                 if ($retorno['situacao'] == 'EMITIDO') {

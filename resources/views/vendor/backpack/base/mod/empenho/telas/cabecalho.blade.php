@@ -31,7 +31,7 @@
 
         $rotas = [1 => '#', 2 => '#', 3 => '#', 4 => '#', 5 => '#', 6 => '#', 7 => '#', 8 => '#'];
 
-        if ($situacao === 'EM ANDAMENTO'){
+        if ($situacao === 'EM ANDAMENTO' || $situacao === 'ERRO'){
             $rotas[1] = '#';
             $rotas[2] = route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id]);
             $rotas[3] = route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);
