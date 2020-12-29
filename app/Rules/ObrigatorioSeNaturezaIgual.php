@@ -40,9 +40,9 @@ class ObrigatorioSeNaturezaIgual implements Rule
 
 
 
-        $natureza = MinutaEmpenho::whereHas('saldo_contabil',function ($s) use(){
-
-        });
+//        $natureza = MinutaEmpenho::whereHas('saldo_contabil',function ($s) use(){
+//
+//        });
 
 
         $natureza = MinutaEmpenho::join(
