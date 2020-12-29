@@ -6,6 +6,7 @@ use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratoitem;
+use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\Saldohistoricoitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -378,6 +379,23 @@ class InstrumentoinicialCrudController extends CrudController
                 'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
                 'placeholder' => "Selecione o fornecedor", // placeholder for the select
                 'minimum_input_length' => 2, // minimum characters to type before querying results
+                'tab' => 'Dados Contrato',
+            ],
+            [
+                'label' => 'Minutas de Empenho',
+                'name' => 'minutasempenho',
+                'type' => 'select2_from_ajax_multiple_alias',
+                'entity' => 'minutaempenho',
+                'placeholder' => 'Selecione minutas de empenho',
+                'minimum_input_length' => 0,
+                'attribute' => 'nome_minuta_empenho',
+                'data_source' => url('api/minutaempenhoparacontrato'),
+                'model' => 'App\Models\MinutaEmpenho',
+                'dependencies' => ['fornecedor_id'],
+                'pivot' => true,
+                'wrapperAttributes' => [
+                    'title' => '{uasg} {modalidade} {numeroAno} - Nº do(s) Empenho(s) - Data de Emissão'
+                ],
                 'tab' => 'Dados Contrato',
             ],
             [   // Date

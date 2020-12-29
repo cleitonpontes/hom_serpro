@@ -9,6 +9,7 @@ use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratocronograma;
 use App\Models\Contratohistorico;
+use App\Models\ContratoHistoricoMinutaEmpenho;
 use App\Models\ContratoPublicacoes;
 use DateTime;
 use Illuminate\Support\Carbon;
@@ -99,6 +100,7 @@ class ContratohistoricoObserve
 
         $this->contratocronograma->atualizaCronogramaFromHistorico($historico);
         $this->atualizaContrato($historico);
+        $this->atualizaMinutasContrato($contratohistorico);
         $this->createEventCalendar($contratohistorico);
     }
 
@@ -308,5 +310,19 @@ class ContratohistoricoObserve
         }
 
         return $situacao->where('descricao', 'INFORMADO')->first();
+    }
+
+    private function atualizaMinutasContrato($contratohistorico)
+    {
+        $contrato = Contrato::find($contratohistorico->contrato_id);
+        $contrato->minutasempenho()->detach();
+
+        //todas minutas que serão vinculadas
+        $arrContratoHistoricoMinutaEmpenho = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id','=', $contratohistorico->id)->get();
+
+        // vincula os empenhos ao contrato
+        foreach ($arrContratoHistoricoMinutaEmpenho as $contratoHistoricoMinutaEmpenho) {
+            $contrato->minutasempenho()->attach($contratoHistoricoMinutaEmpenho->minuta_empenho_id);
+        }
     }
 }
