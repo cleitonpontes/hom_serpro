@@ -58,7 +58,7 @@ class ObrigatorioSeNaturezaIgual implements Rule
                 ])
             ->first();
 
-        if ($natureza->isEmpty()) {
+        if (!isset($natureza->id)) {
             return true;
         }
 
