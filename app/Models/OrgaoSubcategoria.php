@@ -11,9 +11,10 @@ class OrgaoSubcategoria extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'orgaosubcategorias';
-    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------

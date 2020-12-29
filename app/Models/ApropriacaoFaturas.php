@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ApropriacaoFaturas extends Model
 {
+    use LogsActivity;
 
     const FASE_EM_ANDAMENTO = 188;
     const FASE_CONCLUIDA = 189;

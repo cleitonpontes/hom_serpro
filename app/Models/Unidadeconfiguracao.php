@@ -10,6 +10,7 @@ class Unidadeconfiguracao extends Model
 {
     use CrudTrait;
     use LogsActivity;
+
     protected static $logFillable = true;
     protected static $logName = 'unidadeconfiguracao';
 

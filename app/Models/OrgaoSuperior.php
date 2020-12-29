@@ -12,6 +12,7 @@ class OrgaoSuperior extends Model
     use CrudTrait;
     use SoftDeletes;
     use LogsActivity;
+
     protected static $logFillable = true;
     protected static $logName = 'orgao_superior';
 

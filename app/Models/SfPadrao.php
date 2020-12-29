@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\SfDocContabilizacao;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class SfPadrao extends Model
 {
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------

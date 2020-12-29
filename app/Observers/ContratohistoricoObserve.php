@@ -314,15 +314,28 @@ class ContratohistoricoObserve
 
     private function atualizaMinutasContrato($contratohistorico)
     {
-        $contrato = Contrato::find($contratohistorico->contrato_id);
-        $contrato->minutasempenho()->detach();
+        // tipos que são permitidos manipular as minutas de empenho do contrato
+        $tiposPermitidos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Termo Aditivo')
+            ->where('descricao', '<>', 'Termo de Apostilamento')
+            ->where('descricao', '<>', 'Termo de Rescisão')
+            ->orderBy('descricao')
+            ->pluck('id')
+            ->toArray();
 
-        //todas minutas que serão vinculadas
-        $arrContratoHistoricoMinutaEmpenho = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id','=', $contratohistorico->id)->get();
+        if (in_array($contratohistorico->tipo_id, $tiposPermitidos)) {
+            $contrato = Contrato::find($contratohistorico->contrato_id);
+            $contrato->minutasempenho()->detach();
 
-        // vincula os empenhos ao contrato
-        foreach ($arrContratoHistoricoMinutaEmpenho as $contratoHistoricoMinutaEmpenho) {
-            $contrato->minutasempenho()->attach($contratoHistoricoMinutaEmpenho->minuta_empenho_id);
+            //todas minutas que serão vinculadas
+            $arrContratoHistoricoMinutaEmpenho = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id','=', $contratohistorico->id)->get();
+
+            // vincula os empenhos ao contrato
+            foreach ($arrContratoHistoricoMinutaEmpenho as $contratoHistoricoMinutaEmpenho) {
+                $contrato->minutasempenho()->attach($contratoHistoricoMinutaEmpenho->minuta_empenho_id);
+            }
         }
     }
 }
