@@ -56,13 +56,13 @@ class ObrigatorioSeNaturezaIgual implements Rule
                 [
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                 ])
-            ->first();
+            ->get();
 
-        if (isset($natureza->id)) {
-            return false;
+        if ($natureza->isEmpty()) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
