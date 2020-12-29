@@ -326,7 +326,6 @@ class ContratohistoricoObserve
             ->toArray();
 
         if (in_array($contratohistorico->tipo_id, $tiposPermitidos)) {
-            dd('entrou');
             $contrato = Contrato::find($contratohistorico->contrato_id);
             $contrato->minutasempenho()->detach();
 
