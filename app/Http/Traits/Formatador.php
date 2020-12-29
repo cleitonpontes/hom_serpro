@@ -152,8 +152,12 @@ trait Formatador
      * @param string $descricaocompleta
      * @return string
      */
-    public function retornaDescricaoDetalhada(string $descricao, string $descricaocompleta): string
+    public function retornaDescricaoDetalhada(string $descricao = null, string $descricaocompleta = null): string
     {
+        if ($descricao == null){
+            return '';
+        }
+
         $retorno = '';
         $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i>';
 

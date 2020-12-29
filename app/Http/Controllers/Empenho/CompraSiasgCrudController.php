@@ -14,6 +14,7 @@ use App\Models\CompraItem;
 use App\Models\CompraItemFornecedor;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
+use App\Models\ContratoMinutaEmpenhoPivot;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\Unidade;
@@ -191,6 +192,7 @@ class CompraSiasgCrudController extends CrudController
                 'uasgCompra' => $dadosContrato->data->dadosContrato->uasg,
                 'uasgUsuario' => session('user_ug')
             ];
+//            dump($params);
 
             //pegar a compra
             $retorno_compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
@@ -243,9 +245,13 @@ class CompraSiasgCrudController extends CrudController
                 if ($retorno_compra->data->compraSispp->tipoCompra == 2) {
                     $this->gravaParametroItensdaCompraSISRP($retorno_compra, $compra);
                     if (!is_null($retorno_compra->data->linkSisrpCompleto)) {
-                        dd($retorno_compra->data->linkSisrpCompleto);
+//                        dd($retorno_compra->data->linkSisrpCompleto);
                     }
                 }
+
+                $tipo_empenhopor = Codigoitem::where('descricao', '=', 'Contrato')
+                 ->where('descres', 'CON')
+                    ->first();
 
                 $minutaEmpenho = $this->gravaMinutaEmpenho([
                     'situacao_id' => $situacao->id,
@@ -256,8 +262,19 @@ class CompraSiasgCrudController extends CrudController
                     'numero_ano' => $compra->numero_ano,
                     'fornecedor_compra_id' => $fornecedor->id,
                     'numero_contrato' => $contrato->numero,
-                    'empenhocontrato' => true
+                    'tipo_empenhopor' => $tipo_empenhopor->id
                 ]);
+//                $cmep = new ContratoMinutaEmpenhoPivot();
+//                $cmep->contrato_id = $contrato->id;
+//                $cmep->minuta_empenho_id = $minutaEmpenho->id;
+//                $cmep->save();
+
+                DB::table('contrato_minuta_empenho_pivot')->insert(
+                    ['contrato_id' => $contrato->id, 'minuta_empenho_id' => $minutaEmpenho->id]
+                );
+
+//                dump($request->all());
+//                dd($minutaEmpenho);
 
                 DB::commit();
 
@@ -316,6 +333,9 @@ class CompraSiasgCrudController extends CrudController
                     $this->gravaParametroItensdaCompraSISRP($retornoSiasg, $compra);
                 }
 
+                $tipo_empenhopor = Codigoitem::where('descricao', '=', 'Compra')
+                    ->where('descres', 'COM')
+                    ->first();
 
                 $minutaEmpenho = $this->gravaMinutaEmpenho([
                     'situacao_id' => $situacao->id,
@@ -324,7 +344,7 @@ class CompraSiasgCrudController extends CrudController
                     'unidade_id' => $unidade_autorizada_id,
                     'modalidade_id' => $compra->modalidade_id,
                     'numero_ano' => $compra->numero_ano,
-                    'empenhocontrato' => false
+                    'tipo_empenhopor' => $tipo_empenhopor->id
                 ]);
 
                 DB::commit();
@@ -492,7 +512,7 @@ class CompraSiasgCrudController extends CrudController
             $minutaEmpenho->fornecedor_compra_id = $params['fornecedor_compra_id'];
             $minutaEmpenho->fornecedor_empenho_id = $params['fornecedor_compra_id'];
             $minutaEmpenho->numero_contrato = $params['numero_contrato'];
-            $minutaEmpenho->empenhocontrato = $params['empenhocontrato'];
+            $minutaEmpenho->tipo_empenhopor_id = $params['tipo_empenhopor'];
             $etapa = 3;
         }
 

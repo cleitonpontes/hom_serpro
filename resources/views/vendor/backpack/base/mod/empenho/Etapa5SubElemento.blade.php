@@ -64,7 +64,7 @@
             <br/>
             <form action="/empenho/subelemento" method="POST">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
-                <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
+{{--                <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">--}}
                 <input type="hidden" id="credito" name="credito" value="{{$credito}}">
                 <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="{{$valor_utilizado}}">
                 @csrf <!-- {{ csrf_field() }} -->

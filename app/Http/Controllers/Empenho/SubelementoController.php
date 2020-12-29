@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Empenho;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
 use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
+use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
+use App\Models\Codigoitem;
 use App\Models\MinutaEmpenho;
 use App\Models\Naturezasubitem;
 use Illuminate\Http\Request;
@@ -33,12 +35,103 @@ class SubelementoController extends BaseControllerEmpenho
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
 
-        $itens = MinutaEmpenho::join(
-            'compra_item_minuta_empenho',
-            'compra_item_minuta_empenho.minutaempenho_id',
-            '=',
-            'minutaempenhos.id'
-        )
+        $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
+
+        if ($codigoitem->descres == 'CON') {
+            $itens = MinutaEmpenho::join(
+                'contrato_item_minuta_empenho',
+                'contrato_item_minuta_empenho.minutaempenho_id',
+                '=',
+                'minutaempenhos.id'
+            )
+                ->join(
+                    'contratoitens',
+                    'contratoitens.id',
+                    '=',
+                    'contrato_item_minuta_empenho.compra_item_id'
+                )
+                ->join(
+                    'compras',
+                    'compras.id',
+                    '=',
+                    'minutaempenhos.compra_id'
+                )
+                ->join(
+                    'codigoitens as tipo_compra',
+                    'tipo_compra.id',
+                    '=',
+                    'compras.tipo_compra_id'
+                )
+                ->join(
+                    'codigoitens',
+                    'codigoitens.id',
+                    '=',
+                    'contratoitens.tipo_id'
+                )
+                ->join(
+                    'saldo_contabil',
+                    'saldo_contabil.id',
+                    '=',
+                    'minutaempenhos.saldo_contabil_id'
+                )
+                ->join(
+                    'naturezadespesa',
+                    'naturezadespesa.codigo',
+                    '=',
+                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
+                )
+//                ->join(
+//                    'compra_item_fornecedor',
+//                    'compra_item_fornecedor.compra_item_id',
+//                    '=',
+//                    'compra_items.id'
+//                )
+                ->join(
+                    'catmatseritens',
+                    'catmatseritens.id',
+                    '=',
+                    'contratoitens.catmatseritem_id'
+                )
+//                ->join(
+//                    'compra_item_unidade',
+//                    'compra_item_unidade.compra_item_id',
+//                    '=',
+//                    'compra_items.id'
+//                )
+                ->where('minutaempenhos.id', $minuta_id)
+                ->select(
+                    [
+                        'contrato_item_minuta_empenho.compra_item_id',
+                        'tipo_compra.descricao as tipo_compra_descricao',
+                        'codigoitens.descricao',
+                        'catmatseritens.codigo_siasg',
+                        'catmatseritens.descricao as catmatser_desc',
+                        DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
+                        'contratoitens.descricao_complementar as descricaodetalhada',
+                        DB::raw("SUBSTRING(contratoitens.descricao_complementar for 50) AS descricaosimplificada"),
+                        'contratoitens.quantidade as qtd_item',
+                        'contratoitens.valorunitario as valorunitario',
+                        'naturezadespesa.codigo as natureza_despesa',
+                        'naturezadespesa.id as natureza_despesa_id',
+                        'contratoitens.valortotal',
+                        'saldo_contabil.saldo',
+                        'contrato_item_minuta_empenho.subelemento_id',
+                        'contrato_item_minuta_empenho.quantidade',
+                        'contrato_item_minuta_empenho.valor',
+                        DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
+                    ]
+                )
+                ->get()
+                ->toArray();
+        }
+
+        if ($codigoitem->descres == 'COM') {
+            $itens = MinutaEmpenho::join(
+                'compra_item_minuta_empenho',
+                'compra_item_minuta_empenho.minutaempenho_id',
+                '=',
+                'minutaempenhos.id'
+            )
             ->join(
                 'compra_items',
                 'compra_items.id',
@@ -101,6 +194,8 @@ class SubelementoController extends BaseControllerEmpenho
                     'tipo_compra.descricao as tipo_compra_descricao',
                     'codigoitens.descricao',
                     'catmatseritens.codigo_siasg',
+                    'catmatseritens.descricao as catmatser_desc',
+                    DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
                     'compra_items.descricaodetalhada',
                     DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                     'compra_item_unidade.quantidade_saldo as qtd_item',
@@ -117,16 +212,27 @@ class SubelementoController extends BaseControllerEmpenho
             )
             ->get()
             ->toArray();
+        }
+//        dd($itens);
 //        ;dd($itens->getBindings(),$itens->toSql());
 //        select sum(valor) from compra_item_minuta_empenho WHERE minutaempenho_id = 8
-        $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
-            ->select(DB::raw('sum(valor) '))
-            ->first()->toArray();
-//        ;dd($itens->getBindings(),$itens->toSql());
-//        dd($valor_utilizado);
 
+        if ($codigoitem->descres == 'COM') {
+            $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->select(DB::raw('sum(valor) '))
+                ->first()->toArray();
+        }
+
+        if ($codigoitem->descres == 'CON') {
+            $valor_utilizado = ContratoItemMinutaEmpenho::where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->select(DB::raw('sum(valor) '))
+               ->first()->toArray();
+        }
+
+//        catmatser_desc
         if ($request->ajax()) {
-            return DataTables::of($itens)
+
+            $dados = DataTables::of($itens)
                 ->addColumn(
                     'ci_id',
                     function ($item) use ($modMinutaEmpenho) {
@@ -160,15 +266,20 @@ class SubelementoController extends BaseControllerEmpenho
                     }
                 )
                 ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
+                    if($itens['descricaosimplificada'] == null){
+                        return $this->retornaDescricaoDetalhada($itens['catmatser_desc_simplificado'], $itens['catmatser_desc'] );
+                    }
                     return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada'] );
                 })
                 ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item','descricaosimplificada'])
                 ->make(true);
+
+
+            return $dados;
         }
 
         $html = $this->retornaGridItens();
 
-//        dd($itens);
 
         return view(
             'backpack::mod.empenho.Etapa5SubElemento',
@@ -179,8 +290,9 @@ class SubelementoController extends BaseControllerEmpenho
             'saldo' => $itens[0]['saldo'] - $valor_utilizado['sum'],
             'update' => false,
 //            'update' => $valor_utilizado['sum'] > 0,
-            'fornecedor_id' => $itens[0]['fornecedor_id'],
+ //           'fornecedor_id' => $itens[0]['fornecedor_id'],
         ]);
+
     }
 
 /*    private function retornaDescricaoDetalhada($descricao, $descricaocompleta)
@@ -198,7 +310,6 @@ class SubelementoController extends BaseControllerEmpenho
      */
     private function retornaGridItens()
     {
-
         $html = $this->htmlBuilder
             ->addColumn(
                 [
@@ -434,9 +545,14 @@ class SubelementoController extends BaseControllerEmpenho
                     //->where('fornecedor_id', $request->fornecedor_id)
                     ->first();
 
+                $modMinuta = MinutaEmpenho::find($minuta_id);
+                $codigoitem = Codigoitem::find($modMinuta->tipo_empenhopor_id);
+
+                if ($codigoitem->descres == 'COM') {
                 $saldo = $this->retornaSaldoAtualizado($item);
                     $compraItemUnidade->quantidade_saldo = $saldo->saldo;
                     $compraItemUnidade->save();
+                }
 
             }
 

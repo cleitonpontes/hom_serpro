@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Empenho;
 
 use Alert;
 use App\Http\Controllers\Empenho\Minuta\BaseControllerEmpenho;
+use App\Models\Codigoitem;
 use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\ContratoItemMinutaEmpenho;
@@ -37,19 +38,51 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     public function index(Request $request)
     {
         $minuta_id = Route::current()->parameter('minuta_id');
+        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
 
-        $fornecedores = MinutaEmpenho::join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
-            ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
-            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
-            ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
-            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
-            ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
-            ->distinct()
-            ->where('minutaempenhos.id', $minuta_id)
-            ->where('compra_item_unidade.quantidade_saldo', '>', 0)
-            ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener', 'compra_item_fornecedor.situacao_sicaf'])
-            ->get()
-            ->toArray();
+
+        if ($codigoitem->descres == 'CON') {
+
+//            dd($modMinutaEmpenho->contrato()->first()->fornecedor);
+
+//            $fornecedores = [0 => ["id" => 11,
+//    "nome" => "AMAZONAS ENERGIA S.A",
+//    "cpf_cnpj_idgener" => "02.341.467/0001-20",
+//    "situacao_sicaf" => "1"]];
+
+            //$fornecedores = $modMinutaEmpenho->contrato()->first()->fornecedor;
+            $fornecedores = MinutaEmpenho::join('contrato_minuta_empenho_pivot',
+                'contrato_minuta_empenho_pivot.minuta_empenho_id',
+                '=',
+                'minutaempenhos.id'
+            )->join('contratos', 'contratos.id','=','contrato_minuta_empenho_pivot.contrato_id')
+                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
+                ->where('minutaempenhos.id', $minuta_id)
+                ->select([
+                    'fornecedores.id',
+                    'fornecedores.nome',
+                    'fornecedores.cpf_cnpj_idgener',
+                    DB::raw('1 AS situacao_sicaf')
+                ])
+                ->get()
+                ->toArray();
+        }
+        if ($codigoitem->descres == 'COM') {
+            $fornecedores = MinutaEmpenho::join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+                ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
+                ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+                ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
+                ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+                ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
+                ->distinct()
+                ->where('minutaempenhos.id', $minuta_id)
+                ->where('compra_item_unidade.quantidade_saldo', '>', 0)
+                ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener', 'compra_item_fornecedor.situacao_sicaf'])
+                ->get()
+                ->toArray();
+        }
+//        dd($fornecedores);
 
         if ($request->ajax()) {
             return DataTables::of($fornecedores)->addColumn('action', function ($fornecedores) use ($minuta_id) {
@@ -144,38 +177,44 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+//        dd($modMinutaEmpenho);
+
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
         if (!is_null($modMinutaEmpenho)) {
             $modMinutaEmpenho->atualizaFornecedorCompra($fornecedor_id);
             session(['fornecedor_compra' => $fornecedor_id]);
         }
+        $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
 
-
-        if (true == $modMinutaEmpenho->empenhocontrato) {
+        if ($codigoitem->descres == 'CON') {
+//            dd(123);
+//            dump($modMinutaEmpenho->numero_contrato);
 
             $itens = Contrato::where('fornecedor_id', '=', $fornecedor_id)
-                            ->where('numero', '=', $modMinutaEmpenho->numero_contrato)
-                            ->join('contratoitens', 'contratoitens.contrato_id', '=', 'contratos.id')
-                            ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
-                            ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
-
-
+                ->where('numero', '=', $modMinutaEmpenho->numero_contrato)
+                ->whereNull('contratoitens.deleted_at')
+                ->join('contratoitens', 'contratoitens.contrato_id', '=', 'contratos.id')
+                ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+                ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
                 ->select([
                     'contratoitens.id',
                     'codigoitens.descricao',
                     'catmatseritens.codigo_siasg',
+                    'contratoitens.numero_item_compra as numero',
                     'contratoitens.descricao_complementar as descricaodetalhada',
                     DB::raw("SUBSTRING(contratoitens.descricao_complementar for 50) AS descricaosimplificada"),
                     'contratoitens.quantidade as quantidade_saldo',
                     'contratoitens.valorunitario as valor_unitario',
                     'contratoitens.valortotal as valor_negociado'
-                    //'minutaempenhos.numero_contrato'
+//                    'minutaempenhos.numero_contrato'
                 ])
                 ->get()
                 ->toArray();
+//            ;dd($itens->getBindings(),$itens->toSql());
         }
-
-        if (false == $modMinutaEmpenho->empenhocontrato) {
+//        dd($itens);
+//die();
+        if ($codigoitem->descres == 'COM') {
             $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
                 ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
@@ -209,7 +248,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             return DataTables::of($itens)->addColumn('action', function ($itens) use ($modMinutaEmpenho) {
                 return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao']);
             })->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada'] );
+                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada']);
             })->rawColumns(['descricaosimplificada', 'action'])
                 ->make(true);
         }
@@ -233,7 +272,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     private function retornaDescricaoDetalhada($descricao, $descricaocompleta)
     {
         $retorno = '';
-        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i>';
+        $retorno .= $descricao . ' <i class="fa fa-info-circle" title="' . $descricaocompleta . '"></i>';
 
         return $retorno;
     }
@@ -254,11 +293,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'orderable' => false,
                 'searchable' => false
             ])
-//            ->addColumn([
-//                'data' => 'numero',
-//                'name' => 'numero',
-//                'title' => 'N. Item',
-//            ])
+            ->addColumn([
+                'data' => 'numero',
+                'name' => 'numero',
+                'title' => 'N. Item',
+            ])
             ->addColumn([
                 'data' => 'descricao',
                 'name' => 'descricao',
@@ -317,6 +356,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $minuta_id = $request->minuta_id;
         $fornecedor_id = $request->fornecedor_id;
         $itens = $request->itens;
+        $amparo = $minuta->retornaAmparoPorMinuta();
+        dd($amparo);
 
         if (!isset($itens)) {
             Alert::error('Escolha pelo menos 1 item da compra.')->flash();
@@ -337,15 +378,10 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         DB::beginTransaction();
         try {
 
-            if (true == $minuta->empenhocontrato) {
-                foreach ($itens as $key => $item) {
-                    $contratoItemMinuta = new ContratoItemMinutaEmpenho();
-                    dd($contratoItemMinuta);die();
-                    $contratoItemMinuta->contrato_item_id = $item['compra_item_id'];
+            $codigoitem = Codigoitem::find($minuta->tipo_empenhopor_id);
 
-                    $contratoItemMinuta->minutaempenho_id = $item['minutaempenho_id'];
-                    $contratoItemMinuta->save();
-                }
+            if ($codigoitem->descres == 'CON') {
+                ContratoItemMinutaEmpenho::insert($itens);
             } else {
                 CompraItemMinutaEmpenho::insert($itens);
             }

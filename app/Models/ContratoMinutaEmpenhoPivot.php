@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class ContratoItemMinutaEmpenho extends Model
+class ContratoMinutaEmpenhoPivot extends Model
 {
     use CrudTrait;
     use LogsActivity;
@@ -21,20 +20,17 @@ class ContratoItemMinutaEmpenho extends Model
     */
 
     protected static $logFillable = true;
-    protected static $logName = 'contrato_item_minuta_empenho';
+    protected static $logName = 'contrato_minuta_empenho_pivot';
 
-    protected $table = 'contrato_item_minuta_empenho';
-//    protected $primaryKey = ['contrato_item_id', 'minutaempenho_id'];
+    protected $table = 'contrato_minuta_empenho_pivot';
     protected $guarded = [
         //
     ];
 
     protected $fillable = [
-        'contrato_item_id',   // Chave composta: 1/3
-        'minutaempenho_id', // Chave composta: 2/3
-        'subelemento_id',
-        'quantidade',
-        'valor',
+        'contrato_id',   // Chave composta: 1/2
+        'minuta_empenho_id' // Chave composta: 2/2
+
     ];
 
     /**
@@ -42,22 +38,13 @@ class ContratoItemMinutaEmpenho extends Model
      *
      * @var boolean
      */
-    public $timestamps = true;
+    public $timestamps = false;
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function gravaContratoItemMinuta($params)
-    {
-        $this->contrato_item_id = $params['contrato_item_id'];
-        $this->minutaempenho_id = $params['minutaempenho_id'];
-
-        $this->save($params);
-
-        return $this->contrato_item_id;
-    }
 
     /*
     |--------------------------------------------------------------------------
@@ -65,19 +52,15 @@ class ContratoItemMinutaEmpenho extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function contrato_item()
-    {
-        return $this->belongsTo(Contratoitem::class, 'contrato_item_id');
-    }
 
     public function minutaempenho()
     {
         return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
     }
 
-    public function subelemento()
+    public function contrato()
     {
-        return $this->belongsTo(Naturezasubitem::class, 'subelemento_id');
+        return $this->belongsTo(Contrato::class, 'contrato_id');
     }
 
     /*
