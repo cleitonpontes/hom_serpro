@@ -4,9 +4,11 @@ namespace App\Models;
 
 use DB;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class SfPco extends Model
 {
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------

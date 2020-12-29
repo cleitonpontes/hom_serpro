@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Contratoconta extends Model
 {
@@ -11,6 +12,7 @@ class Contratoconta extends Model
     protected $primaryKey = 'id';
 
     use CrudTrait;
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------
