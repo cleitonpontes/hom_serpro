@@ -50,10 +50,6 @@ class ContratoObserve
             ->first();
 
 
-        if($contratohistorico->publicado){
-            $contrato_array['publicado'] = true;
-        }
-
         $contratohistorico->update($contrato_array);
 
     }
