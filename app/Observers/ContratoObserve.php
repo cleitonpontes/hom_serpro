@@ -49,6 +49,11 @@ class ContratoObserve
             ->whereIn('tipo_id', $tipos)
             ->first();
 
+
+        if($contratohistorico->publicado){
+            $contrato_array['publicado'] = true;
+        }
+
         $contratohistorico->update($contrato_array);
 
     }

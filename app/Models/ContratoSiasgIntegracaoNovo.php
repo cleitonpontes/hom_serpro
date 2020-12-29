@@ -60,7 +60,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             $dataPublicacao = $evento->daPublicacao;
             $rescisao = Contratohistorico::updateOrCreate([
                 'contrato_id' => $contrato->id,
-                'tipo_id' => 191
+                'tipo_id' => $this->retornaIdCodigoItem('Tipo de Contrato','Termo de Rescisão')
             ],
                 [
                     'observacao' => 'RESCISÃO DO CONTRATO NÚMERO : ' . $contrato->numero,
@@ -69,7 +69,8 @@ class ContratoSiasgIntegracaoNovo extends Model
                     'data_assinatura' => $dataPublicacao,
                     'data_publicacao' => $dataPublicacao,
                     'vigencia_fim' => $dataPublicacao,
-                    'situacao' => false
+                    'situacao' => false,
+                    'publicado' => true
                 ]
             );
         }
@@ -241,7 +242,8 @@ class ContratoSiasgIntegracaoNovo extends Model
                 'valor_global' => $vlrglobal,
                 'num_parcelas' => $numparcelas,
                 'valor_parcela' => $vlrparcela,
-                'supressao' => $aditivo->supressao
+                'supressao' => $aditivo->supressao,
+                'publicado' => true
             ];
 
             if (!isset($termoAditivo->id)) {
@@ -258,6 +260,7 @@ class ContratoSiasgIntegracaoNovo extends Model
                     'valor_global' => $vlrglobal,
                     'num_parcelas' => $numparcelas,
                     'valor_parcela' => $vlrparcela,
+                    'publicado' => true
                 ];
                 $termoAditivo->update($dados);
                 $this->gravaTiposTermoAditivo($termoAditivo, $arrayTipoTA);

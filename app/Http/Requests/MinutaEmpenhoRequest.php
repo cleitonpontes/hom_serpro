@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use App\Rules\ObrigatorioSeNaturezaIgual;
 use App\Rules\NaoAceitarEstrangeiro;
+use App\Rules\ValidaIdCipi;
 use Illuminate\Foundation\Http\FormRequest;
 
 class MinutaEmpenhoRequest extends FormRequest
@@ -49,6 +50,7 @@ class MinutaEmpenhoRequest extends FormRequest
 
             'numero_cipi' => [
                 new ObrigatorioSeNaturezaIgual($natureza_cipi,$minuta_id),
+                new ValidaIdCipi()
             ],
         ];
     }
