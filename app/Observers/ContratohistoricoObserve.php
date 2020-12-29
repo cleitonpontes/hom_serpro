@@ -314,15 +314,19 @@ class ContratohistoricoObserve
 
     private function atualizaMinutasContrato($contratohistorico)
     {
-        $contrato = Contrato::find($contratohistorico->contrato_id);
-        $contrato->minutasempenho()->detach();
+        $comodato_id = Codigoitem::where('descricao', 'Comodato')->first()->id;
 
-        //todas minutas que serão vinculadas
-        $arrContratoHistoricoMinutaEmpenho = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id','=', $contratohistorico->id)->get();
+        if ($comodato_id == $contratohistorico->tipo_id) {
+            $contrato = Contrato::find($contratohistorico->contrato_id);
+            $contrato->minutasempenho()->detach();
 
-        // vincula os empenhos ao contrato
-        foreach ($arrContratoHistoricoMinutaEmpenho as $contratoHistoricoMinutaEmpenho) {
-            $contrato->minutasempenho()->attach($contratoHistoricoMinutaEmpenho->minuta_empenho_id);
+            //todas minutas que serão vinculadas
+            $arrContratoHistoricoMinutaEmpenho = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id','=', $contratohistorico->id)->get();
+
+            // vincula os empenhos ao contrato
+            foreach ($arrContratoHistoricoMinutaEmpenho as $contratoHistoricoMinutaEmpenho) {
+                $contrato->minutasempenho()->attach($contratoHistoricoMinutaEmpenho->minuta_empenho_id);
+            }
         }
     }
 }
