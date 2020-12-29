@@ -6,10 +6,15 @@
         <div class="card-body">
             <div>
                 <span class="table-up">
-                    <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"
-                            data-target="#inserir_item">
-                        Inserir Item <i class="fa fa-plus"></i>
-                    </button>
+                    @if(
+                        $fields['descricao_tipo_contrato']['default'] === 'OUTROS' ||
+                        $fields['descricao_tipo_contrato']['default'] === 'EMPENHO'
+                        )
+                        <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"
+                                data-target="#inserir_item">
+                            Inserir Item <i class="fa fa-plus"></i>
+                        </button>
+                    @endif
                 </span>
                 <br>
                 <br>
