@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContratoHistoricoMinutaEmpenho extends Model
 {
-    protected $table = 'contrato_minuta_empenho_pivot';
+    protected $table = 'contrato_historico_minuta_empenho';
 
     public $timestamps = false;
 
