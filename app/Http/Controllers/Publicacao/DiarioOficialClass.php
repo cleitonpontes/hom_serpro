@@ -35,11 +35,13 @@ class DiarioOficialClass extends BaseSoapController
 
     public function __construct()
     {
+//        dd(config("publicacao.sistema.diario_oficial_uniao"));
         $this->Urlwsdl = config("publicacao.sistema.diario_oficial_uniao");
         $this->username = env('PUBLICACAO_DOU_USER');
         $this->password = env('PUBLICACAO_DOU_PWD');
 
-        self::setWsdl($this->Urlwsdl);
+        self::setWsdl('https://homologwsincom.in.gov.br/services/servicoIN?wsdl');
+
         $node1 = new SoapVar($this->username, XSD_STRING, null, null, 'Username', $this->securityNS);
         $node2 = new SoapVar($this->password, XSD_STRING, null, null, 'Password', $this->securityNS);
         $token = new SoapVar(array($node1, $node2), SOAP_ENC_OBJECT, null, null, 'UsernameToken', $this->securityNS);
@@ -101,18 +103,23 @@ class DiarioOficialClass extends BaseSoapController
         $contratoPublicacoes = ContratoPublicacoes::where('id',98)
             ->orderBy('id', 'desc')
             ->get();
+//        dd($contratoPublicacoes);
 
         foreach ($contratoPublicacoes as $contratoPublicacao) {
+//            dd($contratoPublicacao);
+            $this->enviaPublicacao($contratoPublicacao->contratohistorico,$contratoPublicacao);
 //            PublicaPreviewOficioJob::dispatch($contratoPublicacao)->onQueue('envia_preview_oficio');
-            $this->enviaPublicacao($contratoPublicacao->contratohistorico, $contratoPublicacao);
+//            dd();
         }
     }
 
     private function enviaPublicacao($contratoHistorico, $contratoPublicacoes)
     {
+//        dd($contratoHistorico, $contratoPublicacoes);
         $arrayPreview = $this->montaOficioPreview($contratoHistorico);
+//        dd($arrayPreview);
         $responsePreview = $this->soapClient->OficioPreview($arrayPreview);
-        dd($responsePreview);
+//        dd($responsePreview);
         if (!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)) {
             $contratoPublicacoes->status = 'Erro Preview!';
             $contratoPublicacoes->status_publicacao_id = self::retornaIdCodigoItem('Situacao Publicacao','DEVOLVIDO PELA IMPRENSA');
@@ -129,6 +136,7 @@ class DiarioOficialClass extends BaseSoapController
         $contratoPublicacoes->save();
 
         $this->oficioConfirmacao($contratoHistorico, $contratoPublicacoes);
+        dd('fim');
 
         return true;
     }
@@ -465,7 +473,6 @@ class DiarioOficialClass extends BaseSoapController
                 $this->atualizaPublicacao($publicacao, $retorno, $tipoSituacao);
             }
         }
-        dd('fim');
     }
 
 

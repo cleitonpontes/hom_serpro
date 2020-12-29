@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Route;
 use App\Models\ContratoPublicacoes;
 use App\Http\Traits\BuscaCodigoItens;
+use App\Models\Contratohistorico;
 
 /**
  * Class ContratoPublicacaoCrudController
@@ -41,7 +42,8 @@ class ContratoPublicacaoCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel(ContratoPublicacoes::class);
+//        $this->crud->setModel(ContratoPublicacoes::class);
+        $this->crud->setModel('App\Models\ContratoPublicacoes');
 //        $this->crud->setRoute(config('backpack.base.route_prefix') . '/contratopublicacao');
         $this->crud->setRoute(config('backpack.base.route_prefix')
             . "/gescon/contrato/$contrato_id/publicacao");
@@ -61,6 +63,7 @@ class ContratoPublicacaoCrudController extends CrudController
             'contratohistorico.contrato_id'
         );
         $this->crud->addClause('where', 'contratos.id', '=', $contrato_id);
+        $this->crud->addClause('select', 'contratopublicacoes.*');
 
 
         /*
@@ -82,7 +85,7 @@ class ContratoPublicacaoCrudController extends CrudController
         $this->crud->enableExportButtons();
 
         $this->adicionaColunas();
-        $this->adicionaCampos();
+        $this->adicionaCampos($contrato_id);
 
         // add asterisk for fields that are required in ContratoPublicacaoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -93,10 +96,10 @@ class ContratoPublicacaoCrudController extends CrudController
      * Configura os campos dos formulários de Inserir e Atualizar
      *
      */
-    protected function adicionaCampos()
+    protected function adicionaCampos($contrato_id)
     {
         $this->adicionaCampoDataPublicacao();
-        $this->adicionaCampoTipoPublicacao();
+        $this->adicionaCampoContratoHistorico($contrato_id);
 //        $this->adicionaCampoStatus();
 //        $this->adicionaCampoStatusPublicacao();
         $this->adicionaCampoTextoDOU();
@@ -122,19 +125,28 @@ class ContratoPublicacaoCrudController extends CrudController
     }
 
     /**
-     * Configura o campo Tipo de Publicacao
+     * Configura o campo Data de Publicação
      *
      */
-    private function adicionaCampoTipoPublicacao(): void
+    private function adicionaCampoContratoHistorico($contrato_id): void
     {
+        $this->crud->addField([  // Select2
+            'label' => "Instrumento",
+            'type' => 'select2',
+            'name' => 'contratohistorico_id', // the db column for the foreign key
+            'entity' => 'contratohistorico', // the method that defines the relationship in your Model
+            'attribute' => 'combo_publicacao', // foreign key attribute that is shown to user
+            'model' => Contratohistorico::class, // foreign key model
+
+            // optional
+            'options'   => (function ($query) use ($contrato_id) {
+                return $query->where('contrato_id', $contrato_id)->get();
+            }), // force the related options to be a custom query, instead of all(); you can use this to filter the results show in the select
+        ]);
         $this->crud->addField([
-            'name' => 'tipo_publicacao',
-            'label' => 'Tipo Publicacao',
-            'type' => 'text',
-            'attributes' => [
-                'readonly' => 'readonly',
-                'style' => 'pointer-events: none;touch-action: none;'
-            ],
+            'name' => 'data_publicacao',
+            'label' => 'Data Publicacao',
+            'type' => 'date',
             /*'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ]*/
@@ -214,6 +226,9 @@ class ContratoPublicacaoCrudController extends CrudController
             'type' => 'select2_from_array',
             'options' => $this->retornaArrayCodigosItens('Forma Pagamento'),
             'allows_null' => false,
+            'attributes' => [
+                'id' => 'tipo_pagamento_id',
+            ],
         ]);
     }
 
@@ -239,13 +254,12 @@ class ContratoPublicacaoCrudController extends CrudController
         $this->crud->addField([ // select_from_array
             'name' => 'numero',
             'label' => "Número Empenho",
-            'type' => 'empenho',
+            'type' => 'empenho_texto_livre',
 //                'allows_null' => false,
 //                'default' => 'one',
             // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
         ]);
     }
-
 
 
     /**
@@ -331,7 +345,11 @@ class ContratoPublicacaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        dd($request->all());
         // your additional operations before save here
+        $this->retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR');
+//        dd
+        $request->request->set('status_publicacao_id', $valor_global);
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
