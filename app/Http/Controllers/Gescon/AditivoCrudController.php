@@ -329,7 +329,7 @@ class AditivoCrudController extends CrudController
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)",
                 ],
-                'default' => $contrato->objeto,
+//                'default' => $contrato->objeto,
                 'tab' => 'Dados Gerais',
             ],
             [ // select_from_array
