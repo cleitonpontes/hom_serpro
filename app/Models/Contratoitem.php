@@ -48,7 +48,8 @@ class Contratoitem extends Model
     public function atualizaSaldoContratoItem(Saldohistoricoitem $saldohistoricoitem)
     {
         $saldoitens = Saldohistoricoitem::where('contratoitem_id', $saldohistoricoitem->contratoitem_id)
-            ->orderBy('created_at', 'ASC')
+            ->orderBy('contratohistorico.data_assinatura', 'ASC')
+            ->join('contratohistorico', 'contratohistorico.id', '=', 'saldohistoricoitens.saldoable_id')
             ->get();
 
         foreach ($saldoitens as $saldoitem) {
