@@ -60,6 +60,7 @@ class AtualizaSiasgContratoJob implements ShouldQueue
 
             if(isset($contrato->id)){
                 $siasgcontrato_atualizado->contrato_id = $contrato->id;
+                $siasgcontrato_atualizado->publicado = true;
                 $siasgcontrato_atualizado->save();
             }
         }
