@@ -2,31 +2,34 @@
 @inject('compratrait', 'App\Http\Controllers\Empenho\CompraSiasgCrudController')
 <div @include('crud::inc.field_wrapper_attributes') >
     <!-- Editable table -->
-    <div class="card">
-        <div class="card-body">
-            <div>
-                <div class="table-responsive">
-                <br/>
-                <table id="table" class="table table-bordered table-responsive-md table-striped text-center ">
-                    <thead>
-                    <tr>
-                        <th class="text-center">Tipo Item</th>
-                        <th class="text-center">Número</th>
-                        <th class="text-center">Item</th>
-                        <th class="text-center">Quantidade</th>
-                        <th class="text-center">Valor Unitário</th>
-                        <th class="text-center">Qtd. parcelas</th>
-                        <th class="text-center">Valor Total</th>
-                        <th class="text-center">Data Início</th>
-                    </tr>
-                    </thead>
-                    <tbody id="table-itens">
-
-                    </tbody>
-                </table>
-                </div>
+    <div class="row">
+        <div class="col-md-3 col-md-offset-9 text-right">
+            <div class="input-group">
+                <div class="input-group-addon">Valor total do Contrato:</div>
+                <input type="text" class="form-control" id="valorTotalItem" readonly value="0">
             </div>
         </div>
+    </div>
+    <br>
+    <br>
+    <div class="table-responsive">
+        <table id="table" class="table table-bordered table-responsive-md table-striped text-center ">
+            <thead>
+            <tr>
+                <th class="text-center">Tipo Item</th>
+                <th class="text-center">Número</th>
+                <th class="text-center">Item</th>
+                <th class="text-center">Quantidade</th>
+                <th class="text-center">Valor Unitário</th>
+                <th class="text-center">Qtd. parcelas</th>
+                <th class="text-center">Valor Total</th>
+                <th class="text-center">Data Início</th>
+            </tr>
+            </thead>
+            <tbody id="table-itens">
+
+            </tbody>
+        </table>
     </div>
 
     {{-- HINT --}}
@@ -153,6 +156,7 @@
                     totalItens = parseFloat(totalItens) + parseFloat(elementInput.value);
                 })
                 $('#novo_valor_global').val(parseFloat(totalItens.toFixed(2)));
+                $('#valorTotalItem').val(totalItens.toFixed(2));
 
                 atualizarValorParcelaApostilamento();
             }

@@ -66,9 +66,15 @@
 		    </div><!-- /.box-body -->
 
             <div class="">
-
-                @include('crud::inc.form_save_buttons')
-
+                @if(Route::current()->getName() == 'crud.instrumentoinicial.edit')
+                    @include('crud::inc.form_aba_buttons_instrumentoinicial')
+                @elseif(Route::current()->getName() == 'crud.aditivos.edit')
+                    @include('crud::inc.form_aba_buttons_aditivo')
+                @elseif(Route::current()->getName() == 'crud.apostilamentos.edit')
+                    @include('crud::inc.form_aba_buttons_apostilamentos')
+                @else
+                    @include('crud::inc.form_save_buttons')
+                @endif
 		    </div><!-- /.box-footer-->
 		  </div><!-- /.box -->
 		  </form>
