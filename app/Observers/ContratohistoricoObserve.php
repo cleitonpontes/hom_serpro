@@ -78,7 +78,6 @@ class ContratohistoricoObserve
        $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
             ->get();
-
         $cronograma = Contratocronograma::where('contrato_id', $contratohistorico->contrato_id)
             ->delete();
 
@@ -86,7 +85,6 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->atualizaMinutasContrato($contratohistorico);
         $this->createEventCalendar($contratohistorico);
-
 
 
         $publicado_id = Codigoitem::whereHas('codigo', function ($query) {
@@ -105,7 +103,7 @@ class ContratohistoricoObserve
         $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
         $status_publicacao_id = $this->getSituacao($sisg)->id;
 
-        $publicacao = $this->trataAtualizacaoPublicacoes($contratohistorico,$sisg,$status_publicacao_id,$publicado_id);
+        $this->trataAtualizacaoPublicacoes($contratohistorico,$sisg,$status_publicacao_id,$publicado_id);
 
     }
 
@@ -271,7 +269,7 @@ class ContratohistoricoObserve
             'valor_global' => $novo_valor,
             'num_parcelas' => $arrayhistorico['num_parcelas'],
             'valor_parcela' => $arrayhistorico['valor_parcela'],
-            'publicacao' =>  $arrayhistorico['publicacao'],
+            'publicado' =>  $arrayhistorico['publicado'],
         ];
         (isset($arrayhistorico['situacao'])) ? $arrayAditivo['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayAditivo;
@@ -285,7 +283,7 @@ class ContratohistoricoObserve
             'valor_global' => $arrayhistorico['valor_global'],
             'num_parcelas' => $arrayhistorico['num_parcelas'],
             'valor_parcela' => $arrayhistorico['valor_parcela'],
-            'publicacao' =>  $arrayhistorico['publicacao'],
+            'publicado' =>  $arrayhistorico['publicado'],
         ];
         (isset($arrayhistorico['situacao'])) ? $arrayApostilamento['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayApostilamento;
@@ -296,7 +294,7 @@ class ContratohistoricoObserve
         $arrayRescisao = [
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'situacao' => $arrayhistorico['situacao'],
-            'publicacao' =>  $arrayhistorico['publicacao'],
+            'publicado' =>  $arrayhistorico['publicado'],
         ];
         return $arrayRescisao;
     }

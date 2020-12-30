@@ -873,7 +873,7 @@ class EmpenhoCrudController extends CrudController
 
         if ($empenhos) {
             foreach ($empenhos as $empenho) {
-                $user = BackpackUser::where('cpf',$empenho->cpf_user)
+                $user = BackpackUser::where('cpf', $empenho->cpf_user)
                     ->first();
                 $ws_siafi = new Execsiafi;
                 $ano = date('Y');
@@ -881,13 +881,87 @@ class EmpenhoCrudController extends CrudController
                 $empenho->update($retorno);
 
                 if ($retorno['situacao'] == 'EMITIDO') {
-                    //todo inserir empenho na tabela empenho
+                    $empenho = $this->criaEmpenhoFromMinuta($empenho); //todo verificar tipo da minuta EMPENHO ou ALTERACAO
+
                     //todo criar job para devolver informação para o SIASG
                 }
 
             }
         }
 
+    }
+
+    public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
+    {
+        $array_empenho1 = [
+            'numero' => trim($empenho->mensagemretorno),
+            'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
+        ];
+        $array_empenho2 = [
+            'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
+            'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
+            'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
+            'fonte' => $empenho->celula_orcamentaria->codfonterec
+        ];
+
+        $novo_empenho = Empenho::firstOrCreate(
+            $array_empenho1,
+            $array_empenho2
+        );
+
+        $itens = $empenho->itens_empenho()->get();
+
+        foreach ($itens as $item) {
+            $array_empenhodetalhado = [
+                'empenho_id' => $novo_empenho->id,
+                'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
+            ];
+            Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
+        }
+    }
+
+    public function trataPiNdSubitem($dado, $tipo, $fk = null)
+    {
+        if ($dado == '') {
+            return null;
+        }
+
+        if ($tipo == 'PI') {
+            $pi = Planointerno::firstOrCreate(
+                ['codigo' => trim($dado)],
+                [
+                    'descricao' => 'ATUALIZAR PI',
+                    'situacao' => true
+                ]
+            );
+
+            return $pi->id;
+        }
+        if ($tipo == 'ND') {
+            $nd = Naturezadespesa::firstOrCreate(
+                ['codigo' => trim($dado)],
+                [
+                    'descricao' => 'ATUALIZAR ND',
+                    'situacao' => true
+                ]
+            );
+
+            return $nd->id;
+        }
+        if ($tipo == 'SUBITEM') {
+            $nd = Naturezasubitem::firstOrCreate(
+                [
+                    'naturezadespesa_id' => $fk,
+                    'codigo' => trim($dado),
+                ],
+                [
+                    'descricao' => 'ATUALIZAR SUBITEM',
+                    'situacao' => true
+                ]
+            );
+
+            return $nd->id;
+        }
     }
 
     public function enviaEmpenhoSiasgTeste()

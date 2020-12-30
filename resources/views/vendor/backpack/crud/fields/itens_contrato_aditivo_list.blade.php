@@ -3,10 +3,10 @@
 <div @include('crud::inc.field_wrapper_attributes') >
     <!-- Editable table -->
     <div class="col-xs-6">
-        <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"
-                data-target="#inserir_item">
-            Inserir Item <i class="fa fa-plus"></i>
-        </button>
+{{--        <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"--}}
+{{--                data-target="#inserir_item">--}}
+{{--            Inserir Item <i class="fa fa-plus"></i>--}}
+{{--        </button>--}}
     </div>
     <div class="col-xs-6 col-md-3 col-md-offset-3 text-right">
         <div class="input-group">
@@ -29,7 +29,7 @@
                 <th class="text-center">Qtd. parcelas</th>
                 <th class="text-center">Valor Total</th>
                 <th class="text-center">Data Início</th>
-                <th class="text-center">Ações</th>
+{{--                <th class="text-center">Ações</th>--}}
             </tr>
             </thead>
             <tbody id="table-itens">
@@ -361,10 +361,10 @@
                 cols += '<td><input class="form-control input-item input-item-vl-unitario" '+ propReadOnlyReajuste +' type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control input-item input-item-acrescimo" '+ propReadOnly +' type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
                 cols += '<td><input class="form-control input-item" readonly type="number"  name="vl_total[]" step="0.0001" id="vl_total" value="'+vl_total+'"></td>';
-                cols += '<td><input class="form-control input-item" readonly type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
-                cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
-                    '<i class="fa fa-trash"></i>'+
-                    '</button>';
+                cols += '<td><input class="form-control input-item" readonly type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
+                // cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
+                //     '<i class="fa fa-trash"></i>'+
+                //     '</button>';
                 cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
                 cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
                 cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
