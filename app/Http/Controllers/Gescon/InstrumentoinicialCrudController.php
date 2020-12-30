@@ -67,7 +67,7 @@ class InstrumentoinicialCrudController extends CrudController
         }
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
+//        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
