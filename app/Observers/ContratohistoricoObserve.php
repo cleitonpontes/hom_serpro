@@ -220,8 +220,6 @@ class ContratohistoricoObserve
 
     private function atualizaContrato($contratohistorico)
     {
-
-
         foreach ($contratohistorico as $h) {
             $contrato_id = $h->contrato_id;
             $arrayhistorico = $h->toArray();
@@ -272,7 +270,8 @@ class ContratohistoricoObserve
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'valor_global' => $novo_valor,
             'num_parcelas' => $arrayhistorico['num_parcelas'],
-            'valor_parcela' => $arrayhistorico['valor_parcela']
+            'valor_parcela' => $arrayhistorico['valor_parcela'],
+            'publicacao' =>  $arrayhistorico['publicacao'],
         ];
         (isset($arrayhistorico['situacao'])) ? $arrayAditivo['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayAditivo;
@@ -285,7 +284,8 @@ class ContratohistoricoObserve
             'unidade_id' => $arrayhistorico['unidade_id'],
             'valor_global' => $arrayhistorico['valor_global'],
             'num_parcelas' => $arrayhistorico['num_parcelas'],
-            'valor_parcela' => $arrayhistorico['valor_parcela']
+            'valor_parcela' => $arrayhistorico['valor_parcela'],
+            'publicacao' =>  $arrayhistorico['publicacao'],
         ];
         (isset($arrayhistorico['situacao'])) ? $arrayApostilamento['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayApostilamento;
@@ -296,6 +296,7 @@ class ContratohistoricoObserve
         $arrayRescisao = [
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'situacao' => $arrayhistorico['situacao'],
+            'publicacao' =>  $arrayhistorico['publicacao'],
         ];
         return $arrayRescisao;
     }
