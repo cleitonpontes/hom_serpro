@@ -209,7 +209,7 @@
                     itens.forEach(function (item) {
                         var linhas = $("#table-itens tr").length;
                         if(qtd_itens > linhas){
-                            adicionaLinhaItem(item);
+                            adicionaLinhaItem(item, false);
                         }
                     });
                     minutas_id = [];

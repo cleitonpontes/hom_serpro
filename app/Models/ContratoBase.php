@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Http\Traits\Formatador;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContratoBase extends Model
 {
-
+    use LogsActivity;
     use Formatador;
 
     /*

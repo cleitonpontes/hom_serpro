@@ -9,6 +9,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class AppVersion extends Model
 {
     use LogsActivity;
+
     protected static $logFillable = true;
     protected static $logName = 'app_version';
 
@@ -26,7 +27,4 @@ class AppVersion extends Model
         'minor',
         'patch'
     ];
-
-
-
 }

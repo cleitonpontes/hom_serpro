@@ -11,10 +11,10 @@ class Empenhodetalhado extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    protected static $logFillable = true;
-    protected static $logName = 'empenhodetalhado';
     use SoftDeletes;
 
+    protected static $logFillable = true;
+    protected static $logName = 'empenhodetalhado';
     protected $table = 'empenhodetalhado';
     // protected $primaryKey = 'id';
     // public $timestamps = false;

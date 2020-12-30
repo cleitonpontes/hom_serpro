@@ -833,7 +833,7 @@ class ContratoCrudController extends CrudController
     {
         $this->crud->addField([
             'name' => 'data_assinatura',
-            'label' => 'Data Assinatura',
+            'label' => 'Data da Assinatura',
             'type' => 'date',
             'tab' => $this->tab
         ]);
@@ -843,7 +843,7 @@ class ContratoCrudController extends CrudController
     {
         $this->crud->addField([
             'name' => 'data_publicacao',
-            'label' => 'Data Publicação',
+            'label' => 'Data da Publicação',
             'type' => 'date',
             'tab' => $this->tab
         ]);

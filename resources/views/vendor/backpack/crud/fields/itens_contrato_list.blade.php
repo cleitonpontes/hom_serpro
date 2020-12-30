@@ -10,7 +10,7 @@
     </div>
     <div class="col-xs-6 col-md-3 col-md-offset-3 text-right">
             <div class="input-group">
-                <div class="input-group-addon">Valor Total Item R$:</div>
+                <div class="input-group-addon">Valor total do Contrato:</div>
                 <input type="text" class="form-control" id="valorTotalItem" readonly value="0">
             </div>
     </div>
@@ -25,7 +25,7 @@
                 <th class="text-center">Item</th>
                 <th class="text-center">Quantidade</th>
                 <th class="text-center">Valor Unitário</th>
-                <th class="text-center">Qtd. Parcela</th>
+                <th class="text-center">Qtd. parcelas</th>
                 <th class="text-center">Valor Total</th>
                 <th class="text-center">Data Início</th>
                 <th class="text-center">Ações</th>
@@ -269,7 +269,7 @@
                     'periodicidade': $('#periodicidade_item').val(),
                     'data_inicio': $('#dt_inicio').val()
                 }
-                adicionaLinhaItem(item);
+                adicionaLinhaItem(item, true);
                 resetarCamposFormulario();
             }
 
@@ -317,12 +317,16 @@
                 });
             }
 
-            function adicionaLinhaItem(item) {
-
+            function adicionaLinhaItem(item, booFromModal) {
                 var compra_itens_id = $("[name='compra_itens_id[]']");
                 compra_itens_id.push(item.id);
                 //verifica se pega a quantidade_autorizada do banco ou a quantidade da modal de item;
-                var qtd = item.quantidade_autorizada ? item.quantidade_autorizada : item.quantidade;
+
+                var qtd = booFromModal ? item.quantidade : item.quantidade_autorizada,
+                    qtdMax = booFromModal ? 10000000 : item.quantidade_autorizada,
+                    qtdMin = booFromModal ? 0 : item.quantidade;
+
+
                 var vl_unit = item.valor_unitario;
                 // se vier data dos dados do contrato preencher com a data default
                 var data_inicio = $('input[name=data_assinatura]').val();
@@ -335,7 +339,6 @@
                 if ($('#periodicidade_item').val()) {
                     periodicidade = $('#periodicidade_item').val();
                 }
-                console.log(parseInt(qtd), parseFloat(vl_unit));
                 var vl_total = parseInt(qtd) * parseFloat(vl_unit) * periodicidade;
 
                 var newRow = $("<tr>");
@@ -343,7 +346,7 @@
                 cols += '<td>'+item.tipo_item+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.codigo_siasg + ' - ' +item.descricaocatmatseritens+'</td>';
-                cols += '<td><input class="form-control" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="'+item.quantidade_autorizada+'" min="'+qtd+'" value="'+qtd+'"></td>';
+                cols += '<td><input class="form-control validadeMaxMinQtdItem'+item.id+'" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="'+qtdMax+'" min="'+qtdMin+'" value="'+qtd+'"></td>';
                 cols += '<td><input class="form-control" type="number" readonly name="vl_unit[]" step="0.0001" id="vl_unit" value="'+vl_unit+'"></td>';
                 cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
                 cols += '<td><input class="form-control" type="number" readonly  name="vl_total[]" step="0.0001" id="vl_total"value="'+vl_total+'"></td>';
@@ -362,6 +365,34 @@
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
                 calculaTotalGlobal();
+
+                /***************ATRIBUI EVENTOS DE VALIDAÇÃO PARA QTD_ITEM MAX E MIN***************************/
+                var elementQtdItem = document.querySelector(".validadeMaxMinQtdItem"+item.id);
+                var funcMaxNumber = maxNumber(qtdMax, qtdMin);
+                elementQtdItem.addEventListener('keyup', funcMaxNumber);
+                elementQtdItem.addEventListener('blur', funcMaxNumber);
+                /***********************************************************************************************/
+            }
+
+            function maxNumber(max, min)
+            {
+                var running = false;
+
+                return function () {
+                    //Para evitar conflito entre o blur e o keyup
+                    if (running) return;
+
+                    //
+                    running = true;
+
+                    //Se o input for maior que max ele irá fixa o valor maximo no value
+                    if (parseFloat(this.value) > max || parseFloat(this.value) < min) {
+                        this.value = max;
+                    }
+
+                    //Habilita novamente as chamadas do blur e keyup
+                    running = false;
+                };
             }
 
             function removeLinha(elemento) {
@@ -385,8 +416,8 @@
                 })
                 $('#valor_global').val(totalItens.toFixed(2));
                 $('#valorTotalItem').val(totalItens.toFixed(2));
-
                 $("#table-itens").find('tr').each(function () {
+                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
                     //seta num_parcelas
                     if (periodicidade > parcela) {
                         parcela = periodicidade;
