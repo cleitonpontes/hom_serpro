@@ -29,6 +29,8 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $fornecedor = $this->buscaFornecedorCpfCnpjIdgener($json->data->dadosContrato->cpfCnpjfornecedor, $json->data->dadosContrato->nomefornecedor, $siasgcontrato);
 
+        dd($fornecedor);
+
         $contrato = $this->verificaContratoUnidade($siasgcontrato, $fornecedor, $json);
 
         if (isset($contrato->id)) {
