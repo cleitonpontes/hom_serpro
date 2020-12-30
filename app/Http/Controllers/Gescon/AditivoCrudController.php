@@ -63,7 +63,7 @@ class AditivoCrudController extends CrudController
         $this->crud->orderBy('data_assinatura', 'asc');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
+//        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
         $this->crud->enableExportButtons();
 //        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
@@ -329,7 +329,7 @@ class AditivoCrudController extends CrudController
                 'attributes' => [
                     'onkeyup' => "maiuscula(this)",
                 ],
-                'default' => $contrato->objeto,
+//                'default' => $contrato->objeto,
                 'tab' => 'Dados Gerais',
             ],
             [ // select_from_array

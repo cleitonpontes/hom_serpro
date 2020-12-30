@@ -47,9 +47,9 @@ class ContratoitemCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
-        (backpack_user()->can('contratoitem_inserir')) ? $this->crud->allowAccess('create') : null;
+//        (backpack_user()->can('contratoitem_inserir')) ? $this->crud->allowAccess('create') : null;
 //        (backpack_user()->can('contratoitem_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('contratoitem_deletar')) ? $this->crud->allowAccess('delete') : null;
+//        (backpack_user()->can('contratoitem_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
         |--------------------------------------------------------------------------

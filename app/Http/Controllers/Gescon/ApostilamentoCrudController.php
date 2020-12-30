@@ -68,7 +68,7 @@ class ApostilamentoCrudController extends CrudController
         $this->crud->orderBy('data_assinatura', 'asc');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
+//        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
         $this->crud->enableExportButtons();
 //        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');

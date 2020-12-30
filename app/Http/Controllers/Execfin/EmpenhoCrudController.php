@@ -353,23 +353,42 @@ class EmpenhoCrudController extends CrudController
 //                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
 //             ],
             [ // select_from_array
-                'name' => 'planointerno_id',
                 'label' => "Plano Interno (PI)",
-                'type' => 'select2_from_array',
-                'options' => $planointerno,
-                'allows_null' => true,
-//                'default' => 'one',
+                'type' => "select2_from_ajax",
+                'name' => 'planointerno_id',
+                'entity' => 'planointerno',
+                'attribute' => "codigo",
+                'attribute2' => "descricao",
+                'process_results_template' => 'gescon.process_results_planointerno',
+                'model' => "App\Models\Planointerno",
+                'data_source' => url("api/planointerno"),
+                'placeholder' => "Selecione o Plano Interno",
+                'minimum_input_length' => 2,//                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [ // select_from_array
-                'name' => 'naturezadespesa_id',
                 'label' => "Natureza Despesa (ND)",
-                'type' => 'select2_from_array',
-                'options' => $naturezadespesa,
-                'allows_null' => true,
-//                'default' => 'one',
+                'type' => "select2_from_ajax",
+                'name' => 'naturezadespesa_id',
+                'entity' => 'naturezadespesa',
+                'attribute' => "codigo",
+                'attribute2' => "descricao",
+                'process_results_template' => 'gescon.process_results_planointerno',
+                'model' => "App\Models\Naturezadespesa",
+                'data_source' => url("api/naturezadespesa"),
+                'placeholder' => "Selecione a Natureza de Despesa",
+                'minimum_input_length' => 2,//                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
+//            [ // select_from_array
+//                'name' => 'naturezadespesa_id',
+//                'label' => "Natureza Despesa (ND)",
+//                'type' => 'select2_from_array',
+//                'options' => $naturezadespesa,
+//                'allows_null' => true,
+////                'default' => 'one',
+//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+//            ],
 
         ];
 
