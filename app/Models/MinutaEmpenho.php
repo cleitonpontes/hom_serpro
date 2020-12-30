@@ -103,19 +103,19 @@ class MinutaEmpenho extends Model
      */
     public function retornaConsultaMultiSelect($item)
     {
-     $minuta =  $this
+        $minuta = $this
             ->select(['minutaempenhos.id',
                 DB::raw("CONCAT(minutaempenhos.mensagem_siafi, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
                                  as nome_minuta_empenho")])
             ->distinct('minutaempenhos.id')
             ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
-            ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
+            ->join('codigoitens', 'codigoitens.id', '=', 'compras.modalidade_id')
             ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
             ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
-             ->where('minutaempenhos.id', $item->id)
-         ->first();
+            ->where('minutaempenhos.id', $item->id)
+            ->first();
 
-         return  $minuta->nome_minuta_empenho;
+        return $minuta->nome_minuta_empenho;
     }
 
     public function atualizaFornecedorCompra($fornecedor_id)

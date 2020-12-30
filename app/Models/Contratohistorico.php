@@ -455,6 +455,11 @@ class Contratohistorico extends ContratoBase
     |--------------------------------------------------------------------------
     */
 
+    public function getComboPublicacaoAttribute()
+    {
+        return $this->numero . ' - ' . $this->tipo->descricao;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS
