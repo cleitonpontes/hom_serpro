@@ -230,6 +230,7 @@ Route::group([
                 CRUD::resource('itens', 'ContratoitemCrudController');
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
+                CRUD::resource('publicacao', 'ContratoPublicacaoCrudController');
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('rescisao', 'RescisaoCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');
