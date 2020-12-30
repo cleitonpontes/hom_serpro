@@ -99,8 +99,7 @@ class ComprasnetController extends Controller
         })
             ->where('modalidade_id', $modalidade)
             ->where('unidadecompra_id', $unidade)
-            ->where('licitacao_numero', $numeroAnoCompra)
-            ->where('situacao', true);
+            ->where('licitacao_numero', $numeroAnoCompra);
 
         return $contratos->get();
 
