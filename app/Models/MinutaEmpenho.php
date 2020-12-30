@@ -96,6 +96,21 @@ class MinutaEmpenho extends Model
             ->where('minutaempenhos.id', $this->id)->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
     }
 
+    public function retornaAmparoPorMinutadeContrato()
+    {
+        return AmparoLegal::select(['amparo_legal.id', DB::raw("ato_normativo ||
+                    case when (artigo is not null)  then ' - Artigo: ' || artigo else '' end ||
+                    case when (paragrafo is not null)  then ' - Parágrafo: ' || paragrafo else '' end ||
+                    case when (amparo_legal.inciso is not null)  then ' - Inciso: ' || amparo_legal.inciso else '' end ||
+                    case when (alinea is not null)  then ' - Alinea: ' || alinea else '' end
+                    as campo_api_amparo")
+        ])->join('contratos', 'contratos.modalidade_id', '=', 'amparo_legal.modalidade_id')
+            ->join('contrato_minuta_empenho_pivot', 'contrato_minuta_empenho_pivot.contrato_id', '=', 'contratos.id')
+            ->where('contrato_minuta_empenho_pivot.minuta_empenho_id', $this->id)
+            ->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
+//        ;dd($teste->getBindings(),$teste->toSql());
+    }
+
     /**
      * Método Necessário para mostrar valor escolhido do campo multiselect após submeter
      * quando o attribute o campo estiver referenciando um alias na consulta da API

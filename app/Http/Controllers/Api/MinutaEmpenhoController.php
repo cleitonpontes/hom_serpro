@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Traits\BuscaCodigoItens;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
@@ -9,6 +10,7 @@ use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\ContaCorrentePassivoAnterior;
+use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
@@ -34,6 +36,7 @@ class MinutaEmpenhoController extends Controller
 {
 
     use CompraTrait;
+    use BuscaCodigoItens;
 
     public function populaTabelasSiafi(Request $request)
     {
@@ -56,7 +59,6 @@ class MinutaEmpenhoController extends Controller
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
             DB::rollback();
-            dd($exc);
         }
 
         return $retorno;
@@ -136,19 +138,38 @@ class MinutaEmpenhoController extends Controller
     public function gravaSfItensEmpenho(MinutaEmpenho $modMinutaEmpenho, SfOrcEmpenhoDados $sforcempenhodados)
     {
 
-        $modCompraItemEmpenho = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
+//        dd($modMinutaEmpenho, $sforcempenhodados);
+        $tipo_contrato = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Contrato');
+        if ($modMinutaEmpenho->tipo_empenhopor_id == $tipo_contrato) {
+            $modItem = ContratoItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
+        }
+        $tipo_compra = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Compra');
+        if ($modMinutaEmpenho->tipo_empenhopor_id == $tipo_compra) {
+            $modItem = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
+        }
+//        dd('fora');
+//        $modItem = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
+//        dd($modItem);
 
-        foreach ($modCompraItemEmpenho as $key => $item) {
+        foreach ($modItem as $key => $item) {
+            dump('232323');
+//            dump($item);
+//            dump($item->subelemento_id);
             $modSfItemEmpenho = new SfItemEmpenho();
             $modSubelemento = Naturezasubitem::find($item->subelemento_id);
             $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
             $modSfItemEmpenho->numseqitem = $key + 1;
+//            dd('forea',$modSubelemento);
+            dump('forea');
             $modSfItemEmpenho->codsubelemento = $modSubelemento->codigo;
-            $modSfItemEmpenho->descricao = $this->buscaDescricao($item->compra_item_id);
+            $modSfItemEmpenho->descricao = $this->buscaDescricao($item,$modMinutaEmpenho->tipo_empenhopor_id );
+            dump('fim');
+
             $modSfItemEmpenho->save();
 
             $this->gravaSfOperacaoItemEmpenho($modSfItemEmpenho, $item);
         }
+        dd(112233);
     }
 
     public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, CompraItemMinutaEmpenho $item)
@@ -239,12 +260,18 @@ class MinutaEmpenhoController extends Controller
         return $compra;
     }
 
-    public function buscaDescricao($compra_id)
+    public function buscaDescricao($compra_id, $tipo_empenhopor_id)
     {
+        dd($compra_id);
+        $item->compra_item_id;
+        dd(123,$compra_id);
+        $compra_id->compra_item_id;
         $descricao = '';
         $modCompraItem = CompraItem::find($compra_id);
         $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
-        (!empty($modCompraItem->descricaodetalhada)) ? $descricao = $modCompraItem->descricaodetalhada : $descricao = $modcatMatSerItem->descricao;
+        (!empty($modCompraItem->descricaodetalhada))
+            ? $descricao = $modCompraItem->descricaodetalhada
+            : $descricao = $modcatMatSerItem->descricao;
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
 
@@ -280,7 +307,7 @@ class MinutaEmpenhoController extends Controller
                              as nome_minuta_empenho")])
                 ->distinct('minutaempenhos.id')
                 ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
-                ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
+                ->join('codigoitens', 'codigoitens.id', '=', 'compras.modalidade_id')
                 ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
                 ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
                 ->where('minutaempenhos.fornecedor_compra_id', $form['fornecedor_id'])

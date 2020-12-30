@@ -244,7 +244,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'name' => 'amparo_legal_id',
             'label' => "Amparo Legal",
             'type' => 'select2_from_array',
-            'options' => $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
+            'options' => $minuta_id ? $modelo->retornaAmparoPorMinutadeContrato() : [],
             'allows_null' => true,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
