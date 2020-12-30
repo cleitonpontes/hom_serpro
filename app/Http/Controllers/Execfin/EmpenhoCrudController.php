@@ -916,7 +916,7 @@ class EmpenhoCrudController extends CrudController
                 'empenho_id' => $novo_empenho->id,
                 'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
             ];
-            Empenhodetalhado::create($array_empenhodetalhado);
+            Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
         }
     }
 
