@@ -345,11 +345,11 @@ class ContratoPublicacaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        dd($request->all());
         // your additional operations before save here
-        $this->retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR');
-//        dd
-        $request->request->set('status_publicacao_id', $valor_global);
+        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR');
+
+        $request->request->set('status_publicacao_id', $situacao_id);
+
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -358,7 +358,9 @@ class ContratoPublicacaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        dd($request->all());
+        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR');
+
+        $request->request->set('status_publicacao_id', $situacao_id);
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
