@@ -71,7 +71,7 @@ trait Formatador
 
     public function formataIntengerSiasg($dado)
     {
-        return number_format($dado,0);
+        return number_format($dado,0,'');
     }
 
     public function formataNumeroContratoLicitacao($dado): string
