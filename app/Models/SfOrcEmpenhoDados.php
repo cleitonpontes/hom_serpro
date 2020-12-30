@@ -45,7 +45,7 @@ class SfOrcEmpenhoDados extends Model
         'codtipotransf',
         'txtlocalentrega',
         'txtdescricao',
-        'numro', // numero??
+        'numro',
         'mensagemretorno',
         'situacao'
     ];

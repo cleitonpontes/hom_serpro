@@ -894,21 +894,23 @@ class EmpenhoCrudController extends CrudController
 
     public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
     {
-        $array_empenho = [];
-        $array_empenho = ['numero' => trim($empenho->mensagemretorno)];
-        $array_empenho = ['unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id];
-        $array_empenho = ['fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id];
-        $array_empenho = ['planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI')];
-        $array_empenho = ['naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND')];
+        $array_empenho = [
+            'numero' => trim($empenho->mensagemretorno),
+            'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
+            'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
+            'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
+            'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND')
+        ];
 
         $novo_empenho = Empenho::create($array_empenho);
 
         $itens = $empenho->itens_empenho()->get();
 
         foreach ($itens as $item) {
-            $array_empenhodetalhado = [];
-            $array_empenhodetalhado = ['empenho_id' => $novo_empenho->id];
-            $array_empenhodetalhado = ['naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho['naturezadespesa_id'])];
+            $array_empenhodetalhado = [
+                'empenho_id' => $novo_empenho->id,
+                'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho['naturezadespesa_id'])
+            ];
             Empenhodetalhado::create($array_empenhodetalhado);
         }
     }
