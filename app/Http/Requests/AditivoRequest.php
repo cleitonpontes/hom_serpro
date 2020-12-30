@@ -39,7 +39,7 @@ class AditivoRequest extends FormRequest
 
         return [
             'numero' => [
-                'require',
+                'required',
                 (new Unique('contratohistorico','numero'))
                     ->ignore($id)
                     ->where('contrato_id',$contrato_id)
