@@ -2,44 +2,40 @@
 @inject('compratrait', 'App\Http\Controllers\Empenho\CompraSiasgCrudController')
 <div @include('crud::inc.field_wrapper_attributes') >
     <!-- Editable table -->
-    <div class="card">
-        <div class="card-body">
-            <div>
-                <span class="table-up">
-                    @if(
-                        $fields['descricao_tipo_contrato']['default'] === 'OUTROS' ||
-                        $fields['descricao_tipo_contrato']['default'] === 'EMPENHO'
-                        )
-                        <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"
-                                data-target="#inserir_item">
-                            Inserir Item <i class="fa fa-plus"></i>
-                        </button>
-                    @endif
-                </span>
-                <br>
-                <br>
-                <div class="table-responsive">
-                <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
-                    <thead>
-                    <tr>
-                        <th class="text-center">Tipo Item</th>
-                        <th class="text-center">Número</th>
-                        <th class="text-center">Item</th>
-                        <th class="text-center">Quantidade</th>
-                        <th class="text-center">Valor Unitário</th>
-                        <th class="text-center">Qtd. parcelas</th>
-                        <th class="text-center">Valor Total</th>
-                        <th class="text-center">Data Início</th>
-                        <th class="text-center">Ações</th>
-                    </tr>
-                    </thead>
-                    <tbody id="table-itens">
-
-                    </tbody>
-                </table>
-                </div>
-            </div>
+    <div class="col-xs-6">
+        <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"
+                data-target="#inserir_item">
+            Inserir Item <i class="fa fa-plus"></i>
+        </button>
+    </div>
+    <div class="col-xs-6 col-md-3 col-md-offset-3 text-right">
+        <div class="input-group">
+            <div class="input-group-addon">Valor total do Contrato:</div>
+            <input type="text" class="form-control" id="valorTotalItem" readonly value="0">
         </div>
+    </div>
+    <br>
+    <br>
+
+    <div class="table-responsive">
+        <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
+            <thead>
+            <tr>
+                <th class="text-center">Tipo Item</th>
+                <th class="text-center">Número</th>
+                <th class="text-center">Item</th>
+                <th class="text-center">Quantidade</th>
+                <th class="text-center">Valor Unitário</th>
+                <th class="text-center">Qtd. parcelas</th>
+                <th class="text-center">Valor Total</th>
+                <th class="text-center">Data Início</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody id="table-itens">
+
+            </tbody>
+        </table>
     </div>
     <!-- Editable table -->
 
@@ -387,6 +383,7 @@
                     totalItens = parseFloat(totalItens) + parseFloat(elementInput.value);
                 })
                 $('#valor_global').val(totalItens.toFixed(2));
+                $('#valorTotalItem').val(totalItens.toFixed(2));
 
                 $("#table-itens").find('tr').each(function(){
                     var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
