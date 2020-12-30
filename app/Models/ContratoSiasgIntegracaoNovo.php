@@ -518,6 +518,8 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $dado = $this->montaArrayContrato($siasgcontrato, $fornecedor, $json);
 
+        dd($dado);
+
         $contrato = Contrato::create($dado);
 
         return $contrato;
