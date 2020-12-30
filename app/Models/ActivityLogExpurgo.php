@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ActivityLogExpurgo extends Model
 {
     use CrudTrait;
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------

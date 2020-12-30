@@ -56,7 +56,9 @@ class Contrato extends Model
         'situacao_siasg',
         'situacao',
         'unidades_requisitantes',
-        'unidadecompra_id'
+        'unidadecompra_id',
+        'numero_compra',
+        'publicado'
     ];
 
     /*
@@ -264,6 +266,8 @@ class Contrato extends Model
 
     public function atualizaContratoFromHistorico(string $contrato_id, array $array)
     {
+        $array['situacao'] = $array['situacao'] ?? false;
+
         $this->where('id', '=', $contrato_id)
             ->update($array);
 
@@ -566,10 +570,14 @@ class Contrato extends Model
             ->where('situacao', true);
     }
 
+    /**
+     * alterado por mvascs@gmail.com -> retirado where situacao,
+     * para que todos os responsáveis fossem trazidos para o extrato pdf e não apenas os ativos
+     */
     public function responsaveis()
     {
-        return $this->hasMany(Contratoresponsavel::class, 'contrato_id')
-            ->where('situacao', true);
+        return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
+            // ->where('situacao', true);
     }
 
     public function terceirizados()
@@ -609,6 +617,16 @@ class Contrato extends Model
             'amparo_legal_contrato',
             'contrato_id',
             'amparo_legal_id'
+        );
+    }
+
+    public function minutasempenho()
+    {
+        return $this->belongsToMany(
+            'App\Models\MinutaEmpenho',
+            'contrato_minuta_empenho_pivot',
+            'contrato_id',
+            'minuta_empenho_id'
         );
     }
 

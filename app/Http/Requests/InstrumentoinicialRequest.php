@@ -31,21 +31,22 @@ class InstrumentoinicialRequest extends FormRequest
     public function rules()
     {
         $id = $this->id ?? "NULL";
-        $unidade_id = $this->unidade_id ?? "NULL";
+        $unidadeorigem_id = $this->unidadeorigem_id ?? "NULL";
+        $tipo_id = $this->tipo_id ?? "NULL";
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
         $data_publicacao = ($this->data_publicacao) ? "date|after:{$this->data_limiteinicio}|after_or_equal:data_assinatura" : "" ;
 
         return [
-//            'numero' => [
-//                'required',
-//                (new Unique('contratohistorico','numero'))
-//                    ->ignore($id)
-//                    ->where('unidade_id',$unidade_id)
-//                    ->where('tipo_id',$tipo_id)
-//            ],
-            'numero' => 'required',
+            'numero' => [
+                'required',
+                (new Unique('contratos', 'numero'))
+                    ->ignore($id)
+                    ->where('unidadeorigem_id', $unidadeorigem_id)
+                    ->where('tipo_id',$tipo_id)
+            ],
+//            'numero' => 'required',
             'fornecedor_id' => 'required',
             'tipo_id' => 'required',
             'categoria_id' => 'required',

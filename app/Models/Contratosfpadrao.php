@@ -12,6 +12,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Contratosfpadrao extends Model
 {
     use CrudTrait;
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------

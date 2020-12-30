@@ -21,6 +21,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contratoterceirizado;
 use App\Models\Contratodespesaacessoria;
 use OpenApi\Annotations as OA;
+use App\Models\MinutaEmpenho;
 
 use App\Models\Empenho;
 use App\Models\Fornecedor;
@@ -33,6 +34,7 @@ class ContratoController extends Controller
      *     tags={"contratos"},
      *     summary="Retorna uma lista de orgãos com contratos ativos",
      *     description="Retorna um Json de orgãos com contratos ativos",
+     *     path="/api/contrato/orgaos",
      *     path="/api/contrato/orgaos",
      *     @OA\Response(
      *         response=200,
@@ -190,7 +192,7 @@ class ContratoController extends Controller
                 'rpliquidado' => number_format(@$e->empenho->rpliquidado, 2, ',', '.'),
                 'rppago' => number_format(@$e->empenho->rppago, 2, ',', '.'),
                 'links' => [
-                    'documento_pagamento' => url(env('API_STA_HOST').'/api/ordembancaria/empenho/' . $numeroEmpenho)
+                    'documento_pagamento' => env('API_STA_HOST').'/api/ordembancaria/empenho/' . $numeroEmpenho
                 ]
             ];
         }
@@ -1139,6 +1141,26 @@ class ContratoController extends Controller
         $cpf =  '***' . substr($cpf,3,9) . '**';
 
         return $cpf . ' - ' . $nome;
+    }
+
+    public function buscarCamposParaCadastroContratoPorIdEmpenho($id)
+    {
+        $camposContrato = MinutaEmpenho::select(
+            "compras.modalidade_id",
+            "minutaempenhos.unidade_id",
+            "unidades.codigo",
+            "unidades.nomeresumido",
+            "amparo_legal.ato_normativo",
+            "amparo_legal.artigo",
+            "minutaempenhos.amparo_legal_id",
+            "compras.numero_ano as compra_numero_ano"
+        )
+        ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+        ->join('unidades','unidades.id','=','minutaempenhos.unidade_id')
+        ->join('amparo_legal', 'amparo_legal.id', '=', 'minutaempenhos.amparo_legal_id')
+        ->where('minutaempenhos.id',$id)->firstOrFail()->toArray();
+
+        return $camposContrato;
     }
 
 /**

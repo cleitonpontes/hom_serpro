@@ -31,6 +31,7 @@
             @else
             <!-- Topbar. Contains the right part -->
                 @if((!is_null(session('user_ug'))))
+                    <li><a href="https://forms.gle/E5XFfEN3mJb7tmE66" target="_blank"><span><i class="fa fa-bug"></i> Informar Erro</a></li>
                     <li><a href="{{ url('/mudar-ug') }}"><span><i class="fa fa-exchange"></i> Mudar UG/UASG</a></li>
                 @endif
                 <li><a href="{{ route('inicio.meusdados') }}"><span><i class="fa fa-user-circle-o"></i> {{ trans('backpack::base.my_account') }}</span></a>

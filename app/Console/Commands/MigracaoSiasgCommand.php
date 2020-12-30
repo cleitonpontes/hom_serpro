@@ -62,7 +62,7 @@ class MigracaoSiasgCommand extends Command
                 $numero = substr($line, 8, 5);
                 $ano = substr($line, 13, 4);
 
-                if(isset($unidade->id)){
+                if(isset($unidade->id) and isset($modalidade->id)){
                     $busca = $compras->where('unidade_id', $unidade->id)
                         ->where('modalidade_id', $modalidade->id)
                         ->where('ano', $ano)

@@ -9,6 +9,7 @@ use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\ContaCorrentePassivoAnterior;
+use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\Naturezasubitem;
@@ -67,7 +68,7 @@ class MinutaEmpenhoController extends Controller
         $tipoEmpenho = Codigoitem::find($modMinutaEmpenho->tipo_empenho_id);
         $favorecido = Fornecedor::find($modMinutaEmpenho->fornecedor_empenho_id);
         $amparoLegal = AmparoLegal::find($modMinutaEmpenho->amparo_legal_id);
-        $ugemitente = Unidade::find($modMinutaEmpenho->unidade_id);
+        $ugemitente = Unidade::find($modMinutaEmpenho->saldo_contabil->unidade_id);
         $codfavorecido = (str_replace('-', '', str_replace('/', '', str_replace('.', '', $favorecido->cpf_cnpj_idgener))));
 
         $modSfOrcEmpenhoDados->minutaempenho_id = $modMinutaEmpenho->id;
@@ -245,5 +246,53 @@ class MinutaEmpenhoController extends Controller
         $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
         (!empty($modCompraItem->descricaodetalhada)) ? $descricao = $modCompraItem->descricaodetalhada : $descricao = $modcatMatSerItem->descricao;
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
+    }
+
+    /**
+     * Método para buscar as minutas de empenho de acordo com uasg da pessoa logada
+     * e o id do fornecedor passado na request utilizado no formulário de contrato.
+     *
+     * @return  array $minutaEmpenho
+     */
+
+    public function minutaempenhoparacontrato(Request $request)
+    {
+        $search_term = $request->input('q');
+
+        $form = collect($request->input('form'))->pluck('value', 'name');
+        $arr_contrato_minuta_empenho_pivot = ContratoMinutaEmpenho::select('minuta_empenho_id')->get()->toArray();
+        $situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EMPENHO EMITIDO')
+            ->select('codigoitens.id')->first();
+
+        $options = MinutaEmpenho::query();
+
+        if (!$form['fornecedor_id']) {
+            return [];
+        }
+
+        if ($form['fornecedor_id']) {
+            $options
+                ->select(['minutaempenhos.id',
+                    DB::raw("CONCAT(minutaempenhos.mensagem_siafi, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
+                             as nome_minuta_empenho")])
+                ->distinct('minutaempenhos.id')
+                ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
+                ->join('codigoitens' ,'codigoitens.id', '=',  'compras.modalidade_id')
+                ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
+                ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
+                ->where('minutaempenhos.fornecedor_compra_id', $form['fornecedor_id'])
+                ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
+                ->where('minutaempenhos.situacao_id', '=', $situacao->id)
+                ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot);
+        }
+
+        if ($search_term) {
+            $options->where('minutaempenhos.numero_empenho_sequencial', 'LIKE', '%' . $search_term . '%');
+        }
+
+        return $options->paginate(10);
     }
 }

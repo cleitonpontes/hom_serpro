@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Soap;
+namespace App\Http\Controllers\Publicacao;
 
 use App\Models\Contratohistorico;
 use App\Models\ContratoPublicacoes;
@@ -11,13 +11,13 @@ use PHPRtfLite;
 use PHPRtfLite_Font;
 
 
-class DiarioOficialController extends BaseSoapController
+class SiafiEmpenhoController extends BaseSoapController
 {
     private $soapClient;
     private $securityNS = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
-    private $Urlwsdl = 'https://homologwsincom.in.gov.br/services/servicoIN?wsdl';
-    private $username = 'andre.castro';
-    private $password = 'acesso123';
+    private $Urlwsdl = 'https://servicos-siafi.tesouro.gov.br/siafi2020he/services/tabelas/consultarTabelasAdministrativas?wsdl';
+    private $username = 'E0350';
+    private $password = 'CC112020';
 
 
     public function __construct()
@@ -32,10 +32,10 @@ class DiarioOficialController extends BaseSoapController
         $this->soapClient = InstanceSoapClient::init($headers);
     }
 
-    public function consultaTodosFeriado(){
+    public function consultaTodosServicos(){
         try {
 
-            $response = $this->soapClient->ConsultaTodosOrgaosPermitidos();
+            $response = $this->soapClient->__getTypes();
 
             dd($response);
         }

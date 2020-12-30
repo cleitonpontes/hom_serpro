@@ -31,9 +31,12 @@ class Contratoitem extends Model
         'catmatseritem_id',
         'descricao_complementar',
         'quantidade',
+        'periodicidade',
+        'data_inicio',
         'valorunitario',
         'valortotal',
         'numero_item_compra',
+        'contratohistorico_id'
     ];
 
     /*
@@ -45,7 +48,8 @@ class Contratoitem extends Model
     public function atualizaSaldoContratoItem(Saldohistoricoitem $saldohistoricoitem)
     {
         $saldoitens = Saldohistoricoitem::where('contratoitem_id', $saldohistoricoitem->contratoitem_id)
-            ->orderBy('created_at', 'ASC')
+            ->orderBy('contratohistorico.data_assinatura', 'ASC')
+            ->join('contratohistorico', 'contratohistorico.id', '=', 'saldohistoricoitens.saldoable_id')
             ->get();
 
         foreach ($saldoitens as $saldoitem) {
@@ -53,8 +57,17 @@ class Contratoitem extends Model
             $contratoitem->quantidade = $saldoitem->quantidade;
             $contratoitem->valorunitario = $saldoitem->valorunitario;
             $contratoitem->valortotal = $saldoitem->valortotal;
+            $contratoitem->periodicidade = $saldoitem->periodicidade;
+            $contratoitem->data_inicio = $saldoitem->data_inicio;
+            $contratoitem->numero_item_compra = $saldoitem->numero_item_compra;
             $contratoitem->save();
         }
+    }
+
+    public function deletaContratoItem(Saldohistoricoitem $saldohistoricoitem)
+    {
+        $contratoitem = Contratoitem::find($saldohistoricoitem->contratoitem_id);
+        $contratoitem->delete();
     }
 
     public function getContrato()
@@ -139,6 +152,11 @@ class Contratoitem extends Model
     public function tipo()
     {
         return $this->belongsTo(Codigoitem::class, 'tipo_id');
+    }
+
+    public function saldoHistoricoItens()
+    {
+        return $this->morphToMany(Saldohistoricoitem::class, 'saldoable');
     }
 
     /*

@@ -82,6 +82,12 @@ class SubelementoController extends BaseControllerEmpenho
                 'compra_items.id'
             )
             ->join(
+                'catmatseritens',
+                'catmatseritens.id',
+                '=',
+                'compra_items.catmatseritem_id'
+            )
+            ->join(
                 'compra_item_unidade',
                 'compra_item_unidade.compra_item_id',
                 '=',
@@ -94,7 +100,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'compra_item_fornecedor.fornecedor_id',
                     'tipo_compra.descricao as tipo_compra_descricao',
                     'codigoitens.descricao',
-                    'compra_items.catmatseritem_id',
+                    'catmatseritens.codigo_siasg',
                     'compra_items.descricaodetalhada',
                     DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                     'compra_item_unidade.quantidade_saldo as qtd_item',
@@ -215,8 +221,8 @@ class SubelementoController extends BaseControllerEmpenho
             )
             ->addColumn(
                 [
-                    'data' => 'catmatseritem_id',
-                    'name' => 'catmatseritem_id',
+                    'data' => 'codigo_siasg',
+                    'name' => 'codigo_siasg',
                     'title' => 'Codigo',
                 ]
             )

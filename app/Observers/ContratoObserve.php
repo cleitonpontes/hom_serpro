@@ -49,6 +49,7 @@ class ContratoObserve
             ->whereIn('tipo_id', $tipos)
             ->first();
 
+
         $contratohistorico->update($contrato_array);
 
     }

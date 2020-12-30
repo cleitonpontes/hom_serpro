@@ -11,14 +11,11 @@ class Saldohistoricoitem extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    protected static $logFillable = true;
-    protected static $logName = 'saldohistoricoitens';
     use SoftDeletes;
 
-
+    protected static $logFillable = true;
+    protected static $logName = 'saldohistoricoitens';
     protected $table = 'saldohistoricoitens';
-
-
     protected $fillable = [
         'saldoable_type',
         'saldoable_id',
@@ -26,7 +23,10 @@ class Saldohistoricoitem extends Model
         'tiposaldo_id',
         'quantidade',
         'valorunitario',
-        'valortotal'
+        'valortotal',
+        'periodicidade',
+        'data_inicio',
+        'numero_item_compra'
     ];
 
     public function getContratoItem()

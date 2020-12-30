@@ -66,7 +66,8 @@ class Contratohistorico extends ContratoBase
         'situacao',
         'supressao',
         'unidadecompra_id',
-        'publicado'
+        'publicado',
+        'subtipo'
     ];
 
     /*
@@ -409,7 +410,7 @@ class Contratohistorico extends ContratoBase
 
     public function publicacao()
     {
-        return $this->hasOne(Contratopublicacoes::class, 'contratohistorico_id');
+        return $this->hasMany(Contratopublicacoes::class, 'contratohistorico_id');
     }
 
     public function amparolegal()
@@ -419,6 +420,26 @@ class Contratohistorico extends ContratoBase
             'amparo_legal_contratohistorico',
             'contratohistorico_id',
             'amparo_legal_id'
+        );
+    }
+
+    public function qualificacoes()
+    {
+        return $this->belongsToMany(
+            'App\Models\Codigoitem',
+            'contratohistoricoqualificacao',
+            'contratohistorico_id',
+            'tipo_id'
+        );
+    }
+
+    public function minutasempenho()
+    {
+        return $this->belongsToMany(
+            'App\Models\MinutaEmpenho',
+            'contrato_historico_minuta_empenho',
+            'contrato_historico_id',
+            'minuta_empenho_id'
         );
     }
 
@@ -433,6 +454,11 @@ class Contratohistorico extends ContratoBase
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getComboPublicacaoAttribute()
+    {
+        return $this->numero . ' - ' . $this->tipo->descricao;
+    }
 
     /*
     |--------------------------------------------------------------------------

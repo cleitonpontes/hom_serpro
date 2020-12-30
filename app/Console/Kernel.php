@@ -52,6 +52,8 @@ class Kernel extends ConsoleKernel
         $this->criarJobAtualizarSfPadrao();
         $this->criarJobAtualizacaoSiasgContratos();
         $this->criarJobAtualizacaoSiasgCompras();
+        $this->criarJobAtualizaStatusPublicacao();
+        $this->executaConsumoWsSiafiEmpenho();
 
         //agendamentos
         $this->criarJobAtualizarND();
@@ -90,6 +92,17 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
     }
 
+    protected function executaConsumoWsSiafiEmpenho()
+    {
+        $this->schedule->call(
+            'App\Http\Controllers\Execfin\EmpenhoCrudController@incluirEmpenhoSiafi'
+        )
+            ->timezone('America/Sao_Paulo')
+            ->weekdays()
+            ->everyMinute()
+            ->between('9:00', '19:30');
+    }
+
     protected function criarJobEnviarEmailsAlertas()
     {
         $this->schedule->call(
@@ -119,6 +132,16 @@ class Kernel extends ConsoleKernel
             ->at('08:30');
     }
 
+    protected function criarJobAtualizaStatusPublicacao()
+    {
+        $this->schedule->call(
+            'App\Http\Controllers\Publicacao\DiarioOficialClass@executaJobAtualizaSituacaoPublicacao'
+        )
+            ->timezone('America/Sao_Paulo')
+            ->weekdays()
+            ->at('08:00');
+    }
+
     protected function criarJobAtualizarSaldoDeEmpenhos()
     {
         $this->schedule->call(
@@ -133,7 +156,7 @@ class Kernel extends ConsoleKernel
     {
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcontratoCrudController@executaJobAtualizacaoSiasgContratos')
             ->timezone('America/Sao_Paulo')
-            ->weekdays()
+//            ->weekdays()
             ->everyMinute()
             ->between('7:00', '22:00');
     }
@@ -142,7 +165,7 @@ class Kernel extends ConsoleKernel
     {
         $this->schedule->call('App\Http\Controllers\Gescon\Siasg\SiasgcompraCrudController@executaJobAtualizacaoSiasgCompras')
             ->timezone('America/Sao_Paulo')
-            ->weekdays()
+//            ->weekdays()
             ->everyMinute()
             ->between('7:00', '22:00');
     }
