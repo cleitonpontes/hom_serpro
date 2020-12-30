@@ -6,10 +6,15 @@
         <div class="card-body">
             <div>
                 <span class="table-up">
-                    <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"
-                            data-target="#inserir_item">
-                        Inserir Item <i class="fa fa-plus"></i>
-                    </button>
+                    @if(
+                        $fields['descricao_tipo_contrato']['default'] === 'OUTROS' ||
+                        $fields['descricao_tipo_contrato']['default'] === 'EMPENHO'
+                        )
+                        <button type="button" disabled class="btn btn-primary" id="btn-inserir-item" data-toggle="modal"
+                                data-target="#inserir_item">
+                            Inserir Item <i class="fa fa-plus"></i>
+                        </button>
+                    @endif
                 </span>
                 <br>
                 <br>
@@ -22,7 +27,7 @@
                         <th class="text-center">Item</th>
                         <th class="text-center">Quantidade</th>
                         <th class="text-center">Valor Unitário</th>
-                        <th class="text-center">Qtd. Parcela</th>
+                        <th class="text-center">Qtd. parcelas</th>
                         <th class="text-center">Valor Total</th>
                         <th class="text-center">Data Início</th>
                         <th class="text-center">Ações</th>
@@ -384,6 +389,7 @@
                 $('#valor_global').val(totalItens.toFixed(2));
 
                 $("#table-itens").find('tr').each(function(){
+                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
                     //seta num_parcelas
                     if (periodicidade > parcela) {
                         parcela = periodicidade;
@@ -502,12 +508,12 @@
                 arrayNameCamposHabilitarDesabilitar.forEach(function (objCampo) {
                     var booSelected = $.inArray(objCampo.id, array_selected) !== -1;
                     objCampo.arrInput.forEach(function (inputElement) {
-
                         if (
                             inputElement.name !== 'fornecedor_id' &&
                             inputElement.name !== 'retroativo_mesref_de' &&
                             inputElement.name !== 'retroativo' &&
-                            inputElement.name !== 'retroativo_soma_subtrai'
+                            inputElement.name !== 'retroativo_soma_subtrai' &&
+                            inputElement.name !== 'num_parcelas'
                         ) {
                             $('[name=' + inputElement.name + ']').prop("readonly", !booSelected);
                             $('[name=' + inputElement.name + ']').val(function (index, currentValue) {
@@ -537,6 +543,11 @@
                         if (inputElement.name === 'retroativo_soma_subtrai') {
                             $('[name=' + inputElement.name + ']').prop("disabled", !booSelected);
                         }
+                        if (inputElement.name === 'num_parcelas') {
+                            var booAcrescimoSelected = $.inArray('ACRÉSCIMO / SUPRESSÃO', array_selected) !== -1,
+                                booVigenciaSelected = $.inArray('VIGÊNCIA', array_selected) !== -1;
+                            $('[name=' + inputElement.name + ']').prop("readonly", !(booAcrescimoSelected || booVigenciaSelected));
+                        }
                     });
                 });
             }
@@ -560,18 +571,28 @@
 
             function recuperarArrObjCampos(arrayItemQualificacao) {
                 let arrObjCampos = [];
-                arrayItemQualificacao.forEach(function (qualificacaoItem, index){
+                arrayItemQualificacao.forEach(function (qualificacaoItem, index) {
 
                     switch (qualificacaoItem.descricao) {
-                            case 'VIGÊNCIA':
+                        case 'VIGÊNCIA':
                             arrObjCampos.push({
                                 id: qualificacaoItem.descricao,
                                 arrInput: [
                                     {name: 'vigencia_inicio', oldValue: getOldValue('vigencia_inicio')},
-                                    {name: 'vigencia_fim', oldValue: getOldValue('vigencia_fim')}]
+                                    {name: 'vigencia_fim', oldValue: getOldValue('vigencia_fim')},
+                                    {name: 'num_parcelas', oldValue: getOldValue('num_parcelas')}
+                                ]
                             })
                             break;
-                            case 'FORNECEDOR':
+                        case 'ACRÉSCIMO / SUPRESSÃO':
+                            arrObjCampos.push({
+                                id: qualificacaoItem.descricao,
+                                arrInput: [
+                                    {name: 'num_parcelas', oldValue: getOldValue('num_parcelas')}
+                                ]
+                            })
+                            break;
+                        case 'FORNECEDOR':
                             arrObjCampos.push({
                                 id: qualificacaoItem.descricao,
                                 arrInput: [
@@ -579,7 +600,7 @@
                                 ]
                             })
                             break;
-                            case 'REAJUSTE':
+                        case 'REAJUSTE':
                             arrObjCampos.push({
                                 id: qualificacaoItem.descricao,
                                 arrInput: [

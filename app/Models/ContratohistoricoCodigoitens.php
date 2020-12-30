@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContratohistoricoCodigoitens extends Model
 {
+    use LogsActivity;
+
     protected $table = 'contratohistoricoqualificacao';
     protected $primaryKey = ['contratohistorico_id', 'tipo_id'];
 

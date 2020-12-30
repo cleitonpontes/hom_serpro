@@ -11,6 +11,7 @@ class Apropriacao extends Model
 
     use CrudTrait;
     use LogsActivity;
+
     protected static $logFillable = true;
     protected static $logName = 'apropriacoes';
 
@@ -105,11 +106,11 @@ class Apropriacao extends Model
 
         return $query->exists();
     }
-    
+
     public function retornaDadosPasso6($id)
     {
         $ug = session('user_ug');
-        
+
         $listagem = $this->select([
             'id',
             'competencia',
@@ -125,16 +126,16 @@ class Apropriacao extends Model
             'doc_origem',
             'observacoes'
         ]);
-        
+
         $listagem->where('ug', $ug);
         $listagem->where('id', $id);
-        
+
         $registros = $listagem->get()->toArray();
         $dados = isset($registros[0]) ? $registros[0] : null;
-        
+
         return $dados;
     }
-    
+
     /**
      * Retorna dados da apropriação para apresentação em relatório
      *
@@ -143,7 +144,7 @@ class Apropriacao extends Model
     public function retornaDadosRelatorio($apid)
     {
         $ug = session('user_ug');
-        
+
         $listagem = $this->select([
             'apropriacoes.id',
             DB::raw('"O"."nome" as orgao_nome'),
@@ -160,15 +161,15 @@ class Apropriacao extends Model
             'doc_origem',
             'observacoes'
         ]);
-        
+
         $listagem->leftjoin('unidades as U', 'U.codigo', '=', 'apropriacoes.ug');
         $listagem->leftjoin('orgaos as O', 'O.id', '=', 'U.orgao_id');
-        
+
         $listagem->where('ug', $ug);
         $listagem->where('apropriacoes.id', $apid);
-        
+
         $dados = $listagem->get()->toArray();
-        
+
         return $dados;
     }
 }

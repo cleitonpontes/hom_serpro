@@ -7,10 +7,11 @@ use App\Http\Traits\Formatador;
 use App\Observers\ContratoObserve;
 use Illuminate\Database\Eloquent\Model;
 use function foo\func;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContratoSiasgIntegracaoNovo extends Model
 {
-    use Formatador, BuscaCodigoItens;
+    use Formatador, BuscaCodigoItens, LogsActivity;
 
 
     /*
@@ -500,6 +501,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             'objeto' => $dado['objeto'],
             'modalidade_id' => $dado['modalidade_id'],
             'numero_compra' => $dado['numero_compra'],
+            'publicado' => true,
         ];
 
         $contrato = Contrato::find($contrato_alteracao->id);
@@ -569,6 +571,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['valor_acumulado'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['numero_compra'] = $siasgcontrato->compra->id;
         $dado['modalidade_id'] = $siasgcontrato->compra->modalidade_id;
+        $dado['publicado'] = true;
 
         return $dado;
     }

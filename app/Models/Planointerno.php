@@ -11,9 +11,11 @@ class Planointerno extends Model
 {
     use CrudTrait;
     use LogsActivity;
+    use SoftDeletes;
+
     protected static $logFillable = true;
     protected static $logName = 'planointerno';
-    use SoftDeletes;
+
 
     protected $table = 'planointerno';
 

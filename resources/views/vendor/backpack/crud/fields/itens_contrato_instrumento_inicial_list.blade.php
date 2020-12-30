@@ -2,15 +2,18 @@
 @inject('compratrait', 'App\Http\Controllers\Empenho\CompraSiasgCrudController')
 <div @include('crud::inc.field_wrapper_attributes') >
     <!-- Editable table -->
-    <div class="card">
-        <div class="card-body">
-            <div>
-                <span class="table-up">
-                    <button type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#inserir_item">
-                        Inserir Item <i class="fa fa-plus"></i>
-                    </button>
-                </span>
+    <div class="col-xs-6">
+        <button type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#inserir_item">
+            Inserir Item <i class="fa fa-plus"></i>
+        </button>
+    </div>
+    <div class="col-xs-6 col-md-3 col-md-offset-3 text-right">
+        <div class="input-group">
+            <div class="input-group-addon">Valor total do Contrato:</div>
+            <input type="text" class="form-control" id="valorTotalItem" readonly value="0">
+        </div>
+    </div>
                 <br>
                 <br>
                 <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
@@ -21,8 +24,8 @@
                         <th class="text-center">Item</th>
                         <th class="text-center">Quantidade</th>
                         <th class="text-center">Valor Unitário</th>
+                        <th class="text-center">Qtd. parcelas</th>
                         <th class="text-center">Valor Total</th>
-                        <th class="text-center">Periodicidade</th>
                         <th class="text-center">Data Início</th>
                         <th class="text-center">Ações</th>
                     </tr>
@@ -31,12 +34,9 @@
 
                     </tbody>
                 </table>
-            </div>
             <div id="itens-para-excluir">
 
             </div>
-        </div>
-    </div>
 
     <!-- Janela modal para inserção de registros -->
     <div id="inserir_item" tabindex="-1" class="modal fade"
@@ -138,6 +138,7 @@
                 var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
                 if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
                     $('#table').html(valueHidden);
+                    calculaTotalGlobal();
                 }
 
                 $tableID.on('click', '.table-remove', function () {
@@ -182,7 +183,8 @@
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','input[name="periodicidade[]"]',function(event){
-                    calculaTotalGlobal();
+                    var tr = this.closest('tr');
+                    atualizarValorTotal(tr);
                     atualizarValorParcela(parcela);
                 });
 
@@ -232,16 +234,15 @@
             function atualizarValorTotal(tr){
                 var qtd_item = parseFloat($(tr).find('td').eq(3).find('input').val());
                 var vl_unit = parseFloat($(tr).find('td').eq(4).find('input').val());
-
-                var valor_total = qtd_item * vl_unit;
-
-                $(tr).find('td').eq(5).find('input').val(parseFloat(valor_total.toFixed(4)));
+                var periodicidade = parseInt($(tr).find('td').eq(5).find('input').val());
+                var vltotal = qtd_item * vl_unit * periodicidade;
+                $(tr).find('td').eq(6).find('input').val(parseFloat(vltotal.toFixed(4)));
                 calculaTotalGlobal();
             }
 
             function atualizarQuantidade(tr){
                 var vl_unit = $(tr).find('td').eq(4).find('input').val();
-                var valor_total_item = $(tr).find('td').eq(5).find('input').val();
+                var valor_total_item = $(tr).find('td').eq(6).find('input').val();
 
                 var quantidade = valor_total_item / vl_unit;
 
@@ -265,9 +266,9 @@
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.codigo_siasg +' - '+ item.descricao_complementar+'</td>';
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd"  step="0.0001" value="'+item.quantidade+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_unit[]" id="vl_unit"  step="0.0001" value="'+item.valorunitario+'"></td>';
-                cols += '<td><input class="form-control" type="number"  name="vl_total[]" id="vl_total" step="0.0001" value="'+item.valortotal+'"></td>';
+                cols += '<td><input class="form-control" type="number" readonly name="vl_unit[]" id="vl_unit"  step="0.0001" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
+                cols += '<td><input class="form-control" type="number" readonly name="vl_total[]" id="vl_total" step="0.0001" value="'+item.valortotal+'"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
                 cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+
@@ -281,21 +282,24 @@
 
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
+                calculaTotalGlobal();
             }
 
             function calculaTotalGlobal(){
-                var valor_total = 0;
-                $("#table-itens").find('tr').each(function(){
-                    var total_item = parseFloat($(this).find('td').eq(5).find('input').val());
-                    var periodicidade = parseInt($(this).find('td').eq(6).find('input').val());
-                    var total_iten = (total_item * periodicidade);
-                    valor_total += total_iten;
-                    if(periodicidade > parcela){
+                let totalItens = 0;
+                $('[name="vl_total[]"]').each(function(index, elementInput){
+                    totalItens = parseFloat(totalItens) + parseFloat(elementInput.value);
+                })
+                $('#valor_global').val(totalItens.toFixed(2));
+                $('#valorTotalItem').val(totalItens.toFixed(2));
+                $("#table-itens").find('tr').each(function () {
+                    var periodicidade = parseInt($(this).find('td').eq(5).find('input').val());
+                    //seta num_parcelas
+                    if (periodicidade > parcela) {
                         parcela = periodicidade;
                         $('#num_parcelas').val(parcela);
                     }
                 });
-                $('#valor_global').val(parseFloat(valor_total.toFixed(4)));
                 atualizarValorParcela(parcela);
             }
 

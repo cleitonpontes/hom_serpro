@@ -2,9 +2,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Apropriacaofases extends Model
 {
+    use LogsActivity;
 
     const APROP_FASE_NAO_INICIADA = 0;
 

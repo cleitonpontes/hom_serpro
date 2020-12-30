@@ -433,6 +433,16 @@ class Contratohistorico extends ContratoBase
         );
     }
 
+    public function minutasempenho()
+    {
+        return $this->belongsToMany(
+            'App\Models\MinutaEmpenho',
+            'contrato_historico_minuta_empenho',
+            'contrato_historico_id',
+            'minuta_empenho_id'
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

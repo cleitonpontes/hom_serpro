@@ -391,6 +391,12 @@ class AditivoCrudController extends CrudController
                 'type' => 'itens_contrato_aditivo_list',
                 'tab' => 'Itens do contrato',
             ],
+            [   // Hidden
+                'name' => 'descricao_tipo_contrato',
+                'type' => 'hidden',
+                'default' => $contrato->tipo->descricao,
+                'tab' => 'Itens do contrato'
+            ],
             [
                 'label' => "adicionaCampoRecuperaGridItens",
                 'type' => "hidden",
@@ -441,6 +447,7 @@ class AditivoCrudController extends CrudController
                 'attributes' => [
                     "step" => "any",
                     "min" => '1',
+                    'readonly' => 'readonly',
                 ], // allow decimals
                 'default' => $contrato->num_parcelas,
 //                'prefix' => "R$",

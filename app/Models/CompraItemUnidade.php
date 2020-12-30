@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class CompraItemUnidade extends Model
 {
+    use LogsActivity;
+
     protected $table = 'compra_item_unidade';
 
     public $timestamps = true;
