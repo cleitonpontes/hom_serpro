@@ -145,17 +145,21 @@ class ContratohistoricoObserve
 
     private function criaRetificacao($contratohistorico,$status_publicacao_id,$sisg)
     {
-        return ContratoPublicacoes::Create(
-            [
-                'contratohistorico_id' => $contratohistorico->id,
-                'status_publicacao_id' => $status_publicacao_id,
-                'data_publicacao' => $contratohistorico->data_publicacao,
-                'texto_dou' => @DiarioOficialClass::retornaTextoretificacao($contratohistorico),
-                'status' => 'Pendente',
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
-            ]
-        );
+        $texto_dou = @DiarioOficialClass::retornaTextoretificacao($contratohistorico);
+
+        if(!is_null($texto_dou)) {
+            return ContratoPublicacoes::Create(
+                [
+                    'contratohistorico_id' => $contratohistorico->id,
+                    'status_publicacao_id' => $status_publicacao_id,
+                    'data_publicacao' => $contratohistorico->data_publicacao,
+                    'texto_dou' => $texto_dou,
+                    'status' => 'Pendente',
+                    'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+                    'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
+                ]
+            );
+        }
     }
 
     private function atualizaPublicacao($a_publicar,$contratohistorico,$sisg)
