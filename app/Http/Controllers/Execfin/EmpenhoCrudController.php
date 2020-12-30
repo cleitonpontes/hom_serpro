@@ -894,24 +894,29 @@ class EmpenhoCrudController extends CrudController
 
     public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
     {
-        $array_empenho = [
+        $array_empenho1 = [
             'numero' => trim($empenho->mensagemretorno),
             'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
+        ];
+        $array_empenho2 = [
             'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
             'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
             'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND')
         ];
 
-        $novo_empenho = Empenho::create($array_empenho);
+        $novo_empenho = Empenho::firstOrCreate(
+            $array_empenho1,
+            $array_empenho2
+        );
 
         $itens = $empenho->itens_empenho()->get();
 
         foreach ($itens as $item) {
             $array_empenhodetalhado = [
                 'empenho_id' => $novo_empenho->id,
-                'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho['naturezadespesa_id'])
+                'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
             ];
-            Empenhodetalhado::create($array_empenhodetalhado);
+            Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
         }
     }
 
