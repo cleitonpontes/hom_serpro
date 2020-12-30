@@ -63,6 +63,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratos.unidade_id');
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
+        $this->crud->orderBy('updated_at', 'desc');
         $this->crud->addClause('select', 'contratos.*');
 
         // $this->crud->addButtonFromView('top', 'notificausers', 'notificausers', 'end');
