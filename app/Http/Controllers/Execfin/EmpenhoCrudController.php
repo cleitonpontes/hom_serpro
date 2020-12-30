@@ -881,8 +881,7 @@ class EmpenhoCrudController extends CrudController
                 $empenho->update($retorno);
 
                 if ($retorno['situacao'] == 'EMITIDO') {
-                    //todo inserir empenho na tabela empenho
-                    $empenho = $this->criaEmpenhoFromMinuta($empenho);
+                    $empenho = $this->criaEmpenhoFromMinuta($empenho); //todo verificar tipo da minuta EMPENHO ou ALTERACAO
 
                     //todo criar job para devolver informação para o SIASG
                 }
@@ -901,7 +900,8 @@ class EmpenhoCrudController extends CrudController
         $array_empenho2 = [
             'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
             'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
-            'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND')
+            'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
+            'fonte' => $empenho->celula_orcamentaria->codfonterec
         ];
 
         $novo_empenho = Empenho::firstOrCreate(
@@ -916,7 +916,7 @@ class EmpenhoCrudController extends CrudController
                 'empenho_id' => $novo_empenho->id,
                 'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
             ];
-            Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
+            Empenhodetalhado::create($array_empenhodetalhado);
         }
     }
 
