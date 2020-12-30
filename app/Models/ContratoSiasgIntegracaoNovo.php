@@ -504,8 +504,6 @@ class ContratoSiasgIntegracaoNovo extends Model
             'publicado' => true,
         ];
 
-        dd($novoDado);
-
         $contrato = Contrato::find($contrato_alteracao->id);
         $contrato->update($novoDado);
 
@@ -519,6 +517,8 @@ class ContratoSiasgIntegracaoNovo extends Model
         $json = json_decode($siasgcontrato->json);
 
         $dado = $this->montaArrayContrato($siasgcontrato, $fornecedor, $json);
+
+        dd($dado);
 
         $contrato = Contrato::create($dado);
 
