@@ -42,6 +42,7 @@ class ContratoPublicacoes extends ContratoBase
         'texto_rtf',
         'tipo_pagamento_id',
         'transacao_id',
+        'cpf'
     ];
 
     /*

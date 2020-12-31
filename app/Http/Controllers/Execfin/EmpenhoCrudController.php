@@ -765,11 +765,9 @@ class EmpenhoCrudController extends CrudController
                     $pi = $this->buscaPi($d);
                 }
 
-                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
-                    ->first();
+                $naturezadespesa = $this->trataPiNdSubitem($d['naturezadespesa'], 'ND',null, $d['naturezadespesadescricao']);
 
-                if (isset($naturezadespesa->id)) {
-
+                if ($naturezadespesa) {
                     $empenho = Empenho::updateOrCreate(
                         [
                             'numero' => trim($d['numero']),
@@ -778,32 +776,39 @@ class EmpenhoCrudController extends CrudController
                         [
                             'fornecedor_id' => $credor->id,
                             'planointerno_id' => $pi->id,
-                            'naturezadespesa_id' => $naturezadespesa->id,
+                            'naturezadespesa_id' => $naturezadespesa,
                             'fonte' => trim($d['fonte']),
                         ]
                     );
 
                     foreach ($d['itens'] as $item) {
-                        $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
-                            ->where('naturezadespesa_id', $naturezadespesa->id)
-                            ->first();
+                        $naturezasubitem = $this->trataPiNdSubitem($item['subitem'], 'SUBITEM',$naturezadespesa, $item['subitemdescricao']);
 
-                        if (isset($naturezasubitem->id)) {
-                            $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                                ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                                ->first();
-
-                            if (!$empenhodetalhado) {
-                                $empenhodetalhado = Empenhodetalhado::create([
-                                    'empenho_id' => $empenho->id,
-                                    'naturezasubitem_id' => $naturezasubitem->id
-                                ]);
-                            }
+                        if ($naturezasubitem) {
+                            $empenhodetalhado = Empenhodetalhado::updateOrCreate([
+                                'empenho_id' => $empenho->id,
+                                'naturezasubitem_id' => $naturezasubitem
+                            ]);
                         }
                     }
                 }
             }
         }
+    }
+
+    private function buscaNd($codigo, $descricao)
+    {
+        $planointerno = Naturezadespesa::updateOrCreate(
+            [
+                'codigo' => $codigo
+            ],
+            [
+                'descricao' => strtoupper($descricao),
+                'situacao' => true
+            ]
+        );
+
+        return $planointerno;
     }
 
     public function executaCargaEmpenhos()
@@ -923,7 +928,7 @@ class EmpenhoCrudController extends CrudController
             'fonte' => $empenho->celula_orcamentaria->codfonterec
         ];
 
-        $novo_empenho = Empenho::firstOrCreate(
+        $novo_empenho = Empenho::updateOrCreate(
             $array_empenho1,
             $array_empenho2
         );
@@ -935,11 +940,11 @@ class EmpenhoCrudController extends CrudController
                 'empenho_id' => $novo_empenho->id,
                 'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
             ];
-            Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
+            Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
         }
     }
 
-    public function trataPiNdSubitem($dado, $tipo, $fk = null)
+    public function trataPiNdSubitem($dado, $tipo, $fk = null, $descricao = null)
     {
         if ($dado == '') {
             return null;
@@ -949,7 +954,7 @@ class EmpenhoCrudController extends CrudController
             $pi = Planointerno::firstOrCreate(
                 ['codigo' => trim($dado)],
                 [
-                    'descricao' => 'ATUALIZAR PI',
+                    'descricao' => ($descricao) ? $descricao : 'ATUALIZAR PI',
                     'situacao' => true
                 ]
             );
@@ -960,7 +965,7 @@ class EmpenhoCrudController extends CrudController
             $nd = Naturezadespesa::firstOrCreate(
                 ['codigo' => trim($dado)],
                 [
-                    'descricao' => 'ATUALIZAR ND',
+                    'descricao' => ($descricao) ? $descricao : 'ATUALIZAR ND',
                     'situacao' => true
                 ]
             );
@@ -974,7 +979,7 @@ class EmpenhoCrudController extends CrudController
                     'codigo' => trim($dado),
                 ],
                 [
-                    'descricao' => 'ATUALIZAR SUBITEM',
+                    'descricao' => ($descricao) ? $descricao : 'ATUALIZAR SUBITEM',
                     'situacao' => true
                 ]
             );

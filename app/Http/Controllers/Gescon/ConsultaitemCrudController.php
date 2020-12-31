@@ -28,6 +28,7 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
     public function adicionaColunasEspecificasNaListagem()
     {
         $this->adicionaColunaTipoItem();
+        $this->adicionaColunaNumeroItemCompra();
         $this->adicionaColunaItemGrupo();
         $this->adicionaColunaItem();
         $this->adicionaColunaQuantidade();
@@ -66,9 +67,8 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
             'label' => 'Item Grupo',
             'type' => 'model_function',
             'function_name' => 'getCatmatsergrupo',
-            'limit' => 1000,
             'orderable' => true,
-            'visibleInTable' => true,
+            'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
@@ -82,12 +82,25 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
             'label' => 'Item',
             'type' => 'model_function',
             'function_name' => 'getCatmatseritem',
-            'limit' => 1000,
             'orderable' => true,
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
+        ]);
+    }
+
+    private function adicionaColunaNumeroItemCompra()
+    {
+        $this->crud->addColumn([
+            'name' => 'numero_item_compra',
+            'label' => 'Núm. item Compra',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
         ]);
     }
 
