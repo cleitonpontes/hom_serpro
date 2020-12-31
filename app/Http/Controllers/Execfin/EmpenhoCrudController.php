@@ -782,7 +782,7 @@ class EmpenhoCrudController extends CrudController
                     );
 
                     foreach ($d['itens'] as $item) {
-                        $naturezasubitem = $this->trataPiNdSubitem($d['subitem'], 'SUBITEM',$naturezadespesa, $d['subitemdescricao']);
+                        $naturezasubitem = $this->trataPiNdSubitem($item['subitem'], 'SUBITEM',$naturezadespesa, $item['subitemdescricao']);
 
                         if ($naturezasubitem) {
                             $empenhodetalhado = Empenhodetalhado::updateOrCreate([
@@ -928,7 +928,7 @@ class EmpenhoCrudController extends CrudController
             'fonte' => $empenho->celula_orcamentaria->codfonterec
         ];
 
-        $novo_empenho = Empenho::firstOrCreate(
+        $novo_empenho = Empenho::updateOrCreate(
             $array_empenho1,
             $array_empenho2
         );
@@ -940,7 +940,7 @@ class EmpenhoCrudController extends CrudController
                 'empenho_id' => $novo_empenho->id,
                 'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
             ];
-            Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
+            Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
         }
     }
 

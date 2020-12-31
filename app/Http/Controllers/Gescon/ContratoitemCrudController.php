@@ -118,6 +118,16 @@ class ContratoitemCrudController extends CrudController
 //                },
             ],
             [
+                'name' => 'numero_item_compra',
+                'label' => 'Núm. item Compra',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'getCatmatsergrupo',
                 'label' => 'Item Grupo', // Table column heading
                 'type' => 'model_function',
