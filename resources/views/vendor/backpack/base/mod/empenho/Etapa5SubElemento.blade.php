@@ -64,7 +64,7 @@
             <br/>
             <form action="/empenho/subelemento" method="POST">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
-                <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
+{{--                <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">--}}
                 <input type="hidden" id="credito" name="credito" value="{{$credito}}">
                 <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="{{$valor_utilizado}}">
                 @csrf <!-- {{ csrf_field() }} -->
@@ -101,25 +101,24 @@
 
         function calculaValorTotal(obj) {
 
-            var compra_item_id = obj.dataset.compra_item_id;
+            var {{$tipo}} = obj.dataset.{{$tipo}};
             var valor_total = obj.value * obj.dataset.valor_unitario;
             valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
-            $(".vrtotal" + compra_item_id)
+            $(".vrtotal" + {{$tipo}})
                 .val(valor_total)
                 .trigger("change")
-
         }
 
         function calculaQuantidade(obj) {
 
-            var compra_item_id = obj.dataset.compra_item_id;
+            var {{$tipo}} = obj.dataset.{{$tipo}};
             var value = obj.value;
 
             value = ptToEn(value);
 
             var quantidade = value / obj.dataset.valor_unitario;
 
-            $(".qtd" + compra_item_id).val(quantidade)
+            $(".qtd" + {{$tipo}}).val(quantidade)
 
         }
 

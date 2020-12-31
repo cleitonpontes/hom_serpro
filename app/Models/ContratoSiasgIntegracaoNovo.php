@@ -518,8 +518,6 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $dado = $this->montaArrayContrato($siasgcontrato, $fornecedor, $json);
 
-        dd($dado);
-
         $contrato = Contrato::create($dado);
 
         return $contrato;
@@ -548,6 +546,8 @@ class ContratoSiasgIntegracaoNovo extends Model
             $modalidade_id = $siasgcontrato->compra->modalidade_id;
         }
 
+        $num_parcelas = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($json->data->dadosContrato->valorTotal) / $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela)) : 1;
+
         $dado['numero'] = $this->formataNumeroContratoLicitacao($json->data->dadosContrato->numeroAno);
         $dado['unidadeorigem_id'] = $siasgcontrato->unidade_id;
         $dado['unidadecompra_id'] = @$siasgcontrato->compra->unidade_id;
@@ -568,7 +568,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['vigencia_fim'] = $this->formataDataSiasg($json->data->dadosContrato->dataFim);
         $dado['valor_inicial'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['valor_global'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
-        $dado['num_parcelas'] = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($json->data->dadosContrato->valorTotal) / $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela)) : 1;
+        $dado['num_parcelas'] = ($num_parcelas > '60') ? '60' : $num_parcelas;
         $dado['valor_parcela'] = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela) : $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['valor_acumulado'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['numero_compra'] = $siasgcontrato->compra->id;
