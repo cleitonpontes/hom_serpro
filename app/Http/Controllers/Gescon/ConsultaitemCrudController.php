@@ -91,6 +91,20 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
         ]);
     }
 
+    private function adicionaColunaNumeroItemCompra()
+    {
+        $this->crud->addColumn([
+            'name' => 'numero_item_compra',
+            'label' => 'Núm. item Compra',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
     private function adicionaColunaQuantidade()
     {
         $this->crud->addColumn([
