@@ -120,11 +120,10 @@ class ContratoRequest extends FormRequest
     {
         $data_limite = implode('/', array_reverse(explode('-', $this->data_limite)));
         $hoje = date('d/m/Y');
-        $data_amanha = date('d/m/Y', strtotime('+1 day'));
 
         return [
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
-            'data_assinatura.before_or_equal' => "A data da assinatura deve ser menor que  {$data_amanha}.",
+            'data_assinatura.before_or_equal' => "A data da assinatura deve ser menor que a Vigência início.",
             'data_publicacao.after' => "A data da publicação deve ser maior que {$hoje}.",
             'fornecedor_id.required' => 'O campo fornecedor é obrigatório.',
             'data_assinatura.required' => 'O campo data da assinatura é obrigatório.',
