@@ -103,6 +103,7 @@ class ContratoPublicacaoCrudController extends CrudController
 //        $this->adicionaCampoStatus();
 //        $this->adicionaCampoStatusPublicacao();
         $this->adicionaCampoTextoDOU();
+        $this->adicionaCampoCpf();
         $this->adicionaCampoTipoPagamento();
         $this->adicionaCampoMotivoIsencao();
         $this->adicionaCampoEmpenho();
@@ -121,6 +122,19 @@ class ContratoPublicacaoCrudController extends CrudController
             /*'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
             ]*/
+        ]);
+    }
+
+    /**
+     * Configura o campo CPF
+     *
+     */
+    private function adicionaCampoCPF(): void
+    {
+        $this->crud->addField([
+            'name' => 'cpf',
+            'label' => 'CPF',
+            'type' => 'cpf_sem_mascara',
         ]);
     }
 
@@ -181,7 +195,7 @@ class ContratoPublicacaoCrudController extends CrudController
             'label' => '',
             'type' => '',
         ]);
-        dd($this->retornaCodigosItens('teste'));
+//        dd($this->retornaCodigosItens('teste'));
         $this->crud->addField([ // select_from_array
             'name' => 'situacao',
             'label' => "Situação",
@@ -270,6 +284,7 @@ class ContratoPublicacaoCrudController extends CrudController
     {
         $this->adicionaColunaDataPublicacao();
 //        $this->adicionaColunaStatus();
+        $this->adicionaColunaCpf();
         $this->adicionaColunaStatusPublicacao();
         $this->adicionaColunaTipoPublicacao();
     }
@@ -333,6 +348,23 @@ class ContratoPublicacaoCrudController extends CrudController
         $this->crud->addColumn([
             'name' => 'tipo_publicacao',
             'label' => 'Tipo Publicacao',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    /**
+     * Cofigura a coluna
+     */
+    private function adicionaColunaCpf(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'cpf',
+            'label' => 'CPF',
             'type' => 'text',
             'orderable' => true,
             'visibleInTable' => true,
