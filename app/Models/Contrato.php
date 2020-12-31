@@ -57,7 +57,8 @@ class Contrato extends Model
         'situacao',
         'unidades_requisitantes',
         'unidadecompra_id',
-        'numero_compra'
+        'numero_compra',
+        'publicado'
     ];
 
     /*

@@ -99,8 +99,7 @@ class ComprasnetController extends Controller
         })
             ->where('modalidade_id', $modalidade)
             ->where('unidadecompra_id', $unidade)
-            ->where('licitacao_numero', $numeroAnoCompra)
-            ->where('situacao', true);
+            ->where('licitacao_numero', $numeroAnoCompra);
 
         return $contratos->get();
 
@@ -170,8 +169,20 @@ class ComprasnetController extends Controller
                         ->where('descricao', '<>', 'Termo de Rescisão');
                 })->first();
 
-                $ultimo_historico = $dado->contrato->historico()->latest()->first();
+                $ultimo_historico = $dado->contrato->historico()->orderBy('data_assinatura', 'DESC')->first();
                 $publicacao = $ultimo_historico->publicacao()->latest()->first();
+
+                if ($ultimo_historico->tipo->descricao == 'Termo de Rescisão') {
+                    $situacao_publicacao = @$publicacao->statusPublicacao->descres;
+                    if($publicacao->statusPublicacao->descres == '02'){
+                        $situacao_publicacao = '08';
+                    }
+                    if($publicacao->statusPublicacao->descres == '05'){
+                        $situacao_publicacao = '09';
+                    }
+                }else{
+                    $situacao_publicacao = @$publicacao->statusPublicacao->descres;
+                }
 
                 $unidade_atual = ($dado->contrato->unidade->codigo == $dado->contrato->unidadeorigem->codigo) ? null : $dado->contrato->unidade->codigo;
 
@@ -186,7 +197,7 @@ class ComprasnetController extends Controller
                     'quantidade_item' => @number_format($dado->quantidade, 0, '', ''),
                     'valor_unitario_item' => @$dado->valorunitario,
                     'valor_total_item' => @$dado->valortotal,
-                    'situacao_publicacao' => @$publicacao->statusPublicacao->descres,
+                    'situacao_publicacao' => $situacao_publicacao,
                     /*
                      *  todo implementar esse retorno.
                      *  01 - TRANSFERIDO PARA IMPRENSA

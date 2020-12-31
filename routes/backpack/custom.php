@@ -36,6 +36,10 @@ Route::group([
             Route::get('unidadecomorgao/{id}', 'UnidadeComOrgaoController@show');
             Route::get('fornecedor', 'FornecedorController@index');
             Route::get('fornecedor/{id}', 'FornecedorController@show');
+            Route::get('planointerno', 'PlanointernoController@index');
+            Route::get('planointerno/{id}', 'PlanointernoController@show');
+            Route::get('naturezadespesa', 'NaturezadespesaController@index');
+            Route::get('naturezadespesa/{id}', 'NaturezadespesaController@show');
             Route::get('comprasiasg', 'ComprasiasgController@index');
             Route::get('comprasiasg/{id}', 'ComprasiasgController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');

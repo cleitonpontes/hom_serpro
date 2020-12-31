@@ -78,7 +78,6 @@ class ContratohistoricoObserve
        $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
             ->get();
-
         $cronograma = Contratocronograma::where('contrato_id', $contratohistorico->contrato_id)
             ->delete();
 
@@ -86,7 +85,6 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->atualizaMinutasContrato($contratohistorico);
         $this->createEventCalendar($contratohistorico);
-
 
 
         $publicado_id = Codigoitem::whereHas('codigo', function ($query) {
@@ -105,7 +103,7 @@ class ContratohistoricoObserve
         $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
         $status_publicacao_id = $this->getSituacao($sisg)->id;
 
-        $publicacao = $this->trataAtualizacaoPublicacoes($contratohistorico,$sisg,$status_publicacao_id,$publicado_id);
+        $this->trataAtualizacaoPublicacoes($contratohistorico,$sisg,$status_publicacao_id,$publicado_id);
 
     }
 
@@ -125,12 +123,16 @@ class ContratohistoricoObserve
             return $this->atualizaPublicacao($a_publicar,$contratohistorico,$sisg);
         }
 
+        if(!is_null($publicada) && !is_null($a_publicar)){
+            return $this->atualizaPublicacao($a_publicar,$contratohistorico,$sisg);
+        }
+
     }
 
 
     private function executaAtualizacaoViaJob($contratohistorico,$publicado_id)
     {
-        ContratoPublicacoes::Create(
+        $publicacao = ContratoPublicacoes::Create(
             [
                 'contratohistorico_id' => $contratohistorico->id,
                 'status_publicacao_id' => $publicado_id,
@@ -141,28 +143,33 @@ class ContratohistoricoObserve
                 'motivo_isencao' => ''
             ]
         );
+        return $publicacao;
     }
 
     private function criaRetificacao($contratohistorico,$status_publicacao_id,$sisg)
     {
-        return ContratoPublicacoes::Create(
-            [
-                'contratohistorico_id' => $contratohistorico->id,
-                'status_publicacao_id' => $status_publicacao_id,
-                'data_publicacao' => $contratohistorico->data_publicacao,
-                'texto_dou' => @DiarioOficialClass::retornaTextoretificacao($contratohistorico),
-                'status' => 'Pendente',
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
-            ]
-        );
+        $texto_dou = @DiarioOficialClass::retornaTextoretificacao($contratohistorico);
+
+        if(!is_null($texto_dou)) {
+            return ContratoPublicacoes::Create(
+                [
+                    'contratohistorico_id' => $contratohistorico->id,
+                    'status_publicacao_id' => $status_publicacao_id,
+                    'data_publicacao' => $contratohistorico->data_publicacao,
+                    'texto_dou' => $texto_dou,
+                    'status' => 'Pendente',
+                    'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+                    'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
+                ]
+            );
+        }
     }
 
     private function atualizaPublicacao($a_publicar,$contratohistorico,$sisg)
     {
         $a_publicar->data_publicacao = $contratohistorico->data_publicacao;
         $a_publicar->texto_dou = @DiarioOficialClass::retornaTextoModelo($contratohistorico);
-        $a_publicar->status = 'Pendente atualizado';
+        $a_publicar->status = 'Pendente';
         $a_publicar->tipo_pagamento_id = $this->retornaIdCodigoItem('Forma Pagamento', 'Isento');
         $a_publicar->motivo_isencao_id = ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : '';
         $a_publicar->save();
@@ -216,8 +223,6 @@ class ContratohistoricoObserve
 
     private function atualizaContrato($contratohistorico)
     {
-
-
         foreach ($contratohistorico as $h) {
             $contrato_id = $h->contrato_id;
             $arrayhistorico = $h->toArray();
@@ -268,7 +273,8 @@ class ContratohistoricoObserve
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'valor_global' => $novo_valor,
             'num_parcelas' => $arrayhistorico['num_parcelas'],
-            'valor_parcela' => $arrayhistorico['valor_parcela']
+            'valor_parcela' => $arrayhistorico['valor_parcela'],
+            'publicado' =>  $arrayhistorico['publicado'],
         ];
         (isset($arrayhistorico['situacao'])) ? $arrayAditivo['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayAditivo;
@@ -281,7 +287,8 @@ class ContratohistoricoObserve
             'unidade_id' => $arrayhistorico['unidade_id'],
             'valor_global' => $arrayhistorico['valor_global'],
             'num_parcelas' => $arrayhistorico['num_parcelas'],
-            'valor_parcela' => $arrayhistorico['valor_parcela']
+            'valor_parcela' => $arrayhistorico['valor_parcela'],
+            'publicado' =>  $arrayhistorico['publicado'],
         ];
         (isset($arrayhistorico['situacao'])) ? $arrayApostilamento['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayApostilamento;
@@ -292,6 +299,7 @@ class ContratohistoricoObserve
         $arrayRescisao = [
             'vigencia_fim' => $arrayhistorico['vigencia_fim'],
             'situacao' => $arrayhistorico['situacao'],
+            'publicado' =>  $arrayhistorico['publicado'],
         ];
         return $arrayRescisao;
     }
