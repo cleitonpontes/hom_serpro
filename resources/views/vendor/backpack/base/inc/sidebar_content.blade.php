@@ -33,12 +33,12 @@
                     <i class="fa fa-users"></i>
                     <span>Fornecedores</span>
                 </a>
-{{--            <li>--}}
-{{--                <a href="{{ backpack_url('/gescon/indicador') }}">--}}
-{{--                    <i class="fa fa-users"></i>--}}
-{{--                    <span>Indicadores</span>--}}
-{{--                </a>--}}
-{{--            </li>--}}
+            <li>
+                <a href="{{ backpack_url('/gescon/indicador') }}">
+                    <i class="fa fa-users"></i>
+                    <span>Indicadores</span>
+                </a>
+            </li>
             <li>
                 <a href="{{ backpack_url('/gescon/subrogacao') }}">
                     <i class="fa fa-copy"></i>
@@ -242,12 +242,12 @@
                             <span>Fatura</span>
                         </a>
                     </li>
-{{--                    <li>--}}
-{{--                        <a href="{{ backpack_url('/folha/apropriacao') }}">--}}
-{{--                            <i class="fa fa-money"></i>--}}
-{{--                            <span>Folha</span>--}}
-{{--                        </a>--}}
-{{--                    </li>--}}
+                    <li>
+                        <a href="{{ backpack_url('/folha/apropriacao') }}">
+                            <i class="fa fa-money"></i>
+                            <span>Folha</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
             {{-- ************************************************************************ --}}

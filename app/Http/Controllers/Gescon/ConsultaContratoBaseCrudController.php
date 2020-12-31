@@ -349,7 +349,10 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratos.objeto', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -426,6 +429,9 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratos.valor_global', 'ilike', "%" . $searchTerm . "%");
+            },
             // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
             'orderLogic' => function ($query, $column, $columnDirection) {
                 return $query->orderBy('contratos.valor_global', $columnDirection);
@@ -450,6 +456,9 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratos.num_parcelas', 'ilike', "%" . $searchTerm . "%");
+            },
             // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
             'orderLogic' => function ($query, $column, $columnDirection) {
                 return $query->orderBy('contratos.num_parcelas', $columnDirection);
@@ -477,6 +486,9 @@ class ConsultaContratoBaseCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratos.valor_parcela', 'ilike', "%" . $searchTerm . "%");
+            },
             // adicionado orderLogic por mvascs@gmail.com - como o join já existe, vamos adicionar apenas o order by
             'orderLogic' => function ($query, $column, $columnDirection) {
                 return $query->orderBy('contratos.valor_parcela', $columnDirection);

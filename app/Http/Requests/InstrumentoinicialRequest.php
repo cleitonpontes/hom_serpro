@@ -41,7 +41,7 @@ class InstrumentoinicialRequest extends FormRequest
         return [
             'numero' => [
                 'required',
-                (new Unique('contratos', 'numero'))
+                (new Unique('contratohistorico', 'numero'))
                     ->ignore($id)
                     ->where('unidadeorigem_id', $unidadeorigem_id)
                     ->where('tipo_id',$tipo_id)
