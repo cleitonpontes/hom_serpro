@@ -43,11 +43,17 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
-        $situacao = $this->getSituacao($sisg);
+        $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao,true);
 
         $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
         $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
         if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
+
+            if($contratohistorico->publicado){
+                $this->executaAtualizacaoViaJob($contratohistorico,$situacao);
+                return true;
+            }
+
             ContratoPublicacoes::create([
                 'contratohistorico_id' => $contratohistorico->id,
                 'data_publicacao' => $contratohistorico->data_publicacao,
@@ -366,12 +372,22 @@ class ContratohistoricoObserve
         return $calendario;
     }
 
-    private function getSituacao($sisg)
+    private function getSituacao($sisg, $data = null,$create = false)
     {
+
+
         $situacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Situacao Publicacao');
         })
             ->select('codigoitens.id');
+
+        if($create) {
+            $data = Carbon::createFromFormat('Y-m-d', $data);
+            if ($data->lte(Carbon::now())) {
+                return $situacao->where('descricao', 'PUBLICADO')->first();
+            }
+        }
+
         if ($sisg) {
             return $situacao->where('descricao', 'A PUBLICAR')->first();
         }

@@ -73,18 +73,20 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function oficioPreview($contrato_id)
+    public function oficioPreview()
     {
         try {
-            $contratoHistorico = Contratohistorico::where('contrato_id', $contrato_id)
-                ->orderBy('id', 'desc')
-                ->first();
 
-            $contratoPublicacoes = ContratoPublicacoes::where('contratohistorico_id', $contratoHistorico->id)
-                ->orderBy('id', 'desc')
-                ->first();
+            $data = Carbon::createFromFormat('Y-m-d', date('Y-m-d'));
 
-            $this->enviaPublicacao($contratoHistorico, $contratoPublicacoes);
+            $contratoPublicacoes = ContratoPublicacoes::where('data_publicacao', $data->addDay())
+                ->orderBy('id', 'desc')
+                ->get();
+
+            foreach ($contratoPublicacoes as $contratoPublicacao) {
+                 $this->enviaPublicacao($contratoPublicacao->contratohistorico, $contratoPublicacao);
+            }
+
 
         } catch (Exception $e) {
             return $e->getMessage();
@@ -92,7 +94,7 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function oficioPreviewNovo()
+    public function criaJobsOficioPreviewNovo()
     {
         $data = Carbon::createFromFormat('Y-m-d', date('Y-m-d'));
 
