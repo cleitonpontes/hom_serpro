@@ -782,7 +782,7 @@ class EmpenhoCrudController extends CrudController
                     );
 
                     foreach ($d['itens'] as $item) {
-                        $naturezasubitem = $this->trataPiNdSubitem($d['subitem'], 'SUBITEM',$naturezadespesa, $d['subitemdescricao']);
+                        $naturezasubitem = $this->trataPiNdSubitem($item['subitem'], 'SUBITEM',$naturezadespesa, $item['subitemdescricao']);
 
                         if ($naturezasubitem) {
                             $empenhodetalhado = Empenhodetalhado::updateOrCreate([
