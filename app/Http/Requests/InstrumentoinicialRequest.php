@@ -94,7 +94,7 @@ class InstrumentoinicialRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'data_assinatura' => "Data assinatura"
         ];
     }
 
@@ -106,7 +106,7 @@ class InstrumentoinicialRequest extends FormRequest
     public function messages()
     {
 
-        $data_limite = implode('/',array_reverse(explode('-',$this->data_limite)));
+        $data_limite = implode('/',array_reverse(explode('-',$this->data_limitefim)));
 
         return [
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
