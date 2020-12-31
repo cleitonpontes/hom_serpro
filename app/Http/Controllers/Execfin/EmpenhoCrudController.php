@@ -928,7 +928,7 @@ class EmpenhoCrudController extends CrudController
             'fonte' => $empenho->celula_orcamentaria->codfonterec
         ];
 
-        $novo_empenho = Empenho::firstOrCreate(
+        $novo_empenho = Empenho::updateOrCreate(
             $array_empenho1,
             $array_empenho2
         );
@@ -940,7 +940,7 @@ class EmpenhoCrudController extends CrudController
                 'empenho_id' => $novo_empenho->id,
                 'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
             ];
-            Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
+            Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
         }
     }
 
