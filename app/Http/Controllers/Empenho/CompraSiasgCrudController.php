@@ -233,12 +233,6 @@ class CompraSiasgCrudController extends CrudController
 
                 if ($retorno_compra->data->compraSispp->tipoCompra == 1) {
                     $this->gravaParametroItensdaCompraSISPP($retorno_compra, $compra);
-                    if (!is_null($retorno_compra->data->itemCompraSisppDTO)) {
-                        $fornecedor = new Fornecedor();
-                        $fornecedor = $fornecedor->buscaFornecedorPorNumero(
-                            $retorno_compra->data->itemCompraSisppDTO[0]->niFornecedor
-                        );
-                    }
                 }
 
                 if ($retorno_compra->data->compraSispp->tipoCompra == 2) {
@@ -260,21 +254,10 @@ class CompraSiasgCrudController extends CrudController
                     'unidade_id' => $unidade_autorizada,
                     'modalidade_id' => $contrato->modalidade_id,
                     'numero_ano' => $contrato->numero,
-                    'fornecedor_compra_id' => $fornecedor->id,
+                    'tipo_empenhopor' => $tipo_empenhopor->id,
+                    'fornecedor_compra_id' => $contrato->fornecedor_id,
                     'numero_contrato' => $contrato->numero,
-                    'tipo_empenhopor' => $tipo_empenhopor->id
                 ]);
-//                $cmep = new ContratoMinutaEmpenhoPivot();
-//                $cmep->contrato_id = $contrato->id;
-//                $cmep->minuta_empenho_id = $minutaEmpenho->id;
-//                $cmep->save();
-
-//                DB::table('contrato_minuta_empenho_pivot')->insert(
-//                    ['contrato_id' => $contrato->id, 'minuta_empenho_id' => $minutaEmpenho->id]
-//                );
-
-//                dump($request->all());
-//                dd($minutaEmpenho);
 
                 DB::commit();
 
@@ -333,6 +316,7 @@ class CompraSiasgCrudController extends CrudController
                 $minutaEmpenho = $this->gravaMinutaEmpenho([
                     'situacao_id' => $situacao->id,
                     'compra_id' => $compra->id,
+                    'contrato_id' => null,
                     'unidade_origem_id' => $compra->unidade_origem_id,
                     'unidade_id' => $unidade_autorizada_id,
                     'modalidade_id' => $compra->modalidade_id,
@@ -501,13 +485,12 @@ class CompraSiasgCrudController extends CrudController
         $minutaEmpenho->contrato_id = $params['contrato_id'];
         $minutaEmpenho->situacao_id = $params['situacao_id'];
         $minutaEmpenho->informacao_complementar = $this->retornaInfoComplementar($params);
+            $minutaEmpenho->tipo_empenhopor_id = $params['tipo_empenhopor'];
         $etapa = 2;
 
         if (isset($params['fornecedor_compra_id'])) {
-            $minutaEmpenho->fornecedor_compra_id = $params['fornecedor_compra_id'];
             $minutaEmpenho->fornecedor_empenho_id = $params['fornecedor_compra_id'];
             $minutaEmpenho->numero_contrato = $params['numero_contrato'];
-            $minutaEmpenho->tipo_empenhopor_id = $params['tipo_empenhopor'];
             $etapa = 3;
         }
 

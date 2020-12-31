@@ -193,6 +193,8 @@ class MinutaEmpenhoController extends Controller
             ->where('descricao', 'EM ANDAMENTO')
             ->select('codigoitens.id')->first();
 
+        $tipo = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Compra');
+
         DB::beginTransaction();
         try {
             $this->atualizaSaldoCompraItemUnidade($modMinutaEmpenho);
@@ -201,6 +203,7 @@ class MinutaEmpenhoController extends Controller
             $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
             $novoEmpenho->informacao_complementar = $modMinutaEmpenho->informacao_complementar;
             $novoEmpenho->situacao_id = $situacao->id;//em andamento
+            $novoEmpenho->tipo_empenhopor_id = $tipo;
             $novoEmpenho->etapa = 2;
             $novoEmpenho->save();
 
