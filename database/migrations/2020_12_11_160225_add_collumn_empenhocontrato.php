@@ -15,7 +15,7 @@ class AddCollumnEmpenhoContrato extends Migration
     {
         Schema::table('minutaempenhos', function (Blueprint $table) {
             $table->boolean('empenhocontrato')->default(false);
-            $table->char('numero_contrato',255)->nullable();
+            //$table->char('numero_contrato',255)->nullable();
         });
     }
 

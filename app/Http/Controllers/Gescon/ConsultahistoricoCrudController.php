@@ -7,6 +7,7 @@ use App\Models\Codigo;
 use App\Models\Codigoitem;
 use App\Models\Contratohistorico;
 use App\Models\Instalacao;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -210,7 +211,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.observacao', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -230,7 +234,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.numero', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -250,7 +257,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.unidades_requisitantes', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -334,7 +344,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.processo', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -355,7 +368,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.objeto', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -375,7 +391,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.info_complementar', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -395,7 +414,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.fundamento_legal', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -437,7 +459,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.licitacao_numero', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -558,7 +583,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.valor_global', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -578,7 +606,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.num_parcelas', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -599,7 +630,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.valor_parcela', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -619,7 +653,10 @@ class ConsultahistoricoCrudController extends ConsultaContratoBaseCrudController
             'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratohistorico.situacao_siasg', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
