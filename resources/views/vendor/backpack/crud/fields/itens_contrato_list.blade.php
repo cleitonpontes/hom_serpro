@@ -39,66 +39,66 @@
     <!-- Editable table -->
 
     <!-- Janela modal para inserção de registros -->
-{{--    <div id="inserir_item" tabindex="-1" class="modal fade"--}}
-{{--         role="dialog"--}}
-{{--         aria-hidden="true">--}}
-{{--        <div class="modal-dialog modal-dialog-centered" role="document">--}}
-{{--            <div class="modal-content">--}}
-{{--                <div class="modal-header">--}}
-{{--                    <h3 class="modal-title">--}}
-{{--                        Novo Item--}}
-{{--                    </h3>--}}
-{{--                    <button type="button" class="close" id="fechar_modal" data-dismiss="modal" aria-label="Fechar">--}}
-{{--                        <span aria-hidden="true">&times;</span>--}}
-{{--                    </button>--}}
-{{--                </div>--}}
-{{--                <div class="modal-body" id="textoModal">--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label for="qtd_item" class="control-label">Tipo Item</label>--}}
-{{--                        <select class="form-control" style="width:100%;" id="tipo_item">--}}
-{{--                            <option value="">Selecione</option>--}}
-{{--                            <option value="149">Material</option>--}}
-{{--                            <option value="150">Serviço</option>--}}
-{{--                        </select>--}}
-{{--                    </div>--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label for="qtd_item" class="control-label">Item</label>--}}
-{{--                        <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">--}}
-{{--                        </select>--}}
-{{--                    </div>--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label for="qtd_item" class="control-label">Número</label>--}}
-{{--                        <input class="form-control" id="numero_item" name="numero_item" type="text">--}}
-{{--                    </div>--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label for="qtd_item" class="control-label">Quantidade</label>--}}
-{{--                        <input class="form-control" id="quantidade_item" maxlength="10" name="quantidade_item"--}}
-{{--                               type="number">--}}
-{{--                    </div>--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label for="vl_unit" class="control-label">Valor Unitário</label>--}}
-{{--                        <input class="form-control" id="valor_unit" name="valor_unit" type="number">--}}
-{{--                    </div>--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label for="vl_total" class="control-label">Valor Total</label>--}}
-{{--                        <input class="form-control" id="valor_total" name="valor_total" type="number">--}}
-{{--                    </div>--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label for="data_inicio" class="control-label">Data Início</label>--}}
-{{--                        <input class="form-control" id="dt_inicio" name="dt_inicio" type="date">--}}
-{{--                    </div>--}}
-{{--                    <button class="btn btn-danger" type="submit" data-dismiss="modal"><i class="fa fa-reply"></i>--}}
-{{--                        Cancelar--}}
-{{--                    </button>--}}
-{{--                    <button class="btn btn-success" type="button" data-dismiss="modal" id="btn_inserir_item"><i--}}
-{{--                            class="fa fa-save"></i> Incluir--}}
-{{--                    </button>--}}
-{{--                </div>--}}
-{{--                <div class="modal-footer">--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    </div>--}}
+    <div id="inserir_item" tabindex="-1" class="modal fade"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        Novo Item
+                    </h3>
+                    <button type="button" class="close" id="fechar_modal" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="textoModal">
+                    <div class="form-group">
+                        <label for="qtd_item" class="control-label">Tipo Item</label>
+                        <select class="form-control" style="width:100%;" id="tipo_item">
+                            <option value="">Selecione</option>
+                            <option value="149">Material</option>
+                            <option value="150">Serviço</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="qtd_item" class="control-label">Item</label>
+                        <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="qtd_item" class="control-label">Número</label>
+                        <input class="form-control" id="numero_item" name="numero_item" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="qtd_item" class="control-label">Quantidade</label>
+                        <input class="form-control" id="quantidade_item" maxlength="10" name="quantidade_item"
+                               type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="vl_unit" class="control-label">Valor Unitário</label>
+                        <input class="form-control" id="valor_unit" name="valor_unit" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="vl_total" class="control-label">Valor Total</label>
+                        <input class="form-control" id="valor_total" name="valor_total" type="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="data_inicio" class="control-label">Data Início</label>
+                        <input class="form-control" id="dt_inicio" name="dt_inicio" type="date">
+                    </div>
+                    <button class="btn btn-danger" type="submit" data-dismiss="modal"><i class="fa fa-reply"></i>
+                        Cancelar
+                    </button>
+                    <button class="btn btn-success" type="button" data-dismiss="modal" id="btn_inserir_item"><i
+                            class="fa fa-save"></i> Incluir
+                    </button>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- HINT --}}
     @if (isset($field['hint']))
