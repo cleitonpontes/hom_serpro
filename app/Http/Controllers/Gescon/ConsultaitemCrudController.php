@@ -68,7 +68,7 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
             'type' => 'model_function',
             'function_name' => 'getCatmatsergrupo',
             'orderable' => true,
-            'visibleInTable' => true,
+            'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
