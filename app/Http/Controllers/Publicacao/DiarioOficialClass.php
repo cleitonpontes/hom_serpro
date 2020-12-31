@@ -73,9 +73,21 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function oficioPreview()
+    public function oficioPreview($contratohistorico_id)
     {
+
         try {
+            $contratoHistorico = Contratohistorico::where('id', $contratohistorico_id)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            dump($contratoHistorico);
+            $publicacoes= $contratoHistorico->publicacao;
+            dd($publicacoes->where('status_publicacao_id',323));
+//            $contratoPublicacoes = ContratoPublicacoes::where('contratohistorico_id', $contratoHistorico->id)
+//                ->orderBy('id', 'desc')
+//                ->first();
+
 
             $data = Carbon::createFromFormat('Y-m-d', date('Y-m-d'));
 

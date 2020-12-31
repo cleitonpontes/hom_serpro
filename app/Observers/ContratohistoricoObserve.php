@@ -33,8 +33,6 @@ class ContratohistoricoObserve
      */
     public function created(Contratohistorico $contratohistorico)
     {
-        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
-
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
             ->get();
@@ -43,16 +41,29 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
+
+        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
         $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao,true);
+
+        if($contratohistorico->publicado){
+            $this->executaAtualizacaoViaJob($contratohistorico,$situacao);
+            return true;
+        }
+
+
+        $publicacoes= $contratohistorico->publicacao;
+        dd($publicacoes->where('status_publicacao_id',323));
+        //SE O CONTRATO HISTÓRICO É NOVO NÃO HÁ NECESSIDADE DE CHECAR SE EXISTE PUBLICAÇÃO
+        $this->criaNovaPublicacao($contratohistorico,$sisg,$situacao);
+
+    }
+
+    public function criaNovaPublicacao(Contratohistorico $contratohistorico,$sisg,$situacao){
 
         $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
         $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
-        if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
 
-            if($contratohistorico->publicado){
-                $this->executaAtualizacaoViaJob($contratohistorico,$situacao);
-                return true;
-            }
+        if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
 
             ContratoPublicacoes::create([
                 'contratohistorico_id' => $contratohistorico->id,
@@ -64,13 +75,14 @@ class ContratohistoricoObserve
                 'motivo_isencao' =>
                     ($sisg)
                         ? $this->retornaIdCodigoItem(
-                            'Motivo Isenção',
-                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
-                        )
+                        'Motivo Isenção',
+                        'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+                    )
                         : ''
             ]);
         }
     }
+
 
     /**
      * Handle the contratohistorico "updated" event.
