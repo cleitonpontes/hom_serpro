@@ -21,7 +21,7 @@ class CreateContratoitensMinutaEmpenhoTable extends Migration
             $table->decimal('valor', 17,2)->default(0)->nullable();
 
             $table->foreign('minutaempenho_id')->references('id')->on('minutaempenhos')->onDelete('cascade');
-            $table->foreign('contrato_item_id')->references('id')->on('compra_items')->onDelete('cascade');
+            $table->foreign('contrato_item_id')->references('id')->on('contratoitens')->onDelete('cascade');
             $table->foreign('subelemento_id')->references('id')->on('naturezasubitem')->onDelete('cascade');
             $table->primary(['contrato_item_id', 'minutaempenho_id']);
         });

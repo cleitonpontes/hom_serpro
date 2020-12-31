@@ -101,25 +101,24 @@
 
         function calculaValorTotal(obj) {
 
-            var compra_item_id = obj.dataset.compra_item_id;
+            var {{$tipo}} = obj.dataset.{{$tipo}};
             var valor_total = obj.value * obj.dataset.valor_unitario;
             valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
-            $(".vrtotal" + compra_item_id)
+            $(".vrtotal" + {{$tipo}})
                 .val(valor_total)
                 .trigger("change")
-
         }
 
         function calculaQuantidade(obj) {
 
-            var compra_item_id = obj.dataset.compra_item_id;
+            var {{$tipo}} = obj.dataset.{{$tipo}};
             var value = obj.value;
 
             value = ptToEn(value);
 
             var quantidade = value / obj.dataset.valor_unitario;
 
-            $(".qtd" + compra_item_id).val(quantidade)
+            $(".qtd" + {{$tipo}}).val(quantidade)
 
         }
 

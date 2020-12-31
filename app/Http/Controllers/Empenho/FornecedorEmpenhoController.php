@@ -42,7 +42,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
 
 
-        if ($codigoitem->descres == 'CON') {
+        if ($codigoitem->descricao == 'Contrato') {
 //            dd($modMinutaEmpenho->contrato()->first()->fornecedor);
 
 //            $fornecedores = [0 => ["id" => 11,
@@ -52,11 +52,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
             //$fornecedores = $modMinutaEmpenho->contrato()->first()->fornecedor;
             $fornecedores = MinutaEmpenho::join(
-                'contrato_minuta_empenho_pivot',
-                'contrato_minuta_empenho_pivot.minuta_empenho_id',
+                'contratos',
+                'contratos.id',
                 '=',
-                'minutaempenhos.id'
-            )->join('contratos', 'contratos.id', '=', 'contrato_minuta_empenho_pivot.contrato_id')
+                'minutaempenhos.contrato_id'
+            )
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
                 ->where('minutaempenhos.id', $minuta_id)
                 ->select([
@@ -67,8 +67,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ])
                 ->get()
                 ->toArray();
+//            ;dd($fornecedores->getBindings(),$fornecedores->toSql());
         }
-        if ($codigoitem->descres == 'COM') {
+        if ($codigoitem->descricao == 'Compra') {
             $fornecedores = MinutaEmpenho::join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
                 ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
                 ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
@@ -78,7 +79,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->distinct()
                 ->where('minutaempenhos.id', $minuta_id)
                 ->where('compra_item_unidade.quantidade_saldo', '>', 0)
-                ->select(['fornecedores.id', 'fornecedores.nome', 'fornecedores.cpf_cnpj_idgener', 'compra_item_fornecedor.situacao_sicaf'])
+                ->select([
+                    'fornecedores.id', 'fornecedores.nome',
+                    'fornecedores.cpf_cnpj_idgener',
+                    'compra_item_fornecedor.situacao_sicaf'
+                ])
                 ->get()
                 ->toArray();
         }
@@ -177,7 +182,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
-//        dd($modMinutaEmpenho);
 
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
         if (!is_null($modMinutaEmpenho)) {
@@ -186,10 +190,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         }
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
 
-        if ($codigoitem->descres == 'CON') {
-//            dd(123);
-//            dump($modMinutaEmpenho->numero_contrato);
-
+        if ($codigoitem->descricao == 'Contrato') {
+            $tipo = 'contrato_item_id';
             $itens = Contrato::where('fornecedor_id', '=', $fornecedor_id)
                 ->where('numero', '=', $modMinutaEmpenho->numero_contrato)
                 ->whereNull('contratoitens.deleted_at')
@@ -199,8 +201,10 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->select([
                     'contratoitens.id',
                     'codigoitens.descricao',
-                    'catmatseritens.codigo_siasg',
                     'contratoitens.numero_item_compra as numero',
+                    'catmatseritens.codigo_siasg',
+                    'catmatseritens.descricao as catmatser_desc',
+                    DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
                     'contratoitens.descricao_complementar as descricaodetalhada',
                     DB::raw("SUBSTRING(contratoitens.descricao_complementar for 50) AS descricaosimplificada"),
                     'contratoitens.quantidade as quantidade_saldo',
@@ -210,11 +214,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ])
                 ->get()
                 ->toArray();
-//            ;dd($itens->getBindings(),$itens->toSql());
+//            ;dd($itens->getBindings(),$itens->toSql(),$itens->get());
         }
-//        dd($itens);
-//die();
-        if ($codigoitem->descres == 'COM') {
+        if ($codigoitem->descricao == 'Compra') {
+            $tipo = 'compra_item_id';
+
             $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
                 ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
@@ -231,6 +235,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     'compra_items.id',
                     'codigoitens.descricao',
                     'catmatseritens.codigo_siasg',
+                    'catmatseritens.descricao as catmatser_desc',
+                    DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
                     'compra_items.descricaodetalhada',
                     DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
                     'compra_item_unidade.quantidade_saldo',
@@ -242,14 +248,24 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->toArray();
         }
 
-//        ;dd($itens->getBindings(),$itens->toSql());
-
         if ($request->ajax()) {
-            return DataTables::of($itens)->addColumn('action', function ($itens) use ($modMinutaEmpenho) {
-                return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao']);
-            })->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada']);
-            })->rawColumns(['descricaosimplificada', 'action'])
+            return DataTables::of($itens)
+                ->addColumn('action', function ($itens) use ($modMinutaEmpenho, $tipo) {
+                    return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao'], $tipo);
+                })
+                ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
+                    if ($itens['descricaosimplificada'] != null) {
+                        return $this->retornaDescricaoDetalhada(
+                            $itens['descricaosimplificada'],
+                            $itens['descricaodetalhada']
+                        );
+                    }
+                    return $this->retornaDescricaoDetalhada(
+                        $itens['catmatser_desc_simplificado'],
+                        $itens['catmatser_desc']
+                    );
+                })
+                ->rawColumns(['descricaosimplificada', 'action'])
                 ->make(true);
         }
 
@@ -261,11 +277,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         )->with(['update' => CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get()->isNotEmpty()]);
     }
 
-    private function retornaRadioItens($id, $minuta_id, $descricao)
+    private function retornaRadioItens($id, $minuta_id, $descricao, $tipo)
     {
         $retorno = '';
         $retorno .= " <input  type='checkbox' id='$id' data-tipo='$descricao' "
-            . "name='itens[][compra_item_id]' value='$id'  onclick=\"bloqueia('$descricao')\" > ";
+            . "name='itens[][$tipo]' value='$id'  onclick=\"bloqueia('$descricao')\" > ";
         return $retorno;
     }
 
@@ -351,6 +367,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
     public function store(Request $request)
     {
+//        dd($request->all());
         $minuta = MinutaEmpenho::find($request->minuta_id);
 
         $minuta_id = $request->minuta_id;
@@ -375,11 +392,13 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             $itens
         );
 
+//        dd($itens);
+
         DB::beginTransaction();
         try {
             $codigoitem = Codigoitem::find($minuta->tipo_empenhopor_id);
 
-            if ($codigoitem->descres == 'CON') {
+            if ($codigoitem->descricao == 'Contrato') {
                 ContratoItemMinutaEmpenho::insert($itens);
             } else {
                 CompraItemMinutaEmpenho::insert($itens);
@@ -449,11 +468,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         }
     }
 
-    private function retornaItensAcoes($id, $minuta_id)
-    {
-        $acoes = '';
-        $acoes .= $this->retornaRadioItens($id);
-
-        return $acoes;
-    }
+//    private function retornaItensAcoes($id, $minuta_id)
+//    {
+//        $acoes = '';
+//        $acoes .= $this->retornaRadioItens($id);
+//
+//        return $acoes;
+//    }
 }

@@ -40,6 +40,7 @@ class MinutaEmpenhoController extends Controller
 
     public function populaTabelasSiafi(Request $request)
     {
+//        dd(123);
         $retorno['resultado'] = false;
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
@@ -138,41 +139,27 @@ class MinutaEmpenhoController extends Controller
     public function gravaSfItensEmpenho(MinutaEmpenho $modMinutaEmpenho, SfOrcEmpenhoDados $sforcempenhodados)
     {
 
-//        dd($modMinutaEmpenho, $sforcempenhodados);
-        $tipo_contrato = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Contrato');
-        if ($modMinutaEmpenho->tipo_empenhopor_id == $tipo_contrato) {
-            $modItem = ContratoItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
-        }
-        $tipo_compra = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Compra');
-        if ($modMinutaEmpenho->tipo_empenhopor_id == $tipo_compra) {
-            $modItem = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
-        }
-//        dd('fora');
-//        $modItem = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
-//        dd($modItem);
+        $tipo = $modMinutaEmpenho->tipo_empenhopor->descricao;
 
-        foreach ($modItem as $key => $item) {
-            dump('232323');
-//            dump($item);
-//            dump($item->subelemento_id);
+        $itens = $this->getItens($tipo, $modMinutaEmpenho->id);
+
+        foreach ($itens as $key => $item) {
+            $descricao = $this->getDescItem($item, $tipo);
+
             $modSfItemEmpenho = new SfItemEmpenho();
             $modSubelemento = Naturezasubitem::find($item->subelemento_id);
             $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
             $modSfItemEmpenho->numseqitem = $key + 1;
-//            dd('forea',$modSubelemento);
-            dump('forea');
             $modSfItemEmpenho->codsubelemento = $modSubelemento->codigo;
-            $modSfItemEmpenho->descricao = $this->buscaDescricao($item,$modMinutaEmpenho->tipo_empenhopor_id );
-            dump('fim');
+            $modSfItemEmpenho->descricao = $descricao;
 
             $modSfItemEmpenho->save();
 
             $this->gravaSfOperacaoItemEmpenho($modSfItemEmpenho, $item);
         }
-        dd(112233);
     }
 
-    public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, CompraItemMinutaEmpenho $item)
+    public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, $item)
     {
         $modSfOpItemEmpenho = new SfOperacaoItemEmpenho();
         $modSfOpItemEmpenho->sfitemempenho_id = $modSfItemEmpenho->id;
@@ -260,20 +247,6 @@ class MinutaEmpenhoController extends Controller
         return $compra;
     }
 
-    public function buscaDescricao($compra_id, $tipo_empenhopor_id)
-    {
-        dd($compra_id);
-        $item->compra_item_id;
-        dd(123,$compra_id);
-        $compra_id->compra_item_id;
-        $descricao = '';
-        $modCompraItem = CompraItem::find($compra_id);
-        $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
-        (!empty($modCompraItem->descricaodetalhada))
-            ? $descricao = $modCompraItem->descricaodetalhada
-            : $descricao = $modcatMatSerItem->descricao;
-        return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
-    }
 
     /**
      * Método para buscar as minutas de empenho de acordo com uasg da pessoa logada
@@ -321,5 +294,38 @@ class MinutaEmpenhoController extends Controller
         }
 
         return $options->paginate(10);
+    }
+
+    private function getItens($tipo, $minuta_id)
+    {
+        if ($tipo === 'Contrato') {
+            return ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get();
+        }
+
+        return CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get();
+    }
+
+    private function getDescItem($item, $tipo)
+    {
+        if ($tipo === 'Contrato') {
+            $contrato_item = $item->contrato_item;
+            $desc = $contrato_item->descricao_complementar;
+
+            $descricao = (!is_null($desc))
+                ? $desc
+                : $contrato_item->item->descricao;
+
+            return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
+        }
+
+        $descricao = '';
+        $modCompraItem = CompraItem::find($item->compra_item_id);
+        $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
+
+        (!empty($modCompraItem->descricaodetalhada))
+            ? $descricao = $modCompraItem->descricaodetalhada
+            : $descricao = $modcatMatSerItem->descricao;
+
+        return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
 }

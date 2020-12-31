@@ -244,7 +244,7 @@ class MinutaEmpenhoCrudController extends CrudController
             'name' => 'amparo_legal_id',
             'label' => "Amparo Legal",
             'type' => 'select2_from_array',
-            'options' => $minuta_id ? $modelo->retornaAmparoPorMinutadeContrato() : [],
+            'options' => $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
             'allows_null' => true,
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6'
@@ -593,7 +593,6 @@ class MinutaEmpenhoCrudController extends CrudController
         $codigoitem = Codigoitem::find($modMinuta->tipo_empenhopor_id);
 
         if ($codigoitem->descres == 'CON') {
-
 //            join('contrato_minuta_empenho_pivot',
 //                'contrato_minuta_empenho_pivot.minuta_empenho_id',
 //                '=',
@@ -602,13 +601,16 @@ class MinutaEmpenhoCrudController extends CrudController
 //                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
 //                ->where('minutaempenhos.id', $minuta_id)
 
-            $itens = ContratoItemMinutaEmpenho::join('contratoitens', 'contratoitens.id', '=','contrato_item_minuta_empenho.compra_item_id')
-                ->join('contrato_minuta_empenho_pivot',
-                'contrato_minuta_empenho_pivot.minuta_empenho_id',
+            $itens = ContratoItemMinutaEmpenho::join(
+                'contratoitens',
+                'contratoitens.id',
                 '=',
-                'contrato_item_minuta_empenho.minutaempenho_id')
+                'contrato_item_minuta_empenho.contrato_item_id'
+            )
+
+                ->join('minutaempenhos','minutaempenhos.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
+                ->join('contratos', 'contratos.id', '=', 'minutaempenhos.contrato_id')
                 ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
-                ->join('contratos', 'contratos.id','=','contrato_minuta_empenho_pivot.contrato_id')
                 ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
                 ->where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
@@ -624,20 +626,20 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ])
                 ->get()->toArray();
+
         }
 
         if ($codigoitem->descres == 'COM') {
-
             $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
                 ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
                 ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
                 ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
                 ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
                 ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
-    //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+                //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
                 ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
-                ->where('compra_item_minuta_empenho.remessa',0)
+                ->where('compra_item_minuta_empenho.remessa', 0)
                 ->select([
                     DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
                     DB::raw('fornecedores.nome AS "Fornecedor"'),
@@ -654,7 +656,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
                 ])
                 ->get()->toArray();
-    //        ;dd($itens->getBindings(),$itens->toSql());
+            //        ;dd($itens->getBindings(),$itens->toSql());
         }
 
         $this->crud->addColumn([
@@ -785,7 +787,7 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         $minuta = MinutaEmpenho::find($id);
 
-        if($minuta->situacao->descricao == 'ERRO'){
+        if ($minuta->situacao->descricao == 'ERRO') {
             DB::beginTransaction();
             try {
                 $situacao = Codigoitem::wherehas('codigo', function ($q) {
@@ -808,10 +810,9 @@ class MinutaEmpenhoCrudController extends CrudController
 
             Alert::success('Situação da minuta alterada com sucesso!')->flash();
             return redirect('/empenho/minuta');
-        }else{
+        } else {
             Alert::warning('Situação da minuta não pode ser alterada!')->flash();
             return redirect('/empenho/minuta');
         }
-
     }
 }

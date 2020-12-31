@@ -249,8 +249,8 @@
                             <i class="fa fa-save"></i> Emitir Empenho SIAFI
                         </button>
                     </div>
-                    @if ($entry->empenhocontrato == false)
                     <div class="col-md-3">
+                    @if ($entry->empenho_por != 'Contrato')
                         <button type="button" class="btn btn-primary"
                                 @if (!(($entry->situacao_descricao === 'EM PROCESSAMENTO' || $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
                                     disabled
@@ -259,8 +259,8 @@
                         >
                             <i class="fa fa-plus"></i> Empenhar outro Fornecedor
                         </button>
-                    </div>
                     @endif
+                    </div>
                     <div class="col-md-3" align="right">
                         <button type="button" class="btn btn-primary" id="finalizar"
                             {{($entry->situacao_descricao !== 'EM PROCESSAMENTO') ? 'disabled' : ''}}>
