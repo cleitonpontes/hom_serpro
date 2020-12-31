@@ -2,6 +2,9 @@
 
 namespace App\Http\Traits;
 
+use DateTime;
+use Exception;
+
 trait Formatador
 {
 
@@ -19,9 +22,9 @@ trait Formatador
         }
 
         try {
-            $data = \DateTime::createFromFormat($formatoOrigem, $campo);
+            $data = DateTime::createFromFormat($formatoOrigem, $campo);
             $retorno = ($data !== false) ? $data->format($formatoDestino) : '';
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $retorno = '';
         }
 
@@ -41,7 +44,7 @@ trait Formatador
             $numero = number_format($campo, 2, ',', '.');
             $numeroPrefixado = ($prefix === true ? 'R$ ' : '') . $numero;
             $retorno = ($campo < 0) ? "($numeroPrefixado)" : $numeroPrefixado;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $retorno = '';
         }
 
@@ -66,7 +69,7 @@ trait Formatador
 
     public function formataDecimalSiasg($dado)
     {
-        return number_format($dado,2,'.','');
+        return number_format($dado, 2, '.', '');
     }
 
     public function formataIntengerSiasg($dado)
@@ -138,7 +141,7 @@ trait Formatador
 
     public function retornaMascaraCpf($cpf)
     {
-        return '***' . substr($cpf,3,9) . '**';
+        return '***' . substr($cpf, 3, 9) . '**';
     }
 
     public function retornaFormatoAmericano($valor)
@@ -152,10 +155,13 @@ trait Formatador
      * @param string $descricaocompleta
      * @return string
      */
-    public function retornaDescricaoDetalhada(string $descricao, string $descricaocompleta): string
+    public function retornaDescricaoDetalhada(string $descricao = null, string $descricaocompleta = null): string
     {
-        $retorno = '';
-        $retorno .= $descricao.' <i class="fa fa-info-circle" title="'.$descricaocompleta.'"></i>';
+        if ($descricao == null) {
+            return '';
+        }
+
+        $retorno = $descricao . ' <i class="fa fa-info-circle" title="' . $descricaocompleta . '"></i>';
 
         return $retorno;
     }
