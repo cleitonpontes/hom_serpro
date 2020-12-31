@@ -28,6 +28,7 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
     public function adicionaColunasEspecificasNaListagem()
     {
         $this->adicionaColunaTipoItem();
+        $this->adicionaColunaNumeroItemCompra();
         $this->adicionaColunaItemGrupo();
         $this->adicionaColunaItem();
         $this->adicionaColunaQuantidade();
@@ -66,9 +67,8 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
             'label' => 'Item Grupo',
             'type' => 'model_function',
             'function_name' => 'getCatmatsergrupo',
-            'limit' => 1000,
             'orderable' => true,
-            'visibleInTable' => true,
+            'visibleInTable' => false,
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
@@ -82,7 +82,6 @@ class ConsultaitemCrudController extends ConsultaContratoBaseCrudController
             'label' => 'Item',
             'type' => 'model_function',
             'function_name' => 'getCatmatseritem',
-            'limit' => 1000,
             'orderable' => true,
             'visibleInTable' => true,
             'visibleInModal' => true,
