@@ -6,12 +6,14 @@ use Alert;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Transparencia\IndexController;
 use App\Http\Traits\Busca;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoCargaEmpenhoJob;
 use App\Jobs\MigracaoempenhoJob;
 use App\Jobs\MigracaoRpJob;
 use App\Models\BackpackUser;
+use App\Models\Codigoitem;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
@@ -38,7 +40,7 @@ use Illuminate\Support\Facades\DB;
  */
 class EmpenhoCrudController extends CrudController
 {
-    use Busca;
+    use Busca, BuscaCodigoItens;
 
     public function setup()
     {
@@ -1053,5 +1055,4 @@ class EmpenhoCrudController extends CrudController
 
         return stream_context_create($context_options);
     }
-
 }

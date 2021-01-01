@@ -50,7 +50,7 @@ class ContratohistoricoObserve
         if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
 
             if($contratohistorico->publicado){
-                $this->executaAtualizacaoViaJob($contratohistorico,$situacao);
+                $this->executaAtualizacaoViaJob($contratohistorico,$situacao->id);
                 return true;
             }
 
@@ -374,7 +374,6 @@ class ContratohistoricoObserve
 
     private function getSituacao($sisg, $data = null,$create = false)
     {
-
 
         $situacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Situacao Publicacao');
