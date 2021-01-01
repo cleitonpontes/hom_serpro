@@ -43,32 +43,32 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
-        $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao,true);
+//        $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao,true);
 
         $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
         $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
         if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
 
             if($contratohistorico->publicado){
-                $this->executaAtualizacaoViaJob($contratohistorico,$situacao->id);
+                $this->executaAtualizacaoViaJob($contratohistorico);
                 return true;
             }
 
-            ContratoPublicacoes::create([
-                'contratohistorico_id' => $contratohistorico->id,
-                'data_publicacao' => $contratohistorico->data_publicacao,
-                'status' => ($sisg) ? 'Pendente' : 'informado',
-                'status_publicacao_id' => $situacao->id,
-                'texto_dou' => @DiarioOficialClass::retornaTextoModelo($contratohistorico),
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                'motivo_isencao' =>
-                    ($sisg)
-                        ? $this->retornaIdCodigoItem(
-                            'Motivo Isenção',
-                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
-                        )
-                        : ''
-            ]);
+//            ContratoPublicacoes::create([
+//                'contratohistorico_id' => $contratohistorico->id,
+//                'data_publicacao' => $contratohistorico->data_publicacao,
+//                'status' => ($sisg) ? 'Pendente' : 'informado',
+//                'status_publicacao_id' => $situacao->id,
+//                'texto_dou' => @DiarioOficialClass::retornaTextoModelo($contratohistorico),
+//                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+//                'motivo_isencao' =>
+//                    ($sisg)
+//                        ? $this->retornaIdCodigoItem(
+//                            'Motivo Isenção',
+//                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+//                        )
+//                        : ''
+//            ]);
         }
     }
 
@@ -136,8 +136,12 @@ class ContratohistoricoObserve
     }
 
 
-    private function executaAtualizacaoViaJob($contratohistorico,$publicado_id)
+    private function executaAtualizacaoViaJob($contratohistorico)
     {
+        $publicado_id = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situacao Publicacao');
+        })->where('descricao', 'PUBLICADO')->first()->id;
+
         $publicacao = ContratoPublicacoes::Create(
             [
                 'contratohistorico_id' => $contratohistorico->id,
