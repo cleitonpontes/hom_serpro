@@ -749,10 +749,17 @@ class EmpenhoCrudController extends CrudController
 //            ? $this->buscaDadosFileGetContents($url)
 //            : $this->buscaDadosCurl($url);
 
-        $context = stream_context_create(array('http' => array(
-            'timeout' => 600,
-            'ignore_errors' => true,
-        )));
+        $context = stream_context_create(array(
+            'http' => array(
+                'timeout' => 600,
+                'ignore_errors' => true,
+            ),
+            "ssl" => array(
+                "allow_self_signed" => true,
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ),
+        ));
 
         $dados = $this->buscaDadosFileGetContents($url, $context);
 
@@ -765,7 +772,7 @@ class EmpenhoCrudController extends CrudController
                     $pi = $this->buscaPi($d);
                 }
 
-                $naturezadespesa = $this->trataPiNdSubitem($d['naturezadespesa'], 'ND',null, $d['naturezadespesadescricao']);
+                $naturezadespesa = $this->trataPiNdSubitem($d['naturezadespesa'], 'ND', null, $d['naturezadespesadescricao']);
 
                 if ($naturezadespesa) {
                     $empenho = Empenho::updateOrCreate(
@@ -782,7 +789,7 @@ class EmpenhoCrudController extends CrudController
                     );
 
                     foreach ($d['itens'] as $item) {
-                        $naturezasubitem = $this->trataPiNdSubitem($item['subitem'], 'SUBITEM',$naturezadespesa, $item['subitemdescricao']);
+                        $naturezasubitem = $this->trataPiNdSubitem($item['subitem'], 'SUBITEM', $naturezadespesa, $item['subitemdescricao']);
 
                         if ($naturezasubitem) {
                             $empenhodetalhado = Empenhodetalhado::updateOrCreate([
