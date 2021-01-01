@@ -100,7 +100,7 @@ class ContratohistoricoObserve
 
         //-------------------------------------------JOB-----------------------------------------------------------
         if($contratohistorico->publicado){
-            $this->executaAtualizacaoViaJob($contratohistorico,$publicado_id);
+            $this->executaAtualizacaoViaJob($contratohistorico);
             return true;
         }
         //-------------------------------------------------------------------------------------------------------------
