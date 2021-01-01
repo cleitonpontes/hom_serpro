@@ -55,6 +55,7 @@ class AtualizaSiasgContratoJob implements ShouldQueue
         $siasgcontrato_atualizado = $this->siasgcontrato->atualizaJsonMensagemSituacao($this->siasgcontrato->id, $retorno);
 
         if($siasgcontrato_atualizado->mensagem == 'Sucesso' and $siasgcontrato_atualizado->situacao == 'Importado'){
+            dump($siasgcontrato_atualizado->id);
             $contratoSiagIntegracao = new ContratoSiasgIntegracaoNovo;
             $contrato = $contratoSiagIntegracao->executaAtualizacaoContratos($siasgcontrato_atualizado);
 
