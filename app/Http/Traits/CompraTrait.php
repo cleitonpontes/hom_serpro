@@ -12,8 +12,6 @@ use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Illuminate\Support\Facades\DB;
 
-
-
 trait CompraTrait
 {
 
@@ -57,10 +55,9 @@ trait CompraTrait
     {
         $unidade_autorizada_id = $compra->unidade_origem_id;
         $this->gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id);
-
     }
 
-    private function gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id):void
+    private function gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id): void
     {
         if (!is_null($compraSiasg->data->itemCompraSisppDTO)) {
             foreach ($compraSiasg->data->itemCompraSisppDTO as $key => $item) {
@@ -89,7 +86,7 @@ trait CompraTrait
         $this->gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id);
     }
 
-    private function gravaParametroSISRP($compraSiasg, $compra,$unidade_autorizada_id):void
+    private function gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id): void
     {
         $consultaCompra = new ApiSiasg();
 
@@ -113,7 +110,6 @@ trait CompraTrait
                     $this->gravaCompraItemFornecedor($compraItem->id, (object)$itemfornecedor, $fornecedor);
                 }
                 $this->gravaCompraItemUnidadeSisrp($compraItem, $unidade_autorizada_id, $item, $gerenciadoraParticipante, $carona, $dadosFornecedor, $tipoUasg);
-
             }
         }
     }
@@ -147,6 +143,7 @@ trait CompraTrait
 
     public function gravaCatmatseritem($item)
     {
+
         $MATERIAL = [149, 194];
         $SERVICO = [150, 195];
 
@@ -154,7 +151,7 @@ trait CompraTrait
         $tipo = ['S' => $SERVICO[0], 'M' => $MATERIAL[0]];
         $catGrupo = ['S' => $SERVICO[1], 'M' => $MATERIAL[1]];
         $catmatseritem = Catmatseritem::updateOrCreate(
-            ['codigo_siasg' => (int)$codigo_siasg],
+            ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
             ['descricao' => $item->descricao, 'grupo_id' => $catGrupo[$item->tipo]]
         );
         return $catmatseritem;
@@ -234,8 +231,8 @@ trait CompraTrait
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem_id);
-            $compraItemUnidade->quantidade_saldo = $saldo->saldo;
-            $compraItemUnidade->save();
+        $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+        $compraItemUnidade->save();
     }
 
 
@@ -270,6 +267,4 @@ trait CompraTrait
         $compraItemUnidade->quantidade_saldo = $saldo->saldo;
         $compraItemUnidade->save();
     }
-
-
 }

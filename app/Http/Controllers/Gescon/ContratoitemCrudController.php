@@ -47,9 +47,9 @@ class ContratoitemCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
 
-        (backpack_user()->can('contratoitem_inserir')) ? $this->crud->allowAccess('create') : null;
+//        (backpack_user()->can('contratoitem_inserir')) ? $this->crud->allowAccess('create') : null;
 //        (backpack_user()->can('contratoitem_editar')) ? $this->crud->allowAccess('update') : null;
-        (backpack_user()->can('contratoitem_deletar')) ? $this->crud->allowAccess('delete') : null;
+//        (backpack_user()->can('contratoitem_deletar')) ? $this->crud->allowAccess('delete') : null;
 
         /*
         |--------------------------------------------------------------------------
@@ -116,6 +116,16 @@ class ContratoitemCrudController extends CrudController
 //                            ->orWhereDate('depart_at', '=', date($searchTerm));
 //                    });
 //                },
+            ],
+            [
+                'name' => 'numero_item_compra',
+                'label' => 'Núm. item Compra',
+                'type' => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
             [
                 'name' => 'getCatmatsergrupo',
@@ -445,5 +455,31 @@ class ContratoitemCrudController extends CrudController
         return Saldohistoricoitem::where('contratoitem_id',$id)->count();;
     }
 
+    /* Metodo para retonar os itens contrato item
+     * utilizado para listar os items em: Termo aditivo e termo de apostilamento
+     *
+     * return array contratoitens
+     */
+    public function retonaContratoItem($contrato_id)
+    {
+        return Contratoitem::where('contrato_id','=',$contrato_id)
+            ->select(
+                'contratoitens.id',
+                'catmatseritens.codigo_siasg',
+                'codigoitens.descricao',
+                'catmatseritens.descricao as descricao_complementar',
+                'contratoitens.quantidade',
+                'contratoitens.valorunitario',
+                'contratoitens.valortotal',
+                'contratoitens.periodicidade',
+                'contratoitens.data_inicio',
+                'contratoitens.catmatseritem_id',
+                'contratoitens.tipo_id',
+                'contratoitens.numero_item_compra as numero'
+            )
+            ->leftJoin('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+            ->leftJoin('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
+            ->get()->toArray();
+    }
 
 }

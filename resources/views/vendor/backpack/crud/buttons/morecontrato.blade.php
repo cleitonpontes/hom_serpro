@@ -7,7 +7,7 @@
     <ul class="dropdown-menu dropdown-menu-right">
         <li class="dropdown-header"><i class="fa fa-list"></i> Itens Contrato:</li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/arquivos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Arquivos</a></li>
-        <li><a href="/gescon/contrato/{{$entry->getKey()}}/contratocontas">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Conta Vinculada</a></li>
+{{--        <li><a href="/gescon/contrato/{{$entry->getKey()}}/contratocontas">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Conta Vinculada</a></li>--}}
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/cronograma">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Cronograma</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/despesaacessoria">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Despesas Acessórias</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/empenhos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Empenhos</a></li>
@@ -16,6 +16,7 @@
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/itens">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Itens</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/padrao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Padrões DH SIAFI</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/prepostos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Prepostos</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/publicacao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Publicações</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/responsaveis">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Responsáveis</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/status">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Status</a></li>
         <li class="dropdown-header"><i class="fa fa-edit"></i> Modificar Contrato:</li>

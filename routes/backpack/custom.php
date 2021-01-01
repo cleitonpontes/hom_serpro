@@ -36,6 +36,10 @@ Route::group([
             Route::get('unidadecomorgao/{id}', 'UnidadeComOrgaoController@show');
             Route::get('fornecedor', 'FornecedorController@index');
             Route::get('fornecedor/{id}', 'FornecedorController@show');
+            Route::get('planointerno', 'PlanointernoController@index');
+            Route::get('planointerno/{id}', 'PlanointernoController@show');
+            Route::get('naturezadespesa', 'NaturezadespesaController@index');
+            Route::get('naturezadespesa/{id}', 'NaturezadespesaController@show');
             Route::get('comprasiasg', 'ComprasiasgController@index');
             Route::get('comprasiasg/{id}', 'ComprasiasgController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
@@ -57,10 +61,12 @@ Route::group([
             Route::get('carrega/saldos/unidade/{cod_unidade}', 'SaldoContabilController@carregaSaldosPorUnidadeSiasg')->name('carrega.saldos.unidade');
             Route::get('minutaempenhoparacontrato', 'MinutaEmpenhoController@minutaempenhoparacontrato');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
+            Route::get('contrato/numero', 'ContratoController@index');
             Route::get('inserir/item/modal/{tipo_id}/{contacorrente}', 'ContratoItensMinutaController@inserirIten')->name('item.inserir.modal');
             Route::get('buscar/itens/modal/{minutas_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
             Route::get('buscar/campos/contrato/empenho/{id}', 'ContratoController@buscarCamposParaCadastroContratoPorIdEmpenho')->name('buscar.campos.contrato.empenho');
-
+            Route::get( '/saldo-historico-itens/{id}',
+                'SaldoHistoricoItemController@retonaSaldoHistoricoItens')->name('saldo.historico.itens');
         });
 
         // if not otherwise configured, setup the dashboard routes
@@ -112,7 +118,10 @@ Route::group([
             CRUD::resource('importacao', 'ImportacaoCrudController');
             CRUD::resource('ipsacesso', 'IpsacessoCrudController');
             CRUD::resource('feriado', 'FeriadoCrudController');
+            CRUD::resource('failedjobs', 'FailedjobsCrudController');
+            CRUD::resource('jobs', 'JobsCrudController');
             CRUD::resource('amparolegal', 'AmparoLegalCrudController');
+            CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
 
 
             // Exportações Downloads
@@ -165,8 +174,10 @@ Route::group([
             CRUD::resource('fornecedor', 'FornecedorCrudController');
             CRUD::resource('indicador', 'IndicadorCrudController');
             CRUD::resource('encargo', 'EncargoCrudController');
-            Route::get( '/saldo-historico-itens/{contrato_id}',
-                'ContratoCrudController@retonaSaldoHistoricoItensContrato')->name('saldo.historico.item.contrato');
+
+
+            Route::get( '/buscar-contrato-itens/{contrato_id}',
+                'ContratoitemCrudController@retonaContratoItem')->name('contrato.item');
 
             Route::group([
                 'prefix' => 'siasg',
@@ -223,6 +234,7 @@ Route::group([
                 CRUD::resource('itens', 'ContratoitemCrudController');
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
+                CRUD::resource('publicacao', 'ContratoPublicacaoCrudController');
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('rescisao', 'RescisaoCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');
@@ -275,6 +287,7 @@ Route::group([
 
             CRUD::resource('empenho', 'EmpenhoCrudController');
             Route::get('incluirnovoempenho','EmpenhoCrudController@incluirEmpenhoSiafi');
+            Route::get('enviaempenhosiasg','EmpenhoCrudController@enviaEmpenhoSiasgTeste');
             CRUD::resource('situacaosiafi', 'ExecsfsituacaoCrudController');
             CRUD::resource('rhsituacao', 'RhsituacaoCrudController');
             CRUD::resource('rhrubrica', 'RhrubricaCrudController');

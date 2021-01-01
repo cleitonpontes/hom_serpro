@@ -27,8 +27,8 @@ class AlterContratoItensValoresQuatroCasasDecimais extends Migration
     public function down()
     {
         Schema::table('contratoitens', function (Blueprint $table) {
-            $table->dropColumn('valorunitario')->change();
-            $table->dropColumn('valortotal')->change();
+            $table->decimal('valorunitario',17,2)->default(0)->change();
+            $table->decimal('valortotal',17,2)->default(0)->change();
         });
     }
 }

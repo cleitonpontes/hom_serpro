@@ -63,6 +63,7 @@ class ContratoItensMinutaController extends Controller
             ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
             ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+            ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
             ->wherein('minutaempenhos.id',$ids)
             ->wherein('compra_item_minuta_empenho.minutaempenho_id',$ids)
             ->select('compra_items.*',
@@ -74,7 +75,9 @@ class ContratoItensMinutaController extends Controller
                 'compra_item_fornecedor.valor_negociado',
                 'compra_item_minuta_empenho.quantidade',
                 'compra_item_minuta_empenho.valor as valor_total',
-                'compra_item_minuta_empenho.minutaempenho_id')
+                'compra_item_minuta_empenho.minutaempenho_id',
+                'catmatseritens.codigo_siasg',
+                'catmatseritens.descricao as descricaocatmatseritens')
             ->groupBy('compra_items.id',
                 'codigoitens.descricao',
                 'compra_item_unidade.id',
@@ -84,7 +87,9 @@ class ContratoItensMinutaController extends Controller
                 'compra_item_fornecedor.valor_negociado',
                 'compra_item_minuta_empenho.quantidade',
                 'compra_item_minuta_empenho.valor',
-                'compra_item_minuta_empenho.minutaempenho_id'
+                'compra_item_minuta_empenho.minutaempenho_id',
+                'catmatseritens.codigo_siasg',
+                'catmatseritens.descricao'
             )
             ->get()->toArray();
 

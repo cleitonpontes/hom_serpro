@@ -36,6 +36,7 @@ class Contratoitem extends Model
         'valorunitario',
         'valortotal',
         'numero_item_compra',
+        'contratohistorico_id'
     ];
 
     /*
@@ -47,7 +48,8 @@ class Contratoitem extends Model
     public function atualizaSaldoContratoItem(Saldohistoricoitem $saldohistoricoitem)
     {
         $saldoitens = Saldohistoricoitem::where('contratoitem_id', $saldohistoricoitem->contratoitem_id)
-            ->orderBy('created_at', 'ASC')
+            ->orderBy('contratohistorico.data_assinatura', 'ASC')
+            ->join('contratohistorico', 'contratohistorico.id', '=', 'saldohistoricoitens.saldoable_id')
             ->get();
 
         foreach ($saldoitens as $saldoitem) {
@@ -60,6 +62,12 @@ class Contratoitem extends Model
             $contratoitem->numero_item_compra = $saldoitem->numero_item_compra;
             $contratoitem->save();
         }
+    }
+
+    public function deletaContratoItem(Saldohistoricoitem $saldohistoricoitem)
+    {
+        $contratoitem = Contratoitem::find($saldohistoricoitem->contratoitem_id);
+        $contratoitem->delete();
     }
 
     public function getContrato()

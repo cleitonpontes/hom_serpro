@@ -18,4 +18,11 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+    #site manutenção
+    ErrorDocument 403 /manutencao.html
+    order deny,allow
+    deny from all
+    allow from 189.9.32.130
+    allow from 10.61.
 </IfModule>

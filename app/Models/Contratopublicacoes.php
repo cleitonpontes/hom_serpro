@@ -25,10 +25,24 @@ class ContratoPublicacoes extends ContratoBase
     protected $fillable = [
         'contratohistorico_id',
         'data_publicacao',
-        'texto_rtf',
+        'empenho',
         'hash',
+        'link_publicacao',
+        'log',
+        'materia_id',
+        'motivo_devolucao',
+        'motivo_isencao_id',
+        'oficio_id',
+        'pagina_publicacao',
+        'secao_jornal',
+        'situacao',
         'status',
-        'situacao'
+        'status_publicacao_id',
+        'texto_dou',
+        'texto_rtf',
+        'tipo_pagamento_id',
+        'transacao_id',
+        'cpf'
     ];
 
     /*
@@ -37,6 +51,17 @@ class ContratoPublicacoes extends ContratoBase
     |--------------------------------------------------------------------------
     */
 
+    public function retornaPublicacoesEnviadas()
+    {
+
+        $status_id = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Situacao Publicacao');
+        })
+            ->where('descres', '=', '01')
+            ->first()->id;
+
+        return $this->whereNotNull('oficio_id')->where('status_publicacao_id', $status_id)->get();
+    }
 
 
     /*
@@ -47,6 +72,11 @@ class ContratoPublicacoes extends ContratoBase
     public function contratohistorico()
     {
         return $this->belongsTo(Contratohistorico::class, 'contratohistorico_id');
+    }
+
+    public function statusPublicacao()
+    {
+        return $this->belongsTo(Codigoitem::class,'status_publicacao_id');
     }
 
 
@@ -61,6 +91,16 @@ class ContratoPublicacoes extends ContratoBase
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getStatusPublicacaoAttribute()
+    {
+        return $this->statusPublicacao()->first()->descricao;
+    }
+
+    public function getTipoPublicacaoAttribute()
+    {
+        return $this->contratohistorico->tipo->descricao;
+    }
 
     /*
     |--------------------------------------------------------------------------

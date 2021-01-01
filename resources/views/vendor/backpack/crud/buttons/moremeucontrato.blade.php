@@ -12,9 +12,9 @@
                     class="fa fa-angle-right"></i>Ocorrências</a></li>
         <li><a href="/gescon/meus-contratos/{{$entry->getKey()}}/terceirizados">&nbsp;&nbsp;&nbsp;<i
                     class="fa fa-angle-right"></i>Terceirizados</a></li>
-        <li class="dropdown-header"><i class="fa fa-list"></i> Instrumento de Medição de Resultados:</li>
-        <li><a href="/gescon/meus-contratos/{{$entry->getKey()}}/servicos">&nbsp;&nbsp;&nbsp;<i
-                    class="fa fa-angle-right"></i>Serviços</a></li>
+{{--        <li class="dropdown-header"><i class="fa fa-list"></i> Instrumento de Medição de Resultados:</li>--}}
+{{--        <li><a href="/gescon/meus-contratos/{{$entry->getKey()}}/servicos">&nbsp;&nbsp;&nbsp;<i--}}
+{{--                    class="fa fa-angle-right"></i>Serviços</a></li>--}}
 
     </ul>
 </div>

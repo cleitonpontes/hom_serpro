@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Traits\Formatador;
 use App\Models\Orgao;
+use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Expr\BinaryOp\Concat;
 use function foo\func;
 use App\Models\Unidade;
 use App\Models\Contrato;
@@ -29,11 +31,42 @@ use Illuminate\Http\Request;
 
 class ContratoController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $search_term = $request->input('q');
+
+        if ($search_term) {
+
+            $results = Contrato::select(DB::raw("CONCAT(contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS numero"), 'contratos.id')
+                ->where(
+                    [
+                        ['unidade_id', '=', session()->get('user_ug_id')],
+                        ['situacao', '=', true],
+                        ['numero', 'LIKE', "%$search_term%"]
+                    ]
+                )
+                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id' )
+                ->orderby('fornecedores.nome', 'asc')
+                ->paginate(20);
+
+             return $results;
+        }
+
+
+
+
+//
+
+
+    }
+
         /**
      * @OA\Get(
      *     tags={"contratos"},
      *     summary="Retorna uma lista de orgãos com contratos ativos",
      *     description="Retorna um Json de orgãos com contratos ativos",
+     *     path="/api/contrato/orgaos",
      *     path="/api/contrato/orgaos",
      *     @OA\Response(
      *         response=200,

@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+
+use Exception;
 use App\Http\Traits\CompraTrait;
 use App\Models\Codigoitem;
 use App\Models\Compra;
@@ -36,8 +38,8 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
      */
     public function __construct($dados)
     {
-        $this->contrato = Contrato::find($dados['id']);
         $this->dados = $dados;
+        $this->contrato = Contrato::find($dados['id']);
     }
 
     /**
@@ -53,6 +55,7 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
         DB::beginTransaction();
         try {
             if(isset($compraSiasg->data->compraSispp)) {
+
                 $params = $this->montaParametrosCompra($compraSiasg, $this->dados);
 
                 $compra = $this->updateOrCreateCompra($params);
@@ -66,16 +69,16 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
                 }
 
                 $this->vincularItemCompraAoItemContrato($this->contrato,$this->dados,$compra);
+
             }
+
             DB::commit();
 
         } catch (Exception $exc) {
-
             DB::rollback();
-            }
+            fail($exc);
+        }
     }
-
-
 
     public function vincularItemCompraAoItemContrato($contrato,$dados,$compra)
     {
@@ -83,13 +86,17 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
         foreach ($contrato->itens as $item) {
 
             $contratoitem_id = $item->id;
-            $unidadecompra_id = $dados['uasgCompra_id'];
+
+            $unidadecompra_id = $compra->unidade_origem_id;
+
             $contrato_numero_item_compra = $item->numero_item_compra;
 
             $itemCompra = $compra->compra_item->where('numero', $contrato_numero_item_compra)->first();
 
             if (!is_null($itemCompra)) {
-                $compra_item_id = $compra->compra_item->where('numero', $contrato_numero_item_compra)->first()->id;
+
+                $compra_item_id = $itemCompra->id;
+
                 $compra_item_unidade_id = CompraItemUnidade::where('compra_item_id', $compra_item_id)
                     ->where('unidade_id', $unidadecompra_id)
                     ->select('id')
@@ -100,7 +107,7 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
                     'contratoitem_id' => $contratoitem_id
                 ];
 
-                $vinculo = Comprasitemunidadecontratoitens::updateOrCreate(
+                Comprasitemunidadecontratoitens::updateOrCreate(
                     [
                         'compra_item_unidade_id' => $compra_item_unidade_id,
                         'contratoitem_id' => $contratoitem_id
@@ -111,7 +118,27 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
                     ]
                 );
 
+                $compra_item_unidade = CompraItemUnidade::find($compra_item_unidade_id);
+
+                $sum = CompraItemUnidade::where('compra_item_unidade.id',$compra_item_unidade_id)
+                    ->join('compras_item_unidade_contratoitens',
+                        'compras_item_unidade_contratoitens.compra_item_unidade_id',
+                        '=',
+                        'compra_item_unidade.id'
+                    )
+                    ->join('contratoitens',
+                        'contratoitens.id',
+                        '='
+                        ,'compras_item_unidade_contratoitens.contratoitem_id'
+                    )
+                    ->select(DB::raw("sum(contratoitens.quantidade)"))
+                    ->groupBy('compra_item_unidade.id')->first();
+
+                $compra_item_unidade->quantidade_saldo_contratado = $sum->sum;
+                $compra_item_unidade->save();
+
             }
+
         }
 
     }
@@ -123,8 +150,8 @@ class VinculaItemCompraItemContratoJob implements ShouldQueue
         $params = [
             'modalidade' => $dados['modalidade'],
             'numeroAno' => $dados ['numeroAno'],
-            'uasgCompra' => $dados ['uasgUsuario'],
-            'uasgUsuario' => $dados ['uasgCompra']
+            'uasgCompra' => $dados ['uasgCompra'],
+            'uasgUsuario' => $dados ['uasgUsuario']
         ];
 
         $compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));

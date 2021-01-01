@@ -11,12 +11,12 @@ use App\Models\Fornecedor;
 use App\Models\Saldohistoricoitem;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use FormBuilder;
-use App\Forms\InserirItemContratoMinutaForm;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\AditivoRequest as StoreRequest;
 use App\Http\Requests\AditivoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
+use http\Env\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -29,6 +29,7 @@ class AditivoCrudController extends CrudController
     public function setup()
     {
         $contrato_id = \Route::current()->parameter('contrato_id');
+        $aditivo_id = \Route::current()->parameter('aditivo');
 
         $contrato = Contrato::where('id', '=', $contrato_id)
             ->where('unidade_id', '=', session()->get('user_ug_id'))->first();
@@ -50,6 +51,11 @@ class AditivoCrudController extends CrudController
         $this->crud->setModel('App\Models\Contratohistorico');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/aditivos');
         $this->crud->setEntityNameStrings('Termo Aditivo', 'Termos Aditivos');
+
+        $this->crud->setCreateContentClass('col-md-12');
+        $this->crud->setEditContentClass('col-md-12');
+
+
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('select', 'contratohistorico.*');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
@@ -57,7 +63,7 @@ class AditivoCrudController extends CrudController
         $this->crud->orderBy('data_assinatura', 'asc');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
+//        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
         $this->crud->enableExportButtons();
 //        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
@@ -78,20 +84,9 @@ class AditivoCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
-
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
-        $tipos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo Qualificacao Contrato');
-        })
-            ->orderBy('descricao')
-            ->pluck('descricao', 'id')
-            ->toArray();
-
-
-        $campos = $this->Campos($fornecedores, $tipos, $contrato_id, $unidade);
+        $campos = $this->Campos($aditivo_id, $contrato_id, $unidade);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in AditivoRequest
@@ -274,11 +269,23 @@ class AditivoCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $tipos, $contrato_id, $unidade)
+    public function Campos($aditivo_id, $contrato_id, $unidade)
     {
         $contrato = Contrato::find($contrato_id);
 
+        $options = Codigoitem::select('codigoitens.descricao')
+            ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
+            ->where('codigos.descricao', '=', 'Tipo Qualificacao Contrato')->get()->toArray();
+
+        $options = json_encode($options);
+
         $campos = [
+
+            [   // Hidden
+                'name' => 'aditivo_id',
+                'type' => 'hidden',
+                'default' => $aditivo_id,
+            ],
             [   // Hidden
                 'name' => 'receita_despesa',
                 'type' => 'hidden',
@@ -289,6 +296,12 @@ class AditivoCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $contrato->id,
             ],
+            [   // Hidden
+                'name' => 'options_qualificacao',
+                'type' => 'hidden',
+                'default' => $options,
+            ],
+
             [       // Select2Multiple = n-n relationship (with pivot table)
                 'label' => 'Qualificação',
                 'name' => 'qualificacoes',
@@ -314,8 +327,9 @@ class AditivoCrudController extends CrudController
                 'label' => 'Objeto do TA',
                 'type' => 'textarea',
                 'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
+                    'onkeyup' => "maiuscula(this)",
                 ],
+//                'default' => $contrato->objeto,
                 'tab' => 'Dados Gerais',
             ],
             [ // select_from_array
@@ -324,9 +338,9 @@ class AditivoCrudController extends CrudController
                 'type' => 'select_from_array',
                 'options' => $unidade,
                 'allows_null' => false,
-//                'attributes' => [
-//                    'disabled' => 'disabled',
-//                ],
+                'attributes' => [
+                    'readonly' => 'readonly'
+                ],
                 'tab' => 'Dados Gerais',
 //                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
@@ -339,6 +353,10 @@ class AditivoCrudController extends CrudController
                 'entity' => 'fornecedor', // the method that defines the relationship in your Model
                 'attribute' => "cpf_cnpj_idgener", // foreign key attribute that is shown to user
                 'attribute2' => "nome", // foreign key attribute that is shown to user
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
+                'default' => $contrato->fornecedor_id,
                 'process_results_template' => 'gescon.process_results_fornecedor',
                 'model' => "App\Models\Fornecedor", // foreign key model
                 'data_source' => url("api/fornecedor"), // url to controller search function (with /{id} should return model)
@@ -346,17 +364,6 @@ class AditivoCrudController extends CrudController
                 'minimum_input_length' => 2, // minimum characters to type before querying results
                 'tab' => 'Dados Aditivo',
             ],
-//            [ // select_from_array
-//                'name' => 'fornecedor_id',
-//                'label' => "Fornecedor",
-//                'type' => 'select2_from_array',
-//                'options' => $fornecedores,
-//                'allows_null' => true,
-//                'default' => $contrato->fornecedor_id,
-//                'tab' => 'Dados Aditivo',
-////                'default' => 'one',
-//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
-//            ],
             [   // Date
                 'name' => 'data_assinatura',
                 'label' => 'Data Assinatura Aditivo',
@@ -375,7 +382,7 @@ class AditivoCrudController extends CrudController
                 'type' => 'textarea',
                 'default' => $contrato->info_complementar,
                 'attributes' => [
-                    'onkeyup' => "maiuscula(this)"
+                    'onkeyup' => "maiuscula(this)",
                 ],
                 'tab' => 'Dados Aditivo',
             ],
@@ -384,11 +391,27 @@ class AditivoCrudController extends CrudController
                 'type' => 'itens_contrato_aditivo_list',
                 'tab' => 'Itens do contrato',
             ],
+            [   // Hidden
+                'name' => 'descricao_tipo_contrato',
+                'type' => 'hidden',
+                'default' => $contrato->tipo->descricao,
+                'tab' => 'Itens do contrato'
+            ],
+            [
+                'label' => "adicionaCampoRecuperaGridItens",
+                'type' => "hidden",
+                'name' => 'adicionaCampoRecuperaGridItens',
+                'default' => "{{old('name')}}",
+                'tab' => 'Itens do contrato'
+            ],
             [   // Date
                 'name' => 'vigencia_inicio',
                 'label' => 'Data Vig. Início',
                 'type' => 'date',
                 'default' => $contrato->vigencia_inicio,
+                'attributes' => [
+                    'readonly' => 'readonly'
+                ],
                 'tab' => 'Vigência / Valores',
             ],
             [   // Date
@@ -396,15 +419,20 @@ class AditivoCrudController extends CrudController
                 'label' => 'Data Vig. Fim',
                 'type' => 'date',
                 'default' => $contrato->vigencia_fim,
+                'attributes' => [
+                    'readonly' => 'readonly'
+                ],
                 'tab' => 'Vigência / Valores',
             ],
             [   // Number
                 'name' => 'valor_global',
                 'label' => 'Valor Global',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'valor_global',
+                    'readonly' => 'readonly',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => number_format($contrato->valor_global, 2, ',', '.'),
@@ -413,12 +441,13 @@ class AditivoCrudController extends CrudController
             ],
             [   // Number
                 'name' => 'num_parcelas',
-                'label' => 'Núm. Percelas',
+                'label' => 'Núm. Parcelas',
                 'type' => 'number',
                 // optionals
                 'attributes' => [
                     "step" => "any",
                     "min" => '1',
+                    'readonly' => 'readonly',
                 ], // allow decimals
                 'default' => $contrato->num_parcelas,
 //                'prefix' => "R$",
@@ -428,10 +457,12 @@ class AditivoCrudController extends CrudController
             [   // Number
                 'name' => 'valor_parcela',
                 'label' => 'Valor Parcela',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'valor_parcela',
+                    'readonly' => 'readonly',
+                    'step' => '0.0001',
                 ], // allow decimals
                 'prefix' => "R$",
                 'default' => number_format($contrato->valor_parcela, 2, ',', '.'),
@@ -445,8 +476,11 @@ class AditivoCrudController extends CrudController
                 'label' => "Retroativo?",
                 'type' => 'radio',
                 'options' => [0 => 'Não', 1 => 'Sim'],
-                'default'    => 0,
-                'inline'      => true,
+                'default' => 0,
+                'attributes' => [
+                    'disabled' => 'disabled',
+                ],
+                'inline' => true,
                 'tab' => 'Retroativo',
             ],
             [ // select_from_array
@@ -455,6 +489,11 @@ class AditivoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => config('app.meses_referencia_fatura'),
                 'allows_null' => true,
+                'attributes' => [
+                    'id' => 'retroativo_mesref_de',
+                    'disabled' => 'disabled'
+                ],
+                'default' => 04,
                 'tab' => 'Retroativo',
             ],
             [ // select_from_array
@@ -464,6 +503,9 @@ class AditivoCrudController extends CrudController
                 'options' => config('app.anos_referencia_fatura'),
 //                'default'    => date('Y'),
                 'allows_null' => true,
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
                 'tab' => 'Retroativo',
             ],
             [ // select_from_array
@@ -472,6 +514,9 @@ class AditivoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => config('app.meses_referencia_fatura'),
                 'allows_null' => true,
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
                 'tab' => 'Retroativo',
             ],
             [ // select_from_array
@@ -481,6 +526,9 @@ class AditivoCrudController extends CrudController
                 'options' => config('app.anos_referencia_fatura'),
 //                'default'    => date('Y'),
                 'allows_null' => true,
+                'attributes' => [
+                    'disabled' => 'disabled'
+                ],
                 'tab' => 'Retroativo',
             ],
             [   // Date
@@ -494,8 +542,11 @@ class AditivoCrudController extends CrudController
                 'label' => "Soma ou Subtrai?",
                 'type' => 'radio',
                 'options' => [1 => 'Soma', 0 => 'Subtrai'],
-                'default'    => 1,
-                'inline'      => true,
+                'default' => 1,
+                'attributes' => [
+                    'disabled' => 'disabled',
+                ],
+                'inline' => true,
                 'tab' => 'Retroativo',
             ],
             [   // Number
@@ -518,21 +569,20 @@ class AditivoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+        $valor_parcela = $request->input('valor_parcela');
+        $request->request->set('valor_parcela', $valor_parcela);
 
-        $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
-        $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
-
-        $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
-        $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
-        $request->request->set('valor_inicial', number_format(floatval($valor_global), 2, '.', ''));
+        $valor_global = $request->input('valor_global');
+        $request->request->set('valor_global', $valor_global);
+        $request->request->set('valor_inicial', $valor_global);
 
         $soma_subtrai = $request->input('retroativo_soma_subtrai');
 
         $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
 
-        if($soma_subtrai == '0'){
+        if ($soma_subtrai == '0') {
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
-        }else{
+        } else {
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
         }
 
@@ -542,14 +592,25 @@ class AditivoCrudController extends CrudController
             ->where('descricao', 'Termo Aditivo')
             ->first();
 
-        $request->request->set('tipo_id',  $tipo_id->id);
+        $request->request->set('tipo_id', $tipo_id->id);
 
         $request->request->set('retroativo_valor', $retroativo_valor);
 
-        $redirect_location = parent::storeCrud($request);
+        DB::beginTransaction();
+        try {
+            // your additional operations before save here
+            $redirect_location = parent::storeCrud($request);
+            // your additional operations after save here
+            // use $this->data['entry'] or $this->crud->entry
 
-        if(!empty($request->get('qtd_item'))) {
-            $this->alterarItensContrato($request->all(),$this->crud->entry);
+            // altera os itens do contrato
+            if (!empty($request->get('qtd_item'))) {
+                $this->criarSaldoHistoricoItens($request,$this->crud->entry);
+            }
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
         }
 
         // your additional operations after save here
@@ -559,25 +620,20 @@ class AditivoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $valor_parcela = str_replace(',', '.', str_replace('.', '', $request->input('valor_parcela')));
-        $request->request->set('valor_parcela', number_format(floatval($valor_parcela), 2, '.', ''));
+        $valor_parcela = $request->input('valor_parcela');
+        $request->request->set('valor_parcela', $valor_parcela);
 
-        $valor_global = str_replace(',', '.', str_replace('.', '', $request->input('valor_global')));
-        $request->request->set('valor_global', number_format(floatval($valor_global), 2, '.', ''));
+        $valor_global = $request->input('valor_global');
+        $request->request->set('valor_global', $valor_global);
 
         $soma_subtrai = $request->input('retroativo_soma_subtrai');
 
         $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
 
-        if($soma_subtrai == '0'){
+        if ($soma_subtrai == '0') {
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
-        }else{
+        } else {
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '');
-        }
-
-        // altera os itens do contrato
-        if(!empty($request->get('qtd_item'))) {
-            $this->alterarItensContrato($request->all());
         }
 
         $request->request->set('retroativo_valor', $retroativo_valor);
@@ -587,12 +643,23 @@ class AditivoCrudController extends CrudController
             ->where('descricao', 'Termo Aditivo')
             ->first();
 
-        $request->request->set('tipo_id',  $tipo_id->id);
+        $request->request->set('tipo_id', $tipo_id->id);
+        DB::beginTransaction();
+        try {
+            // your additional operations before save here
+            $redirect_location = parent::updateCrud($request);
+            // your additional operations after save here
+            // use $this->data['entry'] or $this->crud->entry
 
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
+            // altera os itens do contrato
+            if (!empty($request->get('qtd_item'))) {
+                $this->alterarItensContrato($request);
+            }
+            DB::commit();
+        } catch (Exception $exc) {
+            DB::rollback();
+            dd($exc);
+        }
         return $redirect_location;
     }
 
@@ -634,64 +701,26 @@ class AditivoCrudController extends CrudController
         return $content;
     }
 
-    public function alterarItensContrato($request, Contratohistorico $contratohistorico){
+    private function alterarItensContrato(UpdateRequest $request)
+    {
+        $request = $request->all();
+        foreach ($request['qtd_item'] as $key => $qtd) {
 
-        DB::beginTransaction();
-        try {
-            foreach ($request['qtd_item'] as $key => $qtd) {
-
-                if($request['saldo_historico_item_id'][$key] !== 'undefined'){
-
-                    $saldoHistoricoIten = Saldohistoricoitem::find($request['saldo_historico_item_id'][$key]);
-                    $saldoHistoricoIten->quantidade = (double)$qtd;
-                    $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
-                    $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
-                    $saldoHistoricoIten->data_inicio = $request['data_inicio'][$key];
-                    $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
-                    $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
-                    $saldoHistoricoIten->save();
-                } else {
-                    $this->criarNovoContratoItem($key, $request);
-                }
-
+            if ($request['aditivo_item_id'][$key] !== 'undefined') {
+                $saldoHistoricoIten = Saldohistoricoitem::find($request['aditivo_item_id'][$key]);
+                $saldoHistoricoIten->quantidade = (double)$qtd;
+                $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
+                $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
+                $saldoHistoricoIten->data_inicio = $request['data_inicio'][$key];
+                $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
+                $saldoHistoricoIten->save();
+            } else {
+                $this->criarNovoContratoItem($key, $request);
             }
-
-            DB::commit();
-        } catch (Exception $exc) {
-            DB::rollback();
-            dd($exc);
         }
     }
 
-    public function created(Contratoitem $contratoitem)
-    {
-        $contratohistorico = Contratohistorico::whereHas('tipo', function ($query) {
-            $query->where('descricao', '<>', 'Termo Aditivo')
-                ->where('descricao', '<>', 'Termo de Apostilamento');
-        })
-            ->where('contrato_id', $contratoitem->contrato_id)
-            ->first();
-
-        $codigoitem = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', 'Tipo Saldo Itens');
-        })
-            ->where('descricao', 'Saldo Inicial Contrato Historico')
-            ->first();
-
-        $saldohistoricoitem = $contratohistorico->saldosItens()->create([
-            'contratoitem_id' => $contratoitem->id,
-            'tiposaldo_id' => $codigoitem->id,
-            'quantidade' => $contratoitem->quantidade,
-            'valorunitario' => $contratoitem->valorunitario,
-            'valortotal' => $contratoitem->valortotal,
-            'periodicidade' => $contratoitem->periodicidade,
-            'data_inicio' => $contratoitem->data_inicio,
-            'numero_item_compra' => $contratoitem->numero_item_compra,
-        ]);
-
-    }
-
-    private function criarNovoContratoItem($key, $request)
+    private function criarNovoContratoItem($key, $request, $contratoHistoricoId = null )
     {
         $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
         $catmatseritem = Catmatseritem::find($catmatseritem_id);
@@ -702,12 +731,41 @@ class AditivoCrudController extends CrudController
         $contratoItem->grupo_id = $catmatseritem->grupo_id;
         $contratoItem->catmatseritem_id = $catmatseritem->id;
         $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
-        $contratoItem->quantidade = (double)$request['qtd_item'];
+        $contratoItem->quantidade = (double)$request['qtd_item'][$key];
         $contratoItem->valorunitario = $request['vl_unit'][$key];
         $contratoItem->valortotal = $request['vl_total'][$key];
         $contratoItem->data_inicio = $request['data_inicio'][$key];
         $contratoItem->periodicidade = $request['periodicidade'][$key];
         $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
+        $contratoItem->contratohistorico_id = $contratoHistoricoId;
         $contratoItem->save();
+    }
+
+    private function criarSaldoHistoricoItens(StoreRequest $request, Contratohistorico $contratoHistorico)
+    {
+        $codigoitem = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Tipo Saldo Itens');
+        })
+            ->where('descricao', 'Saldo Inicial Contrato Historico')
+            ->first();
+
+        foreach ($request['qtd_item'] as $key => $qtd) {
+            if ($request['aditivo_item_id'][$key] !== 'undefined') {
+                $saldoHistoricoIten = new Saldohistoricoitem();
+                $saldoHistoricoIten->saldoable_type = 'App\Models\Contratohistorico';
+                $saldoHistoricoIten->saldoable_id = $contratoHistorico->id;
+                $saldoHistoricoIten->contratoitem_id = $request['aditivo_item_id'][$key];
+                $saldoHistoricoIten->tiposaldo_id = $codigoitem->id;
+                $saldoHistoricoIten->quantidade = (double)$qtd;
+                $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
+                $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
+                $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
+                $saldoHistoricoIten->data_inicio = $request['data_inicio'][$key];
+                $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
+                $saldoHistoricoIten->save();
+            } else {
+                $this->criarNovoContratoItem($key, $request->all(), $contratoHistorico->id);
+            }
+        }
     }
 }

@@ -50,7 +50,9 @@ class MinutaEmpenho extends Model
         'tipo_empenho_id',
         'tipo_minuta_empenho',
         'unidade_id',
-        'valor_total'
+        'valor_total',
+        'tipo_empenhopor_id',
+        'contrato_id'
     ];
 
     /*
@@ -84,15 +86,63 @@ class MinutaEmpenho extends Model
 
     public function retornaAmparoPorMinuta()
     {
+        $return = AmparoLegal::select(['amparo_legal.id', DB::raw("ato_normativo ||
+                    case when (artigo is not null)  then ' - Artigo: ' || artigo else '' end ||
+                    case when (paragrafo is not null)  then ' - Parágrafo: ' || paragrafo else '' end ||
+                    case when (amparo_legal.inciso is not null)  then ' - Inciso: ' || amparo_legal.inciso else '' end ||
+                    case when (alinea is not null)  then ' - Alinea: ' || alinea else '' end
+                    as campo_api_amparo")
+        ])->where('minutaempenhos.id', $this->id);
+
+        if ($this->tipo_empenhopor->descricao === 'Contrato') {
+            $return->join('contratos', 'contratos.modalidade_id', '=', 'amparo_legal.modalidade_id')
+                ->join('minutaempenhos', 'minutaempenhos.contrato_id', '=', 'contratos.id');
+            return $return->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
+        }
+
+        $return->join('compras', 'compras.modalidade_id', '=', 'amparo_legal.modalidade_id')
+            ->join('minutaempenhos', 'minutaempenhos.compra_id', '=', 'compras.id');
+
+
+        return $return->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
+    }
+
+    public function retornaAmparoPorMinutadeContrato()
+    {
         return AmparoLegal::select(['amparo_legal.id', DB::raw("ato_normativo ||
                     case when (artigo is not null)  then ' - Artigo: ' || artigo else '' end ||
                     case when (paragrafo is not null)  then ' - Parágrafo: ' || paragrafo else '' end ||
                     case when (amparo_legal.inciso is not null)  then ' - Inciso: ' || amparo_legal.inciso else '' end ||
                     case when (alinea is not null)  then ' - Alinea: ' || alinea else '' end
                     as campo_api_amparo")
-        ])->join('compras', 'compras.modalidade_id', '=', 'amparo_legal.modalidade_id')
-            ->join('minutaempenhos', 'minutaempenhos.compra_id', '=', 'compras.id')
-            ->where('minutaempenhos.id', $this->id)->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
+        ])->join('contratos', 'contratos.modalidade_id', '=', 'amparo_legal.modalidade_id')
+            ->join('minutaempenhos', 'minutaempenhos.contrato_id', '=', 'contratos.id')
+            ->where('minutaempenhos.id', $this->id)
+            ->pluck('campo_api_amparo', 'amparolegal.id')->toArray();
+//        ;dd($teste->getBindings(),$teste->toSql());
+    }
+
+    /**
+     * Método Necessário para mostrar valor escolhido do campo multiselect após submeter
+     * quando o attribute o campo estiver referenciando um alias na consulta da API
+     * obrigatório quando utilizar campo select2_from_ajax_multiple_alias
+     * @return  string nome_minuta_empenho
+     */
+    public function retornaConsultaMultiSelect($item)
+    {
+        $minuta = $this
+            ->select(['minutaempenhos.id',
+                DB::raw("CONCAT(minutaempenhos.mensagem_siafi, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
+                                 as nome_minuta_empenho")])
+            ->distinct('minutaempenhos.id')
+            ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
+            ->join('codigoitens', 'codigoitens.id', '=', 'compras.modalidade_id')
+            ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
+            ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
+            ->where('minutaempenhos.id', $item->id)
+            ->first();
+
+        return $minuta->nome_minuta_empenho;
     }
 
     public function atualizaFornecedorCompra($fornecedor_id)
@@ -200,6 +250,11 @@ class MinutaEmpenho extends Model
         return $this->belongsTo(Codigoitem::class, 'tipo_empenho_id');
     }
 
+    public function tipo_empenhopor()
+    {
+        return $this->belongsTo(Codigoitem::class, 'tipo_empenhopor_id');
+    }
+
     public function unidade_id()
     {
         return $this->belongsTo(Unidade::class, 'unidade_id');
@@ -266,6 +321,17 @@ class MinutaEmpenho extends Model
     public function getSituacaoDescricaoAttribute()
     {
         return $this->situacao()->first()->descricao;
+    }
+
+    public function getEmpenhoPorAttribute()
+    {
+        return $this->tipo_empenhopor->descricao;
+    }
+
+    public function getFornecedorEmpenhoCpfcnpjidgenerSessaoAttribute()
+    {
+        $fornecedor = $this->fornecedor_empenho()->first();
+        return $fornecedor->cpf_cnpj_idgener ?? '';
     }
 
     /*

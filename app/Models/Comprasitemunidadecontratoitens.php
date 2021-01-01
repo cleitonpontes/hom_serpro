@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use App\Models\CompraItemUnidade;
 use App\Models\Contratoitem;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Comprasitemunidadecontratoitens extends Model
 {
 
     use CrudTrait;
+    use LogsActivity;
 
      /*
     |--------------------------------------------------------------------------

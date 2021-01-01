@@ -27,9 +27,6 @@ class SaldohistoricoitemObserver
 
     public function deleted(Saldohistoricoitem $saldohistoricoitem)
     {
-        $this->contratoitem->atualizaSaldoContratoItem($saldohistoricoitem);
+        $this->contratoitem->deletaContratoItem($saldohistoricoitem);
     }
-
-
-
 }

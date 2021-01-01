@@ -3,10 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ContratoMinutaEmpenho extends Model
 {
+    use LogsActivity;
+
     protected $table = 'contrato_minuta_empenho_pivot';
+
+    public $timestamps = false;
 
     protected $fillable = [
         'contrato_id',

@@ -8,27 +8,38 @@ class ApropriacaoFaturaSeeder extends Seeder
 {
     public function run()
     {
-        $codigo = Codigo::create([
-            'descricao' => 'Fases da apropriação da fatura',
-            'visivel' => true,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        $codigo = Codigo::firstOrCreate(
+            [
+                'descricao' => 'Fases da apropriação da fatura',
+                'visivel' => true,
+            ],
+            [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
 
-        Codigoitem::create([
-            'codigo_id' => $codigo->id,
-            'descres' => 'ANDAMENTO',
-            'descricao' => 'Em andamento',
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        Codigoitem::firstOrCreate(
+            [
+                'codigo_id' => $codigo->id,
+                'descres' => 'ANDAMENTO',
+                'descricao' => 'Em andamento',
+            ],
+            [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+        );
 
-        Codigoitem::create([
-            'codigo_id' => $codigo->id,
-            'descres' => 'CONCLUIDA',
-            'descricao' => 'Concluída',
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        Codigoitem::firstOrCreate(
+            [
+                'codigo_id' => $codigo->id,
+                'descres' => 'CONCLUIDA',
+                'descricao' => 'Concluída',
+            ],
+            [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+        );
     }
 }
