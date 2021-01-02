@@ -23,7 +23,7 @@
 
         <ul class="treeview-menu">
             <li>
-                <a href="{{ backpack_url('/gescon/contrato') }}">
+                <a href="{{ backpack_url('/gescon/contrato?situacao=[1]') }}">
                     <i class="fa fa-file-text-o"></i>
                     <span>Contratos</span>
                 </a>

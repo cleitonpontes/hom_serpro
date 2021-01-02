@@ -14,6 +14,7 @@ use App\Jobs\MigracaoempenhoJob;
 use App\Jobs\MigracaoRpJob;
 use App\Models\BackpackUser;
 use App\Models\Codigoitem;
+use App\Models\DevolveMinutaSiasg;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
@@ -914,9 +915,12 @@ class EmpenhoCrudController extends CrudController
                 $empenho->update($retorno);
 
                 if ($retorno['situacao'] == 'EMITIDO') {
-                    $empenho = $this->criaEmpenhoFromMinuta($empenho); //todo verificar tipo da minuta EMPENHO ou ALTERACAO
+                    $empenho = $this->criaEmpenhoFromMinuta($empenho);
 
-                    //todo criar job para devolver informação para o SIASG
+                    DevolveMinutaSiasg::create([
+                        'minutaempenho_id' => $empenho->minutaempenho_id,
+                        'situacao' => 'Pendente'
+                    ]);
                 }
 
             }
@@ -926,30 +930,32 @@ class EmpenhoCrudController extends CrudController
 
     public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
     {
-        $array_empenho1 = [
-            'numero' => trim($empenho->mensagemretorno),
-            'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
-        ];
-        $array_empenho2 = [
-            'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
-            'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
-            'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
-            'fonte' => $empenho->celula_orcamentaria->codfonterec
-        ];
-
-        $novo_empenho = Empenho::updateOrCreate(
-            $array_empenho1,
-            $array_empenho2
-        );
-
-        $itens = $empenho->itens_empenho()->get();
-
-        foreach ($itens as $item) {
-            $array_empenhodetalhado = [
-                'empenho_id' => $novo_empenho->id,
-                'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
+        if($empenho->minuta_empenhos->tipo_empenhopor->descricao != 'Alteração'){
+            $array_empenho1 = [
+                'numero' => trim($empenho->mensagemretorno),
+                'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
             ];
-            Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
+            $array_empenho2 = [
+                'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
+                'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
+                'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
+                'fonte' => $empenho->celula_orcamentaria->codfonterec
+            ];
+
+            $novo_empenho = Empenho::updateOrCreate(
+                $array_empenho1,
+                $array_empenho2
+            );
+
+            $itens = $empenho->itens_empenho()->get();
+
+            foreach ($itens as $item) {
+                $array_empenhodetalhado = [
+                    'empenho_id' => $novo_empenho->id,
+                    'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
+                ];
+                Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
+            }
         }
     }
 
