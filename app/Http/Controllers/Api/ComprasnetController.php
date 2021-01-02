@@ -182,8 +182,8 @@ class ComprasnetController extends Controller
                         $situacao_publicacao = '09';
                     }
                 }else{
-                    dd($publicacao->status_publicacao->descres, $publicacao);
-                    $situacao_publicacao = $publicacao->status_publicacao->descres;
+                    dd($publicacao->StatusPublicacaoDescres, $publicacao);
+                    $situacao_publicacao = $publicacao->StatusPublicacaoDescres;
                 }
 
                 $unidade_atual = ($dado->contrato->unidade->codigo == $dado->contrato->unidadeorigem->codigo) ? null : $dado->contrato->unidade->codigo;
