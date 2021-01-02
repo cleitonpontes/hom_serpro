@@ -24,6 +24,9 @@
 
     <a href="{{ $crud->hasAccess('list') ? url($crud->route) : url()->previous() }}" class="btn btn-default"><span class="fa fa-ban"></span> &nbsp;{{ trans('backpack::crud.cancel') }}</a>
 </div>
+@push('before_scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+@endpush
 @push('after_scripts')
     <script src="{{ asset('js/mensagem/confirmacaoPublicacao.js')}}"></script>
 @endpush

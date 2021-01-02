@@ -1,7 +1,8 @@
 $(document).on('click', "#btn-submit-itens-contrato", function () {
-
+    //verifica se tipo contrato vem do hidden
     var tipo_contrato = $('#tipo_contrato').val();
-    if ($("[name='tipo_id']").length === 1) {
+    //verifica se tipo contrato vem da combo de tipo contrato
+    if ($("[name='tipo_id'] option").filter(':selected').text() != "") {
         var selected = $("[name='tipo_id']").find(':selected'),
             array_selected = [];
         selected.each(function (index, option) {
@@ -11,7 +12,6 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
             tipo_contrato = array_selected[0];
         }
     }
-    console.log(tipo_contrato)
     if (tipo_contrato === 'Outros' || tipo_contrato === 'Empenho' || tipo_contrato === '') {
         $('form').submit();
     } else {
