@@ -94,7 +94,7 @@ class ContratoPublicacoes extends ContratoBase
 
     public function getStatusPublicacaoAttribute()
     {
-        return $this->statusPublicacao()->first()->descricao;
+        return $this->status_publicacao()->first()->descricao;
     }
 
     public function getTipoPublicacaoAttribute()
