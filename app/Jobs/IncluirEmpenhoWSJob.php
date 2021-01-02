@@ -44,7 +44,5 @@ class IncluirEmpenhoWSJob implements ShouldQueue
 
         $this->sforcempenhodados->update($retorno);
 
-        dd('fim');
-
     }
 }
