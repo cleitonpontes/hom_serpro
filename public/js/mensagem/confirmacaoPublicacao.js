@@ -11,11 +11,12 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
             tipo_contrato = array_selected[0];
         }
     }
+    console.log(tipo_contrato)
     if (tipo_contrato === 'Outros' || tipo_contrato === 'Empenho' || tipo_contrato === '') {
         $('form').submit();
     } else {
         Swal.fire({
-            title: 'O instrumento será publicado, deseja continuar?',
+            title: 'O instrumento será publicado no diário oficial, deseja continuar?',
             showDenyButton: false,
             showCancelButton: true,
             confirmButtonText: `Sim`,

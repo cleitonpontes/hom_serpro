@@ -297,6 +297,14 @@ class AditivoCrudController extends CrudController
                 'default' => $contrato->id,
             ],
             [   // Hidden
+                'name' => 'tipo_contrato',
+                'type' => 'hidden',
+                'default' => $contrato->tipo->descricao,
+                'attributes' => [
+                    'id' => 'tipo_contrato'
+                ]
+            ],
+            [   // Hidden
                 'name' => 'options_qualificacao',
                 'type' => 'hidden',
                 'default' => $options,
