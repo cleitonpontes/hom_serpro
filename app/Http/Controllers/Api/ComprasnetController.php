@@ -172,6 +172,8 @@ class ComprasnetController extends Controller
                 $ultimo_historico = $dado->contrato->historico()->orderBy('data_assinatura', 'DESC')->first();
                 $publicacao = $ultimo_historico->publicacao()->latest()->first();
 
+                dd($ultimo_historico, $publicacao);
+
                 if ($ultimo_historico->tipo->descricao == 'Termo de Rescisão') {
                     $situacao_publicacao = @$publicacao->statusPublicacao->descres;
                     if($publicacao->statusPublicacao->descres == '02'){
