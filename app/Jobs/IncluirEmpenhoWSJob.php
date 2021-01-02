@@ -38,7 +38,7 @@ class IncluirEmpenhoWSJob implements ShouldQueue
         $user = BackpackUser::where('cpf', $this->sforcempenhodados->cpf_user)
             ->first();
         $ws_siafi = new Execsiafi;
-        $ano = date('Y');
+        $ano = config('app.ano_minuta_empenho');
 
         try {
             $retorno = $ws_siafi->incluirNe($user, $this->sforcempenhodados->ugemitente, env('AMBIENTE_SIAFI'), $ano, $this->sforcempenhodados);
