@@ -123,13 +123,14 @@ class ContratoCrudController extends CrudController
         try {
             $redirect_location = parent::storeCrud($request);
             $contrato_id = $this->crud->getCurrentEntryId();
+
             $request->request->set('contrato_id', $contrato_id);
             if (!empty($request->get('qtd_item'))) {
                 $this->inserirItensContrato($request->all());
             }
 
-            if (!empty($request->get('minuta_id'))) {
-                $this->vincularMinutaContrato($request->all());
+            if (!empty($request->get('minutasempenho'))) {
+                $this->vincularMinutaContratoHistorico($request->all(), $contrato_id);
             }
 
             DB::commit();
@@ -180,13 +181,14 @@ class ContratoCrudController extends CrudController
         }
     }
 
-    public function vincularMinutaContrato($request)
+    public function vincularMinutaContratoHistorico($request, $contrato_id)
     {
-        foreach ($request['minuta_id'] as $minuta_id) {
-            $contratoMinuta = new ContratoMinutaEmpenho();
-            $contratoMinuta->contrato_id = $request['contrato_id'];
-            $contratoMinuta->minuta_empenho_id = $minuta_id;
-            $contratoMinuta->save();
+
+        $contratoHistorico = Contratohistorico::where('contrato_id', '=', $contrato_id)->first();
+
+        // vincula os empenhos ao contrato historico
+        foreach ($request['minutasempenho'] as $MinutaEmpenhoId) {
+            $contratoHistorico->minutasempenho()->attach($MinutaEmpenhoId);
         }
     }
 
