@@ -1,7 +1,7 @@
 $(document).on('click', "#btn-submit-itens-contrato", function () {
 
     var tipo_contrato = $('#tipo_contrato').val();
-    if($( "[name='tipo_id']" ).length === 1){
+    if ($("[name='tipo_id']").length === 1) {
         var selected = $("[name='tipo_id']").find(':selected'),
             array_selected = [];
         selected.each(function (index, option) {
@@ -11,9 +11,9 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
             tipo_contrato = array_selected[0];
         }
     }
-
-
-    if (tipo_contrato === 'Outros' || tipo_contrato === 'Empenho') {
+    if (tipo_contrato === 'Outros' || tipo_contrato === 'Empenho' || tipo_contrato === '') {
+        $('form').submit();
+    } else {
         Swal.fire({
             title: 'O instrumento será publicado, deseja continuar?',
             showDenyButton: false,
@@ -25,7 +25,5 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
                 $('form').submit();
             }
         })
-    } else {
-        $('form').submit();
     }
 });
