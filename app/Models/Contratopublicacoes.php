@@ -74,7 +74,7 @@ class ContratoPublicacoes extends ContratoBase
         return $this->belongsTo(Contratohistorico::class, 'contratohistorico_id');
     }
 
-    public function statusPublicacao()
+    public function status_publicacao()
     {
         return $this->belongsTo(Codigoitem::class,'status_publicacao_id');
     }
