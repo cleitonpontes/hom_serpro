@@ -571,7 +571,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['num_parcelas'] = ($num_parcelas > '60') ? '60' : $num_parcelas;
         $dado['valor_parcela'] = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela) : $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['valor_acumulado'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
-        $dado['numero_compra'] = $siasgcontrato->compra->id;
+        $dado['numero_compra'] = @$siasgcontrato->compra->id;
         $dado['modalidade_id'] = $siasgcontrato->compra->modalidade_id;
         $dado['publicado'] = true;
 

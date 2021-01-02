@@ -33,6 +33,8 @@ class ContratohistoricoObserve
      */
     public function created(Contratohistorico $contratohistorico)
     {
+        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
+
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
             ->get();
@@ -41,48 +43,34 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
-
-        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
-        $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao,true);
-
-        if($contratohistorico->publicado){
-            $this->executaAtualizacaoViaJob($contratohistorico,$situacao);
-            return true;
-        }
-
-
-        $publicacoes= $contratohistorico->publicacao;
-        dd($publicacoes->where('status_publicacao_id',323));
-        //SE O CONTRATO HISTÓRICO É NOVO NÃO HÁ NECESSIDADE DE CHECAR SE EXISTE PUBLICAÇÃO
-        $this->criaNovaPublicacao($contratohistorico,$sisg,$situacao);
-
-    }
-
-    public function criaNovaPublicacao(Contratohistorico $contratohistorico,$sisg,$situacao){
+//        $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao,true);
 
         $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
         $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
-
         if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
 
-            ContratoPublicacoes::create([
-                'contratohistorico_id' => $contratohistorico->id,
-                'data_publicacao' => $contratohistorico->data_publicacao,
-                'status' => ($sisg) ? 'Pendente' : 'informado',
-                'status_publicacao_id' => $situacao->id,
-                'texto_dou' => @DiarioOficialClass::retornaTextoModelo($contratohistorico),
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                'motivo_isencao' =>
-                    ($sisg)
-                        ? $this->retornaIdCodigoItem(
-                        'Motivo Isenção',
-                        'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
-                    )
-                        : ''
-            ]);
+            if($contratohistorico->publicado){
+                $this->executaAtualizacaoViaJob($contratohistorico);
+                return true;
+            }
+
+//            ContratoPublicacoes::create([
+//                'contratohistorico_id' => $contratohistorico->id,
+//                'data_publicacao' => $contratohistorico->data_publicacao,
+//                'status' => ($sisg) ? 'Pendente' : 'informado',
+//                'status_publicacao_id' => $situacao->id,
+//                'texto_dou' => @DiarioOficialClass::retornaTextoModelo($contratohistorico),
+//                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+//                'motivo_isencao' =>
+//                    ($sisg)
+//                        ? $this->retornaIdCodigoItem(
+//                            'Motivo Isenção',
+//                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+//                        )
+//                        : ''
+//            ]);
         }
     }
-
 
     /**
      * Handle the contratohistorico "updated" event.
@@ -112,7 +100,7 @@ class ContratohistoricoObserve
 
         //-------------------------------------------JOB-----------------------------------------------------------
         if($contratohistorico->publicado){
-            $this->executaAtualizacaoViaJob($contratohistorico,$publicado_id);
+            $this->executaAtualizacaoViaJob($contratohistorico);
             return true;
         }
         //-------------------------------------------------------------------------------------------------------------
@@ -148,8 +136,12 @@ class ContratohistoricoObserve
     }
 
 
-    private function executaAtualizacaoViaJob($contratohistorico,$publicado_id)
+    private function executaAtualizacaoViaJob($contratohistorico)
     {
+        $publicado_id = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situacao Publicacao');
+        })->where('descricao', 'PUBLICADO')->first()->id;
+
         $publicacao = ContratoPublicacoes::Create(
             [
                 'contratohistorico_id' => $contratohistorico->id,
@@ -386,7 +378,6 @@ class ContratohistoricoObserve
 
     private function getSituacao($sisg, $data = null,$create = false)
     {
-
 
         $situacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Situacao Publicacao');

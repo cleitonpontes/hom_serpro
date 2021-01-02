@@ -62,6 +62,7 @@ class SaldoContabil extends Model
             ])
             ->where(DB::raw("SUBSTRING(saldo_contabil.conta_corrente,22,2)"),'<>','00')
             ->where('saldo_contabil.unidade_id',$unidade_id)
+            ->where('saldo_contabil.ano',date('y'))
             ->orderby('saldo','DESC')
             ->get()
             ->toArray();
