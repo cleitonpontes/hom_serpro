@@ -910,7 +910,7 @@ class EmpenhoCrudController extends CrudController
                 $user = BackpackUser::where('cpf', $empenho->cpf_user)
                     ->first();
                 $ws_siafi = new Execsiafi;
-                $ano = date('Y');
+                $ano = config('app.ano_minuta_empenho');
                 $retorno = $ws_siafi->incluirNe($user, $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
                 $empenho->update($retorno);
 
