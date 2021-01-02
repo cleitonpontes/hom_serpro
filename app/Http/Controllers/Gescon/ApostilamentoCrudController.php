@@ -249,6 +249,11 @@ class ApostilamentoCrudController extends CrudController
                 'default' => $contrato->id,
             ],
             [   // Hidden
+                'name' => 'tipo_id',
+                'type' => 'hidden',
+                'default' => $contrato->tipo_id,
+            ],
+            [   // Hidden
                 'name' => 'fornecedor_id',
                 'type' => 'hidden',
                 'default' => $contrato->fornecedor_id,
@@ -269,6 +274,12 @@ class ApostilamentoCrudController extends CrudController
                 'type' => 'numcontrato',
                 'tab' => 'Dados Gerais',
 
+            ],
+            [   // Date
+                'name' => 'data_publicacao',
+                'label' => 'Data da Publicação',
+                'type' => 'date',
+                'tab' => 'Dados Gerais',
             ],
             [
                 'name' => 'observacao',
