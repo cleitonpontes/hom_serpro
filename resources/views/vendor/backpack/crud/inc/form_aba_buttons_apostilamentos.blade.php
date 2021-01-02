@@ -3,7 +3,7 @@
     <input type="hidden" name="save_action" value="{{ $saveAction['active']['value'] }}">
     <div class="btn-group" id="botoes_apostilamentos">
 
-        <button type="submit" class="btn btn-success">
+        <button type="button" class="btn btn-success" id="btn-submit-itens-contrato">
             <span class="fa fa-save" role="presentation" aria-hidden="true"></span> &nbsp;
             <span data-value="{{ $saveAction['active']['value'] }}">{{ $saveAction['active']['label'] }}</span>
         </button>
@@ -292,4 +292,5 @@
             }
         }
     </script>
+    <script src="{{ asset('js/mensagem/confirmacaoPublicacao.js')}}"></script>
 @endpush
