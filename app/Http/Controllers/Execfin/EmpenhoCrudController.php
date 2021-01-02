@@ -59,6 +59,9 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'empenhos.unidade_id');
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
+//        $this->crud->addClause('where', DB::raw('left(empenhos."numero", 4)'), '=', config('app.ano_minuta_empenho'));
+//        $this->crud->addClause('orWhere', 'empenhos.rp', '=', true);
+        $this->crud->orderBy('empenhos.updated_at', 'desc');
 
         (backpack_user()->can('migracao_empenhos')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
             'migrarempenho', 'end') : null;
