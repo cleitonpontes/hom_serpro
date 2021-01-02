@@ -41,11 +41,16 @@ class IncluirEmpenhoWSJob implements ShouldQueue
         $ano = config('app.ano_minuta_empenho');
 
         try {
+            dump('entrei try');
             $retorno = $ws_siafi->incluirNe($user, $this->sforcempenhodados->ugemitente, env('AMBIENTE_SIAFI'), $ano, $this->sforcempenhodados);
+            dump('retorno');
         } catch (Exception $e) {
+            dump('entrei catch');
             $retorno['mensagemretorno'] = (string)  $e;
             $retorno['situacao'] = 'ERRO';
+            dump('retorno catch'.$retorno);
         }
+        dd('fim');
 
         $this->sforcempenhodados->update($retorno);
     }
