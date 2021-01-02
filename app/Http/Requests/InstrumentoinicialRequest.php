@@ -94,7 +94,7 @@ class InstrumentoinicialRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'data_assinatura' => "Data assinatura"
         ];
     }
 

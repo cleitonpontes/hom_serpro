@@ -6,12 +6,15 @@ use Alert;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Transparencia\IndexController;
 use App\Http\Traits\Busca;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoCargaEmpenhoJob;
 use App\Jobs\MigracaoempenhoJob;
 use App\Jobs\MigracaoRpJob;
 use App\Models\BackpackUser;
+use App\Models\Codigoitem;
+use App\Models\DevolveMinutaSiasg;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
@@ -38,7 +41,7 @@ use Illuminate\Support\Facades\DB;
  */
 class EmpenhoCrudController extends CrudController
 {
-    use Busca;
+    use Busca, BuscaCodigoItens;
 
     public function setup()
     {
@@ -749,10 +752,17 @@ class EmpenhoCrudController extends CrudController
 //            ? $this->buscaDadosFileGetContents($url)
 //            : $this->buscaDadosCurl($url);
 
-        $context = stream_context_create(array('http' => array(
-            'timeout' => 600,
-            'ignore_errors' => true,
-        )));
+        $context = stream_context_create(array(
+            'http' => array(
+                'timeout' => 600,
+                'ignore_errors' => true,
+            ),
+            "ssl" => array(
+                "allow_self_signed" => true,
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ),
+        ));
 
         $dados = $this->buscaDadosFileGetContents($url, $context);
 
@@ -765,7 +775,7 @@ class EmpenhoCrudController extends CrudController
                     $pi = $this->buscaPi($d);
                 }
 
-                $naturezadespesa = $this->trataPiNdSubitem($d['naturezadespesa'], 'ND',null, $d['naturezadespesadescricao']);
+                $naturezadespesa = $this->trataPiNdSubitem($d['naturezadespesa'], 'ND', null, $d['naturezadespesadescricao']);
 
                 if ($naturezadespesa) {
                     $empenho = Empenho::updateOrCreate(
@@ -782,7 +792,7 @@ class EmpenhoCrudController extends CrudController
                     );
 
                     foreach ($d['itens'] as $item) {
-                        $naturezasubitem = $this->trataPiNdSubitem($d['subitem'], 'SUBITEM',$naturezadespesa, $d['subitemdescricao']);
+                        $naturezasubitem = $this->trataPiNdSubitem($item['subitem'], 'SUBITEM', $naturezadespesa, $item['subitemdescricao']);
 
                         if ($naturezasubitem) {
                             $empenhodetalhado = Empenhodetalhado::updateOrCreate([
@@ -905,9 +915,12 @@ class EmpenhoCrudController extends CrudController
                 $empenho->update($retorno);
 
                 if ($retorno['situacao'] == 'EMITIDO') {
-                    $empenho = $this->criaEmpenhoFromMinuta($empenho); //todo verificar tipo da minuta EMPENHO ou ALTERACAO
+                    $empenho = $this->criaEmpenhoFromMinuta($empenho);
 
-                    //todo criar job para devolver informação para o SIASG
+                    DevolveMinutaSiasg::create([
+                        'minutaempenho_id' => $empenho->minutaempenho_id,
+                        'situacao' => 'Pendente'
+                    ]);
                 }
 
             }
@@ -917,30 +930,32 @@ class EmpenhoCrudController extends CrudController
 
     public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
     {
-        $array_empenho1 = [
-            'numero' => trim($empenho->mensagemretorno),
-            'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
-        ];
-        $array_empenho2 = [
-            'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
-            'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
-            'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
-            'fonte' => $empenho->celula_orcamentaria->codfonterec
-        ];
-
-        $novo_empenho = Empenho::firstOrCreate(
-            $array_empenho1,
-            $array_empenho2
-        );
-
-        $itens = $empenho->itens_empenho()->get();
-
-        foreach ($itens as $item) {
-            $array_empenhodetalhado = [
-                'empenho_id' => $novo_empenho->id,
-                'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
+        if($empenho->minuta_empenhos->tipo_empenhopor->descricao != 'Alteração'){
+            $array_empenho1 = [
+                'numero' => trim($empenho->mensagemretorno),
+                'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
             ];
-            Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
+            $array_empenho2 = [
+                'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
+                'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
+                'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
+                'fonte' => $empenho->celula_orcamentaria->codfonterec
+            ];
+
+            $novo_empenho = Empenho::updateOrCreate(
+                $array_empenho1,
+                $array_empenho2
+            );
+
+            $itens = $empenho->itens_empenho()->get();
+
+            foreach ($itens as $item) {
+                $array_empenhodetalhado = [
+                    'empenho_id' => $novo_empenho->id,
+                    'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
+                ];
+                Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
+            }
         }
     }
 
@@ -1046,5 +1061,4 @@ class EmpenhoCrudController extends CrudController
 
         return stream_context_create($context_options);
     }
-
 }

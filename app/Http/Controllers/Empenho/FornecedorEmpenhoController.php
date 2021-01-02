@@ -42,14 +42,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
 
 
-        if ($codigoitem->descricao == 'Contrato') {
-//            dd($modMinutaEmpenho->contrato()->first()->fornecedor);
-
-//            $fornecedores = [0 => ["id" => 11,
-//    "nome" => "AMAZONAS ENERGIA S.A",
-//    "cpf_cnpj_idgener" => "02.341.467/0001-20",
-//    "situacao_sicaf" => "1"]];
-
+        if ($codigoitem->descricao === 'Contrato') {
             //$fornecedores = $modMinutaEmpenho->contrato()->first()->fornecedor;
             $fornecedores = MinutaEmpenho::join(
                 'contratos',
@@ -87,7 +80,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->get()
                 ->toArray();
         }
-//        dd($fornecedores);
 
         if ($request->ajax()) {
             return DataTables::of($fornecedores)->addColumn('action', function ($fornecedores) use ($minuta_id) {
@@ -193,7 +185,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         if ($codigoitem->descricao == 'Contrato') {
             $tipo = 'contrato_item_id';
             $itens = Contrato::where('fornecedor_id', '=', $fornecedor_id)
-                ->where('numero', '=', $modMinutaEmpenho->numero_contrato)
+                ->where('contratos.id', '=', $modMinutaEmpenho->contrato_id)
                 ->whereNull('contratoitens.deleted_at')
                 ->join('contratoitens', 'contratoitens.contrato_id', '=', 'contratos.id')
                 ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
@@ -216,7 +208,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->toArray();
 //            ;dd($itens->getBindings(),$itens->toSql(),$itens->get());
         }
+
         if ($codigoitem->descricao == 'Compra') {
+
             $tipo = 'compra_item_id';
 
             $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
@@ -225,6 +219,12 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
                 ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
                 ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+                ->join(
+                    'catmatseritens',
+                    'catmatseritens.id',
+                    '=',
+                    'compra_items.catmatseritem_id'
+                )
                 ->where('compra_item_unidade.quantidade_saldo', '>', 0)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                 ->where(function ($query) use ($fornecedor_id) {
@@ -246,7 +246,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ])
                 ->get()
                 ->toArray();
+
         }
+
 
         if ($request->ajax()) {
             return DataTables::of($itens)

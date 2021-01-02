@@ -41,6 +41,7 @@ class SubelementoController extends BaseControllerEmpenho
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
 //        dd(112);
         if ($codigoitem->descres == 'CON') {
+            $tipo = 'contrato_item_id';
             $itens = MinutaEmpenho::join(
                 'contrato_item_minuta_empenho',
                 'contrato_item_minuta_empenho.minutaempenho_id',
@@ -129,6 +130,7 @@ class SubelementoController extends BaseControllerEmpenho
         }
 
         if ($codigoitem->descres == 'COM') {
+            $tipo = 'compra_item_id';
             $itens = MinutaEmpenho::join(
                 'compra_item_minuta_empenho',
                 'compra_item_minuta_empenho.minutaempenho_id',
@@ -229,8 +231,9 @@ class SubelementoController extends BaseControllerEmpenho
                 ->first()->toArray();
         }
 
+
         if ($request->ajax()) {
-            $tipo = (isset($item['compra_item_id'])) ? 'compra_item_id' : 'contrato_item_id';
+
             $dados = DataTables::of($itens)
                 ->addColumn(
                     'ci_id',
@@ -451,8 +454,6 @@ class SubelementoController extends BaseControllerEmpenho
     private function addColunaQuantidade($item, $tipo)
     {
         $quantidade = $item['quantidade'];
-//        dd($item);
-//        $tipo = (isset($item['compra_item_id'])) ? 'compra_item_id' : 'contrato_item_id';
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"

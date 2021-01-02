@@ -33,6 +33,7 @@ class ContratoPublicacaoRequest extends FormRequest
                 new NaoAceitarFeriado(), new NaoAceitarFimDeSemana()
             ],
             'texto_dou' => 'required',
+            'cpf' => 'required',
             'tipo_pagamento_id' => 'required',
             'motivo_isencao_id' => 'required',
             'numero' => 'required_if:tipo_pagamento_id,376',
@@ -52,6 +53,7 @@ class ContratoPublicacaoRequest extends FormRequest
             'motivo_isencao_id' => 'Motivo Isenção',
             'numero' => 'Número Empenho',
             'data_publicacao' => 'Data Publicacao',
+            'cpf' => 'CPF',
         ];
     }
 

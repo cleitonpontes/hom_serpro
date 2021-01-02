@@ -73,18 +73,20 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function oficioPreview($contrato_id)
+    public function oficioPreview()
     {
         try {
-            $contratoHistorico = Contratohistorico::where('contrato_id', $contrato_id)
-                ->orderBy('id', 'desc')
-                ->first();
 
-            $contratoPublicacoes = ContratoPublicacoes::where('contratohistorico_id', $contratoHistorico->id)
-                ->orderBy('id', 'desc')
-                ->first();
+            $data = Carbon::createFromFormat('Y-m-d', date('Y-m-d'));
 
-            $this->enviaPublicacao($contratoHistorico, $contratoPublicacoes);
+            $contratoPublicacoes = ContratoPublicacoes::where('data_publicacao', $data->addDay())
+                ->orderBy('id', 'desc')
+                ->get();
+
+            foreach ($contratoPublicacoes as $contratoPublicacao) {
+                 $this->enviaPublicacao($contratoPublicacao->contratohistorico, $contratoPublicacao);
+            }
+
 
         } catch (Exception $e) {
             return $e->getMessage();
@@ -92,7 +94,7 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function oficioPreviewNovo()
+    public function criaJobsOficioPreviewNovo()
     {
         $data = Carbon::createFromFormat('Y-m-d', date('Y-m-d'));
 
@@ -108,8 +110,11 @@ class DiarioOficialClass extends BaseSoapController
 
     private function enviaPublicacao($contratoHistorico, $contratoPublicacoes)
     {
+//        dd(session()->all());
         $arrayPreview = $this->montaOficioPreview($contratoHistorico);
+//        dump($arrayPreview);
         $responsePreview = $this->soapClient->OficioPreview($arrayPreview);
+//        dd($responsePreview);
 
         if (!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)) {
             $contratoPublicacoes->status = 'Erro Preview!';
@@ -176,21 +181,30 @@ class DiarioOficialClass extends BaseSoapController
         }
     }
 
+    public function retornaIdentificadorNorma(Contratohistorico $contratoHistorico){
+
+    }
 
     public function montaOficioPreview(Contratohistorico $contratoHistorico)
     {
+        $sisg = (isset($contratoHistorico->unidade->sisg)) ? $contratoHistorico->unidade->sisg : '';
 
         $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = 149;
+        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaIdCodigoItem('Forma Pagamento', 'Isento');
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134;
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
-        $dados ['dados']['motivoIsencao'] = 9;
+        $dados ['dados']['motivoIsencao'] = ($sisg)
+                                            ? $this->retornaIdCodigoItem(
+                                                'Motivo Isenção',
+                                                'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+                                            )
+                                            : '';
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
         return $dados;
@@ -199,18 +213,25 @@ class DiarioOficialClass extends BaseSoapController
 
     public function montaOficioConfirmacao(Contratohistorico $contratoHistorico)
     {
+        $sisg = (isset($contratoHistorico->unidade->sisg)) ? $contratoHistorico->unidade->sisg : '';
+
         $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
         $dados ['dados']['IDTransacao'] = $contratoHistorico->unidade->nomeresumido . $this->generateRandonNumbers(13);
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = 149;
+        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaIdCodigoItem('Forma Pagamento', 'Isento');
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134;
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
-        $dados ['dados']['motivoIsencao'] = 9;
+        $dados ['dados']['motivoIsencao'] = ($sisg)
+            ? $this->retornaIdCodigoItem(
+                'Motivo Isenção',
+                'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+            )
+            : '';
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
 

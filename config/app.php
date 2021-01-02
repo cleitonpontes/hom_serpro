@@ -19,6 +19,8 @@ return [
 
     'conta_contabil_credito_disponivel' => '622110000',
 
+    'ano_minuta_empenho' => env('ANO_SIAFI_TESTE',date('y')),
+
     'modalidades_sem_exigencia' => [
         'Inexigibilidade',
         'Não se Aplica'
@@ -254,7 +256,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'America/Sao_Paulo',
 
     /*
     |--------------------------------------------------------------------------

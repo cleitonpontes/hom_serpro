@@ -1099,7 +1099,7 @@ class ContratoCrudController extends CrudController
     {
         $this->crud->addField([
             'name' => 'vigencia_inicio',
-            'label' => 'Data Vig. Início',
+            'label' => 'Data de início da vigência',
             'type' => 'date',
             'tab' => $this->tab
         ]);
@@ -1109,7 +1109,7 @@ class ContratoCrudController extends CrudController
     {
         $this->crud->addField([
             'name' => 'vigencia_fim',
-            'label' => 'Data Vig. Fim',
+            'label' => 'Data do término da vigência',
             'type' => 'date',
             'tab' => $this->tab
         ]);
