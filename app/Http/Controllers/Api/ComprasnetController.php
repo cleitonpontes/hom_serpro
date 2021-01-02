@@ -174,15 +174,14 @@ class ComprasnetController extends Controller
 
 
                 if ($ultimo_historico->tipo->descricao == 'Termo de Rescisão') {
-                    $situacao_publicacao = $publicacao->status_publicacao->descres;
-                    if($publicacao->status_publicacao->descres == '02'){
+                    $situacao_publicacao = $publicacao->StatusPublicacaoDescress;
+                    if($publicacao->StatusPublicacaoDescres == '02'){
                         $situacao_publicacao = '08';
                     }
-                    if($publicacao->status_publicacao->descres == '05'){
+                    if($publicacao->StatusPublicacaoDescres == '05'){
                         $situacao_publicacao = '09';
                     }
                 }else{
-                    dd($publicacao->StatusPublicacaoDescres, $publicacao);
                     $situacao_publicacao = $publicacao->StatusPublicacaoDescres;
                 }
 
