@@ -141,7 +141,6 @@ class ContratoRequest extends FormRequest
 
     private function ruleDataPublicacao ($tipo_id = null)
     {
-
         $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
