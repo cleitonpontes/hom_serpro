@@ -71,7 +71,7 @@ class SaldoContabilController extends Controller
 
         $unidade = Unidade::where('codigo',$cod_unidade)->first();
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
-        $ano = date('Y');
+        $ano = config('app.ano_minuta_empenho');
         $ug = $unidade->codigo;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
         $conta_corrente = "N".$contacorrente;
@@ -121,7 +121,7 @@ class SaldoContabilController extends Controller
         $unidade = Unidade::find($saldo->unidade_id);
 
         $amb = env('AMBIENTE_SIAFI');
-        $ano = date('Y');
+        $ano = config('app.ano_minuta_empenho');
         $ug = $unidade->codigo;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
         $contacorrente = "N".$saldo->conta_corrente;
@@ -148,7 +148,7 @@ class SaldoContabilController extends Controller
         $cod_unidade = Route::current()->parameter('cod_unidade');
 
         $unidade = Unidade::where('codigo',$cod_unidade)->first();
-        $ano = date('Y');
+        $ano = config('app.ano_minuta_empenho');
         $ug = $unidade->codigo;
         $gestao = $unidade->gestao;
         $contacontabil = config('app.conta_contabil_credito_disponivel');

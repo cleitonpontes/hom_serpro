@@ -76,7 +76,7 @@ class MinutaEmpenhoController extends Controller
 
         $modSfOrcEmpenhoDados->minutaempenho_id = $modMinutaEmpenho->id;
         $modSfOrcEmpenhoDados->ugemitente = $ugemitente->codigo;
-        $modSfOrcEmpenhoDados->anoempenho = (int)date('Y');
+        $modSfOrcEmpenhoDados->anoempenho = (int)config('app.ano_minuta_empenho');
         $modSfOrcEmpenhoDados->tipoempenho = $tipoEmpenho->descres;
         $modSfOrcEmpenhoDados->numempenho = (!is_null($modMinutaEmpenho->numero_empenho_sequencial)) ? $modMinutaEmpenho->numero_empenho_sequencial : null;
         $modSfOrcEmpenhoDados->dtemis = $modMinutaEmpenho->data_emissao;
