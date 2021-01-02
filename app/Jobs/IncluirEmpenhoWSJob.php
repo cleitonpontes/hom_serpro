@@ -43,7 +43,7 @@ class IncluirEmpenhoWSJob implements ShouldQueue
         try {
             dump('entrei try');
             $retorno = $ws_siafi->incluirNe($user, $this->sforcempenhodados->ugemitente, env('AMBIENTE_SIAFI'), $ano, $this->sforcempenhodados);
-            dump('retorno');
+            dump($retorno);
         } catch (Exception $e) {
             dump('entrei catch');
             $retorno['mensagemretorno'] = (string)  $e;
