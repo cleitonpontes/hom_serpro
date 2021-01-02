@@ -49,8 +49,11 @@ class ContratoObserve
             ->whereIn('tipo_id', $tipos)
             ->first();
 
-
-        $contratohistorico->update($contrato_array);
+        if(isset($contratohistorico->id)){
+            Contratohistorico::created($contrato_array);
+        }else{
+            $contratohistorico->update($contrato_array);
+        }
 
     }
 
