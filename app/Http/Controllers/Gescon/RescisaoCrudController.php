@@ -187,6 +187,11 @@ class RescisaoCrudController extends CrudController
                 'default' => $contrato->receita_despesa,
             ],
             [   // Hidden
+                'name' => 'tipo_id',
+                'type' => 'hidden',
+                'default' => $contrato->tipo_id,
+            ],
+            [   // Hidden
                 'name' => 'contrato_id',
                 'type' => 'hidden',
                 'default' => $contrato->id,

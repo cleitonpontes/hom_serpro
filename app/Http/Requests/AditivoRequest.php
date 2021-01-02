@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Models\Codigoitem;
+use App\Rules\NaoAceitarFeriado;
+use App\Rules\NaoAceitarFimDeSemana;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
@@ -37,7 +40,7 @@ class AditivoRequest extends FormRequest
         $this->hoje = date('Y-m-d');
         $this->data_amanha = date('Y-m-d', strtotime('+1 day'));
 
-        return [
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratohistorico','numero'))
@@ -49,7 +52,7 @@ class AditivoRequest extends FormRequest
             'contrato_id' => 'required',
             'unidade_id' => 'required',
             'data_assinatura' => "required|date|before:{$this->data_amanha}",
-            'data_publicacao' => "required|date|after:{$this->hoje}",
+
             'vigencia_inicio' => 'required|date|before:vigencia_fim',
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limite}",
             'valor_global' => 'required',
@@ -64,6 +67,10 @@ class AditivoRequest extends FormRequest
             'retroativo_vencimento' => 'required_if:retroativo,==,1',
             'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+
+        return $rules;
     }
 
     /**
@@ -95,5 +102,34 @@ class AditivoRequest extends FormRequest
             'data_publicacao.after' => "A data da publicação deve ser maior que {$hoje} ",
             'data_assinatura.before' => "A data da assinatura deve ser menor que  {$data_amanha} "
         ];
+    }
+
+    private function ruleDataPublicacao ($tipo_id = null)
+    {
+        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Outros')
+            ->where('descricao', '<>', 'Empenho')
+            ->orderBy('descricao')
+            ->pluck('id')
+            ->toArray();
+
+        $retorno = [
+            'required',
+            'date'
+        ];
+
+        if (in_array($tipo_id, $arrCodigoItens)) {
+            $retorno = [
+                'required',
+                'date',
+                "after:{$this->hoje}",
+                "after:data_assinatura",
+                new NaoAceitarFeriado(),
+                new NaoAceitarFimDeSemana()
+            ];
+        }
+        return $retorno;
     }
 }

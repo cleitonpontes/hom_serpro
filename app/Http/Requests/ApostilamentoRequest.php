@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Models\Codigoitem;
+use App\Rules\NaoAceitarFeriado;
+use App\Rules\NaoAceitarFimDeSemana;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
@@ -32,7 +35,7 @@ class ApostilamentoRequest extends FormRequest
 
         $this->hoje = date('Y-m-d');
 
-        return [
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratohistorico','numero'))
@@ -56,6 +59,10 @@ class ApostilamentoRequest extends FormRequest
             'retroativo_vencimento' => 'required_if:retroativo,==,1',
             'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+
+        return $rules;
     }
 
     /**
@@ -80,5 +87,34 @@ class ApostilamentoRequest extends FormRequest
         return [
             //
         ];
+    }
+
+    private function ruleDataPublicacao ($tipo_id = null)
+    {
+        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Outros')
+            ->where('descricao', '<>', 'Empenho')
+            ->orderBy('descricao')
+            ->pluck('id')
+            ->toArray();
+
+        $retorno = [
+            'required',
+            'date'
+        ];
+
+        if (in_array($tipo_id, $arrCodigoItens)) {
+            $retorno = [
+                'required',
+                'date',
+                "after:{$this->hoje}",
+                "after_or_equal:data_assinatura",
+                new NaoAceitarFeriado(),
+                new NaoAceitarFimDeSemana()
+            ];
+        }
+        return $retorno;
     }
 }
