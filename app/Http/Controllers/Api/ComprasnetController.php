@@ -182,6 +182,7 @@ class ComprasnetController extends Controller
                         $situacao_publicacao = '09';
                     }
                 }else{
+                    dd($publicacao->statusPublicacao, $publicacao);
                     $situacao_publicacao = $publicacao->statusPublicacao->descres;
                 }
 
