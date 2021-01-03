@@ -51,7 +51,6 @@ class ContratoController extends Controller
                 ->orderby('fornecedores.nome', 'asc')
                 ->paginate(20);
 
-            dd($results);
              return $results;
         }
 
