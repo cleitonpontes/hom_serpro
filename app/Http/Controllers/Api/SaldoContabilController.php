@@ -75,7 +75,7 @@ class SaldoContabilController extends Controller
         $ug = $unidade->codigo;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
         $conta_corrente = "N".$contacorrente;
-        $mes = $meses[(int) date('m')];
+        $mes = $meses[(int) config('app.mes_minuta_empenho')];
         $execsiafi = new Execsiafi();
         $contaSiafi = $execsiafi->conrazaoUserSystem($system_user,$pwd, $amb, $ano, $ug, $contacontabil,$conta_corrente, $mes);
 
