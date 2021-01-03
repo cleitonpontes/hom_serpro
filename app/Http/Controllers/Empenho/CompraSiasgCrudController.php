@@ -380,6 +380,11 @@ class CompraSiasgCrudController extends CrudController
         $apiSiasg = new ApiSiasg();
         $tipo = Codigoitem::find($contrato->tipo_id);
         $numero_ano = explode('/', $contrato->numero);
+
+        if (is_null($contrato->unidadeorigem_id)) {
+            return redirect('/empenho/buscacompra')->with('alert-warning', 'Contrato sem informação da Unidade de Origem!');
+        }
+
         $uasgCompra = Unidade::find($contrato->unidadeorigem_id);
 
         $dado = [
