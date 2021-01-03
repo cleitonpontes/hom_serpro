@@ -53,7 +53,7 @@ class Kernel extends ConsoleKernel
         $this->criarJobAtualizacaoSiasgContratos();
         $this->criarJobAtualizacaoSiasgCompras();
         $this->criarJobAtualizaStatusPublicacao();
-        $this->executaConsumoWsSiafiEmpenho();
+//        $this->executaConsumoWsSiafiEmpenho();
 
         //agendamentos
         $this->criarJobAtualizarND();
