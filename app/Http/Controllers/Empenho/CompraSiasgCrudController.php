@@ -181,7 +181,7 @@ class CompraSiasgCrudController extends CrudController
         if ($request->tipoEmpenho == 1) {
             $contrato = Contrato::find($request->id);
             $dadosContrato = $this->consultaContratoSiasg($contrato);
-            $apiSiasg = new ApiSiasg();
+
 
             if (is_null($dadosContrato->data)) {
                 return redirect('/empenho/buscacompra')->with('alert-warning', $dadosContrato->messagem);
@@ -195,6 +195,7 @@ class CompraSiasgCrudController extends CrudController
             ];
 
             //pegar a compra
+            $apiSiasg = new ApiSiasg();
             $retorno_compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
 //            dd($contrato, $dadosContrato, $params, $retorno_compra);
 
@@ -375,6 +376,7 @@ class CompraSiasgCrudController extends CrudController
 
     public function consultaContratoSiasg($contrato)
     {
+
         $apiSiasg = new ApiSiasg();
         $tipo = Codigoitem::find($contrato->tipo_id);
         $numero_ano = explode('/', $contrato->numero);

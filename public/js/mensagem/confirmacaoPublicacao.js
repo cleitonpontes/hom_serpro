@@ -13,7 +13,7 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         }
     }
     if (tipo_contrato === 'Outros' || tipo_contrato === 'Empenho' || tipo_contrato === '') {
-        $('form').submit();
+        this.closest('form').submit();
     } else {
         Swal.fire({
             title: 'O instrumento será publicado no diário oficial, deseja continuar?',
@@ -23,7 +23,7 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                $('form').submit();
+                this.closest('form').submit();
             }
         })
     }
