@@ -108,7 +108,7 @@ class InstrumentoinicialCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
-        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id);
+        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id, $contrato->tipo->descricao);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in InstrumentoinicialRequest
@@ -353,13 +353,21 @@ class InstrumentoinicialCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id)
+    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id, $contrato_tipo_descricao)
     {
         $campos = [
             [   // Hidden
                 'name' => 'contrato_id',
                 'type' => 'hidden',
                 'default' => $contrato_id,
+            ],
+            [   // Hidden
+                'name' => 'tipo_contrato',
+                'type' => 'hidden',
+                'default' => $contrato_tipo_descricao,
+                'attributes' => [
+                    'id' => 'tipo_contrato'
+                ]
             ],
             [   // Hidden
                 'name' => 'instrumentoinicial_id',

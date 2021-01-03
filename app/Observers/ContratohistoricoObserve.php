@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Http\Controllers\Publicacao\DiarioOficialClass;
 use App\Http\Traits\BuscaCodigoItens;
+use App\Http\Traits\Formatador;
+use App\Models\BackpackUser;
 use App\Models\CalendarEvent;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
@@ -12,6 +14,10 @@ use App\Models\Contratohistorico;
 use App\Models\ContratoHistoricoMinutaEmpenho;
 use App\Models\ContratoPublicacoes;
 use DateTime;
+use Alert;
+use Redirect;
+use Route;
+use Doctrine\DBAL\Schema\AbstractAsset;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -19,6 +25,7 @@ class ContratohistoricoObserve
 {
 
     use BuscaCodigoItens;
+    use Formatador;
 
     public function __construct(Contratocronograma $contratocronograma)
     {
@@ -33,7 +40,6 @@ class ContratohistoricoObserve
      */
     public function created(Contratohistorico $contratohistorico)
     {
-        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
 
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
@@ -43,33 +49,20 @@ class ContratohistoricoObserve
         $this->atualizaContrato($historico);
         $this->createEventCalendar($contratohistorico);
 
-        $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao,true);
-
         $tipoEmpenho = $this->retornaIdCodigoItem('Tipo de Contrato', 'Empenho');
         $tipoOutros = $this->retornaIdCodigoItem('Tipo de Contrato', 'Outros');
+
         if ($contratohistorico->tipo_id != $tipoEmpenho && $contratohistorico->tipo_id != $tipoOutros) {
 
             if($contratohistorico->publicado){
-                $this->executaAtualizacaoViaJob($contratohistorico,$situacao);
+                $this->executaAtualizacaoViaJob($contratohistorico);
                 return true;
             }
 
-            ContratoPublicacoes::create([
-                'contratohistorico_id' => $contratohistorico->id,
-                'data_publicacao' => $contratohistorico->data_publicacao,
-                'status' => ($sisg) ? 'Pendente' : 'informado',
-                'status_publicacao_id' => $situacao->id,
-                'texto_dou' => @DiarioOficialClass::retornaTextoModelo($contratohistorico),
-                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                'motivo_isencao' =>
-                    ($sisg)
-                        ? $this->retornaIdCodigoItem(
-                            'Motivo Isenção',
-                            'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
-                        )
-                        : ''
-            ]);
+            $this->criaNovaPublicacao($contratohistorico,true);
+
         }
+
     }
 
     /**
@@ -93,51 +86,93 @@ class ContratohistoricoObserve
         $this->createEventCalendar($contratohistorico);
 
 
-        $publicado_id = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', 'Situacao Publicacao');
-        })->where('descricao', 'PUBLICADO')->first()->id;
-
-
         //-------------------------------------------JOB-----------------------------------------------------------
-        if($contratohistorico->publicado){
-            $this->executaAtualizacaoViaJob($contratohistorico,$publicado_id);
+        if($contratohistorico->publicado && ($contratohistorico->publicacao->count() == 0)){
+            $this->executaAtualizacaoViaJob($contratohistorico);
             return true;
         }
         //-------------------------------------------------------------------------------------------------------------
 
+        if(!is_null($contratohistorico->publicacao)){
+            $this->trataAtualizacaoPublicacoes($contratohistorico);
+        }
 
+    }
+
+
+
+    private function trataAtualizacaoPublicacoes($contratohistorico)
+    {
         $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
-        $status_publicacao_id = $this->getSituacao($sisg)->id;
 
-        $this->trataAtualizacaoPublicacoes($contratohistorico,$sisg,$status_publicacao_id,$publicado_id);
 
-    }
-
-    private function trataAtualizacaoPublicacoes($contratohistorico,$sisg,$status_publicacao_id,$publicado_id)
-    {
-        $a_publicar = ContratoPublicacoes::where('contratohistorico_id',$contratohistorico->id)
-            ->where('status_publicacao_id',$status_publicacao_id)->latest()->first();
-
-        $publicada = ContratoPublicacoes::where('contratohistorico_id',$contratohistorico->id)
-            ->where('status_publicacao_id',$publicado_id)->first();
-
-        if(!is_null($publicada) && is_null($a_publicar)){
-            return $this->criaRetificacao($contratohistorico,$status_publicacao_id,$sisg);
+        if(($contratohistorico->publicacao->count() == 0)){
+            $this->criaNovaPublicacao($contratohistorico,true);
+            return true;
         }
 
-        if(is_null($publicada) && !is_null($a_publicar)){
-            return $this->atualizaPublicacao($a_publicar,$contratohistorico,$sisg);
+        if(($contratohistorico->publicacao->count() == 1)){
+            $publicacao = ContratoPublicacoes::where('contratohistorico_id',$contratohistorico->id)->first();
+            $this->verificaStatusPublicacao($publicacao,$contratohistorico,$sisg);
+            return true;
         }
 
-        if(!is_null($publicada) && !is_null($a_publicar)){
-            return $this->atualizaPublicacao($a_publicar,$contratohistorico,$sisg);
+        if(($contratohistorico->publicacao->count() > 1)){
+            $publicacao = ContratoPublicacoes::where('contratohistorico_id',$contratohistorico->id)->latest()->first();
+            $this->verificaStatusPublicacao($publicacao,$contratohistorico,$sisg);
+            return true;
         }
 
     }
 
 
-    private function executaAtualizacaoViaJob($contratohistorico,$publicado_id)
+    public function verificaStatusPublicacao($publicacao,$contratohistorico,$sisg)
     {
+
+        $importado = $this->verificaPublicacaoImportada($publicacao,$contratohistorico,$sisg);
+
+        if(!$importado) {
+
+            switch ($publicacao->status_publicacao_id) {
+                case $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO'):
+                    $this->criaRetificacao($contratohistorico, $sisg);
+                    break;
+                case $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR'):
+                case $this->retornaIdCodigoItem('Situacao Publicacao', 'TRANSFERIDO PARA IMPRENSA'):
+                    $this->verificaStatusOnline($publicacao, $contratohistorico, $sisg);
+                    break;
+                default;
+                    //todo verficar porque não redireciona.
+                    return redirect('/gescon/contrato/' . $contratohistorico->contrato_id . '/publicacao');
+            }
+        }
+
+    }
+
+
+    public function verificaPublicacaoImportada($publicacao,$contratohistorico,$sisg)
+    {
+        $retorno = false;
+
+        $publicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
+
+        if(($publicacao->status == "Importado") && ($publicacao->status_publicacao_id == $publicado)) {
+
+//            $publicacao->status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'MATERIA SUSTADA');
+//            $publicacao->save();
+//            $this->criaNovaPublicacao($contratohistorico,true);
+            $this->criaRetificacao($contratohistorico,$sisg);
+
+            $retorno = true;
+        }
+        return $retorno;
+    }
+
+
+    private function executaAtualizacaoViaJob($contratohistorico)
+    {
+        $publicado_id = $this->retornaIdTipoPublicado();
+
         $publicacao = ContratoPublicacoes::Create(
             [
                 'contratohistorico_id' => $contratohistorico->id,
@@ -152,35 +187,39 @@ class ContratohistoricoObserve
         return $publicacao;
     }
 
-    private function criaRetificacao($contratohistorico,$status_publicacao_id,$sisg)
+    private function criaRetificacao($contratohistorico,$sisg)
     {
         $texto_dou = @DiarioOficialClass::retornaTextoretificacao($contratohistorico);
 
+        $cpf = $this->removeMascaraCPF(backpack_user()->cpf);
+
         if(!is_null($texto_dou)) {
-            return ContratoPublicacoes::Create(
+            $novaPublicacao = ContratoPublicacoes::Create(
                 [
                     'contratohistorico_id' => $contratohistorico->id,
-                    'status_publicacao_id' => $status_publicacao_id,
+                    'status_publicacao_id' => $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR'),
                     'data_publicacao' => $contratohistorico->data_publicacao,
-                    'texto_dou' => $texto_dou,
+                    'texto_dou' => ($texto_dou != '') ? $texto_dou : '',
+                    'cpf' => $cpf,
                     'status' => ($sisg) ? 'Pendente' : 'informado',
                     'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
                     'motivo_isencao' => ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : ''
                 ]
             );
+
+//            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
         }
+
     }
 
-    private function atualizaPublicacao($a_publicar,$contratohistorico,$sisg)
+    private function enviarPublicacao($contratohistorico,$publicacao,$texto_dou,$cpf)
     {
-        $a_publicar->data_publicacao = $contratohistorico->data_publicacao;
-        $a_publicar->texto_dou = @DiarioOficialClass::retornaTextoModelo($contratohistorico);
-        $a_publicar->status = ($sisg) ? 'Pendente' : 'informado';
-        $a_publicar->tipo_pagamento_id = $this->retornaIdCodigoItem('Forma Pagamento', 'Isento');
-        $a_publicar->motivo_isencao_id = ($sisg) ? $this->retornaIdCodigoItem('Motivo Isenção', 'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados') : '';
-        $a_publicar->save();
 
-        return $a_publicar;
+        if ($publicacao->status_publicacao_id == $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR')) {
+            $diarioOficial = new DiarioOficialClass();
+            $diarioOficial->enviaPublicacao($contratohistorico, $publicacao,$texto_dou,$cpf);
+            return true;
+        }
     }
 
 
@@ -375,7 +414,6 @@ class ContratohistoricoObserve
     private function getSituacao($sisg, $data = null,$create = false)
     {
 
-
         $situacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Situacao Publicacao');
         })
@@ -393,6 +431,100 @@ class ContratohistoricoObserve
         }
         return $situacao->where('descricao', 'INFORMADO')->first();
     }
+
+    private function retornaIdTipoPublicado()
+    {
+        return Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situacao Publicacao');
+        })->where('descricao', 'PUBLICADO')->first()->id;
+    }
+
+    private function verificaStatusOnline($publicacao,$contratohistorico,$sisg)
+    {
+        $cpf = $this->removeMascaraCPF(backpack_user()->cpf);
+
+        $diarioOficial = new DiarioOficialClass();
+        $diarioOficial->atualizaStatusPublicacao($publicacao->id,$cpf);
+
+        (!is_null($publicacao->materia_id))
+            ? $this->statusTransferidoParaImprensa($publicacao, $cpf, $contratohistorico, $sisg)
+            : $this->statusAPublicar($publicacao,$cpf,$contratohistorico,$sisg);
+    }
+
+    private function statusTransferidoParaImprensa($publicacao,$cpf,$contratohistorico,$sisg)
+    {
+
+        $devolvido = $this->retornaIdCodigoItem('Situacao Publicacao', 'DEVOLVIDO PELA IMPRENSA');
+        $sustada = $this->retornaIdCodigoItem('Situacao Publicacao', 'MATERIA SUSTADA');
+        $publicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
+
+        if (!is_null($publicacao->materia_id)) {
+            $diarioOficial = new DiarioOficialClass();
+            $retorno = $diarioOficial->sustaMateriaPublicacao($publicacao->id, $cpf);
+
+            if ($retorno->out->validaSustacao == "OK") {
+
+                $publicacao->status = 'MATERIA SUSTADA';
+                $publicacao->status_publicacao_id = $sustada;
+                $publicacao->save();
+
+                $statusPublicacao = ContratoPublicacoes::where('contratohistorico_id', $contratohistorico->id)
+                    ->where('status_publicacao_id', $publicado)->first();
+
+                //se houver alguma publicação com status publicado para esse instrumento CRIA RETIFICAÇÃO senão CRIANOVAPUBLICACAO
+                (!is_null($statusPublicacao)) ? $this->criaRetificacao($contratohistorico, $sisg)
+                    : $this->criaNovaPublicacao($contratohistorico);
+
+            } else {
+                $publicacao->status = 'ERRO AO TENTAR SUSTAR MATERIA';
+                $publicacao->log = $retorno->out->validaSustacao;
+                $publicacao->status_publicacao_id = $devolvido;
+                $publicacao->save();
+            }
+        }
+    }
+
+
+    private function statusAPublicar($publicacao,$cpf,$contratohistorico,$sisg)
+    {
+        $publicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
+        $statusPublicacao = ContratoPublicacoes::where('contratohistorico_id',$contratohistorico->id)
+                ->where('status_publicacao_id',$publicado)->first();
+
+        (!is_null($statusPublicacao)) ? $this->criaRetificacao($contratohistorico,$sisg) : $this->criaNovaPublicacao($contratohistorico);
+
+    }
+
+
+    private function criaNovaPublicacao($contratohistorico,$create = false)
+    {
+        $texto_dou = @DiarioOficialClass::retornaTextoModelo($contratohistorico);
+
+        $cpf = $this->removeMascaraCPF(backpack_user()->cpf);
+        $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
+        $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao, $create);
+        if (!is_null($texto_dou)){
+            $novaPublicacao = ContratoPublicacoes::create([
+                'contratohistorico_id' => $contratohistorico->id,
+                'data_publicacao' => $contratohistorico->data_publicacao,
+                'status' => ($sisg) ? 'Pendente' : 'informado',
+                'status_publicacao_id' => $situacao->id,
+                'cpf' => $cpf,
+                'texto_dou' => ($texto_dou != '') ? $texto_dou : '',
+                'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
+                'motivo_isencao' =>
+                    ($sisg)
+                        ? $this->retornaIdCodigoItem(
+                        'Motivo Isenção',
+                        'Atos oficiais administrativos, normativos e de pessoal dos ministérios e órgãos subordinados'
+                    )
+                        : ''
+            ]);
+
+            //$this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
+        }
+    }
+
 
     private function atualizaMinutasContrato($contratohistorico)
     {

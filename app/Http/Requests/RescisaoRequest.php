@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Models\Codigoitem;
+use App\Rules\NaoAceitarFeriado;
+use App\Rules\NaoAceitarFimDeSemana;
 use Illuminate\Foundation\Http\FormRequest;
 
 
@@ -30,19 +33,21 @@ class RescisaoRequest extends FormRequest
     {
         $id = $this->id ?? "NULL";
         $unidade_id = $this->unidade_id ?? "NULL";
+        $tipo_id = $this->tipo_id ?? "NULL";
+        $this->data_atual = date('Y-m-d');
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
-        $data_publicacao = ($this->data_publicacao) ? "date|after:{$this->data_limiteinicio}|after_or_equal:data_assinatura" : "" ;
-
-
-        return [
+        $rules = [
             'observacao' => 'required',
             'processo' => 'required',
             'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|after_or_equal:vigencia_inicio",
-            'data_publicacao' => "required|".$data_publicacao,
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+
+        return $rules;
     }
 
     /**
@@ -70,5 +75,34 @@ class RescisaoRequest extends FormRequest
             'data_publicacao.after' => "A :attribute deve ser igual ou posterior a Data da Assinatura!",
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
         ];
+    }
+
+    private function ruleDataPublicacao ($tipo_id = null)
+    {
+        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Outros')
+            ->where('descricao', '<>', 'Empenho')
+            ->orderBy('descricao')
+            ->pluck('id')
+            ->toArray();
+
+        $retorno = [
+            'required',
+            'date'
+        ];
+
+        if (in_array($tipo_id, $arrCodigoItens)) {
+            $retorno = [
+                'required',
+                'date',
+                "after:{$this->data_atual}",
+                "after_or_equal:data_assinatura",
+                new NaoAceitarFeriado(),
+                new NaoAceitarFimDeSemana()
+            ];
+        }
+        return $retorno;
     }
 }

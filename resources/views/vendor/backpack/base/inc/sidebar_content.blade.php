@@ -23,7 +23,7 @@
 
         <ul class="treeview-menu">
             <li>
-                <a href="{{ backpack_url('/gescon/contrato') }}">
+                <a href="{{ backpack_url('/gescon/contrato?situacao=[1]') }}">
                     <i class="fa fa-file-text-o"></i>
                     <span>Contratos</span>
                 </a>
@@ -236,12 +236,12 @@
                     <i class="fa fa-angle-left pull-right"></i>
                 </a>
                 <ul class="treeview-menu">
-                    <li>
-                        <a href="{{ backpack_url('/apropriacao/fatura') }}">
-                            <i class="fa fa-file-text-o"></i>
-                            <span>Fatura</span>
-                        </a>
-                    </li>
+{{--                    <li>--}}
+{{--                        <a href="{{ backpack_url('/apropriacao/fatura') }}">--}}
+{{--                            <i class="fa fa-file-text-o"></i>--}}
+{{--                            <span>Fatura</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
                     <li>
                         <a href="{{ backpack_url('/folha/apropriacao') }}">
                             <i class="fa fa-money"></i>

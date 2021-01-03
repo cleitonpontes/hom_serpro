@@ -232,7 +232,15 @@ class ApostilamentoCrudController extends CrudController
     {
         $contrato = Contrato::find($contrato_id);
 
+        $tipo =   Codigoitem::find($contrato->tipo_id);
+
         $campos = [
+            [   // Hidden
+                'name' => 'tipo_contrato',
+                'type' => 'hidden',
+                'default' => $tipo->descricao,
+                'attributes' => ['id' => 'tipo_contrato']
+            ],
             [   // Hidden
                 'name' => 'receita_despesa',
                 'type' => 'hidden',
@@ -247,6 +255,11 @@ class ApostilamentoCrudController extends CrudController
                 'name' => 'contrato_id',
                 'type' => 'hidden',
                 'default' => $contrato->id,
+            ],
+            [   // Hidden
+                'name' => 'tipo_id',
+                'type' => 'hidden',
+                'default' => $contrato->tipo_id,
             ],
             [   // Hidden
                 'name' => 'fornecedor_id',
@@ -269,6 +282,12 @@ class ApostilamentoCrudController extends CrudController
                 'type' => 'numcontrato',
                 'tab' => 'Dados Gerais',
 
+            ],
+            [   // Date
+                'name' => 'data_publicacao',
+                'label' => 'Data da Publicação',
+                'type' => 'date',
+                'tab' => 'Dados Gerais',
             ],
             [
                 'name' => 'observacao',
