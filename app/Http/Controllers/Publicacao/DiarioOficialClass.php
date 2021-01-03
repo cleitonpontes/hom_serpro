@@ -63,8 +63,8 @@ class DiarioOficialClass extends BaseSoapController
     public function consultaSituacaoOficio($oficio_id,$cpf)
     {
         try {
-            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
-//            $dados ['dados']['CPF'] = $cpf;
+//            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
+            $dados ['dados']['CPF'] = $cpf;
             $dados ['dados']['IDOficio'] = $oficio_id;
 
             return $this->soapClient->ConsultaAcompanhamentoOficio($dados);
@@ -78,8 +78,8 @@ class DiarioOficialClass extends BaseSoapController
         $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
         if(!is_null($publicacao->materia_id)) {
             try {
-            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
-//                $dados ['dados']['CPF'] = $cpf;
+//            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
+                $dados ['dados']['CPF'] = $cpf;
                 $dados ['dados']['IDMateria'] = $publicacao->materia_id;
 
                 return $this->soapClient->SustaMateria($dados);
@@ -183,8 +183,8 @@ class DiarioOficialClass extends BaseSoapController
     {
         $sisg = (isset($contratoHistorico->unidade->sisg)) ? $contratoHistorico->unidade->sisg : '';
 
-        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf;
-//        $dados ['dados']['CPF'] = $cpf;
+//        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf;
+        $dados ['dados']['CPF'] = $cpf;
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
@@ -193,8 +193,8 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
-//        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
-        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
+//        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
         $dados ['dados']['motivoIsencao'] = ($sisg)
                                             ? $this->retornaIdCodigoItem(
                                                 'Motivo Isenção',
@@ -211,8 +211,8 @@ class DiarioOficialClass extends BaseSoapController
     {
         $sisg = (isset($contratoHistorico->unidade->sisg)) ? $contratoHistorico->unidade->sisg : '';
 
-        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf
-//        $dados ['dados']['CPF'] = $cpf;
+//        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf
+        $dados ['dados']['CPF'] = $cpf;
         $dados ['dados']['IDTransacao'] = $contratoHistorico->unidade->nomeresumido . $this->generateRandonNumbers(13);
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
@@ -222,8 +222,8 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
-//        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
-        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
+//        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
         $dados ['dados']['motivoIsencao'] = ($sisg)
             ? $this->retornaIdCodigoItem(
                 'Motivo Isenção',

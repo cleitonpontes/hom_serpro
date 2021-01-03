@@ -203,7 +203,7 @@ class ContratohistoricoObserve
                 ]
             );
 
-            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
+//            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
         }
 
     }
@@ -517,7 +517,7 @@ class ContratohistoricoObserve
                         : ''
             ]);
 
-            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
+            //$this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
         }
     }
 
