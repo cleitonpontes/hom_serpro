@@ -52,7 +52,8 @@ class MinutaEmpenho extends Model
         'unidade_id',
         'valor_total',
         'tipo_empenhopor_id',
-        'contrato_id'
+        'contrato_id',
+        'numero_cipi',
     ];
 
     /*
