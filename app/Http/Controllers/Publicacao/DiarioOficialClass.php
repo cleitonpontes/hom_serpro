@@ -60,10 +60,11 @@ class DiarioOficialClass extends BaseSoapController
         }
     }
 
-    public function consultaSituacaoOficio($oficio_id)
+    public function consultaSituacaoOficio($oficio_id,$cpf)
     {
         try {
             $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
+//            $dados ['dados']['CPF'] = $cpf;
             $dados ['dados']['IDOficio'] = $oficio_id;
 
             return $this->soapClient->ConsultaAcompanhamentoOficio($dados);
@@ -72,8 +73,21 @@ class DiarioOficialClass extends BaseSoapController
         }
     }
 
+    public function sustaMateriaPublicacao($materia_id,$cpf)
+    {
+        try {
+            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
+//            $dados ['dados']['CPF'] = $cpf;
+            $dados ['dados']['IDMateria'] = $materia_id;
 
-    public function oficioPreview($contratohistorico_id)
+            return $this->soapClient->SustaMateria($dados);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+
+    public function enviarMateria($contratohistorico_id)
     {
 
         try {
@@ -106,33 +120,31 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function criaJobsOficioPreviewNovo()
+//    public function criaJobsOficioPreviewNovo()
+//    {
+//        $data = Carbon::createFromFormat('Y-m-d', date('Y-m-d'));
+//
+//        $contratoPublicacoes = ContratoPublicacoes::where('data_publicacao', $data->addDay())
+//            ->orderBy('id', 'desc')
+//            ->get();
+//
+//        foreach ($contratoPublicacoes as $contratoPublicacao) {
+//            PublicaPreviewOficioJob::dispatch($contratoPublicacao)->onQueue('envia_preview_oficio');
+////            $this->enviaPublicacao($contratoPublicacao->contratohistorico, $contratoPublicacao);
+//        }
+//    }
+
+    public function enviaPublicacao($contratoHistorico, $contratoPublicacoes,$retificacao = null,$cpf)
     {
-        $data = Carbon::createFromFormat('Y-m-d', date('Y-m-d'));
+        $arrayPreview = $this->montaOficioPreview($contratoHistorico,$retificacao,$cpf);
 
-        $contratoPublicacoes = ContratoPublicacoes::where('data_publicacao', $data->addDay())
-            ->orderBy('id', 'desc')
-            ->get();
-
-        foreach ($contratoPublicacoes as $contratoPublicacao) {
-            PublicaPreviewOficioJob::dispatch($contratoPublicacao)->onQueue('envia_preview_oficio');
-//            $this->enviaPublicacao($contratoPublicacao->contratohistorico, $contratoPublicacao);
-        }
-    }
-
-    private function enviaPublicacao($contratoHistorico, $contratoPublicacoes)
-    {
-//        dd(session()->all());
-        $arrayPreview = $this->montaOficioPreview($contratoHistorico);
-//        dump($arrayPreview);
         $responsePreview = $this->soapClient->OficioPreview($arrayPreview);
-//        dd($responsePreview);
 
         if (!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)) {
             $contratoPublicacoes->status = 'Erro Preview!';
             $contratoPublicacoes->status_publicacao_id = self::retornaIdCodigoItem('Situacao Publicacao','DEVOLVIDO PELA IMPRENSA');
             $contratoPublicacoes->log = $this->retornaErroValidacoesDOU($responsePreview);
-            $contratoPublicacoes->texto_dou = $this->retornaTextoRtf($contratoHistorico);
+            $contratoPublicacoes->texto_dou = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
 
             $contratoPublicacoes->save();
 
@@ -140,17 +152,16 @@ class DiarioOficialClass extends BaseSoapController
         }
 
         $contratoPublicacoes->status = 'Preview';
-        $contratoPublicacoes->texto_dou = self::retornaTextoModelo($contratoHistorico);
+        $contratoPublicacoes->texto_dou = (!is_null($retificacao)) ?  $retificacao : $this->retornaTextoRtf($contratoHistorico);
         $contratoPublicacoes->save();
 
-        $this->oficioConfirmacao($contratoHistorico, $contratoPublicacoes);
+        $this->oficioConfirmacao($contratoHistorico, $contratoPublicacoes,$retificacao,$cpf);
 
         return true;
     }
 
     public function retornaErroValidacoesDOU($responsePreview)
     {
-
         $erro = 'VERIFICAR : ';
         $erro .= ($responsePreview->out->validacaoCliente != "OK") ? 'CLENTE: ' . $responsePreview->out->validacaoCliente . ' | ' : '';
         $erro .= ($responsePreview->out->validacaoDataPublicacao != "OK") ? 'DATA PUBLICACAO: ' . $responsePreview->out->validacaoDataPublicacao . ' | ' : '';
@@ -164,12 +175,13 @@ class DiarioOficialClass extends BaseSoapController
         return $erro;
     }
 
-    public function oficioConfirmacao(Contratohistorico $contratoHistorico, ContratoPublicacoes $contratoPublicacoes)
+    public function oficioConfirmacao(Contratohistorico $contratoHistorico, ContratoPublicacoes $contratoPublicacoes,$retificacao,$cpf)
     {
         try {
-            $arrayConfirmacao = $this->montaOficioConfirmacao($contratoHistorico);
+            $arrayConfirmacao = $this->montaOficioConfirmacao($contratoHistorico,$retificacao,$cpf);
 
             $responseConfirmacao = $this->soapClient->OficioConfirmacao($arrayConfirmacao);
+
             if (!isset($responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao)) {
                 $contratoPublicacoes->status = 'Erro Ofício!';
 
@@ -181,7 +193,7 @@ class DiarioOficialClass extends BaseSoapController
             }
 
             $contratoPublicacoes->status = 'Oficio';
-            $contratoPublicacoes->status_publicacao_id = self::retornaIdCodigoItem('Situacao Publicacao','PUBLICADO');
+            $contratoPublicacoes->status_publicacao_id = self::retornaIdCodigoItem('Situacao Publicacao','TRANSFERIDO PARA IMPRENSA');
             $contratoPublicacoes->transacao_id = $arrayConfirmacao['dados']['IDTransacao'];
             $contratoPublicacoes->materia_id = $responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDMateria;
             $contratoPublicacoes->oficio_id = $responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDOficio;
@@ -197,18 +209,18 @@ class DiarioOficialClass extends BaseSoapController
 
     }
 
-    public function montaOficioPreview(Contratohistorico $contratoHistorico)
+    public function montaOficioPreview(Contratohistorico $contratoHistorico,$retificacao = null,$cpf)
     {
         $sisg = (isset($contratoHistorico->unidade->sisg)) ? $contratoHistorico->unidade->sisg : '';
 
-        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
+        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf;
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaIdCodigoItem('Forma Pagamento', 'Isento');
+        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
-        $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($contratoHistorico);
+        $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134;
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
         $dados ['dados']['motivoIsencao'] = ($sisg)
@@ -223,19 +235,19 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function montaOficioConfirmacao(Contratohistorico $contratoHistorico)
+    public function montaOficioConfirmacao(Contratohistorico $contratoHistorico,$retificacao = null,$cpf)
     {
         $sisg = (isset($contratoHistorico->unidade->sisg)) ? $contratoHistorico->unidade->sisg : '';
 
-        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
+        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf
         $dados ['dados']['IDTransacao'] = $contratoHistorico->unidade->nomeresumido . $this->generateRandonNumbers(13);
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaIdCodigoItem('Forma Pagamento', 'Isento');
+        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
-        $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaTextoRtf($contratoHistorico);
+        $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = 134;
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
         $dados ['dados']['motivoIsencao'] = ($sisg)
@@ -308,11 +320,19 @@ class DiarioOficialClass extends BaseSoapController
 
     public function retornaTextoRtf(Contratohistorico $contratoHistorico)
     {
-
         $textoCabecalho = $this->retornaCabecalhoRtf();
         //todo buscar texto_dou para converter para RTF
         $textomodelo = self::retornaTextoModelo($contratoHistorico);
         $texto = $this->converteTextoParaRtf($textomodelo);
+        $texto = $textoCabecalho . substr($texto, strripos($texto, '##ATO'));
+
+        return $texto;
+    }
+
+    public function retornaRtfRetificacao($retificacao)
+    {
+        $textoCabecalho = $this->retornaCabecalhoRtf();
+        $texto = $this->converteTextoParaRtf($retificacao);
         $texto = $textoCabecalho . substr($texto, strripos($texto, '##ATO'));
 
         return $texto;
@@ -400,6 +420,7 @@ class DiarioOficialClass extends BaseSoapController
 
     public static function retornaTextoModelorAditivo(Contratohistorico $contratoHistorico)
     {
+
         $data = date('d/m/Y');
         $unidade = ($contratoHistorico->getUnidadeOrigem())?$contratoHistorico->getUnidadeOrigem():$contratoHistorico->getUnidade();
 
@@ -496,17 +517,16 @@ class DiarioOficialClass extends BaseSoapController
         foreach ($publicacoes as $publicacao) {
             if (isset($publicacao->id)) {
                 AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
-//                $this->testaAtualizacaoStatusPublicacao($publicacao);
             }
         }
 
     }
 
 
-    public function testaAtualizacaoStatusPublicacao($publicacao)
+    public function atualizaStatusPublicacao($publicacao,$cpf)
     {
-        $retorno = $this->consultaSituacaoOficio($publicacao->oficio_id);
-
+        $retorno = $this->consultaSituacaoOficio($publicacao->oficio_id,$cpf);
+        dd($retorno);
         if ($retorno->out->validacaoIdOficio == "OK") {
             $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
             if ($status != "PUBLICADA") {
@@ -517,6 +537,7 @@ class DiarioOficialClass extends BaseSoapController
                 $this->atualizaPublicacao($publicacao, $retorno, $tipoSituacao);
             }
         }
+        return $publicacao;
     }
 
 
@@ -538,12 +559,42 @@ class DiarioOficialClass extends BaseSoapController
 
     }
 
+
+//    public function sustaMateriaPublicacao($publicacao,$cpf)
+//    {
+//        $cpf = '';
+//        $retorno = $this->sustaMateriaPublicacao($publicacao->materia_id,);
+//
+//        if ($retorno->out->validacaoIdOficio == "OK") {
+//            $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
+//            if ($status != "PUBLICADA") {
+//                $tipoSituacao = 'TRANSFERIDO PARA IMPRENSA';
+//                $this->atualizaPublicacao($publicacao, $retorno, $tipoSituacao);
+//            } else {
+//                $tipoSituacao = 'PUBLICADO';
+//                $this->atualizaPublicacao($publicacao, $retorno, $tipoSituacao);
+//            }
+//        }
+//        return $publicacao;
+//    }
+
+
+
     private static function retornaDataFormatada($data)
     {
         $date = new \DateTime($data);
         return date_format($date, 'd/m/Y');
     }
 
+
+    private function retornaCodigoItem($descCodigo, $descCodItem)
+    {
+        return Codigoitem::whereHas('codigo', function ($query) use ($descCodigo) {
+            $query->where('descricao', '=', $descCodigo);
+        })
+            ->where('descricao', '=', $descCodItem)
+            ->first();
+    }
 
     private static function retornaIdCodigoItem($descCodigo, $descCodItem)
     {
@@ -735,7 +786,6 @@ class DiarioOficialClass extends BaseSoapController
 
     private static function retornaAlteracoes($contratoHistorico)
     {
-
         $arrayContratos = self::retornaContratosPermitidos();
 
         $tipocontrato = $contratoHistorico->getTipo();
