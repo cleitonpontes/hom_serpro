@@ -9,6 +9,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 use App\Http\Controllers\AdminController;
 use Faker\ORM\Spot\EntityPopulator;
+
 // use Illuminate\Database\Eloquent\SoftDeletes;
 use function foo\func;
 
@@ -16,6 +17,7 @@ class Contrato extends Model
 {
     use CrudTrait;
     use LogsActivity;
+
     // use SoftDeletes;
 
     protected static $logFillable = true;
@@ -311,7 +313,7 @@ class Contrato extends Model
 
     public function getUnidadeOrigem()
     {
-        if(!isset($this->unidadeorigem_id)){
+        if (!isset($this->unidadeorigem_id)) {
             return '';
         }
 
@@ -320,7 +322,7 @@ class Contrato extends Model
 
     public function getUnidadeCompra()
     {
-        if(!isset($this->unidadecompra_id)){
+        if (!isset($this->unidadecompra_id)) {
             return '';
         }
 
@@ -373,35 +375,34 @@ class Contrato extends Model
         $amparo = "";
         $cont = (is_array($this->amparoslegais)) ? count($this->amparoslegais) : 0;
 
-        foreach ($this->amparoslegais as $key => $value){
-
-            if($cont < 2){
+        foreach ($this->amparoslegais as $key => $value) {
+            if ($cont < 2) {
                 $amparo .= $value->ato_normativo;
-                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
-                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
-                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
-                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: " . $value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: " . $value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: " . $value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: " . $value->alinea : "";
             }
-            if($key == 0 && $cont > 1){
+            if ($key == 0 && $cont > 1) {
                 $amparo .= $value->ato_normativo;
-                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
-                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
-                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
-                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: " . $value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: " . $value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: " . $value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: " . $value->alinea : "";
             }
-            if($key > 0 && $key < ($cont - 1)){
-                $amparo .= ", ".$value->ato_normativo;
-                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
-                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
-                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
-                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
+            if ($key > 0 && $key < ($cont - 1)) {
+                $amparo .= ", " . $value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: " . $value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: " . $value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: " . $value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: " . $value->alinea : "";
             }
-            if($key == ($cont - 1)){
-                $amparo .= " e ".$value->ato_normativo;
-                $amparo .= (!is_null($value->artigo)) ? " - Artigo: ".$value->artigo : "";
-                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: ".$value->paragrafo : "";
-                $amparo .= (!is_null($value->inciso)) ? " - Inciso: ".$value->inciso : "";
-                $amparo .= (!is_null($value->alinea)) ? " - Alinea: ".$value->alinea : "";
+            if ($key == ($cont - 1)) {
+                $amparo .= " e " . $value->ato_normativo;
+                $amparo .= (!is_null($value->artigo)) ? " - Artigo: " . $value->artigo : "";
+                $amparo .= (!is_null($value->paragrafo)) ? " - Parágrafo: " . $value->paragrafo : "";
+                $amparo .= (!is_null($value->inciso)) ? " - Inciso: " . $value->inciso : "";
+                $amparo .= (!is_null($value->alinea)) ? " - Alinea: " . $value->alinea : "";
             }
         }
 
@@ -490,7 +491,6 @@ class Contrato extends Model
                 'arquivos' => url('/api/contrato/' . $this->id . '/arquivos/'),
             ]
         ];
-
     }
 
     /*
@@ -577,7 +577,7 @@ class Contrato extends Model
     public function responsaveis()
     {
         return $this->hasMany(Contratoresponsavel::class, 'contrato_id');
-            // ->where('situacao', true);
+        // ->where('situacao', true);
     }
 
     public function terceirizados()
@@ -641,6 +641,11 @@ class Contrato extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getLicitacaoNumeroLimpaAttribute()
+    {
+        return str_replace('/', '', $this->licitacao_numero);
+    }
 
     /*
     |--------------------------------------------------------------------------

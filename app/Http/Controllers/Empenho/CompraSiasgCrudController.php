@@ -180,24 +180,18 @@ class CompraSiasgCrudController extends CrudController
         //BUSCAR COMPRA por CONTRATO
         if ($request->tipoEmpenho == 1) {
             $contrato = Contrato::find($request->id);
-            $dadosContrato = $this->consultaContratoSiasg($contrato);
 
-
-            if (is_null($dadosContrato->data)) {
-                return redirect('/empenho/buscacompra')->with('alert-warning', $dadosContrato->messagem);
-            }
 
             $params = [
-                'modalidade' => $dadosContrato->data->dadosContrato->modLicitacao,
-                'numeroAno' => $dadosContrato->data->dadosContrato->numLicitacao,
-                'uasgCompra' => $dadosContrato->data->dadosContrato->uasg,
+                'modalidade' => $contrato->modalidade->descres,
+                'numeroAno' => $contrato->licitacao_numero_limpa,
+                'uasgCompra' => $contrato->unidadecompra->codigo,
                 'uasgUsuario' => session('user_ug')
             ];
 
             //pegar a compra
             $apiSiasg = new ApiSiasg();
             $retorno_compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
-//            dd($contrato, $dadosContrato, $params, $retorno_compra);
 
             if (is_null($retorno_compra->data)) {
                 $compra = $this->verificaCompraExisteParamContrato($contrato);
@@ -217,7 +211,7 @@ class CompraSiasgCrudController extends CrudController
 
             $request->request->set('numero_ano', $contrato->numero);
             $request->request->set('unidade_origem_id', $contrato->unidadeorigem_id);
-            $request->request->set('modalidade_id', $dadosContrato->data->dadosContrato->modLicitacao);
+            $request->request->set('modalidade_id', $contrato->modalidade->id);
 
             $this->montaParametrosCompra($retorno_compra, $request);
 
@@ -238,9 +232,6 @@ class CompraSiasgCrudController extends CrudController
 
                 if ($retorno_compra->data->compraSispp->tipoCompra == 2) {
                     $this->gravaParametroItensdaCompraSISRP($retorno_compra, $compra);
-                    if (!is_null($retorno_compra->data->linkSisrpCompleto)) {
-//                        dd($retorno_compra->data->linkSisrpCompleto);
-                    }
                 }
 
                 $tipo_empenhopor = Codigoitem::where('descricao', '=', 'Contrato')
