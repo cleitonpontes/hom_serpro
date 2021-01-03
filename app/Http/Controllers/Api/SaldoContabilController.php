@@ -127,7 +127,7 @@ class SaldoContabilController extends Controller
         $contacorrente = "N".$saldo->conta_corrente;
         $system_user = env('USUARIO_SIAFI');
         $pwd = env('SENHA_SIAFI');
-        $mes = $meses[(int) date('m')];//$meses[(int) $registro['mes']];
+        $mes = $meses[(int) config('app.mes_minuta_empenho')];//$meses[(int) $registro['mes']];
 
 //        $contacorrente = 'N11184940100000000339039        AGU0042'; //DESCOMENTE PARA TESTAR A ATUALIZACAO DO SALDO POR LINHA
 
