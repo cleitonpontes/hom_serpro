@@ -43,6 +43,7 @@ class ContratoController extends Controller
                     [
                         ['unidade_id', '=', session()->get('user_ug_id')],
                         ['situacao', '=', true],
+                        ['unidadecompra_id', '<>', null],
                         ['numero', 'LIKE', "%$search_term%"]
                     ]
                 )
@@ -50,6 +51,7 @@ class ContratoController extends Controller
                 ->orderby('fornecedores.nome', 'asc')
                 ->paginate(20);
 
+            dd($results);
              return $results;
         }
 
