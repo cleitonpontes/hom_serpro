@@ -20,11 +20,43 @@ trait CompraTrait
 //        dd($compraitem_id);
 //        $teste = CompraItemMinutaEmpenho::select(
         return CompraItemMinutaEmpenho::select(
-            DB::raw('CASE
-                           WHEN compra_item_unidade.quantidade_autorizada - sum(compra_item_minuta_empenho.quantidade) IS NOT NULL
-                               THEN compra_item_unidade.quantidade_autorizada - sum(compra_item_minuta_empenho.quantidade)
-                           ELSE compra_item_unidade.quantidade_autorizada
-                           END AS saldo')
+            DB::raw("
+            CASE
+           WHEN
+                   compra_item_unidade.quantidade_autorizada
+                   - (
+                       select sum(cime.quantidade)
+                       from compra_item_minuta_empenho cime
+                                join minutaempenhos m on cime.minutaempenho_id = m.id
+                                left join contrato_minuta_empenho_pivot cmep on m.id = cmep.minuta_empenho_id
+                       where cime.compra_item_id = $compraitem_id
+                         and cmep.contrato_id is null
+                   )
+                   - (
+                       select sum(quantidade)
+                       from contratoitens
+                                join compras_item_unidade_contratoitens ciuc on contratoitens.id = ciuc.contratoitem_id
+                       where ciuc.compra_item_unidade_id = compra_item_unidade.id
+                   ) IS NOT NULL then
+                   compra_item_unidade.quantidade_autorizada
+                   - (
+                       select sum(cime.quantidade)
+                       from compra_item_minuta_empenho cime
+                                join minutaempenhos m on cime.minutaempenho_id = m.id
+                                left join contrato_minuta_empenho_pivot cmep on m.id = cmep.minuta_empenho_id
+                       where cime.compra_item_id = $compraitem_id
+                         and cmep.contrato_id is null
+                   )
+                   - (
+                       select sum(quantidade)
+                       from contratoitens
+                                join compras_item_unidade_contratoitens ciuc on contratoitens.id = ciuc.contratoitem_id
+                       where ciuc.compra_item_unidade_id = compra_item_unidade.id
+                   )
+
+           ELSE compra_item_unidade.quantidade_autorizada
+           END AS saldo
+            ")
         )
             ->join(
                 'compra_items',
@@ -39,9 +71,9 @@ trait CompraTrait
                 'compra_items.id'
             )
             ->where('compra_item_unidade.compra_item_id', $compraitem_id)
-            ->groupBy('compra_item_unidade.quantidade_autorizada')
+            ->groupBy('compra_item_unidade.quantidade_autorizada','compra_item_unidade.id')
             ->first();
-//        ;dd($teste->getBindings(),$teste->toSql());
+//        ;dd($teste->getBindings(),$teste->toSql(), $teste->first());
     }
 
 
@@ -231,6 +263,7 @@ trait CompraTrait
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem_id);
+
         $compraItemUnidade->quantidade_saldo = $saldo->saldo;
         $compraItemUnidade->save();
     }
