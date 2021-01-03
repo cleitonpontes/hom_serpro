@@ -374,8 +374,6 @@ class ContratohistoricoObserve
             $arrayDefault['situacao'] = $arrayhistorico['situacao'];
         }
 
-        dd($arrayDefault);
-
         return $arrayDefault;
     }
 
