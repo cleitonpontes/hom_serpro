@@ -87,7 +87,7 @@ class ContratohistoricoObserve
 
 
         //-------------------------------------------JOB-----------------------------------------------------------
-        if($contratohistorico->publicado){
+        if($contratohistorico->publicado && ($contratohistorico->publicacao->count() == 0)){
             $this->executaAtualizacaoViaJob($contratohistorico);
             return true;
         }
@@ -125,28 +125,11 @@ class ContratohistoricoObserve
 
     }
 
-    public function verificaPublicacaoImportada($publicacao,$contratohistorico)
-    {
-        $retorno = false;
-
-        $publicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
-
-        if(($publicacao->status == "Importado") && ($publicacao->status_publicacao_id == $publicado)) {
-
-            $publicacao->status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'MATERIA SUSTADA');
-            $publicacao->save();
-
-            $this->criaNovaPublicacao($contratohistorico,true);
-
-            $retorno = true;
-        }
-        return $retorno;
-    }
 
     public function verificaStatusPublicacao($publicacao,$contratohistorico,$sisg)
     {
 
-        $importado = $this->verificaPublicacaoImportada($publicacao,$contratohistorico);
+        $importado = $this->verificaPublicacaoImportada($publicacao,$contratohistorico,$sisg);
 
         if(!$importado) {
 
@@ -165,6 +148,26 @@ class ContratohistoricoObserve
         }
 
     }
+
+
+    public function verificaPublicacaoImportada($publicacao,$contratohistorico,$sisg)
+    {
+        $retorno = false;
+
+        $publicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
+
+        if(($publicacao->status == "Importado") && ($publicacao->status_publicacao_id == $publicado)) {
+
+//            $publicacao->status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'MATERIA SUSTADA');
+//            $publicacao->save();
+//            $this->criaNovaPublicacao($contratohistorico,true);
+            $this->criaRetificacao($contratohistorico,$sisg);
+
+            $retorno = true;
+        }
+        return $retorno;
+    }
+
 
     private function executaAtualizacaoViaJob($contratohistorico)
     {
@@ -187,6 +190,7 @@ class ContratohistoricoObserve
     private function criaRetificacao($contratohistorico,$sisg)
     {
         $texto_dou = @DiarioOficialClass::retornaTextoretificacao($contratohistorico);
+
         $cpf = $this->removeMascaraCPF(backpack_user()->cpf);
 
         if(!is_null($texto_dou)) {
