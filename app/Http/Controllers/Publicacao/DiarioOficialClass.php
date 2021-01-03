@@ -296,7 +296,8 @@ class DiarioOficialClass extends BaseSoapController
     {
         $textoCabecalho = $this->retornaCabecalhoRtf();
         $textomodelo = self::retornaTextoModelo($contratoHistorico);
-        $textomodelo .= $textomodelo.'\n ##OFI COMPRASNET 4.0 - '.date('d-m-Y').'.';
+//        $textomodelo .= $textomodelo.'\n ##OFI COMPRASNET 4.0 - '.date('d-m-Y').'.';
+        $textomodelo .= $textomodelo;
         $texto = $this->converteTextoParaRtf($textomodelo);
         $texto = $textoCabecalho . substr($texto, strripos($texto, '##ATO'));
 
@@ -305,7 +306,8 @@ class DiarioOficialClass extends BaseSoapController
 
     public function retornaRtfRetificacao($retificacao)
     {
-        $retificacao .= $retificacao.'\n ##OFI COMPRASNET 4.0 - '.date('d-m-Y').'.';
+//        $retificacao .= $retificacao.'\n ##OFI COMPRASNET 4.0 - '.date('d-m-Y').'.';
+        $retificacao .= $retificacao;
         $textoCabecalho = $this->retornaCabecalhoRtf();
         $texto = $this->converteTextoParaRtf($retificacao);
         $texto = $textoCabecalho . substr($texto, strripos($texto, '##ATO'));
@@ -386,7 +388,7 @@ class DiarioOficialClass extends BaseSoapController
         $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETVIGENCIAFIM|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoContrato);
         $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', $contratoHistorico->valor_global, $padraoPublicacaoContrato);
         $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_DATA_ASSINATURA|', self::retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoContrato);
-//        $padraoPublicacaoContrato = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoContrato);
+        $padraoPublicacaoContrato = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoContrato);
 
         return $padraoPublicacaoContrato;
     }
@@ -424,7 +426,7 @@ class DiarioOficialClass extends BaseSoapController
 //        $padraoPublicacaoAditivo = str_replace('|numero_empenho|', $this->retornaNumeroEmpenho($contratoHistorico)['texto'], $padraoPublicacaoAditivo);
         $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', $contratoHistorico->valor_global, $padraoPublicacaoAditivo);
         $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_DATA_ASSINATURA|', self::retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoAditivo);
-//        $padraoPublicacaoAditivo = str_replace('|DATA_ASSINATURA_SISTEMA|',$data, $padraoPublicacaoAditivo);
+        $padraoPublicacaoAditivo = str_replace('|DATA_ASSINATURA_SISTEMA|',$data, $padraoPublicacaoAditivo);
 
         return $padraoPublicacaoAditivo;
     }
@@ -442,7 +444,7 @@ class DiarioOficialClass extends BaseSoapController
         $padraoPublicacaoApostilamento = $padrao->texto_padrao;
 
         $padraoPublicacaoApostilamento = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->observacao, $padraoPublicacaoApostilamento);
-//        $padraoPublicacaoApostilamento = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoApostilamento);
+        $padraoPublicacaoApostilamento = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoApostilamento);
 
         return $padraoPublicacaoApostilamento;
     }
@@ -467,7 +469,7 @@ class DiarioOficialClass extends BaseSoapController
         $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->observacao, $padraoPublicacaoRecisao);
         $padraoPublicacaoRecisao = str_replace('|CONTRATO_RETORNAAMPARO|', $contrato->retornaAmparo(), $padraoPublicacaoRecisao);
         $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_DATA_PUBLICACAO|', self::retornaDataFormatada($contratoHistorico->data_publicacao), $padraoPublicacaoRecisao);
-//        $padraoPublicacaoRecisao = str_replace('|DATA_ASSINATURA_SISTEMA|', $data,$padraoPublicacaoRecisao);
+        $padraoPublicacaoRecisao = str_replace('|DATA_ASSINATURA_SISTEMA|', $data,$padraoPublicacaoRecisao);
 
         return $padraoPublicacaoRecisao;
     }
@@ -603,7 +605,7 @@ class DiarioOficialClass extends BaseSoapController
             $padraoPublicacaoRetificacao = str_replace('|CONTRATOHISTORICO_DATA_PUBLICACAO|', $contratoHistorico->data_publicacao, $padraoPublicacaoRetificacao);
             $padraoPublicacaoRetificacao = str_replace('|PAGINA|', $pagina, $padraoPublicacaoRetificacao);
             $padraoPublicacaoRetificacao = str_replace('|RETIFICACAO|', $retificacoes, $padraoPublicacaoRetificacao);
-//            $padraoPublicacaoRetificacao = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoRetificacao);
+            $padraoPublicacaoRetificacao = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoRetificacao);
 
             return $padraoPublicacaoRetificacao;
         }
