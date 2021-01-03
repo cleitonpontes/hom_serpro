@@ -321,7 +321,7 @@ class ContratohistoricoObserve
             'valor_parcela' => $arrayhistorico['valor_parcela'],
             'publicado' =>  $arrayhistorico['publicado'],
         ];
-        (isset($arrayhistorico['situacao'])) ? $arrayAditivo['situacao'] = $arrayhistorico['situacao'] : "";
+//        (isset($arrayhistorico['situacao'])) ? $arrayAditivo['situacao'] = $arrayhistorico['situacao'] : "";
         return $arrayAditivo;
     }
 
