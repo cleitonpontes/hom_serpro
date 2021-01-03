@@ -45,9 +45,10 @@ Route::group([
 ], function () {
 //    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
     Route::get('/consulta-feriado', 'DiarioOficialClass@consultaTodosFeriado')->name('soap.consulta.feriado');
-    Route::get('/consulta-situacao', 'DiarioOficialClass@executaJobAtualizaSituacaoPublicacao')->name('soap.consulta.situacao');
-    Route::get('/enviar-materia/{contratohistorico_id?}', 'DiarioOficialClass@oficioPreview')->name('soap.oficio.preview');
-    Route::get('/oficio-preview-novo/{contrato_id?}', 'DiarioOficialClass@oficioPreviewNovo')->name('soap.oficio.preview');
+    Route::get('/consulta-situacao/{publicacao_id?}', 'DiarioOficialClass@atualizaStatusPublicacao')->name('publicacao.consulta.situacao');
+    Route::get('/enviar-materia/{contratohistorico_id?}', 'DiarioOficialClass@enviaPublicacao')->name('publicacao.enviar.materia');
+    Route::get('/reenviar-materia/{publicacao_id?}', 'DiarioOficialClass@reenviarPublicacao')->name('publicacao.reenviar.materia');
+    Route::get('/reenviar-materia/{materia_id?}/{cpf}', 'DiarioOficialClass@sustaMateriaPublicacao')->name('publicacao.sustar.materia');
 });
 
 

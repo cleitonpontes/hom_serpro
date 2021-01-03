@@ -45,7 +45,7 @@ class AtualizaSituacaoPublicacaoJob implements ShouldQueue
         DB::beginTransaction();
         try {
 
-            $retorno = $this->diarioOficial->consultaSituacaoOficio($this->publicacao->id,config('publicacao.usuario_publicacao'));
+            $retorno = $this->diarioOficial->consultaSituacaoOficio($this->publicacao->oficio_id,config('publicacao.usuario_publicacao'));
 
             if($retorno->out->validacaoIdOficio == "OK"){
 
