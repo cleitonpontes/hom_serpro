@@ -42,7 +42,7 @@ class ContratoRequest extends FormRequest
         $this->data_atual = date('Y-m-d');
         $this->minutasempenho = $this->minutasempenho ?? [];
 
-        return [
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratos', 'numero'))
@@ -80,14 +80,6 @@ class ContratoRequest extends FormRequest
             }),
 
             'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:{$this->data_atual}",
-            'data_publicacao' => [
-                'required',
-                'date',
-                "after:{$this->data_atual}",
-                "after_or_equal:data_assinatura",
-                new NaoAceitarFeriado(),
-                new NaoAceitarFimDeSemana()
-            ],
             'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
             'valor_global' => 'required',
@@ -97,6 +89,9 @@ class ContratoRequest extends FormRequest
 //            'arquivos' => 'file|mimes:pdf',
             'situacao' => 'required',
         ];
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+
+        return $rules;
     }
 
     /**
@@ -142,5 +137,34 @@ class ContratoRequest extends FormRequest
             'vigencia_fim.required' => 'O campo data fim da vigência é obrigatório.',
             'valor_parcela.required' => 'O campo valor da parcela é obrigatório.',
         ];
+    }
+
+    private function ruleDataPublicacao ($tipo_id = null)
+    {
+        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo de Contrato');
+        })
+            ->where('descricao', '<>', 'Outros')
+            ->where('descricao', '<>', 'Empenho')
+            ->orderBy('descricao')
+            ->pluck('id')
+            ->toArray();
+
+        $retorno = [
+            'required',
+            'date'
+        ];
+
+        if (in_array($tipo_id, $arrCodigoItens)) {
+            $retorno = [
+                'required',
+                'date',
+                "after:{$this->data_atual}",
+                "after_or_equal:data_assinatura",
+                new NaoAceitarFeriado(),
+                new NaoAceitarFimDeSemana()
+            ];
+        }
+        return $retorno;
     }
 }

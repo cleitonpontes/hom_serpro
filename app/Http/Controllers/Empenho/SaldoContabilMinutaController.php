@@ -106,7 +106,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $minuta_id = Route::current()->parameter('minuta_id');
 
         $unidade = Unidade::where('codigo', session('user_ug'))->first();
-        $ano = date('Y');
+        $ano = config('app.ano_minuta_empenho');
         $ug = $unidade->codigo;
         $gestao = $unidade->gestao;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
@@ -158,7 +158,7 @@ class SaldoContabilMinutaController extends BaseControllerEmpenho
         $conta_corrente = $this->retornaContaCorrente($request);
         $saldo = $request->get('valor');
         $unidade_id = $request->get('unidade_id');
-        $ano = date('Y');
+        $ano = config('app.ano_minuta_empenho');
         $contacontabil = config('app.conta_contabil_credito_disponivel');
         $modSaldo = new SaldoContabil();
         $modSaldo->unidade_id = $unidade_id;

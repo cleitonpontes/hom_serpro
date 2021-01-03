@@ -74,7 +74,7 @@ class ContratoPublicacoes extends ContratoBase
         return $this->belongsTo(Contratohistorico::class, 'contratohistorico_id');
     }
 
-    public function statusPublicacao()
+    public function status_publicacao()
     {
         return $this->belongsTo(Codigoitem::class,'status_publicacao_id');
     }
@@ -94,7 +94,12 @@ class ContratoPublicacoes extends ContratoBase
 
     public function getStatusPublicacaoAttribute()
     {
-        return $this->statusPublicacao()->first()->descricao;
+        return $this->status_publicacao()->first()->descricao;
+    }
+
+    public function getStatusPublicacaoDescresAttribute()
+    {
+        return $this->status_publicacao()->first()->descres;
     }
 
     public function getTipoPublicacaoAttribute()

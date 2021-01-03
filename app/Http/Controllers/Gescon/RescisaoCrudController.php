@@ -172,13 +172,24 @@ class RescisaoCrudController extends CrudController
     public function Campos($fornecedores, $tipo, $contrato_id, $unidade)
     {
         $contrato = Contrato::find($contrato_id);
+        $tipo =   Codigoitem::find($contrato->tipo_id);
 
         $campos = [
-
+            [   // Hidden
+                'name' => 'tipo_contrato',
+                'type' => 'hidden',
+                'default' => $tipo->descricao,
+                'attributes' => ['id' => 'tipo_contrato']
+            ],
             [   // Hidden
                 'name' => 'receita_despesa',
                 'type' => 'hidden',
                 'default' => $contrato->receita_despesa,
+            ],
+            [   // Hidden
+                'name' => 'tipo_id',
+                'type' => 'hidden',
+                'default' => $contrato->tipo_id,
             ],
             [   // Hidden
                 'name' => 'contrato_id',

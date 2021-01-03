@@ -49,6 +49,8 @@
                     @include('crud::inc.form_aba_buttons_aditivo')
             @elseif(Route::current()->getName() == 'crud.apostilamentos.create')
                     @include('crud::inc.form_aba_buttons_apostilamentos')
+            @elseif(Route::current()->getName() == 'crud.rescisao.create')
+                    @include('crud::inc.form_aba_buttons_rescisao')
             @elseif(Route::current()->getName() == 'crud.retiradacontratoconta.create')
                 @include('crud::inc.form_retiradacontratoconta_buttons')
             @elseif(Route::current()->getName() == 'crud.repactuacaocontratoconta.create')
