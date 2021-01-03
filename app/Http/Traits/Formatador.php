@@ -165,4 +165,11 @@ trait Formatador
 
         return $retorno;
     }
+
+    public function removeMascaraCPF($cpfComMask)
+    {
+        $cpf = str_replace('.', '',$cpfComMask);
+        $cpf = str_replace('-', '',$cpf);
+        return $cpf;
+    }
 }

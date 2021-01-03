@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 class AtualizaSituacaoPublicacaoJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
+    use Formatador;
 
     /**
      * @var ContratoPublicacoes
@@ -45,7 +45,7 @@ class AtualizaSituacaoPublicacaoJob implements ShouldQueue
         DB::beginTransaction();
         try {
 
-            $retorno = $this->diarioOficial->consultaSituacaoOficio($this->publicacao->id);
+            $retorno = $this->diarioOficial->consultaSituacaoOficio($this->publicacao->oficio_id,config('publicacao.usuario_publicacao'));
 
             if($retorno->out->validacaoIdOficio == "OK"){
 
