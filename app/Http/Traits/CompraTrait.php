@@ -21,41 +21,22 @@ trait CompraTrait
 //        $teste = CompraItemMinutaEmpenho::select(
         return CompraItemMinutaEmpenho::select(
             DB::raw("
-            CASE
-           WHEN
-                   compra_item_unidade.quantidade_autorizada
-                   - (
-                       select sum(cime.quantidade)
-                       from compra_item_minuta_empenho cime
-                                join minutaempenhos m on cime.minutaempenho_id = m.id
-                                left join contrato_minuta_empenho_pivot cmep on m.id = cmep.minuta_empenho_id
-                       where cime.compra_item_id = $compraitem_id
-                         and cmep.contrato_id is null
-                   )
-                   - (
-                       select sum(quantidade)
-                       from contratoitens
-                                join compras_item_unidade_contratoitens ciuc on contratoitens.id = ciuc.contratoitem_id
-                       where ciuc.compra_item_unidade_id = compra_item_unidade.id
-                   ) IS NOT NULL then
-                   compra_item_unidade.quantidade_autorizada
-                   - (
-                       select sum(cime.quantidade)
-                       from compra_item_minuta_empenho cime
-                                join minutaempenhos m on cime.minutaempenho_id = m.id
-                                left join contrato_minuta_empenho_pivot cmep on m.id = cmep.minuta_empenho_id
-                       where cime.compra_item_id = $compraitem_id
-                         and cmep.contrato_id is null
-                   )
-                   - (
-                       select sum(quantidade)
-                       from contratoitens
-                                join compras_item_unidade_contratoitens ciuc on contratoitens.id = ciuc.contratoitem_id
-                       where ciuc.compra_item_unidade_id = compra_item_unidade.id
-                   )
-
-           ELSE compra_item_unidade.quantidade_autorizada
-           END AS saldo
+            coalesce(coalesce(compra_item_unidade.quantidade_autorizada, 0)
+                    - (
+                    select coalesce(sum(cime.quantidade), 0)
+                    from compra_item_minuta_empenho cime
+                             join minutaempenhos m on cime.minutaempenho_id = m.id
+                             left join contrato_minuta_empenho_pivot cmep on m.id = cmep.minuta_empenho_id
+                    where cime.compra_item_id = $compraitem_id
+                      and cmep.contrato_id is null
+                )
+                    - (
+                    select coalesce(sum(quantidade), 0)
+                    from contratoitens
+                             join compras_item_unidade_contratoitens ciuc on contratoitens.id = ciuc.contratoitem_id
+                    where ciuc.compra_item_unidade_id = compra_item_unidade.id
+                )
+           , 0) AS saldo
             ")
         )
             ->join(
