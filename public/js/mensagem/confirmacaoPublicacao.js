@@ -16,10 +16,10 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         this.closest('form').submit();
     } else {
         Swal.fire({
-            title: 'O instrumento será publicado no diário oficial, deseja continuar?',
+            title: 'Ao prosseguir o instrumento será automaticamente enviado para publicação no Diário Oficial da União - DOU.  As publicações enviadas após às 18h ou enviadas para publicação em dia não útil serão processadas no dia útil subsequente.',
             showDenyButton: false,
             showCancelButton: true,
-            confirmButtonText: `Sim`,
+            confirmButtonText: 'Sim'
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
