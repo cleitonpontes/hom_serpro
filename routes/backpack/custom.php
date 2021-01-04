@@ -171,6 +171,11 @@ Route::group([
             Route::get('/atualizaorgao', 'OrgaoCrudController@executaAtualizacaoCadastroOrgao');
             Route::get('/atualizaunidade', 'UnidadeCrudController@executaAtualizacaoCadastroUnidade');
 
+            Route::get('/retryfailedjob/{id}', function ($id) {
+                Artisan::call('queue:retry',[ 'id' => $id]);
+                return redirect(url('/admin/failedjobs'));
+            });
+
         });
 
         Route::group([
