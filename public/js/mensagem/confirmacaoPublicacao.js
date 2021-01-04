@@ -13,6 +13,9 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         }
     }
     if (tipo_contrato === 'Outros' || tipo_contrato === 'Empenho' || tipo_contrato === '') {
+        if (!rescisao()) {
+            configurarFormParaSubmit();
+        }
         configurarFormParaSubmit();
         this.closest('form').submit();
     } else {
@@ -24,9 +27,19 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                configurarFormParaSubmit();
+                if (!rescisao()) {
+                    configurarFormParaSubmit();
+                }
                 this.closest('form').submit();
             }
         })
+    }
+    function rescisao (){
+        $arrRoute = window.location.pathname.split('/');
+        $rescisao = $arrRoute.indexOf("rescisao");
+        if ($rescisao !== -1) {
+            return true;
+        }
+        return false;
     }
 });

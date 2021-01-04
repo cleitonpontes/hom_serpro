@@ -661,7 +661,7 @@ class InstrumentoinicialCrudController extends CrudController
             ],
             [   // Number
                 'name' => 'num_parcelas',
-                'label' => 'Núm. Percelas',
+                'label' => 'Núm. Parcelas',
                 'type' => 'number',
                 // optionals
                 'attributes' => [
