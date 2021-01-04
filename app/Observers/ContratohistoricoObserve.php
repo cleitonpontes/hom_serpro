@@ -214,7 +214,6 @@ class ContratohistoricoObserve
 
     private function enviarPublicacao($contratohistorico,$publicacao,$texto_dou,$cpf)
     {
-
         if ($publicacao->status_publicacao_id == $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR')) {
             $diarioOficial = new DiarioOficialClass();
             $diarioOficial->enviaPublicacao($contratohistorico, $publicacao,$texto_dou,$cpf);
