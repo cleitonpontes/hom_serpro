@@ -371,26 +371,31 @@ class DiarioOficialClass extends BaseSoapController
 
         $padraoPublicacaoContrato = $padrao->texto_padrao;
 
-        $contrato = $contratoHistorico->contrato;
+        if(!is_null($padraoPublicacaoContrato)) {
 
-        $padraoPublicacaoContrato = str_replace('|TIPO_CONTRATO|', $desc_tipo_contrato, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETUNIDADE|', $unidade, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATO_PROCESSO|', $contrato->processo, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATO_MODALIDADE_DESCRICAO|', $contrato->modalidade->descricao, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATO_LICITACAO_NUMERO|', $contrato->licitacao_numero, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATO_UNIDADE_NOME|', $contrato->unidade->nome, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_FORNECEDOR_CPF_CNPJ_IDGENER|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->objeto, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATO_RETORNAAMPARO|', $contrato->retornaAmparo(), $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->getVigenciaInicio(), $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETVIGENCIAFIM|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', $contratoHistorico->valor_global, $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_DATA_ASSINATURA|', self::retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoContrato);
-        $padraoPublicacaoContrato = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoContrato);
+            $contrato = $contratoHistorico->contrato;
 
-        return $padraoPublicacaoContrato;
+            $padraoPublicacaoContrato = str_replace('|TIPO_CONTRATO|', $desc_tipo_contrato, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETUNIDADE|', $unidade, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATO_PROCESSO|', $contrato->processo, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATO_MODALIDADE_DESCRICAO|', $contrato->modalidade->descricao, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATO_LICITACAO_NUMERO|', $contrato->licitacao_numero, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATO_UNIDADE_NOME|', $contrato->unidade->nome, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_FORNECEDOR_CPF_CNPJ_IDGENER|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->objeto, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATO_RETORNAAMPARO|', $contrato->retornaAmparo(), $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->getVigenciaInicio(), $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_GETVIGENCIAFIM|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', $contratoHistorico->valor_global, $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|CONTRATOHISTORICO_DATA_ASSINATURA|', self::retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoContrato);
+            $padraoPublicacaoContrato = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoContrato);
+
+            return $padraoPublicacaoContrato;
+
+        }
+        return '';
     }
 
 
@@ -408,27 +413,31 @@ class DiarioOficialClass extends BaseSoapController
 
         $padraoPublicacaoAditivo = $padrao->texto_padrao;
 
-        $contrato = $contratoHistorico->contrato;
+        if(!is_null($padraoPublicacaoAditivo)) {
 
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETUNIDADE|', $unidade, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATO_NUMERO|', $contrato->numero, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATO_PROCESSO|', $contrato->processo, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATO_MODALIDADE_DESCRICAO|', $contrato->modalidade->descricao, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATO_LICITACAO_NUMERO|', $contrato->licitacao_numero, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATO_UNIDADE_NOME|', $contrato->unidade->nome, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_FORNECEDOR_CPF_CNPJ_IDGENER|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->observacao, $padraoPublicacaoAditivo);
+            $contrato = $contratoHistorico->contrato;
+
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETUNIDADE|', $unidade, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATO_NUMERO|', $contrato->numero, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATO_PROCESSO|', $contrato->processo, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATO_MODALIDADE_DESCRICAO|', $contrato->modalidade->descricao, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATO_LICITACAO_NUMERO|', $contrato->licitacao_numero, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATO_UNIDADE_NOME|', $contrato->unidade->nome, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_FORNECEDOR_CPF_CNPJ_IDGENER|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->observacao, $padraoPublicacaoAditivo);
 //        $padraoPublicacaoAditivo = str_replace('|contrato_retornaAmparo|', $contrato->retornaAmparo(), $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->getVigenciaInicio(), $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAFIM|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->getVigenciaInicio(), $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAFIM|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoAditivo);
 //        $padraoPublicacaoAditivo = str_replace('|numero_empenho|', $this->retornaNumeroEmpenho($contratoHistorico)['texto'], $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', $contratoHistorico->valor_global, $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_DATA_ASSINATURA|', self::retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoAditivo);
-        $padraoPublicacaoAditivo = str_replace('|DATA_ASSINATURA_SISTEMA|',$data, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', $contratoHistorico->valor_global, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_DATA_ASSINATURA|', self::retornaDataFormatada($contratoHistorico->data_assinatura), $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoAditivo);
 
-        return $padraoPublicacaoAditivo;
+            return $padraoPublicacaoAditivo;
+        }
+        return '';
     }
 
     public static function retornaTextoModeloApostilamento(Contratohistorico $contratoHistorico)
@@ -443,10 +452,13 @@ class DiarioOficialClass extends BaseSoapController
 
         $padraoPublicacaoApostilamento = $padrao->texto_padrao;
 
-        $padraoPublicacaoApostilamento = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->observacao, $padraoPublicacaoApostilamento);
-        $padraoPublicacaoApostilamento = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoApostilamento);
+        if(!is_null($padraoPublicacaoApostilamento)) {
+            $padraoPublicacaoApostilamento = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->observacao, $padraoPublicacaoApostilamento);
+            $padraoPublicacaoApostilamento = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoApostilamento);
 
-        return $padraoPublicacaoApostilamento;
+            return $padraoPublicacaoApostilamento;
+        }
+        return '';
     }
 
     public static function retornaTextoModeloRescisao(Contratohistorico $contratoHistorico)
@@ -459,19 +471,23 @@ class DiarioOficialClass extends BaseSoapController
         $padraoPublicacaoRecisao = Padroespublicacao::where('tipo_contrato_id',$tipocontrato)
             ->where('tipo_mudanca_id',$tipomudanca)->first()->texto_padrao;
 
-        $contrato = $contratoHistorico->contrato;
+        if(!is_null($padraoPublicacaoRecisao)) {
 
-        $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoRecisao);
-        $padraoPublicacaoRecisao = str_replace('|CONTRATO_PROCESSO|', $contrato->processo, $padraoPublicacaoRecisao);
-        $padraoPublicacaoRecisao = str_replace('|CONTRATO_UNIDADE_NOME|', $contrato->unidade->nome, $padraoPublicacaoRecisao);
-        $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_FORNECEDOR_CPF_CNPJ_IDGENER|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoRecisao);
-        $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoRecisao);
-        $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->observacao, $padraoPublicacaoRecisao);
-        $padraoPublicacaoRecisao = str_replace('|CONTRATO_RETORNAAMPARO|', $contrato->retornaAmparo(), $padraoPublicacaoRecisao);
-        $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_DATA_PUBLICACAO|', self::retornaDataFormatada($contratoHistorico->data_publicacao), $padraoPublicacaoRecisao);
-        $padraoPublicacaoRecisao = str_replace('|DATA_ASSINATURA_SISTEMA|', $data,$padraoPublicacaoRecisao);
+            $contrato = $contratoHistorico->contrato;
 
-        return $padraoPublicacaoRecisao;
+            $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoRecisao);
+            $padraoPublicacaoRecisao = str_replace('|CONTRATO_PROCESSO|', $contrato->processo, $padraoPublicacaoRecisao);
+            $padraoPublicacaoRecisao = str_replace('|CONTRATO_UNIDADE_NOME|', $contrato->unidade->nome, $padraoPublicacaoRecisao);
+            $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_FORNECEDOR_CPF_CNPJ_IDGENER|', $contratoHistorico->fornecedor->cpf_cnpj_idgener, $padraoPublicacaoRecisao);
+            $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoRecisao);
+            $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_OBJETO|', $contratoHistorico->observacao, $padraoPublicacaoRecisao);
+            $padraoPublicacaoRecisao = str_replace('|CONTRATO_RETORNAAMPARO|', $contrato->retornaAmparo(), $padraoPublicacaoRecisao);
+            $padraoPublicacaoRecisao = str_replace('|CONTRATOHISTORICO_DATA_PUBLICACAO|', self::retornaDataFormatada($contratoHistorico->data_publicacao), $padraoPublicacaoRecisao);
+            $padraoPublicacaoRecisao = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoRecisao);
+
+            return $padraoPublicacaoRecisao;
+        }
+        return '';
     }
 
     function generateRandonNumbers($length = 10)
@@ -594,20 +610,22 @@ class DiarioOficialClass extends BaseSoapController
 
         if($retificacoes != '') {
             $publicacao = $contratoHistorico->publicacao;
-            $pagina = ((isset($publicacao->pagina_publicacao))?", Pág.".$publicacao->pagina_publicacao:'');
+            $pagina = ((isset($publicacao->pagina_publicacao)) ? ", Pág." . $publicacao->pagina_publicacao : '');
             $desc_tipo_contrato = strtoupper($contratoHistorico->getTipo());
 
-            $padraoPublicacaoRetificacao = Padroespublicacao::where('tipo_contrato_id',$tipocontrato)
-                ->where('tipo_mudanca_id',$tipomudanca)->first()->texto_padrao;
+            $padraoPublicacaoRetificacao = Padroespublicacao::where('tipo_contrato_id', $tipocontrato)
+                ->where('tipo_mudanca_id', $tipomudanca)->first()->texto_padrao;
 
-            $padraoPublicacaoRetificacao = str_replace('|TIPO_CONTRATO|', $desc_tipo_contrato, $padraoPublicacaoRetificacao);
-            $padraoPublicacaoRetificacao = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoRetificacao);
-            $padraoPublicacaoRetificacao = str_replace('|CONTRATOHISTORICO_DATA_PUBLICACAO|', $contratoHistorico->data_publicacao, $padraoPublicacaoRetificacao);
-            $padraoPublicacaoRetificacao = str_replace('|PAGINA|', $pagina, $padraoPublicacaoRetificacao);
-            $padraoPublicacaoRetificacao = str_replace('|RETIFICACAO|', $retificacoes, $padraoPublicacaoRetificacao);
-            $padraoPublicacaoRetificacao = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoRetificacao);
+            if (!is_null($padraoPublicacaoRetificacao)) {
+                $padraoPublicacaoRetificacao = str_replace('|TIPO_CONTRATO|', $desc_tipo_contrato, $padraoPublicacaoRetificacao);
+                $padraoPublicacaoRetificacao = str_replace('|CONTRATOHISTORICO_NUMERO|', $contratoHistorico->numero, $padraoPublicacaoRetificacao);
+                $padraoPublicacaoRetificacao = str_replace('|CONTRATOHISTORICO_DATA_PUBLICACAO|', $contratoHistorico->data_publicacao, $padraoPublicacaoRetificacao);
+                $padraoPublicacaoRetificacao = str_replace('|PAGINA|', $pagina, $padraoPublicacaoRetificacao);
+                $padraoPublicacaoRetificacao = str_replace('|RETIFICACAO|', $retificacoes, $padraoPublicacaoRetificacao);
+                $padraoPublicacaoRetificacao = str_replace('|DATA_ASSINATURA_SISTEMA|', $data, $padraoPublicacaoRetificacao);
 
-            return $padraoPublicacaoRetificacao;
+                return $padraoPublicacaoRetificacao;
+            }
         }
         return null;
     }
