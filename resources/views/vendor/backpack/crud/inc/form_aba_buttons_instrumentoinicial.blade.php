@@ -291,6 +291,16 @@
                     break;
             }
         }
+
+        /**
+         * retira a propriedade disabled para os campos serem submetidos
+         * guarda html da grid de itens em campo hidden
+         */
+        function configurarFormParaSubmit(){
+            atualizaValueHTMLCamposAbaItem();
+            var htmlGridItem = $('#table').html();
+            $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
+        }
     </script>
     <script src="{{ asset('js/mensagem/confirmacaoPublicacao.js')}}"></script>
 @endpush
