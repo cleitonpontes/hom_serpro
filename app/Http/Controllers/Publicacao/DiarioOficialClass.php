@@ -33,9 +33,8 @@ class DiarioOficialClass extends BaseSoapController
     private $username;
     private $password;
 
+    public function setSoapClient(){
 
-    public function __construct()
-    {
         $this->Urlwsdl = config("publicacao.sistema.diario_oficial_uniao");
         $this->username = env('PUBLICACAO_DOU_USER');
         $this->password = env('PUBLICACAO_DOU_PWD');
@@ -48,6 +47,7 @@ class DiarioOficialClass extends BaseSoapController
         $headers[] = new SOAPHeader($this->securityNS, 'Security', $security, false);
 
         $this->soapClient = InstanceSoapClient::init($headers);
+
     }
 
     public function consultaTodosFeriado()
@@ -189,7 +189,7 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
+        $dados ['dados']['identificadorTipoPagamento'] = (int)$this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
@@ -218,7 +218,7 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
+        $dados ['dados']['identificadorTipoPagamento'] = (int)$this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
