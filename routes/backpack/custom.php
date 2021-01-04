@@ -172,7 +172,8 @@ Route::group([
             Route::get('/atualizaunidade', 'UnidadeCrudController@executaAtualizacaoCadastroUnidade');
 
             Route::get('/retryfailedjob/{id}', function ($id) {
-                Artisan::call('queue:retry',[ 'id' => $id]);
+                $path = env('APP_PATH');
+                exec('php '.$path.'artisan queue:retry '.$id);
                 return redirect(url('/admin/failedjobs'));
             });
 
