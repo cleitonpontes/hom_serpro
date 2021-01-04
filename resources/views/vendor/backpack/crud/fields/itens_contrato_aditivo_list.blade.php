@@ -131,6 +131,9 @@
                 valor_global = 0;
                 parcela = 1;
 
+                // buscar os itens do contrato/aditivo assim que a pagina for carregada
+                buscarItens();
+
                 const $tableID = $('#table');
 
                 $('#numero_item').mask('99999');
@@ -143,10 +146,6 @@
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
-                });
-
-                $('body').on('click','#itensdocontrato', function(event){
-                    buscarItens();
                 });
 
                 $('body').on('change','#tipo_item', function(event){

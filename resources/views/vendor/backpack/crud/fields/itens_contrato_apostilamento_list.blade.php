@@ -63,6 +63,8 @@
 
                 $('#numero_item').mask('99999');
 
+                buscarItens();
+
                 var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
                 if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
                     $('#table').html(valueHidden);
@@ -71,10 +73,6 @@
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
-                });
-
-                $('body').on('click','#itensdocontrato', function(event){
-                    buscarItens();
                 });
 
                 //quando altera o campo de valor unitario do item re-calcula os valores
