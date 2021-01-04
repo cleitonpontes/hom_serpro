@@ -92,18 +92,6 @@
                 $('body').on('change','#novo_valor_global',function(event){
                     atualizarValorParcelaApostilamento();
                 });
-
-                $('body').submit(function(){
-                    atualizaValueHTMLCamposAbaItem();
-                    var htmlGridItem = $('#table').html();
-                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
-
-                    $('input[name="qtd_item[]"]').prop('disabled', false);
-                    $('input[name="vl_unit[]"]').prop('disabled', false);
-                    $('input[name="vl_total[]"]').prop('disabled', false);
-                    $('input[name="periodicidade[]"]').prop('disabled', false);
-                    $('input[name="data_inicio[]"]').prop('disabled', false);
-                });
             });
 
             //atualiza o valor da parcela do contrato para termo de apostilamento

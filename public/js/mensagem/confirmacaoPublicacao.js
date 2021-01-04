@@ -13,6 +13,7 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         }
     }
     if (tipo_contrato === 'Outros' || tipo_contrato === 'Empenho' || tipo_contrato === '') {
+        configurarFormParaSubmit();
         this.closest('form').submit();
     } else {
         Swal.fire({
@@ -23,6 +24,7 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
+                configurarFormParaSubmit();
                 this.closest('form').submit();
             }
         })

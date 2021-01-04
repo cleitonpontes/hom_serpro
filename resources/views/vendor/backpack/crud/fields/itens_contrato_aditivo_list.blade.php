@@ -205,19 +205,6 @@
                     removeLinha(this);
                 });
 
-                $('body').submit(function(){
-
-                    $('#select2_ajax_fornecedor_id').prop('disabled', false);
-                    $('#retroativo_1').prop('disabled', false);
-                    $('#retroativo_2').prop('disabled', false);
-                    $('#retroativo_soma_subtrai_1').prop('disabled', false);
-                    $('#retroativo_soma_subtrai_2').prop('disabled', false);
-
-                    atualizaValueHTMLCamposAbaItem();
-                    var htmlGridItem = $('#table').html();
-                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
-                });
-
                 function atualizarSelectItem(){
                     $('#item').select2({
                         ajax: {

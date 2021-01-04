@@ -200,12 +200,6 @@
                     removeLinha(this);
                 });
 
-                $("form").submit(function (event) {
-                    atualizaValueHTMLCamposAbaItem();
-                    var y = $('#table').html();
-                    $('input[name=adicionaCampoRecuperaGridItens]').val(y);
-                });
-
                 // se possuir minuta de empenho preenchido não é permitido inserir item
                 $('body').on('change', '[name="minutasempenho[]"]', function (event) {
 

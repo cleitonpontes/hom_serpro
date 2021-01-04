@@ -204,12 +204,6 @@
                         buscarItem($('#item').val());
                     }
                 });
-
-                $('form').submit(function(){
-                    atualizaValueHTMLCamposAbaItem();
-                    var htmlGridItem = $('#table').html();
-                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
-                });
             });
 
             //atualiza o valor da parcela do contrato
