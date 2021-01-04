@@ -73,10 +73,8 @@ class ContratoempenhoCrudController extends CrudController
             ->pluck('numero', 'id')
             ->toArray();
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
 
-        $campos = $this->Campos($con, $fornecedores);
+        $campos = $this->Campos($con);
 
         $this->crud->addFields($campos);
 
@@ -265,7 +263,7 @@ class ContratoempenhoCrudController extends CrudController
 
     }
 
-    public function Campos($contrato, $fornecedores)
+    public function Campos($contrato)
     {
 
         $campos = [

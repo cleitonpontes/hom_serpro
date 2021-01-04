@@ -94,16 +94,7 @@ class EmpenhoCrudController extends CrudController
 
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
-
-        $planointerno = Planointerno::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
-            ->orderBy('codigo', 'asc')->pluck('nome', 'id')->toArray();
-
-        $naturezadespesa = Naturezadespesa::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
-            ->orderBy('codigo', 'asc')->pluck('nome', 'id')->toArray();
-
-        $campos = $this->Campos($unidade, $fornecedores, $planointerno, $naturezadespesa);
+        $campos = $this->Campos($unidade);
 
         $this->crud->addFields($campos);
 
@@ -315,7 +306,7 @@ class EmpenhoCrudController extends CrudController
         return $colunas;
     }
 
-    public function Campos($unidade, $fornecedores, $planointerno, $naturezadespesa)
+    public function Campos($unidade)
     {
         $campos = [
             [ // select_from_array
