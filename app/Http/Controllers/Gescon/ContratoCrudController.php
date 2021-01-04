@@ -1712,8 +1712,10 @@ class ContratoCrudController extends CrudController
                 'contratos',
                 function ($u) {
                     $u->where('situacao', true);
+                    $u->where('unidade_id', session('user_ug_id'));
                 }
             )
+
             ->pluck('nome', 'cpf_cnpj_idgener')
             ->toArray();
     }
