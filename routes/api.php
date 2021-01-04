@@ -78,7 +78,7 @@ Route::group([
     ], function (){
         Route::get('/ano/{ano}/ug/{unidade}', 'EmpenhoController@empenhosPorAnoUg');
         Route::get('/ug/{unidade}', 'EmpenhoController@empenhosPorUg');
-        Route::put('/sem/contrato/e/{empenho}/f/{fornecedor}/c/{contrato}', 'EmpenhoController@gravaContratoEmpenho');
+//        Route::put('/sem/contrato/e/{empenho}/f/{fornecedor}/c/{contrato}', 'EmpenhoController@gravaContratoEmpenho');
     });
 
     Route::group([
