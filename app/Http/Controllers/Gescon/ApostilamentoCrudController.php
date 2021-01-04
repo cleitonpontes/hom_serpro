@@ -89,21 +89,9 @@ class ApostilamentoCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
-
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
-        $tipos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '=', 'Termo de Apostilamento')
-            ->orderBy('descricao')
-            ->pluck('descricao', 'id')
-            ->toArray();
-
-
-        $campos = $this->Campos($fornecedores, $tipos, $contrato_id, $unidade, $apostilamento_id);
+        $campos = $this->Campos($contrato_id, $unidade, $apostilamento_id);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in ApostilamentoRequest
@@ -228,7 +216,7 @@ class ApostilamentoCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $tipos, $contrato_id, $unidade, $apostilamento_id)
+    public function Campos($contrato_id, $unidade, $apostilamento_id)
     {
         $contrato = Contrato::find($contrato_id);
 
