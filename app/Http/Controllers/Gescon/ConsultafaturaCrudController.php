@@ -77,20 +77,20 @@ class ConsultafaturaCrudController extends CrudController
 
         $this->crud->enableBulkActions();
 
-        $this->crud->addButton(
-            'line',
-            'apropriacao_fatura',
-            'view',
-            'crud::buttons.apropriacao_fatura',
-            'end'
-        );
-
-        $this->crud->addButton(
-            'bottom',
-            'apropriacao_fatura',
-            'view',
-            'crud::buttons.bulk_apropriacao_fatura'
-        );
+//        $this->crud->addButton(
+//            'line',
+//            'apropriacao_fatura',
+//            'view',
+//            'crud::buttons.apropriacao_fatura',
+//            'end'
+//        );
+//
+//        $this->crud->addButton(
+//            'bottom',
+//            'apropriacao_fatura',
+//            'view',
+//            'crud::buttons.bulk_apropriacao_fatura'
+//        );
 
         /*
         |--------------------------------------------------------------------------
