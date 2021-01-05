@@ -35,7 +35,7 @@ trait RegrasDataPublicacao
                 new NaoAceitarFimDeSemana()
             ];
 
-            if ($id) {
+            if (!$id) {
                 $retorno[] = "after:{$data_atual}";
             }
         }
