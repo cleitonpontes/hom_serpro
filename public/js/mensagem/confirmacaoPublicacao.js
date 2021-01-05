@@ -16,7 +16,6 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         if (!rescisao()) {
             configurarFormParaSubmit();
         }
-        configurarFormParaSubmit();
         this.closest('form').submit();
     } else {
         Swal.fire({
