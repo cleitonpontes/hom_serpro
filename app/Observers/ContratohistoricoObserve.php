@@ -190,7 +190,6 @@ class ContratohistoricoObserve
     private function criaRetificacao($contratohistorico,$sisg)
     {
         $texto_dou = @DiarioOficialClass::retornaTextoretificacao($contratohistorico);
-        dd($texto_dou);
         $cpf = $this->removeMascaraCPF(backpack_user()->cpf);
 
         if(!is_null($texto_dou)) {
