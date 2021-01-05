@@ -634,8 +634,14 @@ class SubelementoController extends BaseControllerEmpenho
                             'quantidade' => ($request->qtd[$index]),
                             'valor' => $valores[$index]
                         ]);
-                    CompraItem::where('id', $item)
-                        ->update(['quantidade' => ($request->quantidade_total[$index] - $request->qtd[$index])]);
+
+                    $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item)
+                        ->where('unidade_id', session('user_ug_id'))
+                        ->first();
+
+                    $saldo = $this->retornaSaldoAtualizado($item);
+                    $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+                    $compraItemUnidade->save();
                 }
             }
 
