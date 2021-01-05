@@ -252,6 +252,10 @@ Route::group([
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 CRUD::resource('publicacao', 'ContratoPublicacaoCrudController');
+                Route::get(
+                    '/publicacao/{id}/atualizarsituacaopublicacao',
+                    'ContratoPublicacaoCrudController@executarAtualizacaoSituacaoPublicacao'
+                );
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('rescisao', 'RescisaoCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');
