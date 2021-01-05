@@ -32,6 +32,7 @@ class ContratohistoricoObserve
         $this->contratocronograma = $contratocronograma;
     }
 
+
     /**
      * Handle the contratohistorico "created" event.
      *
