@@ -33,9 +33,8 @@ class DiarioOficialClass extends BaseSoapController
     private $username;
     private $password;
 
+    public function setSoapClient(){
 
-    public function __construct()
-    {
         $this->Urlwsdl = config("publicacao.sistema.diario_oficial_uniao");
         $this->username = env('PUBLICACAO_DOU_USER');
         $this->password = env('PUBLICACAO_DOU_PWD');
@@ -48,11 +47,13 @@ class DiarioOficialClass extends BaseSoapController
         $headers[] = new SOAPHeader($this->securityNS, 'Security', $security, false);
 
         $this->soapClient = InstanceSoapClient::init($headers);
+
     }
 
     public function consultaTodosFeriado()
     {
         try {
+            $this->setSoapClient();
             $response = $this->soapClient->ConsultaTodosOrgaosPermitidos();
 
         } catch (Exception $e) {
@@ -66,7 +67,7 @@ class DiarioOficialClass extends BaseSoapController
 //            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
             $dados ['dados']['CPF'] = $cpf;
             $dados ['dados']['IDOficio'] = $oficio_id;
-
+            $this->setSoapClient();
             return $this->soapClient->ConsultaAcompanhamentoOficio($dados);
         } catch (Exception $e) {
             return $e->getMessage();
@@ -81,7 +82,7 @@ class DiarioOficialClass extends BaseSoapController
 //            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
                 $dados ['dados']['CPF'] = $cpf;
                 $dados ['dados']['IDMateria'] = $publicacao->materia_id;
-
+                $this->setSoapClient();
                 return $this->soapClient->SustaMateria($dados);
             } catch (Exception $e) {
                 return $e->getMessage();
@@ -96,7 +97,7 @@ class DiarioOficialClass extends BaseSoapController
         try {
             $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
             $contratohistorico= $publicacao->contratohistorico;
-
+            $this->setSoapClient();
             $this->enviaPublicacao($contratohistorico, $publicacao);
 
         } catch (Exception $e) {
@@ -189,7 +190,7 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
+        $dados ['dados']['identificadorTipoPagamento'] = (int)$this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
@@ -218,7 +219,7 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['dataPublicacao'] = strtotime($contratoHistorico->data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
+        $dados ['dados']['identificadorTipoPagamento'] = (int)$this->retornaCodigoItem('Forma Pagamento', 'Isento')->descres;
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
@@ -344,7 +345,7 @@ class DiarioOficialClass extends BaseSoapController
             case "Termo Aditivo":
                 $textomodelo = self::retornaTextoModelorAditivo($contratoHistorico);
                 break;
-            case "Termo Apostilamento":
+            case "Termo de Apostilamento":
                 $textomodelo = self::retornaTextoModeloApostilamento($contratoHistorico);
                 break;
             case "Termo de Rescisão":

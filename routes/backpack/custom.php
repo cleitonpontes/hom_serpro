@@ -67,6 +67,7 @@ Route::group([
             Route::get('contrato/numero', 'ContratoController@index');
             Route::get('inserir/item/modal/{tipo_id}/{contacorrente}', 'ContratoItensMinutaController@inserirIten')->name('item.inserir.modal');
             Route::get('buscar/itens/modal/{minutas_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
+            Route::get('buscar/itens/instrumentoinicial/{minutas_id}', 'ContratoItensMinutaController@buscarItensDeMinutaParaTelaInstrumentoInicial')->name('buscar.itens.instrumentoinicial');
             Route::get('buscar/campos/contrato/empenho/{id}', 'ContratoController@buscarCamposParaCadastroContratoPorIdEmpenho')->name('buscar.campos.contrato.empenho');
             Route::get( '/saldo-historico-itens/{id}',
                 'SaldoHistoricoItemController@retonaSaldoHistoricoItens')->name('saldo.historico.itens');
@@ -172,7 +173,8 @@ Route::group([
             Route::get('/atualizaunidade', 'UnidadeCrudController@executaAtualizacaoCadastroUnidade');
 
             Route::get('/retryfailedjob/{id}', function ($id) {
-                Artisan::call('queue:retry',[ 'id' => $id]);
+                $path = env('APP_PATH');
+                exec('php '.$path.'artisan queue:retry '.$id);
                 return redirect(url('/admin/failedjobs'));
             });
 
@@ -250,6 +252,10 @@ Route::group([
                 CRUD::resource('padrao', 'ContratosfpadraoCrudController');
                 CRUD::resource('prepostos', 'ContratoprepostoCrudController');
                 CRUD::resource('publicacao', 'ContratoPublicacaoCrudController');
+                Route::get(
+                    '/publicacao/{id}/atualizarsituacaopublicacao',
+                    'ContratoPublicacaoCrudController@executarAtualizacaoSituacaoPublicacao'
+                );
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('rescisao', 'RescisaoCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');

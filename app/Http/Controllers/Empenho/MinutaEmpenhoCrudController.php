@@ -302,6 +302,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaColunaTipoCompra();
         $this->adicionaColunaUnidadeCompra();
         $this->adicionaColunaModalidade();
+        $this->adicionaColunaTipoEmpenhoPor();
         $this->adicionaColunaNumeroAnoCompra();
 
         $this->adicionaColunaTipoEmpenho();
@@ -448,6 +449,27 @@ class MinutaEmpenhoCrudController extends CrudController
                 $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
                 $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
             },
+        ]);
+    }
+
+    public function adicionaColunaTipoEmpenhoPor()
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'getTipoEmpenhoPor',
+            'label' => 'Tipo de Minuta', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getTipoEmpenhoPor', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
         ]);
     }
 
