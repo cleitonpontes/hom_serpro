@@ -943,6 +943,7 @@ class ContratoCrudController extends CrudController
             'minimum_input_length' => 0,
             'data_source' => url('api/amparolegal'),
             'model' => 'App\Models\AmparoLegal',
+            'dependencies' => ['modalidade_id'],
             'attribute' => 'campo_api_amparo',
             'pivot' => true,
             'tab' => $this->tab
