@@ -39,7 +39,6 @@ class SubelementoController extends BaseControllerEmpenho
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
 
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
-//        dd(112);
         if ($codigoitem->descres == 'CON') {
             $tipo = 'contrato_item_id';
             $itens = MinutaEmpenho::join(
@@ -84,24 +83,12 @@ class SubelementoController extends BaseControllerEmpenho
                     '=',
                     DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
                 )
-//                ->join(
-//                    'compra_item_fornecedor',
-//                    'compra_item_fornecedor.compra_item_id',
-//                    '=',
-//                    'compra_items.id'
-//                )
                 ->join(
                     'catmatseritens',
                     'catmatseritens.id',
                     '=',
                     'contratoitens.catmatseritem_id'
                 )
-//                ->join(
-//                    'compra_item_unidade',
-//                    'compra_item_unidade.compra_item_id',
-//                    '=',
-//                    'compra_items.id'
-//                )
                 ->where('minutaempenhos.id', $minuta_id)
                 ->select(
                     [
@@ -127,6 +114,10 @@ class SubelementoController extends BaseControllerEmpenho
                 )
                 ->get()
                 ->toArray();
+
+            $valor_utilizado = ContratoItemMinutaEmpenho::where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->select(DB::raw('coalesce(sum(valor),0) as sum'))
+                ->first()->toArray();
         }
 
         if ($codigoitem->descres == 'COM') {
@@ -217,23 +208,13 @@ class SubelementoController extends BaseControllerEmpenho
                 )
                 ->get()
                 ->toArray();
-        }
 
-        if ($codigoitem->descres == 'COM') {
             $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
-                ->select(DB::raw('sum(valor) '))
+                ->select(DB::raw('coalesce(sum(valor),0) as sum'))
                 ->first()->toArray();
         }
-
-        if ($codigoitem->descres == 'CON') {
-            $valor_utilizado = ContratoItemMinutaEmpenho::where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
-                ->select(DB::raw('sum(valor) '))
-                ->first()->toArray();
-        }
-
 
         if ($request->ajax()) {
-
             $dados = DataTables::of($itens)
                 ->addColumn(
                     'ci_id',
@@ -298,8 +279,8 @@ class SubelementoController extends BaseControllerEmpenho
             'valor_utilizado' => $valor_utilizado['sum'],
             'saldo' => $itens[0]['saldo'] - $valor_utilizado['sum'],
             'update' => false,
-            'tipo' => $tipo
-//            'update' => $valor_utilizado['sum'] > 0,
+            'tipo' => $tipo,
+            'update' => $valor_utilizado['sum'] > 0,
             //           'fornecedor_id' => $itens[0]['fornecedor_id'],
         ]);
     }
@@ -509,14 +490,11 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function store(Request $request)
     {
-//        dump('store');
-//        dd($request->all());
 
         $minuta_id = $request->get('minuta_id');
         $modMinuta = MinutaEmpenho::find($minuta_id);
 
         $tipo = $modMinuta->tipo_empenhopor->descricao;
-//        dd($tipo, $modMinuta->tipo_empenhopor->descricao);
 
         if ($request->credito - $request->valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
@@ -552,15 +530,6 @@ class SubelementoController extends BaseControllerEmpenho
                             'quantidade' => ($request->qtd[$index]),
                             'valor' => $valores[$index]
                         ]);
-
-//                    $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item)
-//                        ->where('unidade_id', session('user_ug_id'))
-//                        //->where('fornecedor_id', $request->fornecedor_id)
-//                        ->first();
-//
-//                    $saldo = $this->retornaSaldoAtualizado($item);
-//                    $compraItemUnidade->quantidade_saldo = $saldo->saldo;
-//                    $compraItemUnidade->save();
                 }
             } else {
                 $compra_item_ids = $request->compra_item_id;
@@ -609,14 +578,16 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function update(Request $request)
     {
-        $this->store($request);
         $minuta_id = $request->get('minuta_id');
+
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+        $tipo = $modMinuta->tipo_empenhopor->descricao;
+
         if ($request->credito - $request->valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
             return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
         }
 
-        $compra_item_ids = $request->compra_item_id;
 
         $valores = $request->valor_total;
 
@@ -626,28 +597,52 @@ class SubelementoController extends BaseControllerEmpenho
             },
             $valores
         );
-        if (in_array(0, $valores) || in_array('', $valores)) {
-            Alert::error('O item não pode estar com valor zero.')->flash();
-            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+
+        if ($tipo == 'Compra') {
+            if (in_array(0, $valores) || in_array('', $valores)) {
+                Alert::error('O item não pode estar com valor zero.')->flash();
+                return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+            }
         }
 
         DB::beginTransaction();
         try {
-            foreach ($compra_item_ids as $index => $item) {
-                if ($valores[$index] > $request->valor_total_item[$index]) {
-                    Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
-                    return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
-                }
+            if ($tipo == 'Contrato') {
+                $contrato_item_ids = $request->contrato_item_id;
 
-                CompraItemMinutaEmpenho::where('compra_item_id', $item)
-                    ->where('minutaempenho_id', $request->minuta_id)
-                    ->update([
-                        'subelemento_id' => $request->subitem[$index],
-                        'quantidade' => ($request->qtd[$index]),
-                        'valor' => $valores[$index]
-                    ]);
-                CompraItem::where('id', $item)
-                    ->update(['quantidade' => ($request->quantidade_total[$index] - $request->qtd[$index])]);
+                foreach ($contrato_item_ids as $index => $item) {
+                    ContratoItemMinutaEmpenho::where('contrato_item_id', $item)
+                        ->where('minutaempenho_id', $request->minuta_id)
+                        ->update([
+                            'subelemento_id' => $request->subitem[$index],
+                            'quantidade' => ($request->qtd[$index]),
+                            'valor' => $valores[$index]
+                        ]);
+                }
+            } else {
+                $compra_item_ids = $request->compra_item_id;
+                foreach ($compra_item_ids as $index => $item) {
+                    if ($valores[$index] > $request->valor_total_item[$index]) {
+                        Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
+                        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                    }
+
+                    CompraItemMinutaEmpenho::where('compra_item_id', $item)
+                        ->where('minutaempenho_id', $request->minuta_id)
+                        ->update([
+                            'subelemento_id' => $request->subitem[$index],
+                            'quantidade' => ($request->qtd[$index]),
+                            'valor' => $valores[$index]
+                        ]);
+
+                    $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item)
+                        ->where('unidade_id', session('user_ug_id'))
+                        ->first();
+
+                    $saldo = $this->retornaSaldoAtualizado($item);
+                    $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+                    $compraItemUnidade->save();
+                }
             }
 
             $modMinuta = MinutaEmpenho::find($minuta_id);
