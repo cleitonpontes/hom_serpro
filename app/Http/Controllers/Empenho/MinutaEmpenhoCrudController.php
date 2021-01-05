@@ -111,6 +111,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaBoxItens($id);
         $this->adicionaBoxSaldo($id);
 
+        $this->crud->removeColumn('tipo_empenhopor_id');
         $this->crud->removeColumn('situacao_id');
         $this->crud->removeColumn('unidade_id');
         $this->crud->removeColumn('compra_id');
