@@ -191,6 +191,11 @@ class MinutaEmpenho extends Model
         return $this->tipo_empenho->descricao ?? '';
     }
 
+    public function getTipoEmpenhoPor()
+    {
+        return $this->tipo_empenhopor->descricao ?? '';
+    }
+
     /**
      * Retorna descrição do Amparo Legal
      *
