@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use App\Models\Codigoitem;
-use App\Rules\NaoAceitarFeriado;
-use App\Rules\NaoAceitarFimDeSemana;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -13,6 +12,7 @@ use Illuminate\Validation\Rules\Unique;
 class InstrumentoinicialRequest extends FormRequest
 {
 
+    use RegrasDataPublicacao;
     protected $data_limite;
     /**
      * Determine if the user is authorized to make this request.
@@ -115,34 +115,5 @@ class InstrumentoinicialRequest extends FormRequest
         return [
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
         ];
-    }
-
-    private function ruleDataPublicacao ($tipo_id = null)
-    {
-        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '<>', 'Outros')
-            ->where('descricao', '<>', 'Empenho')
-            ->orderBy('descricao')
-            ->pluck('id')
-            ->toArray();
-
-        $retorno = [
-            'required',
-            'date'
-        ];
-
-        if (in_array($tipo_id, $arrCodigoItens)) {
-            $retorno = [
-                'required',
-                'date',
-                "after:{$this->data_atual}",
-                "after:data_assinatura",
-                new NaoAceitarFeriado(),
-                new NaoAceitarFimDeSemana()
-            ];
-        }
-        return $retorno;
     }
 }

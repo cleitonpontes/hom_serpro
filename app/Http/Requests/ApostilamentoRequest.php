@@ -3,14 +3,14 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
-use App\Models\Codigoitem;
-use App\Rules\NaoAceitarFeriado;
-use App\Rules\NaoAceitarFimDeSemana;
+use App\Http\Traits\RegrasDataPublicacao;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
 class ApostilamentoRequest extends FormRequest
 {
+
+    use RegrasDataPublicacao;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -87,34 +87,5 @@ class ApostilamentoRequest extends FormRequest
         return [
             //
         ];
-    }
-
-    private function ruleDataPublicacao ($tipo_id = null)
-    {
-        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '<>', 'Outros')
-            ->where('descricao', '<>', 'Empenho')
-            ->orderBy('descricao')
-            ->pluck('id')
-            ->toArray();
-
-        $retorno = [
-            'required',
-            'date'
-        ];
-
-        if (in_array($tipo_id, $arrCodigoItens)) {
-            $retorno = [
-                'required',
-                'date',
-                "after:{$this->hoje}",
-                "after_or_equal:data_assinatura",
-                new NaoAceitarFeriado(),
-                new NaoAceitarFimDeSemana()
-            ];
-        }
-        return $retorno;
     }
 }

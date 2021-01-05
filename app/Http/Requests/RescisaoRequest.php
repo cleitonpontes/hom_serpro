@@ -3,14 +3,13 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
-use App\Models\Codigoitem;
-use App\Rules\NaoAceitarFeriado;
-use App\Rules\NaoAceitarFimDeSemana;
+use App\Http\Traits\RegrasDataPublicacao;
 use Illuminate\Foundation\Http\FormRequest;
 
 
 class RescisaoRequest extends FormRequest
 {
+    use RegrasDataPublicacao;
     protected $data_limite;
 
     /**
@@ -75,34 +74,5 @@ class RescisaoRequest extends FormRequest
             'data_publicacao.after' => "A :attribute deve ser igual ou posterior a Data da Assinatura!",
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
         ];
-    }
-
-    private function ruleDataPublicacao ($tipo_id = null)
-    {
-        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '<>', 'Outros')
-            ->where('descricao', '<>', 'Empenho')
-            ->orderBy('descricao')
-            ->pluck('id')
-            ->toArray();
-
-        $retorno = [
-            'required',
-            'date'
-        ];
-
-        if (in_array($tipo_id, $arrCodigoItens)) {
-            $retorno = [
-                'required',
-                'date',
-                "after:{$this->data_atual}",
-                "after_or_equal:data_assinatura",
-                new NaoAceitarFeriado(),
-                new NaoAceitarFimDeSemana()
-            ];
-        }
-        return $retorno;
     }
 }

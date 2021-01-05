@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use App\Models\Codigoitem;
-use App\Rules\NaoAceitarFeriado;
-use App\Rules\NaoAceitarFimDeSemana;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -13,6 +12,7 @@ use App\Rules\NaoAceitarMinutaCompraDiferente;
 
 class ContratoRequest extends FormRequest
 {
+    use RegrasDataPublicacao;
     protected $data_limite;
 
     /**
@@ -137,34 +137,5 @@ class ContratoRequest extends FormRequest
             'vigencia_fim.required' => 'O campo data fim da vigência é obrigatório.',
             'valor_parcela.required' => 'O campo valor da parcela é obrigatório.',
         ];
-    }
-
-    private function ruleDataPublicacao ($tipo_id = null)
-    {
-        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '<>', 'Outros')
-            ->where('descricao', '<>', 'Empenho')
-            ->orderBy('descricao')
-            ->pluck('id')
-            ->toArray();
-
-        $retorno = [
-            'required',
-            'date'
-        ];
-
-        if (in_array($tipo_id, $arrCodigoItens)) {
-            $retorno = [
-                'required',
-                'date',
-                "after:{$this->data_atual}",
-                "after_or_equal:data_assinatura",
-                new NaoAceitarFeriado(),
-                new NaoAceitarFimDeSemana()
-            ];
-        }
-        return $retorno;
     }
 }
