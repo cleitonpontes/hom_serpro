@@ -9,9 +9,9 @@ use App\Rules\NaoAceitarFimDeSemana;
 trait RegrasDataPublicacao
 {
 
-    public function ruleDataPublicacao ($tipo_id = null)
+    public function ruleDataPublicacao ($tipo_id = null, $id = null)
     {
-        $this->data_atual = date('Y-m-d');
+        $data_atual = date('Y-m-d');
         $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
@@ -30,11 +30,14 @@ trait RegrasDataPublicacao
             $retorno = [
                 'required',
                 'date',
-                "after:{$this->hoje}",
                 "after_or_equal:data_assinatura",
                 new NaoAceitarFeriado(),
                 new NaoAceitarFimDeSemana()
             ];
+
+            if ($id) {
+                $retorno[] = "after:{$data_atual}";
+            }
         }
         return $retorno;
     }

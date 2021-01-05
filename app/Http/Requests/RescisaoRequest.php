@@ -30,10 +30,7 @@ class RescisaoRequest extends FormRequest
      */
     public function rules()
     {
-        $id = $this->id ?? "NULL";
-        $unidade_id = $this->unidade_id ?? "NULL";
         $tipo_id = $this->tipo_id ?? "NULL";
-        $this->data_atual = date('Y-m-d');
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
@@ -44,7 +41,7 @@ class RescisaoRequest extends FormRequest
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
         ];
 
-        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
 
         return $rules;
     }

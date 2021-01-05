@@ -89,7 +89,7 @@ class ContratoRequest extends FormRequest
 //            'arquivos' => 'file|mimes:pdf',
             'situacao' => 'required',
         ];
-        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
 
         return $rules;
     }

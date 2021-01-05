@@ -85,7 +85,7 @@ class InstrumentoinicialRequest extends FormRequest
             'situacao' => 'required',
         ];
 
-        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
 
         return $rules;
     }

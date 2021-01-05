@@ -67,7 +67,7 @@ class AditivoRequest extends FormRequest
             'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
 
-        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
 
         return $rules;
     }
