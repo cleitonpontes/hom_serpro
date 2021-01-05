@@ -3,14 +3,13 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
-use App\Models\Codigoitem;
-use App\Rules\NaoAceitarFeriado;
-use App\Rules\NaoAceitarFimDeSemana;
+use App\Http\Traits\RegrasDataPublicacao;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
 class AditivoRequest extends FormRequest
 {
+    use RegrasDataPublicacao;
 
     protected $data_limite;
 
@@ -68,7 +67,7 @@ class AditivoRequest extends FormRequest
             'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
 
-        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id);
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
 
         return $rules;
     }
@@ -102,34 +101,5 @@ class AditivoRequest extends FormRequest
             'data_publicacao.after' => "A data da publicação deve ser maior que {$hoje} ",
             'data_assinatura.before' => "A data da assinatura deve ser menor que  {$data_amanha} "
         ];
-    }
-
-    private function ruleDataPublicacao ($tipo_id = null)
-    {
-        $arrCodigoItens = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '<>', 'Outros')
-            ->where('descricao', '<>', 'Empenho')
-            ->orderBy('descricao')
-            ->pluck('id')
-            ->toArray();
-
-        $retorno = [
-            'required',
-            'date'
-        ];
-
-        if (in_array($tipo_id, $arrCodigoItens)) {
-            $retorno = [
-                'required',
-                'date',
-                "after:{$this->hoje}",
-                "after:data_assinatura",
-                new NaoAceitarFeriado(),
-                new NaoAceitarFimDeSemana()
-            ];
-        }
-        return $retorno;
     }
 }
