@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Gescon;
 use App\Forms\InserirItemContratoMinutaForm;
 use App\Http\Traits\Formatador;
 use App\Jobs\AlertaContratoJob;
+use App\Models\AmparoLegalContrato;
 use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Comprasitemunidadecontratoitens;
@@ -103,6 +104,7 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+
         $valor_parcela = $request->input('valor_parcela');
         $request->request->set('valor_parcela', $valor_parcela);
 
@@ -131,6 +133,10 @@ class ContratoCrudController extends CrudController
 
             if (!empty($request->get('minutasempenho'))) {
                 $this->vincularMinutaContratoHistorico($request->all(), $contrato_id);
+            }
+
+            if (!empty($request->get('amparoslegais'))) {
+                $this->vincularAmparoLegalContratoHistorico($request->all(), $contrato_id);
             }
 
             DB::commit();
@@ -181,14 +187,36 @@ class ContratoCrudController extends CrudController
         }
     }
 
-    public function vincularMinutaContratoHistorico($request, $contrato_id)
+    /**
+     *  Ao gravar o contrato gravar as minutas para contratoHistorico na tabela pivot
+     *
+     * @param $request
+     * @param $contrato_id
+     */
+    private function vincularMinutaContratoHistorico($request, $contrato_id)
     {
-
         $contratoHistorico = Contratohistorico::where('contrato_id', '=', $contrato_id)->first();
 
         // vincula os empenhos ao contrato historico
         foreach ($request['minutasempenho'] as $MinutaEmpenhoId) {
             $contratoHistorico->minutasempenho()->attach($MinutaEmpenhoId);
+        }
+    }
+
+    /**
+     * Ao gravar o contrato gravar o amparo legal para contratoHistorico na tabela pivot
+     *
+     * @param $request
+     * @param $contrato_id
+     */
+
+    private function vincularAmparoLegalContratoHistorico($request, $contrato_id)
+    {
+        $contratoHistorico = Contratohistorico::where('contrato_id', '=', $contrato_id)->first();
+
+        // vincula os empenhos ao contrato historico
+        foreach ($request['amparoslegais'] as $amparoLegalId) {
+            $contratoHistorico->amparolegal()->attach($amparoLegalId);
         }
     }
 
