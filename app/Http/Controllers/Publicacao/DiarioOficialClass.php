@@ -53,6 +53,7 @@ class DiarioOficialClass extends BaseSoapController
     public function consultaTodosFeriado()
     {
         try {
+            $this->setSoapClient();
             $response = $this->soapClient->ConsultaTodosOrgaosPermitidos();
 
         } catch (Exception $e) {
@@ -66,7 +67,7 @@ class DiarioOficialClass extends BaseSoapController
 //            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
             $dados ['dados']['CPF'] = $cpf;
             $dados ['dados']['IDOficio'] = $oficio_id;
-
+            $this->setSoapClient();
             return $this->soapClient->ConsultaAcompanhamentoOficio($dados);
         } catch (Exception $e) {
             return $e->getMessage();
@@ -81,7 +82,7 @@ class DiarioOficialClass extends BaseSoapController
 //            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
                 $dados ['dados']['CPF'] = $cpf;
                 $dados ['dados']['IDMateria'] = $publicacao->materia_id;
-
+                $this->setSoapClient();
                 return $this->soapClient->SustaMateria($dados);
             } catch (Exception $e) {
                 return $e->getMessage();
@@ -96,7 +97,7 @@ class DiarioOficialClass extends BaseSoapController
         try {
             $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
             $contratohistorico= $publicacao->contratohistorico;
-
+            $this->setSoapClient();
             $this->enviaPublicacao($contratohistorico, $publicacao);
 
         } catch (Exception $e) {
@@ -344,7 +345,7 @@ class DiarioOficialClass extends BaseSoapController
             case "Termo Aditivo":
                 $textomodelo = self::retornaTextoModelorAditivo($contratoHistorico);
                 break;
-            case "Termo Apostilamento":
+            case "Termo de Apostilamento":
                 $textomodelo = self::retornaTextoModeloApostilamento($contratoHistorico);
                 break;
             case "Termo de Rescisão":
