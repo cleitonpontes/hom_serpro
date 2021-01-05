@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Gescon;
 
+use Alert;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\SfOrcEmpenhoDados;
@@ -44,7 +45,6 @@ class ContratoPublicacaoCrudController extends CrudController
         */
 //        $this->crud->setModel(ContratoPublicacoes::class);
         $this->crud->setModel('App\Models\ContratoPublicacoes');
-//        $this->crud->setRoute(config('backpack.base.route_prefix') . '/contratopublicacao');
         $this->crud->setRoute(config('backpack.base.route_prefix')
             . "/gescon/contrato/$contrato_id/publicacao");
         $this->crud->setEntityNameStrings('Publicação', 'Publicações');
@@ -81,7 +81,8 @@ class ContratoPublicacaoCrudController extends CrudController
 //        $this->crud->setFromDb();
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-        $this->crud->addButtonFromView('line', 'atualizarsituacaopublicacao', 'atualizarsituacaopublicacao');
+        //TODO SUPRIMIR O BTN DE ATUALIZAR SITUAÇÃO ATÉ SEGUNDA ORDEM
+//        $this->crud->addButtonFromView('line', 'atualizarsituacaopublicacao', 'atualizarsituacaopublicacao');
         $this->crud->enableExportButtons();
 
         $this->adicionaColunas();
@@ -153,7 +154,7 @@ class ContratoPublicacaoCrudController extends CrudController
             'model' => Contratohistorico::class, // foreign key model
 
             // optional
-            'options'   => (function ($query) use ($contrato_id) {
+            'options' => (function ($query) use ($contrato_id) {
                 return $query->where('contrato_id', $contrato_id)->get();
             }), // force the related options to be a custom query, instead of all(); you can use this to filter the results show in the select
         ]);
@@ -378,7 +379,7 @@ class ContratoPublicacaoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
-        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR');
+        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
 
         $request->request->set('status_publicacao_id', $situacao_id);
 
@@ -390,7 +391,7 @@ class ContratoPublicacaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR');
+        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
 
         $request->request->set('status_publicacao_id', $situacao_id);
         // your additional operations before save here
@@ -400,29 +401,30 @@ class ContratoPublicacaoCrudController extends CrudController
         return $redirect_location;
     }
 
-    public function executarAtualizacaoSituacaoPublicacao($id)
+    public function executarAtualizacaoSituacaoPublicacao($contrato_id, $id)
     {
-        DB::beginTransaction();
-        try {
-            $situacao = Codigoitem::wherehas('codigo', function ($q) {
-                $q->where('descricao', '=', 'Situações Minuta Empenho');
-            })
-                ->where('descricao', 'EM PROCESSAMENTO')
-                ->first();
-            $minuta->situacao_id = $situacao->id;
-            $minuta->save();
+        $publicacao = ContratoPublicacoes::find($id);
 
-            $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)->first();
+        $situacao_devolvido = $this->retornaIdCodigoItem('Situacao Publicacao', 'DEVOLVIDO PELA IMPRENSA');
 
-            $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
-            $modSfOrcEmpenhoDados->save();
+        if ($publicacao->status_publicacao_id == $situacao_devolvido) {
+            DB::beginTransaction();
+            try {
+                $situacao = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
+                $publicacao->status_publicacao_id = $situacao->id;
+                $publicacao->save();
 
-            DB::commit();
-        } catch (Exception $exc) {
-            DB::rollback();
+                DB::commit();
+                Alert::success('Situação da publicacao alterada com sucesso!')->flash();
+                return redirect($this->crud->route);
+            } catch (Exception $exc) {
+                DB::rollback();
+                Alert::error('Erro! Tente novamente mais tarde!')->flash();
+                return redirect($this->crud->route);
+            }
         }
 
-        Alert::success('Situação da minuta alterada com sucesso!')->flash();
-        return redirect('/empenho/minuta');
+        Alert::warning('Operação não permitida!')->flash();
+        return redirect($this->crud->route);
     }
 }
