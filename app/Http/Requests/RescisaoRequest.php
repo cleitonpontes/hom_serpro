@@ -3,11 +3,13 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use Illuminate\Foundation\Http\FormRequest;
 
 
 class RescisaoRequest extends FormRequest
 {
+    use RegrasDataPublicacao;
     protected $data_limite;
 
     /**
@@ -28,21 +30,20 @@ class RescisaoRequest extends FormRequest
      */
     public function rules()
     {
-        $id = $this->id ?? "NULL";
-        $unidade_id = $this->unidade_id ?? "NULL";
+        $tipo_id = $this->tipo_id ?? "NULL";
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
-        $data_publicacao = ($this->data_publicacao) ? "date|after:{$this->data_limiteinicio}|after_or_equal:data_assinatura" : "" ;
-
-
-        return [
+        $rules = [
             'observacao' => 'required',
             'processo' => 'required',
             'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|after_or_equal:vigencia_inicio",
-            'data_publicacao' => "required|".$data_publicacao,
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
+
+        return $rules;
     }
 
     /**

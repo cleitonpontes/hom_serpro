@@ -3,11 +3,13 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
 class AditivoRequest extends FormRequest
 {
+    use RegrasDataPublicacao;
 
     protected $data_limite;
 
@@ -30,11 +32,14 @@ class AditivoRequest extends FormRequest
     public function rules()
     {
         $id = $this->id ?? "NULL";
-        $contrato_id = $this->contrato_id ?? "NULL";
         $tipo_id = $this->tipo_id ?? "NULL";
+        $contrato_id = $this->contrato_id ?? "NULL";
         $this->data_limite = date('Y-m-d', strtotime('+50 year'));
 
-        return [
+        $this->hoje = date('Y-m-d');
+        $this->data_amanha = date('Y-m-d', strtotime('+1 day'));
+
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratohistorico','numero'))
@@ -44,10 +49,9 @@ class AditivoRequest extends FormRequest
             ],
             'fornecedor_id' => 'required',
             'contrato_id' => 'required',
-            'tipo_id' => 'required',
             'unidade_id' => 'required',
-            'data_assinatura' => 'required|date',
-            'data_publicacao' => 'required|date',
+            'data_assinatura' => "required|date|before:{$this->data_amanha}",
+
             'vigencia_inicio' => 'required|date|before:vigencia_fim',
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limite}",
             'valor_global' => 'required',
@@ -62,6 +66,10 @@ class AditivoRequest extends FormRequest
             'retroativo_vencimento' => 'required_if:retroativo,==,1',
             'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
+
+        return $rules;
     }
 
     /**
@@ -84,9 +92,14 @@ class AditivoRequest extends FormRequest
     public function messages()
     {
         $data_limite = implode('/',array_reverse(explode('-',$this->data_limite)));
+        $hoje = date('d/m/Y');
+        $data_amanha = date('d/m/Y', strtotime('+1 day'));
+
 
         return [
             'vigencia_fim.before' => "A :attribute deve ser uma data anterior a {$data_limite}!",
+            'data_publicacao.after' => "A data da publicação deve ser maior que {$hoje} ",
+            'data_assinatura.before' => "A data da assinatura deve ser menor que  {$data_amanha} "
         ];
     }
 }

@@ -20,11 +20,24 @@ trait CompraTrait
 //        dd($compraitem_id);
 //        $teste = CompraItemMinutaEmpenho::select(
         return CompraItemMinutaEmpenho::select(
-            DB::raw('CASE
-                           WHEN compra_item_unidade.quantidade_autorizada - sum(compra_item_minuta_empenho.quantidade) IS NOT NULL
-                               THEN compra_item_unidade.quantidade_autorizada - sum(compra_item_minuta_empenho.quantidade)
-                           ELSE compra_item_unidade.quantidade_autorizada
-                           END AS saldo')
+            DB::raw("
+            coalesce(coalesce(compra_item_unidade.quantidade_autorizada, 0)
+                    - (
+                    select coalesce(sum(cime.quantidade), 0)
+                    from compra_item_minuta_empenho cime
+                             join minutaempenhos m on cime.minutaempenho_id = m.id
+                             left join contrato_minuta_empenho_pivot cmep on m.id = cmep.minuta_empenho_id
+                    where cime.compra_item_id = $compraitem_id
+                      and cmep.contrato_id is null
+                )
+                    - (
+                    select coalesce(sum(quantidade), 0)
+                    from contratoitens
+                             join compras_item_unidade_contratoitens ciuc on contratoitens.id = ciuc.contratoitem_id
+                    where ciuc.compra_item_unidade_id = compra_item_unidade.id
+                )
+           , 0) AS saldo
+            ")
         )
             ->join(
                 'compra_items',
@@ -39,17 +52,26 @@ trait CompraTrait
                 'compra_items.id'
             )
             ->where('compra_item_unidade.compra_item_id', $compraitem_id)
-            ->groupBy('compra_item_unidade.quantidade_autorizada')
+            ->groupBy('compra_item_unidade.quantidade_autorizada','compra_item_unidade.id')
             ->first();
-//        ;dd($teste->getBindings(),$teste->toSql());
+//        ;dd($teste->getBindings(),$teste->toSql(), $teste->first());
     }
 
 
     public function gravaParametroItensdaCompraSISPP($compraSiasg, $compra): void
     {
-//        $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $compra);
         $unidade_autorizada_id = session('user_ug_id');
+        $this->gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
 
+    public function gravaParametroItensdaCompraSISPPCommand($compraSiasg, $compra): void
+    {
+        $unidade_autorizada_id = $compra->unidade_origem_id;
+        $this->gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
+
+    private function gravaParametroSISPP($compraSiasg, $compra, $unidade_autorizada_id): void
+    {
         if (!is_null($compraSiasg->data->itemCompraSisppDTO)) {
             foreach ($compraSiasg->data->itemCompraSisppDTO as $key => $item) {
                 $catmatseritem = $this->gravaCatmatseritem($item);
@@ -67,8 +89,18 @@ trait CompraTrait
 
     public function gravaParametroItensdaCompraSISRP($compraSiasg, $compra): void
     {
-//        $unidade_autorizada_id = $this->retornaUnidadeAutorizada($compraSiasg, $compra);
         $unidade_autorizada_id = session('user_ug_id');
+        $this->gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
+
+    public function gravaParametroItensdaCompraSISRPCommand($compraSiasg, $compra): void
+    {
+        $unidade_autorizada_id = $compra->unidade_origem_id;
+        $this->gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id);
+    }
+
+    private function gravaParametroSISRP($compraSiasg, $compra, $unidade_autorizada_id): void
+    {
         $consultaCompra = new ApiSiasg();
 
         if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
@@ -124,6 +156,7 @@ trait CompraTrait
 
     public function gravaCatmatseritem($item)
     {
+
         $MATERIAL = [149, 194];
         $SERVICO = [150, 195];
 
@@ -131,7 +164,7 @@ trait CompraTrait
         $tipo = ['S' => $SERVICO[0], 'M' => $MATERIAL[0]];
         $catGrupo = ['S' => $SERVICO[1], 'M' => $MATERIAL[1]];
         $catmatseritem = Catmatseritem::updateOrCreate(
-            ['codigo_siasg' => (int)$codigo_siasg],
+            ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
             ['descricao' => $item->descricao, 'grupo_id' => $catGrupo[$item->tipo]]
         );
         return $catmatseritem;
@@ -162,24 +195,9 @@ trait CompraTrait
     public function retornaFornecedor($item)
     {
         $fornecedor = new Fornecedor();
-
-        if ($item->niFornecedor === 'ESTRANGEIRO') {
-            $cpf_cnpj_idgener =
-                mb_strtoupper(preg_replace('/\s/', '_', $item->niFornecedor . '_' . $item->nomeFornecedor), 'UTF-8');
-
-            $retorno = $fornecedor->buscaFornecedorPorNumero($cpf_cnpj_idgener);
-
-            if (is_null($retorno)) {
-                $fornecedor->tipo_fornecedor = 'IDGENERICO';
-                $fornecedor->cpf_cnpj_idgener = $cpf_cnpj_idgener;
-                $fornecedor->nome = $item->nomeFornecedor;
-                $fornecedor->save();
-                return $fornecedor;
-            }
-            return $retorno;
-        }
-
         $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
+
+        //TODO UPDATE OR INSERT FORNECEDOR
         if (is_null($retorno)) {
             $fornecedor->tipo_fornecedor = $fornecedor->retornaTipoFornecedor($item->niFornecedor);
             $fornecedor->cpf_cnpj_idgener = $fornecedor->formataCnpjCpf($item->niFornecedor);
@@ -226,6 +244,7 @@ trait CompraTrait
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem_id);
+
         $compraItemUnidade->quantidade_saldo = $saldo->saldo;
         $compraItemUnidade->save();
     }

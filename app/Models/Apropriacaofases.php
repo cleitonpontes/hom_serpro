@@ -2,9 +2,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Apropriacaofases extends Model
 {
+    use LogsActivity;
 
     const APROP_FASE_NAO_INICIADA = 0;
 
@@ -24,9 +26,11 @@ class Apropriacaofases extends Model
 
     const APROP_FASE_FINALIZADA = 8;
 
-    protected $table = 'apropriacoes';
+    protected $table = 'apropriacoes_fases';
 
     protected $fillable = ['id', 'fase'];
+
+    public $timestamps = false;
 
     public function descricao()
     {

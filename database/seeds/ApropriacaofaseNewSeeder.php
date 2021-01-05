@@ -1,11 +1,17 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\Models\Apropriacaofases;
 
 class ApropriacaofaseNewSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('apropriacoes_fases')->insert(['id' => 99, 'fase' => 'Cancelada']);
+        $fases = Apropriacaofases::firstOrCreate(
+            [
+                'id' => '99',
+                'fase' => 'Cancelada',
+            ]
+        );
     }
 }

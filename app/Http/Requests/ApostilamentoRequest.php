@@ -3,11 +3,14 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
 class ApostilamentoRequest extends FormRequest
 {
+
+    use RegrasDataPublicacao;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -30,7 +33,9 @@ class ApostilamentoRequest extends FormRequest
         $contrato_id = $this->contrato_id ?? "NULL";
         $tipo_id = $this->tipo_id ?? "NULL";
 
-        return [
+        $this->hoje = date('Y-m-d');
+
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratohistorico','numero'))
@@ -39,9 +44,8 @@ class ApostilamentoRequest extends FormRequest
                     ->where('tipo_id',$tipo_id)
             ],
             'contrato_id' => 'required',
-            'tipo_id' => 'required',
             'unidade_id' => 'required',
-            'data_assinatura' => 'required|date',
+            'data_assinatura' => "required|date|before_or_equal:{$this->hoje}",
             'data_inicio_novo_valor' => 'required|date|after_or_equal:data_assinatura',
             'novo_num_parcelas' => 'required',
             'novo_valor_parcela' => 'required',
@@ -55,6 +59,10 @@ class ApostilamentoRequest extends FormRequest
             'retroativo_vencimento' => 'required_if:retroativo,==,1',
             'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
+
+        return $rules;
     }
 
     /**

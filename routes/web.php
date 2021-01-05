@@ -40,16 +40,22 @@ Route::group([
 });
 
 Route::group([
-    'prefix' => 'soap',
-    'namespace' => 'Soap',
+    'prefix' => 'publicacao',
+    'namespace' => 'Publicacao',
 ], function () {
 //    Route::get('/imprensa', 'SoapController@consulta')->name('so.imprensa');
-    Route::get('/consulta-feriado', 'DiarioOficialController@consultaTodosFeriado')->name('soap.consulta.feriado');
-    Route::get('/oficio-preview/{contrato_id}', 'DiarioOficialController@oficioPreview')->name('soap.oficio.preview');
+    Route::get('/consulta-feriado', 'DiarioOficialClass@consultaTodosFeriado')->name('soap.consulta.feriado');
+    Route::get('/consulta-situacao/{publicacao_id?}', 'DiarioOficialClass@atualizaStatusPublicacao')->name('publicacao.consulta.situacao');
+    Route::get('/enviar-materia/{contratohistorico_id?}', 'DiarioOficialClass@enviaPublicacao')->name('publicacao.enviar.materia');
+    Route::get('/reenviar-materia/{publicacao_id?}', 'DiarioOficialClass@reenviarPublicacao')->name('publicacao.reenviar.materia');
+    Route::get('/reenviar-materia/{materia_id?}/{cpf}', 'DiarioOficialClass@sustaMateriaPublicacao')->name('publicacao.sustar.materia');
 });
 
 
 Route::get('/storage/contrato/{pasta}/{file}', 'DownloadsController@contrato');
+
+Route::get('/test/job', 'TestController@contrato');
+
 
 
 Route::group(

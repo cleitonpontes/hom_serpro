@@ -7,6 +7,7 @@ use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Models\Role;
 
 
 class Importacao extends Model
@@ -32,12 +33,14 @@ class Importacao extends Model
         'tipo_id',
         'unidade_id',
         'contrato_id',
+        'role_id',
         'situacao_id',
         'delimitador',
         'arquivos',
         'deleted_at',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'mensagem'
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -72,6 +75,16 @@ class Importacao extends Model
 
         $contrato = Contrato::find($this->contrato_id);
         return $contrato->numero;
+    }
+
+    public function getGrupoUsuarios()
+    {
+        if (!$this->role_id) {
+            return '';
+        }
+
+        $role = Role::find($this->role_id);
+        return $role->name;
     }
 
     public function getSituacao()
@@ -132,8 +145,7 @@ class Importacao extends Model
 
         $attribute_name = "arquivos";
         $disk = "local";
-        $contrato = Contrato::find($this->contrato_id);
-        $destination_path = "importacao/" . $contrato->id . "_" . str_replace('/', '_', $contrato->numero);
+        $destination_path = "importacao/" . $this->unidade_id . "_" . str_replace(' ', '_', $this->nome_arquivo);
 
         $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
     }

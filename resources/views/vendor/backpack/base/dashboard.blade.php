@@ -150,36 +150,36 @@
         </section>
     </div>
 
-    <!-- Linha 3 -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="row">
-                <section class="col-lg-12 connectedSortable ui-sortable">
-                    <div class="box box-solid">
-                        <div class="box-header with-border">
-                            <i class="fa fa-bar-chart"></i>
-                            <h3 class="box-title">Empenhos sem contratos vinculados UG: {{ $ug }}</h3>
+{{--    <!-- Linha 3 -->--}}
+{{--    <div class="row">--}}
+{{--        <div class="col-md-12">--}}
+{{--            <div class="row">--}}
+{{--                <section class="col-lg-12 connectedSortable ui-sortable">--}}
+{{--                    <div class="box box-solid">--}}
+{{--                        <div class="box-header with-border">--}}
+{{--                            <i class="fa fa-bar-chart"></i>--}}
+{{--                            <h3 class="box-title">Empenhos sem contratos vinculados UG: {{ $ug }}</h3>--}}
 
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                                    <i class="fa fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove">
-                                    <i class="fa fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
+{{--                            <div class="box-tools pull-right">--}}
+{{--                                <button type="button" class="btn btn-box-tool" data-widget="collapse">--}}
+{{--                                    <i class="fa fa-minus"></i>--}}
+{{--                                </button>--}}
+{{--                                <button type="button" class="btn btn-box-tool" data-widget="remove">--}}
+{{--                                    <i class="fa fa-times"></i>--}}
+{{--                                </button>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
 
-                        <div class="box-body">
-                            <div class="overflow-hidden">
-                                {!! $gridEmpenhos->table() !!}
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </div>
+{{--                        <div class="box-body">--}}
+{{--                            <div class="overflow-hidden">--}}
+{{--                                {!! $gridEmpenhos->table() !!}--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </section>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
 
     <!-- #Modal -->
     <div class="modal fade contratoNaoInformado" tabindex="-1" role="dialog">
@@ -235,7 +235,7 @@
 @endsection
 
 @push('after_scripts')
-    {!! $gridEmpenhos->scripts() !!}
+{{--    {!! $gridEmpenhos->scripts() !!}--}}
 
     <script type="text/javascript">
         $('body').delegate('.contrato', 'click', function() {

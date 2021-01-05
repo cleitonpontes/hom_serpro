@@ -64,7 +64,6 @@ class RhsituacaoCrudController extends CrudController
             ->pluck('nome', 'id')
             ->toArray();
 
-
         $campos = $this->Campos($execsfsituacao,$nddetalhada);
         $this->crud->addFields($campos);
 

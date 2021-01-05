@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ApropriacoesFaturasContratofaturas extends Model
 {
+    use LogsActivity;
 
     /*
     |--------------------------------------------------------------------------

@@ -11,6 +11,7 @@ class SfOrcEmpenhoDados extends Model
 {
     use CrudTrait;
     use LogsActivity;
+
 //    use SoftDeletes;
 
     /*
@@ -44,7 +45,7 @@ class SfOrcEmpenhoDados extends Model
         'codtipotransf',
         'txtlocalentrega',
         'txtdescricao',
-        'numro', // numero??
+        'numro',
         'mensagemretorno',
         'situacao',
         'alteracao'
@@ -75,6 +76,11 @@ class SfOrcEmpenhoDados extends Model
     public function itens_empenho()
     {
         return $this->hasMany(SfItemEmpenho::class, 'sforcempenhodado_id');
+    }
+
+    public function celula_orcamentaria()
+    {
+        return $this->hasOne(SfCelulaOrcamentaria::class, 'sforcempenhodado_id');
     }
 
     /*

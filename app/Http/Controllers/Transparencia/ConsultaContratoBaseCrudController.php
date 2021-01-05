@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
  * @property-read CrudPanel $crud
  * @author Saulo Soares <saulosao@gmail.com>
  */
-
 abstract class ConsultaContratoBaseCrudController extends CrudController
 {
     /**
@@ -39,7 +38,6 @@ abstract class ConsultaContratoBaseCrudController extends CrudController
         // $this->crud->setRoute(config('backpack.base.route_prefix') . 'caminho da rota');
         // $this->crud->setEntityNameStrings('Entidade', 'Entidades');
         // $this->crud->setHeading('Título do cabeçalho');
-
     }
 
     /**
@@ -124,7 +122,8 @@ abstract class ConsultaContratoBaseCrudController extends CrudController
             $campos,
             $orgaos,
             function ($value) {
-                $this->crud->addClause('whereIn',
+                $this->crud->addClause(
+                    'whereIn',
                     'orgaos.codigo',
                     json_decode($value)
                 );
@@ -139,35 +138,19 @@ abstract class ConsultaContratoBaseCrudController extends CrudController
      */
     private function aplicaFiltroUnidade(): void
     {
-        $orgao_cod = request()->input('orgao') ?? '';
-
-        $campo = [
-            'name' => 'unidade',
-            'type' => 'select2_multiple',
-            'label' => 'Unidade Gestora'
-        ];
-
-        $unidades = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'codigo')
-            ->whereHas('contratos', function ($u) {
-                $u->where('situacao', true);
-            });
-
-        if ($orgao_cod) {
-            $unidades->whereHas('orgao', function ($o) use ($orgao_cod) {
-                $o->where('codigo', $orgao_cod);
-            });
-        }
-
         $this->crud->addFilter(
-            $campo,
-            $unidades->pluck('nome', "codigo")->toArray(),
+            [
+                'type' => 'text',
+                'name' => 'unidade',
+                'label' => 'Unidade Gestora'
+            ],
+            false,
             function ($value) {
-                $value;
-
-                $this->crud->addClause('whereIn',
-                    'unidades.codigo',
-                    json_decode($value)
-                );
+                $this->crud->query->where(function ($query) use ($value) {
+                    $query->where('unidades.nome', 'ILIKE', "%{$value}%")
+                        ->orWhere('unidades.nomeresumido', 'ILIKE', "%{$value}%")
+                        ->orWhere('unidades.codigo', '=', $value);
+                });
             }
         );
     }
@@ -179,25 +162,26 @@ abstract class ConsultaContratoBaseCrudController extends CrudController
      */
     protected function aplicaFiltroFornecedor()
     {
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'cpf_cnpj_idgener')
-            ->whereHas('contratos', function ($u) {
-                $u->where('situacao', true);
-            })
-            ->pluck('nome', "cpf_cnpj_idgener")
-            ->toArray();
+        $this->crud->addFilter(
+            [
+                'type' => 'text',
+                'name' => 'fornecedor',
+                'label' => 'Fornecedor'
+            ],
+            false,
+            function ($value) {
 
-        $this->crud->addFilter([
-            'name' => 'fornecedor',
-            'type' => 'select2_multiple',
-            'label' => 'Fornecedor'
-        ], $fornecedores
-            , function ($value) {
-                $this->crud->addClause('whereIn',
-                    'fornecedores.cpf_cnpj_idgener',
-                    json_decode($value)
-                );
-            });
-
+                $this->crud->query->where(function ($query) use ($value) {
+                    $query->where(
+                        DB::raw("REPLACE(REPLACE(REPLACE(fornecedores.cpf_cnpj_idgener,
+                         '.', ''), '-', ''), '/', '')::TEXT"),
+                        'ilike',
+                        DB::raw("REPLACE(REPLACE(REPLACE('{$value}', '.', ''), '-', ''), '/', '')::TEXT")
+                    )
+                        ->orWhere('fornecedores.nome', 'ILIKE', "%{$value}%");
+                });
+            }
+        );
     }
 
     /**
@@ -240,5 +224,4 @@ abstract class ConsultaContratoBaseCrudController extends CrudController
             'visibleInShow' => true
         ]);
     }
-
 }

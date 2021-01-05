@@ -2,6 +2,8 @@
 
 return [
 
+    'app_amb' => env('APP_AMB', 'Ambiente Produção'),
+
     'google_analytics' => env('GOOGLE_ANALYTICS',''),
 
     //contas contábeis empenhodetalhado
@@ -16,6 +18,9 @@ return [
     ],
 
     'conta_contabil_credito_disponivel' => '622110000',
+
+    'ano_minuta_empenho' => env('ANO_SIAFI_TESTE',date('Y')),
+    'mes_minuta_empenho' => env('MES_SIAFI_TESTE',date('m')),
 
     'modalidades_sem_exigencia' => [
         'Inexigibilidade',
@@ -252,7 +257,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'America/Sao_Paulo',
 
     /*
     |--------------------------------------------------------------------------

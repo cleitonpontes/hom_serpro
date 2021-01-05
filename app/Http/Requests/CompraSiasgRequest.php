@@ -26,9 +26,10 @@ class CompraSiasgRequest extends FormRequest
     public function rules()
     {
         return [
-             'modalidade_id' => 'required',
-             'numero_ano' => 'required',
-             'unidade_origem_id' => 'required'
+             'modalidade_id' => 'required_if:tipoEmpenho,2',
+             'numero_ano' => 'required_if:tipoEmpenho,2',
+             'unidade_origem_id' => 'required_if:tipoEmpenho,2',
+             'id' => 'required_if:tipoEmpenho,1'
         ];
     }
 

@@ -45,7 +45,8 @@ class VerifyStepEmpenhoMiddleware
                 session(['empenho_etapa' => '']);
                 session(['conta_id' => '']);
                 session(['fornecedor_compra' => '']);
-                session(['situacao_id' => '']);
+                session(['fornecedor_cpf_cnpj_idgener' => '']);
+                session(['situacao' => '']);
                 session(['unidade_ajax_id' => '']);
                 return $next($request);
             }
@@ -89,6 +90,9 @@ class VerifyStepEmpenhoMiddleware
                 session(['minuta_id' => $minuta->id]);
                 session(['empenho_etapa' => $minuta->etapa]);
                 session(['fornecedor_compra' => $minuta->fornecedor_compra_id]);
+                session([
+                    'fornecedor_cpf_cnpj_idgener' => $minuta->fornecedor_empenho_cpfcnpjidgener_sessao
+                ]);
                 session(['situacao' => $minuta->situacao->descricao]);
 
                 return $next($request);
@@ -97,6 +101,7 @@ class VerifyStepEmpenhoMiddleware
             session(['minuta_id' => '']);
             session(['empenho_etapa' => '']);
             session(['fornecedor_compra' => '']);
+            session(['fornecedor_cpf_cnpj_idgener' => '']);
             session(['conta_id' => '']);
             session(['situacao' => '']);
 

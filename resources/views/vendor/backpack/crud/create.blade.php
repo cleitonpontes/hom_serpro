@@ -16,7 +16,7 @@
 
 @section('content')
 @if ($crud->hasAccess('list'))
-	<a href="{{ starts_with(URL::previous(), url($crud->route)) ? URL::previous() : url($crud->route) }}" class="hidden-print"><i class="fa fa-angle-double-left"></i> {{ trans('backpack::crud.back_to_all') }} <span>{{ $crud->entity_name_plural }}</span></a>
+    <a href="{{ url($crud->route) }}" class="hidden-print"><i class="fa fa-angle-double-left"></i> {{ trans('backpack::crud.back_to_all') }} <span>{{ $crud->entity_name_plural }}</span></a><br><br>
 @endif
 
 <div class="row m-t-20">
@@ -45,6 +45,12 @@
 		    <div class="">
             @if(Route::current()->getName() == 'crud.contrato.create')
                 @include('crud::inc.form_aba_buttons')
+            @elseif(Route::current()->getName() == 'crud.aditivos.create')
+                    @include('crud::inc.form_aba_buttons_aditivo')
+            @elseif(Route::current()->getName() == 'crud.apostilamentos.create')
+                    @include('crud::inc.form_aba_buttons_apostilamentos')
+            @elseif(Route::current()->getName() == 'crud.rescisao.create')
+                    @include('crud::inc.form_aba_buttons_rescisao')
             @elseif(Route::current()->getName() == 'crud.retiradacontratoconta.create')
                 @include('crud::inc.form_retiradacontratoconta_buttons')
             @elseif(Route::current()->getName() == 'crud.repactuacaocontratoconta.create')

@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
+
 class AmparoLegalRequest extends FormRequest
 {
     /**
@@ -26,11 +27,15 @@ class AmparoLegalRequest extends FormRequest
     public function rules():array
     {
         return [
-             'nome' => 'required|max:255|unique:indicadores,nome,NULL,NULL,deleted_at,NULL',
-             'finalidade' => 'required',
-             'situacao' => 'required',
-
+            'codigo' => 'required',
+            'modalidade_id' => 'required',
         ];
+        // return [
+        //     //  'nome' => 'required|max:255|unique:indicadores,nome,NULL,NULL,deleted_at,NULL',
+        //     //  'finalidade' => 'required',
+        //     //  'situacao' => 'required',
+
+        // ];
     }
 
     /**
@@ -54,6 +59,8 @@ class AmparoLegalRequest extends FormRequest
     {
         return [
             //
+            'codigo.required' => 'O campo "Código" é obrigatório!',
+            'modalidade_id.required' => 'O campo "Modalidade" é obrigatório!',
         ];
     }
 }

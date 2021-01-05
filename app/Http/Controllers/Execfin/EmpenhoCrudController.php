@@ -6,11 +6,15 @@ use Alert;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Transparencia\IndexController;
 use App\Http\Traits\Busca;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
 use App\Jobs\MigracaoCargaEmpenhoJob;
 use App\Jobs\MigracaoempenhoJob;
 use App\Jobs\MigracaoRpJob;
+use App\Models\BackpackUser;
+use App\Models\Codigoitem;
+use App\Models\DevolveMinutaSiasg;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
@@ -20,6 +24,7 @@ use App\Models\Planointerno;
 use App\Models\SfOrcEmpenhoDados;
 use App\Models\Unidade;
 use App\STA\ConsultaApiSta;
+use App\XML\ApiSiasg;
 use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -36,7 +41,7 @@ use Illuminate\Support\Facades\DB;
  */
 class EmpenhoCrudController extends CrudController
 {
-    use Busca;
+    use Busca, BuscaCodigoItens;
 
     public function setup()
     {
@@ -54,6 +59,9 @@ class EmpenhoCrudController extends CrudController
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'empenhos.unidade_id');
         $this->crud->addClause('join', 'naturezadespesa', 'naturezadespesa.id', '=', 'empenhos.naturezadespesa_id');
         $this->crud->addClause('where', 'empenhos.unidade_id', '=', session()->get('user_ug_id'));
+//        $this->crud->addClause('where', DB::raw('left(empenhos."numero", 4)'), '=', config('app.ano_minuta_empenho'));
+//        $this->crud->addClause('orWhere', 'empenhos.rp', '=', true);
+        $this->crud->orderBy('empenhos.updated_at', 'desc');
 
         (backpack_user()->can('migracao_empenhos')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
             'migrarempenho', 'end') : null;
@@ -86,16 +94,7 @@ class EmpenhoCrudController extends CrudController
 
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
-
-        $planointerno = Planointerno::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
-            ->orderBy('codigo', 'asc')->pluck('nome', 'id')->toArray();
-
-        $naturezadespesa = Naturezadespesa::select(DB::raw("CONCAT(codigo,' - ',descricao) AS nome"), 'id')
-            ->orderBy('codigo', 'asc')->pluck('nome', 'id')->toArray();
-
-        $campos = $this->Campos($unidade, $fornecedores, $planointerno, $naturezadespesa);
+        $campos = $this->Campos($unidade);
 
         $this->crud->addFields($campos);
 
@@ -307,7 +306,7 @@ class EmpenhoCrudController extends CrudController
         return $colunas;
     }
 
-    public function Campos($unidade, $fornecedores, $planointerno, $naturezadespesa)
+    public function Campos($unidade)
     {
         $campos = [
             [ // select_from_array
@@ -351,23 +350,42 @@ class EmpenhoCrudController extends CrudController
 //                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
 //             ],
             [ // select_from_array
-                'name' => 'planointerno_id',
                 'label' => "Plano Interno (PI)",
-                'type' => 'select2_from_array',
-                'options' => $planointerno,
-                'allows_null' => true,
-//                'default' => 'one',
+                'type' => "select2_from_ajax",
+                'name' => 'planointerno_id',
+                'entity' => 'planointerno',
+                'attribute' => "codigo",
+                'attribute2' => "descricao",
+                'process_results_template' => 'gescon.process_results_planointerno',
+                'model' => "App\Models\Planointerno",
+                'data_source' => url("api/planointerno"),
+                'placeholder' => "Selecione o Plano Interno",
+                'minimum_input_length' => 2,//                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
             [ // select_from_array
-                'name' => 'naturezadespesa_id',
                 'label' => "Natureza Despesa (ND)",
-                'type' => 'select2_from_array',
-                'options' => $naturezadespesa,
-                'allows_null' => true,
-//                'default' => 'one',
+                'type' => "select2_from_ajax",
+                'name' => 'naturezadespesa_id',
+                'entity' => 'naturezadespesa',
+                'attribute' => "codigo",
+                'attribute2' => "descricao",
+                'process_results_template' => 'gescon.process_results_planointerno',
+                'model' => "App\Models\Naturezadespesa",
+                'data_source' => url("api/naturezadespesa"),
+                'placeholder' => "Selecione a Natureza de Despesa",
+                'minimum_input_length' => 2,//                'default' => 'one',
                 // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
             ],
+//            [ // select_from_array
+//                'name' => 'naturezadespesa_id',
+//                'label' => "Natureza Despesa (ND)",
+//                'type' => 'select2_from_array',
+//                'options' => $naturezadespesa,
+//                'allows_null' => true,
+////                'default' => 'one',
+//                // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+//            ],
 
         ];
 
@@ -724,9 +742,23 @@ class EmpenhoCrudController extends CrudController
         $migracao_url = config('migracao.api_sta');
         $url = $migracao_url . '/api/empenho/ano/' . $ano . '/ug/' . $unidade->codigo;
 
-        $dados = (env('APP_ENV', 'production') === 'production')
-            ? $this->buscaDadosFileGetContents($url)
-            : $this->buscaDadosCurl($url);
+//        $dados = (env('APP_ENV', 'production') === 'production')
+//            ? $this->buscaDadosFileGetContents($url)
+//            : $this->buscaDadosCurl($url);
+
+        $context = stream_context_create(array(
+            'http' => array(
+                'timeout' => 600,
+                'ignore_errors' => true,
+            ),
+            "ssl" => array(
+                "allow_self_signed" => true,
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ),
+        ));
+
+        $dados = $this->buscaDadosFileGetContents($url, $context);
 
         $pkcount = is_array($dados) ? count($dados) : 0;
         if ($pkcount > 0) {
@@ -737,48 +769,50 @@ class EmpenhoCrudController extends CrudController
                     $pi = $this->buscaPi($d);
                 }
 
-                $naturezadespesa = Naturezadespesa::where('codigo', $d['naturezadespesa'])
-                    ->first();
+                $naturezadespesa = $this->trataPiNdSubitem($d['naturezadespesa'], 'ND', null, $d['naturezadespesadescricao']);
 
-                $empenho = Empenho::where('numero', '=', trim($d['numero']))
-                    ->where('unidade_id', '=', $unidade->id)
-                    ->first();
+                if ($naturezadespesa) {
+                    $empenho = Empenho::updateOrCreate(
+                        [
+                            'numero' => trim($d['numero']),
+                            'unidade_id' => $unidade->id
+                        ],
+                        [
+                            'fornecedor_id' => $credor->id,
+                            'planointerno_id' => $pi->id,
+                            'naturezadespesa_id' => $naturezadespesa,
+                            'fonte' => trim($d['fonte']),
+                        ]
+                    );
 
-                if (!isset($empenho->id)) {
-                    $empenho = Empenho::create([
-                        'numero' => trim($d['numero']),
-                        'unidade_id' => $unidade->id,
-                        'fornecedor_id' => $credor->id,
-                        'planointerno_id' => $pi->id,
-                        'naturezadespesa_id' => $naturezadespesa->id,
-                        'fonte' => trim($d['fonte']),
-                    ]);
-                } else {
-                    $empenho->fornecedor_id = $credor->id;
-                    $empenho->planointerno_id = $pi->id;
-                    $empenho->naturezadespesa_id = $naturezadespesa->id;
-                    $empenho->fonte = trim($d['fonte']);
-                    $empenho->save();
-                }
+                    foreach ($d['itens'] as $item) {
+                        $naturezasubitem = $this->trataPiNdSubitem($item['subitem'], 'SUBITEM', $naturezadespesa, $item['subitemdescricao']);
 
-                foreach ($d['itens'] as $item) {
-                    $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
-                        ->where('naturezadespesa_id', $naturezadespesa->id)
-                        ->first();
-
-                    $empenhodetalhado = Empenhodetalhado::where('empenho_id', '=', $empenho->id)
-                        ->where('naturezasubitem_id', '=', $naturezasubitem->id)
-                        ->first();
-
-                    if (!$empenhodetalhado) {
-                        $empenhodetalhado = Empenhodetalhado::create([
-                            'empenho_id' => $empenho->id,
-                            'naturezasubitem_id' => $naturezasubitem->id
-                        ]);
+                        if ($naturezasubitem) {
+                            $empenhodetalhado = Empenhodetalhado::updateOrCreate([
+                                'empenho_id' => $empenho->id,
+                                'naturezasubitem_id' => $naturezasubitem
+                            ]);
+                        }
                     }
                 }
             }
         }
+    }
+
+    private function buscaNd($codigo, $descricao)
+    {
+        $planointerno = Naturezadespesa::updateOrCreate(
+            [
+                'codigo' => $codigo
+            ],
+            [
+                'descricao' => strtoupper($descricao),
+                'situacao' => true
+            ]
+        );
+
+        return $planointerno;
     }
 
     public function executaCargaEmpenhos()
@@ -796,7 +830,7 @@ class EmpenhoCrudController extends CrudController
 
         foreach ($unidades as $unidade) {
             for ($i = $ano_antigo; $i <= $ano_corrente; $i++) {
-                MigracaoCargaEmpenhoJob::dispatch($unidade->id, $i)->onQueue('migracaocargaempenho');
+                MigracaoCargaEmpenhoJob::dispatch($unidade->id, $i)->onQueue('migracaoempenho');
             }
         }
 
@@ -808,50 +842,40 @@ class EmpenhoCrudController extends CrudController
 
     public function buscaFornecedor($credor)
     {
-        $fornecedor = Fornecedor::where('cpf_cnpj_idgener', '=', $credor['cpfcnpjugidgener'])
-            ->first();
-
-        if (!isset($fornecedor->id)) {
-            $tipo = 'JURIDICA';
-            if (strlen($credor['cpfcnpjugidgener']) == 14) {
-                $tipo = 'FISICA';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
-                $tipo = 'IDGENERICO';
-            } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
-                $tipo = 'UG';
-            }
-
-            $fornecedor = Fornecedor::create([
-                'tipo_fornecedor' => $tipo,
-                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener'],
-                'nome' => strtoupper(trim($credor['nome']))
-            ]);
-
-        } elseif ($fornecedor->nome != strtoupper(trim($credor['nome']))) {
-            $fornecedor->nome = strtoupper(trim($credor['nome']));
-            $fornecedor->save();
+        $tipo = 'JURIDICA';
+        if (strlen($credor['cpfcnpjugidgener']) == 14) {
+            $tipo = 'FISICA';
+        } elseif (strlen($credor['cpfcnpjugidgener']) == 9) {
+            $tipo = 'IDGENERICO';
+        } elseif (strlen($credor['cpfcnpjugidgener']) == 6) {
+            $tipo = 'UG';
         }
+
+        $fornecedor = Fornecedor::updateOrCreate(
+            [
+                'cpf_cnpj_idgener' => $credor['cpfcnpjugidgener']
+            ],
+            [
+                'tipo_fornecedor' => $tipo,
+                'nome' => strtoupper(trim($credor['nome']))
+            ]
+        );
 
         return $fornecedor;
     }
 
     public function buscaPi($pi)
     {
-        $planointerno = Planointerno::where('codigo', '=', $pi['picodigo'])
-            ->first();
-
-        if (!$planointerno) {
-            $planointerno = Planointerno::create([
-                'codigo' => $pi['picodigo'],
+        $planointerno = Planointerno::updateOrCreate(
+            [
+                'codigo' => $pi['picodigo']
+            ],
+            [
                 'descricao' => strtoupper($pi['pidescricao']),
                 'situacao' => true
-            ]);
-        } else {
-            if ($planointerno->descricao != strtoupper($pi['pidescricao'])) {
-                $planointerno->descricao = strtoupper($pi['pidescricao']);
-                $planointerno->save();
-            }
-        }
+            ]
+        );
+
         return $planointerno;
     }
 
@@ -877,13 +901,158 @@ class EmpenhoCrudController extends CrudController
 
         if ($empenhos) {
             foreach ($empenhos as $empenho) {
+                $user = BackpackUser::where('cpf', $empenho->cpf_user)
+                    ->first();
                 $ws_siafi = new Execsiafi;
-                $ano = '2020';
-                $retorno = $ws_siafi->incluirNe(backpack_user(), $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
+                $ano = config('app.ano_minuta_empenho');
+                $retorno = $ws_siafi->incluirNe($user, $empenho->ugemitente, env('AMBIENTE_SIAFI'), $ano, $empenho);
                 $empenho->update($retorno);
+
+                if ($retorno['situacao'] == 'EMITIDO') {
+                    $empenho = $this->criaEmpenhoFromMinuta($empenho);
+
+                    DevolveMinutaSiasg::create([
+                        'minutaempenho_id' => $empenho->minutaempenho_id,
+                        'situacao' => 'Pendente'
+                    ]);
+                }
+
             }
         }
 
     }
 
+    public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
+    {
+        if($empenho->minuta_empenhos->tipo_empenhopor->descricao != 'Alteração'){
+            $array_empenho1 = [
+                'numero' => trim($empenho->mensagemretorno),
+                'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
+            ];
+            $array_empenho2 = [
+                'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
+                'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
+                'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
+                'fonte' => $empenho->celula_orcamentaria->codfonterec
+            ];
+
+            $novo_empenho = Empenho::updateOrCreate(
+                $array_empenho1,
+                $array_empenho2
+            );
+
+            $itens = $empenho->itens_empenho()->get();
+
+            foreach ($itens as $item) {
+                $array_empenhodetalhado = [
+                    'empenho_id' => $novo_empenho->id,
+                    'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
+                ];
+                Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
+            }
+        }
+    }
+
+    public function trataPiNdSubitem($dado, $tipo, $fk = null, $descricao = null)
+    {
+        if ($dado == '') {
+            return null;
+        }
+
+        if ($tipo == 'PI') {
+            $pi = Planointerno::firstOrCreate(
+                ['codigo' => trim($dado)],
+                [
+                    'descricao' => ($descricao) ? $descricao : 'ATUALIZAR PI',
+                    'situacao' => true
+                ]
+            );
+
+            return $pi->id;
+        }
+        if ($tipo == 'ND') {
+            $nd = Naturezadespesa::firstOrCreate(
+                ['codigo' => trim($dado)],
+                [
+                    'descricao' => ($descricao) ? $descricao : 'ATUALIZAR ND',
+                    'situacao' => true
+                ]
+            );
+
+            return $nd->id;
+        }
+        if ($tipo == 'SUBITEM') {
+            $nd = Naturezasubitem::firstOrCreate(
+                [
+                    'naturezadespesa_id' => $fk,
+                    'codigo' => trim($dado),
+                ],
+                [
+                    'descricao' => ($descricao) ? $descricao : 'ATUALIZAR SUBITEM',
+                    'situacao' => true
+                ]
+            );
+
+            return $nd->id;
+        }
+    }
+
+    public function enviaEmpenhoSiasgTeste()
+    {
+        $apiSiasg = new ApiSiasg();
+
+        $array = [
+            "anoEmpenho" => "2020",
+            "chaveCompra" => "11016105000292019",
+            "chaveContratoContinuado" => "11016150000452019000000",
+            "dataEmissao" => "20201221",
+            "favorecido" => "08685242000178",
+            "fonte" => "0100000000",
+            "itemEmpenho" => [
+                [
+                    "numeroItemCompra" => "1",
+                    "numeroItemEmpenho" => "1",
+                    "quantidadeEmpenhada" => "1",
+                    "subelemento" => "16",
+                    "tipoEmpenhoOperacao" => "A",
+                    "valorUnitarioItem" => "2.53"
+                ],
+            ],
+            "nd" => "339039",
+            "numeroEmpenho" => "2020NE000024",
+            "planoInterno" => "AGU0042",
+            "ptres" => "118494",
+            "tipoCompra" => "1",
+            "tipoEmpenho" => "O",
+            "tipoUASG" => "G",
+            "uasgUsuario" => "110161",
+            "ugEmitente" => "110161",
+            "ugr" => "",
+            "valorTotalEmpenho" => "2.53"
+        ];
+
+        $retorno = $apiSiasg->executaConsulta('Empenho', $array, 'POST');
+
+        if ($retorno['messagem'] !== 'Sucesso') {
+            return 'Erro: ' . $retorno['messagem'];
+        } else {
+            return 'Teste Ok';
+        }
+    }
+
+    public function montaContextJsonGetPeerFalse()
+    {
+        $context_options = array(
+//            'https' => array(
+//                'method' => 'GET',
+//                'header' => "Content-type: application/json"
+//            ),
+            'ssl' => array(
+                'verify_peer' => false,
+                "verify_peer_name" => false,
+            )
+        );
+
+        return stream_context_create($context_options);
+    }
 }

@@ -6,6 +6,7 @@
     //dd(session('empenho_etapa'));
     //dd(session()->all());
         // Busca url da rota
+
         $request = Request();
         $url = $request->path();
 
@@ -20,7 +21,7 @@
 
         // Itens do cabeçalho
 
-        $passos[1] = 'Compra';
+        $passos[1] = 'Contrato/Compra';
         $passos[2] = 'Fornecedor';
         $passos[3] = 'Itens';
         $passos[4] = 'Crédito disponível';
@@ -31,7 +32,7 @@
 
         $rotas = [1 => '#', 2 => '#', 3 => '#', 4 => '#', 5 => '#', 6 => '#', 7 => '#', 8 => '#'];
 
-        if ($situacao === 'EM ANDAMENTO' || $situacao === "ERRO"){
+        if ($situacao === 'EM ANDAMENTO' || $situacao === 'ERRO'){
             $rotas[1] = '#';
             $rotas[2] = route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id]);
             $rotas[3] = route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);

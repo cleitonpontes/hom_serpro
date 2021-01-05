@@ -28,7 +28,7 @@ class ContratoterceirizadoRequest extends FormRequest
         return [
              'contrato_id' => 'required',
              'cpf' => 'required|cpf',
-             'nome' => 'required|min:15|max:255',
+             'nome' => 'required|min:5|max:255',
              'funcao_id' => 'required',
              'jornada' => 'required|numeric',
              'unidade' => 'required|max:255',

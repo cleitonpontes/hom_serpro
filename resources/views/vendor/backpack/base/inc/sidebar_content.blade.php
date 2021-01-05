@@ -23,7 +23,7 @@
 
         <ul class="treeview-menu">
             <li>
-                <a href="{{ backpack_url('/gescon/contrato') }}">
+                <a href="{{ backpack_url('/gescon/contrato?situacao=[1]') }}">
                     <i class="fa fa-file-text-o"></i>
                     <span>Contratos</span>
                 </a>
@@ -236,12 +236,12 @@
                     <i class="fa fa-angle-left pull-right"></i>
                 </a>
                 <ul class="treeview-menu">
-                    <li>
-                        <a href="{{ backpack_url('/apropriacao/fatura') }}">
-                            <i class="fa fa-file-text-o"></i>
-                            <span>Fatura</span>
-                        </a>
-                    </li>
+{{--                    <li>--}}
+{{--                        <a href="{{ backpack_url('/apropriacao/fatura') }}">--}}
+{{--                            <i class="fa fa-file-text-o"></i>--}}
+{{--                            <span>Fatura</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
                     <li>
                         <a href="{{ backpack_url('/folha/apropriacao') }}">
                             <i class="fa fa-money"></i>
@@ -448,6 +448,13 @@
                     </a>
                     <ul class="treeview-menu">
                         <li>
+                            <a href='{{ backpack_url('/admin/amparolegal') }}'>
+                                <i class='fa fa-list'></i>
+                                <span>Amparo Legal</span>
+                            </a>
+                        </li>
+
+                        <li>
                             <a href="{{ backpack_url('/admin/catmatseratualizacao') }}">
                                 <i class="fa fa-list"></i>
                                 <span>Atualização CatMatSer</span>
@@ -495,6 +502,12 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ backpack_url('/admin/padroespublicacao') }}">
+                                <i class="fa fa-list"></i>
+                                <span>Padrões publicações</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ backpack_url('/admin/tipolistafatura') }}">
                                 <i class="fa fa-list"></i>
                                 <span>Tipo lista fatura</span>
@@ -517,6 +530,24 @@
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
+
+
+                        <li>
+                            <a href='{{ backpack_url('/admin/jobs') }}'>
+                                <i class='fa fa-list'></i>
+                                <span>Jobs</span>
+                            </a>
+                        </li>
+
+
+                        <li>
+                            <a href='{{ backpack_url('/admin/failedjobs') }}'>
+                                <i class='fa fa-list'></i>
+                                <span>Failed Jobs</span>
+                            </a>
+                        </li>
+
+
                         <li>
                             <a href='{{ url(config('backpack.base.route_prefix', 'admin').'/log') }}'>
                                 <i class='fa fa-terminal'></i>

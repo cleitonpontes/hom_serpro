@@ -8,6 +8,7 @@ use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
 use App\Models\CompraItemMinutaEmpenho;
+use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\SaldoContabil;
@@ -52,7 +53,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
         $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
         $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta');
-        $this->crud->addButtonFromView('line', 'moreminuta', 'moreminuta', 'end');
+//        $this->crud->addButtonFromView('line', 'moreminuta', 'moreminuta', 'end');
 
         $this->crud->urlVoltar = route(
             'empenho.minuta.etapa.subelemento',
@@ -588,32 +589,76 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function adicionaBoxItens($minuta_id)
     {
-        $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
-            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
-            ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
-            ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
-            ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
-            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
-//            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
-            ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
-            ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
-            ->where('compra_item_minuta_empenho.remessa',0)
-            ->select([
-                DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
-                DB::raw('fornecedores.nome AS "Fornecedor"'),
-                DB::raw('codigoitens.descricao AS "Tipo do Item"'),
-                DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
-                DB::raw('catmatseritens.descricao AS "Descrição"'),
-                DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
-                DB::raw('naturezasubitem.codigo || \' - \' || naturezasubitem.descricao AS "ND Detalhada"'),
-                DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
-                DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
-                DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+        $codigoitem = Codigoitem::find($modMinuta->tipo_empenhopor_id);
+
+        if ($codigoitem->descres == 'CON') {
+//            join('contrato_minuta_empenho_pivot',
+//                'contrato_minuta_empenho_pivot.minuta_empenho_id',
+//                '=',
+//                'minutaempenhos.id'
+//            )->join('contratos', 'contratos.id','=','contrato_minuta_empenho_pivot.contrato_id')
+//                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
+//                ->where('minutaempenhos.id', $minuta_id)
+
+            $itens = ContratoItemMinutaEmpenho::join(
+                'contratoitens',
+                'contratoitens.id',
+                '=',
+                'contrato_item_minuta_empenho.contrato_item_id'
+            )
+
+                ->join('minutaempenhos','minutaempenhos.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
+                ->join('contratos', 'contratos.id', '=', 'minutaempenhos.contrato_id')
+                ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+                ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
+                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
+                ->where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->select([
+                    DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
+                    DB::raw('fornecedores.nome AS "Fornecedor"'),
+                    DB::raw('codigoitens.descricao AS "Tipo do Item"'),
+                    DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
+                    DB::raw('contratoitens.numero_item_compra AS "Número do Item"'),
+                    DB::raw('catmatseritens.descricao AS "Descrição"'),
+                    DB::raw('contratoitens.descricao_complementar AS "Descrição Detalhada"'),
+                    DB::raw('contrato_item_minuta_empenho.quantidade AS "Quantidade"'),
+                    DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
+                ])
+                ->get()->toArray();
+
+        }
+
+        if ($codigoitem->descres == 'COM') {
+            $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
+                ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
+                ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
+                ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+                ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
+                ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+                //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+                ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
+                ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->where('compra_item_minuta_empenho.remessa', 0)
+                ->select([
+                    DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
+                    DB::raw('fornecedores.nome AS "Fornecedor"'),
+                    DB::raw('codigoitens.descricao AS "Tipo do Item"'),
+                    DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
+                    DB::raw('compra_items.numero AS "Número do Item"'),
+                    DB::raw('catmatseritens.descricao AS "Descrição"'),
+                    DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
+                    DB::raw('naturezasubitem.codigo || \' - \' || naturezasubitem.descricao AS "ND Detalhada"'),
+                    DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
+                    DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
+                    DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
 
 
-            ])
-            ->get()->toArray();
-//        ;dd($itens->getBindings(),$itens->toSql());
+                ])
+                ->get()->toArray();
+            //        ;dd($itens->getBindings(),$itens->toSql());
+        }
+
         $this->crud->addColumn([
             'box' => 'itens',
             'name' => 'itens',
@@ -742,7 +787,7 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         $minuta = MinutaEmpenho::find($id);
 
-        if($minuta->situacao->descricao == 'ERRO'){
+        if ($minuta->situacao->descricao == 'ERRO') {
             DB::beginTransaction();
             try {
                 $situacao = Codigoitem::wherehas('codigo', function ($q) {
@@ -765,10 +810,9 @@ class MinutaEmpenhoCrudController extends CrudController
 
             Alert::success('Situação da minuta alterada com sucesso!')->flash();
             return redirect('/empenho/minuta');
-        }else{
+        } else {
             Alert::warning('Situação da minuta não pode ser alterada!')->flash();
             return redirect('/empenho/minuta');
         }
-
     }
 }

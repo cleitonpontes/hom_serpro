@@ -7,6 +7,7 @@ use App\Models\Codigo;
 use App\Models\Codigoitem;
 use App\Models\Contratoterceirizado;
 use App\Models\Instalacao;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -138,7 +139,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.cpf', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -158,7 +162,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.nome', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -199,7 +206,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.descricao_complementar', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -219,7 +229,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.jornada', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -239,7 +252,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.unidade', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -260,7 +276,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.salario', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -281,7 +300,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.custo', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -318,7 +340,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.vale_alimentacao', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 
@@ -334,7 +359,10 @@ class ConsultaterceirizadoCrudController extends ConsultaContratoBaseCrudControl
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('contratoterceirizados.aux_transporte', 'ilike', "%" . $searchTerm . "%");
+            }
         ]);
     }
 

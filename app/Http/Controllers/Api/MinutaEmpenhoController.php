@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Traits\BuscaCodigoItens;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
@@ -9,6 +10,8 @@ use App\Models\CompraItem;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\ContaCorrentePassivoAnterior;
+use App\Models\ContratoItemMinutaEmpenho;
+use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
@@ -31,12 +34,11 @@ use Route;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CompraTrait;
 
-//use function GuzzleHttp\Promise\all;
-
 class MinutaEmpenhoController extends Controller
 {
 
     use CompraTrait;
+    use BuscaCodigoItens;
 
     public function populaTabelasSiafi(Request $request): array
     {
@@ -71,12 +73,12 @@ class MinutaEmpenhoController extends Controller
         $tipoEmpenho = Codigoitem::find($modMinutaEmpenho->tipo_empenho_id);
         $favorecido = Fornecedor::find($modMinutaEmpenho->fornecedor_empenho_id);
         $amparoLegal = AmparoLegal::find($modMinutaEmpenho->amparo_legal_id);
-        $ugemitente = Unidade::find($modMinutaEmpenho->unidade_id);
+        $ugemitente = Unidade::find($modMinutaEmpenho->saldo_contabil->unidade_id);
         $codfavorecido = (str_replace('-', '', str_replace('/', '', str_replace('.', '', $favorecido->cpf_cnpj_idgener))));
 
         $modSfOrcEmpenhoDados->minutaempenho_id = $modMinutaEmpenho->id;
         $modSfOrcEmpenhoDados->ugemitente = $ugemitente->codigo;
-        $modSfOrcEmpenhoDados->anoempenho = (int)date('Y');
+        $modSfOrcEmpenhoDados->anoempenho = (int)config('app.ano_minuta_empenho');
         $modSfOrcEmpenhoDados->tipoempenho = $tipoEmpenho->descres;
         $modSfOrcEmpenhoDados->numempenho = (!is_null($modMinutaEmpenho->numero_empenho_sequencial)) ? $modMinutaEmpenho->numero_empenho_sequencial : null;
         $modSfOrcEmpenhoDados->dtemis = $modMinutaEmpenho->data_emissao;
@@ -138,19 +140,20 @@ class MinutaEmpenhoController extends Controller
     public function gravaSfItensEmpenho(MinutaEmpenho $modMinutaEmpenho, SfOrcEmpenhoDados $sforcempenhodados, $remessa_id = 0)
     {
 
-        $modCompraItemEmpenho = CompraItemMinutaEmpenho::where('minutaempenho_id', $modMinutaEmpenho->id)
-            ->where('minutaempenhos_remessa_id', $remessa_id)
-            ->get();
-//        dd($modCompraItemEmpenho);
+        $tipo = $modMinutaEmpenho->tipo_empenhopor->descricao;
 
-        foreach ($modCompraItemEmpenho as $key => $item) {
+        $itens = $this->getItens($tipo, $modMinutaEmpenho->id);
+
+        foreach ($itens as $key => $item) {
             if ($item->operacao !== 'NENHUMA') {
+                $descricao = $this->getDescItem($item, $tipo);
+
                 $modSfItemEmpenho = new SfItemEmpenho();
                 $modSubelemento = Naturezasubitem::find($item->subelemento_id);
                 $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
                 $modSfItemEmpenho->numseqitem = $key + 1;
                 $modSfItemEmpenho->codsubelemento = $modSubelemento->codigo;
-                $modSfItemEmpenho->descricao = $this->buscaDescricao($item->compra_item_id);
+                $modSfItemEmpenho->descricao = $descricao;
                 $modSfItemEmpenho->save();
 
                 $this->gravaSfOperacaoItemEmpenho($modSfItemEmpenho, $item);
@@ -158,7 +161,7 @@ class MinutaEmpenhoController extends Controller
         }
     }
 
-    public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, CompraItemMinutaEmpenho $item)
+    public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, $item)
     {
 
         $modSfOpItemEmpenho = new SfOperacaoItemEmpenho();
@@ -193,6 +196,8 @@ class MinutaEmpenhoController extends Controller
             ->where('descricao', 'EM ANDAMENTO')
             ->select('codigoitens.id')->first();
 
+        $tipo = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Compra');
+
         DB::beginTransaction();
         try {
             $this->atualizaSaldoCompraItemUnidade($modMinutaEmpenho);
@@ -201,6 +206,7 @@ class MinutaEmpenhoController extends Controller
             $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
             $novoEmpenho->informacao_complementar = $modMinutaEmpenho->informacao_complementar;
             $novoEmpenho->situacao_id = $situacao->id;//em andamento
+            $novoEmpenho->tipo_empenhopor_id = $tipo;
             $novoEmpenho->etapa = 2;
             $novoEmpenho->save();
 
@@ -247,12 +253,85 @@ class MinutaEmpenhoController extends Controller
         return $compra;
     }
 
-    public function buscaDescricao($compra_id)
+
+    /**
+     * Método para buscar as minutas de empenho de acordo com uasg da pessoa logada
+     * e o id do fornecedor passado na request utilizado no formulário de contrato.
+     *
+     * @return  array $minutaEmpenho
+     */
+
+    public function minutaempenhoparacontrato(Request $request)
     {
+        $search_term = $request->input('q');
+
+        $form = collect($request->input('form'))->pluck('value', 'name');
+        $arr_contrato_minuta_empenho_pivot = ContratoMinutaEmpenho::select('minuta_empenho_id')->get()->toArray();
+        $situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EMPENHO EMITIDO')
+            ->select('codigoitens.id')->first();
+
+        $options = MinutaEmpenho::query();
+
+        if (!$form['fornecedor_id']) {
+            return [];
+        }
+
+        if ($form['fornecedor_id']) {
+            $options
+                ->select(['minutaempenhos.id',
+                    DB::raw("CONCAT(minutaempenhos.mensagem_siafi, ' - ', to_char(data_emissao, 'DD/MM/YYYY')  )
+                             as nome_minuta_empenho")])
+                ->distinct('minutaempenhos.id')
+                ->join('compras', 'minutaempenhos.compra_id', '=', 'compras.id')
+                ->join('codigoitens', 'codigoitens.id', '=', 'compras.modalidade_id')
+                ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
+                ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
+                ->where('minutaempenhos.fornecedor_compra_id', $form['fornecedor_id'])
+                ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
+                ->where('minutaempenhos.situacao_id', '=', $situacao->id)
+                ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot);
+        }
+
+        if ($search_term) {
+            $options->where('minutaempenhos.numero_empenho_sequencial', 'LIKE', '%' . $search_term . '%');
+        }
+
+        return $options->paginate(10);
+    }
+
+    private function getItens($tipo, $minuta_id)
+    {
+        if ($tipo === 'Contrato') {
+            return ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get();
+        }
+
+        return CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get();
+    }
+
+    private function getDescItem($item, $tipo)
+    {
+        if ($tipo === 'Contrato') {
+            $contrato_item = $item->contrato_item;
+            $desc = $contrato_item->descricao_complementar;
+
+            $descricao = (!is_null($desc))
+                ? $desc
+                : $contrato_item->item->descricao;
+
+            return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
+        }
+
         $descricao = '';
-        $modCompraItem = CompraItem::find($compra_id);
+        $modCompraItem = CompraItem::find($item->compra_item_id);
         $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
-        (!empty($modCompraItem->descricaodetalhada)) ? $descricao = $modCompraItem->descricaodetalhada : $descricao = $modcatMatSerItem->descricao;
+
+        (!empty($modCompraItem->descricaodetalhada))
+            ? $descricao = $modCompraItem->descricaodetalhada
+            : $descricao = $modcatMatSerItem->descricao;
+
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
 

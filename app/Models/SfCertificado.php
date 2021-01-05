@@ -11,10 +11,10 @@ class SfCertificado extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    protected static $logFillable = true;
-    protected static $logName = 'sfcertificado';
     use SoftDeletes;
 
+    protected static $logFillable = true;
+    protected static $logName = 'sfcertificado';
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
