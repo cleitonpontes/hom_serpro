@@ -93,9 +93,7 @@ class ContratohistoricoObserve
         }
         //-------------------------------------------------------------------------------------------------------------
 
-        if(!is_null($contratohistorico->publicacao) && ($contratohistorico->publicado != true)){
-            $this->trataAtualizacaoPublicacoes($contratohistorico);
-        }
+        $this->trataAtualizacaoPublicacoes($contratohistorico);
 
     }
 
@@ -190,7 +188,6 @@ class ContratohistoricoObserve
     private function criaRetificacao($contratohistorico,$sisg)
     {
         $texto_dou = @DiarioOficialClass::retornaTextoretificacao($contratohistorico);
-
         $cpf = $this->removeMascaraCPF(backpack_user()->cpf);
 
         if(!is_null($texto_dou)) {
@@ -214,9 +211,11 @@ class ContratohistoricoObserve
 
     private function enviarPublicacao($contratohistorico,$publicacao,$texto_dou,$cpf)
     {
+
         if ($publicacao->status_publicacao_id == $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR')) {
-            $diarioOficial = new DiarioOficialClass();
-            $diarioOficial->enviaPublicacao($contratohistorico, $publicacao,$texto_dou,$cpf);
+//            $diarioOficial = new DiarioOficialClass();
+//            $diarioOficial->setSoapClient();
+//            $diarioOficial->enviaPublicacao($contratohistorico, $publicacao,$texto_dou,$cpf);
             return true;
         }
     }
@@ -520,7 +519,7 @@ class ContratohistoricoObserve
                         : ''
             ]);
 
-            //$this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
+//            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
         }
     }
 

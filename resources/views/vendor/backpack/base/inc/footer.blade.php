@@ -1,6 +1,6 @@
 @if (config('backpack.base.show_powered_by'))
     @php
-        $version = \App\Models\AppVersion::all()->last();
+        $version = \App\Models\AppVersion::latest()->first();
     @endphp
     <div class="pull-right hidden-xs">
         v. {{ $version->major . '.' . $version->minor . '.' . $version->patch }}

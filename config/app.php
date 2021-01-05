@@ -19,7 +19,7 @@ return [
 
     'conta_contabil_credito_disponivel' => '622110000',
 
-    'ano_minuta_empenho' => env('ANO_SIAFI_TESTE',date('y')),
+    'ano_minuta_empenho' => env('ANO_SIAFI_TESTE',date('Y')),
     'mes_minuta_empenho' => env('MES_SIAFI_TESTE',date('m')),
 
     'modalidades_sem_exigencia' => [

@@ -198,7 +198,7 @@
 
             $("#table-itens tr").remove();
             if(minutas_id.length > 0) {
-                var url = "{{route('buscar.itens.modal',':minutas_id')}}";
+                var url = "{{route('buscar.itens.instrumentoinicial',':minutas_id')}}";
 
                 url = url.replace(':minutas_id', minutas_id);
 
