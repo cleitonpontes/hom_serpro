@@ -75,33 +75,33 @@ class AdminController extends Controller
         // ************************************************************
         // Monta GRID Empenhos sem Contrato
         // ************************************************************
-        if ($request->ajax()) {
-            $dt = DataTables::of($this->retornaDadosEmpenhosSemContratos());
-
-            $dt->addColumn('contratos', function ($registro) use ($ug) {
-                $idEmpenho = $registro['id'];
-                $idFornecedor = $registro['fornecedor_id'];
-                $opcoes = $this->retornaContratosPorFornecedor($ug, $idFornecedor);
-
-                $podeVincularContrato = backpack_user()->hasPermissionTo('contratoempenho_inserir');
-
-                $botaoConfirma = '';
-                $campoSelect = $this->retornaHtmlCampoSelect($idEmpenho, $opcoes);
-
-                if ($podeVincularContrato) {
-                    $botaoConfirma = $this->retornaHtmlBotaoConfirma($idEmpenho, $idFornecedor);
-                }
-
-                return $campoSelect . ' ' . $botaoConfirma;
-            });
-            $dt->editColumn('valor', '{!! number_format(floatval($valor), 2, ",", ".") !!}');
-
-            $dt->rawColumns(['contratos']);
-            $dt->setRowId('linha_id');
-
-            return $dt->make(true);
-        }
-        $gridEmpenhos = $this->montaGridCampos();
+//        if ($request->ajax()) {
+//            $dt = DataTables::of($this->retornaDadosEmpenhosSemContratos());
+//
+//            $dt->addColumn('contratos', function ($registro) use ($ug) {
+//                $idEmpenho = $registro['id'];
+//                $idFornecedor = $registro['fornecedor_id'];
+//                $opcoes = $this->retornaContratosPorFornecedor($ug, $idFornecedor);
+//
+//                $podeVincularContrato = backpack_user()->hasPermissionTo('contratoempenho_inserir');
+//
+//                $botaoConfirma = '';
+//                $campoSelect = $this->retornaHtmlCampoSelect($idEmpenho, $opcoes);
+//
+//                if ($podeVincularContrato) {
+//                    $botaoConfirma = $this->retornaHtmlBotaoConfirma($idEmpenho, $idFornecedor);
+//                }
+//
+//                return $campoSelect . ' ' . $botaoConfirma;
+//            });
+//            $dt->editColumn('valor', '{!! number_format(floatval($valor), 2, ",", ".") !!}');
+//
+//            $dt->rawColumns(['contratos']);
+//            $dt->setRowId('linha_id');
+//
+//            return $dt->make(true);
+//        }
+//        $gridEmpenhos = $this->montaGridCampos();
 
         $dataHoraAtualizacao = $this->retornaDataHoraUltimaAtualizacao();
 
@@ -112,7 +112,7 @@ class AdminController extends Controller
             'chartjsTotal' => array_sum($contrato),
             'html' => $dadosContratos,
             'ug' => $ug,
-            'gridEmpenhos' => $gridEmpenhos,
+//            'gridEmpenhos' => $gridEmpenhos,
             'dataHoraAtualizacao' => $dataHoraAtualizacao
         ]);
     }

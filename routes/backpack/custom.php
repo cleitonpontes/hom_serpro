@@ -24,6 +24,9 @@ Route::group([
             'prefix' => 'api',
             'namespace' => 'Api',
         ], function () {
+
+
+
             //busca empenhos via ajax
             Route::get('empenho', 'EmpenhoController@index');
             Route::get('empenho/{id}', 'EmpenhoController@show');
@@ -64,9 +67,17 @@ Route::group([
             Route::get('contrato/numero', 'ContratoController@index');
             Route::get('inserir/item/modal/{tipo_id}/{contacorrente}', 'ContratoItensMinutaController@inserirIten')->name('item.inserir.modal');
             Route::get('buscar/itens/modal/{minutas_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
+            Route::get('buscar/itens/instrumentoinicial/{minutas_id}', 'ContratoItensMinutaController@buscarItensDeMinutaParaTelaInstrumentoInicial')->name('buscar.itens.instrumentoinicial');
             Route::get('buscar/campos/contrato/empenho/{id}', 'ContratoController@buscarCamposParaCadastroContratoPorIdEmpenho')->name('buscar.campos.contrato.empenho');
             Route::get( '/saldo-historico-itens/{id}',
                 'SaldoHistoricoItemController@retonaSaldoHistoricoItens')->name('saldo.historico.itens');
+
+            Route::group([
+                'prefix' => 'empenho',
+            ], function (){
+                Route::put('/sem/contrato/e/{empenho}/f/{fornecedor}/c/{contrato}', 'EmpenhoController@gravaContratoEmpenho');
+            });
+
         });
 
         // if not otherwise configured, setup the dashboard routes
@@ -160,6 +171,12 @@ Route::group([
             Route::get('/atualizaorgaosuperior', 'OrgaoSuperiorCrudController@executaAtualizacaoCadastroOrgaoSuperior');
             Route::get('/atualizaorgao', 'OrgaoCrudController@executaAtualizacaoCadastroOrgao');
             Route::get('/atualizaunidade', 'UnidadeCrudController@executaAtualizacaoCadastroUnidade');
+
+            Route::get('/retryfailedjob/{id}', function ($id) {
+                $path = env('APP_PATH');
+                exec('php '.$path.'artisan queue:retry '.$id);
+                return redirect(url('/admin/failedjobs'));
+            });
 
         });
 

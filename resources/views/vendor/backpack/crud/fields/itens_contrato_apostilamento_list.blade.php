@@ -63,6 +63,8 @@
 
                 $('#numero_item').mask('99999');
 
+                buscarItens();
+
                 var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
                 if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
                     $('#table').html(valueHidden);
@@ -71,10 +73,6 @@
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
-                });
-
-                $('body').on('click','#itensdocontrato', function(event){
-                    buscarItens();
                 });
 
                 //quando altera o campo de valor unitario do item re-calcula os valores
@@ -91,18 +89,6 @@
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
                 $('body').on('change','#novo_valor_global',function(event){
                     atualizarValorParcelaApostilamento();
-                });
-
-                $('body').submit(function(){
-                    atualizaValueHTMLCamposAbaItem();
-                    var htmlGridItem = $('#table').html();
-                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
-
-                    $('input[name="qtd_item[]"]').prop('disabled', false);
-                    $('input[name="vl_unit[]"]').prop('disabled', false);
-                    $('input[name="vl_total[]"]').prop('disabled', false);
-                    $('input[name="periodicidade[]"]').prop('disabled', false);
-                    $('input[name="data_inicio[]"]').prop('disabled', false);
                 });
             });
 

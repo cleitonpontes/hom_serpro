@@ -101,7 +101,6 @@ class ContratohistoricoObserve
 
     private function trataAtualizacaoPublicacoes($contratohistorico)
     {
-
         $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
 
 

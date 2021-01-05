@@ -210,7 +210,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         }
 
         if ($codigoitem->descricao == 'Compra') {
-
             $tipo = 'compra_item_id';
 
             $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
@@ -227,6 +226,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 )
                 ->where('compra_item_unidade.quantidade_saldo', '>', 0)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
+                ->where('compras.id', $modMinutaEmpenho->compra_id)
                 ->where(function ($query) use ($fornecedor_id) {
                     $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
                         ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
@@ -246,7 +246,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ])
                 ->get()
                 ->toArray();
-
         }
 
 
