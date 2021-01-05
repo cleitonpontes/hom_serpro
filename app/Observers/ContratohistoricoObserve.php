@@ -215,9 +215,9 @@ class ContratohistoricoObserve
     {
 
         if ($publicacao->status_publicacao_id == $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR')) {
-            $diarioOficial = new DiarioOficialClass();
-            $diarioOficial->setSoapClient();
-            $diarioOficial->enviaPublicacao($contratohistorico, $publicacao,$texto_dou,$cpf);
+//            $diarioOficial = new DiarioOficialClass();
+//            $diarioOficial->setSoapClient();
+//            $diarioOficial->enviaPublicacao($contratohistorico, $publicacao,$texto_dou,$cpf);
             return true;
         }
     }
