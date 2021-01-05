@@ -93,9 +93,7 @@ class ContratohistoricoObserve
         }
         //-------------------------------------------------------------------------------------------------------------
 
-        if(!is_null($contratohistorico->publicacao) && ($contratohistorico->publicado != true)){
-            $this->trataAtualizacaoPublicacoes($contratohistorico);
-        }
+        $this->trataAtualizacaoPublicacoes($contratohistorico);
 
     }
 
@@ -213,6 +211,7 @@ class ContratohistoricoObserve
 
     private function enviarPublicacao($contratohistorico,$publicacao,$texto_dou,$cpf)
     {
+
         if ($publicacao->status_publicacao_id == $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR')) {
 //            $diarioOficial = new DiarioOficialClass();
 //            $diarioOficial->setSoapClient();
