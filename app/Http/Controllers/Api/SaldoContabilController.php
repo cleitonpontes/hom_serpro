@@ -65,9 +65,9 @@ class SaldoContabilController extends Controller
         $cod_unidade = Route::current()->parameter('cod_unidade');
         $contacorrente = Route::current()->parameter('contacorrente');
 
-        $amb = env('AMBIENTE_SIAFI');
-        $system_user = env('USUARIO_SIAFI');
-        $pwd = env('SENHA_SIAFI');
+        $amb = config('app.ambiente_siafi');
+        $system_user = config('app.usuario_siafi');
+        $pwd = config('app.senha_siafi');
 
         $unidade = Unidade::where('codigo',$cod_unidade)->first();
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
@@ -120,13 +120,13 @@ class SaldoContabilController extends Controller
         $saldo = SaldoContabil::find($saldo_id);
         $unidade = Unidade::find($saldo->unidade_id);
 
-        $amb = env('AMBIENTE_SIAFI');
+        $amb = config('app.ambiente_siafi');
         $ano = config('app.ano_minuta_empenho');
         $ug = $unidade->codigo;
         $contacontabil = config('app.conta_contabil_credito_disponivel');
         $contacorrente = "N".$saldo->conta_corrente;
-        $system_user = env('USUARIO_SIAFI');
-        $pwd = env('SENHA_SIAFI');
+        $system_user = config('app.usuario_siafi');
+        $pwd = config('app.senha_siafi');
         $mes = $meses[(int) config('app.mes_minuta_empenho')];//$meses[(int) $registro['mes']];
 
 //        $contacorrente = 'N11184940100000000339039        AGU0042'; //DESCOMENTE PARA TESTAR A ATUALIZACAO DO SALDO POR LINHA
