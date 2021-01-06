@@ -45,23 +45,27 @@ class EnviarPublicacao extends Command
      */
     public function handle()
     {
-        $this->validarDataCommand($this->argument('dtpublicacao'));
+        $data = Carbon::createFromFormat('Y-m-d',$this->argument('dtpublicacao'));
+
         $status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
 
         $arr_contrato_publicacao = ContratoPublicacoes::where('status', 'Pendente')
             ->where('status_publicacao_id', $status_publicacao_id)
+            ->whereNotNull('texto_dou')
+            ->where('texto_dou','!=','')
             ->get();
 
-        $diarioOficial = new DiarioOficialClass();
         foreach ($arr_contrato_publicacao as $contrato_publicacao) {
-            //altera a data de publicacao para a data informada no command
-            $contrato_publicacao->data_publicacao = $this->argument('dtpublicacao');
+
+            $contrato_publicacao->data_publicacao = $data->toDateString();
             $contrato_publicacao->save();
-            //envia publicacao
+
             $contrato_historico = Contratohistorico::where('id', $contrato_publicacao->contratohistorico_id)->first();
+            $diarioOficial = new DiarioOficialClass();
             $diarioOficial->enviarPublicacaoCommand($contrato_historico, $contrato_publicacao);
-            dd('foi');
+
         }
+        dd('Terminou!!');
     }
 
     private function validarDataCommand($data)
