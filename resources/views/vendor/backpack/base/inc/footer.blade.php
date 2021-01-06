@@ -1,9 +1,6 @@
 @if (config('backpack.base.show_powered_by'))
-    @php
-        $version = \App\Models\AppVersion::latest()->first();
-    @endphp
     <div class="pull-right hidden-xs">
-        v. {{ $version->major . '.' . $version->minor . '.' . $version->patch }}
+        v. {{ config('app.app_version') }}
         {{--{{ trans('backpack::base.powered_by') }} <a target="_blank" href="http://backpackforlaravel.com?ref=panel_footer_link">Backpack for Laravel</a>--}}
     </div>
 @endif

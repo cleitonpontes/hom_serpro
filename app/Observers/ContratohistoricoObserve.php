@@ -90,17 +90,16 @@ class ContratohistoricoObserve
 
 
         //-------------------------------------------JOB-----------------------------------------------------------
-        if($contratohistorico->publicado && ($contratohistorico->publicacao->count() == 0)){
+        if ($contratohistorico->publicado && ($contratohistorico->publicacao->count() == 0)) {
             $this->executaAtualizacaoViaJob($contratohistorico);
             return true;
         }
         //-------------------------------------------------------------------------------------------------------------
-        if(!$contratohistorico->publicado) {
+        if (!is_null($contratohistorico->publicacao) && ($contratohistorico->publicado != true)) {
             $this->trataAtualizacaoPublicacoes($contratohistorico);
         }
 
     }
-
 
 
     private function trataAtualizacaoPublicacoes($contratohistorico)
@@ -159,7 +158,7 @@ class ContratohistoricoObserve
 
         $publicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
 
-        if(($publicacao->status == "Importado") && ($publicacao->status_publicacao_id == $publicado)) {
+        if (($publicacao->status == "Importado") && ($publicacao->status_publicacao_id == $publicado)) {
 
             $this->criaRetificacao($contratohistorico,$sisg,$cpf);
 

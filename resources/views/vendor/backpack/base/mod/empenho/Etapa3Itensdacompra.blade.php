@@ -8,7 +8,7 @@
     <section class="content-header">
         <h1>
             Itens
-            <small>da Compra</small>
+            <small>da Compra / Contrato</small>
         </h1>
     </section>
 @endsection
@@ -24,7 +24,7 @@
     </div>
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
-            <h3 class="box-title">Itens da Compra</h3>
+            <h3 class="box-title">Itens da Compra / Contrato</h3>
         </div>
 
         <div class="box-body">
@@ -60,7 +60,6 @@
                 });
             });
         });
-
         function bloqueia(tipo) {
             $('input[type=checkbox]').each(function () {
                 if (tipo != $(this).data('tipo')) {
@@ -68,7 +67,5 @@
                 }
             });
         }
-
-
     </script>
 @endpush

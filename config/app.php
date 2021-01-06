@@ -2,6 +2,12 @@
 
 return [
 
+    'ambiente_siafi' => env('AMBIENTE_SIAFI','PROD'),
+    'usuario_siafi' => env('USUARIO_SIAFI','E0350'),
+    'senha_siafi' => env('SENHA_SIAFI', ''),
+
+    'app_version' => '1.2.0',
+
     'app_amb' => env('APP_AMB', 'Ambiente Produção'),
 
     'google_analytics' => env('GOOGLE_ANALYTICS',''),
@@ -19,7 +25,7 @@ return [
 
     'conta_contabil_credito_disponivel' => '622110000',
 
-    'ano_minuta_empenho' => env('ANO_SIAFI_TESTE',date('y')),
+    'ano_minuta_empenho' => env('ANO_SIAFI_TESTE',date('Y')),
     'mes_minuta_empenho' => env('MES_SIAFI_TESTE',date('m')),
 
     'modalidades_sem_exigencia' => [
