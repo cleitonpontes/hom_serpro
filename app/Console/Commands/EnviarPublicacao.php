@@ -58,8 +58,9 @@ class EnviarPublicacao extends Command
             $contrato_publicacao->data_publicacao = $this->argument('dtpublicacao');
             $contrato_publicacao->save();
             //envia publicacao
-            $contrato_historico = Contratohistorico::where('id', $contrato_publicacao->contratohistorico_id)->get()->toArray();
-            $diarioOficial->enviarPublicacaoCommand($contrato_publicacao, $contrato_historico);
+            $contrato_historico = Contratohistorico::where('id', $contrato_publicacao->contratohistorico_id)->first();
+            $diarioOficial->enviarPublicacaoCommand($contrato_historico, $contrato_publicacao);
+            dd('foi');
         }
     }
 
