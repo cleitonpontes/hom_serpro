@@ -46,7 +46,6 @@ class EnviarPublicacao extends Command
     public function handle()
     {
         $this->validarDataCommand($this->argument('dtpublicacao'));
-        dd('aqui');
         $status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
 
         $arr_contrato_publicacao = ContratoPublicacoes::where('status', 'Pendente')
@@ -55,7 +54,6 @@ class EnviarPublicacao extends Command
 
         $diarioOficial = new DiarioOficialClass();
         foreach ($arr_contrato_publicacao as $contrato_publicacao) {
-            dump($contrato_publicacao->id);
             //altera a data de publicacao para a data informada no command
             $contrato_publicacao->data_publicacao = $this->argument('dtpublicacao');
             $contrato_publicacao->save();
