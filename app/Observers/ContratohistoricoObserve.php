@@ -42,7 +42,6 @@ class ContratohistoricoObserve
      */
     public function created(Contratohistorico $contratohistorico)
     {
-        $cpf = $this->removeMascaraCPF(backpack_user()->cpf);
 
         $historico = Contratohistorico::where('contrato_id', $contratohistorico->contrato_id)
             ->orderBy('data_assinatura', 'ASC')
@@ -62,7 +61,9 @@ class ContratohistoricoObserve
                 return true;
             }
 
-            $this->criaNovaPublicacao($contratohistorico,$cpf,true);
+            if ($contratohistorico->publicado != true) {
+                $this->criaNovaPublicacao($contratohistorico, $this->removeMascaraCPF(backpack_user()->cpf),true);
+            }
 
         }
 
