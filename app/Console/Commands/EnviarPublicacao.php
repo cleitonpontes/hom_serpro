@@ -68,8 +68,4 @@ class EnviarPublicacao extends Command
         dd('Terminou!!');
     }
 
-    private function validarDataCommand($data)
-    {
-        Carbon::createFromFormat('Y-m-d', $data);
-    }
 }
