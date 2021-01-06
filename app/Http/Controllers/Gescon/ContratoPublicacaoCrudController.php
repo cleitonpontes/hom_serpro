@@ -391,6 +391,14 @@ class ContratoPublicacaoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        // verifica sé está em uma situação que permite a alteração
+        $contrato_id = Contratohistorico::find($request->input('contratohistorico_id'))->contrato_id;
+        $publicacao = ContratoPublicacoes::find($request->id);
+        if(!in_array($publicacao->status_publicacao_id, $this->sitacoesPermitidasAlteracao())){
+            Alert::warning('Não é possível alterar uma publicação com essa situação.')->flash();
+            return redirect()->route('crud.publicacao.index',['contrato_id'=>$contrato_id]);
+        }
+
         $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
 
         $request->request->set('status_publicacao_id', $situacao_id);
@@ -399,6 +407,15 @@ class ContratoPublicacaoCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    private function sitacoesPermitidasAlteracao()
+    {
+        $arrSituacoesPermitidas[] = $this->retornaIdCodigoItem('Situacao Publicacao', 'INFORMADO');
+        $arrSituacoesPermitidas[] = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
+        $arrSituacoesPermitidas[] = $this->retornaIdCodigoItem('Situacao Publicacao', 'DEVOLVIDO PELA IMPRENSA');
+
+        return $arrSituacoesPermitidas;
     }
 
     public function executarAtualizacaoSituacaoPublicacao($contrato_id, $id)

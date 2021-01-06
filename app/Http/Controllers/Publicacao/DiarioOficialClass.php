@@ -16,6 +16,7 @@ use App\Models\Fornecedor;
 use App\Models\Padroespublicacao;
 use App\Models\Unidade;
 use Exception;
+use Route;
 use Illuminate\Support\Carbon;
 use SoapHeader;
 use SoapVar;
@@ -96,14 +97,16 @@ class DiarioOficialClass extends BaseSoapController
     public function enviarPublicacaoCommand($contratohistorico,$publicacao)
     {
         try {
-            $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
-            $publicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
 
-            $statusPublicacao = ContratoPublicacoes::where('contratohistorico_id', $contratohistorico->id)
-                ->where('status_publicacao_id', $publicado)->first();
+            $this->setSoapClient();
+            dump("Publicacao_id: ".$publicacao->id);
+            dump("Contratohistorico_id: ".$publicacao->contratohistorico_id);
 
-            (!is_null($statusPublicacao)) ? $this->criaRetificacao($contratohistorico, $sisg,$publicacao->cpf)
-                : $this->criaNovaPublicacao($contratohistorico,$publicacao->cpf);
+            $retificacao = $publicacao->texto_dou;
+            $tipo_texto = strpos($publicacao->texto_dou, 'RETIFICA');
+            ($tipo_texto == false)
+                            ? $this->enviaPublicacao($contratohistorico, $publicacao,null,$publicacao->cpf)
+                            : $this->enviaPublicacao($contratohistorico, $publicacao,$retificacao,$publicacao->cpf);
 
         } catch (Exception $e) {
             return $e->getMessage();
@@ -111,9 +114,9 @@ class DiarioOficialClass extends BaseSoapController
 
     }
 
+
     public function reenviarPublicacao($publicacao_id)
     {
-
         try {
             $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
             $contratohistorico= $publicacao->contratohistorico;
@@ -136,6 +139,7 @@ class DiarioOficialClass extends BaseSoapController
 
         if (!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)) {
             $contratoPublicacoes->status = 'Erro Preview!';
+            $contratoPublicacoes->motivo_isencao_id =  $this->retornaIdCodigoItem('Motivo Isenção','Indefinido');
             $contratoPublicacoes->status_publicacao_id = (int)self::retornaIdCodigoItem('Situacao Publicacao','DEVOLVIDO PELA IMPRENSA');
             $contratoPublicacoes->log = $this->retornaErroValidacoesDOU($responsePreview);
             $contratoPublicacoes->texto_dou = (!is_null($retificacao)) ? $retificacao : $this->retornaTextoModelo($contratoHistorico);
@@ -146,6 +150,7 @@ class DiarioOficialClass extends BaseSoapController
         }
 
         $contratoPublicacoes->status = 'Preview';
+        $contratoPublicacoes->motivo_isencao_id =  $this->retornaIdCodigoItem('Motivo Isenção','Indefinido');
         $contratoPublicacoes->texto_dou = (!is_null($retificacao)) ?  $retificacao : $this->retornaTextoModelo($contratoHistorico);
         $contratoPublicacoes->save();
 
@@ -180,6 +185,7 @@ class DiarioOficialClass extends BaseSoapController
                 $contratoPublicacoes->status = 'Erro Ofício!';
 
                 $contratoPublicacoes->status_publicacao_id = (int)self::retornaIdCodigoItem('Situacao Publicacao','DEVOLVIDO PELA IMPRENSA');
+                $contratoPublicacoes->motivo_isencao_id =  $this->retornaIdCodigoItem('Motivo Isenção','Indefinido');
                 $contratoPublicacoes->log = json_encode($responseConfirmacao);
                 $contratoPublicacoes->save();
 
@@ -187,6 +193,7 @@ class DiarioOficialClass extends BaseSoapController
             }
 
             $contratoPublicacoes->status = 'Oficio';
+            $contratoPublicacoes->motivo_isencao_id =  $this->retornaIdCodigoItem('Motivo Isenção','Indefinido');
             $contratoPublicacoes->status_publicacao_id = (int)self::retornaIdCodigoItem('Situacao Publicacao','TRANSFERIDO PARA IMPRENSA');
             $contratoPublicacoes->transacao_id = $arrayConfirmacao['dados']['IDTransacao'];
             $contratoPublicacoes->materia_id = (int)$responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDMateria;

@@ -24,7 +24,7 @@ trait DiarioOficial
                     'cpf' => $cpf,
                     'status' => ($sisg) ? 'Pendente' : 'informado',
                     'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                    'motivo_isencao' => 0
+                    'motivo_isencao_id' => $this->retornaIdCodigoItem('Motivo Isenção','Indefinido')
                 ]
             );
 
@@ -49,7 +49,7 @@ trait DiarioOficial
                 'cpf' => $cpf,
                 'texto_dou' => ($texto_dou != '') ? $texto_dou : '',
                 'tipo_pagamento_id' => $this->retornaIdCodigoItem('Forma Pagamento', 'Isento'),
-                'motivo_isencao' => 0
+                'motivo_isencao_id' => $this->retornaIdCodigoItem('Motivo Isenção','Indefinido')
             ]);
 
             $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
