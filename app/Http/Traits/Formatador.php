@@ -2,8 +2,10 @@
 
 namespace App\Http\Traits;
 
+use App\Models\Feriado;
 use DateTime;
 use Exception;
+use Illuminate\Support\Carbon;
 
 trait Formatador
 {
@@ -74,7 +76,7 @@ trait Formatador
 
     public function formataIntengerSiasg($dado)
     {
-        return number_format($dado,0, '','');
+        return number_format($dado, 0, '', '');
     }
 
     public function formataNumeroContratoLicitacao($dado): string
@@ -168,8 +170,39 @@ trait Formatador
 
     public function removeMascaraCPF($cpfComMask)
     {
-        $cpf = str_replace('.', '',$cpfComMask);
-        $cpf = str_replace('-', '',$cpf);
+        $cpf = str_replace('.', '', $cpfComMask);
+        $cpf = str_replace('-', '', $cpf);
         return $cpf;
     }
+
+
+    public function verificaDataDiaUtil($data)
+    {
+        $hoje = date('Y-m-d');
+        $data_publicacao = Carbon::createFromFormat('Y-m-d', $data);
+        $proximoDiaUtil = $data_publicacao;
+        $hoje_ate18hs = Carbon::createFromFormat('Y-m-d', $hoje)->setTime(18, 00, 00);
+        $hoje_pos18hs = Carbon::createFromFormat('Y-m-d', $hoje)->setTime(23, 59, 59);
+        $feriados = Feriado::select('data')->pluck('data')->toArray();
+
+        if ($data_publicacao->lessThanOrEqualTo($hoje_ate18hs)) {
+            $proximoDiaUtil = $data_publicacao->nextWeekday();
+            (in_array($proximoDiaUtil->toDateString(), $feriados)) ? $proximoDiaUtil->nextWeekday() : '';
+        }
+
+        if ($data_publicacao->isAfter($hoje_ate18hs) && $data_publicacao->lessThan($hoje_pos18hs)) {
+            $proximoDiaUtil = $data_publicacao->nextWeekday()->addWeekday();
+            (in_array($proximoDiaUtil->toDateString(), $feriados)) ? $proximoDiaUtil->nextWeekday() : '';
+        }
+
+        if ($data_publicacao->isAfter($hoje_pos18hs)) {
+            $proximoDiaUtil = (!$data_publicacao->isWeekday()) ? $data_publicacao->nextWeekday() : $proximoDiaUtil;
+            (in_array($proximoDiaUtil->toDateString(), $feriados)) ? $proximoDiaUtil->nextWeekday() : '';
+        }
+
+        return ($proximoDiaUtil->toDateString());
+
+    }
+
+
 }
