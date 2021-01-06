@@ -93,7 +93,7 @@ class ContratohistoricoObserve
             return true;
         }
         //-------------------------------------------------------------------------------------------------------------
-        if (!$contratohistorico->publicado) {
+        if (!is_null($contratohistorico->publicacao) && ($contratohistorico->publicado != true)) {
             $this->trataAtualizacaoPublicacoes($contratohistorico);
         }
 
