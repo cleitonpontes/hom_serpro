@@ -8,6 +8,8 @@ use App\Models\ContratoPublicacoes;
 
 trait DiarioOficial
 {
+    use BuscaCodigoItens;
+
     public function criaRetificacao($contratohistorico,$sisg,$cpf)
     {
         $texto_dou = @DiarioOficialClass::retornaTextoretificacao($contratohistorico);
@@ -64,6 +66,69 @@ trait DiarioOficial
             $diarioOficial->enviaPublicacao($contratohistorico, $publicacao,$texto_dou,$cpf);
             return true;
         }
+    }
+
+    private function getArrayCamposPublicados($tipo_id)
+    {
+        $arrTipoContrato = [
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Acordo de Cooperação Técnica (ACT)'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Arrendamento'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Comodato'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Concessão'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Contrato'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Convênio'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Credenciamento'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Termo de Adesão'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Termo de Compromisso'),
+            $this->retornaIdCodigoItem('Tipo de Contrato', 'Termo de Execução Descentralizada (TED)'),
+        ];
+        $tipo_instrumento = in_array((int)$tipo_id, $arrTipoContrato) ? 'InstInicial' : $this->retornaDescCodigoItem($tipo_id);
+        switch ($tipo_instrumento) {
+            case 'InstInicial':
+                return $arrCamposPublicados = [
+                    'fornecedor_id',
+                    'objeto',
+                    'processo',
+                    'vigencia_inicio',
+                    'vigencia_fim',
+                    //'valor_global',
+                ];
+            case 'Termo Aditivo':
+                return $arrCamposPublicados = [
+                    'numero',
+                    'observacao',
+                    'fornecedor_id',
+                    'vigencia_inicio',
+                    'vigencia_fim',
+                    //'valor_global'
+                ];
+            case 'Termo de Apostilamento':
+                return $arrCamposPublicados = [
+                    'numero',
+                    'observacao',
+                ];
+            case 'Termo de Rescisão':
+                return $arrCamposPublicados = [
+                    'objeto',
+                    'processo',
+                    'vigencia_fim',
+                ];
+            default: return [];
+        }
+    }
+
+    private function booCampoPublicacaoAlterado($contratohistorico)
+    {
+        $arrContratoOriginal = $contratohistorico->getOriginal();
+        $arrContratoChanges = $contratohistorico->getChanges();
+        foreach ($arrContratoChanges as $key => $contratoChange) {
+            if (in_array($key, $this->getArrayCamposPublicados($contratohistorico->tipo_id))) {
+                if ($arrContratoChanges[$key] !== $arrContratoOriginal[$key]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
