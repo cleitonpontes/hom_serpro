@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\CompraItemMinutaEmpenho;
 
 class MinutaEmpenho extends Model
 {
@@ -289,6 +290,11 @@ class MinutaEmpenho extends Model
             'minuta_empenho_id',
             'contrato_id'
         );
+    }
+
+    public function compraItemMinutaEmpenho()
+    {
+        return $this->hasMany(CompraItemMinutaEmpenho::class, 'minutaempenho_id');
     }
 
     /*

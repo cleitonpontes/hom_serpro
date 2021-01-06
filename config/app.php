@@ -2,6 +2,8 @@
 
 return [
 
+    'app_version' => '1.2.0',
+
     'app_amb' => env('APP_AMB', 'Ambiente Produção'),
 
     'google_analytics' => env('GOOGLE_ANALYTICS',''),
