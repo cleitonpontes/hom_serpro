@@ -4,27 +4,28 @@ namespace App\Http\Controllers\Empenho;
 
 use Alert;
 use App\Forms\InserirFornecedorForm;
+use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
+use App\Http\Requests\MinutaEmpenhoRequest as UpdateRequest;
+use App\Http\Traits\CompraTrait;
+use App\Http\Traits\Formatador;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
 use App\Models\CompraItemMinutaEmpenho;
+use App\Models\CompraItemUnidade;
 use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
-use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
-use App\Http\Requests\MinutaEmpenhoRequest as UpdateRequest;
+use Backpack\CRUD\CrudPanel;
+use FormBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 use Redirect;
 use Route;
-use App\Http\Traits\Formatador;
-use FormBuilder;
 
 /**
  * Class MinutaEmpenhoCrudController
@@ -34,6 +35,7 @@ use FormBuilder;
 class MinutaEmpenhoCrudController extends CrudController
 {
     use Formatador;
+    use CompraTrait;
 
     public function setup()
     {
@@ -57,6 +59,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
         $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
         $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta');
+        $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminuta');
 //        $this->crud->addButtonFromView('line', 'moreminuta', 'moreminuta', 'end');
 
         $this->crud->urlVoltar = route(
@@ -634,8 +637,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 '=',
                 'contrato_item_minuta_empenho.contrato_item_id'
             )
-
-                ->join('minutaempenhos','minutaempenhos.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
+                ->join('minutaempenhos', 'minutaempenhos.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
                 ->join('contratos', 'contratos.id', '=', 'minutaempenhos.contrato_id')
                 ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
                 ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
@@ -653,7 +655,6 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ])
                 ->get()->toArray();
-
         }
 
         if ($codigoitem->descres == 'COM') {
@@ -788,26 +789,6 @@ class MinutaEmpenhoCrudController extends CrudController
             DB::rollback();
         }
         return $fornecedor;
-
-//        $conta_corrente = $this->retornaContaCorrente($request);
-//        $saldo = $request->get('valor');
-//        $unidade_id = $request->get('unidade_id');
-//        $ano = date('Y');
-//        $contacontabil = config('app.conta_contabil_credito_disponivel');
-//        $modSaldo = new SaldoContabil();
-//        $modSaldo->unidade_id = $unidade_id;
-//        $modSaldo->ano = $ano;
-//        $modSaldo->conta_contabil = $contacontabil;
-//        $modSaldo->conta_corrente = $conta_corrente;
-//        $modSaldo->saldo = $this->retornaFormatoAmericano($saldo);
-//        $modSaldo->save();
-//
-//        return redirect()->route(
-//            'empenho.minuta.etapa.saldocontabil',
-//            [
-//                'minuta_id' => $request->get('minuta_id')
-//            ]
-//        );
     }
 
     public function executarAtualizacaoSituacaoMinuta($id)
@@ -841,5 +822,50 @@ class MinutaEmpenhoCrudController extends CrudController
             Alert::warning('Situação da minuta não pode ser alterada!')->flash();
             return redirect('/empenho/minuta');
         }
+    }
+
+    public function deletarMinuta($id)
+    {
+        $minuta = MinutaEmpenho::find($id);
+
+        if ($minuta->situacao_descricao == 'ERRO' || $minuta->situacao_descricao == 'EM ANDAMENTO') {
+            DB::beginTransaction();
+            try {
+                if ($minuta->empenho_por === 'Compra') {
+                    $cime = $minuta->compraItemMinutaEmpenho();
+                    $cime_deletar = $cime->get();
+                    $cime->delete();
+
+                    foreach ($cime_deletar as $item) {
+                        $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
+                            ->where('unidade_id', session('user_ug_id'))
+                            ->first();
+                        $compraItemUnidade->quantidade_saldo =
+                            $this->retornaSaldoAtualizado($item->compra_item_id)->saldo;
+                        $compraItemUnidade->save();
+                    }
+                    $minuta->forceDelete();
+                    DB::commit();
+                    Alert::success('Minuta Deletada com sucesso!')->flash();
+                    return redirect($this->crud->route);
+                }
+                // Deletar minuta do contrato
+                $minuta->forceDelete();
+                DB::commit();
+
+                Alert::success('Minuta Deletada com sucesso!')->flash();
+                return redirect($this->crud->route);
+
+            } catch (Exception $exc) {
+                DB::rollback();
+                Alert::error('Erro! Tente novamente mais tarde!')->flash();
+                return redirect($this->crud->route);
+            }
+
+            Alert::success('Situação da minuta alterada com sucesso!')->flash();
+            return redirect('/empenho/minuta');
+        }
+        Alert::warning('Operação não permitida!')->flash();
+        return redirect($this->crud->route);
     }
 }
