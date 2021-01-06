@@ -263,6 +263,9 @@ Route::group(
             Route::get('minuta/{minuta_id}/atualizarsituacaominuta', 'MinutaEmpenhoCrudController@executarAtualizacaoSituacaoMinuta')
                 ->name('minuta.atualizar.situacao');
 
+            Route::get('minuta/{minuta_id}/deletarminuta', 'MinutaEmpenhoCrudController@deletarMinuta')
+                ->name('minuta.deletar');
+
             //passo 1
             Route::get('buscacompra', 'CompraSiasgCrudController@create')
                 ->name('minuta.etapa.compra');
