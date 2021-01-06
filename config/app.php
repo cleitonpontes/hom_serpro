@@ -2,6 +2,10 @@
 
 return [
 
+    'ambiente_siafi' => env('AMBIENTE_SIAFI','PROD'),
+    'usuario_siafi' => env('USUARIO_SIAFI','E0350'),
+    'senha_siafi' => env('SENHA_SIAFI', ''),
+
     'app_version' => '1.2.0',
 
     'app_amb' => env('APP_AMB', 'Ambiente Produção'),
