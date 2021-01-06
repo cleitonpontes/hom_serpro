@@ -37,6 +37,10 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function setup()
     {
+        if (!backpack_user()->can('empenho_minuta_acesso')) { //alterar para novo grupo de Administrador Orgão
+            abort('403', config('app.erro_permissao'));
+        }
+
         $this->minuta_id = $this->crud->getCurrentEntryId();
 
         /*
