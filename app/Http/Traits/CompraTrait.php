@@ -211,6 +211,10 @@ trait CompraTrait
 
     public function gravaCompraItemFornecedor($compraitem_id, $item, $fornecedor)
     {
+        $qtd_empenhada = (isset($item->quantidadeEmpenhada))
+            ? preg_replace('/[^0-9]/', '', $item->quantidadeEmpenhada.' sdsfdsdd')
+            : 0;
+
         CompraItemFornecedor::updateOrCreate(
             [
                 'compra_item_id' => $compraitem_id,
@@ -223,7 +227,7 @@ trait CompraTrait
                 'quantidade_homologada_vencedor' => (isset($item->quantidadeHomologadaVencedor)) ? $item->quantidadeHomologadaVencedor : 0,
                 'valor_unitario' => $item->valorUnitario,
                 'valor_negociado' => (isset($item->valorTotal)) ? $item->valorTotal : $item->valorNegociado,
-                'quantidade_empenhada' => (isset($item->quantidadeEmpenhada)) ? $item->quantidadeEmpenhada : 0
+                'quantidade_empenhada' => $qtd_empenhada
             ]
         );
     }
