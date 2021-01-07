@@ -63,6 +63,16 @@ class ContratoPublicacoes extends ContratoBase
         return $this->whereNotNull('oficio_id')->where('status_publicacao_id', $status_id)->get();
     }
 
+    public function getCodUnidade()
+    {
+        return $this->contratohistorico->unidade->codigo ?? '';
+    }
+
+    public function getCodSiorg()
+    {
+        return $this->contratohistorico->unidade->codigo_siorg ?? '';
+    }
+
 
     /*
     |--------------------------------------------------------------------------

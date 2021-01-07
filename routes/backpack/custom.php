@@ -35,6 +35,8 @@ Route::group([
 
             Route::get('unidade', 'UnidadeController@index');
             Route::get('unidade/{id}', 'UnidadeController@show');
+            Route::get('contratohistorico', 'ContratohistoricoController@index');
+            Route::get('contratohistorico/{id}', 'ContratohistoricoController@show');
             Route::get('unidadecomorgao', 'UnidadeComOrgaoController@index');
             Route::get('unidadecomorgao/{id}', 'UnidadeComOrgaoController@show');
             Route::get('fornecedor', 'FornecedorController@index');
@@ -133,6 +135,7 @@ Route::group([
             CRUD::resource('jobs', 'JobsCrudController');
             CRUD::resource('amparolegal', 'AmparoLegalCrudController');
             CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
+            CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
 
 
 

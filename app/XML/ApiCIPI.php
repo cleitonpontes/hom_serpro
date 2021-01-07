@@ -58,6 +58,9 @@ class ApiCIPI
                     'Content-Type: application/json',
                 ],
                 'content' => json_encode($parametros)
+            ],
+            'ssl' => [
+                'verify_peer' => false,
             ]
         ];
 
