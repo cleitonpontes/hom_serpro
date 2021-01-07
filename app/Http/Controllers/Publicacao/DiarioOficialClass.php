@@ -96,8 +96,8 @@ class DiarioOficialClass extends BaseSoapController
 
     public function enviarPublicacaoCommand($contratohistorico,$publicacao)
     {
+        dump('entrei na funcao');
         try {
-
             $this->setSoapClient();
             dump("Publicacao_id: ".$publicacao->id);
             dump("Contratohistorico_id: ".$publicacao->contratohistorico_id);

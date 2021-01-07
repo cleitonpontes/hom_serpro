@@ -16,27 +16,29 @@ class ExecutaDouController extends Controller
 
     public function executaRotinaEnviaDou($datapub)
     {
-        $data = Carbon::createFromFormat('Y-m-d',$datapub);
+        $diarioOficial = new DiarioOficialClass();
 
+        $data = Carbon::createFromFormat('Y-m-d',$datapub);
+        dump($data);
         $status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
-        dump($status_publicacao_id);
+
 
         $arr_contrato_publicacao = ContratoPublicacoes::where('status', 'Pendente')
             ->where('status_publicacao_id', $status_publicacao_id)
             ->whereNotNull('texto_dou')
             ->where('texto_dou','!=','')
             ->get();
-
+        dump($arr_contrato_publicacao->count());
 
         foreach ($arr_contrato_publicacao as $contrato_publicacao) {
 
             $contrato_publicacao->data_publicacao = $data->toDateString();
             $contrato_publicacao->save();
-
+            dump($contrato_publicacao->data_publicacao);
             $contrato_historico = Contratohistorico::where('id', $contrato_publicacao->contratohistorico_id)->first();
-            $diarioOficial = new DiarioOficialClass();
-            $diarioOficial->enviarPublicacaoCommand($contrato_historico, $contrato_publicacao);
-
+            dump('ContratoHistorico', $contrato_historico->id);
+            $retorno = $diarioOficial->enviarPublicacaoCommand($contrato_historico, $contrato_publicacao);
+            dd($retorno);
         }
         dd('Terminou!!');
     }
