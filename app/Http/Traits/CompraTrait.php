@@ -256,13 +256,19 @@ trait CompraTrait
 
     public function gravaCompraItemUnidadeSisrp($compraitem, $unidade_autorizada_id, $item, $dadosGerenciadoraParticipante, $carona, $dadosFornecedor, $tipoUasg)
     {
-        $qtd_autorizada = $dadosGerenciadoraParticipante->quantidadeAAdquirir - $dadosGerenciadoraParticipante->quantidadeAdquirida;
+
         $fornecedor_id = null;
         if (!is_null($carona)) {
-            $carona = (object)$carona;
+            $carona = (object)$carona[0];
             $qtd_autorizada = $carona->quantidadeAutorizada;
             $fornecedor = $this->retornaFornecedor((object)$dadosFornecedor[0]);
             $fornecedor_id = $fornecedor->id;
+            $quantidadeAAdquirir = $qtd_autorizada;
+            $quantidadeAdquirida = 0;
+        }else{
+            $qtd_autorizada = $dadosGerenciadoraParticipante->quantidadeAAdquirir - $dadosGerenciadoraParticipante->quantidadeAdquirida;
+            $quantidadeAAdquirir = $dadosGerenciadoraParticipante->quantidadeAAdquirir;
+            $quantidadeAdquirida = $dadosGerenciadoraParticipante->quantidadeAdquirida;
         }
 
         $compraItemUnidade = CompraItemUnidade::updateOrCreate(
@@ -276,8 +282,8 @@ trait CompraTrait
                 'quantidade_autorizada' => $qtd_autorizada,
                 'quantidade_saldo' => $qtd_autorizada,
                 'tipo_uasg' => $tipoUasg,
-                'quantidade_adquirir' => $dadosGerenciadoraParticipante->quantidadeAAdquirir,
-                'quantidade_adquirida' => $dadosGerenciadoraParticipante->quantidadeAdquirida
+                'quantidade_adquirir' => $quantidadeAAdquirir,
+                'quantidade_adquirida' => $quantidadeAdquirida
             ]
         );
 
