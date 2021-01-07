@@ -19,7 +19,6 @@ class ExecutaDouController extends Controller
         $diarioOficial = new DiarioOficialClass();
 
         $data = Carbon::createFromFormat('Y-m-d',$datapub);
-        dump($data);
         $status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
 
 
@@ -28,17 +27,12 @@ class ExecutaDouController extends Controller
             ->whereNotNull('texto_dou')
             ->where('texto_dou','!=','')
             ->get();
-        dump($arr_contrato_publicacao->count());
 
         foreach ($arr_contrato_publicacao as $contrato_publicacao) {
-
             $contrato_publicacao->data_publicacao = $data->toDateString();
             $contrato_publicacao->save();
-            dump($contrato_publicacao->data_publicacao);
             $contrato_historico = Contratohistorico::where('id', $contrato_publicacao->contratohistorico_id)->first();
-            dump('ContratoHistorico', $contrato_historico->id);
             $retorno = $diarioOficial->enviarPublicacaoCommand($contrato_historico, $contrato_publicacao);
-            dd($retorno);
         }
         dd('Terminou!!');
     }
