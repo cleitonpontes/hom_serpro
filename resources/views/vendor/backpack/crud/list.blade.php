@@ -130,3 +130,14 @@
     <!-- CRUD LIST CONTENT - crud_list_scripts stack -->
     @stack('crud_list_scripts')
 @endsection
+
+
+
+
+<!-- Caso seja a página de listagem de conta vinculada - mvascs@gmail.com -->
+@if(Route::current()->getName() == 'crud.contratocontas.index')
+    @include('crud::inc.modal_contavinculada_definicao')
+@endif
+
+
+
