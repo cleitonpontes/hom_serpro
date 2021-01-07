@@ -41,6 +41,7 @@ class DiarioOficialClass extends BaseSoapController
         $this->Urlwsdl = config("publicacao.sistema.diario_oficial_uniao");
         $this->username = env('PUBLICACAO_DOU_USER');
         $this->password = env('PUBLICACAO_DOU_PWD');
+        dump($this->Urlwsdl,$this->username,$this->password);
 
         self::setWsdl($this->Urlwsdl);
         $node1 = new SoapVar($this->username, XSD_STRING, null, null, 'Username', $this->securityNS);
@@ -50,6 +51,7 @@ class DiarioOficialClass extends BaseSoapController
         $headers[] = new SOAPHeader($this->securityNS, 'Security', $security, false);
 
         $this->soapClient = InstanceSoapClient::init($headers);
+        dump($this->soapClient);
 
     }
 

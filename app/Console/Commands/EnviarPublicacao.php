@@ -46,7 +46,7 @@ class EnviarPublicacao extends Command
     public function handle()
     {
         $diarioOficial = new DiarioOficialClass();
-        
+
         $data = Carbon::createFromFormat('Y-m-d',$this->argument('dtpublicacao'));
 
         $status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
