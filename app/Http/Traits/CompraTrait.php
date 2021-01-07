@@ -212,7 +212,7 @@ trait CompraTrait
     public function gravaCompraItemFornecedor($compraitem_id, $item, $fornecedor)
     {
         $qtd_empenhada = (isset($item->quantidadeEmpenhada))
-            ? preg_replace('/[^0-9]/', '', $item->quantidadeEmpenhada.' sdsfdsdd')
+            ? preg_replace('/[^0-9]/', '', $item->quantidadeEmpenhada)
             : 0;
 
         CompraItemFornecedor::updateOrCreate(
