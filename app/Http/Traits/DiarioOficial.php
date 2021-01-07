@@ -8,7 +8,6 @@ use App\Models\ContratoPublicacoes;
 
 trait DiarioOficial
 {
-    use BuscaCodigoItens;
 
     public function criaRetificacao($contratohistorico,$sisg,$cpf)
     {
@@ -28,7 +27,7 @@ trait DiarioOficial
                 ]
             );
 
-            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
+            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf,false);
         }
 
     }
@@ -37,7 +36,7 @@ trait DiarioOficial
     public function criaNovaPublicacao($contratohistorico,$cpf,$create = false)
     {
         $texto_dou = @DiarioOficialClass::retornaTextoModelo($contratohistorico);
-
+        dump($texto_dou);
         $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
         $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao, $create);
         if (!is_null($texto_dou)){
@@ -52,42 +51,46 @@ trait DiarioOficial
                 'motivo_isencao_id' => $this->retornaIdCodigoItem('Motivo Isenção','Indefinido')
             ]);
 
-            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
+            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf,$create);
         }
     }
 
 
-    private function enviarPublicacao($contratohistorico,$publicacao,$texto_dou,$cpf)
+    private function enviarPublicacao($contratohistorico,$publicacao,$texto_dou,$cpf,$create = false)
     {
-
-        if ($publicacao->status_publicacao_id == $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR')) {
-            $diarioOficial = new DiarioOficialClass();
-            $diarioOficial->setSoapClient();
-            $diarioOficial->enviaPublicacao($contratohistorico, $publicacao,$texto_dou,$cpf);
-            return true;
+        dump($this->booCampoPublicacaoAlterado($contratohistorico));
+        if(($this->booCampoPublicacaoAlterado($contratohistorico)) && (!$create)){
+            dd(aqui);
+            if ($publicacao->status_publicacao_id == $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR')) {
+                $diarioOficial = new DiarioOficialClass();
+                $diarioOficial->setSoapClient();
+                $diarioOficial->enviaPublicacao($contratohistorico, $publicacao, $texto_dou, $cpf);
+                return true;
+            }
         }
     }
 
     private function getArrayCamposPublicados($tipo_id)
     {
         $arrTipoContrato = [
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Acordo de Cooperação Técnica (ACT)'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Arrendamento'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Comodato'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Concessão'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Contrato'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Convênio'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Credenciamento'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Termo de Adesão'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Termo de Compromisso'),
-            $this->retornaIdCodigoItem('Tipo de Contrato', 'Termo de Execução Descentralizada (TED)'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Acordo de Cooperação Técnica (ACT)'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Arrendamento'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Comodato'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Concessão'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Contrato'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Convênio'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Credenciamento'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Termo de Adesão'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Termo de Compromisso'),
+            $this->retornarIdCodigoItem('Tipo de Contrato', 'Termo de Execução Descentralizada (TED)'),
         ];
-        $tipo_instrumento = in_array((int)$tipo_id, $arrTipoContrato) ? 'InstInicial' : $this->retornaDescCodigoItem($tipo_id);
+        $tipo_instrumento = in_array((int)$tipo_id, $arrTipoContrato) ? 'InstInicial' : $this->retornarDescCodigoItem($tipo_id);
         switch ($tipo_instrumento) {
             case 'InstInicial':
                 return $arrCamposPublicados = [
                     'fornecedor_id',
                     'objeto',
+                    'numero',
                     'processo',
                     'vigencia_inicio',
                     'vigencia_fim',
@@ -129,6 +132,23 @@ trait DiarioOficial
             }
         }
         return false;
+    }
+
+    public function retornarIdCodigoItem($descCodigo, $descCodItem)
+    {
+        return Codigoitem::whereHas('codigo', function ($query) use ($descCodigo) {
+            $query->where('descricao', '=', $descCodigo)
+                ->whereNull('deleted_at');
+        })
+            ->whereNull('deleted_at')
+            ->where('descricao', '=', $descCodItem)
+            ->first()->id;
+    }
+
+    public function retornarDescCodigoItem($id)
+    {
+        return Codigoitem::where('id', $id)
+            ->select('descricao')->first()->descricao;
     }
 
 }
