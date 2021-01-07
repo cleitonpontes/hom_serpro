@@ -150,7 +150,7 @@ class PadroespublicacaoCrudController extends CrudController
                 'label' => 'Texto padrão',
                 'type' => 'textarea',
                 'attributes' => [
-                    'onblur' => "maiuscula(this)"
+                   // 'onblur' => "maiuscula(this)"
                 ]
             ]
 
