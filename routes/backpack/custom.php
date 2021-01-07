@@ -261,6 +261,9 @@ Route::group([
                     '/publicacao/{id}/atualizarsituacaopublicacao',
                     'ContratoPublicacaoCrudController@executarAtualizacaoSituacaoPublicacao'
                 );
+
+                Route::get('/publicacao/{publicacao_id}/deletarpublicacao', 'ContratoPublicacaoCrudController@deletarPublicacao');
+
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('rescisao', 'RescisaoCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');
