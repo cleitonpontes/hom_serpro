@@ -121,6 +121,8 @@ trait DiarioOficial
     {
         $arrContratoOriginal = $contratohistorico->getOriginal();
         $arrContratoChanges = $contratohistorico->getChanges();
+        //no campo valor global formata para 2 casas após a virgula.
+        $arrContratoOriginal['valor_global'] = number_format((float)$contratohistorico->getOriginal()['valor_global'], 2, '.', '');
         foreach ($arrContratoChanges as $key => $contratoChange) {
             if (in_array($key, $this->getArrayCamposPublicados($contratohistorico->tipo_id))) {
                 if ($arrContratoChanges[$key] !== $arrContratoOriginal[$key]) {
