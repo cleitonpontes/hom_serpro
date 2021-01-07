@@ -98,8 +98,8 @@ class DiarioOficialClass extends BaseSoapController
     {
         try {
             $this->setSoapClient();
-//            dump("Publicacao_id: ".$publicacao->id);
-//            dump("Contratohistorico_id: ".$publicacao->contratohistorico_id);
+            dump("Publicacao_id: ".$publicacao->id);
+            dump("Contratohistorico_id: ".$publicacao->contratohistorico_id);
 
             $retificacao = $publicacao->texto_dou;
             $tipo_texto = strpos($publicacao->texto_dou, 'RETIFICA');
@@ -709,8 +709,8 @@ class DiarioOficialClass extends BaseSoapController
 
         if (isset($mudancas['observacao'])){
             if($mudancas['observacao'] != $original['observacao']){
-                $retificacaoObservacao = $le.$original['observacao'].'. '
-                    .$leia.$mudancas['observacao'].'. ';
+                $retificacaoObservacao = $le.Self::retornaTextoMinusculo($original['observacao']).' '
+                    .$leia.Self::retornaTextoMinusculo($mudancas['observacao']).' ';
             }
         }
         return self::retornaTextoMinusculo($retificacaoObservacao);
@@ -721,8 +721,8 @@ class DiarioOficialClass extends BaseSoapController
 
         if (isset($mudancas['objeto'])){
             if($mudancas['objeto'] != $original['objeto']){
-                $retificacaoObjeto = $le.$original['objeto'].'. '
-                    .$leia.$mudancas['objeto'].'. ';
+                $retificacaoObjeto = $le.Self::retornaTextoMinusculo($original['objeto']).' '
+                    .$leia.Self::retornaTextoMinusculo($mudancas['objeto']).' ';
             }
         }
         return self::retornaTextoMinusculo($retificacaoObjeto);
@@ -794,7 +794,7 @@ class DiarioOficialClass extends BaseSoapController
         $tipocontrato = $contratoHistorico->getTipo();
 
         $retificacoes = '';
-        $le = 'Onde se lê: ';
+        $le = ' Onde se lê: ';
         $leia = '. Leia-se: ';
         $original = $contratoHistorico->getOriginal();
         $mudancas = $contratoHistorico->getChanges();
@@ -892,8 +892,16 @@ class DiarioOficialClass extends BaseSoapController
     }
 
     public static function retornaTextoMinusculo($texto){
-        $texto = (mb_strtolower($texto, mb_detect_encoding($texto)));
-        return (ucfirst($texto));
+
+        $array_texto = explode('. ',$texto);
+        $texto = '';
+        foreach ($array_texto as $key => $text){
+            ($key == 0)
+                ? $texto .= ucfirst(mb_strtolower($text, mb_detect_encoding($text)))
+                : $texto .= '. '.ucfirst(mb_strtolower($text, mb_detect_encoding($text)));
+        }
+
+        return $texto;
     }
 
     public static function removeZerosNumeroInstrumento($numero_instrumento)
