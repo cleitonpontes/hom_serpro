@@ -25,7 +25,7 @@ Route::group([
             'namespace' => 'Api',
         ], function () {
 
-
+            Route::get('executadou/{datapub}','ExecutaDouController@executaRotinaEnviaDou');
 
             //busca empenhos via ajax
             Route::get('empenho', 'EmpenhoController@index');
@@ -135,6 +135,7 @@ Route::group([
             CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
 
 
+
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
                 ->name('apropriacao.download');
@@ -191,6 +192,7 @@ Route::group([
             CRUD::resource('fornecedor', 'FornecedorCrudController');
             CRUD::resource('indicador', 'IndicadorCrudController');
             CRUD::resource('encargo', 'EncargoCrudController');
+
 
 
             Route::get( '/buscar-contrato-itens/{contrato_id}',
