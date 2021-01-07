@@ -27,7 +27,7 @@ trait DiarioOficial
                 ]
             );
 
-            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf,false);
+            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
         }
 
     }
@@ -36,7 +36,7 @@ trait DiarioOficial
     public function criaNovaPublicacao($contratohistorico,$cpf,$create = false)
     {
         $texto_dou = @DiarioOficialClass::retornaTextoModelo($contratohistorico);
-        dump($texto_dou);
+
         $sisg = (isset($contratohistorico->unidade->sisg)) ? $contratohistorico->unidade->sisg : '';
         $situacao = $this->getSituacao($sisg, $contratohistorico->data_publicacao, $create);
         if (!is_null($texto_dou)){
@@ -51,23 +51,20 @@ trait DiarioOficial
                 'motivo_isencao_id' => $this->retornaIdCodigoItem('Motivo Isenção','Indefinido')
             ]);
 
-            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf,$create);
+            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
         }
     }
 
 
-    private function enviarPublicacao($contratohistorico,$publicacao,$texto_dou,$cpf,$create = false)
+    private function enviarPublicacao($contratohistorico,$publicacao,$texto_dou,$cpf)
     {
-        dump($this->booCampoPublicacaoAlterado($contratohistorico));
-        if(($this->booCampoPublicacaoAlterado($contratohistorico)) && (!$create)){
-            dd(aqui);
+
             if ($publicacao->status_publicacao_id == $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR')) {
                 $diarioOficial = new DiarioOficialClass();
                 $diarioOficial->setSoapClient();
                 $diarioOficial->enviaPublicacao($contratohistorico, $publicacao, $texto_dou, $cpf);
                 return true;
             }
-        }
     }
 
     private function getArrayCamposPublicados($tipo_id)
