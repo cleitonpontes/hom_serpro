@@ -27,7 +27,7 @@ trait DiarioOficial
                 ]
             );
 
-            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
+//            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
         }
 
     }
@@ -51,7 +51,7 @@ trait DiarioOficial
                 'motivo_isencao_id' => $this->retornaIdCodigoItem('Motivo Isenção','Indefinido')
             ]);
 
-            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
+//            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
         }
     }
 
