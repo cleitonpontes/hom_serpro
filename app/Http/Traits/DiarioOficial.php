@@ -91,7 +91,7 @@ trait DiarioOficial
                     'processo',
                     'vigencia_inicio',
                     'vigencia_fim',
-                    //'valor_global',
+                    'valor_global',
                 ];
             case 'Termo Aditivo':
                 return $arrCamposPublicados = [
@@ -100,7 +100,7 @@ trait DiarioOficial
                     'fornecedor_id',
                     'vigencia_inicio',
                     'vigencia_fim',
-                    //'valor_global'
+                    'valor_global'
                 ];
             case 'Termo de Apostilamento':
                 return $arrCamposPublicados = [
