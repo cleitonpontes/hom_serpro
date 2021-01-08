@@ -286,7 +286,7 @@ class Contratohistorico extends ContratoBase
     {
         $unidade = Unidade::find($this->unidade_id);
 
-        return $unidade->codigo . ' - ' . $unidade->nomeresumido;
+        return @$unidade->codigo . ' - ' . @$unidade->nomeresumido;
     }
 
     public function getUnidadeOrigem()

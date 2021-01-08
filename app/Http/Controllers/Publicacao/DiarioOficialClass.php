@@ -64,26 +64,25 @@ class DiarioOficialClass extends BaseSoapController
         }
     }
 
-    public function consultaSituacaoOficio($oficio_id,$cpf)
+    public function consultaSituacaoOficio($publicacao)
     {
         try {
-            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
-//            $dados ['dados']['CPF'] = $cpf;
-            $dados ['dados']['IDOficio'] = $oficio_id;
+            $dados ['dados']['CPF'] = $publicacao->cpf;
+            $dados ['dados']['IDOficio'] = $publicacao->oficio_id;
+
             $this->setSoapClient();
             return $this->soapClient->ConsultaAcompanhamentoOficio($dados);
+
         } catch (Exception $e) {
             return $e->getMessage();
         }
     }
 
-    public function sustaMateriaPublicacao($publicacao_id,$cpf)
+    public function sustaMateriaPublicacao($publicacao)
     {
-        $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
         if(!is_null($publicacao->materia_id)) {
             try {
-            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
-//                $dados ['dados']['CPF'] = $cpf;
+                $dados ['dados']['CPF'] = $publicacao->cpf;
                 $dados ['dados']['IDMateria'] = $publicacao->materia_id;
                 $this->setSoapClient();
                 return $this->soapClient->SustaMateria($dados);
@@ -98,8 +97,8 @@ class DiarioOficialClass extends BaseSoapController
     {
         try {
             $this->setSoapClient();
-            dump("Publicacao_id: ".$publicacao->id);
-            dump("Contratohistorico_id: ".$publicacao->contratohistorico_id);
+//            dump("Publicacao_id: ".$publicacao->id);
+//            dump("Contratohistorico_id: ".$publicacao->contratohistorico_id);
 
             $retificacao = $publicacao->texto_dou;
             $tipo_texto = strpos($publicacao->texto_dou, 'RETIFICA');
@@ -247,7 +246,7 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
 //        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
-        $dados ['dados']['motivoIsencao'] = 0;
+        $dados ['dados']['motivoIsencao'] = $this->retornaDescresMotivoIsencao();
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
 
@@ -534,11 +533,10 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function atualizaStatusPublicacao($publicacao_id,$cpf)
+    public function atualizaStatusPublicacao($publicacao)
     {
-        $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
         if(!is_null($publicacao->oficio_id)) {
-            $retorno = $this->consultaSituacaoOficio($publicacao->oficio_id, $cpf);
+            $retorno = $this->consultaSituacaoOficio($publicacao);
             if ($retorno->out->validacaoIdOficio == "OK") {
                 $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
                 if ($status != "PUBLICADA") {
@@ -847,10 +845,8 @@ class DiarioOficialClass extends BaseSoapController
         }
 
         switch ($tipo_intrumento) {
-            case "Contrato":
-                $norma_id = $this->retornaDescresCodigoItem($codigo,'Extrato de Contrato');
-                break;
             case "Arrendamento":
+            case "Contrato":
                 $norma_id = $this->retornaDescresCodigoItem($codigo,'Extrato de Contrato');
                 break;
             case "Credenciamento":
@@ -880,6 +876,7 @@ class DiarioOficialClass extends BaseSoapController
             case "Termo Aditivo":
                 $norma_id = $this->retornaDescresCodigoItem($codigo,'Extrato de Termo Aditivo');
                 break;
+            case "Termo de Apostilamento":
             case "Termo Apostilamento":
                 $norma_id = $this->retornaDescresCodigoItem($codigo,'Extrato de Apostilamento');
                 break;
