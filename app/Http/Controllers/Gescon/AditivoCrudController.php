@@ -628,7 +628,8 @@ class AditivoCrudController extends CrudController
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function update(UpdateRequest $request)
@@ -673,7 +674,7 @@ class AditivoCrudController extends CrudController
             DB::rollback();
             dd($exc);
         }
-        return $redirect_location;
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function show($id)
