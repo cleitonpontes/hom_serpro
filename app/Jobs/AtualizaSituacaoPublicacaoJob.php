@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 
 use App\Http\Controllers\Publicacao\DiarioOficialClass;
+use App\Http\Traits\Formatador;
 use App\Models\Codigoitem;
 use App\Models\ContratoPublicacoes;
 use Exception;
