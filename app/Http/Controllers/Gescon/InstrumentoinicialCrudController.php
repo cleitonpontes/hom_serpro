@@ -720,8 +720,8 @@ class InstrumentoinicialCrudController extends CrudController
         $valor_global = $request->input('valor_global');
         $request->request->set('valor_global', $valor_global);
 
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             // your additional operations before save here
             $redirect_location = parent::updateCrud($request);
             // your additional operations after save here
@@ -735,14 +735,12 @@ class InstrumentoinicialCrudController extends CrudController
             if (!empty($request->get('excluir_item'))) {
                 $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
             }
-
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
             dd($exc);
         }
-
-        return $redirect_location;
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function show($id)
