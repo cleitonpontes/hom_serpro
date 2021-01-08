@@ -410,7 +410,7 @@ class ContratohistoricoObserve
     private function verificaStatusOnline($publicacao,$contratohistorico,$sisg,$cpf)
     {
         $diarioOficial = new DiarioOficialClass();
-        $diarioOficial->atualizaStatusPublicacao($publicacao->id,$cpf);
+        $diarioOficial->atualizaStatusPublicacao($publicacao);
 
         (!is_null($publicacao->materia_id))
             ? $this->statusTransferidoParaImprensa($publicacao, $cpf, $contratohistorico, $sisg)
@@ -428,7 +428,7 @@ class ContratohistoricoObserve
 
         if ($publicacao->status_publicacao_id == $transferido) {
             $diarioOficial = new DiarioOficialClass();
-            $retorno = $diarioOficial->sustaMateriaPublicacao($publicacao->id, $cpf);
+            $retorno = $diarioOficial->sustaMateriaPublicacao($publicacao);
 
             if ($retorno->out->validaSustacao == "OK") {
 
