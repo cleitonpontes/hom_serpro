@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Gescon;
 
 use Alert;
 use App\Models\Codigoitem;
+use App\Models\CompraItemUnidade;
 use App\Models\Contrato;
+use App\Models\MinutaEmpenho;
 use App\Models\SfOrcEmpenhoDados;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -76,6 +78,8 @@ class ContratoPublicacaoCrudController extends CrudController
         $this->crud->allowAccess('show');
         $this->crud->allowAccess('update');
         $this->crud->allowAccess('create');
+
+        $this->crud->addButtonFromView('line', 'deletarpublicacao', 'deletarpublicacao');
 
         // TODO: remove setFromDb() and manually define Fields and Columns
 //        $this->crud->setFromDb();
@@ -444,4 +448,32 @@ class ContratoPublicacaoCrudController extends CrudController
         Alert::warning('Operação não permitida!')->flash();
         return redirect($this->crud->route);
     }
+
+    public function deletarPublicacao()
+    {
+        $publicacao_id = Route::current()->parameter('publicacao_id');
+
+        $publicacao = ContratoPublicacoes::find($publicacao_id);
+
+        $arrSituacoesPermitidas[] = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
+        $arrSituacoesPermitidas[] = $this->retornaIdCodigoItem('Situacao Publicacao', 'DEVOLVIDO PELA IMPRENSA');
+
+        if(in_array($publicacao->status_publicacao_id, $arrSituacoesPermitidas)){
+
+            DB::beginTransaction();
+            try {
+                $publicacao->forceDelete();
+                DB::commit();
+                Alert::success('Publicação Deletada com sucesso!')->flash();
+            } catch (Exception $exc) {
+                DB::rollback();
+                Alert::error('Erro! Tente novamente mais tarde!')->flash();
+                return redirect($this->crud->route);
+            }
+        }else{
+            Alert::warning('Operação não permitida!')->flash();
+        }
+        return redirect($this->crud->route);
+    }
+
 }
