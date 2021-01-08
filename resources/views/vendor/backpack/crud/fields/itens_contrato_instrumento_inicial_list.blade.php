@@ -135,6 +135,8 @@
 
                 $('#numero_item').mask('99999');
 
+                buscarItenContrato();
+
                 var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
                 if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
                     $('#table').html(valueHidden);
@@ -143,10 +145,6 @@
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
-                });
-
-                $('body').on('click','#itensdocontrato', function(event){
-                    buscarItenContrato();
                 });
 
                 $('body').on('change','#tipo_item', function(event){
@@ -204,12 +202,6 @@
                         buscarItem($('#item').val());
                     }
                 });
-
-                $('form').submit(function(){
-                    atualizaValueHTMLCamposAbaItem();
-                    var htmlGridItem = $('#table').html();
-                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
-                });
             });
 
             //atualiza o valor da parcela do contrato
@@ -260,6 +252,8 @@
 
             function adicionaLinhaItem(item){
 
+                let valorTotal = parseInt(item.quantidade) * parseFloat(item.valorunitario) * item.periodicidade;
+
                 var newRow = $("<tr>");
                 var cols = "";
                 cols += '<td>'+item.descricao+'</td>';
@@ -268,7 +262,7 @@
                 cols += '<td><input class="form-control" type="number"  name="qtd_item[]" id="qtd"  step="0.0001" value="'+item.quantidade+'"></td>';
                 cols += '<td><input class="form-control" type="number" readonly name="vl_unit[]" id="vl_unit"  step="0.0001" value="'+item.valorunitario+'"></td>';
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
-                cols += '<td><input class="form-control" type="number" readonly name="vl_total[]" id="vl_total" step="0.0001" value="'+item.valortotal+'"></td>';
+                cols += '<td><input class="form-control" type="number" readonly name="vl_total[]" id="vl_total" step="0.0001" value="'+valorTotal+'"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'"></td>';
                 cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                     '<i class="fa fa-trash"></i>'+

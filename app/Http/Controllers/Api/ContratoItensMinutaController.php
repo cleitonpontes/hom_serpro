@@ -96,6 +96,53 @@ class ContratoItensMinutaController extends Controller
         return json_encode($itens);
     }
 
+    public function buscarItensDeMinutaParaTelaInstrumentoInicial(Request $request)
+    {
+        $minutas_id = Route::current()->parameter('minutas_id');
+        $ids = explode(',',$minutas_id);
+        $itens = MinutaEmpenho::query()
+            ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+            ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
+            ->join('compra_item_minuta_empenho', 'compra_item_minuta_empenho.compra_item_id', '=', 'compra_items.id')
+            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+            ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+            ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
+            ->wherein('minutaempenhos.id',$ids)
+            ->wherein('compra_item_minuta_empenho.minutaempenho_id',$ids)
+            ->select('compra_items.*',
+                'codigoitens.descricao',
+                'compra_item_unidade.id as compra_item_unidade_id',
+                'compra_item_unidade.quantidade_autorizada as quantidade',
+                'compra_item_unidade.quantidade_saldo',
+                'compra_item_fornecedor.valor_unitario as valorunitario',
+                'compra_item_fornecedor.valor_negociado',
+                'compra_item_minuta_empenho.quantidade as periodicidade',
+                'compra_item_minuta_empenho.valor as valortotal',
+                'compra_item_minuta_empenho.minutaempenho_id',
+                'catmatseritens.codigo_siasg',
+                DB::raw(
+                    '1 AS periodicidade'
+                ),
+                'catmatseritens.descricao as descricao_complementar')
+            ->groupBy('compra_items.id',
+                'codigoitens.descricao',
+                'compra_item_unidade.id',
+                'compra_item_unidade.quantidade_autorizada',
+                'compra_item_unidade.quantidade_saldo',
+                'compra_item_fornecedor.valor_unitario',
+                'compra_item_fornecedor.valor_negociado',
+                'compra_item_minuta_empenho.quantidade',
+                'compra_item_minuta_empenho.valor',
+                'compra_item_minuta_empenho.minutaempenho_id',
+                'catmatseritens.codigo_siasg',
+                'catmatseritens.descricao'
+            )
+            ->get()->toArray();
+
+        return json_encode($itens);
+    }
+
 
     public function atualizarItensModal(Request $request)
     {

@@ -478,7 +478,10 @@
             if (!$('#urg').val()) {
                 contacorrente += '        '
             } else {
-                contacorrente += $('#urg').val();
+                // contacorrente += $('#urg').val();
+                var str = "" + $('#urg').val()
+                var pad = "        ";
+                contacorrente += pad.substring(0, pad.length - str.length) + str
             }
             contacorrente += $('#plano_interno').val();
 
@@ -580,7 +583,7 @@
             var vazio2 = null_or_empty("#ptrs");
             var vazio3 = null_or_empty("#fonte");
             var vazio4 = null_or_empty("#natureza_despesa");
-            var vazio6 = null_or_empty("#plano_interno");
+            // var vazio6 = null_or_empty("#plano_interno");
 
             if (!vazio1) {
                 Swal.fire('Alerta!', 'O campo Esfera é obrigatório!', 'warning');
@@ -598,10 +601,10 @@
                 Swal.fire('Alerta!', 'O campo Natureza de Despesa é obrigatório!', 'warning');
                 return false;
             }
-            if (!vazio6) {
-                Swal.fire('Alerta!', 'O campo Plano Interno é obrigatório!', 'warning');
-                return false;
-            }
+            // if (!vazio6) {
+            //     Swal.fire('Alerta!', 'O campo Plano Interno é obrigatório!', 'warning');
+            //     return false;
+            // }
             return true;
         }
     </script>

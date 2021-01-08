@@ -59,7 +59,7 @@ class InserirCelulaOrcamentariaForm extends Form
                     'attr' => [
                         'id'=>'plano_interno',
                         'maxlength' => 11,
-                        'required ' => true,
+                        'required ' => false,
                         'oninput' => 'handleInput(event)'
                     ]
             ])

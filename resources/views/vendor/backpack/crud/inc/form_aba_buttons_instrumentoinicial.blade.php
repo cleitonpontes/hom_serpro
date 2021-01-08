@@ -198,7 +198,7 @@
 
             $("#table-itens tr").remove();
             if(minutas_id.length > 0) {
-                var url = "{{route('buscar.itens.modal',':minutas_id')}}";
+                var url = "{{route('buscar.itens.instrumentoinicial',':minutas_id')}}";
 
                 url = url.replace(':minutas_id', minutas_id);
 
@@ -209,7 +209,7 @@
                         itens.forEach(function (item) {
                             var linhas = $("#table-itens tr").length;
                             if(qtd_itens > linhas){
-                                adicionaLinhaItem(item, false);
+                                adicionaLinhaItem(item);
                             }
                         });
                         minutas_id = [];
@@ -290,6 +290,16 @@
                     $('#itensdocontrato').click();
                     break;
             }
+        }
+
+        /**
+         * retira a propriedade disabled para os campos serem submetidos
+         * guarda html da grid de itens em campo hidden
+         */
+        function configurarFormParaSubmit(){
+            atualizaValueHTMLCamposAbaItem();
+            var htmlGridItem = $('#table').html();
+            $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
         }
     </script>
     <script src="{{ asset('js/mensagem/confirmacaoPublicacao.js')}}"></script>

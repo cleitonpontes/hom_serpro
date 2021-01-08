@@ -13,18 +13,32 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         }
     }
     if (tipo_contrato === 'Outros' || tipo_contrato === 'Empenho' || tipo_contrato === '') {
+        if (!rescisao()) {
+            configurarFormParaSubmit();
+        }
         this.closest('form').submit();
     } else {
         Swal.fire({
-            title: 'O instrumento será publicado no diário oficial, deseja continuar?',
+            title: 'Ao prosseguir o instrumento será automaticamente enviado para publicação no Diário Oficial da União - DOU.  As publicações enviadas após às 18h ou enviadas para publicação em dia não útil serão processadas no dia útil subsequente.',
             showDenyButton: false,
             showCancelButton: true,
             confirmButtonText: `Sim`,
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
+                if (!rescisao()) {
+                    configurarFormParaSubmit();
+                }
                 this.closest('form').submit();
             }
         })
+    }
+    function rescisao (){
+        $arrRoute = window.location.pathname.split('/');
+        $rescisao = $arrRoute.indexOf("rescisao");
+        if ($rescisao !== -1) {
+            return true;
+        }
+        return false;
     }
 });

@@ -25,6 +25,9 @@ class BaseSoapController extends Controller
         self::$options = [
             'http' => [
                 'user_agent' => 'PHPSoapClient'
+            ],
+            'ssl' => [
+                'verify_peer' => false,
             ]
         ];
         return self::$context = stream_context_create(self::$options);

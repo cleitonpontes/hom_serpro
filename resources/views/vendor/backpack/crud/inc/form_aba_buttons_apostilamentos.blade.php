@@ -291,6 +291,18 @@
                     break;
             }
         }
+
+        function configurarFormParaSubmit() {
+            atualizaValueHTMLCamposAbaItem();
+            var htmlGridItem = $('#table').html();
+            $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
+
+            $('input[name="qtd_item[]"]').prop('disabled', false);
+            $('input[name="vl_unit[]"]').prop('disabled', false);
+            $('input[name="vl_total[]"]').prop('disabled', false);
+            $('input[name="periodicidade[]"]').prop('disabled', false);
+            $('input[name="data_inicio[]"]').prop('disabled', false);
+        }
     </script>
     <script src="{{ asset('js/mensagem/confirmacaoPublicacao.js')}}"></script>
 @endpush
