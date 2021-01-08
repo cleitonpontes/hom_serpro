@@ -140,8 +140,7 @@ class ContratoCrudController extends CrudController
             }
 
             DB::commit();
-
-            return $redirect_location;
+            return redirect()->route('crud.publicacao.index',['contrato_id'=>$contrato_id]);
         } catch (Exception $exc) {
             DB::rollback();
 //            dd($exc);

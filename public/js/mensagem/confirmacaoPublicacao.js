@@ -18,20 +18,30 @@ $(document).on('click', "#btn-submit-itens-contrato", function () {
         }
         this.closest('form').submit();
     } else {
-        Swal.fire({
-            title: 'Ao prosseguir o instrumento será automaticamente enviado para publicação no Diário Oficial da União - DOU.  As publicações enviadas após às 18h ou enviadas para publicação em dia não útil serão processadas no dia útil subsequente.',
-            showDenyButton: false,
-            showCancelButton: true,
-            confirmButtonText: `Sim`,
-        }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-                if (!rescisao()) {
-                    configurarFormParaSubmit();
-                }
-                this.closest('form').submit();
-            }
-        })
+        if (!rescisao()) {
+            configurarFormParaSubmit();
+        }
+        this.closest('form').submit();
+
+        //----ATENÇÃO---------------------------------------------------------------------------------------------------
+        // Funcionalidade removida temporariamente enquanto a publicação não volta a ser automática
+        // Ao submeter o forumlário exibia uma pop-up de confirmação e após a confirmação o formulário era submetido
+        //--------------------------------------------------------------------------------------------------------------
+
+        // Swal.fire({
+        //     title: 'Ao prosseguir o instrumento será automaticamente enviado para publicação no Diário Oficial da União - DOU.  As publicações enviadas após às 18h ou enviadas para publicação em dia não útil serão processadas no dia útil subsequente.',
+        //     showDenyButton: false,
+        //     showCancelButton: true,
+        //     confirmButtonText: `Sim`,
+        // }).then((result) => {
+        //     /* Read more about isConfirmed, isDenied below */
+        //     if (result.isConfirmed) {
+        //         if (!rescisao()) {
+        //             configurarFormParaSubmit();
+        //         }
+        //         this.closest('form').submit();
+        //     }
+        // })
     }
     function rescisao (){
         $arrRoute = window.location.pathname.split('/');

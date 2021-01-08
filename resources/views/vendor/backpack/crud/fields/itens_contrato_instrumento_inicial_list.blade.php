@@ -252,7 +252,7 @@
 
             function adicionaLinhaItem(item){
 
-                let valorTotal = parseInt(item.quantidade) * parseFloat(item.valorunitario) * item.periodicidade;
+                let valorTotal = item.quantidade * parseFloat(item.valorunitario) * item.periodicidade;
 
                 var newRow = $("<tr>");
                 var cols = "";
