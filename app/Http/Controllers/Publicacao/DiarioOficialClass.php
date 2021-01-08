@@ -527,7 +527,7 @@ class DiarioOficialClass extends BaseSoapController
 
         foreach ($publicacoes as $publicacao) {
             if (isset($publicacao->id)) {
-                AtualizaSituacaoPublicacaoJob::dispatch($publicacao)->onQueue('consulta_situacao_publicacao');
+                AtualizaSituacaoPublicacaoJob::dispatch($publicacao);
             }
         }
 
@@ -908,7 +908,7 @@ class DiarioOficialClass extends BaseSoapController
     {
         $array_num_ano = explode('/',$numero_instrumento);
 
-        $num = preg_replace("@0+@","",$array_num_ano[0]);
+        $num = (int)$array_num_ano[0];
 
         return $num.'/'.$array_num_ano[1];
     }
