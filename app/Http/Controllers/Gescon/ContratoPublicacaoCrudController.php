@@ -101,13 +101,13 @@ class ContratoPublicacaoCrudController extends CrudController
     {
         $this->adicionaCampoDataPublicacao();
         $this->adicionaCampoContratoHistorico($contrato_id);
-//        $this->adicionaCampoStatus();
 //        $this->adicionaCampoStatusPublicacao();
         $this->adicionaCampoTextoDOU();
         $this->adicionaCampoCpf();
         $this->adicionaCampoTipoPagamento();
         $this->adicionaCampoMotivoIsencao();
         $this->adicionaCampoEmpenho();
+        $this->adicionaCampoSituacao();
     }
 
     /**
@@ -172,17 +172,19 @@ class ContratoPublicacaoCrudController extends CrudController
      * Configura o campo Status
      *
      */
-    private function adicionaCampoStatus(): void
+    private function adicionaCampoSituacao(): void
     {
+        $idAPublicar = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
+        $idAPublicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
         $this->crud->addField([
-            'name' => 'status',
+            'name' => 'status_publicacao_id',
             'label' => 'Status',
-            'type' => 'select_from_array',
+            'type' => 'select2_from_array',
             'options' => [
-                'Pendente' => 'Pendente',
-                'L' => 'Lido',
-                'E' => 'Erro',
+                $idAPublicar => 'A PUBLICAR',
+                $idAPublicado => 'PUBLICADO',
             ],
+            'default' => $idAPublicar,
         ]);
     }
 
@@ -378,11 +380,6 @@ class ContratoPublicacaoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        // your additional operations before save here
-        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
-
-        $request->request->set('status_publicacao_id', $situacao_id);
-
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -399,9 +396,6 @@ class ContratoPublicacaoCrudController extends CrudController
             return redirect()->route('crud.publicacao.index',['contrato_id'=>$contrato_id]);
         }
 
-        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
-
-        $request->request->set('status_publicacao_id', $situacao_id);
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
