@@ -27,11 +27,14 @@ class ExecutaDouController extends Controller
             ->where('texto_dou','!=','')
             ->get();
 
+        $i = 0;
         foreach ($arr_contrato_publicacao as $contrato_publicacao) {
             $contrato_publicacao->data_publicacao = $data->toDateString();
             $contrato_publicacao->save();
             $contrato_historico = Contratohistorico::where('id', $contrato_publicacao->contratohistorico_id)->first();
             $retorno = $diarioOficial->enviarPublicacaoCommand($contrato_historico, $contrato_publicacao);
+            $i++;
+            dump($i);
         }
         dd('Terminou!!');
     }
