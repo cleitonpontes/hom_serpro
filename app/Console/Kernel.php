@@ -139,7 +139,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->between('14:30', '15:30');
+            ->between('08:00', '09:00');
     }
 
 

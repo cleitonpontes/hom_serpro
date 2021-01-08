@@ -21,7 +21,6 @@ class ExecutaDouController extends Controller
         $data = Carbon::createFromFormat('Y-m-d',$datapub);
         $status_publicacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
 
-
         $arr_contrato_publicacao = ContratoPublicacoes::where('status', 'Pendente')
             ->where('status_publicacao_id', $status_publicacao_id)
             ->whereNotNull('texto_dou')
