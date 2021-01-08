@@ -908,7 +908,7 @@ class DiarioOficialClass extends BaseSoapController
     {
         $array_num_ano = explode('/',$numero_instrumento);
 
-        $num = preg_replace("@0+@","",$array_num_ano[0]);
+        $num = (int)$array_num_ano[0];
 
         return $num.'/'.$array_num_ano[1];
     }
