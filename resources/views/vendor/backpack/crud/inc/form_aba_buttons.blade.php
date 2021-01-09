@@ -3,7 +3,7 @@
     <input type="hidden" name="save_action" value="{{ $saveAction['active']['value'] }}">
     <div class="btn-group" id="botoes_contrato">
 
-        <button type="submit" class="btn btn-success">
+        <button type="button" class="btn btn-success" id="btn-submit-itens-contrato">
             <span class="fa fa-save" role="presentation" aria-hidden="true"></span> &nbsp;
             <span data-value="{{ $saveAction['active']['value'] }}">{{ $saveAction['active']['label'] }}</span>
         </button>
@@ -296,5 +296,15 @@
         }
     }
 
+    /**
+     * guarda html da grid de itens em campo hidden
+     */
+    function configurarFormParaSubmit(){
+        atualizaValueHTMLCamposAbaItem();
+        var htmlGridItem = $('#table').html();
+        $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
+    }
+
 </script>
+<script src="{{ asset('js/mensagem/confirmacaoPublicacao.js')}}"></script>
 @endpush

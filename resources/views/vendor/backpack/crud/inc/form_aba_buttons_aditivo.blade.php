@@ -3,7 +3,7 @@
     <input type="hidden" name="save_action" value="{{ $saveAction['active']['value'] }}">
     <div class="btn-group" id="botoes_aditivo">
 
-        <button type="submit" class="btn btn-success">
+        <button type="button" class="btn btn-success" id="btn-submit-itens-contrato">
             <span class="fa fa-save" role="presentation" aria-hidden="true"></span> &nbsp;
             <span data-value="{{ $saveAction['active']['value'] }}">{{ $saveAction['active']['label'] }}</span>
         </button>
@@ -310,5 +310,22 @@
                     break;
             }
         }
+
+        /**
+         * retira a propriedade disabled para os campos serem submetidos
+         * guarda html da grid de itens em campo hidden
+         */
+        function configurarFormParaSubmit(){
+            $('#select2_ajax_fornecedor_id').prop('disabled', false);
+            $('#retroativo_1').prop('disabled', false);
+            $('#retroativo_2').prop('disabled', false);
+            $('#retroativo_soma_subtrai_1').prop('disabled', false);
+            $('#retroativo_soma_subtrai_2').prop('disabled', false);
+
+            atualizaValueHTMLCamposAbaItem();
+            var htmlGridItem = $('#table').html();
+            $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
+        }
     </script>
+    <script src="{{ asset('js/mensagem/confirmacaoPublicacao.js')}}"></script>
 @endpush

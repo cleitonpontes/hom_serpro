@@ -6,6 +6,7 @@ use App\Http\Traits\Formatador;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
 use App\Models\Contratoitem;
+use App\Models\ContratoPublicacoes;
 use App\Models\Unidade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -169,19 +170,24 @@ class ComprasnetController extends Controller
                         ->where('descricao', '<>', 'Termo de Rescisão');
                 })->first();
 
-                $ultimo_historico = $dado->contrato->historico()->orderBy('data_assinatura', 'DESC')->first();
-                $publicacao = $ultimo_historico->publicacao()->latest()->first();
+                $contrato_id = $dado->contrato->id;
 
-                if ($ultimo_historico->tipo->descricao == 'Termo de Rescisão') {
-                    $situacao_publicacao = @$publicacao->statusPublicacao->descres;
-                    if($publicacao->statusPublicacao->descres == '02'){
+                $publicacao = ContratoPublicacoes::whereHas('contratohistorico', function ($q) use ($contrato_id){
+                    $q->where('contrato_id',$contrato_id);
+                })
+                    ->latest()
+                    ->first();
+
+                if ($publicacao->contratohistorico->tipo->descricao == 'Termo de Rescisão') {
+                    $situacao_publicacao = @$publicacao->StatusPublicacaoDescress;
+                    if($publicacao->StatusPublicacaoDescres == '02'){
                         $situacao_publicacao = '08';
                     }
-                    if($publicacao->statusPublicacao->descres == '05'){
+                    if($publicacao->StatusPublicacaoDescres == '05'){
                         $situacao_publicacao = '09';
                     }
                 }else{
-                    $situacao_publicacao = @$publicacao->statusPublicacao->descres;
+                    $situacao_publicacao = @$publicacao->StatusPublicacaoDescres;
                 }
 
                 $unidade_atual = ($dado->contrato->unidade->codigo == $dado->contrato->unidadeorigem->codigo) ? null : $dado->contrato->unidade->codigo;

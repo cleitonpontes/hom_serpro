@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Gescon;
 use App\Forms\InserirItemContratoMinutaForm;
 use App\Http\Traits\Formatador;
 use App\Jobs\AlertaContratoJob;
+use App\Models\AmparoLegalContrato;
 use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Comprasitemunidadecontratoitens;
@@ -103,6 +104,7 @@ class ContratoCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
+
         $valor_parcela = $request->input('valor_parcela');
         $request->request->set('valor_parcela', $valor_parcela);
 
@@ -123,18 +125,22 @@ class ContratoCrudController extends CrudController
         try {
             $redirect_location = parent::storeCrud($request);
             $contrato_id = $this->crud->getCurrentEntryId();
+
             $request->request->set('contrato_id', $contrato_id);
             if (!empty($request->get('qtd_item'))) {
                 $this->inserirItensContrato($request->all());
             }
 
-            if (!empty($request->get('minuta_id'))) {
-                $this->vincularMinutaContrato($request->all());
+            if (!empty($request->get('minutasempenho'))) {
+                $this->vincularMinutaContratoHistorico($request->all(), $contrato_id);
+            }
+
+            if (!empty($request->get('amparoslegais'))) {
+                $this->vincularAmparoLegalContratoHistorico($request->all(), $contrato_id);
             }
 
             DB::commit();
-
-            return $redirect_location;
+            return redirect()->route('crud.publicacao.index',['contrato_id'=>$contrato_id]);
         } catch (Exception $exc) {
             DB::rollback();
 //            dd($exc);
@@ -180,13 +186,36 @@ class ContratoCrudController extends CrudController
         }
     }
 
-    public function vincularMinutaContrato($request)
+    /**
+     *  Ao gravar o contrato gravar as minutas para contratoHistorico na tabela pivot
+     *
+     * @param $request
+     * @param $contrato_id
+     */
+    private function vincularMinutaContratoHistorico($request, $contrato_id)
     {
-        foreach ($request['minuta_id'] as $minuta_id) {
-            $contratoMinuta = new ContratoMinutaEmpenho();
-            $contratoMinuta->contrato_id = $request['contrato_id'];
-            $contratoMinuta->minuta_empenho_id = $minuta_id;
-            $contratoMinuta->save();
+        $contratoHistorico = Contratohistorico::where('contrato_id', '=', $contrato_id)->first();
+
+        // vincula os empenhos ao contrato historico
+        foreach ($request['minutasempenho'] as $MinutaEmpenhoId) {
+            $contratoHistorico->minutasempenho()->attach($MinutaEmpenhoId);
+        }
+    }
+
+    /**
+     * Ao gravar o contrato gravar o amparo legal para contratoHistorico na tabela pivot
+     *
+     * @param $request
+     * @param $contrato_id
+     */
+
+    private function vincularAmparoLegalContratoHistorico($request, $contrato_id)
+    {
+        $contratoHistorico = Contratohistorico::where('contrato_id', '=', $contrato_id)->first();
+
+        // vincula os empenhos ao contrato historico
+        foreach ($request['amparoslegais'] as $amparoLegalId) {
+            $contratoHistorico->amparolegal()->attach($amparoLegalId);
         }
     }
 
@@ -913,6 +942,7 @@ class ContratoCrudController extends CrudController
             'minimum_input_length' => 0,
             'data_source' => url('api/amparolegal'),
             'model' => 'App\Models\AmparoLegal',
+            'dependencies' => ['modalidade_id'],
             'attribute' => 'campo_api_amparo',
             'pivot' => true,
             'tab' => $this->tab
@@ -1710,8 +1740,10 @@ class ContratoCrudController extends CrudController
                 'contratos',
                 function ($u) {
                     $u->where('situacao', true);
+                    $u->where('unidade_id', session('user_ug_id'));
                 }
             )
+
             ->pluck('nome', 'cpf_cnpj_idgener')
             ->toArray();
     }

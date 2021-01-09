@@ -180,23 +180,18 @@ class CompraSiasgCrudController extends CrudController
         //BUSCAR COMPRA por CONTRATO
         if ($request->tipoEmpenho == 1) {
             $contrato = Contrato::find($request->id);
-            $dadosContrato = $this->consultaContratoSiasg($contrato);
-            $apiSiasg = new ApiSiasg();
 
-            if (is_null($dadosContrato->data)) {
-                return redirect('/empenho/buscacompra')->with('alert-warning', $dadosContrato->messagem);
-            }
 
             $params = [
-                'modalidade' => $dadosContrato->data->dadosContrato->modLicitacao,
-                'numeroAno' => $dadosContrato->data->dadosContrato->numLicitacao,
-                'uasgCompra' => $dadosContrato->data->dadosContrato->uasg,
+                'modalidade' => $contrato->modalidade->descres,
+                'numeroAno' => $contrato->licitacao_numero_limpa,
+                'uasgCompra' => $contrato->unidadecompra->codigo,
                 'uasgUsuario' => session('user_ug')
             ];
 
             //pegar a compra
+            $apiSiasg = new ApiSiasg();
             $retorno_compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
-//            dd($contrato, $dadosContrato, $params, $retorno_compra);
 
             if (is_null($retorno_compra->data)) {
                 $compra = $this->verificaCompraExisteParamContrato($contrato);
@@ -216,7 +211,7 @@ class CompraSiasgCrudController extends CrudController
 
             $request->request->set('numero_ano', $contrato->numero);
             $request->request->set('unidade_origem_id', $contrato->unidadeorigem_id);
-            $request->request->set('modalidade_id', $dadosContrato->data->dadosContrato->modLicitacao);
+            $request->request->set('modalidade_id', $contrato->modalidade->id);
 
             $this->montaParametrosCompra($retorno_compra, $request);
 
@@ -237,9 +232,6 @@ class CompraSiasgCrudController extends CrudController
 
                 if ($retorno_compra->data->compraSispp->tipoCompra == 2) {
                     $this->gravaParametroItensdaCompraSISRP($retorno_compra, $compra);
-                    if (!is_null($retorno_compra->data->linkSisrpCompleto)) {
-//                        dd($retorno_compra->data->linkSisrpCompleto);
-                    }
                 }
 
                 $tipo_empenhopor = Codigoitem::where('descricao', '=', 'Contrato')
@@ -375,6 +367,7 @@ class CompraSiasgCrudController extends CrudController
 
     public function consultaContratoSiasg($contrato)
     {
+
         $apiSiasg = new ApiSiasg();
         $tipo = Codigoitem::find($contrato->tipo_id);
         $numero_ano = explode('/', $contrato->numero);
@@ -412,20 +405,23 @@ class CompraSiasgCrudController extends CrudController
     public function verificaPermissaoUasgCompraParamContrato($compraSiasg, $contrato)
     {
         $unidade_autorizada = null;
-        $uasgCompra = Unidade::find($contrato->unidadeorigem_id);
+        $uasgContrato = Unidade::find($contrato->unidade_id);
 
-        $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
-        $subrrogada = $compraSiasg->data->compraSispp->subrogada;
-        if ($tipoCompra == $this::SISPP) {
-            if ($subrrogada <> '000000') {
-                ($subrrogada == session('user_ug')) ? $unidade_autorizada = session('user_ug_id') : '';
-            } else {
-                ($uasgCompra->id == session('user_ug_id'))
-                    ? $unidade_autorizada = $uasgCompra->id : '';
-            }
-        } else {
-            $unidade_autorizada = session('user_ug_id');
-        }
+        ($uasgContrato->id == session('user_ug_id')) ? $unidade_autorizada = session('user_ug_id') : '';
+
+//        $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
+//        $subrrogada = $compraSiasg->data->compraSispp->subrogada;
+//        if ($tipoCompra == $this::SISPP) {
+//            if ($subrrogada <> '000000') {
+//                ($subrrogada == session('user_ug')) ? $unidade_autorizada = session('user_ug_id') : '';
+//            } else {
+//                ($uasgCompra->id == session('user_ug_id'))
+//                    ? $unidade_autorizada = $uasgCompra->id : '';
+//            }
+//        } else {
+//            $unidade_autorizada = session('user_ug_id');
+//        }
+
         return $unidade_autorizada;
     }
 

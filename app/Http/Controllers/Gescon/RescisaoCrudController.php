@@ -57,7 +57,7 @@ class RescisaoCrudController extends CrudController
         $this->crud->orderBy('data_assinatura', 'asc');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
+//        $this->crud->addButtonFromView('line', 'morecontratohistorico', 'morecontratohistorico', 'end');
         $this->crud->enableExportButtons();
 //        $this->crud->disableResponsiveTable();
         $this->crud->denyAccess('create');
@@ -78,11 +78,6 @@ class RescisaoCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
-
-        $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
-
         $tipo = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
         })
@@ -90,7 +85,7 @@ class RescisaoCrudController extends CrudController
             ->first();
 
 
-        $campos = $this->Campos($fornecedores, $tipo, $contrato_id, $unidade);
+        $campos = $this->Campos($tipo, $contrato_id);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in ApostilamentoRequest
@@ -169,16 +164,27 @@ class RescisaoCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $tipo, $contrato_id, $unidade)
+    public function Campos($tipo, $contrato_id)
     {
         $contrato = Contrato::find($contrato_id);
+        $tipo_contrato =   Codigoitem::find($contrato->tipo_id);
 
         $campos = [
-
+            [   // Hidden
+                'name' => 'tipo_contrato',
+                'type' => 'hidden',
+                'default' => $tipo_contrato->descricao,
+                'attributes' => ['id' => 'tipo_contrato']
+            ],
             [   // Hidden
                 'name' => 'receita_despesa',
                 'type' => 'hidden',
                 'default' => $contrato->receita_despesa,
+            ],
+            [   // Hidden
+                'name' => 'tipo_id',
+                'type' => 'hidden',
+                'default' => $contrato->tipo_id,
             ],
             [   // Hidden
                 'name' => 'contrato_id',
@@ -257,7 +263,7 @@ class RescisaoCrudController extends CrudController
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function update(UpdateRequest $request)
@@ -267,7 +273,7 @@ class RescisaoCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function show($id)

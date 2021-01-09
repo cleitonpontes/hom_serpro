@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use App\Models\Codigoitem;
-use App\Rules\NaoAceitarFeriado;
-use App\Rules\NaoAceitarFimDeSemana;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -13,6 +12,7 @@ use App\Rules\NaoAceitarMinutaCompraDiferente;
 
 class ContratoRequest extends FormRequest
 {
+    use RegrasDataPublicacao;
     protected $data_limite;
 
     /**
@@ -42,7 +42,7 @@ class ContratoRequest extends FormRequest
         $this->data_atual = date('Y-m-d');
         $this->minutasempenho = $this->minutasempenho ?? [];
 
-        return [
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratos', 'numero'))
@@ -80,14 +80,6 @@ class ContratoRequest extends FormRequest
             }),
 
             'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:{$this->data_atual}",
-            'data_publicacao' => [
-                'required',
-                'date',
-                "after:{$this->data_atual}",
-                "after_or_equal:data_assinatura",
-                new NaoAceitarFeriado(),
-                new NaoAceitarFimDeSemana()
-            ],
             'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
             'valor_global' => 'required',
@@ -97,6 +89,9 @@ class ContratoRequest extends FormRequest
 //            'arquivos' => 'file|mimes:pdf',
             'situacao' => 'required',
         ];
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
+
+        return $rules;
     }
 
     /**

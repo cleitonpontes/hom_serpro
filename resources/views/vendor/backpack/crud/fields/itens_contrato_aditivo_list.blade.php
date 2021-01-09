@@ -131,6 +131,9 @@
                 valor_global = 0;
                 parcela = 1;
 
+                // buscar os itens do contrato/aditivo assim que a pagina for carregada
+                buscarItens();
+
                 const $tableID = $('#table');
 
                 $('#numero_item').mask('99999');
@@ -143,10 +146,6 @@
 
                 $tableID.on('click', '.table-remove', function () {
                     $(this).parents('tr').detach();
-                });
-
-                $('body').on('click','#itensdocontrato', function(event){
-                    buscarItens();
                 });
 
                 $('body').on('change','#tipo_item', function(event){
@@ -203,19 +202,6 @@
 
                 $('body').on('click','#remove_item',function(event){
                     removeLinha(this);
-                });
-
-                $('body').submit(function(){
-
-                    $('#select2_ajax_fornecedor_id').prop('disabled', false);
-                    $('#retroativo_1').prop('disabled', false);
-                    $('#retroativo_2').prop('disabled', false);
-                    $('#retroativo_soma_subtrai_1').prop('disabled', false);
-                    $('#retroativo_soma_subtrai_2').prop('disabled', false);
-
-                    atualizaValueHTMLCamposAbaItem();
-                    var htmlGridItem = $('#table').html();
-                    $('input[name=adicionaCampoRecuperaGridItens]').val(htmlGridItem);
                 });
 
                 function atualizarSelectItem(){

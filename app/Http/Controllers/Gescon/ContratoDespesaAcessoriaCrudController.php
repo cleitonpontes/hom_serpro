@@ -203,6 +203,7 @@ class ContratoDespesaAcessoriaCrudController extends CrudController
 
         $dados->whereHas('contratos', function ($c) {
             $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
         });
 
         return $dados->pluck('descricao', 'cpf_cnpj_idgener')->toArray();

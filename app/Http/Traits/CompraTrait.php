@@ -17,14 +17,29 @@ trait CompraTrait
 
     public function retornaSaldoAtualizado($compraitem_id)
     {
-//        dd($compraitem_id);
-//        $teste = CompraItemMinutaEmpenho::select(
+        $unidade_id = session('user_ug_id');
         return CompraItemMinutaEmpenho::select(
-            DB::raw('CASE
-                           WHEN compra_item_unidade.quantidade_autorizada - sum(compra_item_minuta_empenho.quantidade) IS NOT NULL
-                               THEN compra_item_unidade.quantidade_autorizada - sum(compra_item_minuta_empenho.quantidade)
-                           ELSE compra_item_unidade.quantidade_autorizada
-                           END AS saldo')
+            DB::raw("
+            coalesce(coalesce(compra_item_unidade.quantidade_autorizada, 0)
+                    - (
+                    select coalesce(sum(cime.quantidade), 0)
+                    from compra_item_minuta_empenho cime
+                             join minutaempenhos m on cime.minutaempenho_id = m.id
+                             left join contrato_minuta_empenho_pivot cmep on m.id = cmep.minuta_empenho_id
+                    where cime.compra_item_id = $compraitem_id
+                    and unidade_id = $unidade_id
+                      and cmep.contrato_id is null
+                )
+                    - (
+                    select coalesce(sum(quantidade), 0)
+                    from contratoitens
+                             join compras_item_unidade_contratoitens ciuc on contratoitens.id = ciuc.contratoitem_id
+                             join compra_item_unidade on ciuc.compra_item_unidade_id = compra_item_unidade.id
+                    where ciuc.compra_item_unidade_id = $compraitem_id
+                    and unidade_id = $unidade_id
+                )
+           , 0) AS saldo
+            ")
         )
             ->join(
                 'compra_items',
@@ -39,11 +54,11 @@ trait CompraTrait
                 'compra_items.id'
             )
             ->where('compra_item_unidade.compra_item_id', $compraitem_id)
-            ->groupBy('compra_item_unidade.quantidade_autorizada')
+            ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
+            ->groupBy('compra_item_unidade.quantidade_autorizada', 'compra_item_unidade.id')
             ->first();
-//        ;dd($teste->getBindings(),$teste->toSql());
+//        ;dd($teste->getBindings(),$teste->toSql(), $teste->first());
     }
-
 
     public function gravaParametroItensdaCompraSISPP($compraSiasg, $compra): void
     {
@@ -198,6 +213,10 @@ trait CompraTrait
 
     public function gravaCompraItemFornecedor($compraitem_id, $item, $fornecedor)
     {
+        $qtd_empenhada = (isset($item->quantidadeEmpenhada))
+            ? preg_replace('/[^0-9]/', '', $item->quantidadeEmpenhada)
+            : 0;
+
         CompraItemFornecedor::updateOrCreate(
             [
                 'compra_item_id' => $compraitem_id,
@@ -210,7 +229,7 @@ trait CompraTrait
                 'quantidade_homologada_vencedor' => (isset($item->quantidadeHomologadaVencedor)) ? $item->quantidadeHomologadaVencedor : 0,
                 'valor_unitario' => $item->valorUnitario,
                 'valor_negociado' => (isset($item->valorTotal)) ? $item->valorTotal : $item->valorNegociado,
-                'quantidade_empenhada' => (isset($item->quantidadeEmpenhada)) ? $item->quantidadeEmpenhada : 0
+                'quantidade_empenhada' => $qtd_empenhada
             ]
         );
     }
@@ -231,6 +250,7 @@ trait CompraTrait
         );
 
         $saldo = $this->retornaSaldoAtualizado($compraitem_id);
+
         $compraItemUnidade->quantidade_saldo = $saldo->saldo;
         $compraItemUnidade->save();
     }
@@ -238,30 +258,41 @@ trait CompraTrait
 
     public function gravaCompraItemUnidadeSisrp($compraitem, $unidade_autorizada_id, $item, $dadosGerenciadoraParticipante, $carona, $dadosFornecedor, $tipoUasg)
     {
-        $qtd_autorizada = $dadosGerenciadoraParticipante->quantidadeAAdquirir - $dadosGerenciadoraParticipante->quantidadeAdquirida;
         $fornecedor_id = null;
         if (!is_null($carona)) {
-            $carona = (object)$carona;
+            $carona = (object)$carona[0];
             $qtd_autorizada = $carona->quantidadeAutorizada;
             $fornecedor = $this->retornaFornecedor((object)$dadosFornecedor[0]);
             $fornecedor_id = $fornecedor->id;
+            $quantidadeAAdquirir = $qtd_autorizada;
+            $quantidadeAdquirida = 0;
+        } else {
+            $qtd_autorizada = $dadosGerenciadoraParticipante->quantidadeAAdquirir - $dadosGerenciadoraParticipante->quantidadeAdquirida;
+            $quantidadeAAdquirir = $dadosGerenciadoraParticipante->quantidadeAAdquirir;
+            $quantidadeAdquirida = $dadosGerenciadoraParticipante->quantidadeAdquirida;
         }
 
-        $compraItemUnidade = CompraItemUnidade::updateOrCreate(
+        $compraItemUnidade = CompraItemUnidade::where(
             [
                 'compra_item_id' => $compraitem->id,
                 'unidade_id' => $unidade_autorizada_id,
                 'fornecedor_id' => $fornecedor_id,
 
-            ],
-            [
-                'quantidade_autorizada' => $qtd_autorizada,
-                'quantidade_saldo' => $qtd_autorizada,
-                'tipo_uasg' => $tipoUasg,
-                'quantidade_adquirir' => $dadosGerenciadoraParticipante->quantidadeAAdquirir,
-                'quantidade_adquirida' => $dadosGerenciadoraParticipante->quantidadeAdquirida
             ]
-        );
+        )->first();
+
+        if (is_null($compraItemUnidade)) {
+            $compraItemUnidade = new CompraItemUnidade;
+            $compraItemUnidade->compra_item_id = $compraitem->id;
+            $compraItemUnidade->unidade_id = 1;
+            $compraItemUnidade->fornecedor_id = 1;
+        }
+        $compraItemUnidade->quantidade_autorizada = $qtd_autorizada;
+        $compraItemUnidade->quantidade_saldo = $qtd_autorizada;
+        $compraItemUnidade->tipo_uasg = $tipoUasg;
+        $compraItemUnidade->quantidade_adquirir = $quantidadeAAdquirir;
+        $compraItemUnidade->quantidade_adquirida = $quantidadeAdquirida;
+        $compraItemUnidade->save();
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
         $compraItemUnidade->quantidade_saldo = $saldo->saldo;

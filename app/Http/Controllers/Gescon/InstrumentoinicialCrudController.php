@@ -85,8 +85,6 @@ class InstrumentoinicialCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
 
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
@@ -108,7 +106,15 @@ class InstrumentoinicialCrudController extends CrudController
             ->pluck('descricao', 'id')
             ->toArray();
 
-        $campos = $this->Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id);
+        $campos = $this->Campos(
+            $unidade,
+            $categorias,
+            $modalidades,
+            $tipos,
+            $contrato_id,
+            $instrumentoinicial_id,
+            $contrato->tipo->descricao
+        );
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in InstrumentoinicialRequest
@@ -350,16 +356,23 @@ class InstrumentoinicialCrudController extends CrudController
         ];
 
         return $colunas;
-
     }
 
-    public function Campos($fornecedores, $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id)
+    public function Campos( $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id, $contrato_tipo_descricao)
     {
         $campos = [
             [   // Hidden
                 'name' => 'contrato_id',
                 'type' => 'hidden',
                 'default' => $contrato_id,
+            ],
+            [   // Hidden
+                'name' => 'tipo_contrato',
+                'type' => 'hidden',
+                'default' => $contrato_tipo_descricao,
+                'attributes' => [
+                    'id' => 'tipo_contrato'
+                ]
             ],
             [   // Hidden
                 'name' => 'instrumentoinicial_id',
@@ -653,7 +666,7 @@ class InstrumentoinicialCrudController extends CrudController
             ],
             [   // Number
                 'name' => 'num_parcelas',
-                'label' => 'Núm. Percelas',
+                'label' => 'Núm. Parcelas',
                 'type' => 'number',
                 // optionals
                 'attributes' => [
@@ -707,8 +720,8 @@ class InstrumentoinicialCrudController extends CrudController
         $valor_global = $request->input('valor_global');
         $request->request->set('valor_global', $valor_global);
 
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             // your additional operations before save here
             $redirect_location = parent::updateCrud($request);
             // your additional operations after save here
@@ -719,17 +732,15 @@ class InstrumentoinicialCrudController extends CrudController
                 $this->alterarItens($request->all());
             }
 
-            if(!empty($request->get('excluir_item'))) {
+            if (!empty($request->get('excluir_item'))) {
                 $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
             }
-
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
             dd($exc);
         }
-
-        return $redirect_location;
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function show($id)
@@ -780,7 +791,7 @@ class InstrumentoinicialCrudController extends CrudController
         }
     }
 
-    private function criarNovoContratoItem($key, $request, $contratoHistoricoId = null )
+    private function criarNovoContratoItem($key, $request, $contratoHistoricoId = null)
     {
         $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
         $catmatseritem = Catmatseritem::find($catmatseritem_id);

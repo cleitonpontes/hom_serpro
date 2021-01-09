@@ -89,21 +89,9 @@ class ApostilamentoCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
 
-        $fornecedores = Fornecedor::select(DB::raw("CONCAT(cpf_cnpj_idgener,' - ',nome) AS nome"), 'id')
-            ->orderBy('nome', 'asc')->pluck('nome', 'id')->toArray();
-
         $unidade = [session()->get('user_ug_id') => session()->get('user_ug')];
 
-        $tipos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo de Contrato');
-        })
-            ->where('descricao', '=', 'Termo de Apostilamento')
-            ->orderBy('descricao')
-            ->pluck('descricao', 'id')
-            ->toArray();
-
-
-        $campos = $this->Campos($fornecedores, $tipos, $contrato_id, $unidade, $apostilamento_id);
+        $campos = $this->Campos($contrato_id, $unidade, $apostilamento_id);
         $this->crud->addFields($campos);
 
         // add asterisk for fields that are required in ApostilamentoRequest
@@ -228,11 +216,19 @@ class ApostilamentoCrudController extends CrudController
 
     }
 
-    public function Campos($fornecedores, $tipos, $contrato_id, $unidade, $apostilamento_id)
+    public function Campos($contrato_id, $unidade, $apostilamento_id)
     {
         $contrato = Contrato::find($contrato_id);
 
+        $tipo =   Codigoitem::find($contrato->tipo_id);
+
         $campos = [
+            [   // Hidden
+                'name' => 'tipo_contrato',
+                'type' => 'hidden',
+                'default' => $tipo->descricao,
+                'attributes' => ['id' => 'tipo_contrato']
+            ],
             [   // Hidden
                 'name' => 'receita_despesa',
                 'type' => 'hidden',
@@ -247,6 +243,11 @@ class ApostilamentoCrudController extends CrudController
                 'name' => 'contrato_id',
                 'type' => 'hidden',
                 'default' => $contrato->id,
+            ],
+            [   // Hidden
+                'name' => 'tipo_id',
+                'type' => 'hidden',
+                'default' => $contrato->tipo_id,
             ],
             [   // Hidden
                 'name' => 'fornecedor_id',
@@ -269,6 +270,12 @@ class ApostilamentoCrudController extends CrudController
                 'type' => 'numcontrato',
                 'tab' => 'Dados Gerais',
 
+            ],
+            [   // Date
+                'name' => 'data_publicacao',
+                'label' => 'Data da Publicação',
+                'type' => 'date',
+                'tab' => 'Dados Gerais',
             ],
             [
                 'name' => 'observacao',
@@ -492,7 +499,8 @@ class ApostilamentoCrudController extends CrudController
         // your additional operations after save here
 
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function update(UpdateRequest $request)
@@ -539,7 +547,7 @@ class ApostilamentoCrudController extends CrudController
             $this->alterarItensContrato($request->all(), $this->crud->entry);
         }
 
-        return $redirect_location;
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function show($id)

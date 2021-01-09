@@ -2,7 +2,10 @@
 
 namespace App\Observers;
 
+use App\Http\Controllers\Execfin\EmpenhoCrudController;
+use App\Jobs\IncluirEmpenhoWSJob;
 use App\Models\Codigoitem;
+use App\Models\DevolveMinutaSiasg;
 use App\Models\MinutaEmpenho;
 use App\Models\SfOrcEmpenhoDados;
 
@@ -10,7 +13,9 @@ class SforcempenhodadosObserver
 {
     public function created(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
-        //
+        if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO') {
+            IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
+        }
     }
 
     public function updated(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
@@ -21,6 +26,21 @@ class SforcempenhodadosObserver
             $minutaempenho->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
             $minutaempenho->situacao_id = $situacao->id;
             $minutaempenho->save();
+
+            if($sfOrcEmpenhoDados->situacao == 'EMITIDO'){
+                $empenhoCrud = new EmpenhoCrudController();
+                $empenhoCrud->criaEmpenhoFromMinuta($sfOrcEmpenhoDados);
+
+                DevolveMinutaSiasg::create([
+                    'minutaempenho_id' => $sfOrcEmpenhoDados->minutaempenho_id,
+                    'situacao' => 'Pendente'
+                ]);
+            }
+
+        }
+
+        if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO') {
+            IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
         }
     }
 
@@ -31,6 +51,7 @@ class SforcempenhodadosObserver
         })
             ->where('descres', $situacao)
             ->first();
+
         return $codigoitens;
     }
 

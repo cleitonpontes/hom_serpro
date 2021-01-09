@@ -3,11 +3,14 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
 class ApostilamentoRequest extends FormRequest
 {
+
+    use RegrasDataPublicacao;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -32,7 +35,7 @@ class ApostilamentoRequest extends FormRequest
 
         $this->hoje = date('Y-m-d');
 
-        return [
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratohistorico','numero'))
@@ -56,6 +59,10 @@ class ApostilamentoRequest extends FormRequest
             'retroativo_vencimento' => 'required_if:retroativo,==,1',
             'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
+
+        return $rules;
     }
 
     /**

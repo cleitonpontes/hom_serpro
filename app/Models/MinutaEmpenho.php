@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\CompraItemMinutaEmpenho;
 
 class MinutaEmpenho extends Model
 {
@@ -52,7 +53,8 @@ class MinutaEmpenho extends Model
         'unidade_id',
         'valor_total',
         'tipo_empenhopor_id',
-        'contrato_id'
+        'contrato_id',
+        'numero_cipi',
     ];
 
     /*
@@ -190,6 +192,11 @@ class MinutaEmpenho extends Model
         return $this->tipo_empenho->descricao ?? '';
     }
 
+    public function getTipoEmpenhoPor()
+    {
+        return $this->tipo_empenhopor->descricao ?? '';
+    }
+
     /**
      * Retorna descrição do Amparo Legal
      *
@@ -278,6 +285,11 @@ class MinutaEmpenho extends Model
             'minuta_empenho_id',
             'contrato_id'
         );
+    }
+
+    public function compraItemMinutaEmpenho()
+    {
+        return $this->hasMany(CompraItemMinutaEmpenho::class, 'minutaempenho_id');
     }
 
     /*

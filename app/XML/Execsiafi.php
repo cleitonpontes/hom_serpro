@@ -523,7 +523,7 @@ class Execsiafi
         if ($dado->ugresponsavel == 0 or $dado->ugresponsavel == null) {
             unset($array['ugResponsavel']);
         }
-        if ($dado->codplanointerno == null or $dado->codplanointerno == '') {
+        if ($dado->codplanointerno == null or $dado->codplanointerno == '' or $dado->codplanointerno == '0') {
             unset($array['codPlanoInterno']);
         }
 

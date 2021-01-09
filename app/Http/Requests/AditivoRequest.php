@@ -3,11 +3,13 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Unique;
 
 class AditivoRequest extends FormRequest
 {
+    use RegrasDataPublicacao;
 
     protected $data_limite;
 
@@ -37,7 +39,7 @@ class AditivoRequest extends FormRequest
         $this->hoje = date('Y-m-d');
         $this->data_amanha = date('Y-m-d', strtotime('+1 day'));
 
-        return [
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratohistorico','numero'))
@@ -49,7 +51,7 @@ class AditivoRequest extends FormRequest
             'contrato_id' => 'required',
             'unidade_id' => 'required',
             'data_assinatura' => "required|date|before:{$this->data_amanha}",
-            'data_publicacao' => "required|date|after:{$this->hoje}",
+
             'vigencia_inicio' => 'required|date|before:vigencia_fim',
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limite}",
             'valor_global' => 'required',
@@ -64,6 +66,10 @@ class AditivoRequest extends FormRequest
             'retroativo_vencimento' => 'required_if:retroativo,==,1',
             'retroativo_valor' => 'required_if:retroativo,==,1', //ver com Schoolofnet como exigir que o valor seja maior que 0 quando tiver retroativo.
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
+
+        return $rules;
     }
 
     /**

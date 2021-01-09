@@ -77,20 +77,20 @@ class ConsultafaturaCrudController extends CrudController
 
         $this->crud->enableBulkActions();
 
-        $this->crud->addButton(
-            'line',
-            'apropriacao_fatura',
-            'view',
-            'crud::buttons.apropriacao_fatura',
-            'end'
-        );
-
-        $this->crud->addButton(
-            'bottom',
-            'apropriacao_fatura',
-            'view',
-            'crud::buttons.bulk_apropriacao_fatura'
-        );
+//        $this->crud->addButton(
+//            'line',
+//            'apropriacao_fatura',
+//            'view',
+//            'crud::buttons.apropriacao_fatura',
+//            'end'
+//        );
+//
+//        $this->crud->addButton(
+//            'bottom',
+//            'apropriacao_fatura',
+//            'view',
+//            'crud::buttons.bulk_apropriacao_fatura'
+//        );
 
         /*
         |--------------------------------------------------------------------------
@@ -926,6 +926,7 @@ class ConsultafaturaCrudController extends CrudController
 
         $dados->whereHas('contratos', function ($c) {
             $c->where('situacao', true);
+            $c->where('unidade_id', session('user_ug_id'));
         });
 
         return $dados->pluck('descricao', 'cpf_cnpj_idgener')->toArray();

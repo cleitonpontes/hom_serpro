@@ -184,6 +184,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         if ($codigoitem->descricao == 'Contrato') {
             $tipo = 'contrato_item_id';
+            $update = ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get()->isNotEmpty();
             $itens = Contrato::where('fornecedor_id', '=', $fornecedor_id)
                 ->where('contratos.id', '=', $modMinutaEmpenho->contrato_id)
                 ->whereNull('contratoitens.deleted_at')
@@ -210,8 +211,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         }
 
         if ($codigoitem->descricao == 'Compra') {
-
             $tipo = 'compra_item_id';
+            $update = $update = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get()->isNotEmpty();
 
             $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
                 ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
@@ -227,6 +228,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 )
                 ->where('compra_item_unidade.quantidade_saldo', '>', 0)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
+                ->where('compras.id', $modMinutaEmpenho->compra_id)
                 ->where(function ($query) use ($fornecedor_id) {
                     $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
                         ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
@@ -246,7 +248,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ])
                 ->get()
                 ->toArray();
-
         }
 
 
@@ -276,7 +277,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         return view(
             'backpack::mod.empenho.Etapa3Itensdacompra',
             compact('html')
-        )->with(['update' => CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get()->isNotEmpty()]);
+        )->with(['update' => $update]);
     }
 
     private function retornaRadioItens($id, $minuta_id, $descricao, $tipo)
@@ -369,17 +370,14 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
     public function store(Request $request)
     {
-//        dd($request->all());
         $minuta = MinutaEmpenho::find($request->minuta_id);
 
         $minuta_id = $request->minuta_id;
         $fornecedor_id = $request->fornecedor_id;
         $itens = $request->itens;
-        //$amparo = $minuta->retornaAmparoPorMinuta();
-//        dd($amparo);
 
         if (!isset($itens)) {
-            Alert::error('Escolha pelo menos 1 item da compra.')->flash();
+            Alert::error('Escolha pelo menos 1 item.')->flash();
             return redirect()->route(
                 'empenho.minuta.etapa.item',
                 ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]
@@ -394,7 +392,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             $itens
         );
 
-//        dd($itens);
 
         DB::beginTransaction();
         try {
@@ -414,7 +411,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             return redirect()->route('empenho.minuta.gravar.saldocontabil', ['minuta_id' => $minuta_id]);
         } catch (Exception $exc) {
             DB::rollback();
-//            dd(123);
             throw $exc;
         }
     }
@@ -428,7 +424,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         $itens = $request->itens;
 
         if (!isset($itens)) {
-            Alert::error('Escolha pelo menos 1 item da compra.')->flash();
+            Alert::error('Escolha pelo menos 1 item.')->flash();
             return redirect()->route(
                 'empenho.minuta.etapa.item',
                 ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]
@@ -445,19 +441,28 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         DB::beginTransaction();
         try {
-            $cime = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
-            $cime_deletar = $cime->get();
-            $cime->delete();
-            foreach ($cime_deletar as $item) {
-                $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
-                    ->where('unidade_id', session('user_ug_id'))
-                    ->first();
+            $codigoitem = Codigoitem::find($minuta->tipo_empenhopor_id);
 
-                $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($item->compra_item_id)->saldo;
-                $compraItemUnidade->save();
+            if ($codigoitem->descricao == 'Contrato') {
+                $cime = ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
+                $cime_deletar = $cime->get();
+                $cime->delete();
+                ContratoItemMinutaEmpenho::insert($itens);
+            } else {
+                $cime = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
+                $cime_deletar = $cime->get();
+                $cime->delete();
+                foreach ($cime_deletar as $item) {
+                    $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
+                        ->where('unidade_id', session('user_ug_id'))
+                        ->first();
+                    $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($item->compra_item_id)->saldo;
+                    $compraItemUnidade->save();
+                }
+
+                CompraItemMinutaEmpenho::insert($itens);
             }
 
-            CompraItemMinutaEmpenho::insert($itens);
             $minuta->etapa = 4;
             $minuta->save();
             DB::commit();

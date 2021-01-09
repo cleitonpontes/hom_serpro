@@ -44,7 +44,7 @@ class FailedjobsCrudController extends CrudController
 
 
         $this->crud->enableExportButtons();
-
+        $this->crud->addButtonFromView('line', 'retryfailedjob', 'retryfailedjob');
 
 
         // colunas da listagem

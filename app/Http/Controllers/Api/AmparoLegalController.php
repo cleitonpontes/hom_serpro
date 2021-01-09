@@ -35,9 +35,13 @@ class AmparoLegalController extends Controller
         }
 
         if ($search_term) {
-            return $options->where('nome', 'ilike', '%' . strtoupper($search_term) . '%')
-                ->orderBy('nome')
-                ->paginate(10);
+            $options = $options->where(function ($query) use ($search_term) {
+                $query->where('ato_normativo', 'ilike', '%' . strtoupper($search_term) . '%');
+                $query->orWhere('artigo', 'ilike', '%' . strtoupper($search_term) . '%');
+                $query->orWhere('paragrafo', 'ilike', '%' . strtoupper($search_term) . '%');
+                $query->orWhere('inciso', 'ilike', '%' . strtoupper($search_term) . '%');
+                $query->orWhere('alinea', 'ilike', '%' . strtoupper($search_term) . '%');
+            });
         }
 
         return $options->paginate(10);

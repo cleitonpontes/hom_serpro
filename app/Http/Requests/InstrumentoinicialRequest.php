@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Http\Traits\RegrasDataPublicacao;
 use App\Models\Codigoitem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -11,6 +12,7 @@ use Illuminate\Validation\Rules\Unique;
 class InstrumentoinicialRequest extends FormRequest
 {
 
+    use RegrasDataPublicacao;
     protected $data_limite;
     /**
      * Determine if the user is authorized to make this request.
@@ -33,12 +35,11 @@ class InstrumentoinicialRequest extends FormRequest
         $id = $this->id ?? "NULL";
         $unidadeorigem_id = $this->unidadeorigem_id ?? "NULL";
         $tipo_id = $this->tipo_id ?? "NULL";
+        $this->data_atual = date('Y-m-d');
         $this->data_limitefim = date('Y-m-d', strtotime('+50 year'));
         $this->data_limiteinicio = date('Y-m-d', strtotime('-50 year'));
 
-        $data_publicacao = ($this->data_publicacao) ? "date|after:{$this->data_limiteinicio}|after_or_equal:data_assinatura" : "" ;
-
-        return [
+        $rules = [
             'numero' => [
                 'required',
                 (new Unique('contratohistorico', 'numero'))
@@ -75,7 +76,6 @@ class InstrumentoinicialRequest extends FormRequest
                 return true;
             }),
             'data_assinatura' => "required|date|after:{$this->data_limiteinicio}|before_or_equal:vigencia_inicio",
-            'data_publicacao' => $data_publicacao,
             'vigencia_inicio' => 'required|date|after_or_equal:data_assinatura|before:vigencia_fim',
             'vigencia_fim' => "required|date|after:vigencia_inicio|before:{$this->data_limitefim}",
             'valor_global' => 'required',
@@ -84,6 +84,10 @@ class InstrumentoinicialRequest extends FormRequest
 //            'arquivos' => 'file|mimes:pdf',
             'situacao' => 'required',
         ];
+
+        $rules['data_publicacao'] = $this->ruleDataPublicacao($tipo_id, $this->id);
+
+        return $rules;
     }
 
     /**

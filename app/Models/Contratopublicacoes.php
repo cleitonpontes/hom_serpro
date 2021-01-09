@@ -63,6 +63,16 @@ class ContratoPublicacoes extends ContratoBase
         return $this->whereNotNull('oficio_id')->where('status_publicacao_id', $status_id)->get();
     }
 
+    public function getCodUnidade()
+    {
+        return $this->contratohistorico->unidade->codigo ?? '';
+    }
+
+    public function getCodSiorg()
+    {
+        return $this->contratohistorico->unidade->codigo_siorg ?? '';
+    }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -74,7 +84,7 @@ class ContratoPublicacoes extends ContratoBase
         return $this->belongsTo(Contratohistorico::class, 'contratohistorico_id');
     }
 
-    public function statusPublicacao()
+    public function status_publicacao()
     {
         return $this->belongsTo(Codigoitem::class,'status_publicacao_id');
     }
@@ -94,7 +104,12 @@ class ContratoPublicacoes extends ContratoBase
 
     public function getStatusPublicacaoAttribute()
     {
-        return $this->statusPublicacao()->first()->descricao;
+        return $this->status_publicacao()->first()->descricao;
+    }
+
+    public function getStatusPublicacaoDescresAttribute()
+    {
+        return $this->status_publicacao()->first()->descres;
     }
 
     public function getTipoPublicacaoAttribute()

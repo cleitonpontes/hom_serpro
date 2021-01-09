@@ -502,6 +502,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             'modalidade_id' => $dado['modalidade_id'],
             'numero_compra' => $dado['numero_compra'],
             'publicado' => true,
+            'situacao' =>  $json->data->dadosContrato->situacao == '1' ? true : false
         ];
 
         $contrato = Contrato::find($contrato_alteracao->id);
@@ -548,12 +549,6 @@ class ContratoSiasgIntegracaoNovo extends Model
 
         $num_parcelas = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataIntengerSiasg($this->formataDecimalSiasg($json->data->dadosContrato->valorTotal) / $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela)) : 1;
 
-        if(isset($siasgcontrato->compra->numero) and isset($siasgcontrato->compra->ano)){
-            $numero_compra = $siasgcontrato->compra->numero . '/' . $siasgcontrato->compra->ano;
-        }else{
-            $numero_compra = null;
-        }
-
         $dado['numero'] = $this->formataNumeroContratoLicitacao($json->data->dadosContrato->numeroAno);
         $dado['unidadeorigem_id'] = $siasgcontrato->unidade_id;
         $dado['unidadecompra_id'] = @$siasgcontrato->compra->unidade_id;
@@ -577,7 +572,7 @@ class ContratoSiasgIntegracaoNovo extends Model
         $dado['num_parcelas'] = ($num_parcelas > '60') ? '60' : $num_parcelas;
         $dado['valor_parcela'] = (isset($json->data->dadosContrato->valorParcela) and $json->data->dadosContrato->valorParcela != '0.00') ? $this->formataDecimalSiasg($json->data->dadosContrato->valorParcela) : $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
         $dado['valor_acumulado'] = $this->formataDecimalSiasg($json->data->dadosContrato->valorTotal);
-        $dado['numero_compra'] = $numero_compra;
+        $dado['numero_compra'] = @$siasgcontrato->compra->id;
         $dado['modalidade_id'] = $siasgcontrato->compra->modalidade_id;
         $dado['publicado'] = true;
 
