@@ -137,6 +137,16 @@
                 $('#numero_item').mask('99999');
 
                 buscarItenContrato();
+                
+                // ao carregar o documento verifica se possui minuta cadastrada
+                var arrMinutaEmpenho = $('[name="minutasempenho[]"]').val();
+                if (arrMinutaEmpenho.length === 0) {
+                    var button = "";
+                    button += '<button type="button" class="btn btn-primary" data-toggle="modal"';
+                    button += 'data-target="#inserir_item" hidden>';
+                    button += 'Inserir Item <i class="fa fa-plus"></i></button>';
+                    $("#div_inserir_item").append(button);
+                }
 
                 var valueHidden = $('input[name=adicionaCampoRecuperaGridItens]').val();
                 if (valueHidden !== '{' + '{' + 'old(' + '\'name\'' + ')}}') {
