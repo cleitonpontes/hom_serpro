@@ -190,7 +190,7 @@
                 });
 
                 //quando altera o campo de periodicidade atualizar o valor global e valor de parcela
-                $('body').on('change','#periodicidade',function(event){
+                $('body').on('change','input[name="periodicidade[]"]',function(event){
                     var tr = this.closest('tr');
                     atualizarValorTotal(tr);
                 });
