@@ -80,9 +80,9 @@ class ContratoPublicacaoCrudController extends CrudController
         $this->crud->allowAccess('update');
         $this->crud->allowAccess('create');
 
-        $this->crud->addButtonFromView('line', 'enviarpublicacao', 'enviarpublicacao', 'end');
-        $this->crud->addButtonFromView('line', 'consultarpublicacao', 'consultarpublicacao');
-        $this->crud->addButtonFromView('line', 'deletarpublicacao', 'deletarpublicacao');
+        $this->crud->addButtonFromView('line', 'consultarpublicacao', 'consultarpublicacao','beginning');
+        $this->crud->addButtonFromView('line', 'enviarpublicacao', 'enviarpublicacao', 'beginning');
+        $this->crud->addButtonFromView('line', 'deletarpublicacao', 'deletarpublicacao', 'end');
 
         // TODO: remove setFromDb() and manually define Fields and Columns
 //        $this->crud->setFromDb();
