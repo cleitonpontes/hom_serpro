@@ -502,6 +502,7 @@ class ContratoSiasgIntegracaoNovo extends Model
             'modalidade_id' => $dado['modalidade_id'],
             'numero_compra' => $dado['numero_compra'],
             'publicado' => true,
+            'situacao' =>  $json->data->dadosContrato->situacao == '1' ? true : false
         ];
 
         $contrato = Contrato::find($contrato_alteracao->id);

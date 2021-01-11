@@ -64,26 +64,27 @@ class DiarioOficialClass extends BaseSoapController
         }
     }
 
-    public function consultaSituacaoOficio($oficio_id,$cpf)
+    public function consultaSituacaoOficio($publicacao)
     {
         try {
-            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
-//            $dados ['dados']['CPF'] = $cpf;
-            $dados ['dados']['IDOficio'] = $oficio_id;
-            $this->setSoapClient();
-            return $this->soapClient->ConsultaAcompanhamentoOficio($dados);
+            if(!is_null($publicacao->oficio_id)) {
+                $dados ['dados']['CPF'] = $publicacao->cpf;
+                $dados ['dados']['IDOficio'] = $publicacao->oficio_id;
+
+                $this->setSoapClient();
+                return $this->soapClient->ConsultaAcompanhamentoOficio($dados);
+            }
         } catch (Exception $e) {
             return $e->getMessage();
         }
+
     }
 
-    public function sustaMateriaPublicacao($publicacao_id,$cpf)
+    public function sustaMateriaPublicacao($publicacao)
     {
-        $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
         if(!is_null($publicacao->materia_id)) {
             try {
-            $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao');
-//                $dados ['dados']['CPF'] = $cpf;
+                $dados ['dados']['CPF'] = $publicacao->cpf;
                 $dados ['dados']['IDMateria'] = $publicacao->materia_id;
                 $this->setSoapClient();
                 return $this->soapClient->SustaMateria($dados);
@@ -98,8 +99,8 @@ class DiarioOficialClass extends BaseSoapController
     {
         try {
             $this->setSoapClient();
-            dump("Publicacao_id: ".$publicacao->id);
-            dump("Contratohistorico_id: ".$publicacao->contratohistorico_id);
+//            dump("Publicacao_id: ".$publicacao->id);
+//            dump("Contratohistorico_id: ".$publicacao->contratohistorico_id);
 
             $retificacao = $publicacao->texto_dou;
             $tipo_texto = strpos($publicacao->texto_dou, 'RETIFICA');
@@ -114,20 +115,7 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function reenviarPublicacao($publicacao_id)
-    {
-        try {
-            $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
-            $contratohistorico= $publicacao->contratohistorico;
-            $this->setSoapClient();
-            $this->enviaPublicacao($contratohistorico, $publicacao);
-
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-
+    //
     public function enviaPublicacao($contratoHistorico, $contratoPublicacoes,$retificacao = null,$cpf)
     {
         $data_publicacao = $contratoPublicacoes->data_publicacao;
@@ -205,13 +193,11 @@ class DiarioOficialClass extends BaseSoapController
         }
     }
 
-
-    //TODO COLOCAR ZERO NA ISENÇÃO
     public function montaOficioPreview(Contratohistorico $contratoHistorico,$data_publicacao,$retificacao = null,$cpf)
     {
-        $sisg = (isset($contratoHistorico->unidade->sisg)) ? $contratoHistorico->unidade->sisg : '';
 
-//        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf;
+//      $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf;
+
         $dados ['dados']['CPF'] = $cpf;
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
         $dados ['dados']['dataPublicacao'] = strtotime($data_publicacao);
@@ -222,7 +208,6 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
-//        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
         $dados ['dados']['motivoIsencao'] = 0;
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
@@ -232,9 +217,9 @@ class DiarioOficialClass extends BaseSoapController
 
     public function montaOficioConfirmacao(Contratohistorico $contratoHistorico,$data_publicacao,$retificacao = null,$cpf)
     {
-        $sisg = (isset($contratoHistorico->unidade->sisg)) ? $contratoHistorico->unidade->sisg : '';
 
-//        $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf
+//      $dados ['dados']['CPF'] = config('publicacao.usuario_publicacao'); //$cpf
+
         $dados ['dados']['CPF'] = $cpf;
         $dados ['dados']['IDTransacao'] = $contratoHistorico->unidade->nomeresumido . $this->generateRandonNumbers(13);
         $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
@@ -246,7 +231,6 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
-//        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = config('publicacao.siorgmateria');
         $dados ['dados']['motivoIsencao'] = 0;
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
@@ -324,8 +308,6 @@ class DiarioOficialClass extends BaseSoapController
 
     public function retornaRtfRetificacao($retificacao)
     {
-//        $retificacao .= $retificacao.'\n ##OFI COMPRASNET 4.0 - '.date('d-m-Y').'.';
-        $retificacao .= $retificacao;
         $textoCabecalho = $this->retornaCabecalhoRtf();
         $texto = $this->converteTextoParaRtf($retificacao);
         $texto = $textoCabecalho . substr($texto, strripos($texto, '##ATO'));
@@ -534,11 +516,10 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
-    public function atualizaStatusPublicacao($publicacao_id,$cpf)
+    public function atualizaStatusPublicacao($publicacao)
     {
-        $publicacao = ContratoPublicacoes::where('id', $publicacao_id)->first();
         if(!is_null($publicacao->oficio_id)) {
-            $retorno = $this->consultaSituacaoOficio($publicacao->oficio_id, $cpf);
+            $retorno = $this->consultaSituacaoOficio($publicacao);
             if ($retorno->out->validacaoIdOficio == "OK") {
                 $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
                 if ($status != "PUBLICADA") {
@@ -847,10 +828,8 @@ class DiarioOficialClass extends BaseSoapController
         }
 
         switch ($tipo_intrumento) {
-            case "Contrato":
-                $norma_id = $this->retornaDescresCodigoItem($codigo,'Extrato de Contrato');
-                break;
             case "Arrendamento":
+            case "Contrato":
                 $norma_id = $this->retornaDescresCodigoItem($codigo,'Extrato de Contrato');
                 break;
             case "Credenciamento":
@@ -880,6 +859,7 @@ class DiarioOficialClass extends BaseSoapController
             case "Termo Aditivo":
                 $norma_id = $this->retornaDescresCodigoItem($codigo,'Extrato de Termo Aditivo');
                 break;
+            case "Termo de Apostilamento":
             case "Termo Apostilamento":
                 $norma_id = $this->retornaDescresCodigoItem($codigo,'Extrato de Apostilamento');
                 break;
@@ -908,9 +888,136 @@ class DiarioOficialClass extends BaseSoapController
     {
         $array_num_ano = explode('/',$numero_instrumento);
 
-        $num = preg_replace("@0+@","",$array_num_ano[0]);
+        $num = (int)$array_num_ano[0];
 
         return $num.'/'.$array_num_ano[1];
+    }
+
+
+    public function reenviarPublicacao($publicacao)
+    {
+        try {
+            $contratohistorico= $publicacao->contratohistorico;
+            $this->enviarPublicacaoDiarioOficial($contratohistorico, $publicacao);
+
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+
+    public function enviarPublicacaoDiarioOficial($contratoHistorico, $contratoPublicacoes)
+    {
+        ;
+        $arrayPreview = $this->montaOficioPreviewEnvioManual($contratoHistorico,$contratoPublicacoes);
+
+        $responsePreview = $this->soapClient->OficioPreview($arrayPreview);
+
+        if (!isset($responsePreview->out->publicacaoPreview->DadosMateriaResponse->HASH)) {
+            $contratoPublicacoes->status = 'Erro Preview!';
+            $contratoPublicacoes->motivo_isencao_id =  $this->retornaIdCodigoItem('Motivo Isenção','Indefinido');
+            $contratoPublicacoes->status_publicacao_id = (int)self::retornaIdCodigoItem('Situacao Publicacao','DEVOLVIDO PELA IMPRENSA');
+            $contratoPublicacoes->log = $this->retornaErroValidacoesDOU($responsePreview);
+            $contratoPublicacoes->texto_dou = $contratoPublicacoes->texto_dou;
+
+            $contratoPublicacoes->save();
+
+            return false;
+        }
+
+        $contratoPublicacoes->status = 'Preview Enviado';
+        $contratoPublicacoes->motivo_isencao_id =  $this->retornaIdCodigoItem('Motivo Isenção','Indefinido');
+        $contratoPublicacoes->texto_dou = $contratoPublicacoes->texto_dou;
+        $contratoPublicacoes->save();
+
+        $this->oficioConfirmacaoEnvioManual($contratoHistorico, $contratoPublicacoes);
+
+        return true;
+    }
+
+
+    public function oficioConfirmacaoEnvioManual(Contratohistorico $contratoHistorico, ContratoPublicacoes $contratoPublicacoes)
+    {
+        try {
+            $arrayConfirmacao = $this->montaOficioConfirmacaoEnvioManual($contratoHistorico,$contratoPublicacoes);
+
+            $this->setSoapClient();
+            $responseConfirmacao = $this->soapClient->OficioConfirmacao($arrayConfirmacao);
+
+            if (!isset($responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao)) {
+                $contratoPublicacoes->status = 'Erro Ofício!';
+
+                $contratoPublicacoes->status_publicacao_id = (int)self::retornaIdCodigoItem('Situacao Publicacao','DEVOLVIDO PELA IMPRENSA');
+                $contratoPublicacoes->motivo_isencao_id =  $this->retornaIdCodigoItem('Motivo Isenção','Indefinido');
+                $contratoPublicacoes->log = json_encode($responseConfirmacao);
+                $contratoPublicacoes->data_publicacao = $this->verificaDataDiaUtil($contratoPublicacoes->data_publicacao);
+                $contratoPublicacoes->save();
+
+                return false;
+            }
+
+            $contratoPublicacoes->status = 'Oficio Enviado';
+            $contratoPublicacoes->motivo_isencao_id =  $this->retornaIdCodigoItem('Motivo Isenção','Indefinido');
+            $contratoPublicacoes->status_publicacao_id = (int)self::retornaIdCodigoItem('Situacao Publicacao','TRANSFERIDO PARA IMPRENSA');
+            $contratoPublicacoes->transacao_id = $arrayConfirmacao['dados']['IDTransacao'];
+            $contratoPublicacoes->log = 'Publicação enviada com Sucesso!';
+            $contratoPublicacoes->data_publicacao = $this->verificaDataDiaUtil($contratoPublicacoes->data_publicacao);
+            $contratoPublicacoes->materia_id = (int)$responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDMateria;
+            $contratoPublicacoes->oficio_id = (int)$responseConfirmacao->out->publicacaoConfirmacao->DadosMateriaResponse->reciboConfirmacao->IDOficio;
+            $contratoPublicacoes->save();
+
+            return true;
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+
+    public function montaOficioPreviewEnvioManual(Contratohistorico $contratoHistorico,ContratoPublicacoes $publicacao)
+    {
+        $retificacao = strpos($publicacao->texto_dou, 'RETIFICA');
+
+        $data_publicacao = $this->verificaDataDiaUtil($publicacao->data_publicacao);
+
+        $dados ['dados']['CPF'] = $publicacao->cpf;
+        $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
+        $dados ['dados']['dataPublicacao'] = strtotime($data_publicacao);
+        $dados ['dados']['empenho'] = '';
+        $dados ['dados']['identificadorJornal'] = 3;
+        $dados ['dados']['identificadorTipoPagamento'] = 149;
+        $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
+        $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaRtfRetificacao($publicacao->texto_dou);
+        $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
+        $dados ['dados']['motivoIsencao'] = 0;
+        $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
+
+        return $dados;
+    }
+
+    public function montaOficioConfirmacaoEnvioManual(Contratohistorico $contratoHistorico,ContratoPublicacoes $publicacao)
+    {
+
+        $retificacao = strpos($publicacao->texto_dou, 'RETIFICA');
+
+        $data_publicacao = $this->verificaDataDiaUtil($publicacao->data_publicacao);
+
+        $dados ['dados']['CPF'] = $publicacao->cpf;
+        $dados ['dados']['IDTransacao'] = $contratoHistorico->unidade->nomeresumido . $this->generateRandonNumbers(13);
+        $dados ['dados']['UG'] = $contratoHistorico->unidade->codigo;
+        $dados ['dados']['dataPublicacao'] = strtotime($data_publicacao);
+        $dados ['dados']['empenho'] = '';
+        $dados ['dados']['identificadorJornal'] = 3;
+        $dados ['dados']['identificadorTipoPagamento'] = 149;
+        $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
+        $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaRtfRetificacao($publicacao->texto_dou);
+        $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
+        $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
+        $dados ['dados']['motivoIsencao'] = 0;
+        $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
+
+
+        return $dados;
     }
 
 }

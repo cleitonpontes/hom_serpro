@@ -90,6 +90,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'contratoitens.catmatseritem_id'
                 )
                 ->where('minutaempenhos.id', $minuta_id)
+                ->where('minutaempenhos.unidade_id',session('user_ug_id'))
                 ->select(
                     [
                         'contrato_item_minuta_empenho.contrato_item_id',
@@ -183,6 +184,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'compra_items.id'
                 )
                 ->where('minutaempenhos.id', $minuta_id)
+                ->where('compra_item_unidade.unidade_id',session('user_ug_id'))
                 ->select(
                     [
                         'compra_item_minuta_empenho.compra_item_id',

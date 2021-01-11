@@ -263,6 +263,8 @@ Route::group([
                 );
 
                 Route::get('/publicacao/{publicacao_id}/deletarpublicacao', 'ContratoPublicacaoCrudController@deletarPublicacao');
+                Route::get('/publicacao/{publicacao_id}/enviarpublicacao', 'ContratoPublicacaoCrudController@enviarPublicacao');
+                Route::get('/publicacao/{publicacao_id}/consultarpublicacao', 'ContratoPublicacaoCrudController@consultarPublicacao');
 
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('rescisao', 'RescisaoCrudController');
