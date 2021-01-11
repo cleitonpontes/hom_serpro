@@ -343,19 +343,19 @@
                 cols += '<td>'+item.descricao+'</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.codigo_siasg+' - '+item.descricao_complementar+'</td>';
-                cols += '<td><input class="form-control input-item input-item-acrescimo" '+ propReadOnly +' type="number"  name="qtd_item[]" step="0.0001" id="qtd" value="'+item.quantidade+'"></td>';
-                cols += '<td><input class="form-control input-item input-item-vl-unitario" '+ propReadOnlyReajuste +' type="number"  name="vl_unit[]" step="0.0001" id="vl_unit" value="'+item.valorunitario+'"></td>';
-                cols += '<td><input class="form-control input-item input-item-acrescimo" '+ propReadOnly +' type="number" name="periodicidade[]" id="periodicidade" value="'+item.periodicidade+'"></td>';
-                cols += '<td><input class="form-control input-item" readonly type="number"  name="vl_total[]" step="0.0001" id="vl_total" value="'+vl_total+'"></td>';
-                cols += '<td><input class="form-control input-item" readonly type="date" name="data_inicio[]" id="data_inicio" value="'+ item.data_inicio +'">';
+                cols += '<td><input class="form-control input-item input-item-acrescimo" '+ propReadOnly +' type="number"  name="qtd_item[]" step="0.0001" value="'+item.quantidade+'"></td>';
+                cols += '<td><input class="form-control input-item input-item-vl-unitario" '+ propReadOnlyReajuste +' type="number"  name="vl_unit[]" step="0.0001" value="'+item.valorunitario+'"></td>';
+                cols += '<td><input class="form-control input-item input-item-acrescimo" '+ propReadOnly +' type="number" name="periodicidade[]" value="'+item.periodicidade+'"></td>';
+                cols += '<td><input class="form-control input-item" readonly type="number"  name="vl_total[]" step="0.0001" value="'+vl_total+'"></td>';
+                cols += '<td><input class="form-control input-item" readonly type="date" name="data_inicio[]" value="'+ item.data_inicio +'">';
                 // cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">'+
                 //     '<i class="fa fa-trash"></i>'+
                 //     '</button>';
-                cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="'+item.numero+'">';
-                cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="'+item.catmatseritem_id+'">';
-                cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="'+item.tipo_item_id+'">';
-                cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="'+item.descricao_complementar+'">';
-                cols += '<input type="hidden" name="aditivo_item_id[]" id="aditivo_item_id" value="'+item.id+'">';
+                cols += '<input type="hidden" name="numero_item_compra[]" value="'+item.numero+'">';
+                cols += '<input type="hidden" name="catmatseritem_id[]" value="'+item.catmatseritem_id+'">';
+                cols += '<input type="hidden" name="tipo_item_id[]" value="'+item.tipo_item_id+'">';
+                cols += '<input type="hidden" name="descricao_detalhada[]" value="'+item.descricao_complementar+'">';
+                cols += '<input type="hidden" name="aditivo_item_id[]" value="'+item.id+'">';
                 cols += '</td>';
 
                 newRow.append(cols);
