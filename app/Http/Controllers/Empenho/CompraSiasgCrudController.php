@@ -186,7 +186,7 @@ class CompraSiasgCrudController extends CrudController
                 'modalidade' => $contrato->modalidade->descres,
                 'numeroAno' => $contrato->licitacao_numero_limpa,
                 'uasgCompra' => $contrato->unidadecompra->codigo,
-                'uasgUsuario' => session('user_ug')
+                'uasgUsuario' => $contrato->unidadecompra->codigo
             ];
 
             //pegar a compra
