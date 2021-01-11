@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Gescon;
+namespace App\Http\Controllers\Admin;
 
 use Alert;
-use App\Http\Controllers\Publicacao\DiarioOficialClass;
 use App\Models\Codigoitem;
-use App\Models\CompraItemUnidade;
 use App\Models\Contrato;
-use App\Models\MinutaEmpenho;
 use App\Models\SfOrcEmpenhoDados;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
@@ -26,18 +23,13 @@ use App\Models\Contratohistorico;
  * @package App\Http\Controllers\Gescon
  * @property-read CrudPanel $crud
  */
-class ContratoPublicacaoCrudController extends CrudController
+class ContratoPublicacaoAdminCrudController extends CrudController
 {
     use BuscaCodigoItens;
 
     public function setup()
     {
-        $contrato_id = Route::current()->parameter('contrato_id');
-
-        $contrato = Contrato::where('id', '=', $contrato_id)
-            ->where('unidade_id', '=', session()->get('user_ug_id'));
-
-        if (!$contrato->first()) {
+        if (!backpack_user()->hasRole('Administrador')) {
             abort('403', config('app.erro_permissao'));
         }
 
@@ -49,7 +41,7 @@ class ContratoPublicacaoCrudController extends CrudController
 //        $this->crud->setModel(ContratoPublicacoes::class);
         $this->crud->setModel('App\Models\ContratoPublicacoes');
         $this->crud->setRoute(config('backpack.base.route_prefix')
-            . "/gescon/contrato/$contrato_id/publicacao");
+            . "/admin/publicacoes");
         $this->crud->setEntityNameStrings('Publicação', 'Publicações');
         $this->crud->addClause(
             'join',
@@ -65,9 +57,8 @@ class ContratoPublicacaoCrudController extends CrudController
             '=',
             'contratohistorico.contrato_id'
         );
-        $this->crud->addClause('where', 'contratos.id', '=', $contrato_id);
+        $this->crud->orderBy('updated_at', 'desc');
         $this->crud->addClause('select', 'contratopublicacoes.*');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -78,11 +69,7 @@ class ContratoPublicacaoCrudController extends CrudController
         $this->crud->denyAccess('delete');
         $this->crud->allowAccess('show');
         $this->crud->allowAccess('update');
-        $this->crud->allowAccess('create');
-
-        $this->crud->addButtonFromView('line', 'consultarpublicacao', 'consultarpublicacao','beginning');
-        $this->crud->addButtonFromView('line', 'enviarpublicacao', 'enviarpublicacao', 'beginning');
-        $this->crud->addButtonFromView('line', 'deletarpublicacao', 'deletarpublicacao', 'end');
+        $this->crud->denyAccess('create');
 
         // TODO: remove setFromDb() and manually define Fields and Columns
 //        $this->crud->setFromDb();
@@ -93,28 +80,51 @@ class ContratoPublicacaoCrudController extends CrudController
         $this->crud->enableExportButtons();
 
         $this->adicionaColunas();
-        $this->adicionaCampos($contrato_id);
+        $this->adicionaCampos();
+        $this->aplicaFiltros();
 
         // add asterisk for fields that are required in ContratoPublicacaoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
+
+
+    protected function aplicaFiltros()
+    {
+        $this->aplicaFiltroTipo();
+    }
+
+    protected function aplicaFiltroTipo()
+    {
+        $this->crud->addFilter(
+            [
+                'name' => 'status',
+                'type' => 'text',
+                'label' => 'Status'
+            ],
+            false,
+            function ($value) {
+                $this->crud->addClause('where', 'contratopublicacoes.status', 'LIKE', "%$value%");
+            }
+        );
+    }
+
     /**
      * Configura os campos dos formulários de Inserir e Atualizar
      *
      */
-    protected function adicionaCampos($contrato_id)
+    protected function adicionaCampos()
     {
         $this->adicionaCampoDataPublicacao();
-        $this->adicionaCampoContratoHistorico($contrato_id);
+        $this->adicionaCampoContratoHistorico();
+        $this->adicionaCampoStatus();
 //        $this->adicionaCampoStatusPublicacao();
         $this->adicionaCampoTextoDOU();
         $this->adicionaCampoCpf();
         $this->adicionaCampoTipoPagamento();
         $this->adicionaCampoMotivoIsencao();
         $this->adicionaCampoEmpenho();
-        $this->adicionaCampoSituacao();
     }
 
     /**
@@ -150,21 +160,24 @@ class ContratoPublicacaoCrudController extends CrudController
      * Configura o campo Data de Publicação
      *
      */
-    private function adicionaCampoContratoHistorico($contrato_id): void
+    private function adicionaCampoContratoHistorico(): void
     {
-        $this->crud->addField([  // Select2
-            'label' => "Instrumento",
-            'type' => 'select2',
-            'name' => 'contratohistorico_id', // the db column for the foreign key
-            'entity' => 'contratohistorico', // the method that defines the relationship in your Model
-            'attribute' => 'combo_publicacao', // foreign key attribute that is shown to user
-            'model' => Contratohistorico::class, // foreign key model
-
-            // optional
-            'options' => (function ($query) use ($contrato_id) {
-                return $query->where('contrato_id', $contrato_id)->get();
-            }), // force the related options to be a custom query, instead of all(); you can use this to filter the results show in the select
-        ]);
+        $this->crud->addField(
+            [
+                // 1-n relationship
+                'label' => "Instrumento", // Table column heading
+                'type' => "select2_from_ajax",
+                'name' => 'contratohistorico_id', // the column that contains the ID of that connected entity
+                'entity' => 'contratohistorico', // the method that defines the relationship in your Model
+                'attribute' => "numero", // foreign key attribute that is shown to user
+//                'attribute2' => "nomeresumido", // foreign key attribute that is shown to user
+                'process_results_template' => 'gescon.process_results_unidade',
+                'model' => "App\Models\Contratohistorico", // foreign key model
+                'data_source' => url("api/contratohistorico"), // url to controller search function (with /{id} should return model)
+                'placeholder' => "Selecione o Instrumento", // placeholder for the select
+                'minimum_input_length' => 2, // minimum characters to type before querying results
+            ]
+        );
         $this->crud->addField([
             'name' => 'data_publicacao',
             'label' => 'Data Publicacao',
@@ -179,19 +192,17 @@ class ContratoPublicacaoCrudController extends CrudController
      * Configura o campo Status
      *
      */
-    private function adicionaCampoSituacao(): void
+    private function adicionaCampoStatus(): void
     {
-        $idAPublicar = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
-        $idAPublicado = $this->retornaIdCodigoItem('Situacao Publicacao', 'PUBLICADO');
         $this->crud->addField([
-            'name' => 'status_publicacao_id',
+            'name' => 'status',
             'label' => 'Status',
-            'type' => 'select2_from_array',
+            'type' => 'select_from_array',
             'options' => [
-                $idAPublicar => 'A PUBLICAR',
-                $idAPublicado => 'PUBLICADO',
+                'Pendente' => 'Pendente',
+                'L' => 'Lido',
+                'E' => 'Erro',
             ],
-            'default' => $idAPublicar,
         ]);
     }
 
@@ -292,13 +303,34 @@ class ContratoPublicacaoCrudController extends CrudController
      */
     protected function adicionaColunas()
     {
+        $this->adicionaColunaId();
+        $this->adicionaColunaCodUnidade();
+        $this->adicionaColunaCodSiorg();
         $this->adicionaColunaDataPublicacao();
-        $this->adicionaColunaCpf();
-        $this->adicionaColunaStatusPublicacao();
         $this->adicionaColunaStatus();
+        $this->adicionaColunaStatusPublicacao();
         $this->adicionaColunaTipoPublicacao();
+        $this->adicionaColunaCpf();
+        $this->adicionaColunaLog();
+        $this->adicionaUpdatedAt();
     }
 
+    /**
+     * Cofigura a coluna
+     */
+    private function adicionaColunaId(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'id',
+            'label' => 'Id',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
     /**
      * Cofigura a coluna
      */
@@ -323,13 +355,78 @@ class ContratoPublicacaoCrudController extends CrudController
     {
         $this->crud->addColumn([
             'name' => 'status',
-            'label' => 'Situação Imprensa',
+            'label' => 'Status',
             'type' => 'text',
             'orderable' => true,
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true,
+        ]);
+    }
+
+    /**
+     * Cofigura a coluna
+     */
+    private function adicionaUpdatedAt(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'updated_at',
+            'label' => 'Atualizado em',
+            'type' => 'datetime',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+    /**
+     * Cofigura a coluna
+     */
+    private function adicionaColunaCodUnidade(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'getCodUnidade',
+            'label' => 'Unidade', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getCodUnidade', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
+//                },
+        ]);
+    }
+    /**
+     * Cofigura a coluna
+     */
+    private function adicionaColunaCodSiorg(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'getCodSiorg',
+            'label' => 'Cod. Siorg', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getCodSiorg', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+//                'searchLogic' => function ($query, $column, $searchTerm) {
+//                    $query->orWhereHas('unidade_id', function ($q) use ($column, $searchTerm) {
+//                        $q->where('nome', 'like', '%' . $searchTerm . '%');
+//                        $q->where('codigo', 'like', '%' . $searchTerm . '%');
+//                            ->orWhereDate('depart_at', '=', date($searchTerm));
+//                    });
+//                },
         ]);
     }
 
@@ -385,8 +482,31 @@ class ContratoPublicacaoCrudController extends CrudController
     }
 
 
+    /**
+     * Cofigura a coluna
+     */
+    private function adicionaColunaLog(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'log',
+            'label' => 'Log',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+
     public function store(StoreRequest $request)
     {
+        // your additional operations before save here
+        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
+
+        $request->request->set('status_publicacao_id', $situacao_id);
+
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
@@ -398,11 +518,14 @@ class ContratoPublicacaoCrudController extends CrudController
         // verifica sé está em uma situação que permite a alteração
         $contrato_id = Contratohistorico::find($request->input('contratohistorico_id'))->contrato_id;
         $publicacao = ContratoPublicacoes::find($request->id);
-        if(!in_array($publicacao->status_publicacao_id, $this->sitacoesPermitidasAlteracao())){
+        if (!in_array($publicacao->status_publicacao_id, $this->sitacoesPermitidasAlteracao())) {
             Alert::warning('Não é possível alterar uma publicação com essa situação.')->flash();
-            return redirect()->route('crud.publicacao.index',['contrato_id'=>$contrato_id]);
+            return redirect()->route('crud.publicacao.index', ['contrato_id' => $contrato_id]);
         }
 
+        $situacao_id = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
+
+        $request->request->set('status_publicacao_id', $situacao_id);
         // your additional operations before save here
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
@@ -445,86 +568,4 @@ class ContratoPublicacaoCrudController extends CrudController
         Alert::warning('Operação não permitida!')->flash();
         return redirect($this->crud->route);
     }
-
-    public function deletarPublicacao()
-    {
-        $publicacao_id = Route::current()->parameter('publicacao_id');
-
-        $publicacao = ContratoPublicacoes::find($publicacao_id);
-
-        $arrSituacoesPermitidas[] = $this->retornaIdCodigoItem('Situacao Publicacao', 'A PUBLICAR');
-        $arrSituacoesPermitidas[] = $this->retornaIdCodigoItem('Situacao Publicacao', 'DEVOLVIDO PELA IMPRENSA');
-
-        if(in_array($publicacao->status_publicacao_id, $arrSituacoesPermitidas)){
-
-            DB::beginTransaction();
-            try {
-                $publicacao->forceDelete();
-                DB::commit();
-                Alert::success('Publicação Deletada com sucesso!')->flash();
-            } catch (Exception $exc) {
-                DB::rollback();
-                Alert::error('Erro! Tente novamente mais tarde!')->flash();
-                return redirect($this->crud->route);
-            }
-        }else{
-            Alert::warning('Operação não permitida!')->flash();
-        }
-        return redirect($this->crud->route);
-    }
-
-
-    public function consultarPublicacao()
-    {
-        $publicacao_id = Route::current()->parameter('publicacao_id');
-        $publicacao = ContratoPublicacoes::find($publicacao_id);
-
-        DB::beginTransaction();
-        try {
-            $diarioOficial = new DiarioOficialClass();
-            $diarioOficial->setSoapClient();
-            $diarioOficial->atualizaStatusPublicacao($publicacao);
-
-            DB::commit();
-
-            Alert::success('Publicação Atualizada com sucesso!')->flash();
-
-        } catch (Exception $exc) {
-            DB::rollback();
-            Alert::error('Erro! Tente novamente mais tarde!')->flash();
-            return redirect($this->crud->route);
-        }
-
-        return redirect($this->crud->route);
-    }
-
-
-    public function enviarPublicacao()
-    {
-        $publicacao_id = Route::current()->parameter('publicacao_id');
-
-        $publicacao = ContratoPublicacoes::find($publicacao_id);
-
-        $diarioOficial = new DiarioOficialClass();
-
-        DB::beginTransaction();
-        try {
-            $diarioOficial->setSoapClient();
-            $diarioOficial->reenviarPublicacao($publicacao);
-
-            DB::commit();
-
-            (!is_null($publicacao->oficio_id))
-                ? Alert::success('Publicação Enviada com sucesso!')->flash()
-                : Alert::warning('Problema ao enviar! Verifique o status!')->flash();
-
-        } catch (Exception $exc) {
-            DB::rollback();
-            Alert::error('Erro! Tente novamente mais tarde!')->flash();
-            return redirect($this->crud->route);
-        }
-
-        return redirect($this->crud->route);
-    }
-
 }

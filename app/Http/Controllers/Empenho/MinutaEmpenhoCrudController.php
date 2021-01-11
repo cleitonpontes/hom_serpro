@@ -58,8 +58,8 @@ class MinutaEmpenhoCrudController extends CrudController
 
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
         $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
-        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta');
-        $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminuta');
+        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta','beginning');
+        $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminuta','end');
 //        $this->crud->addButtonFromView('line', 'moreminuta', 'moreminuta', 'end');
 
         $this->crud->urlVoltar = route(

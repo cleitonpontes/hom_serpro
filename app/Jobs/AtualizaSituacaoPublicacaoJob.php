@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 
 use App\Http\Controllers\Publicacao\DiarioOficialClass;
+use App\Http\Traits\Formatador;
 use App\Models\Codigoitem;
 use App\Models\ContratoPublicacoes;
 use Exception;
@@ -33,6 +34,7 @@ class AtualizaSituacaoPublicacaoJob implements ShouldQueue
     {
         $this->publicacao = $publicacao;
         $this->diarioOficial = new DiarioOficialClass();
+        $this->diarioOficial->setSoapClient();
     }
 
     /**
@@ -45,7 +47,7 @@ class AtualizaSituacaoPublicacaoJob implements ShouldQueue
         DB::beginTransaction();
         try {
 
-            $retorno = $this->diarioOficial->consultaSituacaoOficio($this->publicacao->oficio_id,config('publicacao.usuario_publicacao'));
+            $retorno = $this->diarioOficial->consultaSituacaoOficio($this->publicacao);
 
             if($retorno->out->validacaoIdOficio == "OK"){
 

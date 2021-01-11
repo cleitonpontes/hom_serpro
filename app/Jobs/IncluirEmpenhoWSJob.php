@@ -40,7 +40,7 @@ class IncluirEmpenhoWSJob implements ShouldQueue
         $ws_siafi = new Execsiafi;
         $ano = config('app.ano_minuta_empenho');
 
-        $retorno = $ws_siafi->incluirNe($user, $this->sforcempenhodados->ugemitente, env('AMBIENTE_SIAFI'), $ano, $this->sforcempenhodados);
+        $retorno = $ws_siafi->incluirNe($user, $this->sforcempenhodados->ugemitente, config('app.ambiente_siafi'), $ano, $this->sforcempenhodados);
 
         $this->sforcempenhodados->update($retorno);
 

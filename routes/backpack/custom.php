@@ -25,7 +25,7 @@ Route::group([
             'namespace' => 'Api',
         ], function () {
 
-
+            Route::get('executadou/{datapub}','ExecutaDouController@executaRotinaEnviaDou');
 
             //busca empenhos via ajax
             Route::get('empenho', 'EmpenhoController@index');
@@ -35,6 +35,8 @@ Route::group([
 
             Route::get('unidade', 'UnidadeController@index');
             Route::get('unidade/{id}', 'UnidadeController@show');
+            Route::get('contratohistorico', 'ContratohistoricoController@index');
+            Route::get('contratohistorico/{id}', 'ContratohistoricoController@show');
             Route::get('unidadecomorgao', 'UnidadeComOrgaoController@index');
             Route::get('unidadecomorgao/{id}', 'UnidadeComOrgaoController@show');
             Route::get('fornecedor', 'FornecedorController@index');
@@ -132,6 +134,8 @@ Route::group([
             CRUD::resource('jobs', 'JobsCrudController');
             CRUD::resource('amparolegal', 'AmparoLegalCrudController');
             CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
+            CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
+
 
 
             // Exportações Downloads
@@ -190,6 +194,7 @@ Route::group([
             CRUD::resource('fornecedor', 'FornecedorCrudController');
             CRUD::resource('indicador', 'IndicadorCrudController');
             CRUD::resource('encargo', 'EncargoCrudController');
+
 
 
             Route::get( '/buscar-contrato-itens/{contrato_id}',
@@ -255,6 +260,11 @@ Route::group([
                     '/publicacao/{id}/atualizarsituacaopublicacao',
                     'ContratoPublicacaoCrudController@executarAtualizacaoSituacaoPublicacao'
                 );
+
+                Route::get('/publicacao/{publicacao_id}/deletarpublicacao', 'ContratoPublicacaoCrudController@deletarPublicacao');
+                Route::get('/publicacao/{publicacao_id}/enviarpublicacao', 'ContratoPublicacaoCrudController@enviarPublicacao');
+                Route::get('/publicacao/{publicacao_id}/consultarpublicacao', 'ContratoPublicacaoCrudController@consultarPublicacao');
+
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('rescisao', 'RescisaoCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');
