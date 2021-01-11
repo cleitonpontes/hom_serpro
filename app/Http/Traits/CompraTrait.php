@@ -295,7 +295,7 @@ trait CompraTrait
         $compraItemUnidade->save();
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
-        $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+        $compraItemUnidade->quantidade_saldo = (isset($saldo->saldo))?$saldo->saldo:0;
         $compraItemUnidade->save();
     }
 }
