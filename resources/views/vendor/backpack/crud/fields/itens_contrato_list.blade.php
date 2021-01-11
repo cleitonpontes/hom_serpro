@@ -388,23 +388,24 @@
 
                 var newRow = $("<tr>");
                 var cols = "";
-                cols += '<td>'+item.tipo_item+'</td>';
+                cols += '<td>'+item.tipo_item;
+                cols += '<input type="hidden" name="numero_item_compra[]" value="' + item.numero + '">';
+                cols += '<input type="hidden" name="catmatseritem_id[]" value="' + item.catmatseritem_id + '">';
+                cols += '<input type="hidden" name="tipo_item_id[]" value="' + item.tipo_item_id + '">';
+                cols += '<input type="hidden" name="compra_item_unidade_id[]" value="' + item.compra_item_unidade_id + '">';
+                cols += '<input type="hidden" name="descricao_detalhada[]" value="' + item.descricaodetalhada + '">';
+                cols += '</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.codigo_siasg + ' - ' +item.descricaocatmatseritens+'</td>';
-                cols += '<td><input class="form-control validadeMaxMinQtdItem'+item.id+'" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="'+qtdMax+'" min="'+qtdMin+'" value="'+qtd+'"></td>';
-                cols += '<td><input class="form-control" type="number" readonly name="vl_unit[]" step="0.0001" id="vl_unit" value="'+vl_unit+'"></td>';
-                cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
-                cols += '<td><input class="form-control" type="number" readonly  name="vl_total[]" step="0.0001" id="vl_total"value="'+vl_total+'"></td>';
-                cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
+                cols += '<td><input class="form-control validadeMaxMinQtdItem'+item.id+'" type="number"  name="qtd_item[]" step="0.0001" max="'+qtdMax+'" min="'+qtdMin+'" value="'+qtd+'"></td>';
+                cols += '<td><input class="form-control" type="number" readonly name="vl_unit[]" step="0.0001" value="'+vl_unit+'"></td>';
+                cols += `<td><input class="form-control" type="number" name="periodicidade[]" value="${periodicidade}"></td>`;
+                cols += '<td><input class="form-control" type="number" readonly  name="vl_total[]" step="0.0001" value="'+vl_total+'"></td>';
+                cols += `<td><input class="form-control" type="date" name="data_inicio[]" value="${data_inicio}"></td>`;
                 cols += '<td>';
                 cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">' +
                     '<i class="fa fa-trash"></i>' +
                     '</button>';
-                cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="' + item.numero + '">';
-                cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="' + item.catmatseritem_id + '">';
-                cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="' + item.tipo_item_id + '">';
-                cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id" value="' + item.compra_item_unidade_id + '">';
-                cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="' + item.descricaodetalhada + '">';
                 cols += '</td>';
 
                 newRow.append(cols);
