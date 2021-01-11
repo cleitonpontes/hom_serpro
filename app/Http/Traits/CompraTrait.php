@@ -284,8 +284,8 @@ trait CompraTrait
         if (is_null($compraItemUnidade)) {
             $compraItemUnidade = new CompraItemUnidade;
             $compraItemUnidade->compra_item_id = $compraitem->id;
-            $compraItemUnidade->unidade_id = 1;
-            $compraItemUnidade->fornecedor_id = 1;
+            $compraItemUnidade->unidade_id = $unidade_autorizada_id;
+            $compraItemUnidade->fornecedor_id = $fornecedor_id;
         }
         $compraItemUnidade->quantidade_autorizada = $qtd_autorizada;
         $compraItemUnidade->quantidade_saldo = $qtd_autorizada;
@@ -295,7 +295,7 @@ trait CompraTrait
         $compraItemUnidade->save();
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
-        $compraItemUnidade->quantidade_saldo = (isset($saldo->saldo))?$saldo->saldo:0;
+        $compraItemUnidade->quantidade_saldo = (isset($saldo->saldo))?$saldo->saldo:$qtd_autorizada;
         $compraItemUnidade->save();
     }
 }
