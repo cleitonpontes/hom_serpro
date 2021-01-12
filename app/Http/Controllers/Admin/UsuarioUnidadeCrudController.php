@@ -36,7 +36,8 @@ class UsuarioUnidadeCrudController extends CrudController
             $us->where('cpf', backpack_user()->cpf);
         })->orWhereHas('user', function ($usu) {
             $usu->where('cpf', backpack_user()->cpf);
-        })->pluck('id')->toArray();
+        })->where('tipo','E')
+            ->pluck('id')->toArray();
 
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuariounidade');
