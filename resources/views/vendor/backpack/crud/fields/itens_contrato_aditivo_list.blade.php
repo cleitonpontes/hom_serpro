@@ -430,6 +430,14 @@
                                 adicionaLinhaItem(item);
                             }
                         });
+                        var booBuscouItemContrato = false;
+                        //quando se tratar de um termo aditivo vindo de uma importação e a relação dos itens estiver vazia
+                        //o sistema buscará a relação dos itens do contrato para realizar um auto preenchimento na grid de
+                        //itens
+                        if(!qtd_itens && !booBuscouItemContrato){
+                            booBuscouItemContrato = true;
+                            buscarContratoItens();
+                        }
                     })
                     .catch(error => {
                         alert(error);
