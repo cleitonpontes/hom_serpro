@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Contratohistorico;
+use App\Models\ContratoHistoricoMinutaEmpenho;
 use App\Models\Contratoitem;
 use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
@@ -478,6 +480,7 @@ class InstrumentoinicialCrudController extends CrudController
                 'model' => 'App\Models\AmparoLegal',
                 'attribute' => 'campo_api_amparo',
                 'pivot' => true,
+                'dependencies' => ['modalidade_id'],
                 'tab' => 'Dados Contrato',
             ],
             [
@@ -722,15 +725,25 @@ class InstrumentoinicialCrudController extends CrudController
 
         try {
             DB::beginTransaction();
+
+            // caso tinha ou tenha minuta, os itens são excluídos e cadastrados novamente conforme a grid recebida do front
+            $arrMinutasContratoHistorico = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id', $request->id)->get();
+            if(!empty($request->minutasempenho) || !empty($arrMinutasContratoHistorico)){
+                $arrItensSaldoHistoricoItens = Saldohistoricoitem::where('saldoable_id', $request->id)->pluck('id');
+                $this->excluirSaldoHistoricoItem($arrItensSaldoHistoricoItens);
+                $this->cadastrarItensAtualizadoSaldoHistorico($request->all());
+            }else{
+                // altera os itens do contrato
+                if (!empty($request->get('qtd_item'))) {
+                    $this->alterarItens($request->all());
+                }
+            }
+
             // your additional operations before save here
             $redirect_location = parent::updateCrud($request);
             // your additional operations after save here
             // use $this->data['entry'] or $this->crud->entry
 
-            // altera os itens do contrato
-            if (!empty($request->get('qtd_item'))) {
-                $this->alterarItens($request->all());
-            }
 
             if (!empty($request->get('excluir_item'))) {
                 $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
@@ -788,6 +801,13 @@ class InstrumentoinicialCrudController extends CrudController
             } else {
                 $this->criarNovoContratoItem($key, $request);
             }
+        }
+    }
+
+    private function cadastrarItensAtualizadoSaldoHistorico($request)
+    {
+        foreach ($request['qtd_item'] as $key => $qtd) {
+                $this->criarNovoContratoItem($key, $request);
         }
     }
 
