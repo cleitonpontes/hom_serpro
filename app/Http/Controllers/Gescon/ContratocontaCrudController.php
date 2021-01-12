@@ -46,7 +46,7 @@ class ContratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/contratocontas');
-        $this->crud->setEntityNameStrings('conta vinculada', 'Conta Vinculada');
+        $this->crud->setEntityNameStrings('conta-deposito vinculada', 'Conta-Depósito Vinculada');
         $this->crud->addButtonFromView('top', 'Sobre', 'sobrecontratoconta', 'begin');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         // $this->crud->enableExportButtons();
@@ -95,7 +95,7 @@ class ContratocontaCrudController extends CrudController
     {
         // será permitida apenas uma conta por contrato. Vamos verificar
         if(self::verificarSeContratoJaPossuiConta($request)){
-            \Alert::error('Já existe uma conta vinculada a este contrato!')->flash();
+            \Alert::error('Já existe uma Conta-Depósito Vinculada a este contrato!')->flash();
             return redirect()->back();
         }
 
