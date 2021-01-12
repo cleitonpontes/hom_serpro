@@ -19,6 +19,7 @@ use App\Http\Requests\InstrumentoinicialRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use App\Http\Traits\BuscaCodigoItens;
 use Route;
 
 /**
@@ -28,6 +29,8 @@ use Route;
  */
 class InstrumentoinicialCrudController extends CrudController
 {
+    use BuscaCodigoItens;
+
     public function setup()
     {
 
@@ -362,6 +365,9 @@ class InstrumentoinicialCrudController extends CrudController
 
     public function Campos( $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id, $contrato_tipo_descricao)
     {
+        $idMaterial = $this->retornaIdCatMatSerGrupo('GRUPO GENERICO MATERIAIS');
+        $idServico = $this->retornaIdCatMatSerGrupo('GRUPO GENERICO SERVICO');
+
         $campos = [
             [   // Hidden
                 'name' => 'contrato_id',
@@ -633,6 +639,8 @@ class InstrumentoinicialCrudController extends CrudController
                 'name' => 'itens',
                 'type' => 'itens_contrato_instrumento_inicial_list',
                 'tab' => 'Itens do contrato',
+                'material' => $idMaterial,
+                'servico' => $idServico,
             ],
             [
                 'label' => "adicionaCampoRecuperaGridItens",
