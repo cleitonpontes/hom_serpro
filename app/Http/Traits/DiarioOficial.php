@@ -27,7 +27,7 @@ trait DiarioOficial
                 ]
             );
 
-            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
+//            $this->enviarPublicacao($contratohistorico,$novaPublicacao,$texto_dou,$cpf);
         }
 
     }
@@ -51,7 +51,7 @@ trait DiarioOficial
                 'motivo_isencao_id' => $this->retornaIdCodigoItem('Motivo Isenção','Indefinido')
             ]);
 
-            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
+//            $this->enviarPublicacao($contratohistorico, $novaPublicacao, null, $cpf);
         }
     }
 
@@ -91,7 +91,7 @@ trait DiarioOficial
                     'processo',
                     'vigencia_inicio',
                     'vigencia_fim',
-                    //'valor_global',
+                    'valor_global',
                 ];
             case 'Termo Aditivo':
                 return $arrCamposPublicados = [
@@ -100,7 +100,7 @@ trait DiarioOficial
                     'fornecedor_id',
                     'vigencia_inicio',
                     'vigencia_fim',
-                    //'valor_global'
+                    'valor_global'
                 ];
             case 'Termo de Apostilamento':
                 return $arrCamposPublicados = [
@@ -121,6 +121,8 @@ trait DiarioOficial
     {
         $arrContratoOriginal = $contratohistorico->getOriginal();
         $arrContratoChanges = $contratohistorico->getChanges();
+        //no campo valor global formata para 2 casas após a virgula.
+        $arrContratoOriginal['valor_global'] = number_format((float)$contratohistorico->getOriginal()['valor_global'], 2, '.', '');
         foreach ($arrContratoChanges as $key => $contratoChange) {
             if (in_array($key, $this->getArrayCamposPublicados($contratohistorico->tipo_id))) {
                 if ($arrContratoChanges[$key] !== $arrContratoOriginal[$key]) {

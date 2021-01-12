@@ -67,20 +67,20 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Número</label>
+                        <label for="qtd_item" class="control-label">Número<span class="campo-obrigatorio">*</span></label>
                         <input class="form-control" id="numero_item" name="numero_item" type="text">
                     </div>
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Quantidade</label>
+                        <label for="qtd_item" class="control-label">Quantidade<span class="campo-obrigatorio">*</span></label>
                         <input class="form-control" id="quantidade_item" maxlength="10" name="quantidade_item"
                                type="number">
                     </div>
                     <div class="form-group">
-                        <label for="vl_unit" class="control-label">Valor Unitário</label>
+                        <label for="vl_unit" class="control-label">Valor Unitário<span class="campo-obrigatorio">*</span></label>
                         <input class="form-control" id="valor_unit" name="valor_unit" type="number">
                     </div>
                     <div class="form-group">
-                        <label for="vl_total" class="control-label">Valor Total</label>
+                        <label for="vl_total" class="control-label">Valor Total<span class="campo-obrigatorio">*</span></label>
                         <input class="form-control" id="valor_total" name="valor_total" type="number">
                     </div>
                     <div class="form-group">
@@ -90,7 +90,7 @@
                     <button class="btn btn-danger" type="submit" data-dismiss="modal"><i class="fa fa-reply"></i>
                         Cancelar
                     </button>
-                    <button class="btn btn-success" type="button" data-dismiss="modal" id="btn_inserir_item"><i
+                    <button class="btn btn-success" type="button" id="btn_inserir_item"><i
                             class="fa fa-save"></i> Incluir
                     </button>
                 </div>
@@ -150,12 +150,48 @@
                 });
 
                 $('body').on('click', '#btn_inserir_item', function (event) {
+                    validarCamposItemModal();
                     if (!$('#item').val()) {
                         alert('Não foi encontrado nenhum item para incluir à lista.');
-                    } else {
+                    }
+                    if(!validarCamposItemModal() && $('#item').val()){
                         buscarItem($('#item').val());
+                        $('#inserir_item').modal('hide');
                     }
                 });
+
+                function validarCamposItemModal() {
+                    let arrCamposModal = [
+                        {
+                            name: 'numero_item',
+                            value: $('#numero_item').val(),
+                        },
+                        {
+                            name: 'quantidade_item',
+                            value: $('#quantidade_item').val(),
+                        },
+                        {
+                            name: 'valor_unit',
+                            value: $('#valor_unit').val(),
+                        },
+                        {
+                            name: 'valor_total',
+                            value: $('#valor_total').val(),
+                        },
+                    ]
+                    return verificarCampoModalItem(arrCamposModal);
+                }
+                function verificarCampoModalItem(arrCamposModal){
+                    var hasError = false;
+                    arrCamposModal.forEach(function(campo){
+                        $(`#${campo.name}`).closest('.form-group').removeClass('has-error');
+                        if(!campo.value){
+                            $(`#${campo.name}`).closest('.form-group').addClass('has-error');
+                            hasError = true;
+                        }
+                    });
+                    return hasError;
+                }
 
                 $('body').on('change', '.itens', function (event) {
                     calculaTotalGlobal();
@@ -352,23 +388,24 @@
 
                 var newRow = $("<tr>");
                 var cols = "";
-                cols += '<td>'+item.tipo_item+'</td>';
+                cols += '<td>'+item.tipo_item;
+                cols += '<input type="hidden" name="numero_item_compra[]" value="' + item.numero + '">';
+                cols += '<input type="hidden" name="catmatseritem_id[]" value="' + item.catmatseritem_id + '">';
+                cols += '<input type="hidden" name="tipo_item_id[]" value="' + item.tipo_item_id + '">';
+                cols += '<input type="hidden" name="compra_item_unidade_id[]" value="' + item.compra_item_unidade_id + '">';
+                cols += '<input type="hidden" name="descricao_detalhada[]" value="' + item.descricaodetalhada + '">';
+                cols += '</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.codigo_siasg + ' - ' +item.descricaocatmatseritens+'</td>';
-                cols += '<td><input class="form-control validadeMaxMinQtdItem'+item.id+'" type="number"  name="qtd_item[]" step="0.0001" id="qtd" max="'+qtdMax+'" min="'+qtdMin+'" value="'+qtd+'"></td>';
-                cols += '<td><input class="form-control" type="number" readonly name="vl_unit[]" step="0.0001" id="vl_unit" value="'+vl_unit+'"></td>';
-                cols += `<td><input class="form-control" type="number" name="periodicidade[]" id="periodicidade" value="${periodicidade}"></td>`;
-                cols += '<td><input class="form-control" type="number" readonly  name="vl_total[]" step="0.0001" id="vl_total"value="'+vl_total+'"></td>';
-                cols += `<td><input class="form-control" type="date" name="data_inicio[]" id="data_inicio" value="${data_inicio}"></td>`;
+                cols += '<td><input class="form-control validadeMaxMinQtdItem'+item.id+'" type="number"  name="qtd_item[]" step="0.0001" max="'+qtdMax+'" min="'+qtdMin+'" value="'+qtd+'"></td>';
+                cols += '<td><input class="form-control" type="number" readonly name="vl_unit[]" step="0.0001" value="'+vl_unit+'"></td>';
+                cols += `<td><input class="form-control" type="number" name="periodicidade[]" value="${periodicidade}"></td>`;
+                cols += '<td><input class="form-control" type="number" readonly  name="vl_total[]" step="0.0001" value="'+vl_total+'"></td>';
+                cols += `<td><input class="form-control" type="date" name="data_inicio[]" value="${data_inicio}"></td>`;
                 cols += '<td>';
                 cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">' +
                     '<i class="fa fa-trash"></i>' +
                     '</button>';
-                cols += '<input type="hidden" name="numero_item_compra[]" id="numero_item_compra" value="' + item.numero + '">';
-                cols += '<input type="hidden" name="catmatseritem_id[]" id="catmatseritem_id" value="' + item.catmatseritem_id + '">';
-                cols += '<input type="hidden" name="tipo_item_id[]" id="tipo_item_id" value="' + item.tipo_item_id + '">';
-                cols += '<input type="hidden" name="compra_item_unidade_id[]" id="compra_item_unidade_id" value="' + item.compra_item_unidade_id + '">';
-                cols += '<input type="hidden" name="descricao_detalhada[]" id="descricao_detalhada" value="' + item.descricaodetalhada + '">';
                 cols += '</td>';
 
                 newRow.append(cols);

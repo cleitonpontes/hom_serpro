@@ -186,7 +186,7 @@ class CompraSiasgCrudController extends CrudController
                 'modalidade' => $contrato->modalidade->descres,
                 'numeroAno' => $contrato->licitacao_numero_limpa,
                 'uasgCompra' => $contrato->unidadecompra->codigo,
-                'uasgUsuario' => session('user_ug')
+                'uasgUsuario' => $contrato->unidadeorigem->codigo
             ];
 
             //pegar a compra
@@ -405,20 +405,23 @@ class CompraSiasgCrudController extends CrudController
     public function verificaPermissaoUasgCompraParamContrato($compraSiasg, $contrato)
     {
         $unidade_autorizada = null;
-        $uasgCompra = Unidade::find($contrato->unidadeorigem_id);
+        $uasgContrato = Unidade::find($contrato->unidade_id);
 
-        $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
-        $subrrogada = $compraSiasg->data->compraSispp->subrogada;
-        if ($tipoCompra == $this::SISPP) {
-            if ($subrrogada <> '000000') {
-                ($subrrogada == session('user_ug')) ? $unidade_autorizada = session('user_ug_id') : '';
-            } else {
-                ($uasgCompra->id == session('user_ug_id'))
-                    ? $unidade_autorizada = $uasgCompra->id : '';
-            }
-        } else {
-            $unidade_autorizada = session('user_ug_id');
-        }
+        ($uasgContrato->id == session('user_ug_id')) ? $unidade_autorizada = session('user_ug_id') : '';
+
+//        $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
+//        $subrrogada = $compraSiasg->data->compraSispp->subrogada;
+//        if ($tipoCompra == $this::SISPP) {
+//            if ($subrrogada <> '000000') {
+//                ($subrrogada == session('user_ug')) ? $unidade_autorizada = session('user_ug_id') : '';
+//            } else {
+//                ($uasgCompra->id == session('user_ug_id'))
+//                    ? $unidade_autorizada = $uasgCompra->id : '';
+//            }
+//        } else {
+//            $unidade_autorizada = session('user_ug_id');
+//        }
+
         return $unidade_autorizada;
     }
 

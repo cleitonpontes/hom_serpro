@@ -499,7 +499,8 @@ class ApostilamentoCrudController extends CrudController
         // your additional operations after save here
 
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function update(UpdateRequest $request)
@@ -546,7 +547,7 @@ class ApostilamentoCrudController extends CrudController
             $this->alterarItensContrato($request->all(), $this->crud->entry);
         }
 
-        return $redirect_location;
+        return redirect()->route('crud.publicacao.index',['contrato_id'=>$request->input('contrato_id')]);
     }
 
     public function show($id)

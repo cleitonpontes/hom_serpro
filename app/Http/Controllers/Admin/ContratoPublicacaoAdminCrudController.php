@@ -303,6 +303,7 @@ class ContratoPublicacaoAdminCrudController extends CrudController
      */
     protected function adicionaColunas()
     {
+        $this->adicionaColunaId();
         $this->adicionaColunaCodUnidade();
         $this->adicionaColunaCodSiorg();
         $this->adicionaColunaDataPublicacao();
@@ -311,8 +312,25 @@ class ContratoPublicacaoAdminCrudController extends CrudController
         $this->adicionaColunaTipoPublicacao();
         $this->adicionaColunaCpf();
         $this->adicionaColunaLog();
+        $this->adicionaUpdatedAt();
     }
 
+    /**
+     * Cofigura a coluna
+     */
+    private function adicionaColunaId(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'id',
+            'label' => 'Id',
+            'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
     /**
      * Cofigura a coluna
      */
@@ -339,6 +357,23 @@ class ContratoPublicacaoAdminCrudController extends CrudController
             'name' => 'status',
             'label' => 'Status',
             'type' => 'text',
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+        ]);
+    }
+
+    /**
+     * Cofigura a coluna
+     */
+    private function adicionaUpdatedAt(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'updated_at',
+            'label' => 'Atualizado em',
+            'type' => 'datetime',
             'orderable' => true,
             'visibleInTable' => true,
             'visibleInModal' => true,

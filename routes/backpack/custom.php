@@ -261,6 +261,11 @@ Route::group([
                     '/publicacao/{id}/atualizarsituacaopublicacao',
                     'ContratoPublicacaoCrudController@executarAtualizacaoSituacaoPublicacao'
                 );
+
+                Route::get('/publicacao/{publicacao_id}/deletarpublicacao', 'ContratoPublicacaoCrudController@deletarPublicacao');
+                Route::get('/publicacao/{publicacao_id}/enviarpublicacao', 'ContratoPublicacaoCrudController@enviarPublicacao');
+                Route::get('/publicacao/{publicacao_id}/consultarpublicacao', 'ContratoPublicacaoCrudController@consultarPublicacao');
+
                 CRUD::resource('responsaveis', 'ContratoresponsavelCrudController');
                 CRUD::resource('rescisao', 'RescisaoCrudController');
                 CRUD::resource('status', 'ContratostatusprocessoCrudController');
