@@ -94,12 +94,12 @@ class BackpackUser extends User
     /**
      * Retorna, segundo relacionamento, único registro da tabela Unidades
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      * @author Anderson Sathler <asathler@gmail.com>
      */
     public function unidade()
     {
-        return $this->hasOne(Unidade::class, 'id', 'ugprimaria');
+        return $this->belongsTo(Unidade::class, 'ugprimaria');
     }
 
     /**
