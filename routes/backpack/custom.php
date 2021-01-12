@@ -25,7 +25,7 @@ Route::group([
             'namespace' => 'Api',
         ], function () {
 
-            Route::get('executadou/{datapub}','ExecutaDouController@executaRotinaEnviaDou');
+            Route::get('executadou/{datapub}', 'ExecutaDouController@executaRotinaEnviaDou');
 
             //busca empenhos via ajax
             Route::get('empenho', 'EmpenhoController@index');
@@ -49,7 +49,7 @@ Route::group([
             Route::get('comprasiasg/{id}', 'ComprasiasgController@show');
             Route::get('catmatsergrupo', 'CatmatsergrupoController@index');
             Route::get('empecatmatsergrupo/{id}', 'CatmatsergrupoController@show');
-            Route::get('catmatseritem/buscarportipo/{tipo_id}', 'CatmatseritemController@itemPorTipo')->name('busca.catmatseritens.portipo');;
+            Route::get('catmatseritem/buscarportipo/{tipo_id}', 'CatmatseritemController@itemPorTipo')->name('busca.catmatseritens.portipo');
             Route::get('empecatmatseritem/{id}', 'CatmatseritemController@show')->name('busca.catmatseritens.id');
             Route::get('orgaosubcategoria', 'OrgaosubcategoriaController@index');
             Route::get('orgaosubcategoria/{id}', 'OrgaosubcategoriaController@show');
@@ -72,15 +72,16 @@ Route::group([
             Route::get('buscar/itens/modal/{minutas_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
             Route::get('buscar/itens/instrumentoinicial/{minutas_id}', 'ContratoItensMinutaController@buscarItensDeMinutaParaTelaInstrumentoInicial')->name('buscar.itens.instrumentoinicial');
             Route::get('buscar/campos/contrato/empenho/{id}', 'ContratoController@buscarCamposParaCadastroContratoPorIdEmpenho')->name('buscar.campos.contrato.empenho');
-            Route::get( '/saldo-historico-itens/{id}',
-                'SaldoHistoricoItemController@retonaSaldoHistoricoItens')->name('saldo.historico.itens');
+            Route::get(
+                '/saldo-historico-itens/{id}',
+                'SaldoHistoricoItemController@retonaSaldoHistoricoItens'
+            )->name('saldo.historico.itens');
 
             Route::group([
                 'prefix' => 'empenho',
-            ], function (){
+            ], function () {
                 Route::put('/sem/contrato/e/{empenho}/f/{fornecedor}/c/{contrato}', 'EmpenhoController@gravaContratoEmpenho');
             });
-
         });
 
         // if not otherwise configured, setup the dashboard routes
@@ -137,7 +138,6 @@ Route::group([
             CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
 
 
-
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
                 ->name('apropriacao.download');
@@ -177,10 +177,9 @@ Route::group([
 
             Route::get('/retryfailedjob/{id}', function ($id) {
                 $path = env('APP_PATH');
-                exec('php '.$path.'artisan queue:retry '.$id);
+                exec('php ' . $path . 'artisan queue:retry ' . $id);
                 return redirect(url('/admin/failedjobs'));
             });
-
         });
 
         Route::group([
@@ -196,9 +195,10 @@ Route::group([
             CRUD::resource('encargo', 'EncargoCrudController');
 
 
-
-            Route::get( '/buscar-contrato-itens/{contrato_id}',
-                'ContratoitemCrudController@retonaContratoItem')->name('contrato.item');
+            Route::get(
+                '/buscar-contrato-itens/{contrato_id}',
+                'ContratoitemCrudController@retonaContratoItem'
+            )->name('contrato.item');
 
             Route::group([
                 'prefix' => 'siasg',
@@ -238,7 +238,6 @@ Route::group([
             // });
             Route::get('movimentacao/{movimentacao_id}/excluir', 'MovimentacaocontratocontaCrudController@excluirMovimentacao');
             // fim conta vinculada - contrato conta
-
 
 
             Route::group(['prefix' => 'contrato/{contrato_id}'], function () {
@@ -297,15 +296,16 @@ Route::group([
                 CRUD::resource('ocorrencias', 'ContratoocorrenciaCrudController');
                 CRUD::resource('servicos', 'ContratoServicoCrudController');
                 CRUD::resource('terceirizados', 'ContratoterceirizadoCrudController');
-
             });
-            Route::group(['prefix' => 'meus-servicos/{contrato_id}/{contratoitem_servico_id}']
-                , function () {
+            Route::group(
+                ['prefix' => 'meus-servicos/{contrato_id}/{contratoitem_servico_id}'],
+                function () {
                     CRUD::resource('indicadores', 'ContratoItemServicoIndicadorCrudController');
                     Route::group(['prefix' => '{cisi_id}'], function () {
                         CRUD::resource('glosas', 'GlosaCrudController');
                     });
-                });
+                }
+            );
 
 //            Route::get('/notificausers', 'ContratoCrudController@notificaUsers');
         });
@@ -316,8 +316,8 @@ Route::group([
         ], function () {
 
             CRUD::resource('empenho', 'EmpenhoCrudController');
-            Route::get('incluirnovoempenho','EmpenhoCrudController@incluirEmpenhoSiafi');
-            Route::get('enviaempenhosiasg','EmpenhoCrudController@enviaEmpenhoSiasgTeste');
+            Route::get('incluirnovoempenho', 'EmpenhoCrudController@incluirEmpenhoSiafi');
+            Route::get('enviaempenhosiasg', 'EmpenhoCrudController@enviaEmpenhoSiasgTeste');
             CRUD::resource('situacaosiafi', 'ExecsfsituacaoCrudController');
             CRUD::resource('rhsituacao', 'RhsituacaoCrudController');
             CRUD::resource('rhrubrica', 'RhrubricaCrudController');
@@ -410,10 +410,19 @@ Route::group([
 
             //alteracao minuta
             Route::group(['prefix' => 'minuta/{minuta_id}'], function () {
-                CRUD::resource('alteracao', 'MinutaAlteracaoCrudController');
+                CRUD::resource('alteracao', 'MinutaAlteracaoCrudController', ['except' => ['show']]);
+                Route::get('/alteracao/{remessa}/show/{minuta}', 'MinutaAlteracaoCrudController@show')->name('crud.alteracao.show');
                 Route::get('alteracao-dt', 'MinutaAlteracaoCrudController@ajax')->name('crud.alteracao.ajax');
-            });
 
+                Route::group(['prefix' => 'alteracao'], function () {
+
+                    CRUD::resource('passivo-anterior', 'MinutaAlteracaoPassivoAnteriorCrudController', ['except' => ['create', 'show', 'edit']]);
+                    Route::get('passivo-anterior/{remessa}', 'MinutaAlteracaoPassivoAnteriorCrudController@create')
+                        ->name('crud.alteracao.passivo-anterior');
+                    Route::get('passivo-anterior/{remessa}/edit', 'MinutaAlteracaoPassivoAnteriorCrudController@create')
+                        ->name('crud.alteracao.passivo-anterior');
+                });
+            });
         });
 
         Route::group([
@@ -429,6 +438,5 @@ Route::group([
             Route::get('listacontratosug', 'RelContratoController@listaContratosUg')->name('relatorio.listacontratosug');
 //            Route::get('filtrolistacontratosug', 'RelContratoController@filtroListaContratosUg')->name('filtro.listacontratosug');
         });
-
     });
 });

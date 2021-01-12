@@ -108,12 +108,13 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        dump($request->all());
-        DB::enableQueryLog();
+//        dump($request->all());
+//        DB::enableQueryLog();
 
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
 
         $remessa = $request->remessa;
+
 //        dump(DB::getQueryLog());
 //        dd($remessa);
         DB::beginTransaction();
@@ -180,8 +181,8 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
 
             $minuta->save();
-            dd(DB::getQueryLog());
-//            DB::commit();
+//            dd(DB::getQueryLog());
+            DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
             dd($exc);

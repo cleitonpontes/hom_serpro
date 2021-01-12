@@ -243,5 +243,10 @@ Route::group(
             Route::get('/fatura/{id}/manual', 'FaturaController@editar')->name('apropriacao.fatura.editar');                            // ...
             Route::get('/fatura/{apropriacaoFatura}/dochabil', 'FaturaController@documentoHabil')->name('apropriacao.fatura.dochabil'); // Pronto
         });
+
+        Route::get('/tags', function () {
+            return view('tags');
+        });
+        Route::get('/tags/find', 'Select2Ajax\TagController@find');
     }
 );

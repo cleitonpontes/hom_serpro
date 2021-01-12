@@ -98,6 +98,7 @@ class SubelementoController extends BaseControllerEmpenho
                         'codigoitens.descricao',
                         'catmatseritens.codigo_siasg',
                         'catmatseritens.descricao as catmatser_desc',
+
                         DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
                         'contratoitens.descricao_complementar as descricaodetalhada',
                         DB::raw("SUBSTRING(contratoitens.descricao_complementar for 50) AS descricaosimplificada"),
@@ -264,7 +265,6 @@ class SubelementoController extends BaseControllerEmpenho
                 })
                 ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item', 'descricaosimplificada'])
                 ->make(true);
-
 
             return $dados;
         }

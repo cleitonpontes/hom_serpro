@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Traits\BuscaCodigoItens;
+use App\Http\Traits\Formatador;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
@@ -29,6 +30,7 @@ use App\Models\Catmatseritem;
 use App\XML\ApiSiasg;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Route;
 use App\Http\Controllers\Controller;
@@ -39,6 +41,7 @@ class MinutaEmpenhoController extends Controller
 
     use CompraTrait;
     use BuscaCodigoItens;
+    use Formatador;
 
     public function populaTabelasSiafi(Request $request): array
     {
@@ -51,10 +54,13 @@ class MinutaEmpenhoController extends Controller
         try {
             $sforcempenhodados = $this->gravaSfOrcEmpenhoDados($modMinutaEmpenho);
             $this->gravaSfCelulaOrcamentaria($sforcempenhodados, $modSaldoContabil);
+
             if ($modMinutaEmpenho->passivo_anterior) {
                 $this->gravaSfPassivoAnterior($sforcempenhodados, $modMinutaEmpenho);
             }
+
             $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodados);
+
             $this->gravaMinuta($modMinutaEmpenho);
 
             DB::commit();
@@ -92,7 +98,7 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->txtdescricao = $modMinutaEmpenho->descricao;
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
-
+        $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
         $modSfOrcEmpenhoDados->save();
         return $modSfOrcEmpenhoDados;
     }
@@ -163,6 +169,7 @@ class MinutaEmpenhoController extends Controller
 
     public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, $item)
     {
+//        dd($item);
 
         $modSfOpItemEmpenho = new SfOperacaoItemEmpenho();
         $modSfOpItemEmpenho->sfitemempenho_id = $modSfItemEmpenho->id;
@@ -343,18 +350,22 @@ class MinutaEmpenhoController extends Controller
 
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $modRemessa = MinutaEmpenhoRemessa::find($remessa_id);
+//        dd($modMinutaEmpenho,$modRemessa);
 
         DB::beginTransaction();
         try {
             $sforcempenhodadosalt = $this->gravaSfOrcEmpenhoDadosAlt($modMinutaEmpenho);
 
+            //TODO TESTAR PASSIVO ANTERIOR
             if ($modMinutaEmpenho->passivo_anterior) {
                 $this->gravaSfPassivoAnterior($sforcempenhodadosalt, $modMinutaEmpenho);
             }
 
             $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodadosalt, $remessa_id);
 
-            $this->gravaSfRegistroAlteracao($sforcempenhodadosalt);
+            $txt_motivo = $this->getTxtMotivo($modMinutaEmpenho);
+
+            $this->gravaSfRegistroAlteracao($sforcempenhodadosalt, $modMinutaEmpenho->data_emissao, $txt_motivo);
 
             $this->gravaRemessa($modRemessa);
 
@@ -377,7 +388,7 @@ class MinutaEmpenhoController extends Controller
 
         $modSfOrcEmpenhoDados->minutaempenho_id = $modMinutaEmpenho->id;
         $modSfOrcEmpenhoDados->ugemitente = $ugemitente->codigo;
-        $modSfOrcEmpenhoDados->anoempenho = (int)date('Y');
+        $modSfOrcEmpenhoDados->anoempenho = (int)config('app.ano_minuta_empenho');
         $modSfOrcEmpenhoDados->numempenho = (int)substr($modMinutaEmpenho->mensagem_siafi, 6, 6);
         $modSfOrcEmpenhoDados->txtlocalentrega = $modMinutaEmpenho->local_entrega;
         $modSfOrcEmpenhoDados->txtdescricao = $modMinutaEmpenho->descricao;
@@ -391,11 +402,15 @@ class MinutaEmpenhoController extends Controller
         return $modSfOrcEmpenhoDados;
     }
 
-    public function gravaSfRegistroAlteracao(SfOrcEmpenhoDados $sforcempenhodados)
+    public function gravaSfRegistroAlteracao(SfOrcEmpenhoDados $sforcempenhodados, string $dtemis, string $txtmotivo)
     {
+//        dd($sforcempenhodados, $teste);
         $sfRegistroAlteracao = new SfRegistroAlteracao();
         $sfRegistroAlteracao->sforcempenhodado_id = $sforcempenhodados->id;
+        $sfRegistroAlteracao->dtemis = $dtemis;
+        $sfRegistroAlteracao->txtmotivo = $txtmotivo;
         $sfRegistroAlteracao->save();
+//        dd($sfRegistroAlteracao);
     }
 
     public function gravaRemessa(MinutaEmpenhoRemessa $modRemessa)
@@ -408,5 +423,47 @@ class MinutaEmpenhoController extends Controller
 
         $modRemessa->situacao_id = $situacao->id;
         $modRemessa->save();
+    }
+
+    private function getTxtMotivo($modMinutaEmpenho)
+    {
+
+        $tipo = $modMinutaEmpenho->tipo_empenhopor->descricao;
+//        dd($tipo);
+
+        /*if ($tipo === 'Contrato') {
+            $contrato_item = $item->contrato_item;
+            $desc = $contrato_item->descricao_complementar;
+
+            $descricao = (!is_null($desc))
+                ? $desc
+                : $contrato_item->item->descricao;
+
+            return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
+        }*/
+
+        if ($tipo === 'Compra') {
+            $data_emissao = Carbon::createFromFormat('Y-m-d', $modMinutaEmpenho->data_emissao)->format('d/m/Y');
+
+            return "REGISTRO DE ANULAÇÃO/REFORÇO/CANCELAMENTO DO EMPENHO N° $modMinutaEmpenho->mensagem_siafi " .
+                "EMITIDO EM $data_emissao COMPRA: $modMinutaEmpenho->informacao_complementar.";
+//            dd($teste);
+        }
+
+        /*dd(
+            $modMinutaEmpenho->mensagem_siafi,
+            $modMinutaEmpenho->data_emissao,
+            $modMinutaEmpenho->informacao_complementar
+        );*/
+
+        $descricao = '';
+        $modCompraItem = CompraItem::find($item->compra_item_id);
+        $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
+
+        (!empty($modCompraItem->descricaodetalhada))
+            ? $descricao = $modCompraItem->descricaodetalhada
+            : $descricao = $modcatMatSerItem->descricao;
+
+        return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
 }

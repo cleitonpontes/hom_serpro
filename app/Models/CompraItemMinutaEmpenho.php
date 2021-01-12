@@ -95,7 +95,6 @@ class CompraItemMinutaEmpenho extends Model
 
     public function getOperacaoAttribute(): string
     {
-
         return $this->operacao()->first()->descricao;
     }
 

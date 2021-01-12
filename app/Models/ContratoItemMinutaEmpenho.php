@@ -33,6 +33,8 @@ class ContratoItemMinutaEmpenho extends Model
         'contrato_item_id',   // Chave composta: 1/3
         'minutaempenho_id', // Chave composta: 2/3
         'subelemento_id',
+        'operacao_id',
+        'minutaempenhos_remessa_id',
         'quantidade',
         'valor',
     ];
@@ -80,6 +82,16 @@ class ContratoItemMinutaEmpenho extends Model
         return $this->belongsTo(Naturezasubitem::class, 'subelemento_id');
     }
 
+    public function minutaempenhos_remessa()
+    {
+        return $this->belongsTo(MinutaEmpenhoRemessa::class, 'minutaempenhos_remessa_id');
+    }
+
+    public function operacao()
+    {
+        return $this->belongsTo(Codigoitem::class, 'operacao_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -91,6 +103,16 @@ class ContratoItemMinutaEmpenho extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getSituacaoRemessaAttribute(): string
+    {
+        return $this->minutaempenhos_remessa->situacao->descricao;
+    }
+
+    public function getOperacaoAttribute(): string
+    {
+        return $this->operacao()->first()->descricao;
+    }
 
     /*
     |--------------------------------------------------------------------------
