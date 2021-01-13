@@ -115,9 +115,6 @@ trait Formatador
         }
 
         if (strlen($dado) == 14) {
-            if($this->validaCPF(substr($dado,3,14))){
-                return 'FISICA';
-            }
             return 'JURIDICA';
         }
         return 'UG';
