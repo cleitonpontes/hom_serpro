@@ -35,29 +35,35 @@ class UsuarioOrgaoCrudController extends CrudController
             abort('403', config('app.erro_permissao'));
         }
 
-        $unidade_user = Unidade::find(session()->get('user_ug_id'));
+        $orgaos = Orgao::whereHas('unidades', function ($u) {
+            $u->whereHas('users', function ($us) {
+                $us->where('cpf', backpack_user()->cpf);
+            })->orWhereHas('user', function ($usu) {
+                $usu->where('cpf', backpack_user()->cpf);
+            });
+        })->pluck('id')->toArray();
 
-        $orgao = Orgao::find($unidade_user->orgao_id);
-        $unidades_orgao = Unidade::where('orgao_id', $orgao->id)
+        $unidades_orgao = Unidade::whereIn('orgao_id',$orgaos)
+            ->where('tipo','E')
             ->pluck('id')->toArray();
 
         $this->crud->setModel('App\Models\BackpackUser');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/usuarioorgao');
-        $this->crud->setEntityNameStrings('Usuário Órgão: ' . $orgao->codigo, 'Usuários Órgão: ' . $orgao->codigo);
+        $this->crud->setEntityNameStrings('Usuário Órgão(s)', 'Usuários Órgão(s)');
         $this->crud->addClause('leftjoin', 'unidades', 'unidades.id', '=', 'users.ugprimaria');
         $this->crud->addClause('select', 'users.*');
-        $this->crud->query->where(function ($q)  use ($unidades_orgao) {
+        $this->crud->query->where(function ($q) use ($unidades_orgao) {
             $q->whereHas('unidade', function ($u) use ($unidades_orgao) {
-                $u->whereHas('users', function ($t) use($unidades_orgao){
+                $u->whereHas('users', function ($t) use ($unidades_orgao) {
                     $t->whereIn('unidade_id', $unidades_orgao);
                 });
                 $u->orWhereIn('id', $unidades_orgao);
             })
-            ->orWhere('users.situacao','=',0)
-            ->orWhere(function ($q) {
-                $q->whereNull('users.ugprimaria')
-                    ->where('users.situacao','=',1);
-            });
+                ->orWhere('users.situacao', '=', 0)
+                ->orWhere(function ($q) {
+                    $q->whereNull('users.ugprimaria')
+                        ->where('users.situacao', '=', 1);
+                });
         });
 
         $this->crud->enableExportButtons();
@@ -81,7 +87,7 @@ class UsuarioOrgaoCrudController extends CrudController
         $ugs = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
             ->where('tipo', '=', 'E')
             ->where('situacao', '=', true)
-            ->whereIn('id',$unidades_orgao)
+            ->whereIn('id', $unidades_orgao)
             ->orderBy('codigo', 'asc')
             ->pluck('nome', 'id')
             ->toArray();
@@ -235,7 +241,7 @@ class UsuarioOrgaoCrudController extends CrudController
                 'options' => (function ($query) use ($unidades_orgao) {
                     return $query->orderBy('codigo', 'ASC')
                         ->where('tipo', '=', 'E')
-                        ->whereIn('id',$unidades_orgao)
+                        ->whereIn('id', $unidades_orgao)
                         ->get();
                 }),
             ],
@@ -252,8 +258,8 @@ class UsuarioOrgaoCrudController extends CrudController
                 'tab' => 'Outros',
                 'options' => (function ($query) {
                     return $query->orderBy('name', 'ASC')
-                        ->where('name','<>','Administrador')
-                        ->where('name','<>','Administrador Órgão')
+                        ->where('name', '<>', 'Administrador')
+                        ->where('name', '<>', 'Administrador Órgão')
                         ->get();
                 }),
             ],
@@ -333,9 +339,9 @@ class UsuarioOrgaoCrudController extends CrudController
         if ($usuario->hasRole('Administrador Órgão') or $usuario->hasRole('Administrador')) {
             \Alert::error('Sem permissão para alterar este Usuário!')->flash();
             return redirect()->back();
-        }else{
+        } else {
             // your additional operations before save here
-            if($request->input('situacao') == false){ // 0 = false = inativo
+            if ($request->input('situacao') == false) { // 0 = false = inativo
                 $request->request->set('ugprimaria', null);
                 $request->request->set('unidades', null);
                 $request->request->set('roles', null);

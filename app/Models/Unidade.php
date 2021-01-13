@@ -131,6 +131,11 @@ class Unidade extends Model
         return $this->belongsToMany(BackpackUser::class, 'unidadesusers', 'unidade_id', 'user_id');
     }
 
+    public function user()
+    {
+        return $this->hasOne(BackpackUser::class,  'ugprimaria');
+    }
+
     public function compraItem()
     {
         return $this->belongsToMany(
