@@ -5,6 +5,7 @@ use App\Models\CompraItemMinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
 {
@@ -15,22 +16,20 @@ class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
      */
     public function up()
     {
-        $situacao_andamento = Codigoitem::wherehas('codigo', function ($q) {
-            $q->where('descricao', '=', 'Situações Minuta Empenho');
-        })
-            ->where('descricao', 'EM ANDAMENTO')
-            ->first();
 
         $minutas = CompraItemMinutaEmpenho::select(
             'minutaempenho_id',
             'situacao_id',
             DB::raw('0 as remessa')
         )
-            ->join('minutaempenhos','minutaempenhos.id','=','compra_item_minuta_empenho.minutaempenho_id')
-            ->where('minutaempenhos.etapa','>',3)
+            ->join('minutaempenhos', 'minutaempenhos.id', '=', 'compra_item_minuta_empenho.minutaempenho_id')
+            ->where('minutaempenhos.etapa', '>=', 3)
             ->distinct()->get()->toArray();
 
-        MinutaEmpenhoRemessa::insert($minutas);
+        foreach ($minutas as $index => $minuta) {
+            $novaRemessa = MinutaEmpenhoRemessa::create($minuta);
+            $array_minutas[$minuta['minutaempenho_id']] = $novaRemessa->id;
+        }
 
         Schema::table('compra_item_minuta_empenho', function ($table) {
             $table->dropPrimary('compra_item_minuta_empenho_pkey');
@@ -47,13 +46,15 @@ class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
         });
 
         $cimes = CompraItemMinutaEmpenho::all();
+
         foreach ($cimes as $cime) {
-                $remessa_id = MinutaEmpenhoRemessa::select('id')
-                    ->where('minutaempenho_id', $cime->minutaempenho_id)->first()->id;
+            $remessa_id = $array_minutas[$cime->minutaempenho_id];
             $cime->minutaempenhos_remessa_id = $remessa_id;
             $cime->save();
 
         }
+
+
     }
 
     /**
@@ -69,7 +70,7 @@ class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
             $table->dropColumn('minutaempenhos_remessa_id');
             $table->dropColumn('id');
             $table->integer('remessa')->default(0);
-            $table->primary(['compra_item_id', 'minutaempenho_id','remessa']);
+            $table->primary(['compra_item_id', 'minutaempenho_id', 'remessa']);
         });
     }
 }

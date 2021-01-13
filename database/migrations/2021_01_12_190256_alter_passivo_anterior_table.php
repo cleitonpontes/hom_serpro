@@ -1,12 +1,12 @@
 <?php
 
+use App\Models\Codigoitem;
+use App\Models\ContaCorrentePassivoAnterior;
 use App\Models\MinutaEmpenhoRemessa;
-use App\Models\SfOrcEmpenhoDados;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddAlteracaoSforcempenhodadosTable extends Migration
+class AlterPassivoAnteriorTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,21 +15,20 @@ class AddAlteracaoSforcempenhodadosTable extends Migration
      */
     public function up()
     {
-        Schema::table('sforcempenhodados', function (Blueprint $table) {
-            $table->boolean('alteracao')->default(false);
+
+        Schema::table('conta_corrente_passivo_anterior', function ($table) {
 
             $table->bigInteger('minutaempenhos_remessa_id')->unsigned()->index()->nullable();
             $table->foreign('minutaempenhos_remessa_id')->references('id')->on('minutaempenhos_remessa')->onDelete('cascade');
+
         });
 
-        $registros =  SfOrcEmpenhoDados::all();
-        foreach ($registros as $registro) {
-
+        $ccpas = ContaCorrentePassivoAnterior::all();
+        foreach ($ccpas as $ccpa) {
             $remessa_id = MinutaEmpenhoRemessa::select('id')
-                ->where('minutaempenho_id', $registro->minutaempenho_id)
-                ->first()->id;
-            $registro->minutaempenhos_remessa_id = $remessa_id;
-            $registro->save();
+                ->where('minutaempenho_id', $ccpa->minutaempenho_id)->first()->id;
+            $ccpa->minutaempenhos_remessa_id = $remessa_id;
+            $ccpa->save();
 
         }
     }
@@ -41,9 +40,10 @@ class AddAlteracaoSforcempenhodadosTable extends Migration
      */
     public function down()
     {
-        Schema::table('sforcempenhodados', function (Blueprint $table) {
-            $table->dropColumn('alteracao');
+        Schema::table('conta_corrente_passivo_anterior', function (Blueprint $table) {
+
             $table->dropColumn('minutaempenhos_remessa_id');
+
         });
     }
 }

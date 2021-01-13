@@ -22,15 +22,16 @@ class AlterContratoItemMinutaEmpenhoPivotTable extends Migration
             DB::raw('0 as remessa')
         )
             ->join('minutaempenhos','minutaempenhos.id','=','contrato_item_minuta_empenho.minutaempenho_id')
-            ->where('minutaempenhos.etapa','>',3)
+            ->where('minutaempenhos.etapa','>=',3)
             ->distinct()->get()->toArray();
 
-        MinutaEmpenhoRemessa::insert($minutas);
+        foreach ($minutas as $index => $minuta) {
+            $novaRemessa = MinutaEmpenhoRemessa::create($minuta);
+            $array_minutas[$minuta['minutaempenho_id']] = $novaRemessa->id;
+        }
 
         Schema::table('contrato_item_minuta_empenho', function ($table) {
-
             $table->dropPrimary('contrato_item_minuta_empenho_pkey');
-
         });
 
         Schema::table('contrato_item_minuta_empenho', function ($table) {
@@ -44,11 +45,9 @@ class AlterContratoItemMinutaEmpenhoPivotTable extends Migration
 
         $cimes = ContratoItemMinutaEmpenho::all();
         foreach ($cimes as $cime) {
-                $remessa_id = MinutaEmpenhoRemessa::select('id')
-                    ->where('minutaempenho_id', $cime->minutaempenho_id)->first()->id;
+            $remessa_id = $array_minutas[$cime->minutaempenho_id];
             $cime->minutaempenhos_remessa_id = $remessa_id;
             $cime->save();
-
         }
     }
 
