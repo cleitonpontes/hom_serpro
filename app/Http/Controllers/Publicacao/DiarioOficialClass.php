@@ -975,7 +975,7 @@ class DiarioOficialClass extends BaseSoapController
 
     public function montaOficioPreviewEnvioManual(Contratohistorico $contratoHistorico,ContratoPublicacoes $publicacao)
     {
-        $retificacao = strpos($publicacao->texto_dou, 'RETIFICA');
+        $retificacao = (!strpos(mb_strtoupper($publicacao->texto_dou), 'RETIFICA')) ? null : true;
 
         $data_publicacao = $this->verificaDataDiaUtil($publicacao->data_publicacao);
 
@@ -998,7 +998,7 @@ class DiarioOficialClass extends BaseSoapController
     public function montaOficioConfirmacaoEnvioManual(Contratohistorico $contratoHistorico,ContratoPublicacoes $publicacao)
     {
 
-        $retificacao = strpos($publicacao->texto_dou, 'RETIFICA');
+        $retificacao = (!strpos(mb_strtoupper($publicacao->texto_dou), 'RETIFICA')) ? null : true;
 
         $data_publicacao = $this->verificaDataDiaUtil($publicacao->data_publicacao);
 
