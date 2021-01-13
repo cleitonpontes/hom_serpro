@@ -365,8 +365,8 @@ class InstrumentoinicialCrudController extends CrudController
 
     public function Campos( $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id, $contrato_tipo_descricao)
     {
-        $idMaterial = $this->retornaIdCatMatSerGrupo('GRUPO GENERICO MATERIAIS');
-        $idServico = $this->retornaIdCatMatSerGrupo('GRUPO GENERICO SERVICO');
+        $idMaterial = $this->retornaIdCodigoItem('Tipo CATMAT e CATSER', 'Material');
+        $idServico = $this->retornaIdCodigoItem('Tipo CATMAT e CATSER', 'Serviço');
 
         $campos = [
             [   // Hidden
@@ -736,7 +736,7 @@ class InstrumentoinicialCrudController extends CrudController
 
             // caso tinha ou tenha minuta, os itens são excluídos e cadastrados novamente conforme a grid recebida do front
             $arrMinutasContratoHistorico = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id', $request->id)->get();
-            if(!empty($request->minutasempenho) || !empty($arrMinutasContratoHistorico)){
+            if(!empty($request->minutasempenho) || count($arrMinutasContratoHistorico) > 0){
                 $arrItensSaldoHistoricoItens = Saldohistoricoitem::where('saldoable_id', $request->id)->pluck('id');
                 $this->excluirSaldoHistoricoItem($arrItensSaldoHistoricoItens);
                 $this->cadastrarItensAtualizadoSaldoHistorico($request->all());

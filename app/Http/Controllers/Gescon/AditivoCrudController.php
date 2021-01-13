@@ -618,7 +618,7 @@ class AditivoCrudController extends CrudController
 
             // altera os itens do contrato
             if (!empty($request->get('qtd_item'))) {
-                $this->criarSaldoHistoricoItens($request,$this->crud->entry);
+                $this->criarSaldoHistoricoItens($request->all(), $this->crud->entry->id);
             }
             DB::commit();
         } catch (Exception $exc) {
@@ -729,33 +729,12 @@ class AditivoCrudController extends CrudController
                 $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
                 $saldoHistoricoIten->save();
             } else {
-                $this->criarNovoContratoItem($key, $request);
+                $this->criarSaldoHistoricoItens($request, $request['id']);
             }
         }
     }
 
-    private function criarNovoContratoItem($key, $request, $contratoHistoricoId = null )
-    {
-        $catmatseritem_id = (int)$request['catmatseritem_id'][$key];
-        $catmatseritem = Catmatseritem::find($catmatseritem_id);
-
-        $contratoItem = new Contratoitem();
-        $contratoItem->contrato_id = $request['contrato_id'];
-        $contratoItem->tipo_id = $request['tipo_item_id'][$key];
-        $contratoItem->grupo_id = $catmatseritem->grupo_id;
-        $contratoItem->catmatseritem_id = $catmatseritem->id;
-        $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
-        $contratoItem->quantidade = (double)$request['qtd_item'][$key];
-        $contratoItem->valorunitario = $request['vl_unit'][$key];
-        $contratoItem->valortotal = $request['vl_total'][$key];
-        $contratoItem->data_inicio = $request['data_inicio'][$key];
-        $contratoItem->periodicidade = $request['periodicidade'][$key];
-        $contratoItem->numero_item_compra = $request['numero_item_compra'][$key];
-        $contratoItem->contratohistorico_id = $contratoHistoricoId;
-        $contratoItem->save();
-    }
-
-    private function criarSaldoHistoricoItens(StoreRequest $request, Contratohistorico $contratoHistorico)
+    private function criarSaldoHistoricoItens($request, $idContratoHistorico)
     {
         $codigoitem = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Tipo Saldo Itens');
@@ -764,22 +743,24 @@ class AditivoCrudController extends CrudController
             ->first();
 
         foreach ($request['qtd_item'] as $key => $qtd) {
-            if ($request['aditivo_item_id'][$key] !== 'undefined') {
-                $saldoHistoricoIten = new Saldohistoricoitem();
-                $saldoHistoricoIten->saldoable_type = 'App\Models\Contratohistorico';
-                $saldoHistoricoIten->saldoable_id = $contratoHistorico->id;
-                $saldoHistoricoIten->contratoitem_id = $request['aditivo_item_id'][$key];
-                $saldoHistoricoIten->tiposaldo_id = $codigoitem->id;
-                $saldoHistoricoIten->quantidade = (double)$qtd;
-                $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
-                $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
-                $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
-                $saldoHistoricoIten->data_inicio = $request['data_inicio'][$key];
-                $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
-                $saldoHistoricoIten->save();
-            } else {
-                $this->criarNovoContratoItem($key, $request->all(), $contratoHistorico->id);
+
+            // caso seja um item vindo de um contrato o id do item aditivo é referente ao item do contrato.
+            if ($request['contratoitem_id'][$key] !== 'undefined') {
+                $request['aditivo_item_id'][$key] = $request['contratoitem_id'][$key];
             }
+
+            $saldoHistoricoIten = new Saldohistoricoitem();
+            $saldoHistoricoIten->saldoable_type = 'App\Models\Contratohistorico';
+            $saldoHistoricoIten->saldoable_id = $idContratoHistorico;
+            $saldoHistoricoIten->contratoitem_id = $request['aditivo_item_id'][$key];
+            $saldoHistoricoIten->tiposaldo_id = $codigoitem->id;
+            $saldoHistoricoIten->quantidade = (double)$qtd;
+            $saldoHistoricoIten->valorunitario = $request['vl_unit'][$key];
+            $saldoHistoricoIten->valortotal = $request['vl_total'][$key];
+            $saldoHistoricoIten->periodicidade = $request['periodicidade'][$key];
+            $saldoHistoricoIten->data_inicio = $request['data_inicio'][$key];
+            $saldoHistoricoIten->numero_item_compra = $request['numero_item_compra'][$key];
+            $saldoHistoricoIten->save();
         }
     }
 }
