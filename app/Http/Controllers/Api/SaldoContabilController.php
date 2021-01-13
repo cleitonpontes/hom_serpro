@@ -84,9 +84,7 @@ class SaldoContabilController extends Controller
             return json_encode($retorno);
         }
 
-        $saldoExiste = SaldoContabil::where('conta_corrente',$contacorrente)
-            ->where('unidade_id',$unidade->id)->first();
-
+        $saldoExiste = SaldoContabil::where('conta_corrente',$contacorrente)->first();
         if(is_null($saldoExiste)) {
             DB::beginTransaction();
             try {
