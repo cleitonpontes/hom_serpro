@@ -21,33 +21,23 @@ class InsertCodigoitensTipoItemMinutaDados extends Migration
         ]);
         Codigoitem::create([
             'codigo_id' => $codigo->id,
-            'descres' => 'NENH',
-            'descricao' => 'NENHUMA',
-            'visivel' => false
-        ]);
-        Codigoitem::create([
-            'codigo_id' => $codigo->id,
             'descres' => 'INCLUS',
-            'descricao' => 'INCLUSAO',
-            'visivel' => false
+            'descricao' => 'INCLUSAO'
         ]);
         Codigoitem::create([
             'codigo_id' => $codigo->id,
             'descres' => 'REFOR',
-            'descricao' => 'REFORÇO',
-            'visivel' => false
+            'descricao' => 'REFORÇO'
         ]);
         Codigoitem::create([
             'codigo_id' => $codigo->id,
             'descres' => 'ANULA',
-            'descricao' => 'ANULAÇÃO',
-            'visivel' => false
+            'descricao' => 'ANULAÇÃO'
         ]);
         Codigoitem::create([
             'codigo_id' => $codigo->id,
             'descres' => 'CANCEL',
-            'descricao' => 'CANCELAMENTO',
-            'visivel' => false
+            'descricao' => 'CANCELAMENTO'
         ]);
     }
 
@@ -59,7 +49,7 @@ class InsertCodigoitensTipoItemMinutaDados extends Migration
     public function down()
     {
         Codigo::where([
-            'descricao' => 'Operação item empenho',
+            'descricao' => 'Tipo Feriados',
             'visivel' => true
         ])->forceDelete();
     }

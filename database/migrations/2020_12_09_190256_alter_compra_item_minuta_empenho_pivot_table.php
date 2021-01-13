@@ -21,36 +21,27 @@ class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
             ->where('descricao', 'EM ANDAMENTO')
             ->first();
 
-        //TODO verificar esta lógica.
         $minutas = CompraItemMinutaEmpenho::select(
             'minutaempenho_id',
-            DB::raw($situacao_andamento->id . ' as situacao_id'),
+            'situacao_id',
             DB::raw('0 as remessa')
         )
+            ->join('minutaempenhos','minutaempenhos.id','=','compra_item_minuta_empenho.minutaempenho_id')
+            ->where('minutaempenhos.etapa','>',3)
             ->distinct()->get()->toArray();
 
         MinutaEmpenhoRemessa::insert($minutas);
 
-        $situacao_inclusao = Codigoitem::wherehas('codigo', function ($q) {
-            $q->where('descricao', '=', 'Operação item empenho');
-        })
-            ->where('descricao', 'INCLUSAO')
-            ->first();
-
         Schema::table('compra_item_minuta_empenho', function ($table) {
-
             $table->dropPrimary('compra_item_minuta_empenho_pkey');
-
         });
 
-        Schema::table('compra_item_minuta_empenho', function ($table) use ($situacao_inclusao) {
+        Schema::table('compra_item_minuta_empenho', function ($table) {
 
             $table->bigIncrements('id');
             $table->bigInteger('minutaempenhos_remessa_id')->nullable()->unsigned()->index();
             $table->foreign('minutaempenhos_remessa_id')->references('id')->on('minutaempenhos_remessa')->onDelete('cascade');
-            $table->integer('operacao_id')->default($situacao_inclusao->id);
-            $table->foreign('operacao_id')->references('id')->on('codigoitens')->onDelete('cascade');
-            $table->timestamps();
+            $table->dropColumn('remessa');
             $table->unique(['compra_item_id', 'minutaempenho_id', 'minutaempenhos_remessa_id']);
 
         });
@@ -63,12 +54,6 @@ class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
             $cime->save();
 
         }
-//        dd(1122333);
-
-/*        Schema::table('compra_item_minuta_empenho', function ($table) {
-            $table->primary(['compra_item_id', 'minutaempenho_id', 'minutaempenhos_remessa_id']);
-
-        });*/
     }
 
     /**
@@ -82,10 +67,9 @@ class AlterCompraItemMinutaEmpenhoPivotTable extends Migration
 
             $table->dropPrimary('compra_item_minuta_empenho_pkey');
             $table->dropColumn('minutaempenhos_remessa_id');
-            $table->dropColumn('operacao_id');
-            $table->dropColumn('created_at');
-            $table->dropColumn('updated_at');
-            $table->primary(['compra_item_id', 'minutaempenho_id']);
+            $table->dropColumn('id');
+            $table->integer('remessa')->default(0);
+            $table->primary(['compra_item_id', 'minutaempenho_id','remessa']);
         });
     }
 }
