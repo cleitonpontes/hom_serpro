@@ -1047,8 +1047,8 @@ class ContratoCrudController extends CrudController
 
     protected function adicionaCampoItensContrato()
     {
-        $idMaterial = $this->retornaIdCatMatSerGrupo('GRUPO GENERICO MATERIAIS');
-        $idServico = $this->retornaIdCatMatSerGrupo('GRUPO GENERICO SERVICO');
+        $idMaterial = $this->retornaIdCodigoItem('Tipo CATMAT e CATSER', 'Material');
+        $idServico = $this->retornaIdCodigoItem('Tipo CATMAT e CATSER', 'Serviço');
 
         $this->crud->addField([
             'name' => 'itens',
