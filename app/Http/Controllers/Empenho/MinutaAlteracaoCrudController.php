@@ -54,7 +54,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $minuta_id = Route::current()->parameter('minuta_id');
         $this->remessa = Route::current()->parameter('remessa');
 //        dd($this->remessa);
-        $this->crud->getCurrentEntryId();
+//        $this->crud->getCurrentEntryId();
 //        dd($remessa);
 //        $minuta_id = \Route::current()->parameter('contrato_id');
 
@@ -66,7 +66,8 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->setModel('App\Models\MinutaEmpenho');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'empenho/minuta/' . $minuta_id . '/alteracao');
         $this->crud->setEntityNameStrings('Alteração Minuta Empenho', 'Alteração Minuta Empenho');
-        $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
+//        $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
+        $this->crud->setEditView('vendor.backpack.crud.empenho.alteracao_edit');
 //        $this->crud->setShowView('vendor.backpack.crud.empenho.show');
         $this->crud->setShowView('vendor.backpack.crud.empenho.alteracao_show');
 //        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
@@ -77,11 +78,13 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->allowAccess('show');
         $this->crud->allowAccess('clone');
         $this->crud->denyAccess('delete');
+
         $this->crud->addClause('select', [
             'minutaempenhos.*',
             'compra_item_minuta_empenho.minutaempenhos_remessa_id'
         ])->distinct();
 
+//        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
         $this->crud->addClause(
             'join',
             'compra_item_minuta_empenho',
@@ -89,15 +92,26 @@ class MinutaAlteracaoCrudController extends CrudController
             '=',
             'minutaempenhos.id'
         );
-
+        $this->crud->addClause(
+            'join',
+            'minutaempenhos_remessa',
+            'minutaempenhos_remessa.id',
+            '=',
+            'compra_item_minuta_empenho.minutaempenhos_remessa_id'
+        );
         $this->crud->addClause(
             'where',
             'minutaempenhos.id',
             '=',
             $minuta_id
         );
-
-//        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
+        $this->crud->addClause(
+            'where',
+            'minutaempenhos_remessa.remessa',
+            '<>',
+            0
+        );
+//        dd($this->crud->query->getBindings(),$this->crud->query->toSql(),$this->crud->query->get());
 
 
         /*
@@ -418,6 +432,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->adicionaBoxItens($id, $params['remessa']);
         $this->adicionaBoxSaldo($id);
 
+        $this->crud->removeColumn('tipo_empenhopor_id');
         $this->crud->removeColumn('situacao_id');
         $this->crud->removeColumn('unidade_id');
         $this->crud->removeColumn('compra_id');
@@ -439,12 +454,13 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function create()
     {
+//        $params = Route::current()->parameters();
+//        dd(Route::current()->uri);
 
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
-//        dd($this->getItens($modMinutaEmpenho));
-
+        $remessa_id = (Route::current()->parameter('remessa') ?? 0);
 
         if ($codigoitem->descricao == 'Contrato') {
             $tipo = 'contrato_item_id';
@@ -463,53 +479,15 @@ class MinutaAlteracaoCrudController extends CrudController
             $tipo = 'compra_item_id';
             $itens = $this->getItens($modMinutaEmpenho);
 
-            $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
-                ->select(DB::raw('coalesce(sum(valor),0) as sum'))
+            $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
+            if ($remessa_id) {
+                $valor_utilizado = $valor_utilizado->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa_id);
+            }
+            $valor_utilizado = $valor_utilizado->select(DB::raw('coalesce(sum(valor),0) as sum'))
                 ->first()->toArray();
         }
-//        ;dd($valor_utilizado->getBindings(),$valor_utilizado->toSql(),$valor_utilizado->first());
-//        dd($valor_utilizado);
-
-        /*if ($request->ajax()) {
-            return DataTables::of($itens)
-                ->addColumn(
-                    'ci_id',
-                    function ($item) use ($modMinutaEmpenho) {
-
-                        return $this->addColunaCompraItemId($item);
-                    }
-                )
-                ->addColumn(
-                    'subitem',
-                    function ($item) use ($modMinutaEmpenho) {
-
-                        return $this->addColunaSubItem($item);
-                    }
-                )
-                ->addColumn(
-                    'quantidade',
-                    function ($item) {
-                        return $this->addColunaQuantidade($item);
-                    }
-                )
-                ->addColumn(
-                    'valor_total',
-                    function ($item) {
-                        return $this->addColunaValorTotal($item);
-                    }
-                )
-                ->addColumn(
-                    'valor_total_item',
-                    function ($item) {
-                        return $this->addColunaValorTotalItem($item);
-                    }
-                )
-                ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item'])
-                ->make(true);
-        }*/
 
         $html = $this->retornaGridItens($minuta_id);
-
 
         $this->crud->urlVoltar = route(
             'empenho.crud./minuta.edit',
@@ -517,7 +495,8 @@ class MinutaAlteracaoCrudController extends CrudController
         );
 
         $tipo = $codigoitem->descres === 'COM' ? 'compra_item_id' : 'contrato_item_id';
-//        dd($tipo);
+        $update = strpos(Route::current()->uri, 'edit');
+//        dd($update);
 
         return view(
             'backpack::mod.empenho.AlteracaoSubElemento',
@@ -528,8 +507,11 @@ class MinutaAlteracaoCrudController extends CrudController
             'saldo' => $itens[0]['saldo'] - $valor_utilizado['sum'],
             'update' => false,
             'tipo' => $tipo,
-//            'update' => $valor_utilizado['sum'] > 0,
+            'update' => $update,
             'fornecedor_id' => $itens[0]['fornecedor_id'] ?? '',
+            'url_form' => $update !== false
+                ? "/empenho/minuta/$minuta_id/alteracao/$remessa_id"
+                : "/empenho/minuta/$minuta_id/alteracao"
         ]);
     }
 
@@ -720,7 +702,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->adicionaCampoCipi();
         $this->adicionaCampoDataEmissao();
         $this->adicionaCampoTipoEmpenho();
-        $this->adicionaCampoFornecedor();
+//        $this->adicionaCampoFornecedor();
         $this->adicionaCampoProcesso();
         $this->adicionaCampoAmparoLegal($minuta_id);
         $this->adicionaCampoTaxaCambio();
@@ -884,6 +866,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->adicionaColunaTipoCompra();
         $this->adicionaColunaUnidadeCompra();
         $this->adicionaColunaModalidade();
+        $this->adicionaColunaTipoEmpenhoPor();
         $this->adicionaColunaNumeroAnoCompra();
 
         $this->adicionaColunaTipoEmpenho();
@@ -1005,6 +988,27 @@ class MinutaAlteracaoCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    public function adicionaColunaTipoEmpenhoPor()
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'getTipoEmpenhoPor',
+            'label' => 'Tipo de Minuta', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getTipoEmpenhoPor', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
         ]);
     }
 
@@ -1734,5 +1738,10 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->get()->toArray();
                 break;
         }
+    }
+
+    public function testeSaldoAtualizado($compraitem_id)
+    {
+        return $this->retornaSaldoAtualizado($compraitem_id);
     }
 }
