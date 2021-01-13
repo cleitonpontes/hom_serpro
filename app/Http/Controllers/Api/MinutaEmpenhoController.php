@@ -59,6 +59,7 @@ class MinutaEmpenhoController extends Controller
                 $this->gravaSfPassivoAnterior($sforcempenhodados, $modMinutaEmpenho);
             }
 
+            //todo passar remessa
             $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodados);
 
             $this->gravaMinuta($modMinutaEmpenho);
@@ -143,12 +144,16 @@ class MinutaEmpenhoController extends Controller
         return $modSfPassivoPermanente;
     }
 
-    public function gravaSfItensEmpenho(MinutaEmpenho $modMinutaEmpenho, SfOrcEmpenhoDados $sforcempenhodados, $remessa_id = 0)
-    {
+    public function gravaSfItensEmpenho(
+        MinutaEmpenho $modMinutaEmpenho,
+        SfOrcEmpenhoDados $sforcempenhodados,
+        $remessa_id = 0
+    ) {
 
         $tipo = $modMinutaEmpenho->tipo_empenhopor->descricao;
 
-        $itens = $this->getItens($tipo, $modMinutaEmpenho->id);
+        $itens = $this->getItens($tipo, $modMinutaEmpenho->id, $remessa_id);
+//        dd($itens);
 
         foreach ($itens as $key => $item) {
             if ($item->operacao !== 'NENHUMA') {
@@ -169,7 +174,6 @@ class MinutaEmpenhoController extends Controller
 
     public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, $item)
     {
-//        dd($item);
 
         $modSfOpItemEmpenho = new SfOperacaoItemEmpenho();
         $modSfOpItemEmpenho->sfitemempenho_id = $modSfItemEmpenho->id;
@@ -178,6 +182,7 @@ class MinutaEmpenhoController extends Controller
         $modSfOpItemEmpenho->vlrunitario = ($item->valor / $item->quantidade);
         $modSfOpItemEmpenho->vlroperacao = $item->valor;
         $modSfOpItemEmpenho->save();
+//        dd($modSfOpItemEmpenho);
     }
 
     public function gravaMinuta(MinutaEmpenho $modMinutaEmpenho)
@@ -309,13 +314,17 @@ class MinutaEmpenhoController extends Controller
         return $options->paginate(10);
     }
 
-    private function getItens($tipo, $minuta_id)
+    private function getItens($tipo, $minuta_id, $remessa_id)
     {
         if ($tipo === 'Contrato') {
-            return ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get();
+            return ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)
+                ->where('minutaempenhos_remessa_id', $remessa_id)
+                ->get();
         }
 
-        return CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get();
+        return CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)
+            ->where('minutaempenhos_remessa_id', $remessa_id)
+            ->get();
     }
 
     private function getDescItem($item, $tipo)
@@ -344,6 +353,7 @@ class MinutaEmpenhoController extends Controller
 
     public function populaTabelasSiafiAlteracao(): array
     {
+//        dd(123);
         $retorno['resultado'] = false;
         $minuta_id = Route::current()->parameter('minuta_id');
         $remessa_id = Route::current()->parameter('remessa');
@@ -399,6 +409,7 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
 
         $modSfOrcEmpenhoDados->save();
+//        dd($modSfOrcEmpenhoDados);
         return $modSfOrcEmpenhoDados;
     }
 
@@ -420,7 +431,6 @@ class MinutaEmpenhoController extends Controller
         })
             ->where('descricao', 'EM PROCESSAMENTO')
             ->first();
-
         $modRemessa->situacao_id = $situacao->id;
         $modRemessa->save();
     }
@@ -428,26 +438,27 @@ class MinutaEmpenhoController extends Controller
     private function getTxtMotivo($modMinutaEmpenho)
     {
 
-        $tipo = $modMinutaEmpenho->tipo_empenhopor->descricao;
-//        dd($tipo);
-
-        /*if ($tipo === 'Contrato') {
-            $contrato_item = $item->contrato_item;
-            $desc = $contrato_item->descricao_complementar;
-
-            $descricao = (!is_null($desc))
-                ? $desc
-                : $contrato_item->item->descricao;
-
-            return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
-        }*/
+        $tipo = $modMinutaEmpenho->empenho_por;
 
         if ($tipo === 'Compra') {
             $data_emissao = Carbon::createFromFormat('Y-m-d', $modMinutaEmpenho->data_emissao)->format('d/m/Y');
 
             return "REGISTRO DE ANULAÇÃO/REFORÇO/CANCELAMENTO DO EMPENHO N° $modMinutaEmpenho->mensagem_siafi " .
                 "EMITIDO EM $data_emissao COMPRA: $modMinutaEmpenho->informacao_complementar.";
-//            dd($teste);
+        }
+
+        if ($tipo === 'Contrato') {
+                    DB::enableQueryLog();
+            $data_emissao = Carbon::createFromFormat('Y-m-d', $modMinutaEmpenho->data_emissao)->format('d/m/Y');
+
+            $ugOrigemContrato = $modMinutaEmpenho->contrato_vinculado->unidadeorigem->codigo;
+            $tipoContrato =  $modMinutaEmpenho->contrato_vinculado->tipo->descres;
+            $numeroAno = $modMinutaEmpenho->contrato_vinculado->numero;
+
+//           dd(DB::getQueryLog());
+
+            return "REGISTRO DE ANULAÇÃO/REFORÇO/CANCELAMENTO DO EMPENHO N° $modMinutaEmpenho->mensagem_siafi " .
+                "EMITIDO EM $data_emissao CONTRATO: $ugOrigemContrato$tipoContrato$numeroAno.";
         }
 
         /*dd(

@@ -28,6 +28,7 @@ class MinutaAlteracaoRequest extends FormRequest
      */
     public function rules()
     {
+//        dd(123);
         return [
             'credito' => 'gte:valor_utilizado',
             'valor_total.*' => [
@@ -63,7 +64,7 @@ class MinutaAlteracaoRequest extends FormRequest
     public function messages()
     {
         return [
-            'credito.gt' => 'O saldo não pode ser negativo.',
+            'credito.gte' => 'O saldo não pode ser negativo.',
             'valor_total.*.filled' => 'O campo :attribute não pode estar vazio.',
         ];
     }

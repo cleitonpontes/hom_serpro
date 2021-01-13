@@ -630,7 +630,7 @@ class MinutaEmpenhoCrudController extends CrudController
 //            )->join('contratos', 'contratos.id','=','contrato_minuta_empenho_pivot.contrato_id')
 //                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
 //                ->where('minutaempenhos.id', $minuta_id)
-
+//todo buscar remessa
             $itens = ContratoItemMinutaEmpenho::join(
                 'contratoitens',
                 'contratoitens.id',

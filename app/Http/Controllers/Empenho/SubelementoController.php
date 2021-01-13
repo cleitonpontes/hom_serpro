@@ -271,7 +271,7 @@ class SubelementoController extends BaseControllerEmpenho
 
         $html = $this->retornaGridItens();
 
-        $tipo = $codigoitem->descres == 'COM' ? 'compra_item_id' : 'contrato_item_id';
+        $tipo = $codigoitem->descres === 'COM' ? 'compra_item_id' : 'contrato_item_id';
 
         return view(
             'backpack::mod.empenho.Etapa5SubElemento',

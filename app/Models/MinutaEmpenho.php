@@ -297,6 +297,11 @@ class MinutaEmpenho extends Model
         return $this->hasMany(CompraItemMinutaEmpenho::class, 'minutaempenho_id');
     }
 
+    public function contrato_vinculado()
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
