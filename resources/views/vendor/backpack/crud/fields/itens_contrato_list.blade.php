@@ -57,8 +57,8 @@
                         <label for="qtd_item" class="control-label">Tipo Item</label>
                         <select class="form-control" style="width:100%;" id="tipo_item">
                             <option value="">Selecione</option>
-                            <option value="149">Material</option>
-                            <option value="150">Serviço</option>
+                            <option value="{{$field['material']}}">Material</option>
+                            <option value="{{$field['servico']}}">Serviço</option>
                         </select>
                     </div>
                     <div class="form-group">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Gescon;
 
 use App\Forms\InserirItemContratoMinutaForm;
 use App\Http\Traits\Formatador;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Jobs\AlertaContratoJob;
 use App\Models\AmparoLegalContrato;
 use App\Models\Catmatseritem;
@@ -45,6 +46,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 class ContratoCrudController extends CrudController
 {
     use Formatador;
+    use BuscaCodigoItens;
 
     protected $tab = '';
 
@@ -1045,11 +1047,16 @@ class ContratoCrudController extends CrudController
 
     protected function adicionaCampoItensContrato()
     {
+        $idMaterial = $this->retornaIdCodigoItem('Tipo CATMAT e CATSER', 'Material');
+        $idServico = $this->retornaIdCodigoItem('Tipo CATMAT e CATSER', 'Serviço');
+
         $this->crud->addField([
             'name' => 'itens',
             'type' => 'itens_contrato_list',
             'label' => 'Teste',
-            'tab' => $this->tab
+            'tab' => $this->tab,
+            'material' => $idMaterial,
+            'servico' => $idServico,
         ]);
     }
 
