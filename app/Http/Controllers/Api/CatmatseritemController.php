@@ -49,18 +49,17 @@ class CatmatseritemController extends Controller
 
     public function itemPorTipo(Request $request)
     {
-        $grupo_id = $request->tipo_id;
+        $tipo_id = $request->tipo_id;
         $search_term = $request->input('q');
-        $options = Catmatseritem::query();
 
         // if no category has been selected, show no options
-        if (!$grupo_id) {
+        if (!$tipo_id) {
             return [];
         }
             $results = DB::table('catmatseritens AS c')
                 ->select('c.*')
                 ->join('catmatsergrupos AS cg', 'c.grupo_id', '=', 'cg.id')
-                ->where('grupo_id', $grupo_id)
+                ->where('cg.tipo_id', $tipo_id)
                 ->whereNull('c.deleted_at')
                 ->whereNull('cg.deleted_at');
                 if($search_term){
