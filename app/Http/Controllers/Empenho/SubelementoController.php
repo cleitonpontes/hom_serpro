@@ -622,6 +622,7 @@ class SubelementoController extends BaseControllerEmpenho
                         ]);
                 }
             } else {
+
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
                     if ($valores[$index] > $request->valor_total_item[$index]) {

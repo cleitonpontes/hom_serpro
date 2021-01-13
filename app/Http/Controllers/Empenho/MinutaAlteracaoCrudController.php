@@ -257,7 +257,7 @@ class MinutaAlteracaoCrudController extends CrudController
             DB::rollback();
         }
 
-        http://comprasnet.test/empenho/minuta/55/alteracao/passivo-anterior/4
+//        http://comprasnet.test/empenho/minuta/55/alteracao/passivo-anterior/4
 //        dd($teste);
 
 
@@ -273,15 +273,132 @@ class MinutaAlteracaoCrudController extends CrudController
     public function update(UpdateRequest $request)
     {
         dd('up alteracao', $request->all());
-        // your additional operations before save here
-        $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
-        $request->request->set('etapa', 7);
 
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return Redirect::to('empenho/passivo-anterior/' . $this->minuta_id);
-//        return $redirect_location;
+        $minuta_id = $request->get('minuta_id');
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+        $tipo = $modMinuta->empenho_por;
+
+        $valores = $request->valor_total;
+
+        DB::beginTransaction();
+        //TODO  VERIFICAR SE A LÓGICA DE RECUPERAR A REMESSA AQUI NO UPDATE ESTÁ CORRETA
+        try {
+            if ($tipo === 'Compra') {
+                $compra_item_ids = $request->compra_item_id;
+
+                $remessa = CompraItemMinutaEmpenho::where(
+                    'compra_item_minuta_empenho.minutaempenho_id',
+                    $request->minuta_id
+                )
+                    ->join(
+                        'minutaempenhos_remessa',
+                        'minutaempenhos_remessa.minutaempenho_id',
+                        '=',
+                        'compra_item_minuta_empenho.minutaempenho_id'
+                    )
+                    ->max('remessa');
+
+                $rota = $this->setRoute($minuta_id, $minutaEmpenhoRemessa->id);
+
+                array_walk($valores, function (&$value, $key) use ($request, $minutaEmpenhoRemessa) {
+
+                    $operacao = explode('|', $request->tipo_alteracao[$key]);
+                    $quantidade = $request->qtd[$key];
+                    $valor = $this->retornaFormatoAmericano($request->valor_total[$key]);
+
+                    if ($operacao[1] === 'ANULAÇÃO') {
+                        $quantidade = 0 - $quantidade;
+                        $valor = 0 - $valor;
+                    }
+                    if ($operacao[1] === 'CANCELAMENTO') {
+                        //TODO VERIFICAR SE ESTE CODIGO FUNCIONA AQUI NO UPDATE
+                        //COMO ESTÁ NO UPDATE ACHO Q TEM QUE SOMAR SEM OS VALORES DA REMESSA QUE ESTÁ ATUALIZANDO
+                        $item = CompraItemMinutaEmpenho::where('compra_item_id', $request->compra_item_id[$key])
+                            ->where('minutaempenho_id', $request->minuta_id)
+                            ->select(DB::raw('0 - sum(quantidade) as qtd, 0 - sum(valor) as vlr'))->first();
+                        $quantidade = $item->qtd;
+                        $valor = $item->vlr;
+                    }
+
+                    CompraItemMinutaEmpenho::where('compra_item_id', $request->compra_item_id[$key])
+                        ->where('minutaempenho_id', $request->minuta_id)
+                        ->update([
+                            'subelemento_id' => $request->subitem[$key],
+                            'operacao_id' => $operacao[0],
+                            'quantidade' => $quantidade,
+                            'valor' => $valor,
+                        ]);
+
+                    //todo verificar esta lógica
+                    $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $request->compra_item_id[$key])
+                        ->where('unidade_id', session('user_ug_id'))
+                        ->first();
+
+                    $saldo = $this->retornaSaldoAtualizado($request->compra_item_id[$key]);
+                    $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+                    $compraItemUnidade->save();
+                });
+
+                //todo verificar se precisa salvar valor total na minuta
+                //provavelmente é na remessa
+
+//                $modMinuta = MinutaEmpenho::find($minuta_id);
+//                $modMinuta->etapa = 6;
+//                $modMinuta->valor_total = $request->valor_utilizado;
+//                $modMinuta->save();
+            }
+
+            if ($tipo == 'Contrato') {
+                $contrato_item_ids = $request->contrato_item_id;
+
+                $remessa = ContratoItemMinutaEmpenho::where('contrato_item_minuta_empenho.minutaempenho_id', $request->minuta_id)
+                    ->join(
+                        'minutaempenhos_remessa',
+                        'minutaempenhos_remessa.minutaempenho_id',
+                        '=',
+                        'contrato_item_minuta_empenho.minutaempenho_id'
+                    )
+                    ->max('remessa');
+
+                $rota = $this->setRoute($minuta_id, $minutaEmpenhoRemessa->id);
+
+                array_walk($valores, function (&$value, $key) use ($request, $minutaEmpenhoRemessa) {
+
+                    $operacao = explode('|', $request->tipo_alteracao[$key]);
+                    $quantidade = $request->qtd[$key];
+                    $valor = $this->retornaFormatoAmericano($request->valor_total[$key]);
+
+                    if ($operacao[1] === 'ANULAÇÃO') {
+                        $quantidade = 0 - $quantidade;
+                        $valor = 0 - $valor;
+                    }
+                    if ($operacao[1] === 'CANCELAMENTO') {
+                        //TODO VERIFICAR SE ESTE CODIGO FUNCIONA AQUI NO UPDATE
+                        //COMO ESTÁ NO UPDATE ACHO Q TEM QUE SOMAR SEM OS VALORES DA REMESSA QUE ESTÁ ATUALIZANDO
+                        $item = ContratoItemMinutaEmpenho::where('contrato_item_id', $request->contrato_item_id[$key])
+                            ->where('minutaempenho_id', $request->minuta_id)
+                            ->select(DB::raw('0 - sum(quantidade) as qtd, 0 - sum(valor) as vlr'))->first();
+                        $quantidade = $item->qtd;
+                        $valor = $item->vlr;
+                    }
+
+                    ContratoItemMinutaEmpenho::where('contrato_item_id', $request->contrato_item_id[$key])
+                        ->where('minutaempenho_id', $request->minuta_id)
+                        ->update([
+                            'subelemento_id' => $request->subitem[$key],
+                            'operacao_id' => $operacao[0],
+                            'quantidade' => $quantidade,
+                            'valor' => $valor,
+                        ]);
+                });
+            }
+//            DB::commit();
+//            return Redirect::to($rota . ($remessa + 1));
+            //TODO ARRUMAR ROTA PARA SHOW
+            return Redirect::to($rota);
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
     }
 
     public function show($id)
@@ -1004,7 +1121,6 @@ class MinutaAlteracaoCrudController extends CrudController
         }
 
         if ($modMinuta->empenho_por === 'Contrato') {
-
             $itens = ContratoItemMinutaEmpenho::join(
                 'contratoitens',
                 'contratoitens.id',
@@ -1013,12 +1129,9 @@ class MinutaAlteracaoCrudController extends CrudController
             )
                 ->join('minutaempenhos', 'minutaempenhos.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
                 ->join('contratos', 'contratos.id', '=', 'minutaempenhos.contrato_id')
-
                 ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
                 ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
-
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
-
                 ->where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->where('contrato_item_minuta_empenho.minutaempenhos_remessa_id', $remessa)
                 ->select([
