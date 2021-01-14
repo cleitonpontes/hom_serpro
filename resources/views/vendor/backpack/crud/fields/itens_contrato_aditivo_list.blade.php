@@ -129,7 +129,7 @@
             $(document).ready(function () {
 
                 valor_global = 0;
-                parcela = 1;
+                parcela = $('#num_parcelas').val();
 
                 // buscar os itens do contrato/aditivo assim que a pagina for carregada
                 buscarItens();
@@ -338,7 +338,7 @@
                     cols = "",
                     propReadOnly = $.inArray('ACRÉSCIMO / SUPRESSÃO', tratarArrayItemQualificacao()[0]) !== -1 ? '' : 'readOnly',
                     propReadOnlyReajuste = $.inArray('REAJUSTE', tratarArrayItemQualificacao()[0]) !== -1 ? '' : 'readOnly',
-                    vl_total = parseInt(item.quantidade) * parseFloat(item.valorunitario) * item.periodicidade;
+                    vl_total = item.quantidade * parseFloat(item.valorunitario) * item.periodicidade;
 
                 cols += '<td>'+item.descricao;
                 cols += '<input type="hidden" name="numero_item_compra[]" value="'+item.numero+'">';
