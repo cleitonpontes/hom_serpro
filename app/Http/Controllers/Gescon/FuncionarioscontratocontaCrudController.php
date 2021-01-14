@@ -138,7 +138,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'getTotalDeposito',
-                'label' => 'Total depositado', // Table column heading
+                'label' => 'Total provisionado', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getTotalDeposito', // the method in your Model
                 'orderable' => true,
@@ -153,7 +153,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'getTotalRetirada',
-                'label' => 'Total retirado', // Table column heading
+                'label' => 'Total liberado', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getTotalRetirada', // the method in your Model
                 'orderable' => true,

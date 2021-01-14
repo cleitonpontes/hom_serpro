@@ -67,7 +67,7 @@ class RetiradacontratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Retiradacontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/contratoterceirizado/'.$contratoterceirizado_id.'/retiradacontratoconta');
-        $this->crud->setEntityNameStrings('nova retirada', 'Retiradas');
+        $this->crud->setEntityNameStrings('nova liberação', 'Liberação');
         $this->crud->enableExportButtons();
 
         // $this->crud->denyAccess('create');
@@ -170,14 +170,14 @@ class RetiradacontratocontaCrudController extends CrudController
 
             [ // select_from_array
                 'name' => 'mes_competencia',
-                'label' => "Mês Retirada",
+                'label' => "Mês Liberação",
                 'type' => 'select2_from_array',
                 'options' => config('app.meses_referencia_fatura'), // vai buscar em app.php o array meses_referencia_fatura
                 'allows_null' => false,
             ],
             [ // select_from_array
                 'name' => 'ano_competencia',
-                'label' => "Ano Retirada",
+                'label' => "Ano Liberação",
                 'type' => 'select2_from_array',
                 'options' => config('app.anos_referencia_fatura'), // vai buscar em app.php o array anos_referencia_fatura
                 'default' => date('Y'),
@@ -185,7 +185,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [ // select_from_array
                 'name' => 'situacao_retirada',
-                'label' => "Situação da Retirada",
+                'label' => "Situação da Liberação",
                 // 'type' => 'select2_from_array',
                 'type' => 'select2_from_array_hidden_field',    //  tipo criado para possibilitar uso do jquery para esconder campos
                 'options' => $arrayObjetosEncargoParaCombo, // aqui é de onde vai buscar o array

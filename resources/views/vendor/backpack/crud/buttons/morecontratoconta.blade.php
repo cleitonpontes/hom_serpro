@@ -10,8 +10,8 @@
 
 
         <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/movimentacaocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Movimentações</a></li>
-        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/depositocontratoconta/create">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Novo Depósito</a></li>
-        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcionarioscontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Funcionários / Retirada</a></li>
+        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/depositocontratoconta/create">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Nova Provisão</a></li>
+        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcionarioscontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Funcionários / Liberação</a></li>
         <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcoescontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Funções / Repactuação</a></li>
     </ul>
 </div>

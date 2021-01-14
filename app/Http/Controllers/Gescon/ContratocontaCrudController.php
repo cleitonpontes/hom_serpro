@@ -156,6 +156,7 @@ class ContratocontaCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'banco',
+                'label' => 'Banco',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -165,6 +166,7 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'agencia',
+                'label' => 'Agência',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -174,6 +176,7 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'conta_corrente',
+                'label' => 'Conta Corrente',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text

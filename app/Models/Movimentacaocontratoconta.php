@@ -85,9 +85,13 @@ class Movimentacaocontratoconta extends Model
         $valorTotal = $objLancamento->getValorTotalLancamentosByIdMovimentacao($idMovimentacao);
         return $valorTotal = number_format($valorTotal, 2, ',', '.');
     }
+    // o método abaixo também está sendo utilizado em Lancamento.php
     public function getTipoMovimentacao(){
         $objCodigoItem = Codigoitem::find($this->tipo_id);
-        return $descricao= $objCodigoItem->descricao;
+        $descricao= $objCodigoItem->descricao;
+        if($descricao=='Retirada'){return 'Liberação';}
+        elseif($descricao=='Depósito'){return 'Provisão';}
+        else{return $descricao;}
     }
     public function getIdEncargoByIdCodigoitens($idCodigoitens){
         $obj = \DB::table('encargos')

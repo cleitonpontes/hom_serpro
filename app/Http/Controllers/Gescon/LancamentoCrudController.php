@@ -111,9 +111,25 @@ class LancamentoCrudController extends CrudController
                 },
             ],
             [
-                'name'  => 'descricao',
-                'label' => 'Tipo da movimentação',
-                'type'  => 'text',
+
+                'name' => 'getTipoMovimentacao',
+                'label' => 'Tipo da movimentação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getTipoMovimentacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                // },
+
+
+
+                // 'name'  => 'descricao',
+                // 'label' => 'Tipo da movimentação',
+                // 'type'  => 'text',
             ],
             [
                 'name' => 'formatValor',
