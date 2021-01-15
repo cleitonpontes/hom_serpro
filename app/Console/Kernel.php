@@ -119,7 +119,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->at('08:00');
+            ->at('03:00');
     }
 
     protected function criarJobMigrarEmpenhos()
@@ -129,7 +129,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->at('08:30');
+            ->at('03:30');
     }
 
     protected function criarJobAtualizaStatusPublicacao()
@@ -150,7 +150,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->at('09:30');
+            ->at('05:00');
     }
 
     protected function criarJobAtualizacaoSiasgContratos()
