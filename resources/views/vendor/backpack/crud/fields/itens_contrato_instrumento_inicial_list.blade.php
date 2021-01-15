@@ -57,13 +57,13 @@
                         <label for="qtd_item" class="control-label">Tipo Item</label>
                         <select class="form-control" style="width:100%;" id="tipo_item">
                             <option value="">Selecione</option>
-                            <option value="149">Material</option>
-                            <option value="150">Serviço</option>
+                            <option value="{{$field['material']}}">Material</option>
+                            <option value="{{$field['servico']}}">Serviço</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="qtd_item" class="control-label">Item</label>
-                        <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
+                        <select class="form-control" id="item">
                         </select>
                     </div>
                     <div class="form-group">
@@ -78,10 +78,6 @@
                     <div class="form-group">
                         <label for="vl_unit" class="control-label">Valor Unitário<span class="campo-obrigatorio">*</span></label>
                         <input class="form-control" id="valor_unit" name="valor_unit" type="number">
-                    </div>
-                    <div class="form-group">
-                        <label for="vl_total" class="control-label">Valor Total<span class="campo-obrigatorio">*</span></label>
-                        <input class="form-control" id="valor_total" name="valor_total" type="number">
                     </div>
                     <div class="form-group">
                         <label for="data_inicio" class="control-label">Data Início</label>
@@ -130,14 +126,14 @@
             $(document).ready(function () {
 
                 valor_global = 0;
-                parcela = 1;
+                parcela = $('#num_parcelas').val();
 
                 const $tableID = $('#table');
 
                 $('#numero_item').mask('99999');
 
                 buscarItenContrato();
-                
+
                 // ao carregar o documento verifica se possui minuta cadastrada
                 var arrMinutaEmpenho = $('[name="minutasempenho[]"]').val();
                 if (arrMinutaEmpenho.length === 0) {
@@ -206,14 +202,6 @@
                     removeLinha(this);
                 });
 
-                // $('body').on('click', '#btn_inserir_item', function (event) {
-                //     if (!$('#item').val()) {
-                //         alert('Não foi encontrado nenhum item para incluir à lista.');
-                //     } else {
-                //         buscarItem($('#item').val());
-                //     }
-                // });
-
                 // se possuir minuta de empenho preenchido não é permitido inserir item
                 $('body').on('change', '[name="minutasempenho[]"]', function (event) {
 
@@ -230,10 +218,6 @@
                 });
 
                 $('body').on('click', '#btn_inserir_item', function (event) {
-                    validarCamposItemModal();
-                    if (!$('#item').val()) {
-                        alert('Não foi encontrado nenhum item para incluir à lista.');
-                    }
                     if(!validarCamposItemModal() && $('#item').val()){
                         buscarItem($('#item').val());
                         $('#inserir_item').modal('hide');
@@ -255,9 +239,13 @@
                             value: $('#valor_unit').val(),
                         },
                         {
-                            name: 'valor_total',
-                            value: $('#valor_total').val(),
+                            name: 'tipo_item',
+                            value: $('#tipo_item').val(),
                         },
+                        {
+                            name: 'item',
+                            value: $('#item').val(),
+                        }
                     ]
                     return verificarCampoModalItem(arrCamposModal);
                 }
@@ -442,7 +430,6 @@
                     'quantidade': $('#quantidade_item').val(),
                     'valorunitario': $('#valor_unit').val(),
                     'numero': $('#numero_item').val(),
-                    'valortotal': $('#valor_total').val(),
                     'periodicidade': $('#periodicidade_item').val(),
                     'data_inicio': $('#dt_inicio').val(),
                     'catmatseritem_id': item.id,
@@ -455,12 +442,11 @@
             }
 
             function resetarCamposFormulario() {
-                $('#tipo_item').val('');
+                $('#tipo_item').val('').change();
                 $('#item').val('').change();
                 $('#quantidade_item').val('');
                 $('#numero_item').val('');
                 $('#valor_unit').val('');
-                $('#valor_total').val('');
                 $('#periodicidade_item').val('');
                 $('#dt_inicio').val('');
             }

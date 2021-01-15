@@ -203,12 +203,12 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['dataPublicacao'] = strtotime($data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = 149;
+        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaDescresCodigoItem('Forma Pagamento', 'Isento');
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
-        $dados ['dados']['motivoIsencao'] = 0;
+        $dados ['dados']['motivoIsencao'] = $this->retornaDescresCodigoItem('Motivo Isenção','Indefinido');
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
         return $dados;
@@ -226,12 +226,12 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['dataPublicacao'] = strtotime($data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = 149;
+        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaDescresCodigoItem('Forma Pagamento', 'Isento');
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = (!is_null($retificacao)) ? $this->retornaRtfRetificacao($retificacao) : $this->retornaTextoRtf($contratoHistorico);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
-        $dados ['dados']['motivoIsencao'] = 0;
+        $dados ['dados']['motivoIsencao'] = $this->retornaDescresCodigoItem('Motivo Isenção','Indefinido');
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
 
@@ -428,7 +428,7 @@ class DiarioOficialClass extends BaseSoapController
             $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoAditivo);
             $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_OBJETO|', self::retornaTextoMinusculo($contratoHistorico->observacao), $padraoPublicacaoAditivo);
 //        $padraoPublicacaoAditivo = str_replace('|contrato_retornaAmparo|', $contrato->retornaAmparo(), $padraoPublicacaoAditivo);
-            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->getVigenciaInicio(), $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->vigencia_inicio, $padraoPublicacaoAditivo);
             $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAFIM|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoAditivo);
 //        $padraoPublicacaoAditivo = str_replace('|numero_empenho|', $this->retornaNumeroEmpenho($contratoHistorico)['texto'], $padraoPublicacaoAditivo);
             $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', Self::retornaCampoFormatadoComoNumero($contratoHistorico->valor_global), $padraoPublicacaoAditivo);
@@ -896,6 +896,8 @@ class DiarioOficialClass extends BaseSoapController
 
     public function reenviarPublicacao($publicacao)
     {
+
+
         try {
             $contratohistorico= $publicacao->contratohistorico;
             $this->enviarPublicacaoDiarioOficial($contratohistorico, $publicacao);
@@ -975,7 +977,7 @@ class DiarioOficialClass extends BaseSoapController
 
     public function montaOficioPreviewEnvioManual(Contratohistorico $contratoHistorico,ContratoPublicacoes $publicacao)
     {
-        $retificacao = strpos($publicacao->texto_dou, 'RETIFICA');
+        $retificacao = (!strpos(mb_strtoupper($publicacao->texto_dou), 'RETIFICA')) ? null : true;
 
         $data_publicacao = $this->verificaDataDiaUtil($publicacao->data_publicacao);
 
@@ -984,12 +986,12 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['dataPublicacao'] = strtotime($data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = 149;
+        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaDescresCodigoItem('Forma Pagamento', 'Isento');
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaRtfRetificacao($publicacao->texto_dou);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
-        $dados ['dados']['motivoIsencao'] = 0;
+        $dados ['dados']['motivoIsencao'] = $this->retornaDescresCodigoItem('Motivo Isenção','Indefinido');
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
 
         return $dados;
@@ -998,7 +1000,7 @@ class DiarioOficialClass extends BaseSoapController
     public function montaOficioConfirmacaoEnvioManual(Contratohistorico $contratoHistorico,ContratoPublicacoes $publicacao)
     {
 
-        $retificacao = strpos($publicacao->texto_dou, 'RETIFICA');
+        $retificacao = (!strpos(mb_strtoupper($publicacao->texto_dou), 'RETIFICA')) ? null : true;
 
         $data_publicacao = $this->verificaDataDiaUtil($publicacao->data_publicacao);
 
@@ -1008,14 +1010,13 @@ class DiarioOficialClass extends BaseSoapController
         $dados ['dados']['dataPublicacao'] = strtotime($data_publicacao);
         $dados ['dados']['empenho'] = '';
         $dados ['dados']['identificadorJornal'] = 3;
-        $dados ['dados']['identificadorTipoPagamento'] = 149;
+        $dados ['dados']['identificadorTipoPagamento'] = $this->retornaDescresCodigoItem('Forma Pagamento', 'Isento');
         $dados ['dados']['materia']['DadosMateriaRequest']['NUP'] = '';
         $dados ['dados']['materia']['DadosMateriaRequest']['conteudo'] = $this->retornaRtfRetificacao($publicacao->texto_dou);
         $dados ['dados']['materia']['DadosMateriaRequest']['identificadorNorma'] = $this->retornaIdentificadorNorma($contratoHistorico,$retificacao);
         $dados ['dados']['materia']['DadosMateriaRequest']['siorgMateria'] = $contratoHistorico->unidade->codigo_siorg;
-        $dados ['dados']['motivoIsencao'] = 0;
+        $dados ['dados']['motivoIsencao'] = $this->retornaDescresCodigoItem('Motivo Isenção','Indefinido');
         $dados ['dados']['siorgCliente'] = $contratoHistorico->unidade->codigo_siorg;
-
 
         return $dados;
     }

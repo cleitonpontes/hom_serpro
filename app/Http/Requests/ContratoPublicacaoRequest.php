@@ -34,8 +34,8 @@ class ContratoPublicacaoRequest extends FormRequest
             ],
             'texto_dou' => 'required',
             'cpf' => 'required',
-            'tipo_pagamento_id' => 'required',
-            'motivo_isencao_id' => 'required',
+//            'tipo_pagamento_id' => 'required',
+//            'motivo_isencao_id' => 'required',
             'numero' => 'required_if:tipo_pagamento_id,376',
         ];
     }

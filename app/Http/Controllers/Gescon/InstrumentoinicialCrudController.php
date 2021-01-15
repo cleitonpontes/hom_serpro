@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Gescon;
 use App\Models\Catmatseritem;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
+use App\Models\Contratohistorico;
+use App\Models\ContratoHistoricoMinutaEmpenho;
 use App\Models\Contratoitem;
 use App\Models\ContratoMinutaEmpenho;
 use App\Models\Fornecedor;
@@ -17,6 +19,7 @@ use App\Http\Requests\InstrumentoinicialRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use App\Http\Traits\BuscaCodigoItens;
 use Route;
 
 /**
@@ -26,6 +29,8 @@ use Route;
  */
 class InstrumentoinicialCrudController extends CrudController
 {
+    use BuscaCodigoItens;
+
     public function setup()
     {
 
@@ -360,6 +365,9 @@ class InstrumentoinicialCrudController extends CrudController
 
     public function Campos( $unidade, $categorias, $modalidades, $tipos, $contrato_id, $instrumentoinicial_id, $contrato_tipo_descricao)
     {
+        $idMaterial = $this->retornaIdCodigoItem('Tipo CATMAT e CATSER', 'Material');
+        $idServico = $this->retornaIdCodigoItem('Tipo CATMAT e CATSER', 'Serviço');
+
         $campos = [
             [   // Hidden
                 'name' => 'contrato_id',
@@ -478,6 +486,7 @@ class InstrumentoinicialCrudController extends CrudController
                 'model' => 'App\Models\AmparoLegal',
                 'attribute' => 'campo_api_amparo',
                 'pivot' => true,
+                'dependencies' => ['modalidade_id'],
                 'tab' => 'Dados Contrato',
             ],
             [
@@ -630,6 +639,8 @@ class InstrumentoinicialCrudController extends CrudController
                 'name' => 'itens',
                 'type' => 'itens_contrato_instrumento_inicial_list',
                 'tab' => 'Itens do contrato',
+                'material' => $idMaterial,
+                'servico' => $idServico,
             ],
             [
                 'label' => "adicionaCampoRecuperaGridItens",
@@ -722,15 +733,25 @@ class InstrumentoinicialCrudController extends CrudController
 
         try {
             DB::beginTransaction();
+
+            // caso tinha ou tenha minuta, os itens são excluídos e cadastrados novamente conforme a grid recebida do front
+            $arrMinutasContratoHistorico = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id', $request->id)->get();
+            if(!empty($request->minutasempenho) || count($arrMinutasContratoHistorico) > 0){
+                $arrItensSaldoHistoricoItens = Saldohistoricoitem::where('saldoable_id', $request->id)->pluck('id');
+                $this->excluirSaldoHistoricoItem($arrItensSaldoHistoricoItens);
+                $this->cadastrarItensAtualizadoSaldoHistorico($request->all());
+            }else{
+                // altera os itens do contrato
+                if (!empty($request->get('qtd_item'))) {
+                    $this->alterarItens($request->all());
+                }
+            }
+
             // your additional operations before save here
             $redirect_location = parent::updateCrud($request);
             // your additional operations after save here
             // use $this->data['entry'] or $this->crud->entry
 
-            // altera os itens do contrato
-            if (!empty($request->get('qtd_item'))) {
-                $this->alterarItens($request->all());
-            }
 
             if (!empty($request->get('excluir_item'))) {
                 $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
@@ -788,6 +809,13 @@ class InstrumentoinicialCrudController extends CrudController
             } else {
                 $this->criarNovoContratoItem($key, $request);
             }
+        }
+    }
+
+    private function cadastrarItensAtualizadoSaldoHistorico($request)
+    {
+        foreach ($request['qtd_item'] as $key => $qtd) {
+                $this->criarNovoContratoItem($key, $request);
         }
     }
 
