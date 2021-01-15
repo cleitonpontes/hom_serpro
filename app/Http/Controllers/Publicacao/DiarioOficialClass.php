@@ -95,6 +95,39 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
+    public function enviaPublicacoesViaKernel()
+    {
+
+        $status_publicacao_id = self::retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR');
+
+        $arr_contrato_publicacao = ContratoPublicacoes::where('status_publicacao_id', $status_publicacao_id)
+            ->whereNotNull('texto_dou')
+            ->where('texto_dou','!=','')
+            ->whereNotIn('status',['Importado','Informado'])
+            ->get();
+
+        foreach ($arr_contrato_publicacao as $contrato_publicacao) {
+
+            $amanha = Carbon::createFromFormat('Y-m-d', date('Y-m-d'))->addDay();
+
+            $data_publicacao = Carbon::createFromFormat('Y-m-d',$contrato_publicacao->data_publicacao);
+
+            if ($data_publicacao->lessThanOrEqualTo($amanha)) {
+
+                $contrato_publicacao->data_publicacao = $this->verificaDataDiaUtil($amanha->toDateString());
+                $contrato_publicacao->save();
+
+                $contrato_historico = Contratohistorico::where('id', $contrato_publicacao->contratohistorico_id)->first();
+                $this->enviarPublicacaoCommand($contrato_historico, $contrato_publicacao);
+            }
+
+        }
+        dd('Terminou!!');
+    }
+
+
+
+
     public function enviarPublicacaoCommand($contratohistorico,$publicacao)
     {
         try {
