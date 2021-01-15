@@ -111,9 +111,9 @@ class ContratoPublicacaoCrudController extends CrudController
 //        $this->adicionaCampoStatusPublicacao();
         $this->adicionaCampoTextoDOU();
         $this->adicionaCampoCpf();
-        $this->adicionaCampoTipoPagamento();
-        $this->adicionaCampoMotivoIsencao();
-        $this->adicionaCampoEmpenho();
+//        $this->adicionaCampoTipoPagamento();
+//        $this->adicionaCampoMotivoIsencao();
+//        $this->adicionaCampoEmpenho();
         $this->adicionaCampoSituacao();
     }
 
