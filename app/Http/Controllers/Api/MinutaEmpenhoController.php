@@ -263,7 +263,13 @@ class MinutaEmpenhoController extends Controller
         $search_term = $request->input('q');
 
         $form = collect($request->input('form'))->pluck('value', 'name');
-        $arr_contrato_minuta_empenho_pivot = ContratoMinutaEmpenho::select('minuta_empenho_id')->get()->toArray();
+
+        $arr_contrato_minuta_empenho_pivot = ContratoMinutaEmpenho::select('minuta_empenho_id');
+
+        if ( !empty($form['contrato_id'])) {
+            $arr_contrato_minuta_empenho_pivot->where('contrato_id', '<>' ,$form['contrato_id']);
+        }
+
         $situacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', 'Situações Minuta Empenho');
         })
@@ -289,7 +295,7 @@ class MinutaEmpenhoController extends Controller
                 ->where('minutaempenhos.fornecedor_compra_id', $form['fornecedor_id'])
                 ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
                 ->where('minutaempenhos.situacao_id', '=', $situacao->id)
-                ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot);
+                ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot->get()->toArray());
         }
 
         if ($search_term) {

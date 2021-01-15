@@ -53,6 +53,7 @@ class Kernel extends ConsoleKernel
         $this->criarJobAtualizacaoSiasgContratos();
         $this->criarJobAtualizacaoSiasgCompras();
         $this->criarJobAtualizaStatusPublicacao();
+        $this->enviaPublicaoesProximoDiaUtil();
 //        $this->executaConsumoWsSiafiEmpenho();
 
         //agendamentos
@@ -119,7 +120,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->at('08:00');
+            ->at('03:00');
     }
 
     protected function criarJobMigrarEmpenhos()
@@ -129,7 +130,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->at('08:30');
+            ->at('03:30');
     }
 
     protected function criarJobAtualizaStatusPublicacao()
@@ -142,6 +143,16 @@ class Kernel extends ConsoleKernel
             ->between('08:00', '09:00');
     }
 
+    protected function enviaPublicaoesProximoDiaUtil()
+    {
+        $this->schedule->call(
+            'App\Http\Controllers\Publicacao\DiarioOficialClass@enviaPublicacoesViaKernel'
+        )
+            ->timezone('America/Sao_Paulo')
+            ->weekdays()
+            ->at('18:15');
+    }
+
 
     protected function criarJobAtualizarSaldoDeEmpenhos()
     {
@@ -150,7 +161,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->at('09:30');
+            ->at('05:00');
     }
 
     protected function criarJobAtualizacaoSiasgContratos()

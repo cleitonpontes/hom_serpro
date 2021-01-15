@@ -63,7 +63,7 @@
                     </div>
                     <div class="form-group">
                         <label for="qtd_item" class="control-label">Item</label>
-                        <select class="form-control" style="width:100%;height: 34px;border-color: #d2d6de" id="item">
+                        <select class="form-control" id="item">
                         </select>
                     </div>
                     <div class="form-group">
@@ -78,10 +78,6 @@
                     <div class="form-group">
                         <label for="vl_unit" class="control-label">Valor Unitário<span class="campo-obrigatorio">*</span></label>
                         <input class="form-control" id="valor_unit" name="valor_unit" type="number">
-                    </div>
-                    <div class="form-group">
-                        <label for="vl_total" class="control-label">Valor Total<span class="campo-obrigatorio">*</span></label>
-                        <input class="form-control" id="valor_total" name="valor_total" type="number">
                     </div>
                     <div class="form-group">
                         <label for="data_inicio" class="control-label">Data Início</label>
@@ -150,10 +146,6 @@
                 });
 
                 $('body').on('click', '#btn_inserir_item', function (event) {
-                    validarCamposItemModal();
-                    if (!$('#item').val()) {
-                        alert('Não foi encontrado nenhum item para incluir à lista.');
-                    }
                     if(!validarCamposItemModal() && $('#item').val()){
                         buscarItem($('#item').val());
                         $('#inserir_item').modal('hide');
@@ -175,9 +167,13 @@
                             value: $('#valor_unit').val(),
                         },
                         {
-                            name: 'valor_total',
-                            value: $('#valor_total').val(),
+                            name: 'tipo_item',
+                            value: $('#tipo_item').val(),
                         },
+                        {
+                            name: 'item',
+                            value: $('#item').val(),
+                        }
                     ]
                     return verificarCampoModalItem(arrCamposModal);
                 }
@@ -310,7 +306,6 @@
                     'numero': $('#numero_item').val(),
                     'quantidade': $('#quantidade_item').val(),
                     'valor_unitario': $('#valor_unit').val(),
-                    'valor_total': $('#valor_total').val(),
                     'periodicidade': $('#periodicidade_item').val(),
                     'data_inicio': $('#dt_inicio').val()
                 }
@@ -319,12 +314,11 @@
             }
 
             function resetarCamposFormulario() {
-                $('#tipo_item').val('');
+                $('#tipo_item').val('').change();
                 $('#item').val('').change();
                 $('#numero_item').val('');
                 $('#quantidade_item').val('');
                 $('#valor_unit').val('');
-                $('#valor_total').val('');
                 $('#periodicidade_item').val('');
                 $('#dt_inicio').val('');
             }
@@ -384,7 +378,7 @@
                 if ($('#periodicidade_item').val()) {
                     periodicidade = $('#periodicidade_item').val();
                 }
-                var vl_total = parseInt(qtd) * parseFloat(vl_unit) * periodicidade;
+                var vl_total = qtd * parseFloat(vl_unit) * periodicidade;
 
                 var newRow = $("<tr>");
                 var cols = "";
