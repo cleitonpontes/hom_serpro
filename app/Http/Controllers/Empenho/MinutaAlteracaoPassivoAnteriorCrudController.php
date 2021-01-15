@@ -95,7 +95,7 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
         $this->crud->params = $params;
 
-        $this->crud->setCreateView('vendor.backpack.crud.empenho.create');
+        $this->crud->setCreateView('vendor.backpack.crud.empenho.create_passivo');
         $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
         $this->crud->urlVoltar = route(
             'empenho.crud./minuta.edit',

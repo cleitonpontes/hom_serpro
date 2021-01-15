@@ -411,18 +411,26 @@ Route::group([
             Route::get('passivo-anterior/{minuta_id}', 'ContaCorrentePassivoAnteriorCrudController@create')
                 ->name('minuta.etapa.passivo-anterior');
 
+
             //alteracao minuta
             Route::group(['prefix' => 'minuta/{minuta_id}'], function () {
-                CRUD::resource('alteracao', 'MinutaAlteracaoCrudController', ['except' => ['show','edit']]);
+                CRUD::resource('alteracao', 'MinutaAlteracaoCrudController', ['except' => ['show', 'edit']]);
 
                 Route::get('/alteracao/{remessa}/show/{minuta}', 'MinutaAlteracaoCrudController@show')
                     ->name('crud.alteracao.show');
                 Route::get('/alteracao/{remessa}/edit/{minuta}', 'MinutaAlteracaoCrudController@create')
                     ->name('crud.alteracao.edit');
 
+
                 Route::get('alteracao-dt', 'MinutaAlteracaoCrudController@ajax')->name('crud.alteracao.ajax');
 
                 Route::group(['prefix' => 'alteracao'], function () {
+
+                    Route::get('/{remessa_id}/atualizarsituacaominuta', 'MinutaAlteracaoCrudController@executarAtualizacaoSituacaoMinuta')
+                        ->name('minuta.alteracao.atualizar.situacao');
+
+                    Route::get('/{remessa_id}/deletarminuta', 'MinutaAlteracaoCrudController@deletarMinuta')
+                        ->name('minuta.alteracao.deletar');
 
                     CRUD::resource('passivo-anterior', 'MinutaAlteracaoPassivoAnteriorCrudController', ['except' => ['store', 'create', 'show', 'edit']]);
 
@@ -434,7 +442,6 @@ Route::group([
 
                     Route::post('passivo-anterior/{remessa}', 'MinutaAlteracaoPassivoAnteriorCrudController@store')
                         ->name('crud.alteracao.passivo-anterior.store');
-
                 });
             });
         });

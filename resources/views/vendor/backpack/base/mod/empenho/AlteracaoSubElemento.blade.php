@@ -15,7 +15,7 @@
 @endsection
 
 @section('content')
-    {{--    @include('backpack::mod.empenho.telas.cabecalho')--}}
+        @include('vendor.backpack.base.mod.empenho.telas.cabecalho_alteracao')
     @if ( $errors->any())
         <div class="callout callout-danger">
             <h4>{{ trans('backpack::crud.please_fix') }}</h4>

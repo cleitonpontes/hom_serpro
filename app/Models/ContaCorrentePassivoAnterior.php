@@ -52,6 +52,11 @@ class ContaCorrentePassivoAnterior extends Model
         return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
     }
 
+    public function situacao()
+    {
+        return $this->belongsTo(MinutaEmpenhoRemessa::class, 'minutaempenhos_remessa_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

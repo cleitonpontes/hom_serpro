@@ -28,7 +28,7 @@
 </div>
 <div class="row m-t-20">
 	<div class="{{ $crud->getCreateContentClass() }}">
-    @include('backpack::mod.empenho.telas.cabecalho')
+    @include('backpack::mod.empenho.telas.cabecalho_alteracao')
 		<!-- Default box -->
 
 		@include('crud::inc.grouped_errors')

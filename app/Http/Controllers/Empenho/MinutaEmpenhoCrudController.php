@@ -816,8 +816,6 @@ class MinutaEmpenhoCrudController extends CrudController
                 DB::rollback();
             }
 
-            Alert::success('Situação da minuta alterada com sucesso!')->flash();
-            return redirect('/empenho/minuta');
         } else {
             Alert::warning('Situação da minuta não pode ser alterada!')->flash();
             return redirect('/empenho/minuta');

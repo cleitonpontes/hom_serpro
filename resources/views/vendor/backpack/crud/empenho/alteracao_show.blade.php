@@ -31,7 +31,7 @@
     @endif
     <div class="row">
         <div class="{{ $crud->getShowContentClass() }}">
-        @include('backpack::mod.empenho.telas.cabecalho')
+        @include('backpack::mod.empenho.telas.cabecalho_alteracao')
 
         <!-- Resumo da Minuta de Empenho -->
             <div class="m-t-0">

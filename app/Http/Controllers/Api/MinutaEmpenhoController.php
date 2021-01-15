@@ -119,21 +119,30 @@ class MinutaEmpenhoController extends Controller
         return $modSfCelulaOrcamentaria;
     }
 
-    public function gravaSfPassivoAnterior(SfOrcEmpenhoDados $sforcempenhodados, MinutaEmpenho $modMinutaEmpenho)
-    {
+    public function gravaSfPassivoAnterior(
+        SfOrcEmpenhoDados $sforcempenhodados,
+        MinutaEmpenho $modMinutaEmpenho,
+        MinutaEmpenhoRemessa $modRemessa
+    ) {
         $modSfPassivoAnterior = new SfPassivoAnterior();
         $modSfPassivoAnterior->sforcempenhodado_id = $sforcempenhodados->id;
         $modSfPassivoAnterior->codcontacontabil = $modMinutaEmpenho->conta_contabil_passivo_anterior;
         $modSfPassivoAnterior->save();
 
-        $this->gravaSfPassivoPermanente($modSfPassivoAnterior, $modMinutaEmpenho);
+        $this->gravaSfPassivoPermanente($modSfPassivoAnterior, $modMinutaEmpenho, $modRemessa);
 
         return $modSfPassivoAnterior;
     }
 
-    public function gravaSfPassivoPermanente(SfPassivoAnterior $sfpassivoanterior, MinutaEmpenho $modMinutaEmpenho)
-    {
-        $modCCPassivoAnterior = ContaCorrentePassivoAnterior::where('minutaempenho_id', $modMinutaEmpenho->id)->get();
+    public function gravaSfPassivoPermanente(
+        SfPassivoAnterior $sfpassivoanterior,
+        MinutaEmpenho $modMinutaEmpenho,
+        MinutaEmpenhoRemessa $modRemessa
+    ) {
+        $modCCPassivoAnterior = ContaCorrentePassivoAnterior::where('minutaempenho_id', $modMinutaEmpenho->id)
+            ->where('minutaempenhos_remessa_id', $modRemessa->id)
+            ->get();
+
         foreach ($modCCPassivoAnterior as $key => $conta) {
             $modSfPassivoPermanente = new SfPassivoPermanente();
             $modSfPassivoPermanente->sfpassivoanterior_id = $sfpassivoanterior->id;
@@ -359,22 +368,19 @@ class MinutaEmpenhoController extends Controller
 
     public function populaTabelasSiafiAlteracao(): array
     {
-//        dd(123);
         $retorno['resultado'] = false;
         $minuta_id = Route::current()->parameter('minuta_id');
         $remessa_id = Route::current()->parameter('remessa');
 
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $modRemessa = MinutaEmpenhoRemessa::find($remessa_id);
-//        dd($modMinutaEmpenho,$modRemessa);
 
         DB::beginTransaction();
         try {
-            $sforcempenhodadosalt = $this->gravaSfOrcEmpenhoDadosAlt($modMinutaEmpenho);
+            $sforcempenhodadosalt = $this->gravaSfOrcEmpenhoDadosAlt($modMinutaEmpenho, $modRemessa);
 
-            //TODO TESTAR PASSIVO ANTERIOR
             if ($modMinutaEmpenho->passivo_anterior) {
-                $this->gravaSfPassivoAnterior($sforcempenhodadosalt, $modMinutaEmpenho);
+                $this->gravaSfPassivoAnterior($sforcempenhodadosalt, $modMinutaEmpenho, $modRemessa);
             }
 
             $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodadosalt, $remessa_id);
@@ -395,9 +401,8 @@ class MinutaEmpenhoController extends Controller
         return $retorno;
     }
 
-    public function gravaSfOrcEmpenhoDadosAlt(MinutaEmpenho $modMinutaEmpenho)
+    public function gravaSfOrcEmpenhoDadosAlt(MinutaEmpenho $modMinutaEmpenho, MinutaEmpenhoRemessa $modRemessa)
     {
-//        dd($modMinutaEmpenho->max_remessa);
         $modSfOrcEmpenhoDados = new SfOrcEmpenhoDados();
 
         $ugemitente = Unidade::find($modMinutaEmpenho->unidade_id);
@@ -412,22 +417,19 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->alteracao = true;
-        $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
+        $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modRemessa->id;
 
         $modSfOrcEmpenhoDados->save();
-//        dd($modSfOrcEmpenhoDados);
         return $modSfOrcEmpenhoDados;
     }
 
     public function gravaSfRegistroAlteracao(SfOrcEmpenhoDados $sforcempenhodados, string $dtemis, string $txtmotivo)
     {
-//        dd($sforcempenhodados, $teste);
         $sfRegistroAlteracao = new SfRegistroAlteracao();
         $sfRegistroAlteracao->sforcempenhodado_id = $sforcempenhodados->id;
         $sfRegistroAlteracao->dtemis = $dtemis;
         $sfRegistroAlteracao->txtmotivo = $txtmotivo;
         $sfRegistroAlteracao->save();
-//        dd($sfRegistroAlteracao);
     }
 
     public function gravaRemessa(MinutaEmpenhoRemessa $modRemessa)
@@ -454,11 +456,11 @@ class MinutaEmpenhoController extends Controller
         }
 
         if ($tipo === 'Contrato') {
-                    DB::enableQueryLog();
+            DB::enableQueryLog();
             $data_emissao = Carbon::createFromFormat('Y-m-d', $modMinutaEmpenho->data_emissao)->format('d/m/Y');
 
             $ugOrigemContrato = $modMinutaEmpenho->contrato_vinculado->unidadeorigem->codigo;
-            $tipoContrato =  $modMinutaEmpenho->contrato_vinculado->tipo->descres;
+            $tipoContrato = $modMinutaEmpenho->contrato_vinculado->tipo->descres;
             $numeroAno = $modMinutaEmpenho->contrato_vinculado->numero;
 
 //           dd(DB::getQueryLog());

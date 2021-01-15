@@ -35,6 +35,11 @@ class MinutaEmpenhoRemessa extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function retornaCompraItemMinutaEmpenho()
+    {
+        return CompraItemMinutaEmpenho::where('minutaempenho_id', $this->minutaempenho_id)
+            ->where('minutaempenhos_remessa_id', $this->id);
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -50,6 +55,11 @@ class MinutaEmpenhoRemessa extends Model
     public function situacao()
     {
         return $this->belongsTo(Codigoitem::class, 'situacao_id');
+    }
+
+    public function contacorrente()
+    {
+        return $this->hasMany(ContaCorrentePassivoAnterior::class, 'minutaempenhos_remessa_id');
     }
 
     /*

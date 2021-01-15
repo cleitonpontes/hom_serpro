@@ -17,6 +17,7 @@ use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
 use App\Models\Naturezasubitem;
 use App\Models\SaldoContabil;
+use App\Models\SfOrcEmpenhoDados;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Redirect;
 use Route;
+use Alert;
 use Yajra\DataTables\DataTables;
 use App\Http\Traits\CompraTrait;
 
@@ -74,9 +76,15 @@ class MinutaAlteracaoCrudController extends CrudController
         //TODO ARRUMAR O BOTÃO UPDATE ALTERACAO MINUTA EMPENHO
         $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
 
+
+//        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
+        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
+        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominutaalt', 'beginning');
+        $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminutaalt', 'end');
+
+
         $this->crud->allowAccess('update');
         $this->crud->allowAccess('show');
-        $this->crud->allowAccess('clone');
         $this->crud->denyAccess('delete');
 
         $this->crud->addClause('select', [
@@ -508,7 +516,6 @@ class MinutaAlteracaoCrudController extends CrudController
         ];
 
         $tipo = $arr_tipo_empenho[$modMinutaEmpenho->empenho_por];
-//        dd($tipo);
 
         $notIn = ['INCLUSAO'];
 
@@ -1096,7 +1103,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ])
-                ->get()->toArray();
+                ->distinct()->get()->toArray();
 //
         }
 
@@ -1685,7 +1692,7 @@ class MinutaAlteracaoCrudController extends CrudController
                         'compra_items.catmatseritem_id'
                     )
                     ->where('minutaempenhos.id', $minutaEmpenho->id)
-                    ->where('compra_item_unidade.unidade_id',session('user_ug_id'))
+                    ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                     ->distinct()
                     ->select(
                         [
@@ -1720,5 +1727,75 @@ class MinutaAlteracaoCrudController extends CrudController
     public function testeSaldoAtualizado($compraitem_id)
     {
         return $this->retornaSaldoAtualizado($compraitem_id);
+    }
+
+    public function executarAtualizacaoSituacaoMinuta($id, $remessa_id)
+    {
+        $remessa = MinutaEmpenhoRemessa::find($remessa_id);
+
+        if ($remessa->situacao->descricao == 'ERRO') {
+            DB::beginTransaction();
+            try {
+                $situacao = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM PROCESSAMENTO');
+                $remessa->situacao_id = $situacao->id;
+                $remessa->save();
+
+                $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenhos_remessa_id', $remessa_id)->first();
+
+                $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+                $modSfOrcEmpenhoDados->save();
+
+                DB::commit();
+            } catch (Exception $exc) {
+                DB::rollback();
+            }
+
+            Alert::success('Situação da minuta alterada com sucesso!')->flash();
+            return redirect("/empenho/minuta/$id/alteracao");
+        } else {
+            Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+            return redirect("/empenho/minuta/$id/alteracao");
+        }
+    }
+
+    public function deletarMinuta($id, $remessa_id)
+    {
+        $minuta = MinutaEmpenho::find($id);
+        $remessa = MinutaEmpenhoRemessa::find($remessa_id);
+        if ($remessa->situacao->descricao == 'ERRO' || $remessa->situacao->descricao == 'EM ANDAMENTO') {
+            DB::beginTransaction();
+            try {
+                if ($minuta->empenho_por === 'Compra') {
+                    $cime = $remessa->retornaCompraItemMinutaEmpenho();
+                    $cime_deletar = $cime->get();
+                    $cime->delete();
+
+                    foreach ($cime_deletar as $item) {
+                        $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
+                            ->where('unidade_id', session('user_ug_id'))
+                            ->first();
+                        $compraItemUnidade->quantidade_saldo =
+                            $this->retornaSaldoAtualizado($item->compra_item_id)->saldo;
+                        $compraItemUnidade->save();
+                    }
+                    $remessa->forceDelete();
+                    DB::commit();
+                    Alert::success('Minuta Deletada com sucesso!')->flash();
+                    return redirect($this->crud->route);
+                }
+                // Deletar minuta do contrato
+                $remessa->forceDelete();
+                DB::commit();
+
+                Alert::success('Minuta Deletada com sucesso!')->flash();
+                return redirect($this->crud->route);
+            } catch (Exception $exc) {
+                DB::rollback();
+                Alert::error('Erro! Tente novamente mais tarde!')->flash();
+                return redirect($this->crud->route);
+            }
+        }
+        Alert::warning('Operação não permitida!')->flash();
+        return redirect($this->crud->route);
     }
 }
