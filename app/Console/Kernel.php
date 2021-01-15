@@ -53,6 +53,7 @@ class Kernel extends ConsoleKernel
         $this->criarJobAtualizacaoSiasgContratos();
         $this->criarJobAtualizacaoSiasgCompras();
         $this->criarJobAtualizaStatusPublicacao();
+        $this->enviaPublicaoesProximoDiaUtil();
 //        $this->executaConsumoWsSiafiEmpenho();
 
         //agendamentos
@@ -140,6 +141,16 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->weekdays()
             ->between('08:00', '09:00');
+    }
+
+    protected function enviaPublicaoesProximoDiaUtil()
+    {
+        $this->schedule->call(
+            'App\Http\Controllers\Publicacao\DiarioOficialClass@enviaPublicacoesViaKernel'
+        )
+            ->timezone('America/Sao_Paulo')
+            ->weekdays()
+            ->at('18:15');
     }
 
 

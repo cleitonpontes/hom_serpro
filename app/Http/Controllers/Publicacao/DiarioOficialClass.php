@@ -95,6 +95,39 @@ class DiarioOficialClass extends BaseSoapController
     }
 
 
+    public function enviaPublicacoesViaKernel()
+    {
+
+        $status_publicacao_id = self::retornaIdCodigoItem('Situacao Publicacao','A PUBLICAR');
+
+        $arr_contrato_publicacao = ContratoPublicacoes::where('status_publicacao_id', $status_publicacao_id)
+            ->whereNotNull('texto_dou')
+            ->where('texto_dou','!=','')
+            ->whereNotIn('status',['Importado','Informado'])
+            ->get();
+
+        foreach ($arr_contrato_publicacao as $contrato_publicacao) {
+
+            $amanha = Carbon::createFromFormat('Y-m-d', date('Y-m-d'))->addDay();
+
+            $data_publicacao = Carbon::createFromFormat('Y-m-d',$contrato_publicacao->data_publicacao);
+
+            if ($data_publicacao->lessThanOrEqualTo($amanha)) {
+
+                $contrato_publicacao->data_publicacao = $this->verificaDataDiaUtil($amanha->toDateString());
+                $contrato_publicacao->save();
+
+                $contrato_historico = Contratohistorico::where('id', $contrato_publicacao->contratohistorico_id)->first();
+                $this->enviarPublicacaoCommand($contrato_historico, $contrato_publicacao);
+            }
+
+        }
+        dd('Terminou!!');
+    }
+
+
+
+
     public function enviarPublicacaoCommand($contratohistorico,$publicacao)
     {
         try {
@@ -428,7 +461,7 @@ class DiarioOficialClass extends BaseSoapController
             $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_FORNECEDOR_NOME|', $contratoHistorico->fornecedor->nome, $padraoPublicacaoAditivo);
             $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_OBJETO|', self::retornaTextoMinusculo($contratoHistorico->observacao), $padraoPublicacaoAditivo);
 //        $padraoPublicacaoAditivo = str_replace('|contrato_retornaAmparo|', $contrato->retornaAmparo(), $padraoPublicacaoAditivo);
-            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->vigencia_inicio, $padraoPublicacaoAditivo);
+            $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAINICIO|', $contratoHistorico->getVigenciaInicio(), $padraoPublicacaoAditivo);
             $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_GETVIGENCIAFIM|', $contratoHistorico->getVigenciaFim(), $padraoPublicacaoAditivo);
 //        $padraoPublicacaoAditivo = str_replace('|numero_empenho|', $this->retornaNumeroEmpenho($contratoHistorico)['texto'], $padraoPublicacaoAditivo);
             $padraoPublicacaoAditivo = str_replace('|CONTRATOHISTORICO_VALOR_GLOBAL|', Self::retornaCampoFormatadoComoNumero($contratoHistorico->valor_global), $padraoPublicacaoAditivo);
