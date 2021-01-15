@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+use App\Models\Movimentacaocontratoconta;
+
 class Extratocontratoconta extends Model
 {
     use CrudTrait;
@@ -32,6 +34,12 @@ class Extratocontratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function getTipoMovimentacao(){
+        $idMovimentacao = $this->movimentacao_id;
+        $objMovimentacao = Movimentacaocontratoconta::find($idMovimentacao);
+        return $objMovimentacao->getTipoMovimentacao();
+    }
+
 
     /*
     |--------------------------------------------------------------------------

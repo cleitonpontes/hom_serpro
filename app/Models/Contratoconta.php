@@ -70,7 +70,8 @@ class Contratoconta extends Model
             ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
 
             ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
-            ->where('codigoitens.descricao','=','Depósito')
+            // ->where('codigoitens.descricao','=','Depósito')
+            ->where('codigoitens.descricao','=','Provisão')
 
             ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
             ->where('codigos.descricao','=','Tipo Movimentação')
@@ -87,7 +88,8 @@ class Contratoconta extends Model
             ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
 
             ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
-            ->where('codigoitens.descricao','=','Depósito')
+            // ->where('codigoitens.descricao','=','Depósito')
+            ->where('codigoitens.descricao','=','Provisão')
 
             ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
             ->where('codigos.descricao','=','Tipo Movimentação')
@@ -101,7 +103,8 @@ class Contratoconta extends Model
             ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
 
             ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
-            ->where('codigoitens.descricao','=','Retirada')
+            // ->where('codigoitens.descricao','=','Retirada')
+            ->where('codigoitens.descricao','=','Liberação')
 
             ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
             ->where('codigos.descricao','=','Tipo Movimentação')
@@ -119,7 +122,8 @@ class Contratoconta extends Model
             ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
             ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
             ->where('codigos.descricao','=','Tipo Movimentação')
-            ->where('codigoitens.descricao','=','Retirada')
+            // ->where('codigoitens.descricao','=','Retirada')
+            ->where('codigoitens.descricao','=','Liberação')
             ->where('lancamentos.contratoterceirizado_id','=',$idContratoTerceirizado)
             ->sum('lancamentos.valor');
         return $saldoRetirada = number_format(floatval($saldoRetirada), 2, '.', '');

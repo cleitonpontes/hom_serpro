@@ -152,6 +152,9 @@ class MovimentacaocontratocontaCrudController extends CrudController
                 'name'  => 'created_at',
                 'label' => 'Data / Hora',
                 'type'  => 'text',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('movimentacaocontratocontas.created_at', 'ilike', "%$searchTerm%");
+                },
             ],
         ];
         return $colunas;

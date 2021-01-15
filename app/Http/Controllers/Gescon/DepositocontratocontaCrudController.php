@@ -50,7 +50,8 @@ class DepositocontratocontaCrudController extends CrudController
         $objTipoMovimentacaoDeposito = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Movimentação');
         })
-        ->where('descricao', '=', 'Depósito')
+        // ->where('descricao', '=', 'Depósito')
+        ->where('descricao', '=', 'Provisão')
         ->first();
         $idTipoMovimentacaoDeposito = $objTipoMovimentacaoDeposito->id;
 
@@ -421,7 +422,7 @@ class DepositocontratocontaCrudController extends CrudController
         if(!$depositoFeito){
             // aqui quer dizer que nenhum depósito foi feito por conta da situação dos funcionários
 
-            $mensagem = 'Nenhum depósito foi feito. Verifique a situação dos funcionários.';
+            $mensagem = 'Nenhuma provisão foi feita. Verifique a situação dos funcionários.';
             \Alert::error($mensagem)->flash();
             if( !self::excluirMovimentacao($idMovimentacao) ){
                 \Alert::error('Problemas ao excluir a movimentação.')->flash();

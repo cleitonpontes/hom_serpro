@@ -60,7 +60,8 @@ class Funcionarioscontratoconta extends Model
         $objTipoMovimentacaoRetirada = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Movimentação');
         })
-        ->where('descricao', '=', 'Depósito')
+        // ->where('descricao', '=', 'Depósito')
+        ->where('descricao', '=', 'Provisão')
         ->first();
         return $idTipoMovimentacaoRetirada = $objTipoMovimentacaoRetirada->id;
 

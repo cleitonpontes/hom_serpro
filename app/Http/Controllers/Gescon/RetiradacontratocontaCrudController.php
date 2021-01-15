@@ -53,7 +53,8 @@ class RetiradacontratocontaCrudController extends CrudController
         $objTipoMovimentacaoRetirada = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Movimentação');
         })
-        ->where('descricao', '=', 'Retirada')
+        // ->where('descricao', '=', 'Retirada')
+        ->where('descricao', '=', 'Liberação')
         ->first();
         $idTipoMovimentacaoRetirada = $objTipoMovimentacaoRetirada->id;
 

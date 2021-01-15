@@ -88,10 +88,10 @@ class Movimentacaocontratoconta extends Model
     // o método abaixo também está sendo utilizado em Lancamento.php
     public function getTipoMovimentacao(){
         $objCodigoItem = Codigoitem::find($this->tipo_id);
-        $descricao= $objCodigoItem->descricao;
-        if($descricao=='Retirada'){return 'Liberação';}
-        elseif($descricao=='Depósito'){return 'Provisão';}
-        else{return $descricao;}
+        return $descricao= $objCodigoItem->descricao;
+        // if($descricao=='Retirada'){return 'Liberação';}
+        // elseif($descricao=='Depósito'){return 'Provisão';}
+        // else{return $descricao;}
     }
     public function getIdEncargoByIdCodigoitens($idCodigoitens){
         $obj = \DB::table('encargos')

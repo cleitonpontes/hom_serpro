@@ -111,7 +111,6 @@ class LancamentoCrudController extends CrudController
                 },
             ],
             [
-
                 'name' => 'getTipoMovimentacao',
                 'label' => 'Tipo da movimentação', // Table column heading
                 'type' => 'model_function',
