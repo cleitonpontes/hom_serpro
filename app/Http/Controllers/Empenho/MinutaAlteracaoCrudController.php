@@ -78,8 +78,9 @@ class MinutaAlteracaoCrudController extends CrudController
 
 
 //        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
-        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
         $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominutaalt', 'beginning');
+        $this->crud->addButtonFromView('line', 'show', 'show_alteracao', 'beginning');
+        $this->crud->addButtonFromView('line', 'update', 'etapaempenhoalteracao', 'end');
         $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminutaalt', 'end');
 
 
@@ -89,7 +90,11 @@ class MinutaAlteracaoCrudController extends CrudController
 
         $this->crud->addClause('select', [
             'minutaempenhos.*',
-            'compra_item_minuta_empenho.minutaempenhos_remessa_id'
+            'compra_item_minuta_empenho.minutaempenhos_remessa_id',
+            'minutaempenhos_remessa.etapa',
+            DB::raw('codigoitens.descricao as situacao_remessa'),
+            'conta_corrente_passivo_anterior.conta_corrente',
+
         ])->distinct();
 
 //        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
@@ -106,6 +111,20 @@ class MinutaAlteracaoCrudController extends CrudController
             'minutaempenhos_remessa.id',
             '=',
             'compra_item_minuta_empenho.minutaempenhos_remessa_id'
+        );
+        $this->crud->addClause(
+            'join',
+            'codigoitens',
+            'codigoitens.id',
+            '=',
+            'minutaempenhos_remessa.situacao_id'
+        );
+        $this->crud->addClause(
+            'leftJoin',
+            'conta_corrente_passivo_anterior',
+            'conta_corrente_passivo_anterior.minutaempenhos_remessa_id',
+            '=',
+            'minutaempenhos_remessa.id'
         );
         $this->crud->addClause(
             'where',
@@ -152,7 +171,6 @@ class MinutaAlteracaoCrudController extends CrudController
         DB::beginTransaction();
         try {
             if ($tipo === 'Compra') {
-                $compra_item_ids = $request->compra_item_id;
                 $remessa = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $request->minuta_id)
                     ->join(
                         'minutaempenhos_remessa',
@@ -164,7 +182,11 @@ class MinutaAlteracaoCrudController extends CrudController
 
                 $minutaEmpenhoRemessa = MinutaEmpenhoRemessa::create([
                     'minutaempenho_id' => $minuta_id,
-                    'situacao_id' => 214,
+                    'situacao_id' => $this->retornaIdCodigoItem(
+                        'Situações Minuta Empenho',
+                        'EM ANDAMENTO'
+                    ),
+                    'etapa' => 1,
                     'remessa' => $remessa + 1
                 ]);
 
@@ -215,7 +237,6 @@ class MinutaAlteracaoCrudController extends CrudController
                 }
             }
             if ($tipo === 'Contrato') {
-                $contrato_item_ids = $request->compra_item_id;
 
                 $remessa = ContratoItemMinutaEmpenho::where('contrato_item_minuta_empenho.minutaempenho_id', $request->minuta_id)
                     ->join(
@@ -232,6 +253,7 @@ class MinutaAlteracaoCrudController extends CrudController
                         'Situações Minuta Empenho',
                         'EM ANDAMENTO'
                     ),
+                    'etapa' => 1,
                     'remessa' => $remessa + 1
                 ]);
 
@@ -399,6 +421,11 @@ class MinutaAlteracaoCrudController extends CrudController
                         ]);
                 }
             }
+
+            $modRemessa = MinutaEmpenhoRemessa::find($remessa_id);
+            $modRemessa->etapa = 1;
+            $modRemessa->save();
+
             DB::commit();
             return Redirect::to($rota);
         } catch (Exception $exc) {
@@ -882,16 +909,15 @@ class MinutaAlteracaoCrudController extends CrudController
     {
         $this->crud->addColumn([
             'box' => 'resumo',
-            'name' => 'getSituacao',
-            'label' => 'Situação',
-            'type' => 'model_function',
-            'function_name' => 'getSituacao',
-            'priority' => 1,
+            'name' => 'situacao_remessa',
+            'label' => 'Situação', // Table column heading
+            'type' => 'text',
+//            'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
         ]);
     }
 

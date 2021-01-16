@@ -28,6 +28,7 @@ class MinutaEmpenhoRemessa extends Model
         'minutaempenho_id',
         'situacao_id',
         'remessa',
+        'etapa',
     ];
 
     /*

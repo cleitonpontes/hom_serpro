@@ -6,6 +6,7 @@ use Alert;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\ContaCorrentePassivoAnterior;
 use App\Models\MinutaEmpenho;
+use App\Models\MinutaEmpenhoRemessa;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -139,6 +140,10 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
                 ContaCorrentePassivoAnterior::insert($itens);
             }
+
+            $modRemessa = MinutaEmpenhoRemessa::find($remessa_id);
+            $modRemessa->etapa = 1;
+            $modRemessa->save();
             DB::commit();
             return Redirect::to("empenho/minuta/{$request->minutaempenho_id}/alteracao/{$remessa_id}/" .
                 "show/{$request->minutaempenho_id}");
@@ -174,6 +179,9 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
         try {
             $this->deletaPassivoAnterior($arrayPassivoAnterior);
             ContaCorrentePassivoAnterior::insert($itens);
+            $modRemessa = MinutaEmpenhoRemessa::find($remessa_id);
+            $modRemessa->etapa = 1;
+            $modRemessa->save();
             DB::commit();
         } catch (Exception $exc) {
             //  dd($exc);
@@ -182,7 +190,6 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
         return Redirect::to('empenho/minuta/' . $minuta->id);
     }
-
 
     public function deletaPassivoAnterior(array $modPassivoAnterior)
     {

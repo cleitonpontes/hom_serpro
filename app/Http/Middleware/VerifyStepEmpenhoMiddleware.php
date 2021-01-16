@@ -124,7 +124,9 @@ class VerifyStepEmpenhoMiddleware
         if (array_key_exists(Route::current()->action['as'], $this->rotas_minuta_alteracao)) {
             $minuta_id = Route::current()->parameter('minuta_id');
             $minuta = MinutaEmpenho::find($minuta_id);
-
+            $remessa_id = Route::current()->parameter('remessa')
+                ?? $minuta->max_remessa;
+            $remessa = MinutaEmpenhoRemessa::find($remessa_id);
 
             session(['empenho_etapa' => '']);
             session(['conta_id' => '']);
@@ -132,13 +134,13 @@ class VerifyStepEmpenhoMiddleware
             session(['fornecedor_cpf_cnpj_idgener' => '']);
             session(['situacao' => '']);
             session(['unidade_ajax_id' => '']);
+            session(['etapa' => '']);
 
             if ($this->rotas_minuta_alteracao[Route::current()->action['as']] === 1) {
                 session(['situacao' => 'EM ANDAMENTO']);
                 session(['empenho_etapa' => 1]);
 
                 if (strpos(Route::current()->action['as'], 'create') !== false) {
-                    $remessa = MinutaEmpenhoRemessa::find($minuta->max_remessa);
                     if ($remessa->remessa === 0) {
                         return $next($request);
                     }
@@ -155,7 +157,6 @@ class VerifyStepEmpenhoMiddleware
             if ($this->rotas_minuta_alteracao[Route::current()->action['as']] === 2) {
                 session(['situacao' => 'EM ANDAMENTO']);
                 session(['empenho_etapa' => 2]);
-                $remessa = MinutaEmpenhoRemessa::find($minuta->max_remessa);
 
                 //se for create
                 if (strpos(Route::current()->action['as'], 'edit') === false) {
@@ -170,7 +171,7 @@ class VerifyStepEmpenhoMiddleware
             }
 
             //caso a rota seja a 3
-            session(['situacao' => 'EM ANDAMENTO']);
+            session(['situacao' => $remessa->situacao->descricao]);
             session(['empenho_etapa' => 3]);
         }
 

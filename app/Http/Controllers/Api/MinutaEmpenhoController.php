@@ -440,6 +440,7 @@ class MinutaEmpenhoController extends Controller
             ->where('descricao', 'EM PROCESSAMENTO')
             ->first();
         $modRemessa->situacao_id = $situacao->id;
+        $modRemessa->etapa = 3;
         $modRemessa->save();
     }
 
