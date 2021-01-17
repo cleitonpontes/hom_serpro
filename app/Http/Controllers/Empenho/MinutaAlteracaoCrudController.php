@@ -1651,14 +1651,15 @@ class MinutaAlteracaoCrudController extends CrudController
                             'compra_item_fornecedor.valor_negociado as valortotal',
                             'saldo_contabil.saldo',
                             'compra_item_minuta_empenho.subelemento_id',
-//                            DB::raw("0 AS quantidade"),
-//                            DB::raw("0 AS valor"),
-                                                'compra_item_minuta_empenho.quantidade',
-                                                'compra_item_minuta_empenho.valor',
+                            DB::raw("0 AS quantidade"),
+                            DB::raw("0 AS valor"),
+//                            'compra_item_minuta_empenho.quantidade',
+//                            'compra_item_minuta_empenho.valor',
                             //DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa"),
                             DB::raw('left(mensagem_siafi, 4) as exercicio'),
                         ]
                     )
+//                    );
                     ->get()->toArray();
                 break;
         }
