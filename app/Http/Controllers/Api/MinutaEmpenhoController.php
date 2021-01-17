@@ -49,6 +49,7 @@ class MinutaEmpenhoController extends Controller
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $modSaldoContabil = SaldoContabil::find($modMinutaEmpenho->saldo_contabil_id);
+        $modRemessa = MinutaEmpenhoRemessa::where('minutaempenho_id',$minuta_id)->first();
 
         DB::beginTransaction();
         try {
@@ -56,11 +57,10 @@ class MinutaEmpenhoController extends Controller
             $this->gravaSfCelulaOrcamentaria($sforcempenhodados, $modSaldoContabil);
 
             if ($modMinutaEmpenho->passivo_anterior) {
-                $this->gravaSfPassivoAnterior($sforcempenhodados, $modMinutaEmpenho);
+                $this->gravaSfPassivoAnterior($sforcempenhodados, $modMinutaEmpenho, $modRemessa);
             }
 
-            //todo passar remessa
-            $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodados);
+            $this->gravaSfItensEmpenho($modMinutaEmpenho, $sforcempenhodados, $modRemessa->id);
 
             $this->gravaMinuta($modMinutaEmpenho);
 
