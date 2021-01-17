@@ -64,6 +64,8 @@ class MinutaEmpenhoController extends Controller
 
             $this->gravaMinuta($modMinutaEmpenho);
 
+            $this->gravaRemessaOriginal($modRemessa);
+
             DB::commit();
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
@@ -441,6 +443,16 @@ class MinutaEmpenhoController extends Controller
             ->first();
         $modRemessa->situacao_id = $situacao->id;
         $modRemessa->etapa = 3;
+        $modRemessa->save();
+    }
+    public function gravaRemessaOriginal(MinutaEmpenhoRemessa $modRemessa)
+    {
+        $situacao = Codigoitem::wherehas('codigo', function ($q) {
+            $q->where('descricao', '=', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EM PROCESSAMENTO')
+            ->first();
+        $modRemessa->situacao_id = $situacao->id;
         $modRemessa->save();
     }
 
