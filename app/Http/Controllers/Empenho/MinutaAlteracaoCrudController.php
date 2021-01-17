@@ -546,7 +546,9 @@ class MinutaAlteracaoCrudController extends CrudController
 
         $notIn = ['INCLUSAO'];
 
-        if ($itens[0]['exercicio'] == date('Y')) {
+        $ano_sistema = (env('ANO_SIAFI_TESTE')) ? env('ANO_SIAFI_TESTE') : date('Y');
+
+        if ($itens[0]['exercicio'] == $ano_sistema) {
             $notIn[] = 'CANCELAMENTO';
         } else {
             $notIn[] = 'REFORÇO';
