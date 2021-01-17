@@ -812,6 +812,8 @@ class MinutaEmpenhoCrudController extends CrudController
                 $modSfOrcEmpenhoDados->save();
 
                 DB::commit();
+                Alert::success('Situação da minuta alterada com sucesso!')->flash();
+                return redirect('/empenho/minuta');
             } catch (Exception $exc) {
                 DB::rollback();
             }
