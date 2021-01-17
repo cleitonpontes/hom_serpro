@@ -128,7 +128,7 @@
             valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
             $(".vrtotal" + {{$tipo}})
                 .val(valor_total)
-                .trigger("keyup")
+                .trigger("input")
         }
 
         function calculaQuantidade(obj) {
@@ -144,7 +144,7 @@
         }
 
         $(document).ready(function () {
-            $('body').on('keyup', '.valor_total', function (event) {
+            $('body').on('input', '.valor_total', function (event) {
                 var soma = 0;
                 var saldo = {{$credito}};
                 $(".valor_total").each(function (index) {

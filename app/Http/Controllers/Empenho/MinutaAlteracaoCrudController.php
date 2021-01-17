@@ -1515,7 +1515,7 @@ class MinutaAlteracaoCrudController extends CrudController
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control' value='$quantidade' onkeyup='calculaValorTotal(this)'  > "
+            . " class='form-control' value='$quantidade' oninput='calculaValorTotal(this)'  > "
             . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
             . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
     }
@@ -1531,7 +1531,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
                 . " data-$tipo='" . $item[$tipo] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onkeyup='calculaQuantidade(this)' >";
+                . " oninput='calculaQuantidade(this)' >";
         }
         return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
             . "id='vrtotal" . $item[$tipo]
@@ -1737,10 +1737,10 @@ class MinutaAlteracaoCrudController extends CrudController
                             'compra_item_fornecedor.valor_negociado as valortotal',
                             'saldo_contabil.saldo',
                             'compra_item_minuta_empenho.subelemento_id',
-                            DB::raw("0 AS quantidade"),
-                            DB::raw("0 AS valor"),
-                            //                    'compra_item_minuta_empenho.quantidade',
-                            //                    'compra_item_minuta_empenho.valor',
+//                            DB::raw("0 AS quantidade"),
+//                            DB::raw("0 AS valor"),
+                                                'compra_item_minuta_empenho.quantidade',
+                                                'compra_item_minuta_empenho.valor',
                             //DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa"),
                             DB::raw('left(mensagem_siafi, 4) as exercicio'),
                         ]
