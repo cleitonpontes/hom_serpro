@@ -28,10 +28,18 @@ class SforcempenhodadosObserver
     {
         if ($sfOrcEmpenhoDados->situacao == 'EMITIDO' or $sfOrcEmpenhoDados->situacao == 'ERRO') {
             $situacao = $this->buscaSituacao($sfOrcEmpenhoDados->situacao);
-            $minutaempenho = MinutaEmpenho::find($sfOrcEmpenhoDados->minutaempenho_id);
-            $minutaempenho->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
-            $minutaempenho->situacao_id = $situacao->id;
-            $minutaempenho->save();
+
+            if($sfOrcEmpenhoDados->alteracao == false){
+                $minutaempenho = MinutaEmpenho::find($sfOrcEmpenhoDados->minutaempenho_id);
+                $minutaempenho->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
+                $minutaempenho->situacao_id = $situacao->id;
+                $minutaempenho->save();
+            }else{
+                $remessa = MinutaEmpenhoRemessa::find($sfOrcEmpenhoDados->minutaempenhos_remessa_id);
+                $remessa->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
+                $remessa->situacao_id = $situacao->id;
+                $remessa->save();
+            }
 
             if($sfOrcEmpenhoDados->situacao == 'EMITIDO'){
                 if($sfOrcEmpenhoDados->alteracao == false){
