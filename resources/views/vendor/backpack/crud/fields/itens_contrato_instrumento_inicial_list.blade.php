@@ -453,7 +453,7 @@
 
             function removeLinha(elemento) {
                 var tr = $(elemento).closest('tr');
-                var historicoSaldoItemId = $(tr).find('td').eq(8).find('#saldo_historico_id').val();
+                var historicoSaldoItemId = $(tr).find('td').eq(0).find('[name="saldo_historico_id[]"]').val();
                 if (historicoSaldoItemId === 'undefined') {
                     tr.remove();
                     calculaTotalGlobal()
