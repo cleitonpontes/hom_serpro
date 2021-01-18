@@ -91,6 +91,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 'minutaempenhos.*',
                 'compra_item_minuta_empenho.minutaempenhos_remessa_id',
                 'minutaempenhos_remessa.etapa',
+                'minutaempenhos_remessa.mensagem_siafi as mensagem_siafi_remessa',
                 DB::raw('codigoitens.descricao as situacao_remessa'),
                 'conta_corrente_passivo_anterior.conta_corrente',
 
@@ -118,6 +119,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 'minutaempenhos.*',
                 'contrato_item_minuta_empenho.minutaempenhos_remessa_id',
                 'minutaempenhos_remessa.etapa',
+                'minutaempenhos_remessa.mensagem_siafi as mensagem_siafi_remessa',
                 DB::raw('codigoitens.descricao as situacao_remessa'),
                 'conta_corrente_passivo_anterior.conta_corrente',
 
@@ -1191,7 +1193,7 @@ class MinutaAlteracaoCrudController extends CrudController
     {
         $this->crud->addColumn([
             'box' => 'resumo',
-            'name' => 'mensagem_siafi',
+            'name' => 'mensagem_siafi_remessa',
             'label' => 'Mensagem SIAFI',
             'type' => 'text',
             'priority' => 1,
