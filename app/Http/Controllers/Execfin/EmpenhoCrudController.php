@@ -924,7 +924,7 @@ class EmpenhoCrudController extends CrudController
 
     public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
     {
-        if($empenho->minuta_empenhos->tipo_empenhopor->descricao != 'Alteração'){
+        if ($empenho->minuta_empenhos->tipo_empenhopor->descricao != 'Alteração') {
             $array_empenho1 = [
                 'numero' => trim($empenho->mensagemretorno),
                 'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
@@ -1055,4 +1055,19 @@ class EmpenhoCrudController extends CrudController
 
         return stream_context_create($context_options);
     }
+
+//    public function executaAlteracaoEmpenho()
+//    {
+//        $id = 94;
+//        $sforcempenhodados = SfOrcEmpenhoDados::find($id);
+//
+//        $user = BackpackUser::where('cpf', $sforcempenhodados->cpf_user)
+//            ->first();
+//        $ws_siafi = new Execsiafi;
+//        $ano = config('app.ano_minuta_empenho');
+//
+//        $retorno = $ws_siafi->alterarNe($user, $sforcempenhodados->ugemitente, config('app.ambiente_siafi'), $ano, $sforcempenhodados);
+//
+//        $sforcempenhodados->update($retorno);
+//    }
 }

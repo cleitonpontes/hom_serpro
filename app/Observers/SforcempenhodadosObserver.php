@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Http\Controllers\Execfin\EmpenhoCrudController;
+use App\Jobs\AlterarEmpenhoWSJob;
 use App\Jobs\IncluirEmpenhoWSJob;
 use App\Models\Codigoitem;
 use App\Models\DevolveMinutaSiasg;
@@ -14,15 +15,17 @@ class SforcempenhodadosObserver
 {
     public function created(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
-        $remessa = MinutaEmpenhoRemessa::find($sfOrcEmpenhoDados->minutaempenhos_remessa_id);
-        if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO' and $remessa->remessa == 0) {
-            IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
+        if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO') {
+            if($sfOrcEmpenhoDados->alteracao == false){
+                IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
+            }else{
+                AlterarEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
+            }
         }
     }
 
     public function updated(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
-        $remessa = MinutaEmpenhoRemessa::find($sfOrcEmpenhoDados->minutaempenhos_remessa_id);
         if ($sfOrcEmpenhoDados->situacao == 'EMITIDO' or $sfOrcEmpenhoDados->situacao == 'ERRO') {
             $situacao = $this->buscaSituacao($sfOrcEmpenhoDados->situacao);
             $minutaempenho = MinutaEmpenho::find($sfOrcEmpenhoDados->minutaempenho_id);
@@ -31,19 +34,25 @@ class SforcempenhodadosObserver
             $minutaempenho->save();
 
             if($sfOrcEmpenhoDados->situacao == 'EMITIDO'){
-                $empenhoCrud = new EmpenhoCrudController();
-                $empenhoCrud->criaEmpenhoFromMinuta($sfOrcEmpenhoDados);
+                if($sfOrcEmpenhoDados->alteracao == false){
+                    $empenhoCrud = new EmpenhoCrudController();
+                    $empenhoCrud->criaEmpenhoFromMinuta($sfOrcEmpenhoDados);
+                }
 
                 DevolveMinutaSiasg::create([
                     'minutaempenho_id' => $sfOrcEmpenhoDados->minutaempenho_id,
-                    'situacao' => 'Pendente'
+                    'situacao' => 'Pendente',
+                    'alteracao' => $sfOrcEmpenhoDados->alteracao
                 ]);
             }
-
         }
 
-        if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO' and $remessa->remessa == 0) {
-            IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
+        if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO') {
+            if($sfOrcEmpenhoDados->alteracao == false){
+                IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
+            }else{
+                AlterarEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
+            }
         }
     }
 

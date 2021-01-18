@@ -17,6 +17,7 @@ use App\Models\SfPassivoAnterior;
 use App\Models\SfPassivoPermanente;
 use App\Models\SfPco;
 use App\Models\SfPcoItem;
+use App\Models\SfRegistroAlteracao;
 use App\Models\Sfrelitemvlrcc;
 
 class Execsiafi
@@ -362,6 +363,33 @@ class Execsiafi
 
     }
 
+    public function alterarNe(
+        BackpackUser $user,
+        string $ug_user,
+        string $amb,
+        string $ano,
+        SfOrcEmpenhoDados $sfOrcEmpenhoDados
+    )
+    {
+        $erro_mensagem = '';
+        $cpf = str_replace('-', '', str_replace('.', '', $user->cpf));
+        $senha = '';
+        if ($user->senhasiafi) {
+            $senha = base64_decode($user->senhasiafi);
+        } else {
+            $erro_mensagem = 'Cadastre sua Senha SIAFI em "Meus Dados"!';
+        }
+
+        $client = $this->conexao_xml($cpf, $senha, $ug_user, $sfOrcEmpenhoDados->id, $amb, $ano, 'ORCAMENTARIO');
+
+        $parms = $this->montaXmlorcEmpenhoDadosAlteracao($sfOrcEmpenhoDados);
+
+        $retorno = $this->submit($client, $parms, 'ALTNE');
+
+        return $this->trataRetornoEmpenhoAlteracao($retorno);
+
+    }
+
 
     public function apropriaNovoDh(
         BackpackUser $user,
@@ -458,6 +486,27 @@ class Execsiafi
         return $parms;
     }
 
+    private function montaXmlorcEmpenhoDadosAlteracao(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
+    {
+        $parms = new \stdClass;
+        $parms->orcEmpenhoDadosAlt = [
+            'ugEmitente' => $sfOrcEmpenhoDados->ugemitente,
+            'anoEmpenho' => $sfOrcEmpenhoDados->anoempenho,
+            'numEmpenho' => $sfOrcEmpenhoDados->numempenho,
+            'txtLocalEntrega' => $sfOrcEmpenhoDados->txtlocalentrega,
+            'txtDescricao' => $sfOrcEmpenhoDados->txtdescricao,
+            'passivoAnterior' => $this->montaPassivoAnterior($sfOrcEmpenhoDados->id),
+            'itemEmpenho' => $this->montaItemEmpenho($sfOrcEmpenhoDados->id),
+            'registroAlteracao' => $this->montaRegistroAlteracao($sfOrcEmpenhoDados->id),
+        ];
+
+        if ($parms->orcEmpenhoDadosAlt['passivoAnterior'] == null) {
+            unset($parms->orcEmpenhoDadosAlt['passivoAnterior']);
+        }
+
+        return $parms;
+    }
+
     private function montaXmlorcEmpenhoDados(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
         $parms = new \stdClass;
@@ -480,7 +529,7 @@ class Execsiafi
             'itemEmpenho' => $this->montaItemEmpenho($sfOrcEmpenhoDados->id),
         ];
 
-        if($parms->orcEmpenhoDados['passivoAnterior'] == null){
+        if ($parms->orcEmpenhoDados['passivoAnterior'] == null) {
             unset($parms->orcEmpenhoDados['passivoAnterior']);
         }
 
@@ -540,6 +589,7 @@ class Execsiafi
             ->get();
 
         if ($dados) {
+            $i = 0;
             foreach ($dados as $dado) {
                 $array[] = [
                     'numSeqItem' => $dado->numseqitem,
@@ -547,6 +597,11 @@ class Execsiafi
                     'descricao' => $dado->descricao,
                     'operacaoItemEmpenho' => $this->montaOperacaoItemEmpenho($dado->id)
                 ];
+
+                if($dado->sforcempenhodados->alteracao == true){
+                    unset($array[$i]['codSubElemento']);
+                }
+                $i++;
             }
         }
 
@@ -573,6 +628,26 @@ class Execsiafi
         $operacaoitemempenho = $array;
 
         return $operacaoitemempenho;
+    }
+
+    private function montaRegistroAlteracao(string $sfOrcEmpenhoDados_id)
+    {
+        $array = [];
+
+        $dado = SfRegistroAlteracao::where('sforcempenhodado_id', $sfOrcEmpenhoDados_id)
+            ->first();
+
+        if ($dado) {
+            $array = [
+                'dtEmis' => $dado->dtemis,
+                'txtMotivo' => $dado->txtmotivo,
+                'indrIndispCaixa' => ($dado->indrindispcaixa) == false ? 0 : 1,
+            ];
+        }
+
+        $registroalteracao = $array;
+
+        return $registroalteracao;
     }
 
     private function montaPassivoAnterior(string $sfOrcEmpenhoDados_id)
@@ -963,6 +1038,42 @@ class Execsiafi
         return $this;
     }
 
+    protected function trataRetornoEmpenhoAlteracao($retorno)
+    {
+        $xml = simplexml_load_string(str_replace(':', '', $retorno));
+
+        $resultado = [];
+
+        if (isset($xml->soapHeader)) {
+            if ($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'FALHA') {
+                if (isset($xml->soapBody->ns3orcAlterarEmpenhoResponse)) {
+                    foreach ($xml->soapBody->ns3orcAlterarEmpenhoResponse->orcEmpenhoResposta->mensagem as $mensagem) {
+                        if (!isset($resultado['mensagemretorno'])) {
+                            $resultado['mensagemretorno'] = (string)$mensagem->txtMsg;
+                        } else {
+                            $resultado['mensagemretorno'] .= " | " . (string)$mensagem->txtMsg;
+                        }
+                    }
+                    $resultado['situacao'] = 'ERRO';
+                }
+
+                if (isset($xml->soapBody->soapFault)) {
+                    $resultado['mensagemretorno'] = (string)$xml->soapBody->soapFault->faultcode . " | " . (string)$xml->soapBody->soapFault->faultstring;
+                    $resultado['situacao'] = 'ERRO';
+                }
+
+            }
+
+            if ($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'SUCESSO') {
+                $resultado['numempenho'] = (int)substr($xml->soapBody->ns3orcAlterarEmpenhoResponse->orcEmpenhoResposta->empenho, 6, 6);
+                $resultado['numro'] = (string)$xml->soapBody->ns3orcAlterarEmpenhoResponse->orcEmpenhoResposta->documentoRO;
+                $resultado['mensagemretorno'] = (string)$xml->soapBody->ns3orcAlterarEmpenhoResponse->orcEmpenhoResposta->empenho;
+                $resultado['situacao'] = 'EMITIDO';
+            }
+        }
+        return $resultado;
+    }
+
     protected function trataRetornoEmpenho($retorno)
     {
         $xml = simplexml_load_string(str_replace(':', '', $retorno));
@@ -970,29 +1081,29 @@ class Execsiafi
         $resultado = [];
 
         if (isset($xml->soapHeader)) {
-            if($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'FALHA'){
-                if(isset($xml->soapBody->ns3orcIncluirEmpenhoResponse)){
-                    foreach ($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->mensagem as $mensagem ){
-                        if(!isset($resultado['mensagemretorno'])){
-                            $resultado['mensagemretorno'] = (string) $mensagem->txtMsg;
-                        }else{
-                            $resultado['mensagemretorno'] .= " | " . (string) $mensagem->txtMsg;
+            if ($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'FALHA') {
+                if (isset($xml->soapBody->ns3orcIncluirEmpenhoResponse)) {
+                    foreach ($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->mensagem as $mensagem) {
+                        if (!isset($resultado['mensagemretorno'])) {
+                            $resultado['mensagemretorno'] = (string)$mensagem->txtMsg;
+                        } else {
+                            $resultado['mensagemretorno'] .= " | " . (string)$mensagem->txtMsg;
                         }
                     }
                     $resultado['situacao'] = 'ERRO';
                 }
 
-                if(isset($xml->soapBody->soapFault)){
-                    $resultado['mensagemretorno'] = (string)  $xml->soapBody->soapFault->faultcode . " | " . (string)  $xml->soapBody->soapFault->faultstring;
+                if (isset($xml->soapBody->soapFault)) {
+                    $resultado['mensagemretorno'] = (string)$xml->soapBody->soapFault->faultcode . " | " . (string)$xml->soapBody->soapFault->faultstring;
                     $resultado['situacao'] = 'ERRO';
                 }
 
             }
 
-            if($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'SUCESSO'){
-                $resultado['numempenho'] = (int) substr($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->empenho,6,6);
-                $resultado['numro'] = (string) $xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->documentoRO;
-                $resultado['mensagemretorno'] = (string) $xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->empenho;
+            if ($xml->soapHeader->ns2EfetivacaoOperacao->resultado == 'SUCESSO') {
+                $resultado['numempenho'] = (int)substr($xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->empenho, 6, 6);
+                $resultado['numro'] = (string)$xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->documentoRO;
+                $resultado['mensagemretorno'] = (string)$xml->soapBody->ns3orcIncluirEmpenhoResponse->orcEmpenhoResposta->empenho;
                 $resultado['situacao'] = 'EMITIDO';
             }
         }
