@@ -472,7 +472,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 $cime = ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
                 $cime_deletar = $cime->get();
                 $cime->delete();
-                dd($cime_deletar);
+//                dd($cime_deletar);
                 $itens = array_map(
                     function ($itens) use ($minuta_id) {
                         $itens['minutaempenho_id'] = $minuta_id;
