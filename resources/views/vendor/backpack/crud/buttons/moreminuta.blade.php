@@ -6,6 +6,6 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right">
         {{--        <li class="dropdown-header"><i class="fa fa-list"></i> Itens Contrato:</li>--}}
-        <li><a href="/empenho/minuta/{{$entry->getKey()}}/alteracao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Alterar Minuta</a></li>
+        <li><a href="/empenho/minuta/{{$entry->getKey()}}/alteracao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Alterar Empenho</a></li>
     </ul>
 </div>

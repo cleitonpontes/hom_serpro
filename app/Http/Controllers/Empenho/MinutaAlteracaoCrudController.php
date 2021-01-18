@@ -63,7 +63,7 @@ class MinutaAlteracaoCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\MinutaEmpenho');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'empenho/minuta/' . $minuta_id . '/alteracao');
-        $this->crud->setEntityNameStrings('Alteração Minuta Empenho', 'Alteração Minuta Empenho');
+        $this->crud->setEntityNameStrings('Alteração do Empenho', 'Alteração do Empenho');
 //        $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
         $this->crud->setEditView('vendor.backpack.crud.empenho.alteracao_edit');
 //        $this->crud->setShowView('vendor.backpack.crud.empenho.show');
@@ -1370,7 +1370,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 [
                     'data' => 'valor_total',
                     'name' => 'valor_total',
-                    'title' => 'Valor Total',
+                    'title' => 'Valor da Alteração',
                     'orderable' => false,
                     'searchable' => false
                 ]
