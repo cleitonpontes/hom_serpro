@@ -36,8 +36,7 @@ class NaoAceitarZero implements Rule
         //CASO NÃO SEJA CANCELAMENTO/NENHUMA
         if ((strpos($tipo_alteracao, 'NENHUMA') === false)
             && (strpos($tipo_alteracao, 'CANCELAMENTO') === false)) {
-//            dd(!(empty((int)$value)));
-            return !(empty((int)$value));
+            return !(empty((float)$value));
         }
         return true;
     }

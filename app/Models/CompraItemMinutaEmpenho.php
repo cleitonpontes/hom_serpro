@@ -98,6 +98,11 @@ class CompraItemMinutaEmpenho extends Model
         return $this->operacao()->first()->descricao;
     }
 
+    public function getOperacaoDescresAttribute(): string
+    {
+        return $this->operacao()->first()->descres;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS

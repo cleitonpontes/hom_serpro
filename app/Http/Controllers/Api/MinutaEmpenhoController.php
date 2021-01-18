@@ -188,7 +188,7 @@ class MinutaEmpenhoController extends Controller
 
         $modSfOpItemEmpenho = new SfOperacaoItemEmpenho();
         $modSfOpItemEmpenho->sfitemempenho_id = $modSfItemEmpenho->id;
-        $modSfOpItemEmpenho->tipooperacaoitemempenho = $item->operacao; // Incluir nas tabelas codigo (OPERACAOITEMEMPENHO) e codigoitens (INCLUSÃO - REFORCO - ANULACAO - CANCELAMENTO)
+        $modSfOpItemEmpenho->tipooperacaoitemempenho = $item->operacao_descres; // Incluir nas tabelas codigo (OPERACAOITEMEMPENHO) e codigoitens (INCLUSÃO - REFORCO - ANULACAO - CANCELAMENTO)
         $modSfOpItemEmpenho->quantidade = $item->quantidade;
         $modSfOpItemEmpenho->vlrunitario = ($item->valor / $item->quantidade);
         $modSfOpItemEmpenho->vlroperacao = $item->valor;
