@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class ContaCorrentePassivoAnterior extends Model
+class SfRegistroAlteracao extends Model
 {
     use CrudTrait;
     use LogsActivity;
-    use SoftDeletes;
+//    use SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -20,19 +20,15 @@ class ContaCorrentePassivoAnterior extends Model
     */
 
     protected static $logFillable = true;
-    protected static $logName = 'conta_corrente_passivo_anterior';
+    protected static $logName = 'sfregistroalteracao';
 
-    protected $table = 'conta_corrente_passivo_anterior';
-    protected $guarded = [
-        'id'
-    ];
+    protected $table = 'sfregistroalteracao';
 
     protected $fillable = [
-        'minutaempenho_id',
-        'conta_corrente',
-        'valor',
-        'conta_corrente_json',
-        'remessa',
+        'sforcempenhodado_id',
+        'dtemeis',
+        'txtmotivo',
+        'indrindispcaixa'
     ];
 
     /*
@@ -47,14 +43,9 @@ class ContaCorrentePassivoAnterior extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function minutaempenho()
+    public function sforcempenhodados()
     {
-        return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
-    }
-
-    public function situacao()
-    {
-        return $this->belongsTo(MinutaEmpenhoRemessa::class, 'minutaempenhos_remessa_id');
+        return $this->belongsTo(SfOrcEmpenhoDados::class, 'sforcempenhodado_id');
     }
 
     /*

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class ContaCorrentePassivoAnterior extends Model
+class MinutaEmpenhoRemessa extends Model
 {
     use CrudTrait;
     use LogsActivity;
@@ -20,19 +20,15 @@ class ContaCorrentePassivoAnterior extends Model
     */
 
     protected static $logFillable = true;
-    protected static $logName = 'conta_corrente_passivo_anterior';
+    protected static $logName = 'minutaempenhos_remessa';
 
-    protected $table = 'conta_corrente_passivo_anterior';
-    protected $guarded = [
-        'id'
-    ];
+    protected $table = 'minutaempenhos_remessa';
 
     protected $fillable = [
         'minutaempenho_id',
-        'conta_corrente',
-        'valor',
-        'conta_corrente_json',
+        'situacao_id',
         'remessa',
+        'etapa',
     ];
 
     /*
@@ -40,6 +36,11 @@ class ContaCorrentePassivoAnterior extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function retornaCompraItemMinutaEmpenho()
+    {
+        return CompraItemMinutaEmpenho::where('minutaempenho_id', $this->minutaempenho_id)
+            ->where('minutaempenhos_remessa_id', $this->id);
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -54,7 +55,12 @@ class ContaCorrentePassivoAnterior extends Model
 
     public function situacao()
     {
-        return $this->belongsTo(MinutaEmpenhoRemessa::class, 'minutaempenhos_remessa_id');
+        return $this->belongsTo(Codigoitem::class, 'situacao_id');
+    }
+
+    public function contacorrente()
+    {
+        return $this->hasMany(ContaCorrentePassivoAnterior::class, 'minutaempenhos_remessa_id');
     }
 
     /*

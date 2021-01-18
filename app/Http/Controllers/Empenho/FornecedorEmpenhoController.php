@@ -17,6 +17,7 @@ use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\Contrato;
 use App\Models\MinutaEmpenho;
+use App\Models\MinutaEmpenhoRemessa;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -384,24 +385,47 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             );
         }
 
-        $itens = array_map(
-            function ($itens) use ($minuta_id) {
-                $itens['minutaempenho_id'] = $minuta_id;
-                return $itens;
-            },
-            $itens
-        );
+
 
 
         DB::beginTransaction();
         try {
+            $situacao_andamento = Codigoitem::wherehas('codigo', function ($q) {
+                $q->where('descricao', '=', 'Situações Minuta Empenho');
+            })
+                ->where('descricao', 'EM ANDAMENTO')
+                ->first();
+
+            $remessa = MinutaEmpenhoRemessa::create([
+                'minutaempenho_id' => $minuta_id,
+                'situacao_id' => $situacao_andamento->id,
+                'remessa' => 0
+            ]);
+//            dd($remessa);
+
+            $itens = array_map(
+                function ($itens) use ($minuta_id, $remessa) {
+                    $itens['minutaempenho_id'] = $minuta_id;
+                    $itens['minutaempenhos_remessa_id'] = $remessa->id;
+                    return $itens;
+                },
+                $itens
+            );
+
+//            dd($itens);
+
             $codigoitem = Codigoitem::find($minuta->tipo_empenhopor_id);
+
+//            dump($codigoitem->descricao);
+//            dump($itens);
 
             if ($codigoitem->descricao == 'Contrato') {
                 ContratoItemMinutaEmpenho::insert($itens);
             } else {
                 CompraItemMinutaEmpenho::insert($itens);
             }
+
+            //dd($itens, $teste, CompraItemMinutaEmpenho::where('minutaempenhos_remessa_id',$remessa->id)->get());
 
             $minuta->etapa = 4;
             $minuta->save();
@@ -431,6 +455,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             );
         }
 
+        //todo retirar daqui
         $itens = array_map(
             function ($itens) use ($minuta_id) {
                 $itens['minutaempenho_id'] = $minuta_id;
@@ -447,18 +472,39 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 $cime = ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
                 $cime_deletar = $cime->get();
                 $cime->delete();
+                dd($cime_deletar);
+                $itens = array_map(
+                    function ($itens) use ($minuta_id) {
+                        $itens['minutaempenho_id'] = $minuta_id;
+                        return $itens;
+                    },
+                    $itens
+                );
+
                 ContratoItemMinutaEmpenho::insert($itens);
             } else {
                 $cime = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
                 $cime_deletar = $cime->get();
                 $cime->delete();
+                $remessa_id = $cime_deletar[0]->minutaempenhos_remessa_id;
+//                dd($cime_deletar);
                 foreach ($cime_deletar as $item) {
                     $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
                         ->where('unidade_id', session('user_ug_id'))
                         ->first();
+
                     $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($item->compra_item_id)->saldo;
                     $compraItemUnidade->save();
                 }
+
+                $itens = array_map(
+                    function ($itens) use ($minuta_id, $remessa_id) {
+                        $itens['minutaempenho_id'] = $minuta_id;
+                        $itens['minutaempenhos_remessa_id'] = $remessa_id;
+                        return $itens;
+                    },
+                    $itens
+                );
 
                 CompraItemMinutaEmpenho::insert($itens);
             }
