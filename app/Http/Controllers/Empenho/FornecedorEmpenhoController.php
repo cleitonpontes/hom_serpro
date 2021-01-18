@@ -455,14 +455,14 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             );
         }
 
-        //todo retirar daqui
-        $itens = array_map(
-            function ($itens) use ($minuta_id) {
-                $itens['minutaempenho_id'] = $minuta_id;
-                return $itens;
-            },
-            $itens
-        );
+//        //todo retirar daqui
+//        $itens = array_map(
+//            function ($itens) use ($minuta_id) {
+//                $itens['minutaempenho_id'] = $minuta_id;
+//                return $itens;
+//            },
+//            $itens
+//        );
 
         DB::beginTransaction();
         try {
@@ -472,10 +472,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 $cime = ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
                 $cime_deletar = $cime->get();
                 $cime->delete();
-//                dd($cime_deletar);
+                $remessa_id = $minuta->remessa[0]->id;
                 $itens = array_map(
-                    function ($itens) use ($minuta_id) {
+                    function ($itens) use ($minuta_id, $remessa_id) {
                         $itens['minutaempenho_id'] = $minuta_id;
+                        $itens['minutaempenhos_remessa_id'] = $remessa_id;
                         return $itens;
                     },
                     $itens
@@ -486,8 +487,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 $cime = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id);
                 $cime_deletar = $cime->get();
                 $cime->delete();
-                $remessa_id = $cime_deletar[0]->minutaempenhos_remessa_id;
-//                dd($cime_deletar);
+                $remessa_id = $minuta->remessa[0]->id;
+
                 foreach ($cime_deletar as $item) {
                     $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
                         ->where('unidade_id', session('user_ug_id'))
