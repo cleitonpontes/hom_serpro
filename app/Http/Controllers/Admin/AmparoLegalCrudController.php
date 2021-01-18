@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Traits\BuscaCodigoItens;
 use App\Models\Codigoitem;
 use App\Models\AmparoLegal;
 use App\Models\AmparoLegalRestricao;
@@ -36,6 +37,7 @@ use Request;
  */
 class AmparoLegalCrudController extends CrudController
 {
+    use BuscaCodigoItens;
     /**
      * @throws Exception
      */
@@ -73,6 +75,7 @@ class AmparoLegalCrudController extends CrudController
             $arrayModalidades = Codigoitem::whereHas('codigo', function ($query) {
                 $query->where('descricao', '=', 'Modalidade Licitação');
             })
+                ->where('visivel', true)
                 ->orderBy('descricao')
                 ->pluck('descricao', 'id')
                 ->toArray();
@@ -218,6 +221,7 @@ class AmparoLegalCrudController extends CrudController
 
     private function campos($arrayModalidades, $codigoRestricao): array
     {
+
         return [
             [
                 'label' => "Restricoes",
@@ -233,7 +237,7 @@ class AmparoLegalCrudController extends CrudController
                     return $query
                         ->select(['codigoitens.descres as descres', 'codigoitens.descricao as descricao', 'codigoitens.id', 'codigoitens.codigo_id'])
                         ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
-                        ->where('codigos.descricao', 'Modalidade Licitação')
+                        ->where('codigos.descricao', 'Restrições do amparo legal')
                         ->orderBy('descricao', 'ASC')
                         ->get();
                 }),
@@ -261,26 +265,41 @@ class AmparoLegalCrudController extends CrudController
                 'name' => 'ato_normativo',
                 'label' => 'Ato Normativo',
                 'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
             ],
             [
                 'name' => 'artigo',
                 'label' => 'Artigo',
                 'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
             ],
             [
                 'name' => 'paragrafo',
                 'label' => 'Parágrafo',
                 'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
             ],
             [
                 'name' => 'inciso',
                 'label' => 'Inciso',
                 'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
             ],
             [
                 'name' => 'alinea',
                 'label' => 'Alínea',
                 'type' => 'text',
+                'attributes' => [
+                    'onkeyup' => "maiuscula(this)"
+                ],
             ],
 
         ];
