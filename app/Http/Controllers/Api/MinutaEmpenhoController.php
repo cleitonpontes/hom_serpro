@@ -185,13 +185,14 @@ class MinutaEmpenhoController extends Controller
 
     public function gravaSfOperacaoItemEmpenho(SfItemEmpenho $modSfItemEmpenho, $item)
     {
+        $vlroperacao = ($item->valor > 0 ) ? $item->valor : $item->valor * -1;
 
         $modSfOpItemEmpenho = new SfOperacaoItemEmpenho();
         $modSfOpItemEmpenho->sfitemempenho_id = $modSfItemEmpenho->id;
         $modSfOpItemEmpenho->tipooperacaoitemempenho = $item->operacao_descres; // Incluir nas tabelas codigo (OPERACAOITEMEMPENHO) e codigoitens (INCLUSÃO - REFORCO - ANULACAO - CANCELAMENTO)
         $modSfOpItemEmpenho->quantidade = $item->quantidade;
         $modSfOpItemEmpenho->vlrunitario = ($item->valor / $item->quantidade);
-        $modSfOpItemEmpenho->vlroperacao = $item->valor;
+        $modSfOpItemEmpenho->vlroperacao = $vlroperacao;
         $modSfOpItemEmpenho->save();
 //        dd($modSfOpItemEmpenho);
     }
