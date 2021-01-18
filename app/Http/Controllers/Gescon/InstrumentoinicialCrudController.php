@@ -734,6 +734,10 @@ class InstrumentoinicialCrudController extends CrudController
         try {
             DB::beginTransaction();
 
+            if (!empty($request->get('excluir_item'))) {
+                $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
+            }
+
             // caso tinha ou tenha minuta, os itens são excluídos e cadastrados novamente conforme a grid recebida do front
             $arrMinutasContratoHistorico = ContratoHistoricoMinutaEmpenho::where('contrato_historico_id', $request->id)->get();
             if(!empty($request->minutasempenho) || count($arrMinutasContratoHistorico) > 0){
@@ -752,10 +756,6 @@ class InstrumentoinicialCrudController extends CrudController
             // your additional operations after save here
             // use $this->data['entry'] or $this->crud->entry
 
-
-            if (!empty($request->get('excluir_item'))) {
-                $this->excluirSaldoHistoricoItem($request->get('excluir_item'));
-            }
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
