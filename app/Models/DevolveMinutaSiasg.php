@@ -17,7 +17,8 @@ class DevolveMinutaSiasg extends Model
     protected $table = 'devolve_minuta_siasg';
     protected $fillable = [
         'minutaempenho_id',
-        'situacao'
+        'situacao',
+        'alteracao'
     ];
 
     /*
