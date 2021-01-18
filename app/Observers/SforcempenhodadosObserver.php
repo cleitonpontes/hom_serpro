@@ -50,7 +50,8 @@ class SforcempenhodadosObserver
                 DevolveMinutaSiasg::create([
                     'minutaempenho_id' => $sfOrcEmpenhoDados->minutaempenho_id,
                     'situacao' => 'Pendente',
-                    'alteracao' => $sfOrcEmpenhoDados->alteracao
+                    'alteracao' => $sfOrcEmpenhoDados->alteracao,
+                    'minutaempenhos_remessa_id' => $sfOrcEmpenhoDados->minutaempenhos_remessa_id
                 ]);
             }
         }
