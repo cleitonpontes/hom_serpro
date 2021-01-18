@@ -126,8 +126,10 @@ class VerifyStepEmpenhoMiddleware
             $minuta = MinutaEmpenho::find($minuta_id);
             $remessa_id = Route::current()->parameter('remessa')
                 ?? $minuta->max_remessa;
+            $remessa_alteracao_id = Route::current()->parameter('remessa');
             $remessa = MinutaEmpenhoRemessa::find($remessa_id);
 
+            session(['remessa_id' => $remessa_alteracao_id]);
             session(['empenho_etapa' => '']);
             session(['conta_id' => '']);
             session(['fornecedor_compra' => '']);
