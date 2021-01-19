@@ -127,7 +127,7 @@ class ComprasnetController extends Controller
     {
         $retorno = [];
 
-        if (empty($request->uasgCompra) or empty($request->modalidade) or empty($request->numeroCompra) or empty($request->anoCompra) or empty($request->numeroItem)) {
+        if (empty($request->uasgCompra) or empty($request->modalidade) or empty($request->numeroCompra) or empty($request->anoCompra)) {
             return $retorno;
         }
 
@@ -135,7 +135,6 @@ class ComprasnetController extends Controller
         $dados['uasgCompra'] = str_pad($request->uasgCompra, 6, "0", STR_PAD_LEFT);
         $dados['modalidade'] = str_pad($request->modalidade, 2, "0", STR_PAD_LEFT);
         $dados['numeroAnoCompra'] = str_pad($request->numeroCompra, 5, "0", STR_PAD_LEFT) . '/' . $request->anoCompra;
-        $dados['item_compra'] = str_pad($request->numeroItem, 5, "0", STR_PAD_LEFT);
 
         //opcionais
         $dados['uasg_contrato'] = @str_pad($request->uasgContrato, 6, "0", STR_PAD_LEFT);
@@ -159,11 +158,13 @@ class ComprasnetController extends Controller
                         $f->where('cpf_cnpj_idgener', $this->formataCnpjCpf($dados['fornecedor']));
                     });
                 }
-            })
-                ->where('numero_item_compra', $dados['item_compra'])
-                ->get();
+            });
 
-            foreach ($dados as $dado) {
+            if (!empty($request->numeroItem)) {
+                $dados->where('numero_item_compra', str_pad($request->numeroItem, 5, "0", STR_PAD_LEFT));
+            };
+
+            foreach ($dados->get() as $dado) {
                 $instrumento_inicial = $dado->contrato->historico()->whereHas('tipo', function ($t) {
                     $t->where('descricao', '<>', 'Termo Aditivo')
                         ->where('descricao', '<>', 'Termo de Apostilamento')
