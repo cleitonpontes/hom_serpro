@@ -139,7 +139,6 @@ class ComprasnetController extends Controller
         //opcionais
         $dados['uasg_contrato'] = @str_pad($request->uasgContrato, 6, "0", STR_PAD_LEFT);
         $dados['fornecedor'] = @$request->fornecedor;
-        $dados['item_compra'] = (!empty($request->numeroItem)) ? str_pad($request->numeroItem, 5, "0", STR_PAD_LEFT) : null;
 
         $unidade_compra = ($dados['uasgCompra']) ? $this->buscaUnidadePorCodigo($dados['uasgCompra']) : null;
         $modalidade = ($dados['modalidade']) ? $this->buscaModalidadePorCodigo($dados['modalidade']) : null;
@@ -159,12 +158,13 @@ class ComprasnetController extends Controller
                         $f->where('cpf_cnpj_idgener', $this->formataCnpjCpf($dados['fornecedor']));
                     });
                 }
-                if ($dados['item_compra']) {
-                    $q->where('numero_item_compra', $dados['item_compra']);
-                }
-            })->get();
+            });
 
-            foreach ($dados as $dado) {
+            if (!empty($request->numeroItem)) {
+                $dados->where('numero_item_compra', str_pad($request->numeroItem, 5, "0", STR_PAD_LEFT));
+            };
+
+            foreach ($dados->get() as $dado) {
                 $instrumento_inicial = $dado->contrato->historico()->whereHas('tipo', function ($t) {
                     $t->where('descricao', '<>', 'Termo Aditivo')
                         ->where('descricao', '<>', 'Termo de Apostilamento')
