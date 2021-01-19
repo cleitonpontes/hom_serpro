@@ -149,17 +149,21 @@ class VerifyStepEmpenhoMiddleware
             session(['situacao' => '']);
             session(['unidade_ajax_id' => '']);
             session(['etapa' => '']);
+            session(['situacao_remessa' => '']);
+            session(['passivo_anterior' => $minuta->passivo_anterior]);
 
             if ($this->rotas_minuta_alteracao[Route::current()->action['as']] === 1) {
                 session(['situacao' => 'EM ANDAMENTO']);
                 session(['empenho_etapa' => 1]);
+                session(['passivo_anterior' => $minuta->passivo_anterior]);
 
                 if (strpos(Route::current()->action['as'], 'create') !== false) {
+
                     if ($remessa->remessa === 0) {
                         return $next($request);
                     }
 
-                    if ($remessa->situacao->descricao === 'ERRO' || $remessa->situacao->descricao === 'EM ANDAMENTO') {
+                    if (($remessa->situacao->descricao === 'ERRO' || $remessa->situacao->descricao === 'EM ANDAMENTO')) {
                         return redirect(route('empenho.crud.alteracao.edit', [
                             'minuta_id' => $minuta_id,
                             'remessa' => $remessa->id,
@@ -171,6 +175,7 @@ class VerifyStepEmpenhoMiddleware
             if ($this->rotas_minuta_alteracao[Route::current()->action['as']] === 2) {
                 session(['situacao' => 'EM ANDAMENTO']);
                 session(['empenho_etapa' => 2]);
+                session(['passivo_anterior' => $minuta->passivo_anterior]);
 
                 //se for create
                 if (strpos(Route::current()->action['as'], 'edit') === false) {
@@ -187,6 +192,7 @@ class VerifyStepEmpenhoMiddleware
             //caso a rota seja a 3
             session(['situacao' => $remessa->situacao->descricao]);
             session(['empenho_etapa' => 3]);
+            session(['passivo_anterior' => $minuta->passivo_anterior]);
         }
 
         return $next($request);

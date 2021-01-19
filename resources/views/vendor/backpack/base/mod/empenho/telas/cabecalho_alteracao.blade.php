@@ -10,7 +10,7 @@
         $request = Request();
         $url = $request->path();
         //dd($url);
-
+        //dd(session('passivo_anterior'));
         $partes = explode('/', $url);
         $proc = array_search('tela', $partes);
 
@@ -43,9 +43,11 @@
                 'minuta' => $minuta_id
                 ]);
             }
-            if (false){
+            if (session('passivo_anterior')){
                 $rotas[2] = route('empenho.crud.passivo-anterior.edit',
                 ['minuta_id' => $minuta_id, 'remessa' => $remessa_id]);
+            }else{
+                $rotas[2] = '#';
             }
 
             $rotas[3] = route('empenho.crud.alteracao.show', [

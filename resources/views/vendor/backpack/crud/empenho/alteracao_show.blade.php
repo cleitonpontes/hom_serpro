@@ -224,35 +224,45 @@
             <div class="box-tools">
                 <div class="row">
                     <div class="col-md-4">
-                        @if ($entry->situacao_descricao === 'EM ANDAMENTO'
-                                && $entry->situacao_descricao === 'EM PROCESSAMENTO'
-                                && !empty(session('conta_id')) )
-                            <button type="button" class="btn btn-primary" id="voltar">
+                        @if(session('passivo_anterior'))
+                            <button type="button" class="btn btn-primary" id="voltar_passivo"
+                                @if (session('situacao') !== 'EMPENHO EMITIDO')
+                                    id="voltar_passivo"
+                                @else
+                                    disabled
+                                @endif
+                            >
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </button>
                         @else
                             <button type="button" class="btn btn-primary" id="voltar"
-                                    disabled>
+                                    @if (session('situacao') !== 'EMPENHO EMITIDO')
+                                    id="voltar"
+                                    @else
+                                    disabled
+                                @endif
+                            >
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </button>
                         @endif
-
                     </div>
+{{--                    {{dd(session('situacao'))}}--}}
                     <div class="col-md-4" align="center">
                         <button type="button" class="btn btn-primary" id="emitir_empenho_siafi"
-                                {{--@if ($entry->situacao_descricao === 'EM ANDAMENTO' && $entry->etapa === 8)
+                                @if (session('situacao') === 'EM ANDAMENTO' || session('situacao') === 'ERRO')
                                 id="emitir_empenho_siafi"
                                 @else
                                 disabled
-                            @endif--}}
+                            @endif
                         >
                             <i class="fa fa-save"></i> Emitir Empenho SIAFI
                         </button>
 
                     </div>
+
                     <div class="col-md-4" align="right">
                         <button type="button" class="btn btn-primary" id="finalizar"
-                            {{--{{($entry->situacao_descricao !== 'EM PROCESSAMENTO') ? 'disabled' : ''}}--}}
+                            {{(session('situacao') !== 'EMPENHO EMITIDO') ? 'disabled' : ''}}
                         >
                             <i class="fa fa-check-circle"></i> Finalizar
                         </button>
@@ -280,28 +290,44 @@
 
         $(document).ready(function () {
 
+
+
             $('body').on('click', '#emitir_empenho_siafi', function (event) {
                 salvarTabelasSiafi(event);
                 $('#emitir_empenho_siafi').attr('disabled', true);
                 $('#voltar').attr('disabled', true);
-                $('#empenhar_outro_fornecedor').removeAttr('disabled');
                 $('#finalizar').removeAttr('disabled');
             });
 
-            $('body').on('click', '#empenhar_outro_fornecedor', function (event) {
-                empenharOutroFornecedor(event);
-                $('#empenhar_outro_fornecedor').attr('disabled', true);
-                $('#emitir_empenho_siafi').removeAttr('disabled');
-                $('#finalizar').attr('disabled', true);
-            });
 
             $('body').on('click', '#finalizar', function (event) {
-                window.location.href = "{{route('empenho.crud./minuta.index')}}";
+                var minuta_id = $('#minuta_id').val();
+                var url ="{{route('empenho.crud.alteracao.index', ['minuta_id' => ':minuta_id'])}}";
+                    url = url.replace(':minuta_id', minuta_id);
+                window.location.href = url;
             });
 
+
             $('body').on('click', '#voltar', function (event) {
-                window.location.href = "{{route('empenho.crud.passivo-anterior.edit', ['minuta_id' => session('conta_id')])}}";
+                var minuta_id = $('#minuta_id').val();
+                var url ="{{route('empenho.crud.alteracao.index', ['minuta_id' => ':minuta_id'])}}";
+                url = url.replace(':minuta_id', minuta_id);
+                window.location.href = url;
             });
+
+            $('body').on('click', '#voltar_passivo', function (event) {
+
+                var minuta_id = $('#minuta_id').val();
+                var remessa_id = $('#remessa_id').val();
+
+                var minuta_id = $('#minuta_id').val();
+                var url ="{{route('empenho.crud.alteracao.passivo-anterior.edit',['minuta_id' => ':minuta_id','remessa_id' => ':remessa_id'])}}";
+                url = url.replace(':minuta_id', minuta_id);
+                url = url.replace(':remessa_id', remessa_id);
+                window.location.href = url;
+            });
+
+
         });
 
         function salvarTabelasSiafi(event) {
