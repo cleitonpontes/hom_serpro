@@ -81,6 +81,11 @@ class VerifyStepEmpenhoMiddleware
                 }
             }
             $minuta = MinutaEmpenho::find($minuta_id);
+            //caso a minuta seja de outra unidade, redireciona
+            if (session('user_ug_id') !== $minuta->unidade_id) {
+                return redirect(route('empenho.crud./minuta.index'));
+            }
+
 
             if ($minuta->situacao->descricao == 'ERRO') {
                 $situacao = Codigoitem::wherehas('codigo', function ($q) {
@@ -124,6 +129,13 @@ class VerifyStepEmpenhoMiddleware
         if (array_key_exists(Route::current()->action['as'], $this->rotas_minuta_alteracao)) {
             $minuta_id = Route::current()->parameter('minuta_id');
             $minuta = MinutaEmpenho::find($minuta_id);
+
+            //caso a minuta seja de outra unidade, redireciona
+            if (session('user_ug_id') !== $minuta->unidade_id) {
+                return redirect(route('empenho.crud./minuta.index'));
+            }
+
+
             $remessa_id = Route::current()->parameter('remessa')
                 ?? $minuta->max_remessa;
             $remessa_alteracao_id = Route::current()->parameter('remessa');
