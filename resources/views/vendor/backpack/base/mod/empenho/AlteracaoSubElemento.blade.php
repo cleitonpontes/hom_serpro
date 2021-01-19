@@ -89,7 +89,7 @@
                 </div>
 
                 <div class="box-tools">
-                    @include('backpack::mod.empenho.botoes',['rota' => route('empenho.minuta.etapa.saldocontabil', ['minuta_id' => $minuta_id])])
+                    @include('backpack::mod.empenho.botoes',['rota' => route('empenho.crud.alteracao.index', ['minuta_id' => $minuta_id])])
                 </div>
 
 
@@ -105,7 +105,7 @@
         function BloqueiaValorTotal(tipo_alteracao) {
             var selected = $(tipo_alteracao).find(':selected').text();
 
-            if (selected == 'CANCELAMENTO') {
+            if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
                 // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
                 $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
             } else {
