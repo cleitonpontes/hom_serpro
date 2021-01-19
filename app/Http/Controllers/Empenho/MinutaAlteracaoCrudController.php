@@ -1048,6 +1048,7 @@ class MinutaAlteracaoCrudController extends CrudController
     {
         $modMinuta = MinutaEmpenho::find($minuta_id);
 
+//            dd(123, $modMinuta);
         if ($modMinuta->empenho_por === 'Compra') {
             $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
                 ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
@@ -1057,6 +1058,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
 //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
+                ->join('codigoitens as operacao', 'operacao.id', '=', 'compra_item_minuta_empenho.operacao_id')
                 ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa)
                 ->select([
@@ -1067,6 +1069,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('catmatseritens.descricao AS "Descrição"'),
                     DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
                     DB::raw('naturezasubitem.codigo || \' - \' || naturezasubitem.descricao AS "ND Detalhada"'),
+                    DB::raw('operacao.descricao AS "Operação"'),
                     DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
