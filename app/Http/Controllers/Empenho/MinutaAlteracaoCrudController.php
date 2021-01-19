@@ -508,6 +508,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $remessa_id = (Route::current()->parameter('remessa') ?? 0);
 
         if ($codigoitem->descricao == 'Contrato') {
+
             $tipo = 'contrato_item_id';
 
             $itens = $this->getItens($modMinutaEmpenho);
@@ -1337,9 +1338,23 @@ class MinutaAlteracaoCrudController extends CrudController
             )
             ->addColumn(
                 [
+                    'data' => 'qtd_total_item',
+                    'name' => 'qtd_total_item',
+                    'title' => 'Qtd. Empenhada',
+                ]
+            )
+            ->addColumn(
+                [
+                    'data' => 'vlr_total_item',
+                    'name' => 'vlr_total_item',
+                    'title' => 'Valor Empenhado',
+                ]
+            )
+            ->addColumn(
+                [
                     'data' => 'natureza_despesa',
                     'name' => 'natureza_despesa',
-                    'title' => 'Natureza da Despesa',
+                    'title' => 'ND',
                 ]
             )
             ->addColumn(
@@ -1355,7 +1370,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 [
                     'data' => 'tipo_alteracao',
                     'name' => 'tipo_alteracao',
-                    'title' => 'Tipo Alteracão',
+                    'title' => 'Tipo Operacão',
                     'orderable' => false,
                     'searchable' => false
                 ]
