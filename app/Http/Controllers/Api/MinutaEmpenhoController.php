@@ -168,7 +168,6 @@ class MinutaEmpenhoController extends Controller
         $tipo = $modMinutaEmpenho->tipo_empenhopor->descricao;
 
         $itens = $this->getItens($tipo, $modMinutaEmpenho->id, $remessa_id);
-//        dd($itens);
 
         foreach ($itens as $key => $item) {
             if ($item->operacao !== 'NENHUMA') {
