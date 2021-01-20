@@ -84,6 +84,10 @@ class MinutaEmpenhoController extends Controller
         $amparoLegal = AmparoLegal::find($modMinutaEmpenho->amparo_legal_id);
         $ugemitente = Unidade::find($modMinutaEmpenho->saldo_contabil->unidade_id);
         $codfavorecido = (str_replace('-', '', str_replace('/', '', str_replace('.', '', $favorecido->cpf_cnpj_idgener))));
+        $informacao_complementar = $modMinutaEmpenho->informacao_complementar;
+        if($modMinutaEmpenho->numero_cipi){
+            $informacao_complementar = $informacao_complementar . ' - CIPI: ' . $modMinutaEmpenho->numero_cipi;
+        }
 
         $modSfOrcEmpenhoDados->minutaempenho_id = $modMinutaEmpenho->id;
         $modSfOrcEmpenhoDados->ugemitente = $ugemitente->codigo;
@@ -96,7 +100,7 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->vlrempenho = (!is_null($modMinutaEmpenho->valor_total)) ? $modMinutaEmpenho->valor_total : null;
         $modSfOrcEmpenhoDados->codfavorecido = $codfavorecido;
         $modSfOrcEmpenhoDados->codamparolegal = $amparoLegal->codigo;
-        $modSfOrcEmpenhoDados->txtinfocompl = $modMinutaEmpenho->informacao_complementar;
+        $modSfOrcEmpenhoDados->txtinfocompl = $informacao_complementar;
         $modSfOrcEmpenhoDados->txtlocalentrega = $modMinutaEmpenho->local_entrega;
         $modSfOrcEmpenhoDados->txtdescricao = $modMinutaEmpenho->descricao;
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
