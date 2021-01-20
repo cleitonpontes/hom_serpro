@@ -114,6 +114,10 @@
         function BloqueiaValorTotal(tipo_alteracao) {
             var selected = $(tipo_alteracao).find(':selected').text();
 
+            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
+            $(tipo_alteracao).closest('tr').find('td').find('.qtd').val(0)
+            calculaUtilizado();
+
             if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
                 // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
                 $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
@@ -156,20 +160,32 @@
             value = ptToEn(value);
 
             var quantidade = value / obj.dataset.valor_unitario;
-
-            $(".qtd" + {{$tipo}}).val(quantidade)
+            $(".qtd" + {{$tipo}}).val(quantidade).trigger("input")
 
         }
 
         $(document).ready(function () {
+
+            $('body').on('change', '.valor_total', function (event) {
+                calculaUtilizado();
+            });
+
             $('body').on('input', '.valor_total', function (event) {
-                var soma = 0;
-                var utilizado = 0;
-                var saldo = {{$credito}};
-                var valor_utilizado = {{$valor_utilizado}};
-                var anulacao = outros = 0;
-                $(".valor_total").each(function (index) {
-                    var valor = ptToEn($(this).val());
+                calculaUtilizado();
+            });
+            $('body').on('input', '.qtd', function (event) {
+                calculaUtilizado();
+            });
+        });
+
+        function calculaUtilizado(){
+            var soma = 0;
+            var utilizado = 0;
+            var saldo = {{$credito}};
+            var valor_utilizado = {{$valor_utilizado}};
+            var anulacao = outros = 0;
+            $(".valor_total").each(function (index) {
+                var valor = ptToEn($(this).val());
 
                     var selected = $(this).closest('tr').find('select').find(':selected').text();
 
@@ -190,11 +206,11 @@
                     utilizado *= -1;
                 }
 
-                $("#utilizado").html("<b>R$ " + utilizado.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
-                $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
-                $("#valor_utilizado").val(soma);
-            });
-        });
+            $("#utilizado").html("<b>R$ " + utilizado.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
+            $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            $("#valor_utilizado").val(soma);
+
+        }
 
         function atualizaMascara() {
             var maxLength = '000.000.000.000.000,00'.length;
