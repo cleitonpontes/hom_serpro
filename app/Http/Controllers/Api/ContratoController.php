@@ -265,7 +265,7 @@ class ContratoController extends Controller
                 'observacao' => $historico->observacao,
                 'ug' => @$historico->unidade->codigo,
                 'fornecedor' => [
-                    'tipo' => $historico->fornecedor->tipo_fornecedor,
+                    'tipo' => @$historico->fornecedor->tipo_fornecedor,
                     'cnpj_cpf_idgener' => $historico->fornecedor->cpf_cnpj_idgener,
                     'nome' => $historico->fornecedor->nome,
                 ],
