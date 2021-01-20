@@ -501,14 +501,12 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function create()
     {
-
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
         $remessa_id = (Route::current()->parameter('remessa') ?? 0);
 
         if ($codigoitem->descricao == 'Contrato') {
-
             $tipo = 'contrato_item_id';
 
             $itens = $this->getItens($modMinutaEmpenho);
@@ -527,7 +525,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
             $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
             if ($remessa_id) {
-                $valor_utilizado = $valor_utilizado->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa_id);
+                $valor_utilizado = $valor_utilizado->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', '<>', $remessa_id);
             }
             $valor_utilizado = $valor_utilizado->select(DB::raw('coalesce(sum(valor),0) as sum'))
                 ->first()->toArray();
@@ -542,6 +540,8 @@ class MinutaAlteracaoCrudController extends CrudController
 
         $update = strpos(Route::current()->uri, 'edit');
 
+        $sispp_servico = (int)($itens[0]['tipo_compra_descricao'] === 'SISPP' && $itens[0]['descricao'] === 'Serviço');
+
         return view(
             'backpack::mod.empenho.AlteracaoSubElemento',
             compact('html')
@@ -552,6 +552,7 @@ class MinutaAlteracaoCrudController extends CrudController
             'tipo' => $tipo,
             'update' => $update,
             'fornecedor_id' => $itens[0]['fornecedor_id'] ?? '',
+            'sispp_servico' => $sispp_servico,
             'url_form' => $update !== false
                 ? "/empenho/minuta/$minuta_id/alteracao/$remessa_id"
                 : "/empenho/minuta/$minuta_id/alteracao"
@@ -607,19 +608,19 @@ class MinutaAlteracaoCrudController extends CrudController
             ->addColumn(
                 'tipo_alteracao',
                 function ($item) use ($tipos) {
-                    return $this->addColunaTipoAlteracao($item, $tipos);
+                    return $this->addColunaTipoOperacao($item, $tipos);
                 }
             )
             ->addColumn(
                 'quantidade',
-                function ($item) use ($tipo) {
-                    return $this->addColunaQuantidade($item, $tipo);
+                function ($item) use ($tipo, $tipos) {
+                    return $this->addColunaQuantidade($item, $tipo, $tipos);
                 }
             )
             ->addColumn(
                 'valor_total',
-                function ($item) use ($tipo) {
-                    return $this->addColunaValorTotal($item, $tipo);
+                function ($item) use ($tipo, $tipos) {
+                    return $this->addColunaValorTotal($item, $tipo, $tipos);
                 }
             )
             ->addColumn(
@@ -1435,7 +1436,7 @@ class MinutaAlteracaoCrudController extends CrudController
             ->select('id', 'codigo', 'descricao')
             ->first();
 
-        $colSubItem = " <input  type='text' class='form-control qtd' "
+        $colSubItem = " <input  type='text' class='form-control ' "
             . "  value='$subItem->codigo - $subItem->descricao' readonly   "
             . " title='$subItem->codigo - $subItem->descricao' >";
 
@@ -1444,54 +1445,75 @@ class MinutaAlteracaoCrudController extends CrudController
         return $this->addColunaCompraItemId($item, $tipo) . $colSubItem . $hidden;
     }
 
-    private function addColunaTipoAlteracao($item, $tipos)
+    private function addColunaTipoOperacao($item, $tipos)
     {
 //        dd($item, $tipos);
 
         $retorno = '<select name="tipo_alteracao[]" class="subitem" style="width:200px"
             onchange="BloqueiaValorTotal(this)">';
         foreach ($tipos as $key => $value) {
-//            $selected = ($key == $item['subelemento_id']) ? 'selected' : '';
-//            $retorno .= "<option value='$key' $selected>$value</option>";
-            $retorno .= "<option value='$key|$value' >$value</option>";
+            $selected = ($key == $item['operacao_id']) ? 'selected' : '';
+            $retorno .= "<option value='$key|$value' $selected>$value</option>";
         }
         $retorno .= '</select>';
         return $retorno;
     }
 
-    private function addColunaQuantidade($item, $tipo)
+    private function addColunaQuantidade($item, $tipo, $tipos)
     {
-        $quantidade = $item['quantidade'];
+        $quantidade = (float)$item['quantidade'];
+
+        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+            $quantidade *= -1;
+        }
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='number' class='form-control qtd"
+            return " <input  type='number' class='form-control qtd qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
-                . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
-                . "' data-tipo='' name='quantidade_total[]' value='"
-                . $item['qtd_item'] . "'> ";
+                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
+        }
+
+        $readonly = 'readonly';
+        if (array_key_exists($item['operacao_id'], $tipos)
+            && (
+                $tipos[$item['operacao_id']] === "ANULAÇÃO"
+                || $tipos[$item['operacao_id']] === "REFORÇO"
+            )) {
+            $readonly = '';
         }
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control' value='$quantidade' oninput='calculaValorTotal(this)'  > "
-            . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
-            . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+            . " class='form-control qtd' value='$quantidade' oninput='calculaValorTotal(this)'  $readonly> ";
     }
 
-    private function addColunaValorTotal($item, $tipo)
+    private function addColunaValorTotal($item, $tipo, $tipos)
     {
-//        dd($item);
-        $valor = $item['valor'];
+        $valor = (float)$item['valor'];
+
+        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+            $valor *= -1;
+        }
+
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+            $readonly = 'readonly';
+            if (array_key_exists($item['operacao_id'], $tipos)
+                && (
+                    $tipos[$item['operacao_id']] === "ANULAÇÃO"
+                    || $tipos[$item['operacao_id']] === "REFORÇO"
+                )) {
+                $readonly = '';
+            }
+
             return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
                 . $item[$tipo] . "'"
                 . "id='vrtotal" . $item[$tipo]
                 . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
                 . " data-$tipo='" . $item[$tipo] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onkeyup='calculaQuantidade(this)' >";
+                . " onkeyup='calculaQuantidade(this)' $readonly>";
         }
+
         return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
             . "id='vrtotal" . $item[$tipo]
             . "' data-tipo='' name='valor_total[]' value='$valor' readonly > ";
@@ -1583,6 +1605,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->select(
                         [
                             'contrato_item_minuta_empenho.contrato_item_id',
+                            'contrato_item_minuta_empenho.operacao_id',
                             'tipo_compra.descricao as tipo_compra_descricao',
                             'codigoitens.descricao',
                             'catmatseritens.codigo_siasg',
@@ -1704,6 +1727,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->select(
                         [
                             'compra_item_minuta_empenho.compra_item_id',
+                            'compra_item_minuta_empenho.operacao_id',
                             'compra_item_fornecedor.fornecedor_id',
                             'tipo_compra.descricao as tipo_compra_descricao',
                             'codigoitens.descricao',

@@ -82,6 +82,7 @@
         <div class="box-body">
             <br/>
             <form action="{{$url_form}}" method="POST">
+                <input type="hidden" id="sispp_servico" name="sispp_servico" value="{{$sispp_servico}}">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
                 <input type="hidden" id="credito" name="credito" value="{{$credito}}">
@@ -116,9 +117,18 @@
             if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
                 // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
                 $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
-            } else {
-                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', false)
+                $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+                return;
             }
+
+            if($('#sispp_servico').val() == false){
+                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
+                $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', false)
+                return;
+            }
+            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', false)
+            $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+
         }
 
         function bloqueia(tipo) {
