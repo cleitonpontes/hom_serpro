@@ -480,7 +480,7 @@ class MinutaEmpenhoController extends Controller
 
             $ugOrigemContrato = $modMinutaEmpenho->contrato_vinculado->unidadeorigem->codigo;
             $tipoContrato = $modMinutaEmpenho->contrato_vinculado->tipo->descres;
-            $numeroAno = $modMinutaEmpenho->contrato_vinculado->numero;
+            $numeroAno = implode('', explode('/', $modMinutaEmpenho->contrato_vinculado->numero));
 
 //           dd(DB::getQueryLog());
 

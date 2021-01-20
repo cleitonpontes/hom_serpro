@@ -310,8 +310,12 @@
 
             $('body').on('click', '#voltar', function (event) {
                 var minuta_id = $('#minuta_id').val();
-                var url ="{{route('empenho.crud.alteracao.index', ['minuta_id' => ':minuta_id'])}}";
+                var minuta = $('#minuta_id').val();
+                var remessa_id = $('#remessa_id').val();
+                var url ="{{route('empenho.crud.alteracao.edit', ['minuta_id' => ':minuta_id','remessa_id' => ':remessa_id','minuta' => ':minuta'])}}";
                 url = url.replace(':minuta_id', minuta_id);
+                url = url.replace(':remessa_id', remessa_id);
+                url = url.replace(':minuta', minuta);
                 window.location.href = url;
             });
 

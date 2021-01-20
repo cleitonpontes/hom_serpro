@@ -60,7 +60,7 @@
                     Utilizado:
                 </div>
                 <div class="col-md-10 col-sm-9" id="utilizado">
-                    <b>R$ 0,00</b>
+                    <b>R$ {{ number_format($empenhado,2,',','.') }}</b>
                 </div>
             </div>
             <div class="row">

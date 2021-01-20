@@ -346,8 +346,6 @@ Route::group([
              *
              **/
 
-            Route::get('/tteste/compraitem/{compraitem_id}', 'MinutaAlteracaoCrudController@testeSaldoAtualizado');
-
 
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
 
