@@ -467,12 +467,8 @@ class MinutaAlteracaoCrudController extends CrudController
         $content = parent::show($id);
         $params = Route::current()->parameters();
 
-        $this->crud->addClause(
-            'where',
-            'compra_item_minuta_empenho.minutaempenhos_remessa_id',
-            '=',
-            $params['remessa']
-        );
+
+
 
 //        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
 
@@ -1091,6 +1087,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
                 ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
+                ->join('codigoitens as operacao', 'operacao.id', '=', 'contrato_item_minuta_empenho.operacao_id')
                 ->where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->where('contrato_item_minuta_empenho.minutaempenhos_remessa_id', $remessa)
                 ->select([
@@ -1102,7 +1099,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('contratoitens.numero_item_compra AS "Número do Item"'),
                     DB::raw('catmatseritens.descricao AS "Descrição"'),
                     DB::raw('contratoitens.descricao_complementar AS "Descrição Detalhada"'),
-
+                    DB::raw('operacao.descricao AS "Operação"'),
                     DB::raw('contrato_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ])
@@ -1599,6 +1596,12 @@ class MinutaAlteracaoCrudController extends CrudController
                         '=',
                         'contratoitens.catmatseritem_id'
                     )
+                    ->join(
+                        'minutaempenhos_remessa',
+                        'minutaempenhos_remessa.id',
+                        '=',
+                        'contrato_item_minuta_empenho.minutaempenhos_remessa_id'
+                    )
                     ->where('minutaempenhos.id', $minutaEmpenho->id)
                     ->where('minutaempenhos.unidade_id', session('user_ug_id'))
                     ->distinct()
@@ -1635,19 +1638,17 @@ class MinutaAlteracaoCrudController extends CrudController
 
                 //CREATE
                 if (is_null(session('remessa_id'))) {
+                    $itens->where('minutaempenhos_remessa.remessa', 0);
+
                     $itens->addSelect([
                         DB::raw("0 AS quantidade"),
                         DB::raw("0 AS valor"),
                     ]);
+
                     return $this->retornarArray($itens->get()->toArray(), $soma->get()->toArray(), 'contrato_item_id');
                 }
+
                 //UPDATE
-                $itens->join(
-                    'minutaempenhos_remessa',
-                    'minutaempenhos_remessa.id',
-                    '=',
-                    'contrato_item_minuta_empenho.minutaempenhos_remessa_id'
-                );
                 $itens->where('contrato_item_minuta_empenho.minutaempenhos_remessa_id', session('remessa_id'));
 
                 $itens->addSelect([
@@ -1721,6 +1722,12 @@ class MinutaAlteracaoCrudController extends CrudController
                         '=',
                         'compra_items.catmatseritem_id'
                     )
+                    ->join(
+                        'minutaempenhos_remessa',
+                        'minutaempenhos_remessa.id',
+                        '=',
+                        'compra_item_minuta_empenho.minutaempenhos_remessa_id'
+                    )
                     ->where('minutaempenhos.id', $minutaEmpenho->id)
                     ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                     ->distinct()
@@ -1755,6 +1762,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
                 //CREATE
                 if (is_null(session('remessa_id'))) {
+                    $itens->where('minutaempenhos_remessa.remessa', 0);
                     $itens->addSelect([
                         DB::raw("0 AS quantidade"),
                         DB::raw("0 AS valor"),
@@ -1763,12 +1771,6 @@ class MinutaAlteracaoCrudController extends CrudController
                 }
 
                 //UPDATE
-                $itens->join(
-                    'minutaempenhos_remessa',
-                    'minutaempenhos_remessa.id',
-                    '=',
-                    'compra_item_minuta_empenho.minutaempenhos_remessa_id'
-                );
                 $itens->addSelect([
                     'compra_item_minuta_empenho.quantidade',
                     'compra_item_minuta_empenho.valor',
