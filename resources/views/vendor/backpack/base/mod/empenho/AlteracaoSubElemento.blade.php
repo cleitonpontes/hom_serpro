@@ -164,16 +164,33 @@
         $(document).ready(function () {
             $('body').on('input', '.valor_total', function (event) {
                 var soma = 0;
+                var utilizado = 0;
                 var saldo = {{$credito}};
+                var valor_utilizado = {{$valor_utilizado}};
+                var anulacao = outros = 0;
                 $(".valor_total").each(function (index) {
                     var valor = ptToEn($(this).val());
 
+                    var selected = $(this).closest('tr').find('select').find(':selected').text();
+
                     if (!isNaN(parseFloat(valor))) {
-                        soma = parseFloat(valor) + parseFloat(soma);
+                        if (selected == 'ANULAÇÃO'){
+                            anulacao = parseFloat(anulacao) + parseFloat(valor) ;
+                        } else {
+                            outros = parseFloat(outros) + parseFloat(valor);
+                        }
                     }
                 });
-                saldo = saldo - soma;
-                $("#utilizado").html("<b>R$ " + soma.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
+                soma = parseFloat(anulacao * -1) + parseFloat(outros);
+                saldo = saldo - valor_utilizado - soma;
+
+                utilizado = outros - anulacao;
+                if (anulacao > outros){
+                    utilizado = anulacao - outros;
+                    utilizado *= -1;
+                }
+
+                $("#utilizado").html("<b>R$ " + utilizado.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
                 $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
                 $("#valor_utilizado").val(soma);
             });
