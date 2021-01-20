@@ -1752,6 +1752,8 @@ class MinutaAlteracaoCrudController extends CrudController
                             'compra_item_fornecedor.fornecedor_id',
                             'tipo_compra.descricao as tipo_compra_descricao',
                             'codigoitens.descricao',
+                            'catmatseritens.descricao AS catmatser_desc',
+                            DB::raw('SUBSTRING(catmatseritens.descricao FOR 50) AS catmatser_desc_simplificado'),
                             'compra_items.catmatseritem_id',
                             'compra_items.descricaodetalhada',
                             'catmatseritens.codigo_siasg',
