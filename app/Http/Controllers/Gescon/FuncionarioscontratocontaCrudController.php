@@ -47,7 +47,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
         $this->crud->setModel('App\Models\Funcionarioscontratoconta');
         // $this->crud->setRoute(config('backpack.base.route_prefix') . '/funcionarioscontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/funcionarioscontratoconta');
-        $this->crud->setEntityNameStrings('Funcionário', 'Funcionários');
+        $this->crud->setEntityNameStrings('Empregado', 'Empregados');
 
         // cláusulas para trazer apenas os contratos terceirizados do contratoconta_id
         $this->crud->addClause('select', 'contratoterceirizados.*');

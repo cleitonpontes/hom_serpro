@@ -89,9 +89,15 @@ class Movimentacaocontratoconta extends Model
     public function getTipoMovimentacao(){
         $objCodigoItem = Codigoitem::find($this->tipo_id);
         return $descricao= $objCodigoItem->descricao;
-        // if($descricao=='Retirada'){return 'Liberação';}
-        // elseif($descricao=='Depósito'){return 'Provisão';}
-        // else{return $descricao;}
+    }
+    // método que retorna o nome resumido da unidade do usuário que cadastrou a movimentação.
+    public function getNomeResumidoUnidadeMovimentacao(){
+        $result = \DB::table('movimentacaocontratocontas as m')
+            ->select('un.nomeresumido')
+            ->join('users as u', 'u.id', '=', 'm.user_id')
+            ->join('unidades as un', 'un.id', '=', 'u.ugprimaria')
+            ->first();
+            return $result->nomeresumido;
     }
     public function getIdEncargoByIdCodigoitens($idCodigoitens){
         $obj = \DB::table('encargos')

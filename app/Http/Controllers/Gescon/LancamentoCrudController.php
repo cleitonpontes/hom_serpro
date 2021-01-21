@@ -70,7 +70,7 @@ class LancamentoCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'getNomePessoaContratoTerceirizado',
-                'label' => 'Terceirizado', // Table column heading
+                'label' => 'Empregado', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getNomePessoaContratoTerceirizado', // the method in your Model
                 'orderable' => true,

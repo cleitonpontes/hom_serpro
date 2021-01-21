@@ -119,7 +119,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'nome',
-                'label' => 'Nome do funcionário',
+                'label' => 'Nome do empregado',
                 'type' => 'text',
                 // optionals
                 'attributes' => [
@@ -130,7 +130,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'funcao',
-                'label' => 'Função do funcionário',
+                'label' => 'Função do empregado',
                 'type' => 'text',
                 // optionals
                 'attributes' => [
@@ -141,7 +141,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'remuneracao',
-                'label' => 'Remuneração do funcionário',
+                'label' => 'Remuneração do empregado',
                 'type' => 'text',
                 // optionals
                 'attributes' => [
@@ -348,7 +348,7 @@ class RetiradacontratocontaCrudController extends CrudController
             // aqui o usuário informou que a retirada é para demissão
             // verificar se o funcionário já não é demitido
             if( !$situacaoFuncionario ){
-                $mensagem = 'Este funcionário já está demitido.';
+                $mensagem = 'Este empregado já está demitido.';
                 \Alert::error($mensagem)->flash();
                 return false;
             }
@@ -577,7 +577,7 @@ class RetiradacontratocontaCrudController extends CrudController
 
         // vamos verificar se no mês/ano de competência, o funcionário já tinha iniciado
         if(!self::verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado)){
-            $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do funcionário.';
+            $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do empregado.';
             \Alert::error($mensagem)->flash();
             if( !self::excluirMovimentacao($idMovimentacao) ){
                 \Alert::error('Problemas ao excluir a movimentação.')->flash();
@@ -606,7 +606,7 @@ class RetiradacontratocontaCrudController extends CrudController
         // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
 
-        $mensagem = 'Lançamento de retirada gerado com sucesso!';
+        $mensagem = 'Lançamento de liberação gerado com sucesso!';
         \Alert::success($mensagem)->flash();
 
 

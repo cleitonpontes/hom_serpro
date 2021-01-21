@@ -58,7 +58,7 @@ class MovimentacaocontratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Movimentacaocontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/movimentacaocontratoconta');
-        $this->crud->setEntityNameStrings('movimentacaocontratoconta', 'Movimentações da conta');
+        $this->crud->setEntityNameStrings('movimentacaocontratoconta', 'Movimentações da Conta-Depósito Vinculada');
 
         $this->crud->addButtonFromView('line', 'deletemovimentacao', 'deletemovimentacao', 'beginning');
         $this->crud->addButtonFromView('line', 'moremovimentacaocontratoconta', 'moremovimentacaocontratoconta', 'end');

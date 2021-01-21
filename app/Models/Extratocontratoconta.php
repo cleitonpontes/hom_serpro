@@ -39,6 +39,11 @@ class Extratocontratoconta extends Model
         $objMovimentacao = Movimentacaocontratoconta::find($idMovimentacao);
         return $objMovimentacao->getTipoMovimentacao();
     }
+    public function getNomeResumidoUnidadeMovimentacao(){
+        $idMovimentacao = $this->movimentacao_id;
+        $objMovimentacao = Movimentacaocontratoconta::find($idMovimentacao);
+        return $objMovimentacao->getNomeResumidoUnidadeMovimentacao();
+    }
 
 
     /*
