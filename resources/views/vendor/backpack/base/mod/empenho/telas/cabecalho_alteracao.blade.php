@@ -44,7 +44,7 @@
                 ]);
             }
             if (session('passivo_anterior')){
-                $rotas[2] = route('empenho.crud.passivo-anterior.edit',
+                $rotas[2] = route('empenho.crud.alteracao.passivo-anterior.edit',
                 ['minuta_id' => $minuta_id, 'remessa' => $remessa_id]);
             }else{
                 $rotas[2] = '#';

@@ -321,9 +321,7 @@
 
             $('body').on('click', '#voltar_passivo', function (event) {
 
-                var minuta_id = $('#minuta_id').val();
                 var remessa_id = $('#remessa_id').val();
-
                 var minuta_id = $('#minuta_id').val();
                 var url ="{{route('empenho.crud.alteracao.passivo-anterior.edit',['minuta_id' => ':minuta_id','remessa_id' => ':remessa_id'])}}";
                 url = url.replace(':minuta_id', minuta_id);
