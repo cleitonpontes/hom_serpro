@@ -1507,13 +1507,13 @@ class MinutaAlteracaoCrudController extends CrudController
         $valor = number_format($valor, '2', '.', '');
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            $readonly = 'readonly';
+            $readonly = 'disabled';
             if (array_key_exists($item['operacao_id'], $tipos)
                 && (
                     $tipos[$item['operacao_id']] === "ANULAÇÃO"
                     || $tipos[$item['operacao_id']] === "REFORÇO"
                 )) {
-                $readonly = '';
+                $readonly = "";
             }
 
             return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
@@ -1527,7 +1527,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
         return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
             . "id='vrtotal" . $item[$tipo]
-            . "' data-tipo='' name='valor_total[]' value='$valor' readonly > ";
+            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
     }
 
     private function addColunaValorTotalItem($item, $tipo)

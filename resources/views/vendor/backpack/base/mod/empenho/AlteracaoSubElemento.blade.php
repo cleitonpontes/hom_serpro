@@ -120,7 +120,7 @@
 
             if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
                 // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
-                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
+                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
                 $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
                 return;
             }
@@ -130,7 +130,8 @@
                 $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', false)
                 return;
             }
-            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', false)
+            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
+            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('readonly')
             $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
 
         }
@@ -176,6 +177,15 @@
             $('body').on('input', '.qtd', function (event) {
                 calculaUtilizado();
             });
+
+            $('.submeter').click(function (event) {
+                $(".valor_total").each(function () {
+                    $(this).removeAttr('disabled');
+                    $(this).prop('readonly', true);
+                });
+
+            });
+
         });
 
         function calculaUtilizado(){
