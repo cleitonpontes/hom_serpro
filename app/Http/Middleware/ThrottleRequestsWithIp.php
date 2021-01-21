@@ -22,7 +22,7 @@ class ThrottleRequestsWithIp extends \Illuminate\Routing\Middleware\ThrottleRequ
             foreach(json_decode($ipsJson->ips) as $ip){
                 //verifica se é um cidr ip
                 $split = explode('/', $ip->name);
-                if (count($split) > 1) {
+                if (count($split) === 2) {
                     $retornoArrIps = $this->cidrToRange($ip->name);
                     foreach($retornoArrIps as $ip){
                         array_push($todosIps, $ip);
