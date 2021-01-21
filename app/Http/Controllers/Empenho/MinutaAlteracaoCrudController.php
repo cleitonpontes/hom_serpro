@@ -1813,8 +1813,8 @@ class MinutaAlteracaoCrudController extends CrudController
         if ($remessa->situacao->descricao == 'ERRO') {
             DB::beginTransaction();
             try {
-                $situacao = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM PROCESSAMENTO');
-                $remessa->situacao_id = $situacao->id;
+                $situacao_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM PROCESSAMENTO');
+                $remessa->situacao_id = $situacao_id;
                 $remessa->save();
 
                 $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenhos_remessa_id', $remessa_id)->first();
