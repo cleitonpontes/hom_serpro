@@ -1491,7 +1491,7 @@ class MinutaAlteracaoCrudController extends CrudController
             )) {
             $readonly = '';
         }
-        return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
+        return " <input type='number'  id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
             . " class='form-control qtd' value='$quantidade' oninput='calculaValorTotal(this)'  $readonly> ";
@@ -1535,7 +1535,8 @@ class MinutaAlteracaoCrudController extends CrudController
         return "<td>" . $item['qtd_item'] * $item['valorunitario'] . "</td>"
             . " <input  type='hidden' id='valor_total_item" . $item[$tipo] . "'"
             . " name='valor_total_item[]"
-            . "' value='" . $item['qtd_item'] * $item['valorunitario'] . "'> ";
+            . "' value='" . $item['qtd_item'] * $item['valorunitario'] . "'> "
+            . "<input type='hidden' id='vlr_total_item".$item[$tipo]."' name='vlr_total_item[]' value='".$item['vlr_total_item']."'>";
     }
 
     private function addColunaCompraItemId($item, $tipo)

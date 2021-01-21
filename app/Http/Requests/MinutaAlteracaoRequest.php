@@ -34,7 +34,7 @@ class MinutaAlteracaoRequest extends FormRequest
             'valor_total.*' => [
                 'filled',
                 new NaoAceitarZero($this->tipo_alteracao),
-                new NaoAceitarValorMaiorTotal($this->tipo_alteracao,$this->valor_total_item)
+                new NaoAceitarValorMaiorTotal($this->tipo_alteracao, $this->valor_total_item, $this->vlr_total_item)
             ],
             'qtd.*' => [
                 'filled',

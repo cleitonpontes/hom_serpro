@@ -17,6 +17,14 @@ class NaoAceitarValorMaiorTotal implements Rule
      * @var array
      */
     private $valor_total_item;
+    /**
+     * @var array
+     */
+    private $tipo_alteracao;
+    /**
+     * @var array
+     */
+    private $vlr_empenhado;
 
 
     /**
@@ -24,11 +32,13 @@ class NaoAceitarValorMaiorTotal implements Rule
      *
      * @param array $tipo_alteracao
      * @param array $valor_total_item
+     * @param array $vlr_total_item
      */
-    public function __construct(array $tipo_alteracao, array $valor_total_item)
+    public function __construct(array $tipo_alteracao, array $valor_total_item, array $vlr_total_item)
     {
         $this->valor_total_item = $valor_total_item;
         $this->tipo_alteracao = $tipo_alteracao;
+        $this->vlr_empenhado = $vlr_total_item;
     }
 
     /**
@@ -49,8 +59,7 @@ class NaoAceitarValorMaiorTotal implements Rule
         }
         if (strpos($tipo_alteracao, 'ANULAÇÃO') !== false) {
             $valor_selecionado = $this->retornaFormatoAmericano($value);
-
-            return $valor_selecionado <= $this->valor_total_item[$index];
+            return $valor_selecionado <= $this->vlr_empenhado[$index];
         }
         return true;
     }
