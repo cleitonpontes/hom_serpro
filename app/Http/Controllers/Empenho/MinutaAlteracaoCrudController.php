@@ -4,16 +4,20 @@ namespace App\Http\Controllers\Empenho;
 
 use App\Http\Requests\MinutaAlteracaoRequest as StoreRequest;
 use App\Http\Requests\MinutaAlteracaoRequest as UpdateRequest;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Http\Traits\Formatador;
 use App\Models\AmparoLegal;
 use App\Models\Codigoitem;
 use App\Models\Compra;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
+use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
+use App\Models\MinutaEmpenhoRemessa;
 use App\Models\Naturezasubitem;
 use App\Models\SaldoContabil;
+use App\Models\SfOrcEmpenhoDados;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Redirect;
 use Route;
+use Alert;
 use Yajra\DataTables\DataTables;
 use App\Http\Traits\CompraTrait;
 
@@ -33,6 +38,7 @@ class MinutaAlteracaoCrudController extends CrudController
 {
     use Formatador;
     use CompraTrait;
+    use BuscaCodigoItens;
 
     public function __construct(\Yajra\DataTables\Html\Builder $htmlBuilder)
     {
@@ -45,8 +51,9 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function setup()
     {
-
-        $minuta_id = $this->crud->getCurrentEntryId();
+        $minuta_id = Route::current()->parameter('minuta_id');
+        $this->remessa = Route::current()->parameter('remessa');
+        $minuta = MinutaEmpenho::find($minuta_id);
 //        $minuta_id = \Route::current()->parameter('contrato_id');
 
         /*
@@ -56,35 +63,112 @@ class MinutaAlteracaoCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\MinutaEmpenho');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'empenho/minuta/' . $minuta_id . '/alteracao');
-        $this->crud->setEntityNameStrings('Alteração Minuta Empenho', 'Alteração Minuta Empenho');
-        $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
-        $this->crud->setShowView('vendor.backpack.crud.empenho.show');
+        $this->crud->setEntityNameStrings('Alteração do Empenho', 'Alteração do Empenho');
+//        $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
+        $this->crud->setEditView('vendor.backpack.crud.empenho.alteracao_edit');
+//        $this->crud->setShowView('vendor.backpack.crud.empenho.show');
+        $this->crud->setShowView('vendor.backpack.crud.empenho.alteracao_show');
 //        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
         //TODO ARRUMAR O BOTÃO UPDATE ALTERACAO MINUTA EMPENHO
         $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
 
+
+//        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
+        $this->crud->addButtonFromView('line', 'show', 'show_alteracao', 'beginning');
+        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominutaalt', 'beginning');
+        $this->crud->addButtonFromView('line', 'update', 'etapaempenhoalteracao', 'end');
+        $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminutaalt', 'end');
+
+
         $this->crud->allowAccess('update');
         $this->crud->allowAccess('show');
-        $this->crud->allowAccess('clone');
         $this->crud->denyAccess('delete');
-        $this->crud->addClause('select', [
-            'minutaempenhos.*',
-        ])->distinct();
+
+//        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
+
+        if ($minuta->empenho_por === 'Compra') {
+            $this->crud->addClause('select', [
+                'minutaempenhos.*',
+                'compra_item_minuta_empenho.minutaempenhos_remessa_id',
+                'minutaempenhos_remessa.etapa',
+                'minutaempenhos_remessa.mensagem_siafi as mensagem_siafi_remessa',
+                DB::raw('codigoitens.descricao as situacao_remessa'),
+                'conta_corrente_passivo_anterior.conta_corrente',
+
+            ])->distinct();
+
+            $this->crud->addClause(
+                'join',
+                'compra_item_minuta_empenho',
+                'compra_item_minuta_empenho.minutaempenho_id',
+                '=',
+                'minutaempenhos.id'
+            );
+
+            $this->crud->addClause(
+                'join',
+                'minutaempenhos_remessa',
+                'minutaempenhos_remessa.id',
+                '=',
+                'compra_item_minuta_empenho.minutaempenhos_remessa_id'
+            );
+        }
+
+        if ($minuta->empenho_por === 'Contrato') {
+            $this->crud->addClause('select', [
+                'minutaempenhos.*',
+                'contrato_item_minuta_empenho.minutaempenhos_remessa_id',
+                'minutaempenhos_remessa.etapa',
+                'minutaempenhos_remessa.mensagem_siafi as mensagem_siafi_remessa',
+                DB::raw('codigoitens.descricao as situacao_remessa'),
+                'conta_corrente_passivo_anterior.conta_corrente',
+
+            ])->distinct();
+
+            $this->crud->addClause(
+                'join',
+                'contrato_item_minuta_empenho',
+                'contrato_item_minuta_empenho.minutaempenho_id',
+                '=',
+                'minutaempenhos.id'
+            );
+
+            $this->crud->addClause(
+                'join',
+                'minutaempenhos_remessa',
+                'minutaempenhos_remessa.id',
+                '=',
+                'contrato_item_minuta_empenho.minutaempenhos_remessa_id'
+            );
+        }
 
         $this->crud->addClause(
             'join',
-            'compra_item_minuta_empenho',
-            'compra_item_minuta_empenho.minutaempenho_id',
+            'codigoitens',
+            'codigoitens.id',
             '=',
-            'minutaempenhos.id'
+            'minutaempenhos_remessa.situacao_id'
         );
-
+        $this->crud->addClause(
+            'leftJoin',
+            'conta_corrente_passivo_anterior',
+            'conta_corrente_passivo_anterior.minutaempenhos_remessa_id',
+            '=',
+            'minutaempenhos_remessa.id'
+        );
         $this->crud->addClause(
             'where',
             'minutaempenhos.id',
             '=',
             $minuta_id
         );
+        $this->crud->addClause(
+            'where',
+            'minutaempenhos_remessa.remessa',
+            '<>',
+            0
+        );
+//        dd($this->crud->query->getBindings(),$this->crud->query->toSql(),$this->crud->query->get());
 
 
         /*
@@ -92,7 +176,7 @@ class MinutaAlteracaoCrudController extends CrudController
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
+//        dd($minuta_id);
         $this->adicionaCampos($minuta_id);
         $this->adicionaColunas($minuta_id);
 
@@ -107,83 +191,147 @@ class MinutaAlteracaoCrudController extends CrudController
     public function store(StoreRequest $request)
     {
 
-        dump('store alteracao', $request->all());
         $minuta_id = $request->get('minuta_id');
-
-        $compra_item_ids = $request->compra_item_id;
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+        $tipo = $modMinuta->empenho_por;
 
         $valores = $request->valor_total;
 
-        $remessa = CompraItemMinutaEmpenho::where('minutaempenho_id', $request->minuta_id)
-            ->max('remessa');
-
-        array_walk($valores, function (&$value, $key) use ($request, $remessa) {
-
-            $operacao = explode('|', $request->tipo_alteracao[$key]);
-            $quantidade = $request->qtd[$key];
-            $valor = $this->retornaFormatoAmericano($request->valor_total[$key]);
-
-            if ($operacao[1] === 'ANULAÇÃO') {
-                $quantidade = 0 - $quantidade;
-                $valor = 0 - $valor;
-            } elseif ($operacao[1] === 'CANCELAMENTO') {
-                $item = CompraItemMinutaEmpenho::where('compra_item_id', $request->compra_item_id[$key])
-                    ->where('minutaempenho_id', $request->minuta_id)
-                    ->select(DB::raw('0 - sum(quantidade) as qtd, 0 - sum(valor) as vlr'))->first();
-                $quantidade = $item->qtd;
-                $valor = $item->vlr;
-            }
-
-            $value = [
-                'compra_item_id' => $request->compra_item_id[$key],
-                'minutaempenho_id' => $request->minuta_id,
-                'subelemento_id' => $request->subitem[$key],
-                'operacao_id' => $operacao[0],
-                'remessa' => $remessa + 1,
-                'quantidade' => $quantidade,
-                'valor' => $valor,
-            ];
-        });
-        dump($valores);
-
-//        dd($compra_item_ids);
-//        $compra_item_ids = array_map(
-//            function ($compra_item_ids) use ($minuta_id) {
-//                //                dd($compra_item_ids);
-//                $compra_item_ids['minutaempenho_id'] = $minuta_id;
-//                return $compra_item_ids;
-//            },
-//            $compra_item_ids
-//        );
-
-
+//        dd(CompraItemMinutaEmpenho::class,ContratoItemMinutaEmpenho::class);
         DB::beginTransaction();
         try {
-            $teste = CompraItemMinutaEmpenho::insert($valores);
+            if ($tipo === 'Compra') {
+                $remessa = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $request->minuta_id)
+                    ->join(
+                        'minutaempenhos_remessa',
+                        'minutaempenhos_remessa.minutaempenho_id',
+                        '=',
+                        'compra_item_minuta_empenho.minutaempenho_id'
+                    )
+                    ->max('remessa');
 
-            foreach ($valores as $index => $valor) {
-                $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $valor['compra_item_id'])
-                    ->where('unidade_id', session('user_ug_id'))
-                    ->first();
+                $minutaEmpenhoRemessa = MinutaEmpenhoRemessa::create([
+                    'minutaempenho_id' => $minuta_id,
+                    'situacao_id' => $this->retornaIdCodigoItem(
+                        'Situações Minuta Empenho',
+                        'EM ANDAMENTO'
+                    ),
+                    'etapa' => 1,
+                    'remessa' => $remessa + 1
+                ]);
 
-                $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo;
-                $compraItemUnidade->save();
+                $rota = $this->setRoute($minuta_id, $minutaEmpenhoRemessa->id);
 
+                array_walk($valores, function (&$value, $key) use ($request, $minutaEmpenhoRemessa) {
+
+                    $operacao = explode('|', $request->tipo_alteracao[$key]);
+                    $quantidade = $request->qtd[$key];
+                    $valor = $this->retornaFormatoAmericano($request->valor_total[$key]);
+
+                    if ($operacao[1] === 'ANULAÇÃO') {
+                        $quantidade = 0 - $quantidade;
+                        $valor = 0 - $valor;
+                    }
+                    if ($operacao[1] === 'CANCELAMENTO') {
+                        $item = CompraItemMinutaEmpenho::where('compra_item_id', $request->compra_item_id[$key])
+                            ->where('minutaempenho_id', $request->minuta_id)
+                            ->select(DB::raw('0 - sum(quantidade) as qtd, 0 - sum(valor) as vlr'))->first();
+                        $quantidade = $item->qtd;
+                        $valor = $item->vlr;
+                    }
+
+                    $value = [
+                        'compra_item_id' => $request->compra_item_id[$key],
+                        'minutaempenho_id' => $request->minuta_id,
+                        'subelemento_id' => $request->subitem[$key],
+                        'operacao_id' => $operacao[0],
+                        'minutaempenhos_remessa_id' => $minutaEmpenhoRemessa->id,
+                        'quantidade' => $quantidade,
+                        'valor' => $valor,
+                    ];
+                });
+
+                CompraItemMinutaEmpenho::insert($valores);
+
+                foreach ($valores as $index => $valor) {
+                    $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $valor['compra_item_id'])
+                        ->where('unidade_id', session('user_ug_id'))
+                        ->first();
+//                ;dd($compraItemUnidade->getBindings(),$compraItemUnidade->toSql());
+//                dd($this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo);
+//                dd($compraItemUnidade);
+//                dd($this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo);
+                    $compraItemUnidade->quantidade_saldo = $this->retornaSaldoAtualizado($valor['compra_item_id'])->saldo;
+//                dd(11);
+                    $compraItemUnidade->save();
+                }
             }
+            if ($tipo === 'Contrato') {
+                $remessa = ContratoItemMinutaEmpenho::where('contrato_item_minuta_empenho.minutaempenho_id', $request->minuta_id)
+                    ->join(
+                        'minutaempenhos_remessa',
+                        'minutaempenhos_remessa.minutaempenho_id',
+                        '=',
+                        'contrato_item_minuta_empenho.minutaempenho_id'
+                    )
+                    ->max('remessa');
 
+                $minutaEmpenhoRemessa = MinutaEmpenhoRemessa::create([
+                    'minutaempenho_id' => $minuta_id,
+                    'situacao_id' => $this->retornaIdCodigoItem(
+                        'Situações Minuta Empenho',
+                        'EM ANDAMENTO'
+                    ),
+                    'etapa' => 1,
+                    'remessa' => $remessa + 1
+                ]);
 
+                $rota = $this->setRoute($minuta_id, $minutaEmpenhoRemessa->id);
 
+                array_walk($valores, function (&$value, $key) use ($request, $minutaEmpenhoRemessa) {
 
-//            $modMinuta = MinutaEmpenho::find($minuta_id);
-//            $modMinuta->etapa = 6;
-//            $modMinuta->valor_total = $request->valor_utilizado;
-//            $modMinuta->save();
+                    $operacao = explode('|', $request->tipo_alteracao[$key]);
+                    $quantidade = $request->qtd[$key];
+                    $valor = $this->retornaFormatoAmericano($request->valor_total[$key]);
 
+                    if ($operacao[1] === 'ANULAÇÃO') {
+                        $quantidade = 0 - $quantidade;
+                        $valor = 0 - $valor;
+                    }
+                    if ($operacao[1] === 'CANCELAMENTO') {
+                        $item = ContratoItemMinutaEmpenho::where('contrato_item_id', $request->contrato_item_id[$key])
+                            ->where('minutaempenho_id', $request->minuta_id)
+                            ->select(DB::raw('0 - sum(quantidade) as qtd, 0 - sum(valor) as vlr'))->first();
+                        $quantidade = $item->qtd;
+                        $valor = $item->vlr;
+                    }
+
+                    $value = [
+                        'contrato_item_id' => $request->contrato_item_id[$key],
+                        'minutaempenho_id' => $request->minuta_id,
+                        'subelemento_id' => $request->subitem[$key],
+                        'operacao_id' => $operacao[0],
+                        'minutaempenhos_remessa_id' => $minutaEmpenhoRemessa->id,
+                        'quantidade' => $quantidade,
+                        'valor' => $valor,
+                    ];
+                });
+
+                ContratoItemMinutaEmpenho::insert($valores);
+            }
+//            dd($rota);
+//            dd(123);
+//
             DB::commit();
+//            return Redirect::to($rota . ($remessa + 1));
+            //TODO ARRUMAR ROTA PARA SHOW
+            return Redirect::to($rota);
         } catch (Exception $exc) {
             DB::rollback();
         }
-        dd($teste);
+
+//        http://comprasnet.test/empenho/minuta/55/alteracao/passivo-anterior/4
+//        dd($teste);
 
 
 //        dd($minuta_id, $compra_item_ids, $valores);
@@ -195,27 +343,139 @@ class MinutaAlteracaoCrudController extends CrudController
 //        return $redirect_location;
     }
 
+    /**
+     * @param UpdateRequest $request
+     * @return mixed
+     */
     public function update(UpdateRequest $request)
     {
-        dd('up alteracao', $request->all());
-        // your additional operations before save here
-        $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
-        $request->request->set('etapa', 7);
+        $remessa_id = Route::current()->parameter('alteracao');
+        $minuta_id = $request->get('minuta_id');
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+        $tipo = $modMinuta->empenho_por;
+        $rota = $this->setRoute($minuta_id, $remessa_id);
 
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return Redirect::to('empenho/passivo-anterior/' . $this->minuta_id);
-//        return $redirect_location;
+        $valores = $request->valor_total;
+        DB::beginTransaction();
+        //TODO  VERIFICAR SE A LÓGICA DE RECUPERAR A REMESSA AQUI NO UPDATE ESTÁ CORRETA
+        try {
+            if ($tipo === 'Compra') {
+                foreach ($valores as $key => $value) {
+                    $operacao = explode('|', $request->tipo_alteracao[$key]);
+                    $quantidade = $request->qtd[$key];
+                    $valor = $this->retornaFormatoAmericano($request->valor_total[$key]);
+
+                    switch ($operacao[1]) {
+                        case 'NENHUMA':
+                            $quantidade = 0;
+                            $valor = 0;
+                            break;
+                        case 'ANULAÇÃO':
+                            $quantidade = 0 - $quantidade;
+                            $valor = 0 - $valor;
+                            break;
+                        case 'CANCELAMENTO':
+                            //TODO VERIFICAR SE ESTE CODIGO FUNCIONA AQUI NO UPDATE
+                            //TODO COMO ESTÁ NO UPDATE ACHO Q TEM QUE SOMAR SEM OS VALORES DA REMESSA QUE ESTÁ ATUALIZANDO
+                            $item = CompraItemMinutaEmpenho::where('compra_item_id', $request->compra_item_id[$key])
+                                ->where('minutaempenho_id', $request->minuta_id)
+                                ->select(DB::raw('0 - sum(quantidade) as qtd, 0 - sum(valor) as vlr'))->first();
+                            $quantidade = $item->qtd;
+                            $valor = $item->vlr;
+                            break;
+                    }
+                    CompraItemMinutaEmpenho::where('compra_item_id', $request->compra_item_id[$key])
+                        ->where('minutaempenho_id', $request->minuta_id)
+                        ->where('minutaempenhos_remessa_id', $remessa_id)
+                        ->update([
+                            'subelemento_id' => $request->subitem[$key],
+                            'operacao_id' => $operacao[0],
+                            'quantidade' => $quantidade,
+                            'valor' => $valor,
+                        ]);
+
+                    //todo verificar esta lógica
+                    $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $request->compra_item_id[$key])
+                        ->where('unidade_id', session('user_ug_id'))
+                        ->first();
+
+                    $saldo = $this->retornaSaldoAtualizado($request->compra_item_id[$key]);
+                    $compraItemUnidade->quantidade_saldo = $saldo->saldo;
+                    $compraItemUnidade->save();
+                }
+
+                //todo verificar se precisa salvar valor total na minuta
+                //provavelmente é na remessa
+
+//                $modMinuta = MinutaEmpenho::find($minuta_id);
+//                $modMinuta->etapa = 6;
+//                $modMinuta->valor_total = $request->valor_utilizado;
+//                $modMinuta->save();
+            }
+
+            if ($tipo === 'Contrato') {
+                foreach ($valores as $key => $value) {
+                    $operacao = explode('|', $request->tipo_alteracao[$key]);
+                    $quantidade = $request->qtd[$key];
+                    $valor = $this->retornaFormatoAmericano($request->valor_total[$key]);
+
+                    switch ($operacao[1]) {
+                        case 'NENHUMA':
+                            $quantidade = 0;
+                            $valor = 0;
+                            break;
+                        case 'ANULAÇÃO':
+                            $quantidade = 0 - $quantidade;
+                            $valor = 0 - $valor;
+                            break;
+                        case 'CANCELAMENTO':
+                            //TODO VERIFICAR SE ESTE CODIGO FUNCIONA AQUI NO UPDATE
+                            //TODO COMO ESTÁ NO UPDATE ACHO Q TEM QUE SOMAR SEM OS VALORES DA REMESSA QUE ESTÁ ATUALIZANDO
+                            $item = ContratoItemMinutaEmpenho::where('contrato_item_id', $request->contrato_item_id[$key])
+                                ->where('minutaempenho_id', $request->minuta_id)
+                                ->select(DB::raw('0 - sum(quantidade) as qtd, 0 - sum(valor) as vlr'))->first();
+                            $quantidade = $item->qtd;
+                            $valor = $item->vlr;
+                            break;
+                    }
+
+                    ContratoItemMinutaEmpenho::where('contrato_item_id', $request->contrato_item_id[$key])
+                        ->where('minutaempenho_id', $request->minuta_id)
+                        ->where('minutaempenhos_remessa_id', $remessa_id)
+                        ->update([
+                            'subelemento_id' => $request->subitem[$key],
+                            'operacao_id' => $operacao[0],
+                            'quantidade' => $quantidade,
+                            'valor' => $valor,
+                        ]);
+                }
+            }
+
+            $modRemessa = MinutaEmpenhoRemessa::find($remessa_id);
+            $modRemessa->etapa = 1;
+            $modRemessa->save();
+
+            DB::commit();
+            return Redirect::to($rota);
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
     }
 
     public function show($id)
     {
         $content = parent::show($id);
+        $params = Route::current()->parameters();
 
-        $this->adicionaBoxItens($id);
+
+
+
+//        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
+
+        $this->adicionaBoxItens($id, $params['remessa']);
         $this->adicionaBoxSaldo($id);
 
+        $this->crud->removeColumn('tipo_empenhopor_id');
         $this->crud->removeColumn('situacao_id');
         $this->crud->removeColumn('unidade_id');
         $this->crud->removeColumn('compra_id');
@@ -237,293 +497,166 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function create()
     {
-
-//        dd(1234);
         $minuta_id = Route::current()->parameter('minuta_id');
-//        dd($minuta_id);
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
+        $remessa_id = (Route::current()->parameter('remessa') ?? 0);
 
-        $itens = MinutaEmpenho::join(
-            'compra_item_minuta_empenho',
-            'compra_item_minuta_empenho.minutaempenho_id',
-            '=',
-            'minutaempenhos.id'
-        )
-            ->join(
-                'compra_items',
-                'compra_items.id',
-                '=',
-                'compra_item_minuta_empenho.compra_item_id'
-            )
-            ->join(
-                'compras',
-                'compras.id',
-                '=',
-                'compra_items.compra_id'
-            )
-            ->join(
-                'codigoitens as tipo_compra',
-                'tipo_compra.id',
-                '=',
-                'compras.tipo_compra_id'
-            )
-            ->join(
-                'codigoitens',
-                'codigoitens.id',
-                '=',
-                'compra_items.tipo_item_id'
-            )
-            ->join(
-                'saldo_contabil',
-                'saldo_contabil.id',
-                '=',
-                'minutaempenhos.saldo_contabil_id'
-            )
-            ->join(
-                'naturezadespesa',
-                'naturezadespesa.codigo',
-                '=',
-                DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
-            )
-            ->join(
-                'compra_item_fornecedor',
-                'compra_item_fornecedor.compra_item_id',
-                '=',
-                'compra_items.id'
-            )
-            ->join(
-                'compra_item_unidade',
-                'compra_item_unidade.compra_item_id',
-                '=',
-                'compra_items.id'
-            )
-            ->where('minutaempenhos.id', $minuta_id)
-            ->distinct()
-            ->select(
-                [
-                    'compra_item_minuta_empenho.compra_item_id',
-                    'compra_item_fornecedor.fornecedor_id',
-                    'tipo_compra.descricao as tipo_compra_descricao',
-                    'codigoitens.descricao',
-                    'compra_items.catmatseritem_id',
-                    'compra_items.descricaodetalhada',
-                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
-                    'compra_item_unidade.quantidade_saldo as qtd_item',
-                    'compra_item_fornecedor.valor_unitario as valorunitario',
-                    'naturezadespesa.codigo as natureza_despesa',
-                    'naturezadespesa.id as natureza_despesa_id',
-                    'compra_item_fornecedor.valor_negociado as valortotal',
-                    'saldo_contabil.saldo',
-                    'compra_item_minuta_empenho.subelemento_id',
-                    DB::raw("0 AS quantidade"),
-                    DB::raw("0 AS valor"),
-                    //                    'compra_item_minuta_empenho.quantidade',
-                    //                    'compra_item_minuta_empenho.valor',
-                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
-                ]
-            )
-            ->get()->toArray();
-//        ;dd($itens->getBindings(),$itens->toSql(),$itens->get());
-//        ;dump($itens->getBindings(),$itens->toSql(),$itens->get());
-//        select sum(valor) from compra_item_minuta_empenho WHERE minutaempenho_id = 8
-        $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
-            ->select(DB::raw('sum(valor) '))
-            ->first()->toArray();
-//        ;dd($valor_utilizado->getBindings(),$valor_utilizado->toSql(),$valor_utilizado->first());
-//        dd($valor_utilizado);
+        if ($codigoitem->descricao == 'Contrato') {
+            $tipo = 'contrato_item_id';
 
-        /*if ($request->ajax()) {
-            return DataTables::of($itens)
-                ->addColumn(
-                    'ci_id',
-                    function ($item) use ($modMinutaEmpenho) {
+            $itens = $this->getItens($modMinutaEmpenho);
 
-                        return $this->addColunaCompraItemId($item);
-                    }
-                )
-                ->addColumn(
-                    'subitem',
-                    function ($item) use ($modMinutaEmpenho) {
+            $valor_empenhado = ContratoItemMinutaEmpenho::where(
+                'contrato_item_minuta_empenho.minutaempenho_id',
+                $minuta_id
+            );
+            $valor_utilizado = ContratoItemMinutaEmpenho::where(
+                'contrato_item_minuta_empenho.minutaempenho_id',
+                $minuta_id
+            );
 
-                        return $this->addColunaSubItem($item);
-                    }
-                )
-                ->addColumn(
-                    'quantidade',
-                    function ($item) {
-                        return $this->addColunaQuantidade($item);
-                    }
-                )
-                ->addColumn(
-                    'valor_total',
-                    function ($item) {
-                        return $this->addColunaValorTotal($item);
-                    }
-                )
-                ->addColumn(
-                    'valor_total_item',
-                    function ($item) {
-                        return $this->addColunaValorTotalItem($item);
-                    }
-                )
-                ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item'])
-                ->make(true);
-        }*/
+            if ($remessa_id) {
+                $valor_utilizado = $valor_utilizado->where('contrato_item_minuta_empenho.minutaempenhos_remessa_id', '=', $remessa_id);
+                $valor_empenhado = $valor_empenhado->where('contrato_item_minuta_empenho.minutaempenhos_remessa_id', '<>', $remessa_id);
+            }
+
+            $valor_empenhado = $valor_empenhado->select(DB::raw('coalesce(sum(valor),0) as sum'))
+                ->first()->toArray();
+            $valor_utilizado = $valor_utilizado->select(DB::raw('coalesce(sum(valor),0) as sum'))
+                ->first()->toArray();
+        }
+        if ($codigoitem->descricao == 'Compra') {
+            $tipo = 'compra_item_id';
+            $itens = $this->getItens($modMinutaEmpenho);
+
+            $valor_empenhado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
+            $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
+            if ($remessa_id) {
+                $valor_empenhado = $valor_empenhado->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', '<>', $remessa_id);
+                $valor_utilizado = $valor_utilizado->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', '=', $remessa_id);
+            }
+            $valor_empenhado = $valor_empenhado->select(DB::raw('coalesce(sum(valor),0) as sum'))
+                ->first()->toArray();
+            $valor_utilizado = $valor_utilizado->select(DB::raw('coalesce(sum(valor),0) as sum'))
+                ->first()->toArray();
+        }
 
         $html = $this->retornaGridItens($minuta_id);
 
-//        dd($itens);
+        $this->crud->urlVoltar = route(
+            'empenho.crud./minuta.edit',
+            ['minutum' => $minuta_id]
+        );
+
+        $update = strpos(Route::current()->uri, 'edit');
+
+        $sispp_servico = (int)($itens[0]['tipo_compra_descricao'] === 'SISPP' && $itens[0]['descricao'] === 'Serviço');
 
         return view(
             'backpack::mod.empenho.AlteracaoSubElemento',
             compact('html')
         )->with([
             'credito' => $itens[0]['saldo'],
-            'valor_utilizado' => $valor_utilizado['sum'],
-            'saldo' => $itens[0]['saldo'] - $valor_utilizado['sum'],
-            'update' => false,
-//            'update' => $valor_utilizado['sum'] > 0,
-            'fornecedor_id' => $itens[0]['fornecedor_id'],
+            'valor_utilizado' => $valor_empenhado['sum'],
+            'empenhado' => $valor_utilizado['sum'],
+            'saldo' => $itens[0]['saldo'] - $valor_empenhado['sum'],
+            'tipo' => $tipo,
+            'update' => $update,
+            'fornecedor_id' => $itens[0]['fornecedor_id'] ?? '',
+            'sispp_servico' => $sispp_servico,
+            'url_form' => $update !== false
+                ? "/empenho/minuta/$minuta_id/alteracao/$remessa_id"
+                : "/empenho/minuta/$minuta_id/alteracao"
         ]);
     }
 
     public function ajax(Request $request)
     {
         $minuta_id = Route::current()->parameter('minuta_id');
-//        dd($minuta_id);
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $itens = $this->getItens($modMinutaEmpenho);
+
+        $arr_tipo_empenho = [
+            'Contrato' => 'contrato_item_id',
+            'Compra' => 'compra_item_id'
+        ];
+
+        $tipo = $arr_tipo_empenho[$modMinutaEmpenho->empenho_por];
+
+        $notIn = ['INCLUSAO'];
+
+        $ano_sistema = (env('ANO_SIAFI_TESTE')) ? env('ANO_SIAFI_TESTE') : date('Y');
+
+        if ($itens[0]['exercicio'] == $ano_sistema) {
+            $notIn[] = 'CANCELAMENTO';
+        } else {
+            $notIn[] = 'REFORÇO';
+            $notIn[] = 'ANULAÇÃO';
+        }
 
         $tipos = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Operação item empenho');
         })
-            ->whereNotIn('descricao', ['INCLUSAO'])
-//            ->orderBy('descricao')
+            ->whereNotIn('descricao', $notIn)
+            ->orderBy('id', 'desc')
             ->pluck('descricao', 'id')
             ->toArray();
 
-        $itens = MinutaEmpenho::join(
-            'compra_item_minuta_empenho',
-            'compra_item_minuta_empenho.minutaempenho_id',
-            '=',
-            'minutaempenhos.id'
-        )
-            ->join(
-                'compra_items',
-                'compra_items.id',
-                '=',
-                'compra_item_minuta_empenho.compra_item_id'
-            )
-            ->join(
-                'compras',
-                'compras.id',
-                '=',
-                'compra_items.compra_id'
-            )
-            ->join(
-                'codigoitens as tipo_compra',
-                'tipo_compra.id',
-                '=',
-                'compras.tipo_compra_id'
-            )
-            ->join(
-                'codigoitens',
-                'codigoitens.id',
-                '=',
-                'compra_items.tipo_item_id'
-            )
-            ->join(
-                'saldo_contabil',
-                'saldo_contabil.id',
-                '=',
-                'minutaempenhos.saldo_contabil_id'
-            )
-            ->join(
-                'naturezadespesa',
-                'naturezadespesa.codigo',
-                '=',
-                DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
-            )
-            ->join(
-                'compra_item_fornecedor',
-                'compra_item_fornecedor.compra_item_id',
-                '=',
-                'compra_items.id'
-            )
-            ->join(
-                'compra_item_unidade',
-                'compra_item_unidade.compra_item_id',
-                '=',
-                'compra_items.id'
-            )
-            ->where('minutaempenhos.id', $minuta_id)
-//            ->where('compra_item_unidade.quantidade_saldo', '>',0)
-//            ->where('compra_item_unidade.quantidade_saldo', '>',0)
-            ->distinct()
-            ->select(
-                [
-                    'compra_item_minuta_empenho.compra_item_id',
-                    'compra_item_fornecedor.fornecedor_id',
-                    'tipo_compra.descricao as tipo_compra_descricao',
-                    'codigoitens.descricao',
-                    'compra_items.catmatseritem_id',
-                    'compra_items.descricaodetalhada',
-                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
-                    'compra_item_unidade.quantidade_saldo as qtd_item',
-                    'compra_item_fornecedor.valor_unitario as valorunitario',
-                    'naturezadespesa.codigo as natureza_despesa',
-                    'naturezadespesa.id as natureza_despesa_id',
-                    'compra_item_fornecedor.valor_negociado as valortotal',
-                    'saldo_contabil.saldo',
-                    'compra_item_minuta_empenho.subelemento_id',
-                    //                    'compra_item_minuta_empenho.quantidade',
-                    //                    'compra_item_minuta_empenho.valor',
-                    DB::raw("0 AS quantidade"),
-                    DB::raw("0 AS valor"),
-                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
-                ]
-            )
-            ->get()->toArray();
 //        ;dd($itens->getBindings(),$itens->toSql(),$itens->get());
         return DataTables::of($itens)
             ->addColumn(
                 'ci_id',
-                function ($item) use ($modMinutaEmpenho) {
-                    return $this->addColunaCompraItemId($item);
+                function ($item) use ($tipo) {
+                    return $this->addColunaCompraItemId($item, $tipo);
                 }
             )
             ->addColumn(
                 'subitem',
-                function ($item) {
-                    return $this->addColunaSubItem($item);
+                function ($item) use ($tipo) {
+                    return $this->addColunaSubItem($item, $tipo);
                 }
             )
             ->addColumn(
                 'tipo_alteracao',
                 function ($item) use ($tipos) {
-                    return $this->addColunaTipoAlteracao($item, $tipos);
+                    return $this->addColunaTipoOperacao($item, $tipos);
                 }
             )
             ->addColumn(
                 'quantidade',
-                function ($item) {
-                    return $this->addColunaQuantidade($item);
+                function ($item) use ($tipo, $tipos) {
+                    return $this->addColunaQuantidade($item, $tipo, $tipos);
                 }
             )
             ->addColumn(
                 'valor_total',
-                function ($item) {
-                    return $this->addColunaValorTotal($item);
+                function ($item) use ($tipo, $tipos) {
+                    return $this->addColunaValorTotal($item, $tipo, $tipos);
                 }
             )
             ->addColumn(
                 'valor_total_item',
-                function ($item) {
-                    return $this->addColunaValorTotalItem($item);
+                function ($item) use ($tipo) {
+                    return $this->addColunaValorTotalItem($item, $tipo);
                 }
             )
             ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada']);
+                if ($itens['descricaosimplificada'] != null) {
+                    return $this->retornaDescricaoDetalhada(
+                        $itens['descricaosimplificada'],
+                        $itens['descricaodetalhada']
+                    );
+                }
+                return $this->retornaDescricaoDetalhada(
+                    $itens['catmatser_desc_simplificado'],
+                    $itens['catmatser_desc']
+                );
             })
+
+//            ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
+//                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada']);
+//            })
             ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item', 'descricaosimplificada', 'tipo_alteracao'])
 //            ->rawColumns(['subitem', 'valor_total', 'valor_total_item'])
             ->make(true);
@@ -535,7 +668,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->adicionaCampoCipi();
         $this->adicionaCampoDataEmissao();
         $this->adicionaCampoTipoEmpenho();
-        $this->adicionaCampoFornecedor();
+//        $this->adicionaCampoFornecedor();
         $this->adicionaCampoProcesso();
         $this->adicionaCampoAmparoLegal($minuta_id);
         $this->adicionaCampoTaxaCambio();
@@ -699,6 +832,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->adicionaColunaTipoCompra();
         $this->adicionaColunaUnidadeCompra();
         $this->adicionaColunaModalidade();
+        $this->adicionaColunaTipoEmpenhoPor();
         $this->adicionaColunaNumeroAnoCompra();
 
         $this->adicionaColunaTipoEmpenho();
@@ -731,16 +865,15 @@ class MinutaAlteracaoCrudController extends CrudController
     {
         $this->crud->addColumn([
             'box' => 'resumo',
-            'name' => 'getSituacao',
-            'label' => 'Situação',
-            'type' => 'model_function',
-            'function_name' => 'getSituacao',
-            'priority' => 1,
+            'name' => 'situacao_remessa',
+            'label' => 'Situação', // Table column heading
+            'type' => 'text',
+//            'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
-            'visibleInTable' => true,
-            'visibleInModal' => true,
-            'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
         ]);
     }
 
@@ -820,6 +953,27 @@ class MinutaAlteracaoCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    public function adicionaColunaTipoEmpenhoPor()
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'getTipoEmpenhoPor',
+            'label' => 'Tipo de Minuta', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getTipoEmpenhoPor', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+//                'searchLogic'   => function ($query, $column, $searchTerm) {
+//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
+//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
+//                },
+
         ]);
     }
 
@@ -904,32 +1058,71 @@ class MinutaAlteracaoCrudController extends CrudController
         ]);
     }
 
-    public function adicionaBoxItens($minuta_id)
+    public function adicionaBoxItens($minuta_id, $remessa)
     {
-        $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
-            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
-            ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
-            ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
-            ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
-            ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+        $modMinuta = MinutaEmpenho::find($minuta_id);
+
+//            dd(123, $modMinuta);
+        if ($modMinuta->empenho_por === 'Compra') {
+            $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
+                ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
+                ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
+                ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+                ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
+                ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
 //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
-            ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
-            ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
-            ->select([
-                DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
-                DB::raw('fornecedores.nome AS "Fornecedor"'),
-                DB::raw('codigoitens.descricao AS "Tipo do Item"'),
-                DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
-                DB::raw('catmatseritens.descricao AS "Descrição"'),
-                DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
-                DB::raw('naturezasubitem.codigo || \' - \' || naturezasubitem.descricao AS "ND Detalhada"'),
-                DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
-                DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
-                DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
+                ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
+                ->join('codigoitens as operacao', 'operacao.id', '=', 'compra_item_minuta_empenho.operacao_id')
+                ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa)
+                ->select([
+                    DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
+                    DB::raw('fornecedores.nome AS "Fornecedor"'),
+                    DB::raw('codigoitens.descricao AS "Tipo do Item"'),
+                    DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
+                    DB::raw('catmatseritens.descricao AS "Descrição"'),
+                    DB::raw('compra_items.descricaodetalhada AS "Descrição Detalhada"'),
+                    DB::raw('naturezasubitem.codigo || \' - \' || naturezasubitem.descricao AS "ND Detalhada"'),
+                    DB::raw('operacao.descricao AS "Operação"'),
+                    DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
+                    DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
+                    DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
+                ])
+                ->distinct()->get()->toArray();
+        }
 
+        if ($modMinuta->empenho_por === 'Contrato') {
+            $itens = ContratoItemMinutaEmpenho::join(
+                'contratoitens',
+                'contratoitens.id',
+                '=',
+                'contrato_item_minuta_empenho.contrato_item_id'
+            )
+                ->join('minutaempenhos', 'minutaempenhos.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
+                ->join('contratos', 'contratos.id', '=', 'minutaempenhos.contrato_id')
+                ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
+                ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
+                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
+                ->join('codigoitens as operacao', 'operacao.id', '=', 'contrato_item_minuta_empenho.operacao_id')
+                ->where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->where('contrato_item_minuta_empenho.minutaempenhos_remessa_id', $remessa)
+                ->select([
+                    DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
+                    DB::raw('fornecedores.nome AS "Fornecedor"'),
+                    DB::raw('codigoitens.descricao AS "Tipo do Item"'),
 
-            ])
-            ->get()->toArray();
+                    DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
+                    DB::raw('contratoitens.numero_item_compra AS "Número do Item"'),
+                    DB::raw('catmatseritens.descricao AS "Descrição"'),
+                    DB::raw('contratoitens.descricao_complementar AS "Descrição Detalhada"'),
+                    DB::raw('operacao.descricao AS "Operação"'),
+                    DB::raw('contrato_item_minuta_empenho.quantidade AS "Quantidade"'),
+                    DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
+                ])
+                ->get()->toArray();
+        }
+//        dd(123);
+//        ;dd($itens->getBindings(),$itens->toSql(), $itens->get());
 
         $this->crud->addColumn([
             'box' => 'itens',
@@ -1018,7 +1211,7 @@ class MinutaAlteracaoCrudController extends CrudController
     {
         $this->crud->addColumn([
             'box' => 'resumo',
-            'name' => 'mensagem_siafi',
+            'name' => 'mensagem_siafi_remessa',
             'label' => 'Mensagem SIAFI',
             'type' => 'text',
             'priority' => 1,
@@ -1099,7 +1292,6 @@ class MinutaAlteracaoCrudController extends CrudController
      */
     private function retornaGridItens($minuta_id)
     {
-//        dd(route('empenho.crud.alteracao.ajax',12));
         $rota = route('empenho.crud.alteracao.ajax', $minuta_id);
 
         $html = $this->htmlBuilder
@@ -1124,8 +1316,8 @@ class MinutaAlteracaoCrudController extends CrudController
             )
             ->addColumn(
                 [
-                    'data' => 'catmatseritem_id',
-                    'name' => 'catmatseritem_id',
+                    'data' => 'codigo_siasg',
+                    'name' => 'codigo_siasg',
                     'title' => 'Codigo',
                 ]
             )
@@ -1159,9 +1351,23 @@ class MinutaAlteracaoCrudController extends CrudController
             )
             ->addColumn(
                 [
+                    'data' => 'qtd_total_item',
+                    'name' => 'qtd_total_item',
+                    'title' => 'Qtd. Empenhada',
+                ]
+            )
+            ->addColumn(
+                [
+                    'data' => 'vlr_total_item',
+                    'name' => 'vlr_total_item',
+                    'title' => 'Valor Empenhado',
+                ]
+            )
+            ->addColumn(
+                [
                     'data' => 'natureza_despesa',
                     'name' => 'natureza_despesa',
-                    'title' => 'Natureza da Despesa',
+                    'title' => 'ND',
                 ]
             )
             ->addColumn(
@@ -1177,7 +1383,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 [
                     'data' => 'tipo_alteracao',
                     'name' => 'tipo_alteracao',
-                    'title' => 'Tipo Alteracão',
+                    'title' => 'Tipo Operacão',
                     'orderable' => false,
                     'searchable' => false
                 ]
@@ -1195,7 +1401,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 [
                     'data' => 'valor_total',
                     'name' => 'valor_total',
-                    'title' => 'Valor Total',
+                    'title' => 'Valor da Alteração',
                     'orderable' => false,
                     'searchable' => false
                 ]
@@ -1234,7 +1440,7 @@ class MinutaAlteracaoCrudController extends CrudController
         return $html;
     }
 
-    private function addColunaSubItem($item)
+    private function addColunaSubItem($item, $tipo)
     {
         $subItem = Naturezasubitem::where('naturezadespesa_id', $item['natureza_despesa_id'])
             ->where('id', $item['subelemento_id'])
@@ -1242,77 +1448,446 @@ class MinutaAlteracaoCrudController extends CrudController
             ->select('id', 'codigo', 'descricao')
             ->first();
 
-        $colSubItem = " <input  type='text' class='form-control qtd' "
+        $colSubItem = " <input  type='text' class='form-control ' "
             . "  value='$subItem->codigo - $subItem->descricao' readonly   "
             . " title='$subItem->codigo - $subItem->descricao' >";
 
         $hidden = " <input  type='hidden' name='subitem[]' value='$subItem->id'>";
 
-        return $this->addColunaCompraItemId($item) . $colSubItem . $hidden;
+        return $this->addColunaCompraItemId($item, $tipo) . $colSubItem . $hidden;
     }
 
-    private function addColunaTipoAlteracao($item, $tipos)
+    private function addColunaTipoOperacao($item, $tipos)
     {
-
-        $retorno = '<select name="tipo_alteracao[]" class="subitem" style="width:200px">';
+        $retorno = '<select name="tipo_alteracao[]" class="subitem" style="width:200px"
+            onchange="BloqueiaValorTotal(this)">';
         foreach ($tipos as $key => $value) {
-//            $selected = ($key == $item['subelemento_id']) ? 'selected' : '';
-//            $retorno .= "<option value='$key' $selected>$value</option>";
-            $retorno .= "<option value='$key|$value' >$value</option>";
+            $selected = ($key == $item['operacao_id']) ? 'selected' : '';
+            $retorno .= "<option value='$key|$value' $selected>$value</option>";
         }
         $retorno .= '</select>';
         return $retorno;
     }
 
-    private function addColunaQuantidade($item)
+    private function addColunaQuantidade($item, $tipo, $tipos)
     {
-        $quantidade = $item['quantidade'];
+        $quantidade = (float)$item['quantidade'];
+
+        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+            $quantidade *= -1;
+        }
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='number' class='form-control qtd"
-                . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id']
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
-                . " <input  type='hidden' id='quantidade_total" . $item['compra_item_id']
-                . "' data-tipo='' name='quantidade_total[]' value='"
-                . $item['qtd_item'] . "'> ";
+            return " <input  type='number' class='form-control qtd qtd"
+                . $item[$tipo] . "' id='qtd" . $item[$tipo]
+                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
         }
-        return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item['compra_item_id']
-            . "' data-compra_item_id='" . $item['compra_item_id']
+
+        $readonly = 'readonly';
+        if (array_key_exists($item['operacao_id'], $tipos)
+            && (
+                $tipos[$item['operacao_id']] === "ANULAÇÃO"
+                || $tipos[$item['operacao_id']] === "REFORÇO"
+            )) {
+            $readonly = '';
+        }
+        return " <input type='number'  id='qtd" . $item[$tipo]
+            . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control' value='$quantidade' onchange='calculaValorTotal(this)'  > "
-            . " <input  type='hidden' id='quantidade_total" . $item['compra_item_id']
-            . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+            . " class='form-control qtd' value='$quantidade' oninput='calculaValorTotal(this)'  $readonly> ";
     }
 
-    private function addColunaValorTotal($item)
+    private function addColunaValorTotal($item, $tipo, $tipos)
     {
-//        dd($item);
-        $valor = $item['valor'];
-        if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
-                . $item['compra_item_id'] . "'"
-                . "id='vrtotal" . $item['compra_item_id']
-                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
-                . " data-compra_item_id='" . $item['compra_item_id'] . "'"
-                . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onchange='calculaQuantidade(this)' >";
+        $valor = (float)$item['valor'];
+
+        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+            $valor *= -1;
         }
-        return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "'"
-            . "id='vrtotal" . $item['compra_item_id']
-            . "' data-tipo='' name='valor_total[]' value='$valor' readonly > ";
+        $valor = number_format($valor, '2', '.', '');
+
+        if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+            $readonly = 'disabled';
+            if (array_key_exists($item['operacao_id'], $tipos)
+                && (
+                    $tipos[$item['operacao_id']] === "ANULAÇÃO"
+                    || $tipos[$item['operacao_id']] === "REFORÇO"
+                )) {
+                $readonly = "";
+            }
+
+            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
+                . $item[$tipo] . "'"
+                . "id='vrtotal" . $item[$tipo]
+                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
+                . " data-$tipo='" . $item[$tipo] . "'"
+                . " data-valor_unitario='" . $item['valorunitario'] . "'"
+                . " onkeyup='calculaQuantidade(this)' $readonly>";
+        }
+
+        return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
+            . "id='vrtotal" . $item[$tipo]
+            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
     }
 
-    private function addColunaValorTotalItem($item)
+    private function addColunaValorTotalItem($item, $tipo)
     {
         return "<td>" . $item['qtd_item'] * $item['valorunitario'] . "</td>"
-            . " <input  type='hidden' id='valor_total_item" . $item['compra_item_id'] . "'"
+            . " <input  type='hidden' id='valor_total_item" . $item[$tipo] . "'"
             . " name='valor_total_item[]"
-            . "' value='" . $item['qtd_item'] * $item['valorunitario'] . "'> ";
+            . "' value='" . $item['qtd_item'] * $item['valorunitario'] . "'> "
+            . "<input type='hidden' id='vlr_total_item".$item[$tipo]."' name='vlr_total_item[]' value='".$item['vlr_total_item']."'>";
     }
 
-    private function addColunaCompraItemId($item)
+    private function addColunaCompraItemId($item, $tipo)
     {
         return " <input  type='hidden' id='" . ''
-            . "' data-tipo='' name='compra_item_id[]' value='" . $item['compra_item_id'] . "'   > ";
+            . "' data-tipo='' name='" . $tipo . "[]' value='" . $item[$tipo] . "'   > ";
+    }
+
+    private function setRoute($minuta_id, $remessa_id): string
+    {
+
+        $minuta = MinutaEmpenho::where('id', $minuta_id)->select('passivo_anterior')->first();
+
+        if ($minuta->passivo_anterior) {
+            return "empenho/minuta/{$minuta_id}/alteracao/passivo-anterior/{$remessa_id}";
+        }
+
+//        return "empenho/minuta/{$minuta_id}/alteracao/{$remessa_id}/{$minuta_id}";
+        return "empenho/minuta/{$minuta_id}/alteracao/{$remessa_id}/show/{$minuta_id}";
+    }
+
+    private function getItens(MinutaEmpenho $minutaEmpenho): array
+    {
+        $tipo = $minutaEmpenho->empenho_por;
+        switch ($tipo) {
+            case 'Contrato':
+                $itens = MinutaEmpenho::join(
+                    'contrato_item_minuta_empenho',
+                    'contrato_item_minuta_empenho.minutaempenho_id',
+                    '=',
+                    'minutaempenhos.id'
+                )
+                    ->join(
+                        'contratoitens',
+                        'contratoitens.id',
+                        '=',
+                        'contrato_item_minuta_empenho.contrato_item_id'
+                    )
+                    ->join(
+                        'compras',
+                        'compras.id',
+                        '=',
+                        'minutaempenhos.compra_id'
+                    )
+                    ->join(
+                        'codigoitens as tipo_compra',
+                        'tipo_compra.id',
+                        '=',
+                        'compras.tipo_compra_id'
+                    )
+                    ->join(
+                        'codigoitens',
+                        'codigoitens.id',
+                        '=',
+                        'contratoitens.tipo_id'
+                    )
+                    ->join(
+                        'saldo_contabil',
+                        'saldo_contabil.id',
+                        '=',
+                        'minutaempenhos.saldo_contabil_id'
+                    )
+                    ->join(
+                        'naturezadespesa',
+                        'naturezadespesa.codigo',
+                        '=',
+                        DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
+                    )
+                    ->join(
+                        'catmatseritens',
+                        'catmatseritens.id',
+                        '=',
+                        'contratoitens.catmatseritem_id'
+                    )
+                    ->join(
+                        'minutaempenhos_remessa',
+                        'minutaempenhos_remessa.id',
+                        '=',
+                        'contrato_item_minuta_empenho.minutaempenhos_remessa_id'
+                    )
+                    ->where('minutaempenhos.id', $minutaEmpenho->id)
+                    ->where('minutaempenhos.unidade_id', session('user_ug_id'))
+                    ->distinct()
+                    ->select(
+                        [
+                            'contrato_item_minuta_empenho.contrato_item_id',
+                            'contrato_item_minuta_empenho.operacao_id',
+                            'tipo_compra.descricao as tipo_compra_descricao',
+                            'codigoitens.descricao',
+                            'catmatseritens.codigo_siasg',
+                            'catmatseritens.descricao as catmatser_desc',
+                            DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
+                            'contratoitens.descricao_complementar as descricaodetalhada',
+                            DB::raw("SUBSTRING(contratoitens.descricao_complementar for 50) AS descricaosimplificada"),
+
+                            'contratoitens.quantidade as qtd_item',
+                            'contratoitens.valorunitario as valorunitario',
+                            'naturezadespesa.codigo as natureza_despesa',
+                            'naturezadespesa.id as natureza_despesa_id',
+                            'contratoitens.valortotal',
+                            'saldo_contabil.saldo',
+                            'contrato_item_minuta_empenho.subelemento_id',
+
+                            DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
+                        ]
+                    );
+                $soma = ContratoItemMinutaEmpenho::select([
+                    'contrato_item_id',
+                    DB::raw("sum(contrato_item_minuta_empenho.quantidade) as qtd_total_item"),
+                    DB::raw("sum(contrato_item_minuta_empenho.valor) as vlr_total_item"),
+                ])
+                    ->where('minutaempenho_id', $minutaEmpenho->id)
+                    ->groupBy('contrato_item_id');
+
+                //CREATE
+                if (is_null(session('remessa_id'))) {
+                    $itens->where('minutaempenhos_remessa.remessa', 0);
+
+                    $itens->addSelect([
+                        DB::raw("0 AS quantidade"),
+                        DB::raw("0 AS valor"),
+                    ]);
+
+                    return $this->retornarArray($itens->get()->toArray(), $soma->get()->toArray(), 'contrato_item_id');
+                }
+
+                //UPDATE
+                $itens->where('contrato_item_minuta_empenho.minutaempenhos_remessa_id', session('remessa_id'));
+
+                $itens->addSelect([
+                    'contrato_item_minuta_empenho.quantidade',
+                    'contrato_item_minuta_empenho.valor',
+                ]);
+
+                $soma->where('minutaempenhos_remessa_id', '<>', session('remessa_id'));
+
+                return $this->retornarArray($itens->get()->toArray(), $soma->get()->toArray(), 'contrato_item_id');
+
+                break;
+            case 'Compra':
+                $itens = MinutaEmpenho::join(
+                    'compra_item_minuta_empenho',
+                    'compra_item_minuta_empenho.minutaempenho_id',
+                    '=',
+                    'minutaempenhos.id'
+                )
+                    ->join(
+                        'compra_items',
+                        'compra_items.id',
+                        '=',
+                        'compra_item_minuta_empenho.compra_item_id'
+                    )
+                    ->join(
+                        'compras',
+                        'compras.id',
+                        '=',
+                        'compra_items.compra_id'
+                    )
+                    ->join(
+                        'codigoitens as tipo_compra',
+                        'tipo_compra.id',
+                        '=',
+                        'compras.tipo_compra_id'
+                    )
+                    ->join(
+                        'codigoitens',
+                        'codigoitens.id',
+                        '=',
+                        'compra_items.tipo_item_id'
+                    )
+                    ->join(
+                        'saldo_contabil',
+                        'saldo_contabil.id',
+                        '=',
+                        'minutaempenhos.saldo_contabil_id'
+                    )
+                    ->join(
+                        'naturezadespesa',
+                        'naturezadespesa.codigo',
+                        '=',
+                        DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
+                    )
+                    ->join(
+                        'compra_item_fornecedor',
+                        'compra_item_fornecedor.compra_item_id',
+                        '=',
+                        'compra_items.id'
+                    )
+                    ->join(
+                        'compra_item_unidade',
+                        'compra_item_unidade.compra_item_id',
+                        '=',
+                        'compra_items.id'
+                    )
+                    ->join(
+                        'catmatseritens',
+                        'catmatseritens.id',
+                        '=',
+                        'compra_items.catmatseritem_id'
+                    )
+                    ->join(
+                        'minutaempenhos_remessa',
+                        'minutaempenhos_remessa.id',
+                        '=',
+                        'compra_item_minuta_empenho.minutaempenhos_remessa_id'
+                    )
+                    ->where('minutaempenhos.id', $minutaEmpenho->id)
+                    ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
+                    ->distinct()
+                    ->select(
+                        [
+                            'compra_item_minuta_empenho.compra_item_id',
+                            'compra_item_minuta_empenho.operacao_id',
+                            'compra_item_fornecedor.fornecedor_id',
+                            'tipo_compra.descricao as tipo_compra_descricao',
+                            'codigoitens.descricao',
+                            'catmatseritens.descricao AS catmatser_desc',
+                            DB::raw('SUBSTRING(catmatseritens.descricao FOR 50) AS catmatser_desc_simplificado'),
+                            'compra_items.catmatseritem_id',
+                            'compra_items.descricaodetalhada',
+                            'catmatseritens.codigo_siasg',
+                            DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
+                            'compra_item_unidade.quantidade_saldo as qtd_item',
+                            'compra_item_fornecedor.valor_unitario as valorunitario',
+                            'naturezadespesa.codigo as natureza_despesa',
+                            'naturezadespesa.id as natureza_despesa_id',
+                            'compra_item_fornecedor.valor_negociado as valortotal',
+                            'saldo_contabil.saldo',
+                            'compra_item_minuta_empenho.subelemento_id',
+                            DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
+                        ]
+                    );
+                $soma = CompraItemMinutaEmpenho::select([
+                    'compra_item_id',
+                    DB::raw("sum(compra_item_minuta_empenho.quantidade) as qtd_total_item"),
+                    DB::raw("sum(compra_item_minuta_empenho.valor) as vlr_total_item"),
+                ])
+                    ->where('minutaempenho_id', $minutaEmpenho->id)
+                    ->groupBy('compra_item_id');
+
+                //CREATE
+                if (is_null(session('remessa_id'))) {
+                    $itens->where('minutaempenhos_remessa.remessa', 0);
+                    $itens->addSelect([
+                        DB::raw("0 AS quantidade"),
+                        DB::raw("0 AS valor"),
+                    ]);
+                    return $this->retornarArray($itens->get()->toArray(), $soma->get()->toArray(), 'compra_item_id');
+                }
+
+                //UPDATE
+                $itens->addSelect([
+                    'compra_item_minuta_empenho.quantidade',
+                    'compra_item_minuta_empenho.valor',
+                ]);
+                $itens->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', session('remessa_id'));
+
+                $soma->where('minutaempenhos_remessa_id', '<>', session('remessa_id'));
+
+                return $this->retornarArray($itens->get()->toArray(), $soma->get()->toArray(), 'compra_item_id');
+                break;
+        }
+    }
+
+    public function testeSaldoAtualizado($compraitem_id)
+    {
+        return $this->retornaSaldoAtualizado($compraitem_id);
+    }
+
+    public function executarAtualizacaoSituacaoMinuta($id, $remessa_id)
+    {
+        $remessa = MinutaEmpenhoRemessa::find($remessa_id);
+
+        if ($remessa->situacao->descricao == 'ERRO') {
+            DB::beginTransaction();
+            try {
+                $situacao_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM PROCESSAMENTO');
+                $remessa->situacao_id = $situacao_id;
+                $remessa->save();
+
+                $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenhos_remessa_id', $remessa_id)->first();
+
+                $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+                $modSfOrcEmpenhoDados->save();
+
+                DB::commit();
+            } catch (Exception $exc) {
+                DB::rollback();
+            }
+
+            Alert::success('Situação da minuta alterada com sucesso!')->flash();
+            return redirect("/empenho/minuta/$id/alteracao");
+        } else {
+            Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+            return redirect("/empenho/minuta/$id/alteracao");
+        }
+    }
+
+    public function deletarMinuta($id, $remessa_id)
+    {
+        $minuta = MinutaEmpenho::find($id);
+        $remessa = MinutaEmpenhoRemessa::find($remessa_id);
+        if ($remessa->situacao->descricao == 'ERRO' || $remessa->situacao->descricao == 'EM ANDAMENTO') {
+            DB::beginTransaction();
+            try {
+                if ($minuta->empenho_por === 'Compra') {
+                    $cime = $remessa->retornaCompraItemMinutaEmpenho();
+                    $cime_deletar = $cime->get();
+                    $cime->delete();
+
+                    foreach ($cime_deletar as $item) {
+                        $compraItemUnidade = CompraItemUnidade::where('compra_item_id', $item->compra_item_id)
+                            ->where('unidade_id', session('user_ug_id'))
+                            ->first();
+                        $compraItemUnidade->quantidade_saldo =
+                            $this->retornaSaldoAtualizado($item->compra_item_id)->saldo;
+                        $compraItemUnidade->save();
+                    }
+                    $remessa->forceDelete();
+                    DB::commit();
+                    Alert::success('Minuta Deletada com sucesso!')->flash();
+                    return redirect($this->crud->route);
+                }
+                // Deletar minuta do contrato
+                $remessa->forceDelete();
+                DB::commit();
+
+                Alert::success('Minuta Deletada com sucesso!')->flash();
+                return redirect($this->crud->route);
+            } catch (Exception $exc) {
+                DB::rollback();
+                Alert::error('Erro! Tente novamente mais tarde!')->flash();
+                return redirect($this->crud->route);
+            }
+        }
+        Alert::warning('Operação não permitida!')->flash();
+        return redirect($this->crud->route);
+    }
+
+    public function retornarArray($return, $return_soma, $tipo)
+    {
+        $return = array_map(
+            function ($return) use ($return_soma, $tipo) {
+                $id = array_search($return[$tipo], array_column($return_soma, $tipo));
+                $return['qtd_total_item'] = $return_soma[$id]['qtd_total_item'];
+                $return['vlr_total_item'] = $return_soma[$id]['vlr_total_item'];
+                return $return;
+            },
+            $return
+        );
+
+        return $return;
     }
 }

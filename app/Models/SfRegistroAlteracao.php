@@ -4,22 +4,31 @@ namespace App\Models;
 
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class DevolveMinutaSiasg extends Model
+class SfRegistroAlteracao extends Model
 {
     use CrudTrait;
     use LogsActivity;
+//    use SoftDeletes;
+
+    /*
+    |--------------------------------------------------------------------------
+    | GLOBAL VARIABLES
+    |--------------------------------------------------------------------------
+    */
 
     protected static $logFillable = true;
-    protected static $logName = 'devolve_minuta_siasg';
+    protected static $logName = 'sfregistroalteracao';
 
-    protected $table = 'devolve_minuta_siasg';
+    protected $table = 'sfregistroalteracao';
+
     protected $fillable = [
-        'minutaempenho_id',
-        'situacao',
-        'alteracao',
-        'minutaempenhos_remessa_id'
+        'sforcempenhodado_id',
+        'dtemeis',
+        'txtmotivo',
+        'indrindispcaixa'
     ];
 
     /*
@@ -28,16 +37,15 @@ class DevolveMinutaSiasg extends Model
     |--------------------------------------------------------------------------
     */
 
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
 
-    public function minuta_empenho()
+    public function sforcempenhodados()
     {
-        return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
+        return $this->belongsTo(SfOrcEmpenhoDados::class, 'sforcempenhodado_id');
     }
 
     /*
@@ -57,5 +65,4 @@ class DevolveMinutaSiasg extends Model
     | MUTATORS
     |--------------------------------------------------------------------------
     */
-
 }

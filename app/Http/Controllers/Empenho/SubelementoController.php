@@ -98,6 +98,7 @@ class SubelementoController extends BaseControllerEmpenho
                         'codigoitens.descricao',
                         'catmatseritens.codigo_siasg',
                         'catmatseritens.descricao as catmatser_desc',
+
                         DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
                         'contratoitens.descricao_complementar as descricaodetalhada',
                         DB::raw("SUBSTRING(contratoitens.descricao_complementar for 50) AS descricaosimplificada"),
@@ -265,13 +266,12 @@ class SubelementoController extends BaseControllerEmpenho
                 ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item', 'descricaosimplificada'])
                 ->make(true);
 
-
             return $dados;
         }
 
         $html = $this->retornaGridItens();
 
-        $tipo = $codigoitem->descres == 'COM' ? 'compra_item_id' : 'contrato_item_id';
+        $tipo = $codigoitem->descres === 'COM' ? 'compra_item_id' : 'contrato_item_id';
 
         return view(
             'backpack::mod.empenho.Etapa5SubElemento',
@@ -449,7 +449,7 @@ class SubelementoController extends BaseControllerEmpenho
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control' value='$quantidade' onchange='calculaValorTotal(this)'  > "
+            . " class='form-control material' value='$quantidade' > "
             . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
             . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
     }
@@ -469,7 +469,7 @@ class SubelementoController extends BaseControllerEmpenho
         }
         return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
             . "id='vrtotal" . $item[$tipo]
-            . "' data-tipo='' name='valor_total[]' value='$valor' readonly > ";
+            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
     }
 
     private function addColunaValorTotalItem($item, $tipo)
@@ -622,6 +622,7 @@ class SubelementoController extends BaseControllerEmpenho
                         ]);
                 }
             } else {
+
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
                     if ($valores[$index] > $request->valor_total_item[$index]) {

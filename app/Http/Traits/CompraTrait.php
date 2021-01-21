@@ -158,17 +158,25 @@ trait CompraTrait
 
     public function gravaCatmatseritem($item)
     {
-
         $MATERIAL = [149, 194];
         $SERVICO = [150, 195];
 
         $codigo_siasg = (isset($item->codigo)) ? $item->codigo : $item->codigoItem;
         $tipo = ['S' => $SERVICO[0], 'M' => $MATERIAL[0]];
         $catGrupo = ['S' => $SERVICO[1], 'M' => $MATERIAL[1]];
-        $catmatseritem = Catmatseritem::updateOrCreate(
-            ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
-            ['descricao' => $item->descricao, 'grupo_id' => $catGrupo[$item->tipo]]
-        );
+        if ($item->descricao == ""){
+            $catmatseritem = Catmatseritem::updateOrCreate(
+                ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
+                ['descricao' => $codigo_siasg." - Descrição não informada pelo serviço.", 'grupo_id' => $catGrupo[$item->tipo]]
+            );
+
+        }else{
+            $catmatseritem = Catmatseritem::updateOrCreate(
+                ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
+                ['descricao' => $item->descricao, 'grupo_id' => $catGrupo[$item->tipo]]
+            );
+        }
+
         return $catmatseritem;
     }
 
