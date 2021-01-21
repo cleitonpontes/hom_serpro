@@ -449,7 +449,7 @@ class SubelementoController extends BaseControllerEmpenho
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control' value='$quantidade' onchange='calculaValorTotal(this)'  > "
+            . " class='form-control material' value='$quantidade' > "
             . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
             . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
     }
@@ -469,7 +469,7 @@ class SubelementoController extends BaseControllerEmpenho
         }
         return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
             . "id='vrtotal" . $item[$tipo]
-            . "' data-tipo='' name='valor_total[]' value='$valor' readonly > ";
+            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
     }
 
     private function addColunaValorTotalItem($item, $tipo)
