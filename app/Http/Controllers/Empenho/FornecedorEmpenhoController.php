@@ -401,7 +401,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'situacao_id' => $situacao_andamento->id,
                 'remessa' => 0
             ]);
-//            dd($remessa);
 
             $itens = array_map(
                 function ($itens) use ($minuta_id, $remessa) {
@@ -455,14 +454,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             );
         }
 
-//        //todo retirar daqui
-//        $itens = array_map(
-//            function ($itens) use ($minuta_id) {
-//                $itens['minutaempenho_id'] = $minuta_id;
-//                return $itens;
-//            },
-//            $itens
-//        );
 
         DB::beginTransaction();
         try {

@@ -623,14 +623,6 @@ class MinutaEmpenhoCrudController extends CrudController
         $codigoitem = Codigoitem::find($modMinuta->tipo_empenhopor_id);
 
         if ($codigoitem->descres == 'CON') {
-//            join('contrato_minuta_empenho_pivot',
-//                'contrato_minuta_empenho_pivot.minuta_empenho_id',
-//                '=',
-//                'minutaempenhos.id'
-//            )->join('contratos', 'contratos.id','=','contrato_minuta_empenho_pivot.contrato_id')
-//                ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
-//                ->where('minutaempenhos.id', $minuta_id)
-//todo buscar remessa
             $itens = ContratoItemMinutaEmpenho::join(
                 'contratoitens',
                 'contratoitens.id',
@@ -642,7 +634,13 @@ class MinutaEmpenhoCrudController extends CrudController
                 ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
                 ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
+                ->join('minutaempenhos_remessa',
+                    'minutaempenhos_remessa.id',
+                    '=',
+                    'contrato_item_minuta_empenho.minutaempenhos_remessa_id'
+                )
                 ->where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->where('minutaempenhos_remessa.remessa', 0)
                 ->select([
                     DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
                     DB::raw('fornecedores.nome AS "Fornecedor"'),
@@ -684,14 +682,12 @@ class MinutaEmpenhoCrudController extends CrudController
 
                 ])
                 ->get()->toArray();
-            //        ;dd($itens->getBindings(),$itens->toSql());
         }
 
         $this->crud->addColumn([
             'box' => 'itens',
             'name' => 'itens',
             'label' => 'itens', // Table column heading
-//            'type' => 'text',
             'orderable' => true,
             'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => false, // would make the modal too big

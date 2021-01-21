@@ -108,15 +108,10 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-//        dump($request->all());
-//        DB::enableQueryLog();
 
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
+        $remessa = $minuta->getMaxRemessaAttribute();
 
-        $remessa = $request->remessa;
-
-//        dump(DB::getQueryLog());
-//        dd($remessa);
         DB::beginTransaction();
         try {
             if ($request->passivo_anterior == 1) {
@@ -181,7 +176,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
 
             $minuta->save();
-//            dd(DB::getQueryLog());
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
@@ -193,32 +187,24 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-//        dd('22');
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
         $itens = json_decode($request->get('conta_corrente_json'), true);
+        $remessa = $minuta->getMaxRemessaAttribute();
         $arrayPassivoAnterior = ContaCorrentePassivoAnterior::where(
             'minutaempenho_id',
             $request->minutaempenho_id
         )->get()->toArray();
 
         $itens = array_map(
-            function ($itens) use ($request, $arrayPassivoAnterior) {
+            function ($itens) use ($request, $arrayPassivoAnterior, $remessa) {
                 $itens['minutaempenho_id'] = $arrayPassivoAnterior[0]['minutaempenho_id'];
                 $itens['conta_corrente_json'] = $request->conta_corrente_json;
+                $itens['minutaempenhos_remessa_id'] = $remessa;
                 return $itens;
             },
             $itens
         );
 
-        $remessa = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $request->minuta_id)
-            ->join(
-                'minutaempenhos_remessa',
-                'minutaempenhos_remessa.minutaempenho_id',
-                '=',
-                'compra_item_minuta_empenho.minutaempenho_id'
-            )
-            ->max('remessa');
-        dd($remessa);
 
         DB::beginTransaction();
         try {
