@@ -17,17 +17,13 @@ class ThrottleRequestsWithIp extends \Illuminate\Routing\Middleware\ThrottleRequ
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1, $prefix = '')
     {
-
-        $ipurl = '207.64.1.64';
-//        207.64.1.68/28
         $todosIps = [];
         foreach(Ipsacesso::all() as $ipsJson) {
-            $arrIps = json_decode($ipsJson->ips);
-            foreach($arrIps as $ip){
+            foreach(json_decode($ipsJson->ips) as $ip){
+                //verifica se é um cidr ip
                 $split = explode('/', $ip->name);
                 if (count($split) > 1) {
                     $retornoArrIps = $this->cidrToRange($ip->name);
-                    dd($retornoArrIps);
                     foreach($retornoArrIps as $ip){
                         array_push($todosIps, $ip);
                     }
@@ -37,8 +33,7 @@ class ThrottleRequestsWithIp extends \Illuminate\Routing\Middleware\ThrottleRequ
             }
         }
 
-//        if(!in_array($request->ip(), $todosIps)) {
-        if(!in_array($ipurl, $todosIps)) {
+        if(!in_array($request->ip(), $todosIps)) {
             abort('403', config('app.erro_permissao'));
         }
         return parent::handle($request, $next, $maxAttempts, $decayMinutes, $prefix);
