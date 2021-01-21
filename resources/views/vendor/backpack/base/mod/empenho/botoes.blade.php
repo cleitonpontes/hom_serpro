@@ -2,6 +2,6 @@
        href="{{$rota}}">
         <i class="fa fa-arrow-left" ></i> Voltar
     </a>
-    <button type="submit" class="btn btn-success">
+    <button type="submit" class="btn btn-success submeter">
         Próxima Etapa <i class="fa fa-arrow-right"></i>
     </button>

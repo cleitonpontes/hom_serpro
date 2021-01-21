@@ -32,17 +32,17 @@
                 if ( $("#passivo").val() == 1) {
                     $('#contabil').attr('disabled', true);
 
-                    $('#btn_add').attr('disabled', true);
+                    $('#inserir_item').attr('disabled', true);
                 }
 
                 $("#passivo").click(function() {
                     if ($(this).is(':checked')) {
                         $('#contabil').removeAttr('disabled');
-                        $('#btn_add').removeAttr('disabled');
+                        $('#inserir_item').removeAttr('disabled');
                     } else {
                         $('#contabil').attr('disabled', true);
                         $('#contabil').val("");
-                        $('#btn_add').attr('disabled', true);
+                        $('#inserir_item').attr('disabled', true);
                     }
                 });
 

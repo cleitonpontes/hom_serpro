@@ -15,17 +15,17 @@
 @endsection
 
 @section('content')
-{{--    @include('backpack::mod.empenho.telas.cabecalho')--}}
-@if ( $errors->any())
-    <div class="callout callout-danger">
-        <h4>{{ trans('backpack::crud.please_fix') }}</h4>
-        <ul>
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+        @include('vendor.backpack.base.mod.empenho.telas.cabecalho_alteracao')
+    @if ( $errors->any())
+        <div class="callout callout-danger">
+            <h4>{{ trans('backpack::crud.please_fix') }}</h4>
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <div class="flash-message">
         @foreach (['danger', 'warning', 'success', 'info'] as $msg)
@@ -47,12 +47,20 @@
                     R$ {{ number_format($credito,2,',','.') }}
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-2 col-sm-3">
+                    Empenhado:
+                </div>
+                <div class="col-md-10 col-sm-9" >
+                    R$ {{ number_format($valor_utilizado,2,',','.') }}
+                </div>
+            </div>
             <div class="row text-red">
                 <div class="col-md-2 col-sm-3">
                     Utilizado:
                 </div>
                 <div class="col-md-10 col-sm-9" id="utilizado">
-                    <b>R$ {{ number_format($valor_utilizado,2,',','.') }}</b>
+                    <b>R$ {{ number_format($empenhado,2,',','.') }}</b>
                 </div>
             </div>
             <div class="row">
@@ -73,15 +81,16 @@
 
         <div class="box-body">
             <br/>
-            <form action="/empenho/minuta/{{$minuta_id}}/alteracao" method="POST">
+            <form action="{{$url_form}}" method="POST">
+                <input type="hidden" id="sispp_servico" name="sispp_servico" value="{{$sispp_servico}}">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
                 <input type="hidden" id="credito" name="credito" value="{{$credito}}">
                 <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="{{$valor_utilizado}}">
-                @csrf <!-- {{ csrf_field() }} -->
-{{--                @if($update)--}}
-{{--                    {!! method_field('PUT') !!}--}}
-{{--                @endif--}}
+            @csrf <!-- {{ csrf_field() }} -->
+                                @if($update !== false)
+                                    {!! method_field('PUT') !!}
+                                @endif
 
                 {!! $html->table() !!}
                 <div class="col-sm-12">
@@ -89,7 +98,7 @@
                 </div>
 
                 <div class="box-tools">
-                    @include('backpack::mod.empenho.botoes',['rota' => route('empenho.minuta.etapa.saldocontabil', ['minuta_id' => $minuta_id])])
+                    @include('backpack::mod.empenho.botoes',['rota' => route('empenho.crud.alteracao.index', ['minuta_id' => $minuta_id])])
                 </div>
 
 
@@ -102,6 +111,31 @@
     {!! $html->scripts() !!}
     <script type="text/javascript">
 
+        function BloqueiaValorTotal(tipo_alteracao) {
+            var selected = $(tipo_alteracao).find(':selected').text();
+
+            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
+            $(tipo_alteracao).closest('tr').find('td').find('.qtd').val(0)
+            calculaUtilizado();
+
+            if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
+                // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
+                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
+                $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+                return;
+            }
+
+            if($('#sispp_servico').val() == false){
+                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
+                $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', false)
+                return;
+            }
+            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
+            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('readonly')
+            $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+
+        }
+
         function bloqueia(tipo) {
             $('input[type=checkbox]').each(function () {
                 if (tipo != $(this).data('tipo')) {
@@ -112,45 +146,81 @@
 
         function calculaValorTotal(obj) {
 
-            var compra_item_id = obj.dataset.compra_item_id;
+            var {{$tipo}} = obj.dataset.{{$tipo}};
             var valor_total = obj.value * obj.dataset.valor_unitario;
             valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
-            $(".vrtotal" + compra_item_id)
+            $(".vrtotal" + {{$tipo}})
                 .val(valor_total)
-                .trigger("change")
-
+                .trigger("input")
         }
 
         function calculaQuantidade(obj) {
-
-            var compra_item_id = obj.dataset.compra_item_id;
+            var {{$tipo}} = obj.dataset.{{$tipo}};
             var value = obj.value;
 
             value = ptToEn(value);
 
             var quantidade = value / obj.dataset.valor_unitario;
-
-            $(".qtd" + compra_item_id).val(quantidade)
+            $(".qtd" + {{$tipo}}).val(quantidade).trigger("input")
 
         }
 
         $(document).ready(function () {
+
             $('body').on('change', '.valor_total', function (event) {
-                var soma = 0;
-                var saldo = {{$credito}};
-                $(".valor_total").each(function (index) {
-                    var valor = ptToEn($(this).val());
+                calculaUtilizado();
+            });
+
+            $('body').on('input', '.valor_total', function (event) {
+                calculaUtilizado();
+            });
+            $('body').on('input', '.qtd', function (event) {
+                calculaUtilizado();
+            });
+
+            $('.submeter').click(function (event) {
+                $(".valor_total").each(function () {
+                    $(this).removeAttr('disabled');
+                    $(this).prop('readonly', true);
+                });
+
+            });
+
+        });
+
+        function calculaUtilizado(){
+            var soma = 0;
+            var utilizado = 0;
+            var saldo = {{$credito}};
+            var valor_utilizado = {{$valor_utilizado}};
+            var anulacao = outros = 0;
+            $(".valor_total").each(function (index) {
+                var valor = ptToEn($(this).val());
+
+                    var selected = $(this).closest('tr').find('select').find(':selected').text();
 
                     if (!isNaN(parseFloat(valor))) {
-                        soma = parseFloat(valor) + parseFloat(soma);
+                        if (selected == 'ANULAÇÃO'){
+                            anulacao = parseFloat(anulacao) + parseFloat(valor) ;
+                        } else {
+                            outros = parseFloat(outros) + parseFloat(valor);
+                        }
                     }
                 });
-                saldo = saldo - soma;
-                $("#utilizado").html("<b>R$ " + soma.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
-                $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
-                $("#valor_utilizado").val(soma);
-            });
-        });
+                soma = parseFloat(anulacao * -1) + parseFloat(outros);
+                saldo = saldo - valor_utilizado - soma;
+
+                utilizado = outros - anulacao;
+                if (anulacao > outros){
+                    utilizado = anulacao - outros;
+                    utilizado *= -1;
+                }
+
+            $("#utilizado").html("<b>R$ " + utilizado.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
+            $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            $("#valor_utilizado").val(soma);
+
+        }
 
         function atualizaMascara() {
             var maxLength = '000.000.000.000.000,00'.length;

@@ -28,7 +28,7 @@
 </div>
 <div class="row m-t-20">
 	<div class="{{ $crud->getCreateContentClass() }}">
-    @include('backpack::mod.empenho.telas.cabecalho')
+    @include('backpack::mod.empenho.telas.cabecalho_alteracao')
 		<!-- Default box -->
 
 		@include('crud::inc.grouped_errors')
@@ -40,6 +40,9 @@
 				@endif
 		  		>
 		  {!! csrf_field() !!}
+              @if($crud->update_form !== false)
+                  {!! method_field('PUT') !!}
+              @endif
 		  <div class="col-md-12">
 
 		    <div class="row display-flex-wrap">
