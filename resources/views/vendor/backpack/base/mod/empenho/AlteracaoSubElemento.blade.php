@@ -113,27 +113,41 @@
 
         function BloqueiaValorTotal(tipo_alteracao) {
             var selected = $(tipo_alteracao).find(':selected').text();
+            var minuta_por = $(tipo_alteracao).attr('id');
 
             $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
             $(tipo_alteracao).closest('tr').find('td').find('.qtd').val(0)
             calculaUtilizado();
 
-            if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
-                // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
-                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
+            if(minuta_por == 'contrato_item_id' && $('#sispp_servico').val() == true){
+
+                if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
+                    // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
+                    $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
+                    $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+                    return;
+                }
+
+                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
                 $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
-                return;
-            }
 
-            if($('#sispp_servico').val() == false){
-                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
-                $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', false)
-                return;
-            }
-            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
-            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('readonly')
-            $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+            }else {
 
+                if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
+                    $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
+                    $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+                    return;
+                }
+
+                if ($('#sispp_servico').val() == false) {
+                    $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
+                    $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', false)
+                    return;
+                }
+                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
+                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('readonly')
+                $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+            }
         }
 
         function bloqueia(tipo) {
@@ -151,7 +165,8 @@
             valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
             $(".vrtotal" + {{$tipo}})
                 .val(valor_total)
-                .trigger("input")
+                .trigger("input");
+            calculaUtilizado();
         }
 
         function calculaQuantidade(obj) {
@@ -161,8 +176,8 @@
             value = ptToEn(value);
 
             var quantidade = value / obj.dataset.valor_unitario;
-            $(".qtd" + {{$tipo}}).val(quantidade).trigger("input")
-
+            $(".qtd" + {{$tipo}}).val(quantidade).trigger("input");
+            calculaUtilizado();
         }
 
         $(document).ready(function () {
@@ -174,13 +189,19 @@
             $('body').on('input', '.valor_total', function (event) {
                 calculaUtilizado();
             });
+
             $('body').on('input', '.qtd', function (event) {
                 calculaUtilizado();
             });
 
             $('.submeter').click(function (event) {
+
                 $(".valor_total").each(function () {
                     $(this).removeAttr('disabled');
+                    $(this).prop('readonly', true);
+                });
+
+                $(".qtd").each(function () {
                     $(this).prop('readonly', true);
                 });
 

@@ -120,19 +120,23 @@
 
             var quantidade = value / obj.dataset.valor_unitario;
 
-            $(".qtd" + {{$tipo}}).val(quantidade)
+            $("#qtd" + {{$tipo}}).val(quantidade)
             calculaUtilizado();
         }
 
         $(document).ready(function () {
 
-            $('body').on('input', '.material', function (event) {
+            $('body').on('input', '.qtd', function (event) {
                 calculaValorTotal(this);
             });
 
             $('.submeter').click(function (event) {
                 $(".valor_total").each(function () {
                     $(this).removeAttr('disabled');
+                    $(this).prop('readonly', true);
+                });
+
+                $(".qtd").each(function () {
                     $(this).prop('readonly', true);
                 });
 

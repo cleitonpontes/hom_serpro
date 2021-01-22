@@ -619,8 +619,8 @@ class MinutaAlteracaoCrudController extends CrudController
             )
             ->addColumn(
                 'tipo_alteracao',
-                function ($item) use ($tipos) {
-                    return $this->addColunaTipoOperacao($item, $tipos);
+                function ($item) use ($tipos,$tipo) {
+                    return $this->addColunaTipoOperacao($item, $tipos,$tipo);
                 }
             )
             ->addColumn(
@@ -1457,9 +1457,9 @@ class MinutaAlteracaoCrudController extends CrudController
         return $this->addColunaCompraItemId($item, $tipo) . $colSubItem . $hidden;
     }
 
-    private function addColunaTipoOperacao($item, $tipos)
+    private function addColunaTipoOperacao($item, $tipos,$tipo)
     {
-        $retorno = '<select name="tipo_alteracao[]" class="subitem" style="width:200px"
+        $retorno = '<select name="tipo_alteracao[]" id="'.$tipo.'"class="subitem" style="width:200px"
             onchange="BloqueiaValorTotal(this)">';
         foreach ($tipos as $key => $value) {
             $selected = ($key == $item['operacao_id']) ? 'selected' : '';
@@ -1471,13 +1471,20 @@ class MinutaAlteracaoCrudController extends CrudController
 
     private function addColunaQuantidade($item, $tipo, $tipos)
     {
+        $ehcontrato = strpos($tipo,'contrato');
         $quantidade = (float)$item['quantidade'];
 
         if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
             $quantidade *= -1;
         }
 
-        if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+        if ($ehcontrato !== false && $item['descricao'] === 'Serviço') {
+            return " <input  type='number' class='form-control qtd qtd"
+                . $item[$tipo] . "' id='qtd" . $item[$tipo]
+                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
+        }
+
+        if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
             return " <input  type='number' class='form-control qtd qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
                 . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
@@ -1499,6 +1506,7 @@ class MinutaAlteracaoCrudController extends CrudController
 
     private function addColunaValorTotal($item, $tipo, $tipos)
     {
+        $ehcontrato = strpos($tipo,'contrato');
         $valor = (float)$item['valor'];
 
         if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
@@ -1506,7 +1514,29 @@ class MinutaAlteracaoCrudController extends CrudController
         }
         $valor = number_format($valor, '2', '.', '');
 
-        if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+        if ($ehcontrato !== false && $item['descricao'] === 'Serviço') {
+
+            $readonly = 'disabled';
+
+            if (array_key_exists($item['operacao_id'], $tipos)
+                && (
+                    $tipos[$item['operacao_id']] === "ANULAÇÃO"
+                    || $tipos[$item['operacao_id']] === "REFORÇO"
+                )) {
+                $readonly = "";
+            }
+
+            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
+                . $item[$tipo] . "'"
+                . "id='vrtotal" . $item[$tipo]
+                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
+                . " data-$tipo='" . $item[$tipo] . "'"
+                . " data-valor_unitario='" . $item['valorunitario'] . "'"
+                . " onkeyup='calculaQuantidade(this)' $readonly>";
+        }
+
+
+        if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
             $readonly = 'disabled';
             if (array_key_exists($item['operacao_id'], $tipos)
                 && (
