@@ -15,7 +15,7 @@ class ThrottleRequestsWithIp extends \Illuminate\Routing\Middleware\ThrottleRequ
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1, $prefix = '')
+    public function handle($request, Closure $next, $maxAttempts = 1000, $decayMinutes = 1, $prefix = '')
     {
         $todosIps = [];
         foreach(Ipsacesso::all() as $ipsJson) {
