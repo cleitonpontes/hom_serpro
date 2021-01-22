@@ -28,18 +28,17 @@ class MinutaAlteracaoRequest extends FormRequest
      */
     public function rules()
     {
-        return [];
-//        dd($this->valor_total_item);
+//        dd(123);
         return [
-            'credito' => 'gt:valor_utilizado',
+            'credito' => 'gte:valor_utilizado',
             'valor_total.*' => [
                 'filled',
-                new NaoAceitarZero(),
-                new NaoAceitarValorMaiorTotal($this->valor_total_item)
+                new NaoAceitarZero($this->tipo_alteracao),
+                new NaoAceitarValorMaiorTotal($this->tipo_alteracao, $this->valor_total_item, $this->vlr_total_item)
             ],
             'qtd.*' => [
                 'filled',
-                new NaoAceitarZero()
+                new NaoAceitarZero($this->tipo_alteracao)
             ]
         ];
     }
@@ -65,7 +64,7 @@ class MinutaAlteracaoRequest extends FormRequest
     public function messages()
     {
         return [
-            'credito.gt' => 'O saldo não pode ser negativo.',
+            'credito.gte' => 'O saldo não pode ser negativo.',
             'valor_total.*.filled' => 'O campo :attribute não pode estar vazio.',
         ];
     }

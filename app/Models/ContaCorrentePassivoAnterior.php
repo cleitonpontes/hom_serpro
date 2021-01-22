@@ -31,7 +31,8 @@ class ContaCorrentePassivoAnterior extends Model
         'minutaempenho_id',
         'conta_corrente',
         'valor',
-        'conta_corrente_json'
+        'conta_corrente_json',
+        'remessa',
     ];
 
     /*
@@ -49,6 +50,11 @@ class ContaCorrentePassivoAnterior extends Model
     public function minutaempenho()
     {
         return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
+    }
+
+    public function situacao()
+    {
+        return $this->belongsTo(MinutaEmpenhoRemessa::class, 'minutaempenhos_remessa_id');
     }
 
     /*

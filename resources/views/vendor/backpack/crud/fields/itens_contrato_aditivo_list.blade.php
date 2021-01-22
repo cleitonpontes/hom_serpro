@@ -129,7 +129,7 @@
             $(document).ready(function () {
 
                 valor_global = 0;
-                parcela = 1;
+                parcela = $('#num_parcelas').val();
 
                 // buscar os itens do contrato/aditivo assim que a pagina for carregada
                 buscarItens();
@@ -338,7 +338,7 @@
                     cols = "",
                     propReadOnly = $.inArray('ACRÉSCIMO / SUPRESSÃO', tratarArrayItemQualificacao()[0]) !== -1 ? '' : 'readOnly',
                     propReadOnlyReajuste = $.inArray('REAJUSTE', tratarArrayItemQualificacao()[0]) !== -1 ? '' : 'readOnly',
-                    vl_total = parseInt(item.quantidade) * parseFloat(item.valorunitario) * item.periodicidade;
+                    vl_total = item.quantidade * parseFloat(item.valorunitario) * item.periodicidade;
 
                 cols += '<td>'+item.descricao;
                 cols += '<input type="hidden" name="numero_item_compra[]" value="'+item.numero+'">';
@@ -346,6 +346,7 @@
                 cols += '<input type="hidden" name="tipo_item_id[]" value="'+item.tipo_item_id+'">';
                 cols += '<input type="hidden" name="descricao_detalhada[]" value="'+item.descricao_complementar+'">';
                 cols += '<input type="hidden" name="aditivo_item_id[]" value="'+item.id+'">';
+                cols += '<input type="hidden" name="contratoitem_id[]" value="'+item.contratoitem_id+'">';
                 cols += '</td>';
                 cols += '<td>'+item.numero+'</td>';
                 cols += '<td>'+item.codigo_siasg+' - '+item.descricao_complementar+'</td>';
@@ -427,6 +428,39 @@
                         itens.forEach(function (item) {
                             var linhas = $("#table-itens tr").length;
                             if(qtd_itens > linhas){
+                                adicionaLinhaItem(item);
+                            }
+                        });
+                        //quando se tratar de um termo aditivo vindo de uma importação e a relação dos itens estiver vazia
+                        //o sistema buscará a relação dos itens do contrato para realizar um auto preenchimento na grid de
+                        //itens
+                        if(!qtd_itens){
+                            carregarItensContratoImportado();
+                        }
+                    })
+                    .catch(error => {
+                        alert(error);
+                    })
+                    .finally()
+            }
+            /**
+             *Quando for um aditivo importado junto com contrato e não possuir itens a grid será carregada com os itens
+             * do contrato para possíveis alterações
+             **/
+            function carregarItensContratoImportado(){
+                var contrato_id = $("[name=contrato_id]").val();
+                var url = "{{route('contrato.item',':contrato_id')}}";
+                url = url.replace(':contrato_id', contrato_id);
+                axios.get(url)
+                    .then(response => {
+                        var itens = response.data;
+                        var qtd_itens = itens.length;
+                        itens.forEach(function (item) {
+                            var linhas = $("#table-itens tr").length;
+                            if(qtd_itens > linhas){
+                                item.contratoitem_id = item.id;
+                                item.tipo_item_id = item.tipo_id;
+                                delete item.id;
                                 adicionaLinhaItem(item);
                             }
                         });

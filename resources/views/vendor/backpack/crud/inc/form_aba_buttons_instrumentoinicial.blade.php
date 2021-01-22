@@ -220,6 +220,7 @@
                     .finally()
                 event.preventDefault()
             }
+            atualizarValorTotal();
         }
 
         function habilitaDesabilitaBotoes(){

@@ -28,7 +28,7 @@ class SaldoHistoricoItemController extends Controller
                 'saldohistoricoitens.periodicidade',
                 'saldohistoricoitens.data_inicio',
                 'contratoitens.catmatseritem_id',
-                'contratoitens.tipo_id',
+                'contratoitens.tipo_id as tipo_item_id',
                 'contratoitens.numero_item_compra as numero'
             )
             ->leftJoin('contratoitens', 'saldohistoricoitens.contratoitem_id', '=', 'contratoitens.id')

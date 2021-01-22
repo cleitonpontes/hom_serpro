@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Models\Catmatsergrupo;
 use App\Models\Codigoitem;
 
 trait BuscaCodigoItens
@@ -44,6 +45,13 @@ trait BuscaCodigoItens
             ->whereNull('deleted_at')
             ->where('descricao', '=', $descCodItem)
             ->first()->descres;
+    }
+
+    public function retornaIdCatMatSerGrupo($descCodigo)
+    {
+        return Catmatsergrupo::whereNull('deleted_at')
+            ->where('descricao', '=', $descCodigo)
+            ->first()->id;
     }
 
 }

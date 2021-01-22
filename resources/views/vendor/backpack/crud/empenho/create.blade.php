@@ -46,6 +46,7 @@
 		      <!-- load the view from the application if it exists, otherwise load the one in the package -->
 		      @if(view()->exists('vendor.backpack.crud.form_content'))
                     <div class="box box-solid box-primary">
+                        @if(strpos(URL::current(),'buscacompra') !== false )
                         <div class="box-header">
                             <h3 class="box-title label-title">Tipo: </h3>
                             <input type="radio" value="1" checked name="tipoEmpenho" id="opc_contrato">
@@ -53,6 +54,7 @@
                             <input type="radio" value="2" name="tipoEmpenho" id="opc_compra">
                             <label for="opc_compra" class="margin-right-10"><h3 class="box-title">Compra</h3></label>
                         </div>
+                        @endif
                         <div>
                             @include('crud::form_content', [ 'fields' => $crud->getFields('create'), 'action' => 'create' ])
                         </div>
