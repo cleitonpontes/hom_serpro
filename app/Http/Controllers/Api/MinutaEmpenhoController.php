@@ -412,7 +412,7 @@ class MinutaEmpenhoController extends Controller
     {
         $modSfOrcEmpenhoDados = new SfOrcEmpenhoDados();
 
-        $ugemitente = Unidade::find($modMinutaEmpenho->unidade_id);
+        $ugemitente = Unidade::find($modMinutaEmpenho->saldo_contabil->unidade_id);
 
         $modSfOrcEmpenhoDados->minutaempenho_id = $modMinutaEmpenho->id;
         $modSfOrcEmpenhoDados->ugemitente = $ugemitente->codigo;
