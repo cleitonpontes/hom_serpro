@@ -449,16 +449,27 @@ class SubelementoController extends BaseControllerEmpenho
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control material' value='$quantidade' > "
+            . " class='form-control qtd' value='$quantidade' > "
             . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
-            . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+            . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] ."'> ";
     }
 
     private function addColunaValorTotal($item, $tipo)
     {
-//        dd($item);
+
         $valor = $item['valor'];
-        if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
+
+       if ($tipo == 'contrato_item_id' && $item['descricao'] === 'Serviço') {
+           return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
+               . $item[$tipo] . "'"
+               . "id='vrtotal" . $item[$tipo]
+               . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
+               . " data-$tipo='" . $item[$tipo] . "'"
+               . " data-valor_unitario='" . $item['valorunitario'] . "'"
+               . " onchange='calculaQuantidade(this)' >";
+       }
+
+        if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
             return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
                 . $item[$tipo] . "'"
                 . "id='vrtotal" . $item[$tipo]
@@ -466,10 +477,11 @@ class SubelementoController extends BaseControllerEmpenho
                 . " data-$tipo='" . $item[$tipo] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
                 . " onchange='calculaQuantidade(this)' >";
+        }else {
+            return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
+                . "id='vrtotal" . $item[$tipo]
+                . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
         }
-        return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
-            . "id='vrtotal" . $item[$tipo]
-            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
     }
 
     private function addColunaValorTotalItem($item, $tipo)
