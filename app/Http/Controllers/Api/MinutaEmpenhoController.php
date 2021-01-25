@@ -45,15 +45,21 @@ class MinutaEmpenhoController extends Controller
 
     public function populaTabelasSiafi(Request $request): array
     {
+
         $retorno['resultado'] = false;
         $minuta_id = Route::current()->parameter('minuta_id');
+
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $modSaldoContabil = SaldoContabil::find($modMinutaEmpenho->saldo_contabil_id);
         $modRemessa = MinutaEmpenhoRemessa::where('minutaempenho_id',$minuta_id)->first();
 
         DB::beginTransaction();
         try {
+
+            $this->removeSfOrcEmpenhoDadosErroAndamento($modMinutaEmpenho,$modRemessa);
+
             $sforcempenhodados = $this->gravaSfOrcEmpenhoDados($modMinutaEmpenho);
+
             $this->gravaSfCelulaOrcamentaria($sforcempenhodados, $modSaldoContabil);
 
             if ($modMinutaEmpenho->passivo_anterior) {
@@ -109,6 +115,7 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->save();
         return $modSfOrcEmpenhoDados;
     }
+
 
     public function gravaSfCelulaOrcamentaria(SfOrcEmpenhoDados $sforcempenhodados, SaldoContabil $modSaldoContabil)
     {
@@ -382,6 +389,8 @@ class MinutaEmpenhoController extends Controller
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $modRemessa = MinutaEmpenhoRemessa::find($remessa_id);
 
+        $this->removeSfOrcEmpenhoDadosErroAndamento($modMinutaEmpenho,$modRemessa);
+
         DB::beginTransaction();
         try {
             $sforcempenhodadosalt = $this->gravaSfOrcEmpenhoDadosAlt($modMinutaEmpenho, $modRemessa);
@@ -503,4 +512,13 @@ class MinutaEmpenhoController extends Controller
 
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
+
+    public function removeSfOrcEmpenhoDadosErroAndamento(MinutaEmpenho $modMinutaEmpenho,MinutaEmpenhoRemessa $modRemessa)
+    {
+        return SfOrcEmpenhoDados::where('minutaempenho_id',$modMinutaEmpenho->id)
+            ->where('minutaempenhos_remessa_id',$modRemessa->id)
+            ->whereIn('situacao',['ERRO','EM ANDAMENTO'])->forceDelete();
+
+    }
+
 }
