@@ -40,6 +40,9 @@
 				@endif
 		  		>
 		  {!! csrf_field() !!}
+              @if(isset($crud->update_form) && $crud->update_form !== false)
+                  {!! method_field('PUT') !!}
+              @endif
 		  <div class="col-md-12">
 
 		    <div class="row display-flex-wrap">

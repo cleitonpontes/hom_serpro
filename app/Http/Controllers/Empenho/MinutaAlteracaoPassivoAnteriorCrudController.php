@@ -46,9 +46,17 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
         $this->crud->setEntityNameStrings('Conta Corrente Passivo Anterior', 'Contas Corrente Passivo Anterior');
 
-        $this->crud->addClause('rightJoin', 'minutaempenhos', 'minutaempenhos.id', '=', 'conta_corrente_passivo_anterior.minutaempenho_id');
+        $this->crud->addClause(
+            'rightJoin',
+            'minutaempenhos',
+            'minutaempenhos.id',
+            '=',
+            'conta_corrente_passivo_anterior.minutaempenho_id'
+        );
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'minutaempenhos.fornecedor_empenho_id');
+
         $this->crud->addClause('join', 'compras', 'compras.id', '=', 'minutaempenhos.compra_id');
+
         $this->crud->addClause('where', 'minutaempenhos.id', $minuta_id);
 
         $this->crud->groupBy(["conta_corrente_passivo_anterior.id", "minutaempenhos.id", "fornecedores.cpf_cnpj_idgener"]);
@@ -69,7 +77,6 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
             $this->crud->addClause('join', 'compra_item_minuta_empenho', 'compra_item_minuta_empenho.minutaempenho_id', '=', 'minutaempenhos.id');
             $this->crud->addClause('where', 'compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa);
             $valor_total = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
-
         }
         if ($minuta->empenho_por === 'Contrato') {
             $this->crud->addClause(
@@ -103,7 +110,6 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
                 'contrato_item_minuta_empenho.minutaempenho_id',
                 $minuta_id
             );
-
         }
 
         $valor_total = $valor_total->select(DB::raw('coalesce(sum(valor),0) as sum'))
@@ -163,14 +169,12 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
             $modRemessa->etapa = 2;
             $modRemessa->save();
             DB::commit();
-
         } catch (Exception $exc) {
             DB::rollback();
         }
 
         return Redirect::to("empenho/minuta/{$request->minutaempenho_id}/alteracao/{$remessa_id}/" .
             "show/{$request->minutaempenho_id}");
-
     }
 
     public function update(UpdateRequest $request)
@@ -201,14 +205,12 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
             $modRemessa->etapa = 2;
             $modRemessa->save();
             DB::commit();
-
         } catch (Exception $exc) {
             DB::rollback();
         }
 
         return Redirect::to("empenho/minuta/{$request->minutaempenho_id}/alteracao/{$remessa_id}/" .
             "show/{$request->minutaempenho_id}");
-
     }
 
     public function deletaPassivoAnterior(array $modPassivoAnterior)
