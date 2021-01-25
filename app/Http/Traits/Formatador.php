@@ -233,5 +233,10 @@ trait Formatador
 
     }
 
+    public function retornaSomenteNumeros($value)
+    {
+        return preg_replace("/\D/", '',$value);
+    }
+
 
 }
