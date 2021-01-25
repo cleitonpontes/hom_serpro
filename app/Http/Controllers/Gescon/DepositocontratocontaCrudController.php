@@ -128,7 +128,7 @@ class DepositocontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'quantidadeContratosTerceirizados',
-                'label' => 'Qtd de Contratos Terceirizados para este contrato',
+                'label' => 'Qtd de empregados alocados neste contrato',
                 'type' => 'text',
                 // optionals
                 'attributes' => [
