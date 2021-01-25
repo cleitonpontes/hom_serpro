@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Empenho;
 
 use Alert;
+use App\Http\Traits\Formatador;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\ContaCorrentePassivoAnterior;
 use App\Models\MinutaEmpenho;
@@ -24,15 +25,16 @@ use Route;
  */
 class ContaCorrentePassivoAnteriorCrudController extends CrudController
 {
+    use Formatador;
     public function setup()
     {
         $minuta_id = Route::current()->parameter('minuta_id');
-
         $minuta_id = isset($minuta_id) ? $minuta_id : '';
 
         $passivoAnterior = '';
         $contaContabilPassivoAnterior = '';
 
+        $this->crud->update_form = strpos(Route::current()->uri, 'edit');
 
         if (!(null !== Route::current()->parameter('minuta_id'))
             && $this->crud->getCurrentEntryId() !== false
@@ -41,7 +43,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             $modMinuta = $modPassivoAnterior->minutaempenho()->first();
             $minuta_id = $modMinuta->id;
 
-            $valor_total_minuta = $modMinuta->valor_total;
             $passivoAnterior = $modMinuta->passivo_anterior;
             $contaContabilPassivoAnterior = $modMinuta->conta_contabil_passivo_anterior;
         }
@@ -51,6 +52,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         }
 
         $minuta = MinutaEmpenho::find($minuta_id);
+        $remessa = $minuta->getMaxRemessaAttribute();
         $valor_total_minuta = $minuta->valor_total;
 
         /*
@@ -61,9 +63,17 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         $this->crud->setModel('App\Models\ContaCorrentePassivoAnterior');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'empenho/passivo-anterior');
         $this->crud->setEntityNameStrings('Conta Corrente Passivo Anterior', 'Contas Corrente Passivo Anterior');
-        $this->crud->addClause('rightJoin', 'minutaempenhos', 'minutaempenhos.id', '=', 'conta_corrente_passivo_anterior.minutaempenho_id');
+
+        $this->crud->addClause(
+            'rightJoin',
+            'minutaempenhos',
+            'minutaempenhos.id',
+            '=',
+            'conta_corrente_passivo_anterior.minutaempenho_id'
+        );
         $this->crud->addClause('join', 'fornecedores', 'fornecedores.id', '=', 'minutaempenhos.fornecedor_empenho_id');
         $this->crud->addClause('join', 'compras', 'compras.id', '=', 'minutaempenhos.compra_id');
+
         $this->crud->addClause('where', 'minutaempenhos.id', $minuta_id);
 //        $this->crud->addClause('join', 'compra_items', 'compra_items.compra_id', '=', 'compras.id');
         $this->crud->addClause(
@@ -77,10 +87,9 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             'minutaempenhos.conta_contabil_passivo_anterior',
             DB::raw("replace(replace(replace(fornecedores.cpf_cnpj_idgener,'-',''),'.',''),'/','') as conta_corrente_padrao")
         );
-//        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
-//        dd($this->crud->query->first());
-        $query = $this->crud->query->first();
-        $params = ['valor_total' => $query->valor_total, 'conta_corrente_padrao' => $query->conta_corrente_padrao];
+        $params = ['valor_total' => $minuta->valor_total,
+            'conta_corrente_padrao' => $this->retornaSomenteNumeros($minuta->fornecedor_empenho->cpf_cnpj_idgener)
+        ];
 
         $this->crud->params = $params;
 
@@ -92,7 +101,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             ['minutum' => $minuta_id]
         );
 
-//        dd($this->crud->query->toSql());
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -108,66 +116,25 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
         $remessa = $minuta->getMaxRemessaAttribute();
 
         DB::beginTransaction();
         try {
             if ($request->passivo_anterior == 1) {
-                //caso precise injetar o valor padrão na consulta
-                if (!str_contains($request->conta_corrente_json, '{"conta_corrente":')) {
-                    $conta_corrente_json = $request->conta_corrente_json;
-                    $conta_corrente_json = str_replace(
-                        '{"v',
-                        '{"conta_corrente":"' . $request->conta_corrente_p . '","v',
-                        $conta_corrente_json
-                    );
-                    $request->request->set('conta_corrente_json', $conta_corrente_json);
+                $valor_total_conta = array_sum($request->valor);
+                if ($this->crud->params['valor_total'] != $valor_total_conta) {
+                    Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
+                    return redirect()->back();
                 }
 
-                if (!str_contains($request->conta_corrente_json, '{"valor":')) {
-                    $conta_corrente_json = $request->conta_corrente_json;
-                    $conta_corrente_json = str_replace(
-                        '"}',
-                        '","valor":"' . $request->valor_total_p . '"}',
-                        $conta_corrente_json
-                    );
-                    $request->request->set('conta_corrente_json', $conta_corrente_json);
-                }
-
-                if (str_contains($request->conta_corrente_json, "{}")) {
-                    $conta_corrente_json = $request->conta_corrente_json;
-                    $conta_corrente_json = str_replace(
-                        '{}',
-                        '{"conta_corrente":"' . $request->conta_corrente_p . '","valor":"' . $request->valor_total_p . '"}',
-                        $conta_corrente_json
-                    );
-                    $request->request->set('conta_corrente_json', $conta_corrente_json);
-                }
-
-                $itens = json_decode($request->get('conta_corrente_json'), true);
-
-                if (!is_null($itens)) {
-                    $valor_total_conta = 0;
-                    foreach ($itens as $key => $item) {
-                        $valor_total_conta += $item['valor'];
-                    }
-
-                    $itens = array_map(
-                        function ($itens) use ($request,$remessa) {
-                            $itens['minutaempenho_id'] = $request->minutaempenho_id;
-                            $itens['conta_corrente_json'] = $request->conta_corrente_json;
-                            $itens['minutaempenhos_remessa_id'] = $remessa;
-                            return $itens;
-                        },
-                        $itens
-                    );
-                    ContaCorrentePassivoAnterior::insert($itens);
-                    if ($request->valor_total_p != $valor_total_conta) {
-                        Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
-                        return redirect()->back();
-                    }
+                foreach ($request->numConta as $key => $value) {
+                    $conta = new ContaCorrentePassivoAnterior();
+                    $conta->minutaempenho_id = $request->minutaempenho_id;
+                    $conta->conta_corrente = $value;
+                    $conta->valor = $request->valor[$key];
+                    $conta->minutaempenhos_remessa_id = $remessa;
+                    $conta->save();
                 }
             }
 
@@ -179,7 +146,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             DB::commit();
         } catch (Exception $exc) {
             DB::rollback();
-            dd($exc);
         }
 
         return Redirect::to('empenho/minuta/' . $minuta->id);
@@ -188,28 +154,27 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
     public function update(UpdateRequest $request)
     {
         $minuta = MinutaEmpenho::find($request->minutaempenho_id);
-        $itens = json_decode($request->get('conta_corrente_json'), true);
         $remessa = $minuta->getMaxRemessaAttribute();
-        $arrayPassivoAnterior = ContaCorrentePassivoAnterior::where(
-            'minutaempenho_id',
-            $request->minutaempenho_id
-        )->get()->toArray();
-
-        $itens = array_map(
-            function ($itens) use ($request, $arrayPassivoAnterior, $remessa) {
-                $itens['minutaempenho_id'] = $arrayPassivoAnterior[0]['minutaempenho_id'];
-                $itens['conta_corrente_json'] = $request->conta_corrente_json;
-                $itens['minutaempenhos_remessa_id'] = $remessa;
-                return $itens;
-            },
-            $itens
-        );
-
 
         DB::beginTransaction();
         try {
-            $this->deletaPassivoAnterior($arrayPassivoAnterior);
-            ContaCorrentePassivoAnterior::insert($itens);
+            if ($request->passivo_anterior == 1) {
+                ContaCorrentePassivoAnterior::where('minutaempenho_id', $minuta->id)->forceDelete();
+                $valor_total_conta = array_sum($request->valor);
+                if ($this->crud->params['valor_total'] != $valor_total_conta) {
+                    Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
+                    return redirect()->back();
+                }
+                foreach ($request->numConta as $key => $value) {
+                    $conta = new ContaCorrentePassivoAnterior();
+                    $conta->minutaempenho_id = $request->minutaempenho_id;
+                    $conta->conta_corrente = $value;
+                    $conta->valor = $request->valor[$key];
+                    $conta->minutaempenhos_remessa_id = $remessa;
+                    $conta->save();
+                }
+            }
+
             $minuta->etapa = 8;
             $minuta->passivo_anterior = $request->passivo_anterior;
             $minuta->conta_contabil_passivo_anterior = $request->conta_contabil_passivo_anterior;
@@ -217,7 +182,6 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
             $minuta->save();
             DB::commit();
         } catch (Exception $exc) {
-            //  dd($exc);
             DB::rollback();
         }
 
@@ -296,7 +260,7 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
         $this->crud->addField([
             'name' => 'conta_corrente_json',
             'label' => 'Conta Corrente',
-            'type' => 'empenho_table',
+            'type' => 'empenho_nova_table',
             'entity_singular' => 'options', // used on the "Add X" button
             'columns' => [
                 'conta_corrente' => 'Número Conta Corrente',
