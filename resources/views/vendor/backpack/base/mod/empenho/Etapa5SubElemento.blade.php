@@ -106,7 +106,9 @@
             valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
             $(".vrtotal" + {{$tipo}})
                 .val(valor_total)
-                .trigger("change")
+                .trigger("change");
+
+            calculaUtilizado();
         }
 
         function calculaQuantidade(obj) {
@@ -118,27 +120,44 @@
 
             var quantidade = value / obj.dataset.valor_unitario;
 
-            $(".qtd" + {{$tipo}}).val(quantidade)
-
+            $("#qtd" + {{$tipo}}).val(quantidade)
+            calculaUtilizado();
         }
 
         $(document).ready(function () {
-            $('body').on('change', '.valor_total', function (event) {
-                var soma = 0;
-                var saldo = {{$credito}};
-                $(".valor_total").each(function (index) {
-                    var valor = ptToEn($(this).val());
 
-                    if (!isNaN(parseFloat(valor))) {
-                        soma = parseFloat(valor) + parseFloat(soma);
-                    }
+            $('body').on('input', '.qtd', function (event) {
+                calculaValorTotal(this);
+            });
+
+            $('.submeter').click(function (event) {
+                $(".valor_total").each(function () {
+                    $(this).removeAttr('disabled');
+                    $(this).prop('readonly', true);
                 });
-                saldo = saldo - soma;
-                $("#utilizado").html("<b>R$ " + soma.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
-                $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
-                $("#valor_utilizado").val(soma);
+
+                $(".qtd").each(function () {
+                    $(this).prop('readonly', true);
+                });
+
             });
         });
+
+        function calculaUtilizado(){
+            var soma = 0;
+            var saldo = {{$credito}};
+            $(".valor_total").each(function (index) {
+                var valor = ptToEn($(this).val());
+
+                if (!isNaN(parseFloat(valor))) {
+                    soma = parseFloat(valor) + parseFloat(soma);
+                }
+            });
+            saldo = saldo - soma;
+            $("#utilizado").html("<b>R$ " + soma.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
+            $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            $("#valor_utilizado").val(soma);
+        }
 
         function atualizaMascara() {
             var maxLength = '000.000.000.000.000,00'.length;

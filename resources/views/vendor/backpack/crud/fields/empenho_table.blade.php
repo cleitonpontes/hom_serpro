@@ -49,37 +49,38 @@ if (is_array($items)) {
                     </th>
                 @endforeach
                 <th class="text-center" ng-if="max == -1 || max > 1"> {{-- <i class="fa fa-sort"></i> --}} </th>
-                <th class="text-center" ng-if="max == -1 || max > 1"> {{-- <i class="fa fa-trash"></i> --}} </th>
+                {{--                <th class="text-center" ng-if="max == -1 || max > 1"> --}}{{-- <i class="fa fa-trash"></i> --}}{{-- </th>--}}
             </tr>
             </thead>
 
             <tbody ui-sortable="sortableOptions" ng-model="items" class="table-striped">
 
-                <tr ng-repeat="item in items" class="array-row">
-                    <td>
-                        <input  class=" " ng-type="text" ng-model='item.conta_corrente' ng-value="<%costPerCanSixteen%>" >
-                    </td>
-                    <td>
-                        <input name="conta_corrente_p" type="hidden"  value="<%costPerCanSixteen%>">
-                    </td>
-                    <td>
-                        <input  class=" " type="text" ng-model='item.valor' ng-value="<%costPerCanSixteen_%>">
-                    </td>
-                    <td>
-                        <input name="valor_total_p" type="hidden"  value="<%costPerCanSixteen_%>">
-                    </td>
-                    <td ng-if="max == -1 || max > 1">
-                        <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i
-                                class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>
-                    </td>
-                    <td ng-if="max == -1 || max > 1">
-                        <button ng-hide="min > -1 && $index < min" class="btn btn-sm btn-default" type="button"
-                                ng-click="removeItem(item);"><span class="sr-only">delete item</span><i class="fa fa-trash"
-                                                                                                        role="presentation"
-                                                                                                        aria-hidden="true"></i>
-                        </button>
-                    </td>
-                </tr>
+            <tr ng-repeat="item in items" class="array-row">
+                <td>
+                    <input class=" " type="text" ng-model='item.conta_corrente' ng-value="<%costPerCanSixteen%>">
+                </td>
+                <!--                    <td>
+                                        <input name="conta_corrente_p" type="hidden"  value="<%costPerCanSixteen%>">
+                                    </td>-->
+                <td>
+                    <input class=" " type="text" ng-model='item.valor' ng-value="<%costPerCanSixteen_%>">
+                </td>
+                <!--                    <td>
+                                        <input name="valor_total_p" type="hidden"  value="<%costPerCanSixteen_%>">
+                                    </td>-->
+                <!--                    <td ng-if="max == -1 || max > 1">
+                                        <span class="btn btn-sm btn-default sort-handle"><span class="sr-only">sort item</span><i
+                                                class="fa fa-sort" role="presentation" aria-hidden="true"></i></span>
+                                    </td>-->
+                <td ng-if="max == -1 || max > 1">
+                    <button ng-hide="min > -1 && $index < min" class="btn btn-sm btn-default" type="button"
+                            ng-click="removeItem(item);"><span class="sr-only">delete item</span>
+                        <i class="fa fa-trash"
+                           role="presentation"
+                           aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
 
             </tbody>
 
@@ -141,7 +142,7 @@ if (is_array($items)) {
 
                 $scope.addItem = function () {
 
-                     // alert($scope.max);
+                    // alert($scope.max);
 
                     if ($scope.max > -1) {
 
@@ -165,8 +166,8 @@ if (is_array($items)) {
                 };
 
                 $scope.costPerCanSixteen = function () {
-                     $scope.costPerCanSixteen = $scope.conta;
-                     $scope.costPerCanSixteen_ = $scope.val_total;
+                    $scope.costPerCanSixteen = $scope.conta;
+                    $scope.costPerCanSixteen_ = $scope.val_total;
                 };
 
                 $scope.removeItem = function (item) {

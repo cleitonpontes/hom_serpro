@@ -11,6 +11,7 @@ class CompraItemMinutaEmpenho extends Model
 {
     use CrudTrait;
     use LogsActivity;
+
 //    use SoftDeletes;
 
     /*
@@ -35,14 +36,8 @@ class CompraItemMinutaEmpenho extends Model
         'remessa', // Chave composta: 3/3
         'quantidade',
         'valor',
+        'minutaempenhos_remessa_id'
     ];
-
-    /**
-     * Informa que não utilizará os campos create_at e update_at do Laravel
-     *
-     * @var boolean
-     */
-    public $timestamps = true;
 
     /*
     |--------------------------------------------------------------------------
@@ -71,6 +66,16 @@ class CompraItemMinutaEmpenho extends Model
         return $this->belongsTo(Naturezasubitem::class, 'subelemento_id');
     }
 
+    public function minutaempenhos_remessa()
+    {
+        return $this->belongsTo(MinutaEmpenhoRemessa::class, 'minutaempenhos_remessa_id');
+    }
+
+    public function operacao()
+    {
+        return $this->belongsTo(Codigoitem::class, 'operacao_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES
@@ -82,6 +87,21 @@ class CompraItemMinutaEmpenho extends Model
     | ACCESORS
     |--------------------------------------------------------------------------
     */
+
+    public function getSituacaoRemessaAttribute(): string
+    {
+        return $this->minutaempenhos_remessa->situacao->descricao;
+    }
+
+    public function getOperacaoAttribute(): string
+    {
+        return $this->operacao()->first()->descricao;
+    }
+
+    public function getOperacaoDescresAttribute(): string
+    {
+        return $this->operacao()->first()->descres;
+    }
 
     /*
     |--------------------------------------------------------------------------
