@@ -16,6 +16,7 @@ use App\Models\CompraItemUnidade;
 use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
+use App\Models\MinutaEmpenhoRemessa;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -802,7 +803,10 @@ class MinutaEmpenhoCrudController extends CrudController
                 $minuta->situacao_id = $situacao->id;
                 $minuta->save();
 
-                $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)->first();
+                $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)
+                    ->where('alteracao',false)
+                    ->latest()
+                    ->first();
 
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
                 $modSfOrcEmpenhoDados->save();
