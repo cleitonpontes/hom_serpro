@@ -56,6 +56,8 @@
                             <label for="opc_contrato" class="margin-right-10"><h3 class="box-title">Contrato</h3></label>
                             <input type="radio" value="2" name="tipoEmpenho" id="opc_compra">
                             <label for="opc_compra" class="margin-right-10"><h3 class="box-title">Compra</h3></label>
+                            <input type="radio" value="3" name="tipoEmpenho" id="opc_suprimento">
+                            <label for="opc_suprimento" class="margin-right-10"><h3 class="box-title">Suprimento</h3></label>
                         </div>
                         @endif
                         <div>
@@ -94,6 +96,7 @@
                 switch (this.value){
                     case '1': habilitarFormParaContrato(); break;
                     case '2': habilitarFormParaCompra(); break;
+                    case '3': habilitarFormParaSuprimento(); break;
                 }
             });
         }
@@ -106,6 +109,12 @@
 
         function habilitarFormParaCompra() {
             $('.opc_compra').prop("disabled", false);
+            $('.opc_contrato').prop("disabled", true);
+            limpaForm();
+        }
+
+        function habilitarFormParaSuprimento() {
+            $('.opc_compra').prop("disabled", true);
             $('.opc_contrato').prop("disabled", true);
             limpaForm();
         }
