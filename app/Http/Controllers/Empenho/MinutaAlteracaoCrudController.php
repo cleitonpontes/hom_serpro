@@ -1847,7 +1847,9 @@ class MinutaAlteracaoCrudController extends CrudController
                 $remessa->situacao_id = $situacao_id;
                 $remessa->save();
 
-                $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenhos_remessa_id', $remessa_id)->first();
+                $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenhos_remessa_id', $remessa_id)
+                    ->latest()
+                    ->first();
 
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
                 $modSfOrcEmpenhoDados->save();

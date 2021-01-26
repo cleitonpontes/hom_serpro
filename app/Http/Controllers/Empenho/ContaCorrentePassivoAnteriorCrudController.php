@@ -158,8 +158,8 @@ class ContaCorrentePassivoAnteriorCrudController extends CrudController
 
         DB::beginTransaction();
         try {
+            ContaCorrentePassivoAnterior::where('minutaempenho_id', $minuta->id)->forceDelete();
             if ($request->passivo_anterior == 1) {
-                ContaCorrentePassivoAnterior::where('minutaempenho_id', $minuta->id)->forceDelete();
                 $valor_total_conta = array_sum($request->valor);
                 if ($this->crud->params['valor_total'] != $valor_total_conta) {
                     Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
