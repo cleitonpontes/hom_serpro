@@ -282,6 +282,7 @@ class SubelementoController extends BaseControllerEmpenho
             'saldo' => $itens[0]['saldo'] - $valor_utilizado['sum'],
             'update' => false,
             'tipo' => $tipo,
+            'tipo_item' => $itens[0]['descricao'],
             'update' => $valor_utilizado['sum'] > 0,
             //           'fornecedor_id' => $itens[0]['fornecedor_id'],
         ]);
@@ -438,13 +439,23 @@ class SubelementoController extends BaseControllerEmpenho
     {
         $quantidade = $item['quantidade'];
 
+        if ($tipo == 'contrato_item_id' && $item['descricao'] === 'Serviço') {
+            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
+                . $item[$tipo] . "' id='qtd" . $item[$tipo]
+                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
+                . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
+                . "' data-tipo='' name='quantidade_total[]' value='"
+                . $item['qtd_item'] . " disabled'> ";
+        }
+
+
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
                 . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
                 . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
                 . "' data-tipo='' name='quantidade_total[]' value='"
-                . $item['qtd_item'] . "'> ";
+                . $item['qtd_item'] . " disabled'> ";
         }
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
@@ -466,7 +477,7 @@ class SubelementoController extends BaseControllerEmpenho
                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
                . " data-$tipo='" . $item[$tipo] . "'"
                . " data-valor_unitario='" . $item['valorunitario'] . "'"
-               . " onchange='calculaQuantidade(this)' >";
+               . " onkeyup='calculaQuantidade(this)' >";
        }
 
         if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
@@ -476,7 +487,7 @@ class SubelementoController extends BaseControllerEmpenho
                 . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
                 . " data-$tipo='" . $item[$tipo] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onchange='calculaQuantidade(this)' >";
+                . " onkeyup='calculaQuantidade(this)' >";
         }else {
             return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
                 . "id='vrtotal" . $item[$tipo]
