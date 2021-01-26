@@ -110,7 +110,7 @@ class FuncoescontratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'getSalariosDaFuncaoContrato',
-                'label' => 'Salário(s) desta função / contrato', // Table column heading
+                'label' => 'Remuneração conforme contrato', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getSalariosDaFuncaoContrato', // the method in your Model
                 'orderable' => true,
