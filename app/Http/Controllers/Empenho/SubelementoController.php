@@ -367,7 +367,7 @@ class SubelementoController extends BaseControllerEmpenho
 
         $html = $this->retornaGridItens();
 
-        $tipo = $codigoitem->descres === 'COM' ? 'compra_item_id' : 'contrato_item_id';
+        $tipo = ($codigoitem->descricao === 'Compra' || $codigoitem->descricao === 'Suprimento' )? 'compra_item_id' : 'contrato_item_id';
 
         return view(
             'backpack::mod.empenho.Etapa5SubElemento',
@@ -541,17 +541,16 @@ class SubelementoController extends BaseControllerEmpenho
                 . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
                 . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
                 . "' data-tipo='' name='quantidade_total[]' value='"
-                . $item['qtd_item'] . " disabled'> ";
+                . $item['qtd_item'] . " readonly'> ";
         }
-
 
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
+                . "' data-tipo='' name='qtd[]' value='".$quantidade."' readonly> "
                 . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
                 . "' data-tipo='' name='quantidade_total[]' value='"
-                . $item['qtd_item'] . " disabled'> ";
+                . $item['qtd_item'] . " '> ";
         }
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
