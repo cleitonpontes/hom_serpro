@@ -281,6 +281,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'compra_items.id'
                 )
                 ->where('minutaempenhos.id', $minuta_id)
+                ->where('compra_item_fornecedor.fornecedor_id', $modMinutaEmpenho->fornecedor_empenho_id)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                 ->select(
                     [
@@ -651,7 +652,8 @@ class SubelementoController extends BaseControllerEmpenho
                             'valor' => $valores[$index]
                         ]);
                 }
-            } else {
+            }
+            if ($tipo == 'Compra') {
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
                     if ($valores[$index] > $request->valor_total_item[$index]) {
@@ -680,6 +682,24 @@ class SubelementoController extends BaseControllerEmpenho
                     $saldo = $this->retornaSaldoAtualizado($item);
                     $compraItemUnidade->quantidade_saldo = $saldo->saldo;
                     $compraItemUnidade->save();
+                }
+            }
+
+            if ($tipo == 'Suprimento') {
+                $compra_item_ids = $request->compra_item_id;
+                foreach ($compra_item_ids as $index => $item) {
+                    if ($request->qtd[$index] == 0) {
+                        Alert::error('A quantidade selecionada não pode ser zero.')->flash();
+                        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                    }
+
+                    CompraItemMinutaEmpenho::where('compra_item_id', $item)
+                        ->where('minutaempenho_id', $request->minuta_id)
+                        ->update([
+                            'subelemento_id' => $request->subitem[$index],
+                            'quantidade' => ($request->qtd[$index]),
+                            'valor' => $valores[$index]
+                        ]);
                 }
             }
 
