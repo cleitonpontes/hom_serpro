@@ -282,7 +282,7 @@ trait CompraTrait
                     'classificacao' => '',
                     'situacao_sicaf' => '-',
                     'quantidade_homologada_vencedor' => 0,
-                    'valor_unitario' => 0,
+                    'valor_unitario' => 1,
                     'valor_negociado' => 0,
                     'quantidade_empenhada' => 0
                 ]

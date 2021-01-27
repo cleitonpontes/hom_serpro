@@ -39,7 +39,7 @@ class SubelementoController extends BaseControllerEmpenho
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
 
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
-        if ($codigoitem->descres == 'CON') {
+        if ($codigoitem->descricao === 'Contrato') {
             $tipo = 'contrato_item_id';
             $itens = MinutaEmpenho::join(
                 'contrato_item_minuta_empenho',
@@ -90,7 +90,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'contratoitens.catmatseritem_id'
                 )
                 ->where('minutaempenhos.id', $minuta_id)
-                ->where('minutaempenhos.unidade_id',session('user_ug_id'))
+                ->where('minutaempenhos.unidade_id', session('user_ug_id'))
                 ->select(
                     [
                         'contrato_item_minuta_empenho.contrato_item_id',
@@ -122,7 +122,7 @@ class SubelementoController extends BaseControllerEmpenho
                 ->first()->toArray();
         }
 
-        if ($codigoitem->descres == 'COM') {
+        if ($codigoitem->descricao === 'Compra') {
             $tipo = 'compra_item_id';
             $itens = MinutaEmpenho::join(
                 'compra_item_minuta_empenho',
@@ -185,7 +185,7 @@ class SubelementoController extends BaseControllerEmpenho
                     'compra_items.id'
                 )
                 ->where('minutaempenhos.id', $minuta_id)
-                ->where('compra_item_unidade.unidade_id',session('user_ug_id'))
+                ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                 ->select(
                     [
                         'compra_item_minuta_empenho.compra_item_id',
@@ -212,6 +212,101 @@ class SubelementoController extends BaseControllerEmpenho
                 ->get()
                 ->toArray();
 
+            $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->select(DB::raw('coalesce(sum(valor),0) as sum'))
+                ->first()->toArray();
+        }
+
+        if ($codigoitem->descricao === 'Suprimento') {
+            $tipo = 'compra_item_id';
+
+            $itens = MinutaEmpenho::join(
+                'compra_item_minuta_empenho',
+                'compra_item_minuta_empenho.minutaempenho_id',
+                '=',
+                'minutaempenhos.id'
+            )
+                ->join(
+                    'compra_items',
+                    'compra_items.id',
+                    '=',
+                    'compra_item_minuta_empenho.compra_item_id'
+                )
+                ->join(
+                    'compras',
+                    'compras.id',
+                    '=',
+                    'compra_items.compra_id'
+                )
+                ->join(
+                    'codigoitens as tipo_compra',
+                    'tipo_compra.id',
+                    '=',
+                    'compras.tipo_compra_id'
+                )
+                ->join(
+                    'codigoitens',
+                    'codigoitens.id',
+                    '=',
+                    'compra_items.tipo_item_id'
+                )
+                ->join(
+                    'saldo_contabil',
+                    'saldo_contabil.id',
+                    '=',
+                    'minutaempenhos.saldo_contabil_id'
+                )
+                ->join(
+                    'naturezadespesa',
+                    'naturezadespesa.codigo',
+                    '=',
+                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
+                )
+                ->join(
+                    'compra_item_fornecedor',
+                    'compra_item_fornecedor.compra_item_id',
+                    '=',
+                    'compra_items.id'
+                )
+                ->join(
+                    'catmatseritens',
+                    'catmatseritens.id',
+                    '=',
+                    'compra_items.catmatseritem_id'
+                )
+                ->join(
+                    'compra_item_unidade',
+                    'compra_item_unidade.compra_item_id',
+                    '=',
+                    'compra_items.id'
+                )
+                ->where('minutaempenhos.id', $minuta_id)
+                ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
+                ->select(
+                    [
+                        'compra_item_minuta_empenho.compra_item_id',
+                        'compra_item_fornecedor.fornecedor_id',
+                        'tipo_compra.descricao as tipo_compra_descricao',
+                        'codigoitens.descricao',
+                        'catmatseritens.codigo_siasg',
+                        'catmatseritens.descricao as catmatser_desc',
+                        DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
+                        'compra_items.descricaodetalhada',
+                        DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
+                        'compra_item_unidade.quantidade_saldo as qtd_item',
+                        'compra_item_fornecedor.valor_unitario as valorunitario',
+                        'naturezadespesa.codigo as natureza_despesa',
+                        'naturezadespesa.id as natureza_despesa_id',
+                        'compra_item_fornecedor.valor_negociado as valortotal',
+                        'saldo_contabil.saldo',
+                        'compra_item_minuta_empenho.subelemento_id',
+                        'compra_item_minuta_empenho.quantidade',
+                        'compra_item_minuta_empenho.valor',
+                        DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
+                    ]
+                )
+                ->get()
+                ->toArray();
             $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->select(DB::raw('coalesce(sum(valor),0) as sum'))
                 ->first()->toArray();
@@ -462,7 +557,7 @@ class SubelementoController extends BaseControllerEmpenho
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
             . " class='form-control qtd' value='$quantidade' > "
             . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
-            . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] ."'> ";
+            . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
     }
 
     private function addColunaValorTotal($item, $tipo)
@@ -470,15 +565,15 @@ class SubelementoController extends BaseControllerEmpenho
 
         $valor = $item['valor'];
 
-       if ($tipo == 'contrato_item_id' && $item['descricao'] === 'Serviço') {
-           return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
-               . $item[$tipo] . "'"
-               . "id='vrtotal" . $item[$tipo]
-               . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
-               . " data-$tipo='" . $item[$tipo] . "'"
-               . " data-valor_unitario='" . $item['valorunitario'] . "'"
-               . " onkeyup='calculaQuantidade(this)' >";
-       }
+        if ($tipo == 'contrato_item_id' && $item['descricao'] === 'Serviço') {
+            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
+                . $item[$tipo] . "'"
+                . "id='vrtotal" . $item[$tipo]
+                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
+                . " data-$tipo='" . $item[$tipo] . "'"
+                . " data-valor_unitario='" . $item['valorunitario'] . "'"
+                . " onkeyup='calculaQuantidade(this)' >";
+        }
 
         if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
             return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
@@ -488,7 +583,7 @@ class SubelementoController extends BaseControllerEmpenho
                 . " data-$tipo='" . $item[$tipo] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
                 . " onkeyup='calculaQuantidade(this)' >";
-        }else {
+        } else {
             return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
                 . "id='vrtotal" . $item[$tipo]
                 . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
@@ -645,7 +740,6 @@ class SubelementoController extends BaseControllerEmpenho
                         ]);
                 }
             } else {
-
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
                     if ($valores[$index] > $request->valor_total_item[$index]) {
