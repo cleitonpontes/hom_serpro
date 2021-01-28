@@ -565,6 +565,7 @@ class MinutaAlteracaoCrudController extends CrudController
             'update' => $update,
             'fornecedor_id' => $itens[0]['fornecedor_id'] ?? '',
             'sispp_servico' => $sispp_servico,
+            'tipo_item' => $itens[0]['descricao'],
             'url_form' => $update !== false
                 ? "/empenho/minuta/$minuta_id/alteracao/$remessa_id"
                 : "/empenho/minuta/$minuta_id/alteracao"
@@ -1515,7 +1516,6 @@ class MinutaAlteracaoCrudController extends CrudController
         $valor = number_format($valor, '2', '.', '');
 
         if ($ehcontrato !== false && $item['descricao'] === 'Serviço') {
-
             $readonly = 'disabled';
 
             if (array_key_exists($item['operacao_id'], $tipos)
