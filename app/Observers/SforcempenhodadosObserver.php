@@ -30,7 +30,6 @@ class SforcempenhodadosObserver
             $situacao = $this->buscaSituacao($sfOrcEmpenhoDados->situacao);
 
             if($sfOrcEmpenhoDados->alteracao == false){
-                dd($sfOrcEmpenhoDados->mensagemretorno);
                 $minutaempenho = MinutaEmpenho::find($sfOrcEmpenhoDados->minutaempenho_id);
                 $minutaempenho->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
                 $minutaempenho->situacao_id = $situacao->id;
