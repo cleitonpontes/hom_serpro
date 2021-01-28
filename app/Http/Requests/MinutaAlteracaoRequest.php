@@ -28,13 +28,17 @@ class MinutaAlteracaoRequest extends FormRequest
      */
     public function rules()
     {
-//        dd(123);
         return [
             'credito' => 'gte:valor_utilizado',
             'valor_total.*' => [
                 'filled',
                 new NaoAceitarZero($this->tipo_alteracao),
-                new NaoAceitarValorMaiorTotal($this->tipo_alteracao, $this->valor_total_item, $this->vlr_total_item)
+                new NaoAceitarValorMaiorTotal(
+                    $this->tipo_alteracao,
+                    $this->valor_total_item,
+                    $this->vlr_total_item,
+                    $this->tipo_empenho_por
+                )
             ],
             'qtd.*' => [
                 'filled',

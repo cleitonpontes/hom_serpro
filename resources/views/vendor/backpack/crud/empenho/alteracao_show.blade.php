@@ -226,7 +226,7 @@
                     <div class="col-md-4">
                         @if(session('passivo_anterior'))
                             <button type="button" class="btn btn-primary" id="voltar_passivo"
-                                @if (session('situacao') !== 'EMPENHO EMITIDO')
+                                @if (session('situacao') !== 'EMPENHO EMITIDO' && session('situacao') !== 'EM PROCESSAMENTO')
                                     id="voltar_passivo"
                                 @else
                                     disabled
@@ -236,7 +236,7 @@
                             </button>
                         @else
                             <button type="button" class="btn btn-primary" id="voltar"
-                                    @if (session('situacao') !== 'EMPENHO EMITIDO')
+                                    @if (session('situacao') !== 'EMPENHO EMITIDO' && session('situacao') !== 'EM PROCESSAMENTO')
                                     id="voltar"
                                     @else
                                     disabled
@@ -246,7 +246,6 @@
                             </button>
                         @endif
                     </div>
-{{--                    {{dd(session('situacao'))}}--}}
                     <div class="col-md-4" align="center">
                         <button type="button" class="btn btn-primary" id="emitir_empenho_siafi"
                                 @if (session('situacao') === 'EM ANDAMENTO' || session('situacao') === 'ERRO')
