@@ -90,30 +90,30 @@ trait CompraTrait
         }
     }
 
-    private function gravaParametrosSuprimento(Compra $compra)
+    private function gravaParametrosSuprimento(Compra $compra): void
     {
-        //todo SEPARAR EM FUNCOES
-        $catmatseritemServico = Catmatseritem::where('descricao', 'SERVIÇO PARA SUPRIMENTO DE FUNDOS')
-            ->select('id')->first();
-        $catmatseritemMaterial = Catmatseritem::where('descricao', 'MATERIAL PARA SUPRIMENTO DE FUNDOS')
-            ->select('id')->first();
-
         $item = new \stdClass;
         $item->tipo = 'S';
         $item->numero = '00001';
         $item->descricaoDetalhada = 'Serviço';
         $item->quantidadeTotal = 1;
 
-        $compraitemServico = $this->updateOrCreateCompraItemSispp($compra, $catmatseritemServico, $item);
-
-        $this->gravaCompraItemUnidadeSuprimento($compraitemServico->id);
+        $this->gravaSuprimento('SERVIÇO PARA SUPRIMENTO DE FUNDOS', $compra, $item);
 
         $item->tipo = 'M';
         $item->numero = '00002';
         $item->descricaoDetalhada = 'Material';
 
-        $compraitemMaterial = $this->updateOrCreateCompraItemSispp($compra, $catmatseritemMaterial, $item);
-        $this->gravaCompraItemUnidadeSuprimento($compraitemMaterial->id);
+        $this->gravaSuprimento('MATERIAL PARA SUPRIMENTO DE FUNDOS', $compra, $item);
+    }
+
+    private function gravaSuprimento($descricao, $compra, $item): void
+    {
+        $catmatseritem = Catmatseritem::where('descricao', $descricao)
+            ->select('id')->first();
+
+        $compraitem = $this->updateOrCreateCompraItemSispp($compra, $catmatseritem, $item);
+        $this->gravaCompraItemUnidadeSuprimento($compraitem->id);
     }
 
     public function gravaParametroItensdaCompraSISRP($compraSiasg, $compra): void
@@ -310,7 +310,7 @@ trait CompraTrait
         $compraItemUnidade->quantidade_saldo = $saldo->saldo;
         $compraItemUnidade->save();
     }
-    public function gravaCompraItemUnidadeSuprimento($compraitem_id)
+    public function gravaCompraItemUnidadeSuprimento($compraitem_id): void
     {
         CompraItemUnidade::updateOrCreate(
             [

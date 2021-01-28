@@ -61,7 +61,7 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
         $this->crud->groupBy(["conta_corrente_passivo_anterior.id", "minutaempenhos.id", "fornecedores.cpf_cnpj_idgener"]);
 
-        if ($minuta->empenho_por === 'Compra') {
+        if ($minuta->empenho_por === 'Compra' || $minuta->empenho_por === 'Suprimento') {
             $this->crud->addClause(
                 'select',
                 'conta_corrente_passivo_anterior.*',
@@ -117,8 +117,6 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
 
         $query = $this->crud->query->first();
-//        dd($this->crud->query->getBindings(),$this->crud->query->toSql());
-//        dd($query);
         $params = ['valor_total' => $valor_total['sum'], 'conta_corrente_padrao' => $query->conta_corrente_padrao];
 
         $this->crud->params = $params;

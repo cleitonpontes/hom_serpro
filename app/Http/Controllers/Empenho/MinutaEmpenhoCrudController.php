@@ -59,8 +59,8 @@ class MinutaEmpenhoCrudController extends CrudController
 
         $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
         $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
-        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta','beginning');
-        $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminuta','end');
+        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta', 'beginning');
+        $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminuta', 'end');
         $this->crud->addButtonFromView('line', 'moreminuta', 'moreminuta', 'end');
 
         $this->crud->urlVoltar = route(
@@ -101,6 +101,11 @@ class MinutaEmpenhoCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        $rota = 'empenho/passivo-anterior/' . $this->minuta_id;
+        $conta_id = session('conta_id') ?? '';
+        if ($conta_id) {
+            $rota = route('empenho.crud.passivo-anterior.edit', ['minuta_id' => $conta_id]);
+        }
         // your additional operations before save here
         $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
         $request->request->set('etapa', 7);
@@ -108,7 +113,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $redirect_location = parent::updateCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return Redirect::to('empenho/passivo-anterior/' . $this->minuta_id);
+        return Redirect::to($rota);
 //        return $redirect_location;
     }
 
@@ -621,9 +626,10 @@ class MinutaEmpenhoCrudController extends CrudController
     public function adicionaBoxItens($minuta_id)
     {
         $modMinuta = MinutaEmpenho::find($minuta_id);
+
         $codigoitem = Codigoitem::find($modMinuta->tipo_empenhopor_id);
 
-        if ($codigoitem->descres == 'CON') {
+        if ($codigoitem->descricao === 'Contrato') {
             $itens = ContratoItemMinutaEmpenho::join(
                 'contratoitens',
                 'contratoitens.id',
@@ -635,7 +641,8 @@ class MinutaEmpenhoCrudController extends CrudController
                 ->join('codigoitens', 'codigoitens.id', '=', 'contratoitens.tipo_id')
                 ->join('catmatseritens', 'catmatseritens.id', '=', 'contratoitens.catmatseritem_id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id')
-                ->join('minutaempenhos_remessa',
+                ->join(
+                    'minutaempenhos_remessa',
                     'minutaempenhos_remessa.id',
                     '=',
                     'contrato_item_minuta_empenho.minutaempenhos_remessa_id'
@@ -656,7 +663,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 ->get()->toArray();
         }
 
-        if ($codigoitem->descres == 'COM') {
+        if ($codigoitem->descricao === 'Compra'|| $codigoitem->descricao === 'Suprimento') {
             $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
                 ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
                 ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
@@ -680,9 +687,11 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
-
-                ])
-                ->get()->toArray();
+                ]);
+            if ($codigoitem->descricao === 'Suprimento') {
+                $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
+            }
+            $itens = $itens->get()->toArray();
         }
 
         $this->crud->addColumn([
@@ -804,7 +813,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 $minuta->save();
 
                 $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)
-                    ->where('alteracao',false)
+                    ->where('alteracao', false)
                     ->latest()
                     ->first();
 
@@ -817,7 +826,6 @@ class MinutaEmpenhoCrudController extends CrudController
             } catch (Exception $exc) {
                 DB::rollback();
             }
-
         } else {
             Alert::warning('Situação da minuta não pode ser alterada!')->flash();
             return redirect('/empenho/minuta');
@@ -855,7 +863,6 @@ class MinutaEmpenhoCrudController extends CrudController
 
                 Alert::success('Minuta Deletada com sucesso!')->flash();
                 return redirect($this->crud->route);
-
             } catch (Exception $exc) {
                 DB::rollback();
                 Alert::error('Erro! Tente novamente mais tarde!')->flash();
