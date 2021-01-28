@@ -51,7 +51,7 @@ class Funcionarioscontratoconta extends Model
     }
     public function getSituacaoFuncionario(){
         $situacao = $this->situacao;
-        if($situacao == 't'){return 'Admitido';}
+        if($situacao == 't'){return 'Alocado';} // retornava Admitido - foi solicitada a alteração.
         else{return 'Demitido';}
     }
     public function getIdCodigoitensDeposito(){

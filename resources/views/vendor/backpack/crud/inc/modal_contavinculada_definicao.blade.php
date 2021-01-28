@@ -1,18 +1,5 @@
 <!-- Esta modal é chamada por include em list.blade.php -->
 
-<!-- Início função que chama a modal - mvascs -->
-<script type="text/javascript">
-    $(function() {
-        $('#myModal1').on('shown.bs.modal', function() {
-            var $me = $(this);
-            $me.delay(3000).hide(0, function() {
-                $me.modal('hide');
-            });
-        });
-    });
-</script>
-<!-- Fim função que chama a modal - mvascs -->
-
 
 
 <!-- Início modal - mvascs@gmail.com -->
@@ -20,7 +7,6 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
         <h4 class="modal-title" id="myModalLabel">CONTA-DEPÓSITO VINCULADA - BLOQUEADA PARA MOVIMENTAÇÃO</h4>
       </div>
       <div class="modal-body">
