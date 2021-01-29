@@ -33,12 +33,14 @@ class FornecedorController extends Controller
         $page = $request->input('page');
 
         if ($search_term) {
-            return Fornecedor::where('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%')
-                ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%')
+            return Fornecedor::where(function ($query) use ($search_term) {
+                $query->where('cpf_cnpj_idgener', 'LIKE', '%' . strtoupper($search_term) . '%')
+                    ->orWhere('nome', 'LIKE', '%' . strtoupper($search_term) . '%');
+            })
                 ->whereIn('tipo_fornecedor', ['FISICA', 'UG'])
                 ->select([
                     'fornecedores.id',
-                    DB::raw("fornecedores.nome || ' - ' || fornecedores.cpf_cnpj_idgener as cpf_cnpj_idgener")
+                    DB::raw("fornecedores.cpf_cnpj_idgener || ' - ' || fornecedores.nome as cpf_cnpj_idgener")
                 ])
                 ->orderBy('nome', 'asc')
                 ->paginate(10);
