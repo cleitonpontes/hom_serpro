@@ -12,6 +12,7 @@ use App\Models\Fornecedor;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 trait CompraTrait
 {
@@ -90,29 +91,40 @@ trait CompraTrait
         }
     }
 
-    private function gravaParametrosSuprimento(Compra $compra): void
+    private function gravaParametrosSuprimento(Compra $compra, string $fornecedor_empenho_id): void
     {
-        $item = new \stdClass;
+        $fornecedor = Fornecedor::find($fornecedor_empenho_id);
+
+        $item = new stdClass;
         $item->tipo = 'S';
         $item->numero = '00001';
         $item->descricaoDetalhada = 'Serviço';
         $item->quantidadeTotal = 1;
 
-        $this->gravaSuprimento('SERVIÇO PARA SUPRIMENTO DE FUNDOS', $compra, $item);
+        //campos para gravar no CompraItemFornecedor
+        $item->classicacao = '';
+        $item->situacaoSicaf = '-';
+        $item->quantidadeHomologadaVencedor = 0;
+        $item->valorUnitario = 1;
+        $item->valorTotal = 0;
+        $item->quantidadeEmpenhada = 0;
+
+        $this->gravaSuprimento('SERVIÇO PARA SUPRIMENTO DE FUNDOS', $compra, $item, $fornecedor);
 
         $item->tipo = 'M';
         $item->numero = '00002';
         $item->descricaoDetalhada = 'Material';
 
-        $this->gravaSuprimento('MATERIAL PARA SUPRIMENTO DE FUNDOS', $compra, $item);
+        $this->gravaSuprimento('MATERIAL PARA SUPRIMENTO DE FUNDOS', $compra, $item, $fornecedor);
     }
 
-    private function gravaSuprimento($descricao, $compra, $item): void
+    private function gravaSuprimento($descricao, $compra, $item, $fornecedor): void
     {
         $catmatseritem = Catmatseritem::where('descricao', $descricao)
             ->select('id')->first();
 
         $compraitem = $this->updateOrCreateCompraItemSispp($compra, $catmatseritem, $item);
+        $this->gravaCompraItemFornecedor($compraitem->id, $item, $fornecedor);
         $this->gravaCompraItemUnidadeSuprimento($compraitem->id);
     }
 
@@ -194,7 +206,7 @@ trait CompraTrait
         if ($item->descricao == "") {
             $catmatseritem = Catmatseritem::updateOrCreate(
                 ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
-                ['descricao' => $codigo_siasg." - Descrição não informada pelo serviço.", 'grupo_id' => $catGrupo[$item->tipo]]
+                ['descricao' => $codigo_siasg . " - Descrição não informada pelo serviço.", 'grupo_id' => $catGrupo[$item->tipo]]
             );
         } else {
             $catmatseritem = Catmatseritem::updateOrCreate(
@@ -267,6 +279,7 @@ trait CompraTrait
             ]
         );
     }
+
     public function gravaCompraItemFornecedorSuprimento($minuta, $fornecedor_id)
     {
         $fornecedor = Fornecedor::find($fornecedor_id);
@@ -310,6 +323,7 @@ trait CompraTrait
         $compraItemUnidade->quantidade_saldo = $saldo->saldo;
         $compraItemUnidade->save();
     }
+
     public function gravaCompraItemUnidadeSuprimento($compraitem_id): void
     {
         CompraItemUnidade::updateOrCreate(
@@ -364,7 +378,7 @@ trait CompraTrait
         $compraItemUnidade->save();
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
-        $compraItemUnidade->quantidade_saldo = (isset($saldo->saldo))?$saldo->saldo:$qtd_autorizada;
+        $compraItemUnidade->quantidade_saldo = (isset($saldo->saldo)) ? $saldo->saldo : $qtd_autorizada;
         $compraItemUnidade->save();
     }
 }

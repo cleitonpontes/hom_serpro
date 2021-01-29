@@ -40,6 +40,7 @@ Route::group([
             Route::get('unidadecomorgao', 'UnidadeComOrgaoController@index');
             Route::get('unidadecomorgao/{id}', 'UnidadeComOrgaoController@show');
             Route::get('fornecedor', 'FornecedorController@index');
+            Route::get('suprido', 'FornecedorController@suprido');
             Route::get('fornecedor/{id}', 'FornecedorController@show');
             Route::get('planointerno', 'PlanointernoController@index');
             Route::get('planointerno/{id}', 'PlanointernoController@show');

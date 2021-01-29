@@ -104,18 +104,21 @@
         function habilitarFormParaContrato() {
             $('.opc_compra').prop("disabled", true);
             $('.opc_contrato').prop("disabled", false);
+            $('.opc_suprimento').prop("disabled", true);
             limpaForm();
         }
 
         function habilitarFormParaCompra() {
             $('.opc_compra').prop("disabled", false);
             $('.opc_contrato').prop("disabled", true);
+            $('.opc_suprimento').prop("disabled", true);
             limpaForm();
         }
 
         function habilitarFormParaSuprimento() {
             $('.opc_compra').prop("disabled", true);
             $('.opc_contrato').prop("disabled", true);
+            $('.opc_suprimento').prop("disabled", false);
             limpaForm();
         }
 
@@ -124,11 +127,17 @@
             $('#select2_ajax_unidade_origem_id option').remove();
             $('#numero_ano').val('');
             limpaSelect2FromArray();
+            limpaSuprido();
         }
 
         function limpaSelect2FromArray(){
             $('#select2-opc_compra_modalidade-container').attr('title', 'Selecione...');
             $('#select2-opc_compra_modalidade-container').text('Selecione...');
+        }
+
+        function limpaSuprido(){
+            $('#select2-select2_ajax_fornecedor_empenho_id-container').attr('title', 'Selecione o suprido');
+            $('#select2-select2_ajax_fornecedor_empenho_id-container').text('Selecione o suprido');
         }
     </script>
 @endpush
