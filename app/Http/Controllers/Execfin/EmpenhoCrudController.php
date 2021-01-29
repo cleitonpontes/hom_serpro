@@ -935,7 +935,6 @@ class EmpenhoCrudController extends CrudController
                 'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
                 'fonte' => $empenho->celula_orcamentaria->codfonterec
             ];
-
             $novo_empenho = Empenho::updateOrCreate(
                 $array_empenho1,
                 $array_empenho2
