@@ -96,6 +96,7 @@ class CompraSiasgCrudController extends CrudController
         $this->setFieldUnidadeCompra();
         $this->setFieldModalidade($modalidades);
         $this->setFieldNumeroAno();
+        $this->setFieldFornecedor();
     }
 
     private function setFieldModalidade($modalidade): void
@@ -145,11 +146,12 @@ class CompraSiasgCrudController extends CrudController
             'model' => "App\Models\Unidade",
             'data_source' => url("api/unidade"),
             'placeholder' => "Selecione a Unidade",
-            'minimum_input_length' => 2
+            'minimum_input_length' => 2,
+
         ]);
     }
 
-    private function setFielContrato()
+    private function setFielContrato(): void
     {
         $this->crud->addField([
             'label' => "Contrato",
@@ -164,6 +166,25 @@ class CompraSiasgCrudController extends CrudController
             'attributes' => [
                 'class' => 'form-control opc_contrato',
                 'id' => 'opc_contrato_numero'
+            ],
+        ]);
+    }
+
+    private function setFieldFornecedor()
+    {
+        $this->crud->addField([
+            'label' => "Suprido",
+            'type' => "select2_from_ajax_suprido",
+            'name' => 'fornecedor_empenho_id',
+            'entity' => 'fornecedor',
+            'attribute' => "cpf_cnpj_idgener",
+            'model' => Fornecedor::class,
+            'data_source' => url("api/suprido"),
+            'placeholder' => "Selecione o suprido",
+            'minimum_input_length' => 2,
+            'attributes' => [
+                'disabled' => 'disabled',
+                'class' => 'form-control opc_suprimento',
             ],
         ]);
     }
@@ -341,12 +362,11 @@ class CompraSiasgCrudController extends CrudController
                 $request->request->set('lei', null);
 
                 $compra = $this->updateOrCreateCompra($request);
-                $this->gravaParametrosSuprimento($compra);
+                $this->gravaParametrosSuprimento($compra, $request->fornecedor_empenho_id);
 
                 $tipo_empenhopor_id = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Suprimento');
 
                 $situacao_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM ANDAMENTO');
-
                 $minutaEmpenho = $this->gravaMinutaEmpenho([
                     'situacao_id' => $situacao_id,
                     'compra_id' => $compra->id,
@@ -355,12 +375,17 @@ class CompraSiasgCrudController extends CrudController
                     'unidade_id' => session('user_ug_id'),
                     'modalidade_id' => $compra->modalidade_id,
                     'numero_ano' => $compra->numero_ano,
-                    'tipo_empenhopor' => $tipo_empenhopor_id
+                    'tipo_empenhopor' => $tipo_empenhopor_id,
+                    'fornecedor_empenho_id' => $request->fornecedor_empenho_id,
                 ]);
 
                 DB::commit();
 
-                return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
+
+                return redirect(route(
+                    'empenho.minuta.etapa.item',
+                    ['minuta_id' => $minutaEmpenho->id, 'fornecedor_id' => $request->fornecedor_empenho_id]
+                ));
             } catch (Exception $exc) {
                 DB::rollback();
             }
