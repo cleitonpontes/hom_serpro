@@ -38,7 +38,7 @@ class FornecedorController extends Controller
                 ->whereIn('tipo_fornecedor', ['FISICA', 'UG'])
                 ->select([
                     'fornecedores.id',
-                    DB::raw("fornecedores.nome || ' - ' || fornecedores.cpf_cnpj_idgener as cpf_cnpj_idgener")
+                    DB::raw("fornecedores.cpf_cnpj_idgener as cpf_cnpj_idgener || ' - ' || fornecedores.nome")
                 ])
                 ->orderBy('nome', 'asc')
                 ->paginate(10);
