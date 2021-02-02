@@ -21,11 +21,11 @@
     @endif
 </div>
 
-@push('crud_fields_scripts')
-    <script type="text/javascript">
-        $('#{{ $field['name'] }}').mask('99.99-99');
-    </script>
-@endpush
+{{--@push('crud_fields_scripts')--}}
+{{--    <script type="text/javascript">--}}
+{{--        $('#{{ $field['name'] }}').mask('99.99-99');--}}
+{{--    </script>--}}
+{{--@endpush--}}
 
 
 
