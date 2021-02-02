@@ -500,4 +500,14 @@ class MinutaEmpenhoController extends Controller
             ->where('minutaempenhos_remessa_id', $modRemessa->id)
             ->whereIn('situacao', ['ERRO', 'EM ANDAMENTO'])->forceDelete();
     }
+
+
+    public function atualizaCreditoOrcamentario(Request $request)
+    {
+        $minuta_id = Route::current()->parameter('minuta_id');
+        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $modSaldoContabil = SaldoContabil::find($modMinutaEmpenho->saldo_contabil_id);
+        return $modSaldoContabil->saldo;
+    }
+
 }

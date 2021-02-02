@@ -43,8 +43,13 @@
                 <div class="col-md-2 col-sm-3">
                     Crédito orçamentário:
                 </div>
-                <div class="col-md-10 col-sm-9" id="">
+                <div class="col-md-2 col-sm-3" id="credito">
                     R$ {{ number_format($credito,2,',','.') }}
+                </div>
+                <div class="col-md-8 col-sm-6" id="">
+                    <button type="button" class="btn btn-primary btn-sm pull-left" id="atualiza_credito">
+                        Atualizar Crédito Orçamentário <i class="fa fa-refresh"></i>
+                    </button>
                 </div>
             </div>
             <div class="row">
@@ -111,6 +116,8 @@
 @endsection
 @push('after_scripts')
     {!! $html->scripts() !!}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script type="text/javascript">
 
         function BloqueiaValorTotal(tipo_alteracao) {
@@ -183,6 +190,10 @@
         }
 
         $(document).ready(function () {
+
+            $('body').on('click', '#atualiza_credito', function (event) {
+                atualizaCreditoOrcamentario(event);
+            });
 
             $('body').on('change', '.valor_total', function (event) {
                 calculaUtilizado();
@@ -260,6 +271,58 @@
 
             value = value.replaceAll('.', '');
             return value.replaceAll(',', '.');
+        }
+
+
+        number_format = function (number, decimals, dec_point, thousands_sep)
+        {
+            number = number.toFixed(decimals);
+
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+
+        function atualizaSaldos(credito)
+        {
+            var saldo = 0;
+            var utilizado = parseFloat($('#utilizado').text().replace('R$',''));
+
+            if(utilizado < 0){
+                saldo = (parseFloat(credito + (utilizado * -1)));
+            }else{
+                saldo = (parseFloat(credito - utilizado));
+            }
+
+            $('#credito').text('R$ '+number_format(credito,2,',','.'));
+            $('#saldo').text('R$ '+number_format(saldo,2,',','.'));
+
+        }
+
+        function atualizaCreditoOrcamentario(event)
+        {
+            var minuta_id = {{$minuta_id}}
+            var url = "{{route('atualiza.credito.orcamentario',':minuta_id')}}";
+            url = url.replace(':minuta_id', minuta_id);
+
+            axios.request(url)
+                .then(response => {
+                    credito = response.data
+                    atualizaSaldos(credito);
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
         }
 
     </script>
