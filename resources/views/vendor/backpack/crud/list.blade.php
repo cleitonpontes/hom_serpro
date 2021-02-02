@@ -132,12 +132,13 @@
 @endsection
 
 
-
-
 <!-- Caso seja a página de listagem de conta vinculada - mvascs@gmail.com -->
 @if(Route::current()->getName() == 'crud.contratocontas.index')
     @include('crud::inc.modal_contavinculada_definicao')
 @endif
 
-
+<!-- Caso seja a página de listagem de funcionários contrato conta - mvascs@gmail.com -->
+@if(Route::current()->getName() == 'crud.funcionarioscontratoconta.index')
+    @include('crud::inc.modal_remuneracao_definicao')
+@endif
 

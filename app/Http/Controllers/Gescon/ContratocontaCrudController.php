@@ -36,9 +36,6 @@ class ContratocontaCrudController extends CrudController
             abort('403', config('app.erro_permissao'));
         }
 
-        // $objContratoTerceirizado = Contratoterceirizado::where('contrato_id','=',$contrato_id)->first();
-        // $contratoterceirizado_id = $objContratoTerceirizado->id;
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
