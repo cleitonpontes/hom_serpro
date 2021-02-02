@@ -224,11 +224,7 @@ class MinutaEmpenhoController extends Controller
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
-        $situacao = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', 'Situações Minuta Empenho');
-        })
-            ->where('descricao', 'EM ANDAMENTO')
-            ->select('codigoitens.id')->first();
+        $situacao_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM ANDAMENTO');
 
         $tipo = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Compra');
 
@@ -239,11 +235,10 @@ class MinutaEmpenhoController extends Controller
             $novoEmpenho->unidade_id = $modMinutaEmpenho->unidade_id;
             $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
             $novoEmpenho->informacao_complementar = $modMinutaEmpenho->informacao_complementar;
-            $novoEmpenho->situacao_id = $situacao->id;//em andamento
-            $novoEmpenho->tipo_empenhopor_id = $tipo;
+            $novoEmpenho->situacao_id = $situacao_id;//em andamento
+            $novoEmpenho->tipo_empenhopor_id = $modMinutaEmpenho->tipo_empenhopor_id;
             $novoEmpenho->etapa = 2;
             $novoEmpenho->save();
-
             DB::commit();
             return json_encode($novoEmpenho->id);
         } catch (Exception $exc) {
@@ -475,7 +470,7 @@ class MinutaEmpenhoController extends Controller
 
         $tipo = $modMinutaEmpenho->empenho_por;
 
-        if ($tipo === 'Compra') {
+        if ($tipo === 'Compra' || $tipo === 'Suprimento') {
             $data_emissao = Carbon::createFromFormat('Y-m-d', $modMinutaEmpenho->data_emissao)->format('d/m/Y');
 
             return "REGISTRO DE ANULAÇÃO/REFORÇO/CANCELAMENTO DO EMPENHO N° $modMinutaEmpenho->mensagem_siafi " .

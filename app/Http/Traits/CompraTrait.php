@@ -3,6 +3,7 @@
 namespace App\Http\Traits;
 
 use App\Models\Catmatseritem;
+use App\Models\Compra;
 use App\Models\CompraItem;
 use App\Models\CompraItemFornecedor;
 use App\Models\CompraItemMinutaEmpenho;
@@ -11,6 +12,7 @@ use App\Models\Fornecedor;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 trait CompraTrait
 {
@@ -89,6 +91,43 @@ trait CompraTrait
         }
     }
 
+    private function gravaParametrosSuprimento(Compra $compra, string $fornecedor_empenho_id): void
+    {
+        $fornecedor = Fornecedor::find($fornecedor_empenho_id);
+
+        $item = new stdClass;
+        $item->tipo = 'S';
+        $item->numero = '00001';
+        $item->descricaoDetalhada = 'Serviço';
+        $item->quantidadeTotal = 1;
+
+        //campos para gravar no CompraItemFornecedor
+        $item->classicacao = '';
+        $item->situacaoSicaf = '-';
+        $item->quantidadeHomologadaVencedor = 0;
+        $item->valorUnitario = 1;
+        $item->valorTotal = 0;
+        $item->quantidadeEmpenhada = 0;
+
+        $this->gravaSuprimento('SERVIÇO PARA SUPRIMENTO DE FUNDOS', $compra, $item, $fornecedor);
+
+        $item->tipo = 'M';
+        $item->numero = '00002';
+        $item->descricaoDetalhada = 'Material';
+
+        $this->gravaSuprimento('MATERIAL PARA SUPRIMENTO DE FUNDOS', $compra, $item, $fornecedor);
+    }
+
+    private function gravaSuprimento($descricao, $compra, $item, $fornecedor): void
+    {
+        $catmatseritem = Catmatseritem::where('descricao', $descricao)
+            ->select('id')->first();
+
+        $compraitem = $this->updateOrCreateCompraItemSispp($compra, $catmatseritem, $item);
+        $this->gravaCompraItemFornecedor($compraitem->id, $item, $fornecedor);
+        $this->gravaCompraItemUnidadeSuprimento($compraitem->id);
+    }
+
     public function gravaParametroItensdaCompraSISRP($compraSiasg, $compra): void
     {
         $unidade_autorizada_id = session('user_ug_id');
@@ -164,13 +203,12 @@ trait CompraTrait
         $codigo_siasg = (isset($item->codigo)) ? $item->codigo : $item->codigoItem;
         $tipo = ['S' => $SERVICO[0], 'M' => $MATERIAL[0]];
         $catGrupo = ['S' => $SERVICO[1], 'M' => $MATERIAL[1]];
-        if ($item->descricao == ""){
+        if ($item->descricao == "") {
             $catmatseritem = Catmatseritem::updateOrCreate(
                 ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
-                ['descricao' => $codigo_siasg." - Descrição não informada pelo serviço.", 'grupo_id' => $catGrupo[$item->tipo]]
+                ['descricao' => $codigo_siasg . " - Descrição não informada pelo serviço.", 'grupo_id' => $catGrupo[$item->tipo]]
             );
-
-        }else{
+        } else {
             $catmatseritem = Catmatseritem::updateOrCreate(
                 ['codigo_siasg' => (int)$codigo_siasg, 'grupo_id' => (int)$catGrupo[$item->tipo]],
                 ['descricao' => $item->descricao, 'grupo_id' => $catGrupo[$item->tipo]]
@@ -242,6 +280,29 @@ trait CompraTrait
         );
     }
 
+    public function gravaCompraItemFornecedorSuprimento($minuta, $fornecedor_id)
+    {
+        $fornecedor = Fornecedor::find($fornecedor_id);
+
+        foreach ($minuta->compra->compra_item as $compra_item) {
+            CompraItemFornecedor::updateOrCreate(
+                [
+                    'compra_item_id' => $compra_item->id,
+                    'fornecedor_id' => $fornecedor->id
+                ],
+                [
+                    'ni_fornecedor' => $fornecedor->cpf_cnpj_idgener,
+                    'classificacao' => '',
+                    'situacao_sicaf' => '-',
+                    'quantidade_homologada_vencedor' => 0,
+                    'valor_unitario' => 1,
+                    'valor_negociado' => 0,
+                    'quantidade_empenhada' => 0
+                ]
+            );
+        }
+    }
+
 
     public function gravaCompraItemUnidadeSispp($compraitem_id, $item, $unidade_autorizada_id, $fornecedor)
     {
@@ -261,6 +322,20 @@ trait CompraTrait
 
         $compraItemUnidade->quantidade_saldo = $saldo->saldo;
         $compraItemUnidade->save();
+    }
+
+    public function gravaCompraItemUnidadeSuprimento($compraitem_id): void
+    {
+        CompraItemUnidade::updateOrCreate(
+            [
+                'compra_item_id' => $compraitem_id,
+                'unidade_id' => session('user_ug_id'),
+            ],
+            [
+                'quantidade_saldo' => 1,
+                'quantidade_autorizada' => 1
+            ]
+        );
     }
 
 
@@ -303,7 +378,7 @@ trait CompraTrait
         $compraItemUnidade->save();
 
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
-        $compraItemUnidade->quantidade_saldo = (isset($saldo->saldo))?$saldo->saldo:$qtd_autorizada;
+        $compraItemUnidade->quantidade_saldo = (isset($saldo->saldo)) ? $saldo->saldo : $qtd_autorizada;
         $compraItemUnidade->save();
     }
 }

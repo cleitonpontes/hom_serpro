@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Empenho;
 
 use Alert;
 
+use App\Http\Traits\BuscaCodigoItens;
 use App\Http\Traits\Formatador;
 use App\Models\Catmatseritem;
 use App\Models\Codigo;
@@ -34,6 +35,7 @@ class CompraSiasgCrudController extends CrudController
 {
     use Formatador;
     use CompraTrait;
+    use BuscaCodigoItens;
 
     public const MATERIAL = [149, 194];
     public const SERVICO = [150, 195];
@@ -94,6 +96,7 @@ class CompraSiasgCrudController extends CrudController
         $this->setFieldUnidadeCompra();
         $this->setFieldModalidade($modalidades);
         $this->setFieldNumeroAno();
+        $this->setFieldFornecedor();
     }
 
     private function setFieldModalidade($modalidade): void
@@ -143,11 +146,12 @@ class CompraSiasgCrudController extends CrudController
             'model' => "App\Models\Unidade",
             'data_source' => url("api/unidade"),
             'placeholder' => "Selecione a Unidade",
-            'minimum_input_length' => 2
+            'minimum_input_length' => 2,
+
         ]);
     }
 
-    private function setFielContrato()
+    private function setFielContrato(): void
     {
         $this->crud->addField([
             'label' => "Contrato",
@@ -166,6 +170,25 @@ class CompraSiasgCrudController extends CrudController
         ]);
     }
 
+    private function setFieldFornecedor()
+    {
+        $this->crud->addField([
+            'label' => "Suprido",
+            'type' => "select2_from_ajax_suprido",
+            'name' => 'fornecedor_empenho_id',
+            'entity' => 'fornecedor',
+            'attribute' => "cpf_cnpj_idgener",
+            'model' => Fornecedor::class,
+            'data_source' => url("api/suprido"),
+            'placeholder' => "Selecione o suprido",
+            'minimum_input_length' => 2,
+            'attributes' => [
+                'disabled' => 'disabled',
+                'class' => 'form-control opc_suprimento',
+            ],
+        ]);
+    }
+
     public function show($id)
     {
         $content = parent::show($id);
@@ -177,7 +200,7 @@ class CompraSiasgCrudController extends CrudController
 
     public function store(StoreRequest $request)
     {
-        //BUSCAR COMPRA por CONTRATO
+        //CONTRATO
         if ($request->tipoEmpenho == 1) {
             $contrato = Contrato::find($request->id);
 
@@ -259,7 +282,7 @@ class CompraSiasgCrudController extends CrudController
             }
         }
 
-        //BUSCAR COMPRA
+        //COMPRA
         if ($request->tipoEmpenho == 2) {
             $retornoSiasg = $this->consultaCompraSiasg($request);
 
@@ -319,6 +342,50 @@ class CompraSiasgCrudController extends CrudController
                 DB::commit();
 
                 return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
+            } catch (Exception $exc) {
+                DB::rollback();
+            }
+        }
+
+        //SUPRIMENTO
+        if ($request->tipoEmpenho == 3) {
+            DB::beginTransaction();
+            try {
+                $modadalidade_id = $this->retornaIdCodigoItem('Modalidade Licitação', 'Suprimento de Fundos');
+                $tipo_compra_id = $this->retornaIdCodigoItem('Tipo Compra', 'SISPP');
+                $request->request->set('unidade_origem_id', session('user_ug_id'));
+                $request->request->set('modalidade_id', $modadalidade_id);
+                $request->request->set('numero_ano', '99999/9999');
+                $request->request->set('tipo_compra_id', $tipo_compra_id);
+                $request->request->set('unidade_subrrogada_id', null);
+                $request->request->set('inciso', null);
+                $request->request->set('lei', null);
+
+                $compra = $this->updateOrCreateCompra($request);
+                $this->gravaParametrosSuprimento($compra, $request->fornecedor_empenho_id);
+
+                $tipo_empenhopor_id = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Suprimento');
+
+                $situacao_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM ANDAMENTO');
+                $minutaEmpenho = $this->gravaMinutaEmpenho([
+                    'situacao_id' => $situacao_id,
+                    'compra_id' => $compra->id,
+                    'contrato_id' => null,
+                    'unidade_origem_id' => $compra->unidade_origem_id,
+                    'unidade_id' => session('user_ug_id'),
+                    'modalidade_id' => $compra->modalidade_id,
+                    'numero_ano' => $compra->numero_ano,
+                    'tipo_empenhopor' => $tipo_empenhopor_id,
+                    'fornecedor_empenho_id' => $request->fornecedor_empenho_id,
+                ]);
+
+                DB::commit();
+
+
+                return redirect(route(
+                    'empenho.minuta.etapa.item',
+                    ['minuta_id' => $minutaEmpenho->id, 'fornecedor_id' => $request->fornecedor_empenho_id]
+                ));
             } catch (Exception $exc) {
                 DB::rollback();
             }
@@ -481,7 +548,7 @@ class CompraSiasgCrudController extends CrudController
         $minutaEmpenho->contrato_id = $params['contrato_id'];
         $minutaEmpenho->situacao_id = $params['situacao_id'];
         $minutaEmpenho->informacao_complementar = $this->retornaInfoComplementar($params);
-            $minutaEmpenho->tipo_empenhopor_id = $params['tipo_empenhopor'];
+        $minutaEmpenho->tipo_empenhopor_id = $params['tipo_empenhopor'];
         $etapa = 2;
 
         if (isset($params['fornecedor_compra_id'])) {

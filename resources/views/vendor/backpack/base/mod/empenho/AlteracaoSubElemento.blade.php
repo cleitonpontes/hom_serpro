@@ -84,6 +84,7 @@
             <form action="{{$url_form}}" method="POST">
                 <input type="hidden" id="sispp_servico" name="sispp_servico" value="{{$sispp_servico}}">
                 <input type="hidden" id="tipo_item" name="tipo_item" value="{{$tipo_item}}">
+                <input type="hidden" id="tipo_empenho_por" name="tipo_empenho_por" value="{{$tipo_empenho_por}}">
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
                 <input type="hidden" id="credito" name="credito" value="{{$credito}}">
