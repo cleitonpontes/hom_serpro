@@ -3,51 +3,49 @@
 
 @php
 
-    //dd(session('empenho_etapa'));
-    //dd(session()->all());
-        // Busca url da rota
+    // Busca url da rota
 
-        $request = Request();
-        $url = $request->path();
+    $request = Request();
+    $url = $request->path();
 
-        $partes = explode('/', $url);
-        $proc = array_search('tela', $partes);
+    $partes = explode('/', $url);
+    $proc = array_search('tela', $partes);
 
-        $etapa = session('empenho_etapa');
-        $minuta_id = Route::current()->parameter('minuta_id') ?? session('minuta_id') ?? Route::current()->parameter('minutum');
-        $fornecedor_id = session('fornecedor_compra') ?? Route::current()->parameter('fornecedor_id') ?? '';
-        $conta_id = session('conta_id') ?? Route::current()->parameter('conta_id') ?? '';
-        $situacao = session('situacao');
+    $etapa = session('empenho_etapa');
+    $minuta_id = Route::current()->parameter('minuta_id') ?? session('minuta_id') ?? Route::current()->parameter('minutum');
+    $fornecedor_id = session('fornecedor_compra') ?? Route::current()->parameter('fornecedor_id') ?? '';
+    $conta_id = session('conta_id') ?? Route::current()->parameter('conta_id') ?? '';
+    $situacao = session('situacao');
 
-        // Itens do cabeçalho
+    // Itens do cabeçalho
 
-        $passos[1] = 'Contrato/Compra';
-        $passos[2] = 'Fornecedor';
-        $passos[3] = 'Itens';
-        $passos[4] = 'Crédito disponível';
-        $passos[5] = 'Subelemento';
-        $passos[6] = 'Dados Empenho';
-        $passos[7] = 'Passivo Anterior';
-        $passos[8] = 'Finalizar';
+    $passos[1] = 'Contrato/Compra';
+    $passos[2] = 'Fornecedor';
+    $passos[3] = 'Itens';
+    $passos[4] = 'Crédito disponível';
+    $passos[5] = 'Subelemento';
+    $passos[6] = 'Dados Empenho';
+    $passos[7] = 'Passivo Anterior';
+    $passos[8] = 'Finalizar';
 
-        $rotas = [1 => '#', 2 => '#', 3 => '#', 4 => '#', 5 => '#', 6 => '#', 7 => '#', 8 => '#'];
+    $rotas = [1 => '#', 2 => '#', 3 => '#', 4 => '#', 5 => '#', 6 => '#', 7 => '#', 8 => '#'];
 
-        if ($situacao === 'EM ANDAMENTO' || $situacao === 'ERRO'){
-            $rotas[1] = '#';
-            $rotas[2] = route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id]);
-            $rotas[3] = route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);
-            $rotas[4] = route('empenho.minuta.etapa.saldocontabil', ['minuta_id' => $minuta_id]);
-            $rotas[5] = route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
-            $rotas[6] = route('empenho.crud./minuta.edit', ['minutum' => $minuta_id]);
-            $rotas[7] = route('empenho.minuta.etapa.passivo-anterior', ['passivo_anterior' => $minuta_id]);
+    if ($situacao === 'EM ANDAMENTO' || $situacao === 'ERRO'){
+        $rotas[1] = '#';
+        $rotas[2] = route('empenho.minuta.etapa.fornecedor', ['minuta_id' => $minuta_id]);
+        $rotas[3] = route('empenho.minuta.etapa.item', ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]);
+        $rotas[4] = route('empenho.minuta.etapa.saldocontabil', ['minuta_id' => $minuta_id]);
+        $rotas[5] = route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+        $rotas[6] = route('empenho.crud./minuta.edit', ['minutum' => $minuta_id]);
+        $rotas[7] = route('empenho.minuta.etapa.passivo-anterior', ['passivo_anterior' => $minuta_id]);
 
-            if ($conta_id){
-                $rotas[7] = route('empenho.crud.passivo-anterior.edit', ['minuta_id' => $conta_id]);
-            }
-
-            $rotas[8] = route('empenho.crud./minuta.show', ['minutum' => $minuta_id]);
-
+        if ($conta_id){
+            $rotas[7] = route('empenho.crud.passivo-anterior.edit', ['minuta_id' => $conta_id]);
         }
+
+        $rotas[8] = route('empenho.crud./minuta.show', ['minutum' => $minuta_id]);
+
+    }
 
 @endphp
 
@@ -58,7 +56,7 @@
                 <h3 class="box-title"> Fluxo de Empenho </h3>
             </div>
             <div class="box-body">
-                <div class="row" align="center">
+                <div class="row" align="center" id="rowCabecalho">
 
                     @foreach($passos as $num => $descricao)
 
@@ -72,10 +70,10 @@
 
                         @endphp
                         <div class="btn btn-app" style="width: 108px;">
-                            @if($cor=="azul") <a href="{{ $rotas[$num]  }}"> @endif
+                            @if($cor == "azul") <a href="{{ $rotas[$num]  }}"> @endif
                                 <span class="circulo {{$cor}}">{{$num}}</span>
                                 {!! $descricao !!}
-                            @if($cor=="azul") </a> @endif
+                                @if($cor == "azul") </a> @endif
                         </div>
                     @endforeach
 
