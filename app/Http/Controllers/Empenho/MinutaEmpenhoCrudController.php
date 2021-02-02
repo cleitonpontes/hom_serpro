@@ -178,7 +178,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => 'ID CIPI',
             'type' => 'text_cipi',
             'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
+                'class' => 'form-group col-md-6',
+                'title' => 'Formato padrão: 99.99-99',
             ]
         ]);
     }
