@@ -10,15 +10,21 @@ use App\Models\DevolveMinutaSiasg;
 use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
 use App\Models\SfOrcEmpenhoDados;
+use App\XML\Execsiafi;
 
 class SforcempenhodadosObserver
 {
     public function created(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
+        $execsiafi = new Execsiafi();
+        $nonce = $execsiafi->createNonce($sfOrcEmpenhoDados->ugemitente, $sfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+        $sfOrcEmpenhoDados->sfnonce_id = $nonce;
+        $sfOrcEmpenhoDados->save();
+
         if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO') {
-            if($sfOrcEmpenhoDados->alteracao == false){
+            if ($sfOrcEmpenhoDados->alteracao == false) {
                 IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
-            }else{
+            } else {
                 AlterarEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
             }
         }
@@ -26,23 +32,24 @@ class SforcempenhodadosObserver
 
     public function updated(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
+
         if ($sfOrcEmpenhoDados->situacao == 'EMITIDO' or $sfOrcEmpenhoDados->situacao == 'ERRO') {
             $situacao = $this->buscaSituacao($sfOrcEmpenhoDados->situacao);
 
-            if($sfOrcEmpenhoDados->alteracao == false){
+            if ($sfOrcEmpenhoDados->alteracao == false) {
                 $minutaempenho = MinutaEmpenho::find($sfOrcEmpenhoDados->minutaempenho_id);
                 $minutaempenho->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
                 $minutaempenho->situacao_id = $situacao->id;
                 $minutaempenho->save();
-            }else{
+            } else {
                 $remessa = MinutaEmpenhoRemessa::find($sfOrcEmpenhoDados->minutaempenhos_remessa_id);
                 $remessa->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
                 $remessa->situacao_id = $situacao->id;
                 $remessa->save();
             }
 
-            if($sfOrcEmpenhoDados->situacao == 'EMITIDO'){
-                if($sfOrcEmpenhoDados->alteracao == false){
+            if ($sfOrcEmpenhoDados->situacao == 'EMITIDO') {
+                if ($sfOrcEmpenhoDados->alteracao == false) {
                     $empenhoCrud = new EmpenhoCrudController();
                     $empenhoCrud->criaEmpenhoFromMinuta($sfOrcEmpenhoDados);
                 }
@@ -57,9 +64,14 @@ class SforcempenhodadosObserver
         }
 
         if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO') {
-            if($sfOrcEmpenhoDados->alteracao == false){
+            $execsiafi = new Execsiafi();
+            $nonce = $execsiafi->createNonce($sfOrcEmpenhoDados->ugemitente, $sfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+            $sfOrcEmpenhoDados->sfnonce_id = $nonce;
+            $sfOrcEmpenhoDados->save();
+
+            if ($sfOrcEmpenhoDados->alteracao == false) {
                 IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
-            }else{
+            } else {
                 AlterarEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
             }
         }

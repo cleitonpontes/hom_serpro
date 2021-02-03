@@ -102,36 +102,45 @@ class Execsiafi
     protected function cabecalho($ug, $sf_id, $wsdl)
     {
 
-        if ($wsdl == 'CONSULTA') {
-            $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug></ns1:cabecalhoSIAFI>';
-            $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
-                'Security',
-                new \SoapVar($xml, XSD_ANYXML),
-                true
-            );
-        } else {
-            $nonce = SfNonce::select()->orderBy('id', 'desc')->first();
-            $nonce_id = $nonce->id + 1;
-            $data = [
-                'sf_id' => $sf_id,
-                'tipo' => $ug . "_" . $nonce_id . "_" . $sf_id,
-            ];
-            if ($sf_id == '') {
-                unset($data['sf_id']);
-            }
-            SfNonce::create($data);
+        $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug>';
 
-            $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug><bilhetador><nonce>' . $nonce_id . '</nonce></bilhetador></ns1:cabecalhoSIAFI>';
-            $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
-                'Security',
-                new \SoapVar($xml, XSD_ANYXML),
-                true
-            );
+        if ($wsdl == 'CPR'){
+            $xml .= '<nonce>' . $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
         }
 
+        if ($wsdl == 'ORCAMENTARIO'){
+            $sforcempenhodados = SfOrcEmpenhoDados::find($sf_id);
+            if(isset($sforcempenhodados->sfnonce_id)){
+                $xml .= '<nonce>' . $sforcempenhodados->sfnonce_id . '</nonce>';
+            }else{
+                $xml .= '<nonce>' . $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
+            }
+        }
+
+        $xml .= '</ns1:cabecalhoSIAFI>';
+
+        $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+            'Security',
+            new \SoapVar($xml, XSD_ANYXML),
+            true
+        );
 
         return $header;
+    }
 
+    public function createNonce($ug, $sf_id, $tipo = ''){
+        $nonce = SfNonce::select()->orderBy('id', 'desc')->first();
+        $nonce_id = $nonce->id + 1;
+        $data = [
+            'sf_id' => $sf_id,
+            'tipo' => $ug . "_" . $nonce_id . "_" . $sf_id . "_" . $tipo,
+        ];
+        if ($sf_id == '') {
+            unset($data['sf_id']);
+        }
+        $nonce1 = SfNonce::create($data);
+
+        return $nonce1->id;
     }
 
     protected function wssecurity($user, $password)
