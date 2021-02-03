@@ -560,6 +560,7 @@ class MinutaAlteracaoCrudController extends CrudController
             'fornecedor_id' => $itens[0]['fornecedor_id'] ?? '',
             'sispp_servico' => $sispp_servico,
             'tipo_item' => $itens[0]['descricao'],
+            'saldo_id' => $itens[0]['saldo_id'],
             'url_form' => $update !== false
                 ? "/empenho/minuta/$minuta_id/alteracao/$remessa_id"
                 : "/empenho/minuta/$minuta_id/alteracao"
@@ -1635,6 +1636,7 @@ class MinutaAlteracaoCrudController extends CrudController
                             'contrato_item_minuta_empenho.operacao_id',
                             'tipo_compra.descricao as tipo_compra_descricao',
                             'codigoitens.descricao',
+                            'saldo_contabil.id as saldo_id',
                             'catmatseritens.codigo_siasg',
                             'catmatseritens.descricao as catmatser_desc',
                             DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
@@ -1775,6 +1777,7 @@ class MinutaAlteracaoCrudController extends CrudController
                             'naturezadespesa.id as natureza_despesa_id',
                             'compra_item_fornecedor.valor_negociado as valortotal',
                             'saldo_contabil.saldo',
+                            'saldo_contabil.id as saldo_id',
                             'compra_item_minuta_empenho.subelemento_id',
                             DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
                         ]

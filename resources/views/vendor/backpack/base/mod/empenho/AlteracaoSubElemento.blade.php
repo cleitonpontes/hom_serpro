@@ -93,6 +93,7 @@
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
                 <input type="hidden" id="credito" name="credito" value="{{$credito}}">
+                <input type="hidden" id="saldo_id" name="saldo_id" value="{{$saldo_id}}">
                 <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="{{$valor_utilizado}}">
             @csrf <!-- {{ csrf_field() }} -->
                                 @if($update !== false)
@@ -194,7 +195,7 @@
         $(document).ready(function () {
 
             $('body').on('click', '#atualiza_credito', function (event) {
-                atualizaCreditoOrcamentario(event);
+                atualizaLinhadeSaldo(event);
             });
 
             $('body').on('change', '.valor_total', function (event) {
@@ -309,6 +310,42 @@
 
         }
 
+        function atualizaLinhadeSaldo(event) {
+            var saldo_id = {{$saldo_id}};
+            var url = "{{route('atualiza.saldos.linha',':saldo_id')}}";
+            url = url.replace(':saldo_id', saldo_id);
+
+            axios.request(url)
+                .then(response => {
+                    dados = response.data
+                    if (dados == true) {
+                        atualizaCreditoOrcamentario(event)
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Crédito Orçamentário Atualizado com sucesso!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        var table = $('#dataTableBuilder').DataTable();
+                        table.ajax.reload();
+                    } else {
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'warning',
+                            title: 'O saldo já está atualizado!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
+        }
+
         function atualizaCreditoOrcamentario(event)
         {
             var minuta_id = {{$minuta_id}}
@@ -319,13 +356,6 @@
                 .then(response => {
                     credito = response.data
                     atualizaSaldos(credito);
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Crédito Orçamentário Atualizado com sucesso!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    })
                 })
                 .catch(error => {
                     alert(error);
