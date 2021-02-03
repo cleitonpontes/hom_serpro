@@ -110,7 +110,7 @@ class Execsiafi
 
         if ($wsdl == 'ORCAMENTARIO'){
             $sforcempenhodados = SfOrcEmpenhoDados::find($sf_id);
-            if(isset($sforcempenhodados->sfnonce_id)){
+            if($sforcempenhodados->sfnonce_id){
                 $xml .= '<nonce>' . $sforcempenhodados->sfnonce_id . '</nonce>';
             }else{
                 $xml .= '<nonce>' . $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
