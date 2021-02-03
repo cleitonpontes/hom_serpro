@@ -48,7 +48,8 @@ class SfOrcEmpenhoDados extends Model
         'numro',
         'mensagemretorno',
         'situacao',
-        'alteracao'
+        'alteracao',
+        'sfnonce_id'
     ];
 
     /*
