@@ -26,6 +26,7 @@ class Execsiafi
 
     protected function conexao_xml($user, $pass, $ug, $sf_id, $amb, $exercicio, $wsdl)
     {
+        $tipo_wsdl = $wsdl;
 
         if ($amb == 'PROD') {
             //ambiente produção
@@ -90,7 +91,7 @@ class Execsiafi
         ]);
 
 
-        $cabecalho = $this->cabecalho($ug, $sf_id, $wsdl);
+        $cabecalho = $this->cabecalho($ug, $sf_id, $tipo_wsdl);
 
         $client->__setSoapHeaders(array($this->wssecurity($user, $pass), $cabecalho));
 
