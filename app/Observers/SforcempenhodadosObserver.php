@@ -16,11 +16,6 @@ class SforcempenhodadosObserver
 {
     public function created(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
-        $execsiafi = new Execsiafi();
-        $nonce = $execsiafi->createNonce($sfOrcEmpenhoDados->ugemitente, $sfOrcEmpenhoDados->id, 'ORCAMENTARIO');
-        $sfOrcEmpenhoDados->sfnonce_id = $nonce;
-        $sfOrcEmpenhoDados->save();
-
         if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO') {
             if ($sfOrcEmpenhoDados->alteracao == false) {
                 IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
@@ -64,11 +59,6 @@ class SforcempenhodadosObserver
         }
 
         if ($sfOrcEmpenhoDados->situacao == 'EM PROCESSAMENTO') {
-            $execsiafi = new Execsiafi();
-            $nonce = $execsiafi->createNonce($sfOrcEmpenhoDados->ugemitente, $sfOrcEmpenhoDados->id, 'ORCAMENTARIO');
-            $sfOrcEmpenhoDados->sfnonce_id = $nonce;
-            $sfOrcEmpenhoDados->save();
-
             if ($sfOrcEmpenhoDados->alteracao == false) {
                 IncluirEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
             } else {

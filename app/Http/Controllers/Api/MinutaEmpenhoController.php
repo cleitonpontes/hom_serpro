@@ -28,6 +28,7 @@ use App\Models\SfRegistroAlteracao;
 use App\Models\Unidade;
 use App\Models\Catmatseritem;
 use App\XML\ApiSiasg;
+use App\XML\Execsiafi;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -112,6 +113,12 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
         $modSfOrcEmpenhoDados->save();
+
+        $execsiafi = new Execsiafi();
+        $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+        $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
+        $modSfOrcEmpenhoDados->save();
+
         return $modSfOrcEmpenhoDados;
     }
 
@@ -428,8 +435,13 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->alteracao = true;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modRemessa->id;
-
         $modSfOrcEmpenhoDados->save();
+
+        $execsiafi = new Execsiafi();
+        $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+        $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
+        $modSfOrcEmpenhoDados->save();
+
         return $modSfOrcEmpenhoDados;
     }
 
