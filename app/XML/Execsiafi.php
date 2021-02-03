@@ -106,15 +106,15 @@ class Execsiafi
         $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug>';
 
         if ($wsdl == 'CPR'){
-            $xml .= '<nonce>' . (string) $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
+            $xml .= '<bilhetador><nonce>' . (string) $this->createNonce($ug,$sf_id,$wsdl) . '</nonce></bilhetador>';
         }
 
         if ($wsdl == 'ORCAMENTARIO'){
             $sforcempenhodados = SfOrcEmpenhoDados::find($sf_id);
             if($sforcempenhodados->sfnonce_id != null){
-                $xml .= '<nonce>' . (string) $sforcempenhodados->sfnonce_id . '</nonce>';
+                $xml .= '<bilhetador><nonce>' . (string) $sforcempenhodados->sfnonce_id . '</nonce></bilhetador>';
             }else{
-                $xml .= '<nonce>' . (string) $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
+                $xml .= '<bilhetador><nonce>' . (string) $this->createNonce($ug,$sf_id,$wsdl) . '</nonce></bilhetador>';
             }
         }
 
