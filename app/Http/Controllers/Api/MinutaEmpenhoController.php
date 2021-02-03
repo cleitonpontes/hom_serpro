@@ -112,10 +112,8 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
-        $modSfOrcEmpenhoDados->save();
-
         $execsiafi = new Execsiafi();
-        $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+        $nonce = $execsiafi->createNonce($ugemitente->codigo, $modMinutaEmpenho->id, 'ORCAMENTARIO');
         $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
         $modSfOrcEmpenhoDados->save();
 
@@ -435,10 +433,8 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->alteracao = true;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modRemessa->id;
-        $modSfOrcEmpenhoDados->save();
-
         $execsiafi = new Execsiafi();
-        $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+        $nonce = $execsiafi->createNonce($ugemitente->codigo, $modMinutaEmpenho->id, 'ORCAMENTARIO');
         $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
         $modSfOrcEmpenhoDados->save();
 
