@@ -105,19 +105,21 @@ class Execsiafi
         $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug>';
 
         if ($wsdl == 'CPR'){
-            $xml .= '<nonce>' . $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
+            $xml .= '<nonce>' . (string) $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
         }
 
         if ($wsdl == 'ORCAMENTARIO'){
             $sforcempenhodados = SfOrcEmpenhoDados::find($sf_id);
-            if($sforcempenhodados->sfnonce_id){
-                $xml .= '<nonce>' . $sforcempenhodados->sfnonce_id . '</nonce>';
+            if($sforcempenhodados->sfnonce_id != null){
+                $xml .= '<nonce>' . (string) $sforcempenhodados->sfnonce_id . '</nonce>';
             }else{
-                $xml .= '<nonce>' . $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
+                $xml .= '<nonce>' . (string) $this->createNonce($ug,$sf_id,$wsdl) . '</nonce>';
             }
         }
 
         $xml .= '</ns1:cabecalhoSIAFI>';
+
+        dd($xml);
 
         $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
             'Security',
