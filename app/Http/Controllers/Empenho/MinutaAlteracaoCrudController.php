@@ -77,7 +77,6 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->denyAccess('delete');
 
 
-
         if ($minuta->empenho_por === 'Compra' || $minuta->empenho_por === 'Suprimento') {
             $this->crud->addClause('select', [
                 'minutaempenhos.*',
@@ -1084,11 +1083,10 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ]);
-                if ($modMinuta->empenho_por === 'Suprimento') {
-                    $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
-                }
+            if ($modMinuta->empenho_por === 'Suprimento') {
+                $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
+            }
             $itens = $itens->distinct()->get()->toArray();
-
         }
 
         if ($modMinuta->empenho_por === 'Contrato') {
@@ -1478,13 +1476,11 @@ class MinutaAlteracaoCrudController extends CrudController
             $quantidade *= -1;
         }
 
-        if ($ehcontrato !== false && $item['descricao'] === 'Serviço') {
-            return " <input  type='number' class='form-control qtd qtd"
-                . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
-        }
-
-        if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
+        //se é contrato e é serviço OU se é sispp e serviço OU se for suprimento
+        if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
+            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
+            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
+        ) {
             return " <input  type='number' class='form-control qtd qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
                 . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
@@ -1514,29 +1510,13 @@ class MinutaAlteracaoCrudController extends CrudController
         }
         $valor = number_format($valor, '2', '.', '');
 
-        if ($ehcontrato !== false && $item['descricao'] === 'Serviço') {
+        //se é contrato e serviço OU se é sispp e serviço OU se é suprimento
+        if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
+            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
+            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
+        ) {
             $readonly = 'disabled';
 
-            if (array_key_exists($item['operacao_id'], $tipos)
-                && (
-                    $tipos[$item['operacao_id']] === "ANULAÇÃO"
-                    || $tipos[$item['operacao_id']] === "REFORÇO"
-                )) {
-                $readonly = "";
-            }
-
-            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
-                . $item[$tipo] . "'"
-                . "id='vrtotal" . $item[$tipo]
-                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
-                . " data-$tipo='" . $item[$tipo] . "'"
-                . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onkeyup='calculaQuantidade(this)' $readonly>";
-        }
-
-
-        if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
-            $readonly = 'disabled';
             if (array_key_exists($item['operacao_id'], $tipos)
                 && (
                     $tipos[$item['operacao_id']] === "ANULAÇÃO"

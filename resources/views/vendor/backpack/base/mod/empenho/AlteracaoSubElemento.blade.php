@@ -123,15 +123,17 @@
         function BloqueiaValorTotal(tipo_alteracao) {
             var selected = $(tipo_alteracao).find(':selected').text();
             var minuta_por = $(tipo_alteracao).attr('id');
+            var tipo_empenho_por = $('#tipo_empenho_por').val();
 
             $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
             $(tipo_alteracao).closest('tr').find('td').find('.qtd').val(0)
             calculaUtilizado();
 
-            if(minuta_por == 'contrato_item_id' && ($('#tipo_item').val() == 'Serviço')){
-
+            // se for contrato e serviço OU se for Suprimento
+            if((minuta_por == 'contrato_item_id' && ($('#tipo_item').val() == 'Serviço')) ||
+                (tipo_empenho_por === 'Suprimento')
+            ){
                 if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
-                    // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
                     $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
                     $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
                     return;
@@ -140,7 +142,7 @@
                 $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
                 $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
 
-            }else {
+            } else {
 
                 if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
                     $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
