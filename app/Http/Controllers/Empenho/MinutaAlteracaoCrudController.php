@@ -18,6 +18,7 @@ use App\Models\MinutaEmpenhoRemessa;
 use App\Models\Naturezasubitem;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
+use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
@@ -1835,6 +1836,9 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->latest()
                     ->first();
 
+                $execsiafi = new Execsiafi();
+                $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+                $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
                 $modSfOrcEmpenhoDados->save();
 
