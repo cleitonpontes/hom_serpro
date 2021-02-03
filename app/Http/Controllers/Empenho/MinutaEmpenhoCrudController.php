@@ -74,7 +74,9 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->denyAccess('delete');
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-        $this->crud->orderBy('updated_at', 'desc');
+        $this->crud->addClause('leftJoin', 'fornecedores', 'fornecedores.id', '=', 'minutaempenhos.fornecedor_empenho_id');
+        $this->crud->addClause('select', 'minutaempenhos.*');
+        $this->crud->orderBy('minutaempenhos.updated_at', 'desc');
 
         /*
         |--------------------------------------------------------------------------
