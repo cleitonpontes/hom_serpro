@@ -317,6 +317,13 @@
                 .then(response => {
                     credito = response.data
                     atualizaSaldos(credito);
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Crédito Orçamentário Atualizado com sucesso!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
                 })
                 .catch(error => {
                     alert(error);
