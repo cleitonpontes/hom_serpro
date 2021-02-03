@@ -120,8 +120,6 @@ class Execsiafi
 
         $xml .= '</ns1:cabecalhoSIAFI>';
 
-        dd($wsdl,$xml);
-
         $header = new \SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
             'Security',
             new \SoapVar($xml, XSD_ANYXML),
