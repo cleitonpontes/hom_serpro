@@ -28,6 +28,7 @@ use App\Models\SfRegistroAlteracao;
 use App\Models\Unidade;
 use App\Models\Catmatseritem;
 use App\XML\ApiSiasg;
+use App\XML\Execsiafi;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -111,7 +112,11 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
+        $execsiafi = new Execsiafi();
+        $nonce = $execsiafi->createNonce($ugemitente->codigo, $modMinutaEmpenho->id, 'ORCAMENTARIO');
+        $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
         $modSfOrcEmpenhoDados->save();
+
         return $modSfOrcEmpenhoDados;
     }
 
@@ -428,8 +433,11 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->alteracao = true;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modRemessa->id;
-
+        $execsiafi = new Execsiafi();
+        $nonce = $execsiafi->createNonce($ugemitente->codigo, $modMinutaEmpenho->id, 'ORCAMENTARIO');
+        $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
         $modSfOrcEmpenhoDados->save();
+
         return $modSfOrcEmpenhoDados;
     }
 
@@ -500,4 +508,14 @@ class MinutaEmpenhoController extends Controller
             ->where('minutaempenhos_remessa_id', $modRemessa->id)
             ->whereIn('situacao', ['ERRO', 'EM ANDAMENTO'])->forceDelete();
     }
+
+
+    public function atualizaCreditoOrcamentario(Request $request)
+    {
+        $minuta_id = Route::current()->parameter('minuta_id');
+        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $modSaldoContabil = SaldoContabil::find($modMinutaEmpenho->saldo_contabil_id);
+        return $modSaldoContabil->saldo;
+    }
+
 }

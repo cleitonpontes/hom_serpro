@@ -535,7 +535,7 @@ class SubelementoController extends BaseControllerEmpenho
     {
         $quantidade = $item['quantidade'];
 
-        if ($tipo == 'contrato_item_id' && $item['descricao'] === 'Serviço') {
+        if ($tipo === 'contrato_item_id' && $item['descricao'] === 'Serviço') {
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
                 . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
@@ -552,6 +552,16 @@ class SubelementoController extends BaseControllerEmpenho
                 . "' data-tipo='' name='quantidade_total[]' value='"
                 . $item['qtd_item'] . " '> ";
         }
+        //caso seja suprimento
+        if (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false) {
+            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
+                . $item[$tipo] . "' id='qtd" . $item[$tipo]
+                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
+                . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
+                . "' data-tipo='' name='quantidade_total[]' value='"
+                . $item['qtd_item'] . " readonly'> ";
+        }
+
         return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
@@ -565,7 +575,11 @@ class SubelementoController extends BaseControllerEmpenho
 
         $valor = $item['valor'];
 
-        if ($tipo == 'contrato_item_id' && $item['descricao'] === 'Serviço') {
+        //se for contrato e serviço OU sispp e serviço OU se for suprimento
+        if (($tipo == 'contrato_item_id' && $item['descricao'] === 'Serviço') ||
+            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
+            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
+        ) {
             return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
                 . $item[$tipo] . "'"
                 . "id='vrtotal" . $item[$tipo]
@@ -575,19 +589,9 @@ class SubelementoController extends BaseControllerEmpenho
                 . " onkeyup='calculaQuantidade(this)' >";
         }
 
-        if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
-            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
-                . $item[$tipo] . "'"
-                . "id='vrtotal" . $item[$tipo]
-                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
-                . " data-$tipo='" . $item[$tipo] . "'"
-                . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onkeyup='calculaQuantidade(this)' >";
-        } else {
             return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
                 . "id='vrtotal" . $item[$tipo]
                 . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
-        }
     }
 
     private function addColunaValorTotalItem($item, $tipo)

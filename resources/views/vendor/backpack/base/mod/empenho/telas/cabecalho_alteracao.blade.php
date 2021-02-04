@@ -3,14 +3,10 @@
 
 @php
 
-    //dd(session('empenho_etapa'));
-    //dd(session()->all());
         // Busca url da rota
 
         $request = Request();
         $url = $request->path();
-        //dd($url);
-        //dd(session('passivo_anterior'));
         $partes = explode('/', $url);
         $proc = array_search('tela', $partes);
 
@@ -29,7 +25,6 @@
 
         $rotas = [1 => '#', 2 => '#', 3 => '#'];
 
-        //dump($situacao);
         if ($situacao === 'EM ANDAMENTO' || $situacao === 'ERRO'){
             $rotas[1] = route('empenho.crud.alteracao.create', ['minuta_id' => $minuta_id]);
             $rotas[2] = route('empenho.crud.alteracao.passivo-anterior',
@@ -66,12 +61,11 @@
                 <h3 class="box-title"> Fluxo de Empenho </h3>
             </div>
             <div class="box-body">
-                <div class="row" align="center">
+                <div class="row" align="center" id="rowCabecalho">
 
                     @foreach($passos as $num => $descricao)
                         @php
                             $cor = '';
-//dd($rotas[$num] , url()->current());
                             if ($rotas[$num] == url()->current()){
                                 $cor = 'verde';
                             } elseif ($etapa >= $num) {

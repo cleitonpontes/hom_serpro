@@ -43,8 +43,13 @@
                 <div class="col-md-2 col-sm-3">
                     Crédito orçamentário:
                 </div>
-                <div class="col-md-10 col-sm-9" id="">
+                <div class="col-md-2 col-sm-3" id="credito">
                     R$ {{ number_format($credito,2,',','.') }}
+                </div>
+                <div class="col-md-8 col-sm-6" id="">
+                    <button type="button" class="btn btn-primary btn-sm pull-left" id="atualiza_credito">
+                        Atualizar Crédito Orçamentário <i class="fa fa-refresh"></i>
+                    </button>
                 </div>
             </div>
             <div class="row">
@@ -88,6 +93,7 @@
                 <input type="hidden" id="minuta_id" name="minuta_id" value="{{$minuta_id}}">
                 <input type="hidden" id="fornecedor_id" name="fornecedor_id" value="{{$fornecedor_id}}">
                 <input type="hidden" id="credito" name="credito" value="{{$credito}}">
+                <input type="hidden" id="saldo_id" name="saldo_id" value="{{$saldo_id}}">
                 <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="{{$valor_utilizado}}">
             @csrf <!-- {{ csrf_field() }} -->
                                 @if($update !== false)
@@ -111,20 +117,24 @@
 @endsection
 @push('after_scripts')
     {!! $html->scripts() !!}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script type="text/javascript">
 
         function BloqueiaValorTotal(tipo_alteracao) {
             var selected = $(tipo_alteracao).find(':selected').text();
             var minuta_por = $(tipo_alteracao).attr('id');
+            var tipo_empenho_por = $('#tipo_empenho_por').val();
 
             $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
             $(tipo_alteracao).closest('tr').find('td').find('.qtd').val(0)
             calculaUtilizado();
 
-            if(minuta_por == 'contrato_item_id' && ($('#tipo_item').val() == 'Serviço')){
-
+            // se for contrato e serviço OU se for Suprimento
+            if((minuta_por == 'contrato_item_id' && ($('#tipo_item').val() == 'Serviço')) ||
+                (tipo_empenho_por === 'Suprimento')
+            ){
                 if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
-                    // $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
                     $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
                     $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
                     return;
@@ -133,7 +143,7 @@
                 $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
                 $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
 
-            }else {
+            } else {
 
                 if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
                     $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
@@ -183,6 +193,10 @@
         }
 
         $(document).ready(function () {
+
+            $('body').on('click', '#atualiza_credito', function (event) {
+                atualizaLinhadeSaldo(event);
+            });
 
             $('body').on('change', '.valor_total', function (event) {
                 calculaUtilizado();
@@ -260,6 +274,94 @@
 
             value = value.replaceAll('.', '');
             return value.replaceAll(',', '.');
+        }
+
+
+        number_format = function (number, decimals, dec_point, thousands_sep)
+        {
+            number = number.toFixed(decimals);
+
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+
+        function atualizaSaldos(credito)
+        {
+            var saldo = 0;
+            var utilizado = parseFloat($('#utilizado').text().replace('R$',''));
+
+            if(utilizado < 0){
+                saldo = (parseFloat(credito + (utilizado * -1)));
+            }else{
+                saldo = (parseFloat(credito - utilizado));
+            }
+
+            $('#credito').text('R$ '+number_format(credito,2,',','.'));
+            $('#saldo').text('R$ '+number_format(saldo,2,',','.'));
+
+        }
+
+        function atualizaLinhadeSaldo(event) {
+            var saldo_id = {{$saldo_id}};
+            var url = "{{route('atualiza.saldos.linha',':saldo_id')}}";
+            url = url.replace(':saldo_id', saldo_id);
+
+            axios.request(url)
+                .then(response => {
+                    dados = response.data
+                    if (dados == true) {
+                        atualizaCreditoOrcamentario(event)
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Crédito Orçamentário Atualizado com sucesso!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        var table = $('#dataTableBuilder').DataTable();
+                        table.ajax.reload();
+                    } else {
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'warning',
+                            title: 'O saldo já está atualizado!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
+        }
+
+        function atualizaCreditoOrcamentario(event)
+        {
+            var minuta_id = {{$minuta_id}}
+            var url = "{{route('atualiza.credito.orcamentario',':minuta_id')}}";
+            url = url.replace(':minuta_id', minuta_id);
+
+            axios.request(url)
+                .then(response => {
+                    credito = response.data
+                    atualizaSaldos(credito);
+                })
+                .catch(error => {
+                    alert(error);
+                })
+                .finally()
+            event.preventDefault()
         }
 
     </script>

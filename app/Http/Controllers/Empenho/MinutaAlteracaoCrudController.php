@@ -18,6 +18,7 @@ use App\Models\MinutaEmpenhoRemessa;
 use App\Models\Naturezasubitem;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
+use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use Illuminate\Database\Eloquent\Builder;
@@ -75,7 +76,6 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->allowAccess('update');
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('delete');
-
 
 
         if ($minuta->empenho_por === 'Compra' || $minuta->empenho_por === 'Suprimento') {
@@ -560,6 +560,7 @@ class MinutaAlteracaoCrudController extends CrudController
             'fornecedor_id' => $itens[0]['fornecedor_id'] ?? '',
             'sispp_servico' => $sispp_servico,
             'tipo_item' => $itens[0]['descricao'],
+            'saldo_id' => $itens[0]['saldo_id'],
             'url_form' => $update !== false
                 ? "/empenho/minuta/$minuta_id/alteracao/$remessa_id"
                 : "/empenho/minuta/$minuta_id/alteracao"
@@ -1084,11 +1085,10 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ]);
-                if ($modMinuta->empenho_por === 'Suprimento') {
-                    $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
-                }
+            if ($modMinuta->empenho_por === 'Suprimento') {
+                $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
+            }
             $itens = $itens->distinct()->get()->toArray();
-
         }
 
         if ($modMinuta->empenho_por === 'Contrato') {
@@ -1478,13 +1478,11 @@ class MinutaAlteracaoCrudController extends CrudController
             $quantidade *= -1;
         }
 
-        if ($ehcontrato !== false && $item['descricao'] === 'Serviço') {
-            return " <input  type='number' class='form-control qtd qtd"
-                . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
-        }
-
-        if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
+        //se é contrato e é serviço OU se é sispp e serviço OU se for suprimento
+        if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
+            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
+            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
+        ) {
             return " <input  type='number' class='form-control qtd qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
                 . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
@@ -1514,29 +1512,13 @@ class MinutaAlteracaoCrudController extends CrudController
         }
         $valor = number_format($valor, '2', '.', '');
 
-        if ($ehcontrato !== false && $item['descricao'] === 'Serviço') {
+        //se é contrato e serviço OU se é sispp e serviço OU se é suprimento
+        if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
+            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
+            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
+        ) {
             $readonly = 'disabled';
 
-            if (array_key_exists($item['operacao_id'], $tipos)
-                && (
-                    $tipos[$item['operacao_id']] === "ANULAÇÃO"
-                    || $tipos[$item['operacao_id']] === "REFORÇO"
-                )) {
-                $readonly = "";
-            }
-
-            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
-                . $item[$tipo] . "'"
-                . "id='vrtotal" . $item[$tipo]
-                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
-                . " data-$tipo='" . $item[$tipo] . "'"
-                . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onkeyup='calculaQuantidade(this)' $readonly>";
-        }
-
-
-        if (($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço')) {
-            $readonly = 'disabled';
             if (array_key_exists($item['operacao_id'], $tipos)
                 && (
                     $tipos[$item['operacao_id']] === "ANULAÇÃO"
@@ -1654,6 +1636,7 @@ class MinutaAlteracaoCrudController extends CrudController
                             'contrato_item_minuta_empenho.operacao_id',
                             'tipo_compra.descricao as tipo_compra_descricao',
                             'codigoitens.descricao',
+                            'saldo_contabil.id as saldo_id',
                             'catmatseritens.codigo_siasg',
                             'catmatseritens.descricao as catmatser_desc',
                             DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
@@ -1794,6 +1777,7 @@ class MinutaAlteracaoCrudController extends CrudController
                             'naturezadespesa.id as natureza_despesa_id',
                             'compra_item_fornecedor.valor_negociado as valortotal',
                             'saldo_contabil.saldo',
+                            'saldo_contabil.id as saldo_id',
                             'compra_item_minuta_empenho.subelemento_id',
                             DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
                         ]
@@ -1855,6 +1839,9 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->latest()
                     ->first();
 
+                $execsiafi = new Execsiafi();
+                $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+                $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
                 $modSfOrcEmpenhoDados->save();
 

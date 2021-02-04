@@ -26,10 +26,11 @@ class CompraSiasgRequest extends FormRequest
     public function rules()
     {
         return [
+             'id' => 'required_if:tipoEmpenho,1',
+             'unidade_origem_id' => 'required_if:tipoEmpenho,2',
              'modalidade_id' => 'required_if:tipoEmpenho,2',
              'numero_ano' => 'required_if:tipoEmpenho,2',
-             'unidade_origem_id' => 'required_if:tipoEmpenho,2',
-             'id' => 'required_if:tipoEmpenho,1'
+             'fornecedor_empenho_id' => 'required_if:tipoEmpenho,3',
         ];
     }
 
@@ -41,7 +42,12 @@ class CompraSiasgRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'id' => "Contrato",
+            'unidade_origem_id' => "Unidade Compra",
+            'modalidade_id' => "Modalidade Licitação",
+            'numero_ano' => "Numero / Ano",
+            'fornecedor_empenho_id' => "Suprido",
+            'tipoEmpenho' => "Tipo",
         ];
     }
 
@@ -53,10 +59,11 @@ class CompraSiasgRequest extends FormRequest
     public function messages()
     {
         return [
-//            'descricao.required' => 'O campo "Descrição" é obrigatório!',
-//            'descricao.min' => 'Descrição com mínimo de 05 caracteres!',
-//            'descricao.max' => 'Descrição com máximo de 255 caracteres!',
-//            'visivel.required' => 'O campo "Visível" é obrigatório!',
+            'id.required_if' => 'O campo :attribute é obrigatório quando Tipo é Contrato.',
+            'unidade_origem_id.required_if' => 'O campo :attribute é obrigatório quando Tipo é Compra.',
+            'modalidade_id.required_if' => 'O campo :attribute é obrigatório quando Tipo é Compra.',
+            'numero_ano.required_if' => 'O campo :attribute é obrigatório quando Tipo é Compra.',
+            'fornecedor_empenho_id.required_if' => 'O campo :attribute é obrigatório quando Tipo é Suprimento.',
         ];
     }
 }

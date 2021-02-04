@@ -19,6 +19,7 @@ use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
+use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
 use FormBuilder;
@@ -178,7 +179,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'label' => 'ID CIPI',
             'type' => 'text_cipi',
             'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
+                'class' => 'form-group col-md-6',
+                'title' => 'Formato padrão: 99.99-99',
             ]
         ]);
     }
@@ -817,6 +819,9 @@ class MinutaEmpenhoCrudController extends CrudController
                     ->latest()
                     ->first();
 
+                $execsiafi = new Execsiafi();
+                $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
+                $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
                 $modSfOrcEmpenhoDados->save();
 
