@@ -11,6 +11,7 @@ use App\Models\CompraItemUnidade;
 use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
+use App\Models\MinutaEmpenhoRemessa;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
 use App\XML\Execsiafi;
@@ -76,10 +77,10 @@ class AjusteMinutasCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
-        $redirect_location = parent::storeCrud($request);
+        //$redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        //return $redirect_location;
     }
 
     public function update(UpdateRequest $request)
@@ -90,6 +91,13 @@ class AjusteMinutasCrudController extends CrudController
             $minuta->mensagem_siafi = $request->mensagem_siafi;
             $minuta->situacao_id = $request->nova_situacao;
             $minuta->save();
+
+            $minutaEmpenhoRemessa = MinutaEmpenhoRemessa::where('minutaempenho_id', $request->id)->where('remessa', 0)->first();
+            if($minutaEmpenhoRemessa) {
+                $minutaEmpenhoRemessa->mensagem_siafi = $request->mensagem_siafi;
+                $minutaEmpenhoRemessa->situacao_id = $request->nova_situacao;
+                $minutaEmpenhoRemessa->save();
+            }
 
             $redirect_location = parent::updateCrud($request);
             // your additional operations after save here
