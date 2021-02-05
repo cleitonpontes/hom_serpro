@@ -52,14 +52,6 @@
                     </button>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-2 col-sm-3">
-                    Empenhado:
-                </div>
-                <div class="col-md-10 col-sm-9" >
-                    R$ {{ number_format($valor_utilizado,2,',','.') }}
-                </div>
-            </div>
             <div class="row text-red">
                 <div class="col-md-2 col-sm-3">
                     Utilizado:
