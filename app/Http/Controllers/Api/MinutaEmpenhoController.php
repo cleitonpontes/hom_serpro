@@ -445,7 +445,7 @@ class MinutaEmpenhoController extends Controller
     {
         $sfRegistroAlteracao = new SfRegistroAlteracao();
         $sfRegistroAlteracao->sforcempenhodado_id = $sforcempenhodados->id;
-        $sfRegistroAlteracao->dtemis = $dtemis;
+        $sfRegistroAlteracao->dtemis = date('Y-m-d');
         $sfRegistroAlteracao->txtmotivo = $txtmotivo;
         $sfRegistroAlteracao->save();
     }
