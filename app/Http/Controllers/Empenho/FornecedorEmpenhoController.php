@@ -246,8 +246,13 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                 ->where('compras.id', $modMinutaEmpenho->compra_id)
                 ->where(function ($query) use ($fornecedor_id) {
-                    $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
-                        ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
+                    $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+                        ->orWhere(
+                            function ($query) use ($fornecedor_id) {
+                                $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                                    ->whereNull('compra_item_fornecedor.fornecedor_id');
+                            }
+                        );
                 })
                 ->select([
                     'compra_items.id',
