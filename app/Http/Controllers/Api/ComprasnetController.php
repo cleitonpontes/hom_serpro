@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Traits\Formatador;
+use Illuminate\Support\Facades\DB;
 use App\Models\Codigoitem;
+use App\Models\Compra;
 use App\Models\Contrato;
 use App\Models\Contratoitem;
 use App\Models\ContratoPublicacoes;
+use App\Models\Empenho;
 use App\Models\Unidade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\ConsultaAtualizaSaldoSiafi;
 
 class ComprasnetController extends Controller
 {
     use Formatador;
+    use ConsultaAtualizaSaldoSiafi;
 
     public function getContratosEmpenhosPorItens(Request $request)
     {
@@ -49,6 +54,21 @@ class ComprasnetController extends Controller
                     $numero_contrato = str_replace('/', '', $contrato->numero);
 
                     $array_contratos[] .= $unidadeorigem . $tipo . $numero_contrato . $unidadesubrrogacao;
+                }
+
+                //busca empenhos pela tb empenhos
+                $arrEmpenhos1 = $this->buscarEmpenhos($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
+                //busca empenhos pela tb compras
+                $arrEmpenhos2 = $this->buscarEmpenhos2($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
+                $arrEmpenhosMerge = array_merge($arrEmpenhos1, $arrEmpenhos2);
+                $arrEmpenhosUnique = array_unique($arrEmpenhosMerge, SORT_REGULAR);
+                //consome servico do siafi
+
+                foreach ($arrEmpenhosUnique as $empenho){
+                    $this->consultaAtualizaSaldoSiafi(
+                        session('user_ug'),
+                        $empenho['empenho'],
+                        $empenho['subitem']);
                 }
 
                 $array_empenhos = [];
@@ -87,9 +107,62 @@ class ComprasnetController extends Controller
 //                ]
 //            ];
         }
+        dd('die');
 
 
         return $retorno;
+    }
+
+    private function buscarEmpenhos(string $nuItem, int $modalidade, int $unidade, string $numeroAnoCompra){
+        return Empenho::select(
+            DB::raw('u.codigo || o.codigo || empenhos.numero AS idempenho'),
+            'empenhos.numero as empenho',
+            'ns.codigo AS subitem'
+        )
+            ->join('contratoempenhos', 'empenhos.id', '=', 'contratoempenhos.empenho_id')
+            ->join('contratos', 'contratos.id', '=', 'contratoempenhos.contrato_id')
+            ->join('contratoitens', 'contratos.id', '=', 'contratoitens.contrato_id')
+            ->join('unidades AS u', 'u.id', '=', 'empenhos.unidade_id')
+            ->join('orgaos AS o', 'u.orgao_id', '=', 'o.id')
+            ->join('empenhodetalhado AS ed', 'empenhos.id', '=', 'ed.empenho_id')
+            ->join('naturezasubitem AS ns', 'ed.naturezasubitem_id', '=', 'ns.id')
+            ->where('modalidade_id', $modalidade)
+            ->where('unidadecompra_id', $unidade)
+            ->where('licitacao_numero', $numeroAnoCompra)
+            ->where('contratoitens.numero_item_compra', $nuItem)
+            ->distinct()
+            ->get()
+            ->toArray();
+    }
+
+    private function buscarEmpenhos2(string $nuItem, int $modalidade, int $unidade, string $numeroAnoCompra){
+        $situacao = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', 'Situações Minuta Empenho');
+        })
+            ->where('descricao', 'EMPENHO EMITIDO')
+            ->select('codigoitens.id')->first();
+        return Compra::select(
+            DB::raw('u.codigo || o.codigo || m.mensagem_siafi AS idempenho'),
+            'm.mensagem_siafi as empenho',
+            'ns.codigo AS subitem'
+        )
+            ->join('compra_items AS ci', 'ci.compra_id', '=', 'compras.id')
+            ->join('compra_item_minuta_empenho AS cime', 'cime.compra_item_id', '=', 'ci.id')
+            ->join('minutaempenhos AS m', 'cime.minutaempenho_id', '=', 'm.id')
+            ->join('unidades AS u', 'u.id', '=', 'm.unidade_id')
+            ->join('orgaos AS o', 'u.orgao_id', '=', 'o.id')
+            ->join('empenhos AS e', 'm.mensagem_siafi', '=', 'e.numero')
+            ->join('empenhodetalhado AS ed', 'e.id', '=', 'ed.empenho_id')
+            ->join('naturezasubitem AS ns', 'ed.naturezasubitem_id', '=', 'ns.id')
+            ->where('compras.modalidade_id', $modalidade)
+            ->where('compras.numero_ano', $numeroAnoCompra)
+            ->where('m.unidade_id', $unidade)
+            ->where('ci.numero', $nuItem)
+            ->where('m.situacao_id', $situacao->id)
+            ->whereRaw('left (m.mensagem_siafi,	4) = date_part(\'year\', current_date)::text')
+            ->distinct()
+            ->get()
+            ->toArray();
     }
 
     private function buscaContratosItemUnidadeCompra(string $item, int $modalidade, int $unidade, string $numeroAnoCompra)
