@@ -37,6 +37,7 @@ class SubelementoController extends BaseControllerEmpenho
 
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $fornecedor_id = $modMinutaEmpenho->fornecedor_empenho_id;
 
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
         if ($codigoitem->descricao === 'Contrato') {
@@ -186,6 +187,15 @@ class SubelementoController extends BaseControllerEmpenho
                 )
                 ->where('minutaempenhos.id', $minuta_id)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
+                ->where(function ($query) use ($fornecedor_id) {
+                    $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+                        ->orWhere(
+                            function ($query) use ($fornecedor_id) {
+                                $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                                    ->whereNull('compra_item_fornecedor.fornecedor_id');
+                            }
+                        );
+                })
                 ->select(
                     [
                         'compra_item_minuta_empenho.compra_item_id',
@@ -367,7 +377,7 @@ class SubelementoController extends BaseControllerEmpenho
 
         $html = $this->retornaGridItens();
 
-        $tipo = ($codigoitem->descricao === 'Compra' || $codigoitem->descricao === 'Suprimento' )? 'compra_item_id' : 'contrato_item_id';
+        $tipo = ($codigoitem->descricao === 'Compra' || $codigoitem->descricao === 'Suprimento') ? 'compra_item_id' : 'contrato_item_id';
 
         return view(
             'backpack::mod.empenho.Etapa5SubElemento',
@@ -547,7 +557,7 @@ class SubelementoController extends BaseControllerEmpenho
         if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
             return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='".$quantidade."' readonly> "
+                . "' data-tipo='' name='qtd[]' value='" . $quantidade . "' readonly> "
                 . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
                 . "' data-tipo='' name='quantidade_total[]' value='"
                 . $item['qtd_item'] . " '> ";
@@ -589,9 +599,9 @@ class SubelementoController extends BaseControllerEmpenho
                 . " onkeyup='calculaQuantidade(this)' >";
         }
 
-            return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
-                . "id='vrtotal" . $item[$tipo]
-                . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
+        return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
+            . "id='vrtotal" . $item[$tipo]
+            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
     }
 
     private function addColunaValorTotalItem($item, $tipo)

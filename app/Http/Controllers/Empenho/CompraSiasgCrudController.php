@@ -25,6 +25,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\CompraSiasgRequest as StoreRequest;
 use App\Http\Requests\CompraSiasgRequest as UpdateRequest;
+use http\Params;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -204,7 +205,6 @@ class CompraSiasgCrudController extends CrudController
         if ($request->tipoEmpenho == 1) {
             $contrato = Contrato::find($request->id);
 
-
             $params = [
                 'modalidade' => $contrato->modalidade->descres,
                 'numeroAno' => $contrato->licitacao_numero_limpa,
@@ -217,15 +217,10 @@ class CompraSiasgCrudController extends CrudController
             $retorno_compra = json_decode($apiSiasg->executaConsulta('COMPRASISPP', $params));
 
             if (is_null($retorno_compra->data)) {
-                $compra = $this->verificaCompraExisteParamContrato($contrato);
-
-                if (!$compra) {
-                    return redirect('/empenho/buscacompra')->with('alert-warning', $retorno_compra->messagem);
-                }
-                $retorno_compra = $compra;
+                return redirect('/empenho/buscacompra')->with('alert-warning', $retorno_compra->messagem);
             }
 
-            $unidade_autorizada = $this->verificaPermissaoUasgCompraParamContrato($retorno_compra, $contrato);
+            $unidade_autorizada = $this->verificaPermissaoUasgCompraParamContrato($contrato);
 
             if (is_null($unidade_autorizada)) {
                 return redirect('/empenho/buscacompra')
@@ -443,7 +438,6 @@ class CompraSiasgCrudController extends CrudController
         $dado = [
             'contrato' => $uasgCompra->codigosiasg . $tipo->descres . $numero_ano[0] . $numero_ano[1]
         ];
-//        dd($dado);
 
         $dados = json_decode($apiSiasg->executaConsulta('dadoscontrato', $dado));
 
@@ -469,31 +463,19 @@ class CompraSiasgCrudController extends CrudController
         return $unidade_autorizada_id;
     }
 
-    public function verificaPermissaoUasgCompraParamContrato($compraSiasg, $contrato)
+    public function verificaPermissaoUasgCompraParamContrato($contrato)
     {
         $unidade_autorizada = null;
         $uasgContrato = Unidade::find($contrato->unidade_id);
 
         ($uasgContrato->id == session('user_ug_id')) ? $unidade_autorizada = session('user_ug_id') : '';
 
-//        $tipoCompra = $compraSiasg->data->compraSispp->tipoCompra;
-//        $subrrogada = $compraSiasg->data->compraSispp->subrogada;
-//        if ($tipoCompra == $this::SISPP) {
-//            if ($subrrogada <> '000000') {
-//                ($subrrogada == session('user_ug')) ? $unidade_autorizada = session('user_ug_id') : '';
-//            } else {
-//                ($uasgCompra->id == session('user_ug_id'))
-//                    ? $unidade_autorizada = $uasgCompra->id : '';
-//            }
-//        } else {
-//            $unidade_autorizada = session('user_ug_id');
-//        }
-
         return $unidade_autorizada;
     }
 
     public function montaParametrosCompra($compraSiasg, $request): void
     {
+
         $unidade_subrogada = $compraSiasg->data->compraSispp->subrogada;
         $request->request->set(
             'unidade_subrrogada_id',

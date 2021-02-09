@@ -138,6 +138,7 @@ Route::group([
             CRUD::resource('amparolegal', 'AmparoLegalCrudController');
             CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
             CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
+            CRUD::resource('ajusteminuta', 'AjusteMinutasCrudController');
 
 
             // Exportações Downloads
