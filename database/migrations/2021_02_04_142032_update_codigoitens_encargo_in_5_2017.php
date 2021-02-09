@@ -21,7 +21,6 @@ class UpdateCodigoitensEncargoIn52017 extends Migration
             'descricao' => 'Tipo Encargos'
         ])->first();
 
-
         // atualização do codigoitem décimo terceiro
         $codigoitem_id_decimo_terceiro = Codigoitem::where([
             'codigo_id' => $codigo->id,
@@ -35,20 +34,20 @@ class UpdateCodigoitensEncargoIn52017 extends Migration
                     'updated_at' => now(),
                 ]
             );
-        }
-        // atualização do encargo décimo terceiro
-        $tipo_id_encargo_decimo_terceiro = $codigoitem_id_decimo_terceiro->id;
-        $encargo_decimo_terceiro = Encargo::where([
-            'tipo_id' => $tipo_id_encargo_decimo_terceiro,
-        ])->first();
-        if(is_object($encargo_decimo_terceiro)){
-            Encargo::updateOrCreate(
-                ['tipo_id' => $encargo_decimo_terceiro->tipo_id],   // aqui é a chave ou algum unique
-                [
-                    'percentual' => '8.33',
-                    'updated_at' => now(),
-                ]
-            );
+            // atualização do encargo décimo terceiro
+            $tipo_id_encargo_decimo_terceiro = $codigoitem_id_decimo_terceiro->id;
+            $encargo_decimo_terceiro = Encargo::where([
+                'tipo_id' => $tipo_id_encargo_decimo_terceiro,
+            ])->first();
+            if(is_object($encargo_decimo_terceiro)){
+                Encargo::updateOrCreate(
+                    ['tipo_id' => $encargo_decimo_terceiro->tipo_id],   // aqui é a chave ou algum unique
+                    [
+                        'percentual' => '8.33',
+                        'updated_at' => now(),
+                    ]
+                );
+            }
         }
 
 
@@ -67,20 +66,20 @@ class UpdateCodigoitensEncargoIn52017 extends Migration
                     'updated_at' => now(),
                 ]
             );
-        }
-        // atualização do encargo férias
-        $tipo_id_encargo_ferias = $codigoitem_id_ferias->id;
-        $encargo_ferias = Encargo::where([
-            'tipo_id' => $tipo_id_encargo_ferias,
-        ])->first();
-        if(is_object($encargo_ferias)){
-            Encargo::updateOrCreate(
-                ['tipo_id' => $encargo_ferias->tipo_id],   // aqui é a chave ou algum unique
-                [
-                    'percentual' => '12.10',
-                    'updated_at' => now(),
-                ]
-            );
+            // atualização do encargo férias
+            $tipo_id_encargo_ferias = $codigoitem_id_ferias->id;
+            $encargo_ferias = Encargo::where([
+                'tipo_id' => $tipo_id_encargo_ferias,
+            ])->first();
+            if(is_object($encargo_ferias)){
+                Encargo::updateOrCreate(
+                    ['tipo_id' => $encargo_ferias->tipo_id],   // aqui é a chave ou algum unique
+                    [
+                        'percentual' => '12.10',
+                        'updated_at' => now(),
+                    ]
+                );
+            }
         }
 
 
@@ -99,20 +98,20 @@ class UpdateCodigoitensEncargoIn52017 extends Migration
                     'updated_at' => now(),
                 ]
             );
-        }
-        // atualização do encargo fgts
-        $tipo_id_encargo_fgts = $codigoitem_id_fgts->id;
-        $encargo_fgts = Encargo::where([
-            'tipo_id' => $tipo_id_encargo_fgts,
-        ])->first();
-        if(is_object($encargo_fgts)){
-            Encargo::updateOrCreate(
-                ['tipo_id' => $encargo_fgts->tipo_id],   // aqui é a chave ou algum unique
-                [
-                    'percentual' => '4.00',
-                    'updated_at' => now(),
-                ]
-            );
+            // atualização do encargo fgts
+            $tipo_id_encargo_fgts = $codigoitem_id_fgts->id;
+            $encargo_fgts = Encargo::where([
+                'tipo_id' => $tipo_id_encargo_fgts,
+            ])->first();
+            if(is_object($encargo_fgts)){
+                Encargo::updateOrCreate(
+                    ['tipo_id' => $encargo_fgts->tipo_id],   // aqui é a chave ou algum unique
+                    [
+                        'percentual' => '4.00',
+                        'updated_at' => now(),
+                    ]
+                );
+            }
         }
 
 
@@ -131,20 +130,20 @@ class UpdateCodigoitensEncargoIn52017 extends Migration
                     'updated_at' => now(),
                 ]
             );
-        }
-        // atualização do encargo grupo a
-        $tipo_id_encargo_grupo_a = $codigoitem_id_grupo_a->id;
-        $encargo_grupo_a = Encargo::where([
-            'tipo_id' => $tipo_id_encargo_grupo_a,
-        ])->first();
-        if(is_object($encargo_grupo_a)){
-            Encargo::updateOrCreate(
-                ['tipo_id' => $encargo_grupo_a->tipo_id],   // aqui é a chave ou algum unique
-                [
-                    'percentual' => '7.82',
-                    'updated_at' => now(),
-                ]
-            );
+            // atualização do encargo grupo a
+            $tipo_id_encargo_grupo_a = $codigoitem_id_grupo_a->id;
+            $encargo_grupo_a = Encargo::where([
+                'tipo_id' => $tipo_id_encargo_grupo_a,
+            ])->first();
+            if(is_object($encargo_grupo_a)){
+                Encargo::updateOrCreate(
+                    ['tipo_id' => $encargo_grupo_a->tipo_id],   // aqui é a chave ou algum unique
+                    [
+                        'percentual' => '7.82',
+                        'updated_at' => now(),
+                    ]
+                );
+            }
         }
 
 
