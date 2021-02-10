@@ -61,21 +61,16 @@ class ComprasnetController extends Controller
                 //busca empenhos pela tb compras
                 $arrEmpenhos2 = $this->buscarEmpenhos2($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
                 $arrEmpenhosMerge = array_merge($arrEmpenhos1, $arrEmpenhos2);
-                $arrEmpenhosUnique = array_unique($arrEmpenhosMerge);
+                $arrEmpenhosUnique = array_unique($arrEmpenhosMerge, SORT_REGULAR);
+                $array_empenhos = [];
+                foreach ($arrEmpenhosUnique as $empenhos){
+                    $array_empenhos[] = $empenhos['idempenho'];
+                }
 
-                //consome servico do siafi
-
-                /*foreach ($arrEmpenhosUnique as $empenho){
-                    $this->consultaAtualizaSaldoSiafi(
-                        $dados['uasg'],
-                        $empenho['empenho'],
-                        $empenho['subitem']
-                    );
-                }*/
                 $retorno['itens'][] = [
                     'nroItem' => $num_item,
                     'contratosAtivos' => $array_contratos,
-                    'empenhos' => $arrEmpenhosUnique
+                    'empenhos' => $array_empenhos
                 ];
             }
 
