@@ -61,25 +61,22 @@ class ComprasnetController extends Controller
                 //busca empenhos pela tb compras
                 $arrEmpenhos2 = $this->buscarEmpenhos2($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
                 $arrEmpenhosMerge = array_merge($arrEmpenhos1, $arrEmpenhos2);
-                $arrEmpenhosUnique = array_unique($arrEmpenhosMerge, SORT_REGULAR);
+                $arrEmpenhosUnique = array_unique($arrEmpenhosMerge);
+
                 //consome servico do siafi
 
-                foreach ($arrEmpenhosUnique as $empenho){
+                /*foreach ($arrEmpenhosUnique as $empenho){
                     $this->consultaAtualizaSaldoSiafi(
-                        session('user_ug'),
+                        $dados['uasg'],
                         $empenho['empenho'],
-                        $empenho['subitem']);
-                }
-
-                $array_empenhos = [];
-
-
+                        $empenho['subitem']
+                    );
+                }*/
                 $retorno['itens'][] = [
                     'nroItem' => $num_item,
                     'contratosAtivos' => $array_contratos,
-                    'empenhos' => $array_empenhos
+                    'empenhos' => $arrEmpenhosUnique
                 ];
-
             }
 
 //            $retorno = [
@@ -107,29 +104,24 @@ class ComprasnetController extends Controller
 //                ]
 //            ];
         }
-        dd('die');
-
-
         return $retorno;
     }
 
     private function buscarEmpenhos(string $nuItem, int $modalidade, int $unidade, string $numeroAnoCompra){
         return Empenho::select(
-            DB::raw('u.codigo || o.codigo || empenhos.numero AS idempenho'),
-            'empenhos.numero as empenho',
-            'ns.codigo AS subitem'
+            DB::raw('u.codigo || u.gestao || empenhos.numero AS idempenho')
         )
             ->join('contratoempenhos', 'empenhos.id', '=', 'contratoempenhos.empenho_id')
             ->join('contratos', 'contratos.id', '=', 'contratoempenhos.contrato_id')
             ->join('contratoitens', 'contratos.id', '=', 'contratoitens.contrato_id')
             ->join('unidades AS u', 'u.id', '=', 'empenhos.unidade_id')
-            ->join('orgaos AS o', 'u.orgao_id', '=', 'o.id')
-            ->join('empenhodetalhado AS ed', 'empenhos.id', '=', 'ed.empenho_id')
-            ->join('naturezasubitem AS ns', 'ed.naturezasubitem_id', '=', 'ns.id')
             ->where('modalidade_id', $modalidade)
             ->where('unidadecompra_id', $unidade)
             ->where('licitacao_numero', $numeroAnoCompra)
             ->where('contratoitens.numero_item_compra', $nuItem)
+            ->where('contratoitens.quantidade', '>', 0)
+            ->where('empenhos.aliquidar', '>', 0)
+            ->where('empenhos.numero', 'LIKE', date('Y') ."NE%")
             ->distinct()
             ->get()
             ->toArray();
@@ -142,24 +134,21 @@ class ComprasnetController extends Controller
             ->where('descricao', 'EMPENHO EMITIDO')
             ->select('codigoitens.id')->first();
         return Compra::select(
-            DB::raw('u.codigo || o.codigo || m.mensagem_siafi AS idempenho'),
-            'm.mensagem_siafi as empenho',
-            'ns.codigo AS subitem'
+            DB::raw('u.codigo || u.gestao || m.mensagem_siafi AS idempenho')
         )
             ->join('compra_items AS ci', 'ci.compra_id', '=', 'compras.id')
             ->join('compra_item_minuta_empenho AS cime', 'cime.compra_item_id', '=', 'ci.id')
             ->join('minutaempenhos AS m', 'cime.minutaempenho_id', '=', 'm.id')
             ->join('unidades AS u', 'u.id', '=', 'm.unidade_id')
-            ->join('orgaos AS o', 'u.orgao_id', '=', 'o.id')
             ->join('empenhos AS e', 'm.mensagem_siafi', '=', 'e.numero')
-            ->join('empenhodetalhado AS ed', 'e.id', '=', 'ed.empenho_id')
-            ->join('naturezasubitem AS ns', 'ed.naturezasubitem_id', '=', 'ns.id')
             ->where('compras.modalidade_id', $modalidade)
             ->where('compras.numero_ano', $numeroAnoCompra)
             ->where('m.unidade_id', $unidade)
             ->where('ci.numero', $nuItem)
             ->where('m.situacao_id', $situacao->id)
             ->whereRaw('left (m.mensagem_siafi,	4) = date_part(\'year\', current_date)::text')
+            ->where('e.aliquidar', '>', 0)
+            ->where('e.numero', 'LIKE', date('Y') ."NE%")
             ->distinct()
             ->get()
             ->toArray();

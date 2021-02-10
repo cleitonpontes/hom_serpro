@@ -17,7 +17,6 @@ trait ConsultaAtualizaSaldoSiafi {
 
         // Consulta saldo do empenho
         $saldoAtual = $this->consultaSaldoSiafi($registro);
-        dd($saldoAtual);
         if($saldoAtual > 0) {
             // Atualiza o saldo retornado
             $this->atualizaSaldo($empenho, $subitem, $saldoAtual);
@@ -34,7 +33,8 @@ trait ConsultaAtualizaSaldoSiafi {
     private function consultaSaldoSiafi($registro)
     {
         // Valores fixos
-        $amb = 'PROD';
+        $amb = env('AMBIENTE_SIAFI');
+        //$amb = 'PROD';
         $contacontabil1 = config('app.conta_contabil');
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
 
@@ -51,7 +51,7 @@ trait ConsultaAtualizaSaldoSiafi {
             $execsiafi = new Execsiafi();
 
             $retorno = null;
-            $retorno = $execsiafi->conrazao($ug, $amb, $ano, $ug, $contacontabil1, $contacorrente, $mes);
+            $retorno = $execsiafi->conrazaoAPIComprasNet($ug, $amb, $ano, $ug, $contacontabil1, $contacorrente, $mes);
 
             if (isset($retorno->resultado[4])) {
                 $saldoAtual = (string) $retorno->resultado[4];
