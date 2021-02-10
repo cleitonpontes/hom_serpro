@@ -329,7 +329,7 @@ class MinutaEmpenhoController extends Controller
                 ->join('codigoitens', 'codigoitens.id', '=', 'compras.modalidade_id')
                 ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
                 ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
-                ->where('minutaempenhos.fornecedor_compra_id', $form['fornecedor_id'])
+                ->where('minutaempenhos.fornecedor_empenho_id', $form['fornecedor_id'])
                 ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
                 ->where('minutaempenhos.situacao_id', '=', $situacao->id)
                 ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot->get()->toArray());
