@@ -86,7 +86,6 @@
 
             if (!$(obj).hasClass("select2-hidden-accessible"))
             {
-                console.log("{{ $field['minimum_input_length'] }}");
                 $(obj).select2({
                     theme: 'bootstrap',
                     language: 'pt-BR',
@@ -104,7 +103,6 @@
                         dataType: 'json',
                         quietMillis: 250,
                         data: function (params) {
-                            console.log(form.serializeArray());
                             return {
                                 q: params.term, // search term
                                 page: params.page, // pagination
