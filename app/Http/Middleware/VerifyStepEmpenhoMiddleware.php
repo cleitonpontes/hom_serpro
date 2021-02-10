@@ -86,8 +86,15 @@ class VerifyStepEmpenhoMiddleware
                 return redirect(route('empenho.crud./minuta.index'));
             }
 
+            if ($minuta->empenho_por === 'Suprimento'
+                && $this->rotas_minuta_original[Route::current()->action['as']] === 2) {
+                return redirect(route(
+                    'empenho.minuta.etapa.item',
+                    ['minuta_id' => $minuta->id, 'fornecedor_id' => $minuta->fornecedor_empenho_id]
+                ));
+            }
 
-            if ($minuta->situacao->descricao == 'ERRO') {
+            if ($minuta->situacao->descricao === 'ERRO') {
                 $situacao = Codigoitem::wherehas('codigo', function ($q) {
                     $q->where('descricao', '=', 'Situações Minuta Empenho');
                 })
@@ -158,7 +165,6 @@ class VerifyStepEmpenhoMiddleware
                 session(['passivo_anterior' => $minuta->passivo_anterior]);
 
                 if (strpos(Route::current()->action['as'], 'create') !== false) {
-
                     if ($remessa->remessa === 0) {
                         return $next($request);
                     }

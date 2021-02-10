@@ -1,16 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Empenho;
+namespace App\Http\Controllers\Admin;
 
-use Alert;
 use App\Forms\InserirFornecedorForm;
-use App\Http\Requests\MinutaEmpenhoRequest as StoreRequest;
-use App\Http\Requests\MinutaEmpenhoRequest as UpdateRequest;
-use App\Http\Traits\CompraTrait;
-use App\Http\Traits\Formatador;
-use App\Models\AmparoLegal;
+use App\Http\Requests\AjusteMinutasRequest as UpdateRequest;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Models\Codigoitem;
-use App\Models\Compra;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\ContratoItemMinutaEmpenho;
@@ -21,57 +16,45 @@ use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
 use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+
+// VALIDATION: change the requests to match your own file names if you need form validation
+use App\Http\Requests\AjusteMinutasRequest as StoreRequest;
 use Backpack\CRUD\CrudPanel;
-use FormBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Redirect;
-use Route;
+
+use FormBuilder;
 
 /**
- * Class MinutaEmpenhoCrudController
+ * Class AjusteMinutasCrudController
  * @package App\Http\Controllers\Admin
  * @property-read CrudPanel $crud
  */
-class MinutaEmpenhoCrudController extends CrudController
+class AjusteMinutasCrudController extends CrudController
 {
-    use Formatador;
-    use CompraTrait;
+    use BuscaCodigoItens;
 
     public function setup()
     {
-//        if (!backpack_user()->can('empenho_minuta_acesso ')) { //alterar para novo grupo de Administrador Orgão
-//            abort('403', config('app.erro_permissao'));
-//        }
-
         $this->minuta_id = $this->crud->getCurrentEntryId();
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
         $this->crud->setModel('App\Models\MinutaEmpenho');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . 'empenho/minuta');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . 'admin/ajusteminuta');
         $this->crud->setEntityNameStrings('Minuta de Empenho', 'Minutas de Empenho');
-        $this->crud->setEditView('vendor.backpack.crud.empenho.edit');
         $this->crud->setShowView('vendor.backpack.crud.empenho.show');
 
-        $this->crud->addButtonFromView('top', 'create', 'createbuscacompra');
-        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
-        $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominuta', 'beginning');
-        $this->crud->addButtonFromView('line', 'deletarminuta', 'deletarminuta', 'end');
-        $this->crud->addButtonFromView('line', 'moreminuta', 'moreminuta', 'end');
-
-        $this->crud->urlVoltar = route(
-            'empenho.minuta.etapa.subelemento',
-            ['minuta_id' => $this->minuta_id]
-        );
 
         $this->crud->allowAccess('update');
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('delete');
+        $this->crud->denyAccess('create');
+
+        (backpack_user()->can('minuta_ajuste_editar')) ? $this->crud->allowAccess('update') : null;
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->orderBy('updated_at', 'desc');
@@ -87,35 +70,45 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->adicionaColunas($this->minuta_id);
 
         // add asterisk for fields that are required in MinutaEmpenhoRequest
-        $this->crud->setRequiredFields(StoreRequest::class, 'create');
-        $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+//        $this->crud->setRequiredFields(\App\Http\Requests\MinutaEmpenhoRequest::class, 'create');
+        $this->crud->setRequiredFields(\App\Http\Requests\MinutaEmpenhoRequest::class, 'edit');
     }
 
     public function store(StoreRequest $request)
     {
         // your additional operations before save here
-        $redirect_location = parent::storeCrud($request);
+        //$redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        //return $redirect_location;
     }
 
     public function update(UpdateRequest $request)
     {
-        $rota = 'empenho/passivo-anterior/' . $this->minuta_id;
-        $conta_id = session('conta_id') ?? '';
-        if ($conta_id) {
-            $rota = route('empenho.crud.passivo-anterior.edit', ['minuta_id' => $conta_id]);
-        }
-        // your additional operations before save here
-        $request->request->set('taxa_cambio', $this->retornaFormatoAmericano($request->taxa_cambio));
-        $request->request->set('etapa', 7);
+        try {
+            DB::beginTransaction();
+            $minuta = MinutaEmpenho::find($request->id);
+            $minuta->mensagem_siafi = $request->mensagem_siafi;
+            $minuta->situacao_id = $request->nova_situacao;
+            $minuta->save();
 
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return Redirect::to($rota);
-//        return $redirect_location;
+            $minutaEmpenhoRemessa = MinutaEmpenhoRemessa::where('minutaempenho_id', $request->id)->where('remessa', 0)->first();
+            if($minutaEmpenhoRemessa) {
+                $minutaEmpenhoRemessa->mensagem_siafi = $request->mensagem_siafi;
+                $minutaEmpenhoRemessa->situacao_id = $request->nova_situacao;
+                $minutaEmpenhoRemessa->save();
+            }
+
+            $redirect_location = parent::updateCrud($request);
+            // your additional operations after save here
+            // use $this->data['entry'] or $this->crud->entry
+//        return Redirect::to($rota);
+
+            DB::commit();
+            return $redirect_location;
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
     }
 
     public function show($id)
@@ -147,164 +140,35 @@ class MinutaEmpenhoCrudController extends CrudController
 
     protected function adicionaCampos($minuta_id)
     {
-        $this->adicionaCampoNumeroEmpenho();
-        $this->adicionaCampoCipi();
-        $this->adicionaCampoDataEmissao();
-        $this->adicionaCampoTipoEmpenho();
-        $this->adicionaCampoFornecedor();
-        $this->adicionaCampoProcesso();
-        $this->adicionaCampoAmparoLegal($minuta_id);
-        $this->adicionaCampoTaxaCambio();
-        $this->adicionaCampoLocalEntrega();
-        $this->adicionaCampoDescricao();
+        $this->adicionaCampoMensagemSIAF();
+        $this->adicionaCampoSituacao($minuta_id);
     }
 
-    protected function adicionaCampoNumeroEmpenho()
+
+
+    protected function adicionaCampoMensagemSIAF()
     {
         $this->crud->addField([
-            'name' => 'numero_empenho_sequencial',
-            'label' => 'Número Empenho',
+            'name' => 'mensagem_siafi',
+            'label' => 'Mensagem SIAF',
             'type' => 'text',
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-6',
-                'title' => 'Esse campo é opcional. Preencha caso sua unidade deseje controlar a numeração do empenho. Ao deixar o campo em branco, o sistema irá realizar o controle da numeração dos empenhos automaticamente.',
-            ]
+            'allows_null' => false,
         ]);
     }
 
-    protected function adicionaCampoCipi()
+    protected function adicionaCampoSituacao($minuta_id)
     {
+        $minuta = MinutaEmpenho::find($minuta_id);
         $this->crud->addField([
-            'name' => 'numero_cipi',
-            'label' => 'ID CIPI',
-            'type' => 'text_cipi',
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-6',
-                'title' => 'Formato padrão: 99.99-99',
-            ]
-        ]);
-    }
-
-    protected function adicionaCampoDataEmissao()
-    {
-        $this->crud->addField([
-            'name' => 'data_emissao',
-            'label' => 'Data Emissão',
-            'type' => 'date',
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-6',
-                'title' => 'Somente data atual ou retroativa',
-
-            ],
-        ]);
-    }
-
-    protected function adicionaCampoTipoEmpenho()
-    {
-        $tipo_empenhos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo Minuta Empenho');
-        })->where('visivel', false)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
-
-        $this->crud->addField([
-            'name' => 'tipo_empenho_id',
-            'label' => "Tipo Empenho",
+            'name' => 'nova_situacao',
+            'label' => "Situação do Empenho",
             'type' => 'select2_from_array',
-            'options' => $tipo_empenhos,
-            'allows_null' => true,
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
-            ]
+            'options' => $this->retornaArrayCodigosItens('Situações Minuta Empenho'),
+            'allows_null' => false,
+            'default' => $minuta ? $minuta->situacao_id : null,
         ]);
     }
 
-    protected function adicionaCampoFornecedor()
-    {
-        //$form = $this->retonaFormModal();
-        $this->crud->addField([
-            'label' => "Credor",
-            'type' => "select2_from_ajax_credor",
-            'name' => 'fornecedor_empenho_id',
-            'entity' => 'fornecedor_empenho',
-            'attribute' => "cpf_cnpj_idgener",
-            'attribute2' => "nome",
-            'process_results_template' => 'gescon.process_results_fornecedor',
-            'model' => "App\Models\Fornecedor",
-            'data_source' => url("api/fornecedor"),
-            'placeholder' => "Selecione o fornecedor",
-            'minimum_input_length' => 2,
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
-            ],
-            'form' => $this->retonaFormModal()
-        ]);
-    }
-
-    protected function adicionaCampoProcesso()
-    {
-        $this->crud->addField([
-            'name' => 'processo',
-            'label' => 'Número Processo',
-            'type' => 'numprocesso',
-            'limit' => 20,
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
-            ]
-        ]);
-    }
-
-    protected function adicionaCampoAmparoLegal($minuta_id)
-    {
-        $modelo = MinutaEmpenho::find($minuta_id);
-
-        $this->crud->addField([
-            'name' => 'amparo_legal_id',
-            'label' => "Amparo Legal",
-            'type' => 'select2_from_array',
-            'options' => $minuta_id ? $modelo->retornaAmparoPorMinuta() : [],
-            'allows_null' => true,
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
-            ]
-        ]);
-    }
-
-    protected function adicionaCampoTaxaCambio()
-    {
-        $this->crud->addField([
-            'name' => 'taxa_cambio',
-            'label' => 'Taxa de Cambio',
-            'type' => 'taxa_cambio',
-            'attributes' => [
-                'id' => 'taxa_cambio'
-            ],
-            'wrapperAttributes' => [
-                'class' => 'form-group col-md-6'
-            ]
-        ]);
-    }
-
-    protected function adicionaCampoLocalEntrega()
-    {
-        $this->crud->addField([
-            'name' => 'local_entrega',
-            'label' => 'Local de Entrega',
-            'attributes' => [
-                'onblur' => "maiuscula(this)"
-            ]
-        ]);
-    }
-
-    protected function adicionaCampoDescricao()
-    {
-        $this->crud->addField([
-            'name' => 'descricao',
-            'label' => 'Descrição / Observação',
-            'type' => 'textarea',
-            'attributes' => [
-                'onblur' => "maiuscula(this)"
-            ]
-        ]);
-    }
 
     /**
      * Configura a grid de visualização

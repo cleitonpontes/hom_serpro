@@ -34,11 +34,16 @@ class NaoAceitarValorMaiorTotal implements Rule
      * @param array $valor_total_item
      * @param array $vlr_total_item
      */
-    public function __construct(array $tipo_alteracao, array $valor_total_item, array $vlr_total_item)
-    {
+    public function __construct(
+        array $tipo_alteracao,
+        array $valor_total_item,
+        array $vlr_total_item,
+        string $tipo_empenho_por
+    ) {
         $this->valor_total_item = $valor_total_item;
         $this->tipo_alteracao = $tipo_alteracao;
         $this->vlr_empenhado = $vlr_total_item;
+        $this->tipo_empenho_por = $tipo_empenho_por;
     }
 
     /**
@@ -50,6 +55,10 @@ class NaoAceitarValorMaiorTotal implements Rule
      */
     public function passes($attribute, $value): bool
     {
+        //esta regra não vale para suprimento
+        if ($this->tipo_empenho_por === 'Suprimento') {
+            return true;
+        }
         $index = substr($attribute, strpos($attribute, '.') + 1);
         $tipo_alteracao = $this->tipo_alteracao[$index];
         if (strpos($tipo_alteracao, 'REFORÇO') !== false) {

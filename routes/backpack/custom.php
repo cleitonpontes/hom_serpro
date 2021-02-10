@@ -40,6 +40,7 @@ Route::group([
             Route::get('unidadecomorgao', 'UnidadeComOrgaoController@index');
             Route::get('unidadecomorgao/{id}', 'UnidadeComOrgaoController@show');
             Route::get('fornecedor', 'FornecedorController@index');
+            Route::get('suprido', 'FornecedorController@suprido');
             Route::get('fornecedor/{id}', 'FornecedorController@show');
             Route::get('planointerno', 'PlanointernoController@index');
             Route::get('planointerno/{id}', 'PlanointernoController@show');
@@ -67,6 +68,7 @@ Route::group([
             Route::get('carrega/saldos/unidade/{cod_unidade}', 'SaldoContabilController@carregaSaldosPorUnidadeSiasg')->name('carrega.saldos.unidade');
             Route::get('minutaempenhoparacontrato', 'MinutaEmpenhoController@minutaempenhoparacontrato');
             Route::get('novoempenho/{minuta_id}', 'MinutaEmpenhoController@novoEmpenhoMesmaCompra')->name('novo.empenho.compra');
+            Route::get('atualiza-credito-orcamentario/{minuta_id}', 'MinutaEmpenhoController@atualizaCreditoOrcamentario')->name('atualiza.credito.orcamentario');
             Route::get('contrato/numero', 'ContratoController@index');
             Route::get('inserir/item/modal/{tipo_id}/{contacorrente}', 'ContratoItensMinutaController@inserirIten')->name('item.inserir.modal');
             Route::get('buscar/itens/modal/{minutas_id}', 'ContratoItensMinutaController@buscarItensModal')->name('buscar.itens.modal');
@@ -136,6 +138,7 @@ Route::group([
             CRUD::resource('amparolegal', 'AmparoLegalCrudController');
             CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
             CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
+            CRUD::resource('ajusteminuta', 'AjusteMinutasCrudController');
 
 
             // Exportações Downloads

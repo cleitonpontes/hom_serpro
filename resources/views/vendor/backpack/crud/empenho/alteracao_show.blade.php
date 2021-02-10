@@ -63,44 +63,44 @@
                         <h3 class="box-title">Resumo da Minuta de Empenho</h3>
                     </div>
 
-                    <div class="box-body">
-                        <form action="/empenho/subelemento" method="POST">
-                            <input type="hidden" id="minuta_id" name="minuta_id" value="{{$crud->getCurrentEntryId()}}">
-                            <input type="hidden" id="remessa_id" name="remessa_id" value="{{Route::current()->parameter('remessa')}}">
-                        @csrf <!-- {{ csrf_field() }} -->
+                    <form action="/empenho/subelemento" method="POST">
+                        <div class="box-body">
+                                <input type="hidden" id="minuta_id" name="minuta_id" value="{{$crud->getCurrentEntryId()}}">
+                                <input type="hidden" id="remessa_id" name="remessa_id" value="{{Route::current()->parameter('remessa')}}">
+                            @csrf <!-- {{ csrf_field() }} -->
 
-                            <div class="box-body">
-                                <table class="table table-striped">
-                                    <tbody>
-                                    @foreach ($crud->columns as $column)
-                                        @if( !isset($column['box']) || ($column['box'] === 'resumo') )
-                                            <tr>
-                                                <td>
-                                                    <strong>{{ $column['label'] }}</strong>
-                                                </td>
-                                                <td>
-                                                    @if (!isset($column['type']))
-                                                        @include('crud::columns.text')
-                                                    @else
-                                                        @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
-                                                            @include('vendor.backpack.crud.columns.'.$column['type'])
+                                <div class="box-body">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                        @foreach ($crud->columns as $column)
+                                            @if( !isset($column['box']) || ($column['box'] === 'resumo') )
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ $column['label'] }}</strong>
+                                                    </td>
+                                                    <td>
+                                                        @if (!isset($column['type']))
+                                                            @include('crud::columns.text')
                                                         @else
-                                                            @if(view()->exists('crud::columns.'.$column['type']))
-                                                                @include('crud::columns.'.$column['type'])
+                                                            @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
+                                                                @include('vendor.backpack.crud.columns.'.$column['type'])
                                                             @else
-                                                                @include('crud::columns.text')
+                                                                @if(view()->exists('crud::columns.'.$column['type']))
+                                                                    @include('crud::columns.'.$column['type'])
+                                                                @else
+                                                                    @include('crud::columns.text')
+                                                                @endif
                                                             @endif
                                                         @endif
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endif()
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                    </div><!-- /.box-body -->
-                    <div class="col-sm-12"></div>
+                                                    </td>
+                                                </tr>
+                                            @endif()
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div><!-- /.box-body -->
+                        <div class="col-sm-12"></div>
 
                     </form>
                 </div>
@@ -145,43 +145,42 @@
                         <h3 class="box-title">Resumo da Compra</h3>
                     </div>
 
-                    <div class="box-body">
-                        <form action="/empenho/subelemento" method="POST">
-                        @csrf <!-- {{ csrf_field() }} -->
+                    <form action="/empenho/subelemento" method="POST">
+                        <div class="box-body">
+                            @csrf <!-- {{ csrf_field() }} -->
 
-                            <div class="box-body">
-                                <table class="table table-striped">
-                                    <tbody>
-                                    @foreach ($crud->columns as $column)
-                                        @if( isset($column['box']) && ($column['box'] === 'compra') )
-                                            <tr>
-                                                <td>
-                                                    <strong>{{ $column['label'] }}</strong>
-                                                </td>
-                                                <td>
-                                                    @if (!isset($column['type']))
-                                                        @include('crud::columns.text')
-                                                    @else
-                                                        @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
-                                                            @include('vendor.backpack.crud.columns.'.$column['type'])
+                                <div class="box-body">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                        @foreach ($crud->columns as $column)
+                                            @if( isset($column['box']) && ($column['box'] === 'compra') )
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ $column['label'] }}</strong>
+                                                    </td>
+                                                    <td>
+                                                        @if (!isset($column['type']))
+                                                            @include('crud::columns.text')
                                                         @else
-                                                            @if(view()->exists('crud::columns.'.$column['type']))
-                                                                @include('crud::columns.'.$column['type'])
+                                                            @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
+                                                                @include('vendor.backpack.crud.columns.'.$column['type'])
                                                             @else
-                                                                @include('crud::columns.text')
+                                                                @if(view()->exists('crud::columns.'.$column['type']))
+                                                                    @include('crud::columns.'.$column['type'])
+                                                                @else
+                                                                    @include('crud::columns.text')
+                                                                @endif
                                                             @endif
                                                         @endif
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                    </div><!-- /.box-body -->
-                    <div class="col-sm-12"></div>
-
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div><!-- /.box-body -->
+                        <div class="col-sm-12"></div>
                     </form>
                 </div>
             </div>
@@ -194,28 +193,27 @@
                              title="Collapse">
                             <h3 class="box-title">Item da Compra</h3>
                         </div>
-                        <div class="box-body">
-                            <form action="/empenho/subelemento" method="POST">
-                            @csrf <!-- {{ csrf_field() }} -->
-                                <div class="box-body">
-                                    <table class="table table-striped">
-                                        <tbody>
-                                        @foreach ($itens as $key => $value)
-                                            <tr>
-                                                <td>
-                                                    <strong>{{ $key }}</strong>
-                                                </td>
-                                                <td>
-                                                    <span>{{ $value }}</span>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                        </div><!-- /.box-body -->
-                        <div class="col-sm-12"></div>
-
+                        <form action="/empenho/subelemento" method="POST">
+                            <div class="box-body">
+                                @csrf <!-- {{ csrf_field() }} -->
+                                    <div class="box-body">
+                                        <table class="table table-striped">
+                                            <tbody>
+                                            @foreach ($itens as $key => $value)
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ $key }}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <span>{{ $value }}</span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                            </div><!-- /.box-body -->
+                            <div class="col-sm-12"></div>
                         </form>
                     </div>
                 </div>
@@ -226,7 +224,7 @@
                     <div class="col-md-4">
                         @if(session('passivo_anterior'))
                             <button type="button" class="btn btn-primary" id="voltar_passivo"
-                                @if (session('situacao') !== 'EMPENHO EMITIDO')
+                                @if (session('situacao') !== 'EMPENHO EMITIDO' && session('situacao') !== 'EM PROCESSAMENTO')
                                     id="voltar_passivo"
                                 @else
                                     disabled
@@ -236,7 +234,7 @@
                             </button>
                         @else
                             <button type="button" class="btn btn-primary" id="voltar"
-                                    @if (session('situacao') !== 'EMPENHO EMITIDO')
+                                    @if (session('situacao') !== 'EMPENHO EMITIDO' && session('situacao') !== 'EM PROCESSAMENTO')
                                     id="voltar"
                                     @else
                                     disabled
@@ -246,7 +244,6 @@
                             </button>
                         @endif
                     </div>
-{{--                    {{dd(session('situacao'))}}--}}
                     <div class="col-md-4" align="center">
                         <button type="button" class="btn btn-primary" id="emitir_empenho_siafi"
                                 @if (session('situacao') === 'EM ANDAMENTO' || session('situacao') === 'ERRO')
@@ -259,7 +256,6 @@
                         </button>
 
                     </div>
-
                     <div class="col-md-4" align="right">
                         <button type="button" class="btn btn-primary" id="finalizar"
                             {{(session('situacao') !== 'EMPENHO EMITIDO') ? 'disabled' : ''}}
@@ -289,14 +285,8 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-
-
-
             $('body').on('click', '#emitir_empenho_siafi', function (event) {
                 salvarTabelasSiafi(event);
-                $('#emitir_empenho_siafi').attr('disabled', true);
-                $('#voltar').attr('disabled', true);
-                $('#finalizar').removeAttr('disabled');
             });
 
 
@@ -332,8 +322,13 @@
 
         });
 
-        function salvarTabelasSiafi(event) {
+        function retirarLinks() {
+            $('#rowCabecalho').find('a').each(function () {
+                this.href = '#';
+            })
+        }
 
+        function salvarTabelasSiafi(event) {
             var minuta_id = $('#minuta_id').val();
             var remessa_id = $('#remessa_id').val();
 
@@ -351,6 +346,10 @@
                             'Empenho salvo com sucesso!',
                             'success'
                         )
+                        retirarLinks();
+                        $('#emitir_empenho_siafi').attr('disabled', true);
+                        $('#voltar').attr('disabled', true);
+                        $('#finalizar').removeAttr('disabled');
                     } else {
                         Swal.fire(
                             'Alerta!',

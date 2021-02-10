@@ -16,6 +16,7 @@ use App\Models\CompraItemMinutaEmpenho;
 use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\Contrato;
+use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
 use Exception;
@@ -81,6 +82,18 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->get()
                 ->toArray();
         }
+        if ($codigoitem->descricao == 'Suprimento') {
+            $fornecedores = Fornecedor::whereIn('tipo_fornecedor', ['FISICA', 'UG'])
+                ->select([
+                    'fornecedores.id',
+                    'fornecedores.nome',
+                    'fornecedores.cpf_cnpj_idgener',
+                    DB::raw('1 AS situacao_sicaf')
+                ])
+                ->get()
+                ->toArray();
+        }
+
 
         if ($request->ajax()) {
             return DataTables::of($fornecedores)->addColumn('action', function ($fornecedores) use ($minuta_id) {
@@ -159,6 +172,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     0,
                     'desc'
                 ],
+                'searchDelay' => 3000,
                 'autoWidth' => false,
                 'bAutoWidth' => false,
                 'paging' => true,
@@ -175,6 +189,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $acoes = '<input type="checkbox" name="selectAll" id="selectAll" > Ações';
 
         $fornecedor_id = Route::current()->parameter('fornecedor_id');
         if (!is_null($modMinutaEmpenho)) {
@@ -183,7 +198,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         }
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
 
-        if ($codigoitem->descricao == 'Contrato') {
+        if ($codigoitem->descricao === 'Contrato') {
             $tipo = 'contrato_item_id';
             $update = ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get()->isNotEmpty();
             $itens = Contrato::where('fornecedor_id', '=', $fornecedor_id)
@@ -211,7 +226,61 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 //            ;dd($itens->getBindings(),$itens->toSql(),$itens->get());
         }
 
-        if ($codigoitem->descricao == 'Compra') {
+        if ($codigoitem->descricao === 'Compra') {
+            $tipo = 'compra_item_id';
+            $update = $update = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get()->isNotEmpty();
+
+            $itens = CompraItem::join('compras', 'compras.id', '=', 'compra_items.compra_id')
+                ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
+                ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
+                ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+                ->join('unidades', 'unidades.id', '=', 'compra_item_unidade.unidade_id')
+                ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
+                ->join(
+                    'catmatseritens',
+                    'catmatseritens.id',
+                    '=',
+                    'compra_items.catmatseritem_id'
+                )
+                ->where('compra_item_unidade.quantidade_saldo', '>', 0)
+                ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
+                ->where('compras.id', $modMinutaEmpenho->compra_id)
+                ->where(function ($query) use ($fornecedor_id) {
+                    $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+                        ->orWhere(
+                            function ($query) use ($fornecedor_id) {
+                                $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                                    ->whereNull('compra_item_fornecedor.fornecedor_id');
+                            }
+                        );
+                })
+                ->select([
+                    'compra_items.id',
+                    'codigoitens.descricao',
+                    'catmatseritens.codigo_siasg',
+                    'catmatseritens.descricao as catmatser_desc',
+                    DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
+                    'compra_items.descricaodetalhada',
+                    DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
+                    'compra_item_unidade.quantidade_saldo',
+                    'compra_item_fornecedor.valor_unitario',
+                    'compra_item_fornecedor.valor_negociado',
+                    'compra_items.numero'
+                ])
+                ->get()
+                ->toArray();
+        }
+
+        if ($codigoitem->descricao === 'Suprimento') {
+            $acoes = 'Ações';
+            DB::beginTransaction();
+            try {
+                $this->gravaCompraItemFornecedorSuprimento($modMinutaEmpenho, $fornecedor_id);
+                DB::commit();
+            } catch (Exception $exc) {
+                DB::rollback();
+            }
+
             $tipo = 'compra_item_id';
             $update = $update = CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)->get()->isNotEmpty();
 
@@ -251,7 +320,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->toArray();
         }
 
-
         if ($request->ajax()) {
             return DataTables::of($itens)
                 ->addColumn('action', function ($itens) use ($modMinutaEmpenho, $tipo) {
@@ -273,7 +341,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->make(true);
         }
 
-        $html = $this->retornaGridItens();
+        $html = $this->retornaGridItens($acoes);
 
         return view(
             'backpack::mod.empenho.Etapa3Itensdacompra',
@@ -302,14 +370,14 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
      *
      * @return Builder
      */
-    private function retornaGridItens()
+    private function retornaGridItens(string $acoes)
     {
 
         $html = $this->htmlBuilder
             ->addColumn([
                 'data' => 'action',
                 'name' => 'action',
-                'title' => '<input type="checkbox" name="selectAll" id="selectAll" > Ações',
+                'title' => $acoes,
                 'orderable' => false,
                 'searchable' => false
             ])
@@ -384,8 +452,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ['minuta_id' => $minuta_id, 'fornecedor_id' => $fornecedor_id]
             );
         }
-
-
 
 
         DB::beginTransaction();

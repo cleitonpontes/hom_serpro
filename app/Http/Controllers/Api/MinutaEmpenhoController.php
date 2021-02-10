@@ -28,6 +28,7 @@ use App\Models\SfRegistroAlteracao;
 use App\Models\Unidade;
 use App\Models\Catmatseritem;
 use App\XML\ApiSiasg;
+use App\XML\Execsiafi;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -111,7 +112,11 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
+        $execsiafi = new Execsiafi();
+        $nonce = $execsiafi->createNonce($ugemitente->codigo, $modMinutaEmpenho->id, 'ORCAMENTARIO');
+        $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
         $modSfOrcEmpenhoDados->save();
+
         return $modSfOrcEmpenhoDados;
     }
 
@@ -224,11 +229,7 @@ class MinutaEmpenhoController extends Controller
     {
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
-        $situacao = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', 'Situações Minuta Empenho');
-        })
-            ->where('descricao', 'EM ANDAMENTO')
-            ->select('codigoitens.id')->first();
+        $situacao_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM ANDAMENTO');
 
         $tipo = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Compra');
 
@@ -239,11 +240,10 @@ class MinutaEmpenhoController extends Controller
             $novoEmpenho->unidade_id = $modMinutaEmpenho->unidade_id;
             $novoEmpenho->compra_id = $modMinutaEmpenho->compra_id;
             $novoEmpenho->informacao_complementar = $modMinutaEmpenho->informacao_complementar;
-            $novoEmpenho->situacao_id = $situacao->id;//em andamento
-            $novoEmpenho->tipo_empenhopor_id = $tipo;
+            $novoEmpenho->situacao_id = $situacao_id;//em andamento
+            $novoEmpenho->tipo_empenhopor_id = $modMinutaEmpenho->tipo_empenhopor_id;
             $novoEmpenho->etapa = 2;
             $novoEmpenho->save();
-
             DB::commit();
             return json_encode($novoEmpenho->id);
         } catch (Exception $exc) {
@@ -329,7 +329,7 @@ class MinutaEmpenhoController extends Controller
                 ->join('codigoitens', 'codigoitens.id', '=', 'compras.modalidade_id')
                 ->join('unidades', 'minutaempenhos.unidade_id', '=', 'unidades.id')
                 ->leftJoin('contrato_minuta_empenho_pivot', 'minutaempenhos.id', '=', 'contrato_minuta_empenho_pivot.minuta_empenho_id')
-                ->where('minutaempenhos.fornecedor_compra_id', $form['fornecedor_id'])
+                ->where('minutaempenhos.fornecedor_empenho_id', $form['fornecedor_id'])
                 ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
                 ->where('minutaempenhos.situacao_id', '=', $situacao->id)
                 ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot->get()->toArray());
@@ -433,8 +433,11 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->alteracao = true;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modRemessa->id;
-
+        $execsiafi = new Execsiafi();
+        $nonce = $execsiafi->createNonce($ugemitente->codigo, $modMinutaEmpenho->id, 'ORCAMENTARIO');
+        $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
         $modSfOrcEmpenhoDados->save();
+
         return $modSfOrcEmpenhoDados;
     }
 
@@ -442,7 +445,7 @@ class MinutaEmpenhoController extends Controller
     {
         $sfRegistroAlteracao = new SfRegistroAlteracao();
         $sfRegistroAlteracao->sforcempenhodado_id = $sforcempenhodados->id;
-        $sfRegistroAlteracao->dtemis = $dtemis;
+        $sfRegistroAlteracao->dtemis = date('Y-m-d');
         $sfRegistroAlteracao->txtmotivo = $txtmotivo;
         $sfRegistroAlteracao->save();
     }
@@ -475,7 +478,7 @@ class MinutaEmpenhoController extends Controller
 
         $tipo = $modMinutaEmpenho->empenho_por;
 
-        if ($tipo === 'Compra') {
+        if ($tipo === 'Compra' || $tipo === 'Suprimento') {
             $data_emissao = Carbon::createFromFormat('Y-m-d', $modMinutaEmpenho->data_emissao)->format('d/m/Y');
 
             return "REGISTRO DE ANULAÇÃO/REFORÇO/CANCELAMENTO DO EMPENHO N° $modMinutaEmpenho->mensagem_siafi " .
@@ -505,4 +508,14 @@ class MinutaEmpenhoController extends Controller
             ->where('minutaempenhos_remessa_id', $modRemessa->id)
             ->whereIn('situacao', ['ERRO', 'EM ANDAMENTO'])->forceDelete();
     }
+
+
+    public function atualizaCreditoOrcamentario(Request $request)
+    {
+        $minuta_id = Route::current()->parameter('minuta_id');
+        $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
+        $modSaldoContabil = SaldoContabil::find($modMinutaEmpenho->saldo_contabil_id);
+        return $modSaldoContabil->saldo;
+    }
+
 }

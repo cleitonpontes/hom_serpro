@@ -63,41 +63,41 @@
                         <h3 class="box-title">Resumo da Minuta de Empenho</h3>
                     </div>
 
+                    <form action="/empenho/subelemento" method="POST">
                     <div class="box-body">
-                        <form action="/empenho/subelemento" method="POST">
-                            <input type="hidden" id="minuta_id" name="minuta_id" value="{{$crud->getCurrentEntryId()}}">
+                        <input type="hidden" id="minuta_id" name="minuta_id" value="{{$crud->getCurrentEntryId()}}">
                         @csrf <!-- {{ csrf_field() }} -->
 
-                            <div class="box-body">
-                                <table class="table table-striped">
-                                    <tbody>
-                                    @foreach ($crud->columns as $column)
-                                        @if( !isset($column['box']) || ($column['box'] === 'resumo') )
-                                            <tr>
-                                                <td>
-                                                    <strong>{{ $column['label'] }}</strong>
-                                                </td>
-                                                <td>
-                                                    @if (!isset($column['type']))
-                                                        @include('crud::columns.text')
+                        <div class="box-body">
+                            <table class="table table-striped">
+                                <tbody>
+                                @foreach ($crud->columns as $column)
+                                    @if( !isset($column['box']) || ($column['box'] === 'resumo') )
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $column['label'] }}</strong>
+                                            </td>
+                                            <td>
+                                                @if (!isset($column['type']))
+                                                    @include('crud::columns.text')
+                                                @else
+                                                    @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
+                                                        @include('vendor.backpack.crud.columns.'.$column['type'])
                                                     @else
-                                                        @if(view()->exists('vendor.backpack.crud.columns.'.$column['type']))
-                                                            @include('vendor.backpack.crud.columns.'.$column['type'])
+                                                        @if(view()->exists('crud::columns.'.$column['type']))
+                                                            @include('crud::columns.'.$column['type'])
                                                         @else
-                                                            @if(view()->exists('crud::columns.'.$column['type']))
-                                                                @include('crud::columns.'.$column['type'])
-                                                            @else
-                                                                @include('crud::columns.text')
-                                                            @endif
+                                                            @include('crud::columns.text')
                                                         @endif
                                                     @endif
-                                                </td>
-                                            </tr>
-                                        @endif()
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endif()
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div><!-- /.box-body -->
                     <div class="col-sm-12"></div>
 
@@ -144,9 +144,9 @@
                         <h3 class="box-title">Resumo da Compra / Contrato</h3>
                     </div>
 
-                    <div class="box-body">
-                        <form action="/empenho/subelemento" method="POST">
-                        @csrf <!-- {{ csrf_field() }} -->
+                    <form action="/empenho/subelemento" method="POST">
+                        <div class="box-body">
+                            @csrf <!-- {{ csrf_field() }} -->
 
                             <div class="box-body">
                                 <table class="table table-striped">
@@ -178,8 +178,8 @@
                                     </tbody>
                                 </table>
                             </div>
-                    </div><!-- /.box-body -->
-                    <div class="col-sm-12"></div>
+                        </div><!-- /.box-body -->
+                        <div class="col-sm-12"></div>
 
                     </form>
                 </div>
@@ -193,28 +193,27 @@
                              title="Collapse">
                             <h3 class="box-title">Item da Compra / Contrato</h3>
                         </div>
-                        <div class="box-body">
-                            <form action="/empenho/subelemento" method="POST">
-                            @csrf <!-- {{ csrf_field() }} -->
-                                <div class="box-body">
-                                    <table class="table table-striped">
-                                        <tbody>
-                                        @foreach ($itens as $key => $value)
-                                            <tr>
-                                                <td>
-                                                    <strong>{{ $key }}</strong>
-                                                </td>
-                                                <td>
-                                                    <span>{{ $value }}</span>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                        </div><!-- /.box-body -->
-                        <div class="col-sm-12"></div>
-
+                        <form action="/empenho/subelemento" method="POST">
+                            <div class="box-body">
+                                @csrf <!-- {{ csrf_field() }} -->
+                                    <div class="box-body">
+                                        <table class="table table-striped">
+                                            <tbody>
+                                            @foreach ($itens as $key => $value)
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ $key }}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <span>{{ $value }}</span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                            </div><!-- /.box-body -->
+                            <div class="col-sm-12"></div>
                         </form>
                     </div>
                 </div>
@@ -250,16 +249,16 @@
                         </button>
                     </div>
                     <div class="col-md-3">
-                    @if ($entry->empenho_por != 'Contrato')
-                        <button type="button" class="btn btn-primary"
-                                @if (!(($entry->situacao_descricao === 'EM PROCESSAMENTO' || $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
+                        @if ($entry->empenho_por !== 'Contrato' && $entry->empenho_por !== 'Suprimento')
+                            <button type="button" class="btn btn-primary"
+                                    @if (!(($entry->situacao_descricao === 'EM PROCESSAMENTO' || $entry->situacao_descricao === 'EMPENHO EMITIDO') && $entry->etapa === 8))
                                     disabled
-                                @endif
-                                id="empenhar_outro_fornecedor"
-                        >
-                            <i class="fa fa-plus"></i> Empenhar outro Fornecedor
-                        </button>
-                    @endif
+                                    @endif
+                                    id="empenhar_outro_fornecedor"
+                            >
+                                <i class="fa fa-plus"></i> Empenhar outro Fornecedor
+                            </button>
+                        @endif
                     </div>
                     <div class="col-md-3" align="right">
                         <button type="button" class="btn btn-primary" id="finalizar"
@@ -289,13 +288,8 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-
             $('body').on('click', '#emitir_empenho_siafi', function (event) {
                 salvarTabelasSiafi(event);
-                $('#emitir_empenho_siafi').attr('disabled', true);
-                $('#voltar').attr('disabled', true);
-                $('#empenhar_outro_fornecedor').removeAttr('disabled');
-                $('#finalizar').removeAttr('disabled');
             });
 
             $('body').on('click', '#empenhar_outro_fornecedor', function (event) {
@@ -314,6 +308,12 @@
             });
         });
 
+        function retirarLinks() {
+            $('#rowCabecalho').find('a').each(function () {
+                this.href = '#';
+            })
+        }
+
         function salvarTabelasSiafi(event) {
 
             var minuta_id = $('#minuta_id').val();
@@ -330,6 +330,12 @@
                             'Empenho salvo com sucesso!',
                             'success'
                         )
+                        retirarLinks();
+                        $('#emitir_empenho_siafi').attr('disabled', true);
+                        $('#voltar').attr('disabled', true);
+                        $('#empenhar_outro_fornecedor').removeAttr('disabled');
+                        $('#finalizar').removeAttr('disabled');
+
                     } else {
                         Swal.fire(
                             'Alerta!',
