@@ -75,7 +75,9 @@ class MinutaEmpenhoCrudController extends CrudController
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
         $this->crud->addClause('leftJoin', 'fornecedores', 'fornecedores.id', '=', 'minutaempenhos.fornecedor_empenho_id');
-        $this->crud->addClause('select', 'minutaempenhos.*');
+        $this->crud->addClause('leftJoin', 'codigoitens', 'codigoitens.id', '=', 'minutaempenhos.tipo_empenhopor_id');
+        $this->crud->addClause('leftJoin', 'compras', 'compras.id', '=', 'minutaempenhos.compra_id');
+        $this->crud->addClause('select', 'minutaempenhos.*','compras.modalidade_id');
         $this->crud->orderBy('minutaempenhos.updated_at', 'desc');
 
         /*
@@ -464,8 +466,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
             'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'ilike', "%$searchTerm%");
+                $query->orWhere('fornecedores.nome', 'ilike', "%" . ($searchTerm) . "%");
             },
         ]);
     }
@@ -483,10 +485,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'searchLogic'   => function ($query, $column, $searchTerm) {
+                    $query->orWhere('codigoitens.descricao', 'ilike', '%'.$searchTerm.'%');
+                },
 
         ]);
     }
@@ -542,7 +543,12 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
+//            'searchLogic'   => function ($query, $column, $searchTerm) {
+//                $query->orWhere('compras.modalidade_id', '=', 'codigoitens.id', function ($q) use ($column, $searchTerm) {
+//                })->where('codigoitens.descricao', 'ilike', '%' . $searchTerm . '%');
+//            },
         ]);
+
     }
 
     public function adicionaColunaValorTotal()
