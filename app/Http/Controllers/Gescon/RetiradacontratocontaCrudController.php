@@ -311,13 +311,19 @@ class RetiradacontratocontaCrudController extends CrudController
     }
     public function getIdEncargoByNomeEncargo($nomeEncargo){
         // bucar em codigoitens, pela descrição, pegar o id e buscar o tipo id em encargos pelo id
-        $id = \DB::table('codigoitens')
+        $obj = \DB::table('codigoitens')
         ->select('encargos.id')
         ->where('codigoitens.descricao','=',$nomeEncargo)
         ->join('encargos', 'encargos.tipo_id', '=', 'codigoitens.id')
-        ->first()->id;
+        ->first();
 
-        return $id;
+        if( !is_object($obj) ){
+            echo $nomeEncargo.' -> Encargo não localizado.';
+            exit;
+        }
+
+
+        return $obj->id;
     }
     public function getTipoIdEncargoByNomeEncargo($nomeEncargo){
         // bucar em codigoitens, pela descrição, pegar o id e buscar o tipo id em encargos pelo id
@@ -331,7 +337,8 @@ class RetiradacontratocontaCrudController extends CrudController
         // vamos buscar o saldo do encargo grupo A sobre 13 salario e férias
         $idContratoTerceirizado = $objContratoTerceirizado->id;
         $objContratoConta = new Contratoconta();
-        $nomeGrupoA = 'Grupo "A" sobre 13o. Salário e Férias';
+        // $nomeGrupoA = 'Grupo "A" sobre 13o. Salário e Férias';
+        $nomeGrupoA = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
         $idEncargoGrupoA = self::getIdEncargoByNomeEncargo($nomeGrupoA);
         $idGrupoA = self::getTipoIdEncargoByNomeEncargo($nomeGrupoA);
         $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $idGrupoA);
@@ -362,19 +369,20 @@ class RetiradacontratocontaCrudController extends CrudController
 
 
             // buscar os saldos dos encargos e gerar um lançamento de retirada pra cada.
-            $nomeEncargo13ParaDemissao = 'Décimo Terceiro Salário';
+            $nomeEncargo13ParaDemissao = '13º (décimo terceiro) salário';
             $idEncargo13ParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargo13ParaDemissao);
             $saldoDecimoTerceiroParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargo13ParaDemissao);
 
-            $nomeEncargoFeriasParaDemissao = 'Férias e Adicional';
+            $nomeEncargoFeriasParaDemissao = 'Férias e 1/3 (um terço) constitucional de férias';
             $idEncargoFeriasParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoFeriasParaDemissao);
             $saldoFeriasParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoFeriasParaDemissao);
 
-            $nomeEncargoRescisaoParaDemissao = 'Rescisão e Adicional do FGTS';
+            $nomeEncargoRescisaoParaDemissao = 'Multa sobre o FGTS para as rescisões sem justa causa';
             $idEncargoRescisaoParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoRescisaoParaDemissao);
             $saldoRescisaoParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoRescisaoParaDemissao);
 
-            $nomeEncargoGrupoAParaDemissao = 'Grupo "A" sobre 13o. Salário e Férias';
+            // $nomeEncargoGrupoAParaDemissao = 'Grupo "A" sobre 13o. Salário e Férias';
+            $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
             $idEncargoGrupoAParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoGrupoAParaDemissao);
             $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoGrupoAParaDemissao);
 
@@ -462,10 +470,10 @@ class RetiradacontratocontaCrudController extends CrudController
 
             // início das verificações por encargo
             $valorMaximoRetirada = 0; // inicializar o valor máximo para retirada, que será alterado de acordo com o encargo informado.
-            if( $nomeEncargoInformado == 'Décimo Terceiro Salário' ){
+            if( $nomeEncargoInformado == '13º (décimo terceiro) salário' ){
                 // para 13o. salário, retirada máxima = ( salário + grupo A )
                 $valorMaximoRetirada = ( $salario + $valorFatEmpresaGrupoA );
-            } elseif( $nomeEncargoInformado == 'Férias e Adicional' ){
+            } elseif( $nomeEncargoInformado == 'Férias e 1/3 (um terço) constitucional de férias' ){
                 // para Férias, retirada máxima = ( salário + 1/3 do salário + grupo A)
                 $valorMaximoRetirada = ( $salario + $valorFatEmpresaGrupoA + $umTercoSalario);
             }
@@ -505,7 +513,7 @@ class RetiradacontratocontaCrudController extends CrudController
             }
 
             // Aqui vamos controlar os demais lançamentos, além do encargo selecionado pelo usuário
-            if( $nomeEncargoInformado == 'Décimo Terceiro Salário' ){
+            if( $nomeEncargoInformado == '13º (décimo terceiro) salário' ){
                 // GRUPO A
                 // para 13 é necessário gerar lançamento para o Grupo A
                 $objLancamento = new Lancamento();
@@ -518,7 +526,7 @@ class RetiradacontratocontaCrudController extends CrudController
                     \Alert::error($mensagem)->flash();
                     return false;
                 }
-            } elseif( $nomeEncargoInformado == 'Férias e Adicional' ){
+            } elseif( $nomeEncargoInformado == 'Férias e 1/3 (um terço) constitucional de férias' ){
                 // GRUPO A
                 // para 13 é necessário gerar lançamento para o Grupo A
                 $objLancamento = new Lancamento();
@@ -537,9 +545,9 @@ class RetiradacontratocontaCrudController extends CrudController
         return $valorRetirada;
     }
     public function getNomeEncargoBySituacaoRetirada($situacaoRetirada){
-        if($situacaoRetirada=='Décimo Terceiro'){return 'Décimo Terceiro Salário';}
+        if($situacaoRetirada=='Décimo Terceiro'){return '13º (décimo terceiro) salário';}
         elseif($situacaoRetirada=='Demissão'){return 'Demissão';}
-        elseif($situacaoRetirada=='Férias'){return 'Férias e Adicional';}
+        elseif($situacaoRetirada=='Férias'){return 'Férias e 1/3 (um terço) constitucional de férias';}
     }
     public function store(StoreRequest $request)
     {
