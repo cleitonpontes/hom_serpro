@@ -585,6 +585,7 @@ class MinutaAlteracaoCrudController extends CrudController
             ->toArray();
 
 //        ;dd($itens->getBindings(),$itens->toSql(),$itens->get());
+
         return DataTables::of($itens)
             ->addColumn(
                 'ci_id',
@@ -1461,6 +1462,7 @@ class MinutaAlteracaoCrudController extends CrudController
         if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
             $quantidade *= -1;
         }
+        $quantidade = sprintf('%.5f', floatval($quantidade));
 
         //se é contrato e é serviço OU se é sispp e serviço OU se for suprimento
         if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
