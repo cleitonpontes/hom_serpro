@@ -632,6 +632,7 @@ class Execsiafi
 
                 if($dado->sforcempenhodados->alteracao == true){
                     unset($array[$i]['codSubElemento']);
+                    unset($array[$i]['descricao']);
                 }
                 $i++;
             }
