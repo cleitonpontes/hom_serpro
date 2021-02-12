@@ -174,7 +174,7 @@ class UsuarioCrudController extends CrudController
             [
                 // 1-n relationship
                 'label' => "UG/UASG Padrão", // Table column heading
-                'type' => "select2_from_ajax",
+                'type' => "select2_from_ajax_single",
                 'name' => 'ugprimaria', // the column that contains the ID of that connected entity
                 'entity' => 'ugPrimariaRelation', // the method that defines the relationship in your Model
                 'attribute' => "codigo", // foreign key attribute that is shown to user
@@ -189,7 +189,7 @@ class UsuarioCrudController extends CrudController
             [
                 // n-n relationship
                 'label' => "Demais UGs/UASGs", // Table column heading
-                'type' => "select2_from_ajax_multiple",
+                'type' => "select2_from_ajax_multiple_single",
                 'name' => 'unidades', // the column that contains the ID of that connected entity
                 'entity' => 'unidades', // the method that defines the relationship in your Model
                 'attribute' => "codigo", // foreign key attribute that is shown to user

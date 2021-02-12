@@ -31,12 +31,13 @@ class NaoAceitarZero implements Rule
      */
     public function passes($attribute, $value)
     {
+
         $index = substr($attribute, strpos($attribute, '.') + 1);
         $tipo_alteracao = $this->tipo_alteracao[$index];
         //CASO NÃO SEJA CANCELAMENTO/NENHUMA
         if ((strpos($tipo_alteracao, 'NENHUMA') === false)
             && (strpos($tipo_alteracao, 'CANCELAMENTO') === false)) {
-            return !(empty((float)$value));
+            return !(empty((float)str_replace(',','.',str_replace('.','',$value))));
         }
         return true;
     }
