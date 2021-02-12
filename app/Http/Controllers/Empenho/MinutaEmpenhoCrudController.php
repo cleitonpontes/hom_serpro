@@ -74,7 +74,11 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->denyAccess('delete');
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-        $this->crud->orderBy('updated_at', 'desc');
+        $this->crud->addClause('leftJoin', 'fornecedores', 'fornecedores.id', '=', 'minutaempenhos.fornecedor_empenho_id');
+        $this->crud->addClause('leftJoin', 'codigoitens', 'codigoitens.id', '=', 'minutaempenhos.tipo_empenhopor_id');
+        $this->crud->addClause('leftJoin', 'compras', 'compras.id', '=', 'minutaempenhos.compra_id');
+        $this->crud->addClause('select', 'minutaempenhos.*','compras.modalidade_id');
+        $this->crud->orderBy('minutaempenhos.updated_at', 'desc');
 
         /*
         |--------------------------------------------------------------------------
@@ -85,6 +89,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
         $this->adicionaCampos($this->minuta_id);
         $this->adicionaColunas($this->minuta_id);
+        $this->aplicaFiltros($this->minuta_id);
 
         // add asterisk for fields that are required in MinutaEmpenhoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -462,8 +467,8 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
             'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
+                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'ilike', "%$searchTerm%");
+                $query->orWhere('fornecedores.nome', 'ilike', "%" . ($searchTerm) . "%");
             },
         ]);
     }
@@ -481,10 +486,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
+                'searchLogic'   => function ($query, $column, $searchTerm) {
+                    $query->orWhere('codigoitens.descricao', 'ilike', '%'.$searchTerm.'%');
+                },
 
         ]);
     }
@@ -540,7 +544,12 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
+//            'searchLogic'   => function ($query, $column, $searchTerm) {
+//                $query->orWhere('compras.modalidade_id', '=', 'codigoitens.id', function ($q) use ($column, $searchTerm) {
+//                })->where('codigoitens.descricao', 'ilike', '%' . $searchTerm . '%');
+//            },
         ]);
+
     }
 
     public function adicionaColunaValorTotal()
@@ -772,6 +781,69 @@ class MinutaEmpenhoCrudController extends CrudController
     public function adicionaColunaDescricao()
     {
     }
+
+    protected function aplicaFiltros()
+    {
+        $this->aplicaFiltroSituacao();
+        $this->aplicaFiltroModalidade();
+    }
+
+    protected function aplicaFiltroSituacao()
+    {
+        $this->crud->addFilter([
+            'name' => 'getSituacao',
+            'label' => 'Situação',
+            'type' => 'select2_multiple',
+
+        ], [
+            217 => 'EMPENHO EMITIDO',
+            215 => 'EM PROCESSAMENTO',
+            214 => 'EM ANDAMENTO',
+            218 => 'EMPENHO CANCELADO',
+            216 => 'ERRO',
+        ], function ($value) {
+            $this->crud->addClause(
+                'whereIn',
+                'minutaempenhos.situacao_id',
+                json_decode($value)
+            );
+
+        });
+
+    }
+
+    protected function aplicaFiltroModalidade()
+    {
+        $this->crud->addFilter([
+            'name' => 'compra_modalidade',
+            'label' => 'Modalidade',
+            'type' => 'select2_multiple',
+
+        ], [
+            76 => '05 - Pregão',
+            73 => '01 - Convite',
+            77 => '02 - Tomada de Preços',
+            75 => '07 - Inexigibilidade',
+            72 => '20 - Concurso',
+            74 => '06 - Dispensa',
+            71 => '03 - Concorrência',
+            184 => '22 - Tomada de Preços por Técnica e Preço',
+            185 => '33 - Concorrência por Técnica e Preço',
+            186 => '44 - Concorrência Internacional por Técnica e Preço',
+            187 => '04 - Concorrência Internacional',
+            160 => '99 - Regime Diferenciado de Contratação',
+
+        ], function ($value) {
+            $this->crud->addClause(
+                'whereIn',
+                'compras.modalidade_id',
+                json_decode($value)
+            );
+
+        });
+
+    }
+
 
     public function retonaFormModal()
     {
