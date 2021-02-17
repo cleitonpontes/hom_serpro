@@ -511,6 +511,10 @@ class SubelementoController extends BaseControllerEmpenho
                     'bAutoWidth' => false,
                     'paging' => true,
                     'lengthChange' => true,
+                    'lengthMenu' => [
+                        [10, 25, 50, 100, -1],
+                        ['10', '25', '50', '100', 'Todos']
+                    ],
                     'language' => [
                         'url' => asset('/json/pt_br.json')
                     ],
