@@ -335,6 +335,7 @@
                         $('#voltar').attr('disabled', true);
                         $('#empenhar_outro_fornecedor').removeAttr('disabled');
                         $('#finalizar').removeAttr('disabled');
+                        location.reload();
 
                     } else {
                         Swal.fire(
