@@ -252,7 +252,7 @@ class MinutaEmpenhoController extends Controller
 
     public function atualizaSaldoCompraItemUnidade(MinutaEmpenho $modMinutaEmpenho)
     {
-        $compra = Compra::find($modMinutaEmpenho->compra_id)->first();
+        $compra = Compra::find($modMinutaEmpenho->compra_id);
 
         $compraSiasg = $this->buscaCompraSiasg($compra);
 
