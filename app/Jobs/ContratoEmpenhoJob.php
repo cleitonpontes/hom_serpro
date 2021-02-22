@@ -33,7 +33,7 @@ class ContratoEmpenhoJob implements ShouldQueue
      */
     public function handle()
     {
-        $minutasEmpenhos = MinutaEmpenho::whereHas('situacao',function ($q){
+        $minutasEmpenhos = MinutaEmpenho::whereHas('situacao', function ($q) {
             $q->whereHas('codigo', function ($query) {
                 $query->where('descricao', 'Situações Minuta Empenho');
             })
@@ -46,7 +46,7 @@ class ContratoEmpenhoJob implements ShouldQueue
             $numempenho = $minutasEmpenho->mensagem_siafi;
             $empenho = $this->buscaEmpenho($ugemitente, trim($numempenho));
 
-            if($empenho){
+            if ($empenho) {
 
                 $arrMinutasEmpenhos['contrato_id'] = $minutasEmpenho->contrato_id;
                 $arrMinutasEmpenhos['empenho_id'] = $empenho->id;
@@ -65,7 +65,7 @@ class ContratoEmpenhoJob implements ShouldQueue
 
     private function buscaEmpenho(int $unidade_id, string $num_empenho)
     {
-        return Empenho::where('unidade_id',$unidade_id)
+        return Empenho::where('unidade_id', $unidade_id)
             ->where('numero', $num_empenho)->first();
     }
 
