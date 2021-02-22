@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Codigoitem;
 use App\Models\Contratoempenho;
+use App\Models\Empenho;
 use App\Models\MinutaEmpenho;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -32,28 +33,45 @@ class ContratoEmpenhoJob implements ShouldQueue
      */
     public function handle()
     {
-        $situacaoEmpenhoEmitido = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', 'Situações Minuta Empenho');
-        })
-            ->where('descricao', 'EMPENHO EMITIDO')
-            ->select('codigoitens.id')->first();
+        $minutasEmpenhos = MinutaEmpenho::whereHas('situacao',function ($q){
+            $q->whereHas('codigo', function ($query) {
+                $query->where('descricao', 'Situações Minuta Empenho');
+            })
+                ->where('descricao', 'EMPENHO EMITIDO');
+        })->whereNotNull('contrato_id')->get();
 
-        $arrMinutasEmpenhos = MinutaEmpenho::whereNotNull('contrato_id')->where('situacao_id',$situacaoEmpenhoEmitido->id)->get()->toArray();
+        foreach ($minutasEmpenhos as $minutasEmpenho) {
 
-        foreach ($arrMinutasEmpenhos as $minutaEmpenho) {
-            if(empty($this->verificaSeJaExiste($minutaEmpenho))){
-                $contratoEmpenho = new Contratoempenho();
-                $contratoEmpenho->contrato_id = $minutaEmpenho['contrato_id'];
-                $contratoEmpenho->fornecedor_id = $minutaEmpenho['fornecedor_empenho_id'];
-                $contratoEmpenho->empenho_id = $minutaEmpenho['id'];
-                $contratoEmpenho->save();
+            $ugemitente = $minutasEmpenho->saldo_contabil->unidade_id;
+            $numempenho = $minutasEmpenho->mensagem_siafi;
+            $empenho = $this->buscaEmpenho($ugemitente, trim($numempenho));
+
+            if($empenho){
+
+                $arrMinutasEmpenhos['contrato_id'] = $minutasEmpenho->contrato_id;
+                $arrMinutasEmpenhos['empenho_id'] = $empenho->id;
+
+                if (empty($this->verificaSeJaExiste($arrMinutasEmpenhos))) {
+                    $contratoEmpenho = new Contratoempenho();
+                    $contratoEmpenho->contrato_id = $minutasEmpenho->contrato_id;
+                    $contratoEmpenho->fornecedor_id = $empenho->fornecedor_id;
+                    $contratoEmpenho->empenho_id = $empenho->id;
+                    $contratoEmpenho->save();
+                }
+
             }
         }
     }
 
+    private function buscaEmpenho(int $unidade_id, string $num_empenho)
+    {
+        return Empenho::where('unidade_id',$unidade_id)
+            ->where('numero', $num_empenho)->first();
+    }
+
     private function verificaSeJaExiste($minutaEmpenho)
     {
-        return Contratoempenho::where('empenho_id', $minutaEmpenho['id'])
+        return Contratoempenho::where('empenho_id', $minutaEmpenho['empenho_id'])
             ->where('contrato_id', $minutaEmpenho['contrato_id'])
             ->get()->toArray();
     }
