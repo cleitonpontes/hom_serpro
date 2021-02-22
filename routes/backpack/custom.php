@@ -226,6 +226,7 @@ Route::group([
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
                 CRUD::resource('funcionarioscontratoconta', 'FuncionarioscontratocontaCrudController');
                 CRUD::resource('funcoescontratoconta', 'FuncoescontratocontaCrudController');
+                CRUD::resource('encerramentocontratoconta', 'EncerramentocontratocontaCrudController');
             });
             Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}/{funcao_id}'], function () {
                 CRUD::resource('repactuacaocontratoconta', 'RepactuacaocontratocontaCrudController');
