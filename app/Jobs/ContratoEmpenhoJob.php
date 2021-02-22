@@ -41,7 +41,6 @@ class ContratoEmpenhoJob implements ShouldQueue
         $arrMinutasEmpenhos = MinutaEmpenho::whereNotNull('contrato_id')->where('situacao_id',$situacaoEmpenhoEmitido->id)->get()->toArray();
 
         foreach ($arrMinutasEmpenhos as $minutaEmpenho) {
-            var_dump($this->verificaSeJaExiste($minutaEmpenho));
             if(empty($this->verificaSeJaExiste($minutaEmpenho))){
                 $contratoEmpenho = new Contratoempenho();
                 $contratoEmpenho->contrato_id = $minutaEmpenho['contrato_id'];
