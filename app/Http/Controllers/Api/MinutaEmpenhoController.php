@@ -72,6 +72,7 @@ class MinutaEmpenhoController extends Controller
 
             $this->gravaRemessaOriginal($modRemessa);
 
+            session(['situacao' => 'EM PROCESSAMENTO']);
             DB::commit();
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
@@ -231,8 +232,6 @@ class MinutaEmpenhoController extends Controller
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $situacao_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM ANDAMENTO');
 
-        $tipo = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Compra');
-
         DB::beginTransaction();
         try {
             $this->atualizaSaldoCompraItemUnidade($modMinutaEmpenho);
@@ -253,7 +252,7 @@ class MinutaEmpenhoController extends Controller
 
     public function atualizaSaldoCompraItemUnidade(MinutaEmpenho $modMinutaEmpenho)
     {
-        $compra = Compra::find($modMinutaEmpenho->compra_id)->first();
+        $compra = Compra::find($modMinutaEmpenho->compra_id);
 
         $compraSiasg = $this->buscaCompraSiasg($compra);
 
@@ -405,7 +404,7 @@ class MinutaEmpenhoController extends Controller
             $this->gravaSfRegistroAlteracao($sforcempenhodadosalt, $modMinutaEmpenho->data_emissao, $txt_motivo);
 
             $this->gravaRemessa($modRemessa);
-
+            session(['situacao' => 'EM PROCESSAMENTO']);
             DB::commit();
             $retorno['resultado'] = true;
         } catch (Exception $exc) {

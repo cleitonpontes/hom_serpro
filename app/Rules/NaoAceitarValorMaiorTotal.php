@@ -26,6 +26,8 @@ class NaoAceitarValorMaiorTotal implements Rule
      */
     private $vlr_empenhado;
 
+    private $erro;
+
 
     /**
      * Create a new rule instance.
@@ -62,12 +64,18 @@ class NaoAceitarValorMaiorTotal implements Rule
         $index = substr($attribute, strpos($attribute, '.') + 1);
         $tipo_alteracao = $this->tipo_alteracao[$index];
         if (strpos($tipo_alteracao, 'REFORÇO') !== false) {
+            //esta regra não vale para contrato
+            if ($this->tipo_empenho_por === 'Contrato') {
+                return true;
+            }
             $valor_selecionado = $this->retornaFormatoAmericano($value);
+            $this->erro = 0;
 
             return $valor_selecionado <= $this->valor_total_item[$index];
         }
         if (strpos($tipo_alteracao, 'ANULAÇÃO') !== false) {
             $valor_selecionado = $this->retornaFormatoAmericano($value);
+            $this->erro = 1;
             return $valor_selecionado <= $this->vlr_empenhado[$index];
         }
         return true;
@@ -80,6 +88,8 @@ class NaoAceitarValorMaiorTotal implements Rule
      */
     public function message()
     {
-        return 'O valor selecionado não pode ser maior do que o valor total do item.';
+        $msg = ['O valor selecionado não pode ser maior do que o Valor Total do Item.',
+            'O valor selecionado não pode ser maior do que o Valor Empenhado.'];
+        return $msg[$this->erro];
     }
 }
