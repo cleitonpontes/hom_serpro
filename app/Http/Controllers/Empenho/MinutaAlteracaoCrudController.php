@@ -1044,7 +1044,6 @@ class MinutaAlteracaoCrudController extends CrudController
     {
         $modMinuta = MinutaEmpenho::find($minuta_id);
 
-//            dd(123, $modMinuta);
         if ($modMinuta->empenho_por === 'Compra' || $modMinuta->empenho_por === 'Suprimento') {
             $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
                 ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
@@ -1058,6 +1057,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa)
                 ->select([
+                    DB::raw('compra_item_minuta_empenho.id as cime_id'),
                     DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
                     DB::raw('fornecedores.nome AS "Fornecedor"'),
                     DB::raw('codigoitens.descricao AS "Tipo do Item"'),
@@ -1069,7 +1069,8 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
-                ]);
+                ])
+                ->orderBy('compra_item_minuta_empenho.id', 'asc');
             if ($modMinuta->empenho_por === 'Suprimento') {
                 $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
             }
@@ -1106,8 +1107,6 @@ class MinutaAlteracaoCrudController extends CrudController
                 ])
                 ->get()->toArray();
         }
-//        dd(123);
-//        ;dd($itens->getBindings(),$itens->toSql(), $itens->get());
 
         $this->crud->addColumn([
             'box' => 'itens',
@@ -1750,6 +1749,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->distinct()
                     ->select(
                         [
+                            DB::raw('compra_item_minuta_empenho.id as cime_id'),
                             'compra_item_minuta_empenho.compra_item_id',
                             'compra_item_minuta_empenho.operacao_id',
                             'compra_item_fornecedor.fornecedor_id',
@@ -1771,7 +1771,8 @@ class MinutaAlteracaoCrudController extends CrudController
                             'compra_item_minuta_empenho.subelemento_id',
                             DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
                         ]
-                    );
+                    )
+                ->orderBy('compra_item_minuta_empenho.id', 'asc');
                 $soma = CompraItemMinutaEmpenho::select([
                     'compra_item_id',
                     DB::raw("sum(compra_item_minuta_empenho.quantidade) as qtd_total_item"),
