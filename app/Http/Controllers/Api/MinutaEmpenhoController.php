@@ -346,13 +346,13 @@ class MinutaEmpenhoController extends Controller
         if ($tipo === 'Contrato') {
             return ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)
                 ->where('minutaempenhos_remessa_id', $remessa_id)
-                ->orderBy('contrato_item_minuta_empenho.id', 'asc')
+                ->orderBy('id', 'asc')
                 ->get();
         }
 
         return CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)
             ->where('minutaempenhos_remessa_id', $remessa_id)
-            ->orderBy('contrato_item_minuta_empenho.id', 'asc')
+            ->orderBy('id', 'asc')
             ->get();
     }
 
