@@ -967,20 +967,4 @@ class MinutaEmpenhoCrudController extends CrudController
         Alert::warning('Operação não permitida!')->flash();
         return redirect($this->crud->route);
     }
-
-    private function setCondicaoFornecedor($itens, string $descricao, $fornecedor_id)
-    {
-        if ($descricao === 'Suprimento') {
-            return $itens->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
-        }
-        return $itens->where(function ($query) use ($fornecedor_id) {
-            $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
-                ->orWhere(
-                    function ($query) use ($fornecedor_id) {
-                        $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
-                            ->whereNull('compra_item_fornecedor.fornecedor_id');
-                    }
-                );
-        });
-    }
 }
