@@ -574,9 +574,6 @@ class RetiradacontratocontaCrudController extends CrudController
         // vamos buscar o contratoconta_id pelo contratoterceirizado_id
         $request->request->set('contratoconta_id', $idContratoConta);
 
-        echo 'linha 577 RetiradacontratocontaCrudController';
-        dd($request);
-
         // aqui quer dizer que ainda não existe a movimentação. Precisamos criá-la.
         if( !$idMovimentacao = self::criarMovimentacao($request) ){
             $mensagem = 'Problemas ao criar a movimentação.';

@@ -100,7 +100,7 @@ class Retiradacontratoconta extends Model
         ->first();
 
 
-        echo '<br>VAi demitir o id contrato terceirizado = '.$idContratoTerceirizado;
+        echo '<br>(1) Vai demitir o id contrato terceirizado = '.$idContratoTerceirizado;
 
 
         $idContratoConta = $request->input('contratoconta_id');
@@ -113,6 +113,11 @@ class Retiradacontratoconta extends Model
             \Alert::error($mensagem)->flash();
             return redirect()->back();
         }
+
+
+        echo ' (2) -> moviment. ok';
+
+
         // aqui a movimentação já foi criada e já temos o $idMovimentacao - vamos atribuir seu valor ao request
         $request->request->set('movimentacao_id', $idMovimentacao);
 
@@ -126,7 +131,9 @@ class Retiradacontratoconta extends Model
             return redirect()->back();
         }
 
-        echo ' -> passou 1';
+        echo ' (3) -> mes ano compet. ok';
+
+
 
         // vamos alterar o status da movimentação
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
@@ -151,9 +158,6 @@ class Retiradacontratoconta extends Model
         //     return redirect()->back();
         // }
 
-
-        echo ' -> passou do verificar ';
-
         // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
 
@@ -173,6 +177,44 @@ class Retiradacontratoconta extends Model
             return true;
         }
         return false;
+    }
+    public function encerrarContaVinculada($request){
+
+        $contrato_id = $request->input('contrato_id');
+
+        // buscar todos os funcionários do contrato e para cada um, demitir.
+        $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)
+        ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
+        ->select('contratoterceirizados.*', 'contratos.numero')
+        ->get();
+
+
+        // para cada funcionário, demitir
+        $contDemissoes = 0;
+        foreach($arrayContratosTerceirizados as $objContratoTerceirizadoDemitir){
+
+            $situacaoFuncionario = $objContratoTerceirizadoDemitir->situacao;
+            if( $situacaoFuncionario ){
+                $contDemissoes++;
+                $idContratoTerceirizado = $objContratoTerceirizadoDemitir->id;
+                $request->request->set('contratoterceirizado_id', $idContratoTerceirizado);
+                $this->demitirContratoTerceirizado($request);
+
+                echo ' -> ok, demitido.';
+
+            } else {
+                echo ' -> (!!!) Este funcionário já é demitido';
+
+            }
+
+        }
+
+
+        echo '<br>'.$contDemissoes.' empregados demitidos.';
+
+        return true;
+
+
     }
     public function verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valorInformadoRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao){
 
@@ -196,7 +238,14 @@ class Retiradacontratoconta extends Model
         $salario = $objContratoTerceirizado->salario;
         $umTercoSalario = ( $salario / 3 );
 
+
+        echo ' -> val retirada = '.$valorRetirada;
+        echo ' -> sit retirada = '.$situacaoRetirada;
+        echo ' -> sit func = '.$situacaoFuncionario;
+
         if($situacaoRetirada=='Demissão'){
+
+            echo ' -> entrou ';
             // aqui o usuário informou que a retirada é para demissão
             // verificar se o funcionário já não é demitido
             if( !$situacaoFuncionario ){
@@ -204,8 +253,16 @@ class Retiradacontratoconta extends Model
                 \Alert::error($mensagem)->flash();
                 return false;
             }
+
+            echo ' -> passou aqui ';
+
+
             // verificar se informou a data de demissão
-            $dataDemissao = $request->input('data_demissao');
+            // $dataDemissao = $request->input('data_demissao');
+
+            echo ' -> dt demiss = '.$dataDemissao;
+
+
             if( $dataDemissao=='' ){
                 $mensagem = 'Favor informar a data de demissão.';
                 \Alert::error($mensagem)->flash();

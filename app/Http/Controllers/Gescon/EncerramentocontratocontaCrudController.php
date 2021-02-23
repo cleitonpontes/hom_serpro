@@ -118,6 +118,11 @@ class EncerramentocontratocontaCrudController extends CrudController
 
         $campos = [
             [   // Hidden
+                'name' => 'contratoconta_id',
+                'type' => 'hidden',
+                'default' => $contratoconta_id,
+            ],
+            [   // Hidden
                 'name' => 'situacao_retirada',
                 'type' => 'hidden',
                 'default' => 'Demissão',
@@ -277,179 +282,32 @@ class EncerramentocontratocontaCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         $contrato_id = $request->input('contrato_id');
+        $contratoconta_id = $request->input('contratoconta_id');
+        $user_id = $request->input('user_id');
+        $dataHoje = date("Y-m-d");
         $objRetiradacontratoconta = new Retiradacontratoconta();
+        $obs_encerramento = $request->input('obs_encerramento');
 
-        // buscar todos os funcionários do contrato e para cada um, demitir.
-        $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)
-        ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
-        ->select('contratoterceirizados.*', 'contratos.numero')
-        ->get();
-
-
-        // para cada funcionário, demitir
-        foreach($arrayContratosTerceirizados as $objContratoTerceirizadoDemitir){
-            $idContratoTerceirizado = $objContratoTerceirizadoDemitir->id;
-            $request->request->set('contratoterceirizado_id', $idContratoTerceirizado);
-            $objRetiradacontratoconta->demitirContratoTerceirizado($request);
-        }
-
-
-        // salvar informações do encerramento em contratocontas
-        echo 'linha 252 Encerramento contrato conta crud controller -> agora é só salvar os dados.';
-        exit;
-
-
-
-
-        // vamos verificar se para este mês / ano ainda não existe lançamento do mesmo tipo de movimentação
-        if(self::verificarSeMovimentacaoExiste($request)){
-            \Alert::error('Já existe um lançamento para este mês / ano, desse mesmo tipo.')->flash();
+        if( !$objRetiradacontratoconta->encerrarContaVinculada($request) ){
+            \Alert::error('Problemas ao encerrar a conta.')->flash();
             return redirect()->back();
-        } else {
-            // aqui quer dizer que ainda não existe a movimentação. Precisamos criá-la.
-            if( !$idMovimentacao = self::criarMovimentacao($request) ){
-                $mensagem = 'Problemas ao criar a movimentação.';
-                \Alert::error($mensagem)->flash();
-                return redirect()->back();
-            }
-        }
-        // aqui a movimentação já foi criada e já temos o $idMovimentacao - vamos atribuir seu valor ao request
-        $request->request->set('movimentacao_id', $idMovimentacao);
-
-        // buscar os encargos para pegarmos os percentuais de cada um e gerarmos os depósitos
-        $arrayObjetosEncargos = Codigoitem::whereHas('codigo', function ($query) {
-            $query->where('descricao', '=', 'Tipo Encargos');
-        })
-        ->join('encargos', 'encargos.tipo_id', '=', 'codigoitens.id')
-        ->orderBy('descricao')
-        ->get();
-
-        // faremos um lançamento por contrato terceirizado. - buscar contratos terceirizados deste contrato.
-        $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)
-        ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
-        ->select('contratoterceirizados.*', 'contratos.numero')
-        ->get();
-
-        // vamos alterar o status da movimentação
-        self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
-
-        // vamos varrer os contratos terceirizados e para cada um, fazer os lançamentos
-        $depositoFeito = false; // verificar se algum depósito será feito
-        foreach($arrayContratosTerceirizados as $objContratoTerceirizado){
-            $idContratoTerceirizado = $objContratoTerceirizado->id;
-            $numeroContrato = $objContratoTerceirizado->numero;
-            $situacaoFuncionario = $objContratoTerceirizado->situacao;
-            // \Log::info('Situaçao do funcionárioxx: '.$situacaoFuncionario);
-
-            if($situacaoFuncionario == true || $situacaoFuncionario == 't' || $situacaoFuncionario == 1){
-                $depositoFeito = true;
-
-
-                // vamos verificar se o mês/ano de competência é menor do que o mês/ano atual
-                if(!self::verificarSeCompetenciaECompativelComDataAtual($request, $objContratoTerceirizado)){
-                    $mensagem = 'Mês / ano de competência precisa ser anterior ao mês / ano atual.';
-                    \Alert::error($mensagem)->flash();
-                    if( !self::excluirMovimentacao($idMovimentacao) ){
-                        \Alert::error('Problemas ao excluir a movimentação.')->flash();
-                    }
-                    return redirect()->back();
-                }
-
-
-
-                // vamos verificar se no mês/ano de competência, o funcionário já tinha iniciado
-                if(!self::verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado)){
-                    $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do funcionário.';
-                    \Alert::error($mensagem)->flash();
-                    if( !self::excluirMovimentacao($idMovimentacao) ){
-                        \Alert::error('Problemas ao excluir a movimentação.')->flash();
-                    }
-                    return redirect()->back();
-                }
-
-
-
-
-                // verificar se tem proporcionalidade
-                $salario = $objContratoTerceirizado->salario;
-                $proporcionalidade = 0;
-
-                // precisamos verificar as datas de início e fim pra ver se tem proporcionalidade
-                $dataInicio = $objContratoTerceirizado->data_inicio;
-                $dataFim = $objContratoTerceirizado->data_fim;
-
-                $mesDataInicio = substr($dataInicio, 5, 2);
-                $anoDataInicio = substr($dataInicio, 0, 4);
-                $diaDataInicio = substr($dataInicio, 8, 2);
-
-                $mesDataFim = substr($dataFim, 5, 2);
-                $anoDataFim = substr($dataFim, 0, 4);
-                $diaDataFim = substr($dataFim, 8, 2);
-
-                $mesCompetencia = $request->input('mes_competencia');
-                $anoCompetencia = $request->input('ano_competencia');
-
-                if( $mesDataInicio == $mesCompetencia && $anoDataInicio == $anoCompetencia ){
-                    // aqui o funcionário foi adimitido no mesmo mês / ano de competência.
-                    $proporcionalidade = 30 - $diaDataInicio;
-                }
-                if( $mesDataFim == $mesCompetencia && $anoDataFim == $anoCompetencia ){ echo 'tem proporcionalidade 2!';exit;
-                    // aqui o funcionário foi demitido no mesmo mês / ano de competência
-                    $proporcionalidade = 30 - $diaDataFim;
-                }
-
-                // caso tenhamos proporcionalidade, vamos calculá-la baseado do salário
-                if($proporcionalidade > 0){
-                    $salario = ( $salario / 30 ) * $proporcionalidade;
-                }
-
-                // vamos verrer os encargos e salvar em lancamentos.
-                foreach($arrayObjetosEncargos as $objEncargo){
-
-                    // para cada encargo, calcularemos seu valor, pelo percentual
-                    $percentualEncargo = $objEncargo->percentual;
-                    $valorSalvar = ( $salario * $percentualEncargo) / 100;
-
-                    $request->request->set('valor', $valorSalvar);
-
-                    $encargo_id = $objEncargo->id;
-                    $request->request->set('encargo_id', $encargo_id);
-
-                    $objLancamento = new Lancamento();
-                    $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
-                    $objLancamento->encargo_id = $encargo_id;
-                    $objLancamento->valor = $valorSalvar;
-                    $objLancamento->movimentacao_id = $idMovimentacao;
-                    if( !$objLancamento->save() ){
-                        $mensagem = 'Erro ao salvar o lançamento.';
-                        \Alert::error($mensagem)->flash();
-                        if( !self::excluirMovimentacao($idMovimentacao) ){
-                            \Alert::error('Problemas ao excluir a movimentação.')->flash();
-                        }
-                        return redirect()->back();
-                    }
-                    // your additional operations before save here
-                    // $redirect_location = parent::storeCrud($request);
-                }
-            }
         }
 
-        if(!$depositoFeito){
-            // aqui quer dizer que nenhum depósito foi feito por conta da situação dos funcionários
-
-            $mensagem = 'Nenhuma provisão foi feita. Verifique a situação dos funcionários.';
+        // salvar informações do encerramento em contrato conta
+        $objContratoconta = Contratoconta::where('id', $contratoconta_id)->first();
+        $objContratoconta->data_encerramento = $dataHoje;
+        $objContratoconta->user_id_encerramento = $user_id;
+        $objContratoconta->obs_encerramento = $obs_encerramento;
+        if( !$objContratoconta->save() ){
+            $mensagem = 'Erro ao encerrar a conta.';
             \Alert::error($mensagem)->flash();
-            if( !self::excluirMovimentacao($idMovimentacao) ){
-                \Alert::error('Problemas ao excluir a movimentação.')->flash();
-            }
+            // if( !self::excluirMovimentacao($idMovimentacao) ){
+            //     \Alert::error('Problemas ao excluir a movimentação.')->flash();
+            // }
             return redirect()->back();
         }
 
-        // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
-        self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
-
-
-        $mensagem = 'Lançamentos gerados com sucesso!';
+        $mensagem = 'Conta encerrada com sucesso!';
         \Alert::success($mensagem)->flash();
 
         // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';

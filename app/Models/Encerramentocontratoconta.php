@@ -22,6 +22,7 @@ class Encerramentocontratoconta extends Model
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
+        'id',
         'data_encerramento',
         'user_id_encerramento',
         'obs_encerramento',
