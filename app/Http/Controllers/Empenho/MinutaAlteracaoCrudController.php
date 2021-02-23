@@ -1750,6 +1750,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->distinct()
                     ->select(
                         [
+                            DB::raw('compra_item_minuta_empenho.id as cime_id'),
                             'compra_item_minuta_empenho.compra_item_id',
                             'compra_item_minuta_empenho.operacao_id',
                             'compra_item_fornecedor.fornecedor_id',
@@ -1771,7 +1772,8 @@ class MinutaAlteracaoCrudController extends CrudController
                             'compra_item_minuta_empenho.subelemento_id',
                             DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
                         ]
-                    );
+                    )
+                ->orderBy('compra_item_minuta_empenho.id', 'asc');
                 $soma = CompraItemMinutaEmpenho::select([
                     'compra_item_id',
                     DB::raw("sum(compra_item_minuta_empenho.quantidade) as qtd_total_item"),
