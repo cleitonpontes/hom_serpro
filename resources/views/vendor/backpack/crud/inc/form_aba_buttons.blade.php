@@ -198,11 +198,16 @@
 
         $("#table-itens tr").remove();
         if(minutas_id.length > 0) {
-            var url = "{{route('buscar.itens.modal',':minutas_id')}}";
-
+            var url = "{{route('buscar.itens.modal',':minutas_id')}}",
+                id_fornecedor = $('#select2_ajax_fornecedor_id').val();
             url = url.replace(':minutas_id', minutas_id);
-
-            axios.request(url)
+            axios.get(url,
+                {
+                    params: {
+                        id_fornecedor
+                    }
+                }
+            )
                 .then(response => {
                     var itens = response.data;
                     var qtd_itens = itens.length;
