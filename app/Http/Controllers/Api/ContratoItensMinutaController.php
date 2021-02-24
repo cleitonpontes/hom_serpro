@@ -75,11 +75,10 @@ class ContratoItensMinutaController extends Controller
                 'compra_item_unidade.quantidade_saldo',
                 'compra_item_fornecedor.valor_unitario',
                 'compra_item_fornecedor.valor_negociado',
-                'compra_item_minuta_empenho.quantidade',
-                'compra_item_minuta_empenho.valor as valor_total',
                 'compra_item_minuta_empenho.minutaempenho_id',
                 'catmatseritens.codigo_siasg',
                 'catmatseritens.descricao as descricaocatmatseritens')
+            ->distinct()
             ->groupBy('compra_items.id',
                 'codigoitens.descricao',
                 'compra_item_unidade.id',
