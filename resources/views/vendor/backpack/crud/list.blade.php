@@ -135,6 +135,8 @@
 <!-- Caso seja a página de listagem de conta vinculada - mvascs@gmail.com -->
 @if(Route::current()->getName() == 'crud.contratocontas.index')
     @include('crud::inc.modal_contavinculada_definicao')
+    <!-- Abaixo funções js para a página de listagem de contas vinculadas. -->
+    <script src="{{ asset('vendor/backpack/crud/js/contratoconta_listagem.js') }}"></script>
 @endif
 
 <!-- Caso seja a página de listagem de funcionários contrato conta - mvascs@gmail.com -->

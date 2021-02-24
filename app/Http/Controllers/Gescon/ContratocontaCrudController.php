@@ -53,8 +53,6 @@ class ContratocontaCrudController extends CrudController
 
         $this->crud->allowAccess('show');
 
-
-
         (backpack_user()->can('contratoconta_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('contratoconta_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('contratoconta_deletar')) ? $this->crud->allowAccess('delete') : null;
@@ -74,14 +72,10 @@ class ContratocontaCrudController extends CrudController
         $campos = $this->Campos($contrato);
         $this->crud->addFields($campos);
 
-
-
         // add asterisk for fields that are required in ContratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
-
     }
-
     public function verificarSeContratoJaPossuiConta($request){
         // $contratoId = $request->request->get('contrato_id');
         $contratoId = \Route::current()->parameter('contrato_id');
@@ -207,6 +201,25 @@ class ContratocontaCrudController extends CrudController
                 //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
                 // },
             ],
+
+            [
+                'name' => 'getStatusDaConta',
+                'label' => 'Status da Conta', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getStatusDaConta', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                // },
+
+
+            ],
+
+
         ];
         return $colunas;
     }

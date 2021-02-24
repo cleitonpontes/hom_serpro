@@ -227,6 +227,7 @@ Route::group([
                 CRUD::resource('funcionarioscontratoconta', 'FuncionarioscontratocontaCrudController');
                 CRUD::resource('funcoescontratoconta', 'FuncoescontratocontaCrudController');
                 CRUD::resource('encerramentocontratoconta', 'EncerramentocontratocontaCrudController');
+                CRUD::resource('encerramentocontratoconta/emitirTermoDeEncerramento', 'EncerramentocontratocontaCrudController')->name('emitirTermoDeEncerramento');
             });
             Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}/{funcao_id}'], function () {
                 CRUD::resource('repactuacaocontratoconta', 'RepactuacaocontratocontaCrudController');
@@ -237,9 +238,6 @@ Route::group([
             Route::group(['prefix' => 'contrato/contratoconta/contratoterceirizado/{contratoterceirizado_id}'], function () {
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
             });
-            // Route::group(['prefix' => 'movimentacao/{movimentacao_id}'], function () {
-            //     Route::get('excluir', 'MovimentacaocontratocontaCrudController@excluirmovimentacao');
-            // });
             Route::get('movimentacao/{movimentacao_id}/excluir', 'MovimentacaocontratocontaCrudController@excluirMovimentacao');
             // fim conta vinculada - contrato conta
 

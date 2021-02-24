@@ -45,9 +45,6 @@ class Contratoconta extends Model
         $idContratoConta = $obj->id;
         return $idContratoConta;
     }
-
-
-
     public function alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao){
         $objContratoTerceirizado = Contratoterceirizado::where('id', '=', $idContratoTerceirizado)->first();
         $objContratoTerceirizado->situacao = 'f';
@@ -56,6 +53,14 @@ class Contratoconta extends Model
             return true;
         } else {
             return false;
+        }
+    }
+    // retorna ativa ou encerrada, de acordo com a data de encerramento.
+    public function getStatusDaConta(){
+        if($this->data_encerramento == null){return 'Ativa';}
+        else{
+            $dataEncerramento = $this->data_encerramento;
+            return '<font color="red">Encerrada em '.$dataEncerramento.'</font>';
         }
     }
     public function getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargo){

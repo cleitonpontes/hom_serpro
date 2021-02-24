@@ -49,7 +49,6 @@ class EncerramentocontratocontaCrudController extends CrudController
         if(!$contrato){
             abort('403', config('app.erro_permissao'));
         }
-
         // buscar quantidade de contratos terceirizados pelo contrato_id
         // $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)->get();
         // $quantidadeContratosTerceirizados = count($arrayContratosTerceirizados);
@@ -85,6 +84,7 @@ class EncerramentocontratocontaCrudController extends CrudController
         // $this->crud->denyAccess('delete');
         // $this->crud->denyAccess('show');
         $this->crud->denyAccess('list');
+        // $this->crud->allowAccess('emitirTermoDeEncerramento');
 
         /*
         |--------------------------------------------------------------------------
@@ -106,8 +106,28 @@ class EncerramentocontratocontaCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
 
-    }
 
+
+        $uri = $this->crud->request->getRequestUri();
+        $verificacaoEmitirTermoDeEncerramento = strpos($uri, 'emitirTermoDeEncerramento');
+        if($verificacaoEmitirTermoDeEncerramento > 1){
+            // vamos chamar o método que emite o termo de encerramento. Só vai entrar aí se for a url certa pra isso.
+            $this->emitirTermoDeEncerramento($contratoconta_id);
+        }
+
+
+    }
+    // aqui é onde o termo é mostrado na tela.
+    public static function emitirTermoDeEncerramento($contratoconta_id){
+        ?>
+        <center><h1>Termo de Encerramento de Conta Vinculada</h1`></center>
+        <p>
+        Certifico o encerramento da gestão da conta vinculada sobre o Contrato Administrativo No. xxxxx, diante do término da vigência contratual
+        e da comprovação de quitação das pendências sobre obrigações trabalhistas e previdenciárias de responsabilidade da empresa contratada.
+        </p>
+        <?php
+        exit;
+    }
     // public function Campos($idTipoMovimentacaoDeposito, $contratoconta_id, $contrato_id, $quantidadeContratosTerceirizados)
     public function Campos($contratoconta_id, $contrato_id, $user_id, $tipo_id_demissao)
     {
@@ -313,7 +333,6 @@ class EncerramentocontratocontaCrudController extends CrudController
         // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
         $linkLocation = '/gescon/contrato/contratoconta/'.$contratoconta_id.'/movimentacaocontratoconta';
         return redirect($linkLocation);
-
 
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
