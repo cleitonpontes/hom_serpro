@@ -1043,6 +1043,7 @@ class MinutaAlteracaoCrudController extends CrudController
     public function adicionaBoxItens($minuta_id, $remessa)
     {
         $modMinuta = MinutaEmpenho::find($minuta_id);
+        $fornecedor_id = $modMinuta->fornecedor_empenho_id;
 
         if ($modMinuta->empenho_por === 'Compra' || $modMinuta->empenho_por === 'Suprimento') {
             $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
@@ -1071,9 +1072,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ])
                 ->orderBy('compra_item_minuta_empenho.id', 'asc');
-            if ($modMinuta->empenho_por === 'Suprimento') {
-                $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
-            }
+            $itens = $this->setCondicaoFornecedor($itens, $modMinuta->empenho_por, $fornecedor_id);
             $itens = $itens->distinct()->get()->toArray();
         }
 
@@ -1560,6 +1559,7 @@ class MinutaAlteracaoCrudController extends CrudController
     private function getItens(MinutaEmpenho $minutaEmpenho): array
     {
         $tipo = $minutaEmpenho->empenho_por;
+        $fornecedor_id = $minutaEmpenho->fornecedor_empenho_id;
         switch ($tipo) {
             case 'Contrato':
                 $itens = MinutaEmpenho::join(
@@ -1773,6 +1773,9 @@ class MinutaAlteracaoCrudController extends CrudController
                         ]
                     )
                 ->orderBy('compra_item_minuta_empenho.id', 'asc');
+
+                $itens = $this->setCondicaoFornecedor($itens, $tipo, $fornecedor_id);
+
                 $soma = CompraItemMinutaEmpenho::select([
                     'compra_item_id',
                     DB::raw("sum(compra_item_minuta_empenho.quantidade) as qtd_total_item"),
@@ -1780,10 +1783,6 @@ class MinutaAlteracaoCrudController extends CrudController
                 ])
                     ->where('minutaempenho_id', $minutaEmpenho->id)
                     ->groupBy('compra_item_id');
-
-                if ($minutaEmpenho->empenho_por === 'Suprimento') {
-                    $itens->where('compra_item_fornecedor.fornecedor_id', $minutaEmpenho->fornecedor_empenho_id);
-                }
 
                 //CREATE
                 if (is_null(session('remessa_id'))) {

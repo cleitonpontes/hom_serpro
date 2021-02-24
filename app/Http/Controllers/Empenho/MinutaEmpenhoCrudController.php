@@ -74,10 +74,16 @@ class MinutaEmpenhoCrudController extends CrudController
         $this->crud->denyAccess('delete');
 
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-        $this->crud->addClause('leftJoin', 'fornecedores', 'fornecedores.id', '=', 'minutaempenhos.fornecedor_empenho_id');
+        $this->crud->addClause(
+            'leftJoin',
+            'fornecedores',
+            'fornecedores.id',
+            '=',
+            'minutaempenhos.fornecedor_empenho_id'
+        );
         $this->crud->addClause('leftJoin', 'codigoitens', 'codigoitens.id', '=', 'minutaempenhos.tipo_empenhopor_id');
         $this->crud->addClause('leftJoin', 'compras', 'compras.id', '=', 'minutaempenhos.compra_id');
-        $this->crud->addClause('select', 'minutaempenhos.*','compras.modalidade_id');
+        $this->crud->addClause('select', 'minutaempenhos.*', 'compras.modalidade_id');
         $this->crud->orderBy('minutaempenhos.updated_at', 'desc');
 
         /*
@@ -89,7 +95,7 @@ class MinutaEmpenhoCrudController extends CrudController
 
         $this->adicionaCampos($this->minuta_id);
         $this->adicionaColunas($this->minuta_id);
-        $this->aplicaFiltros($this->minuta_id);
+        $this->aplicaFiltros();
 
         // add asterisk for fields that are required in MinutaEmpenhoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -172,7 +178,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'type' => 'text',
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-6',
-                'title' => 'Esse campo é opcional. Preencha caso sua unidade deseje controlar a numeração do empenho. Ao deixar o campo em branco, o sistema irá realizar o controle da numeração dos empenhos automaticamente.',
+                'title' => 'Esse campo é opcional. Preencha caso sua unidade deseje' .
+                    ' controlar a numeração do empenho. Ao deixar o campo em branco,' .
+                    ' o sistema irá realizar o controle da numeração dos empenhos automaticamente.',
             ]
         ]);
     }
@@ -486,9 +494,9 @@ class MinutaEmpenhoCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
-                'searchLogic'   => function ($query, $column, $searchTerm) {
-                    $query->orWhere('codigoitens.descricao', 'ilike', '%'.$searchTerm.'%');
-                },
+            'searchLogic' => function ($query, $column, $searchTerm) {
+                $query->orWhere('codigoitens.descricao', 'ilike', '%' . $searchTerm . '%');
+            },
 
         ]);
     }
@@ -549,7 +557,6 @@ class MinutaEmpenhoCrudController extends CrudController
 //                })->where('codigoitens.descricao', 'ilike', '%' . $searchTerm . '%');
 //            },
         ]);
-
     }
 
     public function adicionaColunaValorTotal()
@@ -637,8 +644,8 @@ class MinutaEmpenhoCrudController extends CrudController
     public function adicionaBoxItens($minuta_id)
     {
         $modMinuta = MinutaEmpenho::find($minuta_id);
-
         $codigoitem = Codigoitem::find($modMinuta->tipo_empenhopor_id);
+        $fornecedor_id = $modMinuta->fornecedor_empenho_id;
 
         if ($codigoitem->descricao === 'Contrato') {
             $itens = ContratoItemMinutaEmpenho::join(
@@ -674,16 +681,30 @@ class MinutaEmpenhoCrudController extends CrudController
                 ->get()->toArray();
         }
 
-        if ($codigoitem->descricao === 'Compra'|| $codigoitem->descricao === 'Suprimento') {
-            $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
-                ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
+        if ($codigoitem->descricao === 'Compra' || $codigoitem->descricao === 'Suprimento') {
+            $itens = CompraItemMinutaEmpenho::join(
+                'compra_items',
+                'compra_items.id',
+                '=',
+                'compra_item_minuta_empenho.compra_item_id'
+            )
+                ->join(
+                    'compra_item_fornecedor',
+                    'compra_item_fornecedor.compra_item_id',
+                    '=',
+                    'compra_items.id'
+                )
                 ->join('naturezasubitem', 'naturezasubitem.id', '=', 'compra_item_minuta_empenho.subelemento_id')
                 ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
                 ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
                 ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
-                //            ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
                 ->join('fornecedores', 'fornecedores.id', '=', 'compra_item_fornecedor.fornecedor_id')
-                ->join('minutaempenhos_remessa', 'minutaempenhos_remessa.id', '=', 'compra_item_minuta_empenho.minutaempenhos_remessa_id')
+                ->join(
+                    'minutaempenhos_remessa',
+                    'minutaempenhos_remessa.id',
+                    '=',
+                    'compra_item_minuta_empenho.minutaempenhos_remessa_id'
+                )
                 ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->where('minutaempenhos_remessa.remessa', 0)
                 ->select([
@@ -699,9 +720,7 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ]);
-            if ($codigoitem->descricao === 'Suprimento') {
-                $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
-            }
+            $itens = $this->setCondicaoFornecedor($itens, $codigoitem->descricao, $fornecedor_id);
             $itens = $itens->get()->toArray();
         }
 
@@ -807,9 +826,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 'minutaempenhos.situacao_id',
                 json_decode($value)
             );
-
         });
-
     }
 
     protected function aplicaFiltroModalidade()
@@ -839,9 +856,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 'compras.modalidade_id',
                 json_decode($value)
             );
-
         });
-
     }
 
 

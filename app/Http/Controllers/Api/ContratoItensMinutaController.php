@@ -56,6 +56,7 @@ class ContratoItensMinutaController extends Controller
     {
         $minutas_id = Route::current()->parameter('minutas_id');
         $ids = explode(',',$minutas_id);
+        $id_fornecedor = $request->id_fornecedor;
         $itens = MinutaEmpenho::query()
             ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
             ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
@@ -64,6 +65,7 @@ class ContratoItensMinutaController extends Controller
             ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
             ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
+            ->where('compra_item_fornecedor.fornecedor_id', '=', $id_fornecedor)
             ->wherein('minutaempenhos.id',$ids)
             ->wherein('compra_item_minuta_empenho.minutaempenho_id',$ids)
             ->select('compra_items.*',
