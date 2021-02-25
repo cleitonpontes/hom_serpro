@@ -1447,7 +1447,8 @@ class MinutaAlteracaoCrudController extends CrudController
     private function addColunaTipoOperacao($item, $tipos, $tipo)
     {
         $retorno = '<select name="tipo_alteracao[]" id="' . $tipo . '"class="subitem" style="width:200px"
-            onchange="BloqueiaValorTotal(this)">';
+            onchange="BloqueiaValorTotal(this,' . $item[$tipo] . ')"
+            data-item_id="' . $item[$tipo] . '">';
         foreach ($tipos as $key => $value) {
             $selected = ($key == $item['operacao_id']) ? 'selected' : '';
             $retorno .= "<option value='$key|$value' $selected>$value</option>";
@@ -1464,7 +1465,7 @@ class MinutaAlteracaoCrudController extends CrudController
         if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
             $quantidade *= -1;
         }
-        $quantidade = sprintf('%.5f', floatval($quantidade));
+        $quantidade = sprintf('%.5f', (float)$quantidade);
 
         //se é contrato e é serviço OU se é sispp e serviço OU se for suprimento
         if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
