@@ -343,8 +343,12 @@ class AdminController extends Controller
 
     public function mudarUg()
     {
-        $ug = $this->buscaUg();
-
+        // verificar se o usuário é adm
+        if (backpack_user()->hasRole('Administrador')) {
+            $ug = $this->buscaTodasUg();
+        } else {
+            $ug = $this->buscaUg();
+        }
         $form = \FormBuilder::create(MudarUgForm::class, [
             'url' => route('inicio.mudaug'),
             'data' => ['ugs' => $ug],
@@ -380,6 +384,23 @@ class AdminController extends Controller
         return $ug;
     }
 
+
+    public function buscaTodasUg()
+    {
+        $ug = [];
+
+
+        $todasug = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
+        ->where('tipo', '=', 'E')
+        ->pluck('nome', 'id')
+        ->toArray();
+
+        $ug = $todasug;
+
+        asort($ug);
+
+        return $ug;
+    }
     public function mudaUg()
     {
         $ug = $this->buscaUg();
