@@ -365,7 +365,7 @@ class MinutaEmpenhoController extends Controller
             $descricao = (!is_null($desc))
                 ? $desc
                 : $contrato_item->item->descricao;
-
+            $descricao = 'Item compra: '. $contrato_item->numero_item_compra . ' - ' . $descricao;
             return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
         }
 
@@ -374,8 +374,8 @@ class MinutaEmpenhoController extends Controller
         $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
 
         (!empty($modCompraItem->descricaodetalhada))
-            ? $descricao = $modCompraItem->descricaodetalhada
-            : $descricao = $modcatMatSerItem->descricao;
+            ? $descricao = 'Item compra: '. $modCompraItem->numero . ' - ' .  $modCompraItem->descricaodetalhada
+            : $descricao = 'Item compra: '. $modCompraItem->numero . ' - ' .  $modcatMatSerItem->descricao;
 
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
