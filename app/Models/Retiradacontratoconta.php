@@ -98,11 +98,6 @@ class Retiradacontratoconta extends Model
         ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
         ->where('contratoterceirizados.id', '=', $idContratoTerceirizado)
         ->first();
-
-
-        echo '<br>(1) Vai demitir o id contrato terceirizado = '.$idContratoTerceirizado;
-
-
         $idContratoConta = $request->input('contratoconta_id');
         $idContrato = $request->input('contrato_id');
         $numeroContrato = $objContratoTerceirizado->numero;
@@ -113,10 +108,6 @@ class Retiradacontratoconta extends Model
             \Alert::error($mensagem)->flash();
             return redirect()->back();
         }
-
-
-        echo ' (2) -> moviment. ok';
-
 
         // aqui a movimentação já foi criada e já temos o $idMovimentacao - vamos atribuir seu valor ao request
         $request->request->set('movimentacao_id', $idMovimentacao);
@@ -130,10 +121,6 @@ class Retiradacontratoconta extends Model
             }
             return redirect()->back();
         }
-
-        echo ' (3) -> mes ano compet. ok';
-
-
 
         // vamos alterar o status da movimentação
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
@@ -199,27 +186,11 @@ class Retiradacontratoconta extends Model
                 $idContratoTerceirizado = $objContratoTerceirizadoDemitir->id;
                 $request->request->set('contratoterceirizado_id', $idContratoTerceirizado);
                 $this->demitirContratoTerceirizado($request);
-
-                echo ' -> ok, demitido.';
-
-            } else {
-                echo ' -> (!!!) Este funcionário já é demitido';
-
             }
-
         }
-
-
-        echo '<br>'.$contDemissoes.' empregados demitidos.';
-
         return true;
-
-
     }
     public function verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valorInformadoRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao){
-
-        echo ' -> entrou em verificar... ';
-
         // vamos buscar o saldo do encargo grupo A sobre 13 salario e férias
         $idContratoTerceirizado = $objContratoTerceirizado->id;
         $objContratoConta = new Contratoconta();
@@ -237,15 +208,7 @@ class Retiradacontratoconta extends Model
         // vamos verificar quanto o funcionário tem de saldo para o encargo informado.
         $salario = $objContratoTerceirizado->salario;
         $umTercoSalario = ( $salario / 3 );
-
-
-        echo ' -> val retirada = '.$valorRetirada;
-        echo ' -> sit retirada = '.$situacaoRetirada;
-        echo ' -> sit func = '.$situacaoFuncionario;
-
         if($situacaoRetirada=='Demissão'){
-
-            echo ' -> entrou ';
             // aqui o usuário informou que a retirada é para demissão
             // verificar se o funcionário já não é demitido
             if( !$situacaoFuncionario ){
@@ -253,24 +216,12 @@ class Retiradacontratoconta extends Model
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
-            echo ' -> passou aqui ';
-
-
             // verificar se informou a data de demissão
-            // $dataDemissao = $request->input('data_demissao');
-
-            echo ' -> dt demiss = '.$dataDemissao;
-
-
             if( $dataDemissao=='' ){
                 $mensagem = 'Favor informar a data de demissão.';
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
-            echo ' -> passou 2 ';
-
             // buscar os saldos dos encargos e gerar um lançamento de retirada pra cada.
             $nomeEncargo13ParaDemissao = '13º (décimo terceiro) salário';
             $idEncargo13ParaDemissao = Encargo::getIdEncargoByNomeEncargo($nomeEncargo13ParaDemissao);
@@ -297,10 +248,6 @@ class Retiradacontratoconta extends Model
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
-            echo ' -> passou 3 ';
-
-
             if($saldoDecimoTerceiroParaDemissao>0){
                 // lançamento para o 13
                 $objLancamento = new Lancamento();
@@ -356,20 +303,12 @@ class Retiradacontratoconta extends Model
                     return false;
                 }
             }
-
-
-            echo ' -> passou 4 ';
-
             // vamos chamar o método que altera a situação do funcionário para demitido.
             if( !$objContratoConta->alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao) ){
                 $mensagem = 'Erro ao alterar a situação do funcioário para demitido.';
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
-
-            echo ' -> passou 5 ';
-
         } else {
             // aqui o usuário informou que a retirada não é para demissão
             $nomeEncargoInformado = Encargo::getNomeEncargoBySituacaoRetirada($situacaoRetirada);
@@ -393,21 +332,18 @@ class Retiradacontratoconta extends Model
             // vamos verificar se o valor do fat empresa (grupo A) não é maior do que o saldo do grupo A (encargo)
             if($valorFatEmpresaGrupoA > $saldoEncargoGrupoA){
                 \Alert::error('O valor calculado para o Grupo A é maior do que o saldo do encargo Grupo A.')->flash();
-                // echo 'false 1';exit;
                 return false;
             }
 
             // vamos verificar se o valor informado não é maior que o saldo para o encargo informado
             if( $valorInformadoRetirada > $saldoContratoContaPorTipoEncargo ){
                 \Alert::error('O valor informado é maior do que o saldo do encargo.')->flash();
-                // echo 'false 2';exit;
                 return false;
             }
 
             // agora que já calculamos o valor máximo para retirada, pelo encargo informado, vamos verificar se o valor informado é possível.
             if( $valorMaximoRetirada < $valorRetirada ){
                 \Alert::error('O valor da retirada supera o valor máximo permitido.')->flash();
-                // echo 'false 3';exit;
                 return false;
             }
 
