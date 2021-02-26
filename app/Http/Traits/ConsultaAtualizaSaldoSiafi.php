@@ -7,21 +7,23 @@ use App\XML\Execsiafi;
 
 trait ConsultaAtualizaSaldoSiafi {
 
-    public function consultaAtualizaSaldoSiafi($ug, $empenho, $subitem)
+    public function consultaAtualizaSaldoSiafi($ug, $empenho, $subitem, $id_ug)
     {
         $registro = array();
         $registro['ug'] = $ug;
         $registro['empenho'] = $empenho;
         $registro['subitem'] = $subitem;
 
+        $contas_contabeis = config('app.contas_contabeis_empenhodetalhado_exercicioatual');
 
-        // Consulta saldo do empenho
-        $saldoAtual = $this->consultaSaldoSiafi($registro);
-        if($saldoAtual > 0) {
-            // Atualiza o saldo retornado
-            $this->atualizaSaldo($empenho, $subitem, $saldoAtual);
+        foreach ($contas_contabeis as $key => $value){
+            // Consulta saldo do empenho
+            $saldoAtual = $this->consultaSaldoSiafi($registro, $value);
+            if($saldoAtual > 0) {
+                // Atualiza o saldo retornado
+                $this->atualizaSaldo($empenho, $subitem, $saldoAtual, $id_ug, $key);
+            }
         }
-        return $saldoAtual;
     }
 
     /**
@@ -30,12 +32,10 @@ trait ConsultaAtualizaSaldoSiafi {
      * @param array $registro
      * @return number|string
      */
-    private function consultaSaldoSiafi($registro)
+    private function consultaSaldoSiafi($registro, $contacontabil1)
     {
         // Valores fixos
         $amb = env('AMBIENTE_SIAFI');
-        //$amb = 'PROD';
-        $contacontabil1 = config('app.conta_contabil');
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
 
         $ug = $registro['ug'];
@@ -70,10 +70,8 @@ trait ConsultaAtualizaSaldoSiafi {
      * @param string $subitem
      * @param number $saldo
      */
-    private function atualizaSaldo($empenho, $subitem, $saldo)
+    private function atualizaSaldo($empenho, $subitem, $saldo, $id_ug, $coluna)
     {
-        $ug = session('user_ug_id');
-
         $modelo = new Empenhodetalhado();
 
         $dados = $modelo->leftjoin('empenhos as E', 'E.id', '=', 'empenho_id');
@@ -83,14 +81,13 @@ trait ConsultaAtualizaSaldoSiafi {
         $dados->leftjoin('naturezadespesa AS N', function ($relacao) {
             $relacao->on('N.id', '=', 'S.naturezadespesa_id');
         });
-
-        $dados->where('E.unidade_id', $ug);
+        $dados->where('E.unidade_id', $id_ug);
         $dados->where('E.numero', $empenho);
         $dados->where('S.codigo', $subitem);
 
 
         // Atualiza saldo
-        $dados->update(['empaliquidar' => $saldo]);
+        $dados->update([$coluna => $saldo]);
 
     }
 }

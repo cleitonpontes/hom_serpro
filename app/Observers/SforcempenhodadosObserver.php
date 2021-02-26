@@ -5,10 +5,12 @@ namespace App\Observers;
 use App\Http\Controllers\Execfin\EmpenhoCrudController;
 use App\Jobs\AlterarEmpenhoWSJob;
 use App\Jobs\IncluirEmpenhoWSJob;
+use App\Jobs\AtualizarSaldoEmpenhoJob;
 use App\Models\Codigoitem;
 use App\Models\DevolveMinutaSiasg;
 use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
+use App\Models\Naturezasubitem;
 use App\Models\SfOrcEmpenhoDados;
 use App\XML\Execsiafi;
 
@@ -46,7 +48,17 @@ class SforcempenhodadosObserver
             if ($sfOrcEmpenhoDados->situacao == 'EMITIDO') {
                 if ($sfOrcEmpenhoDados->alteracao == false) {
                     $empenhoCrud = new EmpenhoCrudController();
-                    $empenhoCrud->criaEmpenhoFromMinuta($sfOrcEmpenhoDados);
+                    $objEmpenho = $empenhoCrud->criaEmpenhoFromMinuta($sfOrcEmpenhoDados);
+
+                    /*Atualiza o saldo do empenho*/
+                    if($objEmpenho){
+                        foreach($objEmpenho->empenhodetalhado as $empDetalhado){
+                            $subitem =  $empDetalhado->naturezasubitem->codigo;
+                            $ug = $objEmpenho->unidade;
+                            $empenho = $objEmpenho->numero;
+                            AtualizarSaldoEmpenhoJob::dispatch($ug, $empenho, $subitem, $objEmpenho->unidade_id)->onQueue('atualizasaldone');
+                        }
+                    }
                 }
 
                 DevolveMinutaSiasg::create([
