@@ -26,12 +26,10 @@
 	                      row.next().remove();
 	                  }
 
-	                  // Remove the row from the datatable
-	                  row.remove();
-
                       // Show an alert with the result
-
                       if (result == '1'){
+                          // Remove the row from the datatable
+                          row.remove();
                           new PNotify({
                               title: "{{ trans('backpack::crud.delete_confirmation_title') }}",
                               text: "{{ trans('backpack::crud.delete_confirmation_message') }}",
@@ -44,7 +42,7 @@
                         new PNotify({
                             title: "{{ trans('backpack::crud.delete_confirmation_not_deleted_title') }}",
                             text: "{{ trans('backpack::crud.delete_confirmation_not_deleted_message_vinculacao') }}",
-                            type: "success"
+                            type: "warning"
                         });
                     }
 
