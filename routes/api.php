@@ -103,6 +103,7 @@ Route::group([
         Route::get('me', 'v1\UserJwtController@me');
     });
 
+    //consulta API com virificação do Token JWT e Perfil usuário Acesso API
     Route::group(['middleware' => ['jwt.verify']], function () {
 
         Route::group([
