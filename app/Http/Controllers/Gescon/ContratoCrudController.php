@@ -84,6 +84,7 @@ class ContratoCrudController extends CrudController
 
         // $this->crud->addButtonFromView('top', 'siasg', 'siasg', 'end');
         $this->crud->addButtonFromView('line', 'extratocontrato', 'extratocontrato', 'beginning');
+        $this->crud->addButtonFromView('line', 'delete', 'delete_contrato', 'end');
         $this->crud->addButtonFromView('line', 'morecontrato', 'morecontrato', 'end');
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -142,7 +143,7 @@ class ContratoCrudController extends CrudController
             }
 
             DB::commit();
-            return redirect()->route('crud.publicacao.index',['contrato_id'=>$contrato_id]);
+            return redirect()->route('crud.publicacao.index', ['contrato_id'=>$contrato_id]);
         } catch (Exception $exc) {
             DB::rollback();
 //            dd($exc);
@@ -1777,5 +1778,24 @@ class ContratoCrudController extends CrudController
             ->orderBy('descricao')
             ->pluck('descricao', 'id')
             ->toArray();
+    }
+
+    public function destroy($id)
+    {
+        $this->crud->hasAccessOrFail('delete');
+        $this->crud->setOperation('delete');
+
+        // get entry ID from Request (makes sure its the last ID for nested resources)
+        $id = $this->crud->getCurrentEntryId() ?? $id;
+
+        $contratos = Contrato::where('id', $id)->has('minutasempenho')->get();
+        $minutas = MinutaEmpenho::where('contrato_id', $id)->get();
+
+        //SE NÃO HOUVER CONTRATO VINCULADO A MINUTA, DEIXA DELETAR
+        if ($contratos->isEmpty() && $minutas->isEmpty()) {
+            return $this->crud->delete($id);
+        }
+
+        return 'delete_confirmation_not_deleted_message_vinculacao';
     }
 }
