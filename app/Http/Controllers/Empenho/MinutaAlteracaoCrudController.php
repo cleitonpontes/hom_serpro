@@ -1446,7 +1446,8 @@ class MinutaAlteracaoCrudController extends CrudController
 
     private function addColunaTipoOperacao($item, $tipos, $tipo)
     {
-        $retorno = '<select name="tipo_alteracao[]" id="' . $tipo . '"class="subitem" style="width:200px"
+        $retorno = '<select name="tipo_alteracao[]" id="' . $tipo . '_' . $item[$tipo] . '"
+            class="subitem" style="width:200px"
             onchange="BloqueiaValorTotal(this,' . $item[$tipo] . ')"
             data-item_id="' . $item[$tipo] . '">';
         foreach ($tipos as $key => $value) {
@@ -1474,7 +1475,8 @@ class MinutaAlteracaoCrudController extends CrudController
         ) {
             return " <input  type='number' class='form-control qtd qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
+                . "' data-$tipo='" . $item[$tipo] . "'"
+                . " data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
         }
 
         $readonly = 'readonly';
@@ -1526,8 +1528,9 @@ class MinutaAlteracaoCrudController extends CrudController
         }
 
         return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
-            . "id='vrtotal" . $item[$tipo]
-            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
+            . "id='vrtotal" . $item[$tipo] . "'"
+            . " data-$tipo='" . $item[$tipo] . "'"
+            . " data-tipo='' name='valor_total[]' value='$valor' disabled > ";
     }
 
     private function addColunaValorTotalItem($item, $tipo)
@@ -1536,7 +1539,8 @@ class MinutaAlteracaoCrudController extends CrudController
             . " <input  type='hidden' id='valor_total_item" . $item[$tipo] . "'"
             . " name='valor_total_item[]"
             . "' value='" . $item['qtd_item'] * $item['valorunitario'] . "'> "
-            . "<input type='hidden' id='vlr_total_item" . $item[$tipo] . "' name='vlr_total_item[]' value='" . $item['vlr_total_item'] . "'>";
+            . "<input type='hidden' id='vlr_total_item" . $item[$tipo] ."'"
+            . " name='vlr_total_item[]' value='" . $item['vlr_total_item'] . "'>";
     }
 
     private function addColunaCompraItemId($item, $tipo)
