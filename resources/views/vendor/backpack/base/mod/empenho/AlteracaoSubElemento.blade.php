@@ -117,13 +117,12 @@
             let selected = $(tipo_alteracao).find(':selected').text();
             let minuta_por = $(tipo_alteracao).attr('id');
             let tipo_empenho_por = $('#tipo_empenho_por').val();
-
             $('#vrtotal' + item_id).val(0)
             $('#qtd' + item_id).val(0)
-            calculaUtilizado();
+            calculaUtilizado(minuta_por);
 
             // se for contrato e serviço OU se for Suprimento
-            if ((minuta_por === 'contrato_item_id' && ($('#tipo_item').val() === 'Serviço')) ||
+            if ((minuta_por.includes('contrato_item_id') && ($('#tipo_item').val() === 'Serviço')) ||
                 (tipo_empenho_por === 'Suprimento')
             ) {
 
@@ -171,7 +170,7 @@
             $(".vrtotal" + {{$tipo}})
                 .val(valor_total)
                 .trigger("input");
-            calculaUtilizado();
+            calculaUtilizado('{{$tipo}}_' + obj.dataset.{{$tipo}});
         }
 
         function calculaQuantidade(obj) {
@@ -182,7 +181,7 @@
 
             var quantidade = value / obj.dataset.valor_unitario;
             $(".qtd" + {{$tipo}}).val(quantidade).trigger("input");
-            calculaUtilizado();
+            calculaUtilizado('{{$tipo}}_' + obj.dataset.{{$tipo}});
         }
 
         $(document).ready(function () {
@@ -192,15 +191,15 @@
             });
 
             $('body').on('change', '.valor_total', function (event) {
-                calculaUtilizado();
+                calculaUtilizado('{{$tipo}}_' + this.dataset.{{$tipo}});
             });
 
             $('body').on('input', '.valor_total', function (event) {
-                calculaUtilizado();
+                calculaUtilizado('{{$tipo}}_' + this.dataset.{{$tipo}});
             });
 
             $('body').on('input', '.qtd', function (event) {
-                calculaUtilizado();
+                calculaUtilizado('{{$tipo}}_' + this.dataset.{{$tipo}});
             });
 
             $('.submeter').click(function (event) {
@@ -218,7 +217,7 @@
 
         });
 
-        function calculaUtilizado() {
+        function calculaUtilizado(tipo_operacao_id) {
             var soma = 0;
             var utilizado = 0;
             var saldo = {{$credito}};
@@ -228,9 +227,12 @@
                 var valor = ptToEn($(this).val());
 
                 var selected = $(this).closest('tr').find('select').find(':selected').text();
+                if (selected === '') {
+                    selected = $('#' + tipo_operacao_id).find(':selected').text();
+                }
 
                 if (!isNaN(parseFloat(valor))) {
-                    if (selected == 'ANULAÇÃO') {
+                    if (selected === 'ANULAÇÃO') {
                         anulacao = parseFloat(anulacao) + parseFloat(valor);
                     } else {
                         outros = parseFloat(outros) + parseFloat(valor);
