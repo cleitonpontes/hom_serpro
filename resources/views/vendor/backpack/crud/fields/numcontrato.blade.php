@@ -24,7 +24,7 @@
 @push('crud_fields_scripts')
     <script type="text/javascript">
         $(window).on('load', function () {
-            var value = $("#tipo_contrato option:selected").text();
+            var value = $("select[name=tipo_id] option:selected").text();
 
             if (value == 'Empenho') {
                 mascaraEmpenho('#{{ $field['name'] }}');
@@ -36,7 +36,7 @@
 
         $(document).on('change', '#tipo_contrato', function () {
 
-            var value = $("#tipo_contrato option:selected").text();
+            var value = $("select[name=tipo_id] option:selected").text();
 
             if (value == 'Empenho') {
                 mascaraEmpenho('#{{ $field['name'] }}');
