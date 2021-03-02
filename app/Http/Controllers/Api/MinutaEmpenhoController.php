@@ -359,12 +359,16 @@ class MinutaEmpenhoController extends Controller
     private function getDescItem($item, $tipo)
     {
         if ($tipo === 'Contrato') {
-            $contrato_item = $item->contrato_item;
+
+            $contrato_item = DB::table('contratoitens')
+                ->where('id',$item->contrato_item_id)
+                ->first();
+
             $desc = $contrato_item->descricao_complementar;
 
             $descricao = (!is_null($desc))
                 ? $desc
-                : $contrato_item->item->descricao;
+                :  Catmatseritem::find($contrato_item->catmatseritem_id)->descricao;
             $descricao = 'Item compra: '. $contrato_item->numero_item_compra . ' - ' . $descricao;
             return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
         }

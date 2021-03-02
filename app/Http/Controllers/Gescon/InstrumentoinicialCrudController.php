@@ -577,7 +577,7 @@ class InstrumentoinicialCrudController extends CrudController
             [
                 // 1-n relationship
                 'label' => "Unidade Gestora Origem", // Table column heading
-                'type' => "select2_from_ajax",
+                'type' => "select2_from_ajax_single",
                 'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
                 'entity' => 'unidadeorigem', // the method that defines the relationship in your Model
                 'attribute' => "codigo", // foreign key attribute that is shown to user
