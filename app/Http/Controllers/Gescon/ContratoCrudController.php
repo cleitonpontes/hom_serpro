@@ -1065,7 +1065,7 @@ class ContratoCrudController extends CrudController
     {
         $this->crud->addField([
             'label' => "Unidade Gestora Origem",
-            'type' => "select2_from_ajax",
+            'type' => "select2_from_ajax_single",
             'name' => 'unidadeorigem_id',
             'entity' => 'unidadeorigem',
             'attribute' => "codigo",
