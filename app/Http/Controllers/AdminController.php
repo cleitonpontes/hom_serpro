@@ -41,12 +41,14 @@ class AdminController extends Controller
      */
     public function index(Request $request, Builder $htmlBuilder)
     {
+
         // ************************************************************
         // Configurações iniciais
         // ************************************************************
         $this->htmlBuilder = $htmlBuilder;
         $this->data['title'] = "Início"; //trans('backpack::base.dashboard'); // set the page title
         $ug = session('user_ug');
+
 
         // ************************************************************
         // Calendário
@@ -343,15 +345,17 @@ class AdminController extends Controller
 
     public function mudarUg()
     {
-        $ug = $this->buscaUg();
-
+        if (backpack_user()->hasRole('Administrador')) {
+            // se for administrador não será necessário retornar as ugs pois não carregaremos um select. - mvascs@gmail.com
+            $ug = [];
+        } else {
+            $ug = $this->buscaUg();
+        }
         $form = \FormBuilder::create(MudarUgForm::class, [
             'url' => route('inicio.mudaug'),
             'data' => ['ugs' => $ug],
             'method' => 'PUT',
-//            'model' => $user,
         ]);
-
         return view('backpack::base.auth.account.mudarug', compact('form'));
     }
 
@@ -380,33 +384,80 @@ class AdminController extends Controller
         return $ug;
     }
 
+    // será usada em caso de adm desejar mudar ug - mvascs@gmail.com
+    public function buscaUgByCodigo($codigoUg)
+    {
+        $ug = [];
+        $ug = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
+            ->where('codigo', '=', $codigoUg)
+            ->pluck('nome', 'id')
+            ->toArray();
+        return $ug;
+    }
+
+    public function buscaTodasUg()
+    {
+        $ug = [];
+        $todasug = Unidade::select(DB::raw("CONCAT(codigo,' - ',nomeresumido) AS nome"), 'id')
+        ->where('tipo', '=', 'E')
+        ->pluck('nome', 'id')
+        ->toArray();
+        $ug = $todasug;
+        asort($ug);
+        return $ug;
+    }
     public function mudaUg()
     {
-        $ug = $this->buscaUg();
-
+        // verificar se o usuário é adm - se for, buscaremos a ug pelo código digitado. - mvascs@gmail.com
+        if (backpack_user()->hasRole('Administrador')) {
+            $codigoUg = $_POST['ug'];
+            $ug = $this->buscaUgByCodigo($codigoUg);
+        } else {
+            $ug = $this->buscaUg();
+        }
         $form = \FormBuilder::create(MudarUgForm::class, [
             'data' => ['ug' => $ug]
         ]);
-
         if (!$form->isValid()) {
             return redirect()
                 ->back()
                 ->withErrors($form->getErrors())
                 ->withInput();
         }
-
         $data = $form->getFieldValues();
 
         if (!$data['ug'] == '') {
-            $unidade = Unidade::find($data['ug']);
+            // se for administrador, vai chegar aqui o código da unidade e não o id
+            if (backpack_user()->hasRole('Administrador')) {
+                $codigoUnidade = $data['ug'];
+                $objUnidade = Unidade::where('codigo', $codigoUnidade)->first();
+                if( !is_object($objUnidade) ){
+                    // caso a busca não retorne o objeto esperado.
+                    \Alert::error('Atenção!!! \n Unidade não encontrada!')->flash();
+                    return redirect()
+                            ->back()
+                            ->withErrors($form->getErrors())
+                            ->withInput();
+                } else {
+                    $idUnidade = $objUnidade->id;
+                    if($idUnidade==''){
+                        // caso o id não seja retornado.
+                        return redirect()
+                                ->back()
+                                ->withErrors($form->getErrors())
+                                ->withInput();
+                    }
+                    $unidade = Unidade::find($idUnidade);
+                }
+            } else {
+                $unidade = Unidade::find($data['ug']);
+            }
             session(['user_ug' => $unidade->codigo]);
             session(['user_ug_id' => $unidade->id]);
         } else {
             session(['user_ug' => null]);
             session(['user_ug_id' => null]);
         }
-
-
         \Alert::success('Unidade alterada com sucesso!')->flash();
 
         return redirect()->to('/inicio');
