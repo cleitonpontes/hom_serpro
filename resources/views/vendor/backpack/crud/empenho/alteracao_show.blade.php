@@ -335,7 +335,6 @@
             var url = "{{route('popula.tabelas.siafi.alt',['minuta_id'=>':minuta_id', 'remessa'=>':remessa_id'])}}";
             url = url.replace(':minuta_id', minuta_id);
             url = url.replace(':remessa_id', remessa_id);
-            // console.log(url);return;
 
             axios.request(url)
                 .then(response => {
@@ -350,6 +349,7 @@
                         $('#emitir_empenho_siafi').attr('disabled', true);
                         $('#voltar').attr('disabled', true);
                         $('#finalizar').removeAttr('disabled');
+                        location.reload();
                     } else {
                         Swal.fire(
                             'Alerta!',

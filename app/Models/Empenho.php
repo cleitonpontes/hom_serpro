@@ -297,6 +297,11 @@ class Empenho extends Model
         return $this->belongsTo(Planointerno::class, 'planointerno_id');
     }
 
+    public function empenhodetalhado()
+    {
+        return $this->hasMany(Empenhodetalhado::class, 'empenho_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

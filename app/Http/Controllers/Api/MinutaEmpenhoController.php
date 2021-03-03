@@ -72,6 +72,7 @@ class MinutaEmpenhoController extends Controller
 
             $this->gravaRemessaOriginal($modRemessa);
 
+            session(['situacao' => 'EM PROCESSAMENTO']);
             DB::commit();
             $retorno['resultado'] = true;
         } catch (Exception $exc) {
@@ -231,8 +232,6 @@ class MinutaEmpenhoController extends Controller
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $situacao_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EM ANDAMENTO');
 
-        $tipo = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Compra');
-
         DB::beginTransaction();
         try {
             $this->atualizaSaldoCompraItemUnidade($modMinutaEmpenho);
@@ -253,7 +252,7 @@ class MinutaEmpenhoController extends Controller
 
     public function atualizaSaldoCompraItemUnidade(MinutaEmpenho $modMinutaEmpenho)
     {
-        $compra = Compra::find($modMinutaEmpenho->compra_id)->first();
+        $compra = Compra::find($modMinutaEmpenho->compra_id);
 
         $compraSiasg = $this->buscaCompraSiasg($compra);
 
@@ -347,24 +346,30 @@ class MinutaEmpenhoController extends Controller
         if ($tipo === 'Contrato') {
             return ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)
                 ->where('minutaempenhos_remessa_id', $remessa_id)
+                ->orderBy('id', 'asc')
                 ->get();
         }
 
         return CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)
             ->where('minutaempenhos_remessa_id', $remessa_id)
+            ->orderBy('id', 'asc')
             ->get();
     }
 
     private function getDescItem($item, $tipo)
     {
         if ($tipo === 'Contrato') {
-            $contrato_item = $item->contrato_item;
+
+            $contrato_item = DB::table('contratoitens')
+                ->where('id',$item->contrato_item_id)
+                ->first();
+
             $desc = $contrato_item->descricao_complementar;
 
             $descricao = (!is_null($desc))
                 ? $desc
-                : $contrato_item->item->descricao;
-
+                :  Catmatseritem::find($contrato_item->catmatseritem_id)->descricao;
+            $descricao = 'Item compra: '. $contrato_item->numero_item_compra . ' - ' . $descricao;
             return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
         }
 
@@ -373,8 +378,8 @@ class MinutaEmpenhoController extends Controller
         $modcatMatSerItem = Catmatseritem::find($modCompraItem->catmatseritem_id);
 
         (!empty($modCompraItem->descricaodetalhada))
-            ? $descricao = $modCompraItem->descricaodetalhada
-            : $descricao = $modcatMatSerItem->descricao;
+            ? $descricao = 'Item compra: '. $modCompraItem->numero . ' - ' .  $modCompraItem->descricaodetalhada
+            : $descricao = 'Item compra: '. $modCompraItem->numero . ' - ' .  $modcatMatSerItem->descricao;
 
         return (strlen($descricao) < 1248) ? $descricao : substr($descricao, 0, 1248);
     }
@@ -405,7 +410,7 @@ class MinutaEmpenhoController extends Controller
             $this->gravaSfRegistroAlteracao($sforcempenhodadosalt, $modMinutaEmpenho->data_emissao, $txt_motivo);
 
             $this->gravaRemessa($modRemessa);
-
+            session(['situacao' => 'EM PROCESSAMENTO']);
             DB::commit();
             $retorno['resultado'] = true;
         } catch (Exception $exc) {

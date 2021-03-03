@@ -76,7 +76,8 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
             );
             $this->crud->addClause('join', 'compra_item_minuta_empenho', 'compra_item_minuta_empenho.minutaempenho_id', '=', 'minutaempenhos.id');
             $this->crud->addClause('where', 'compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa);
-            $valor_total = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
+            $valor_total = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                                                    ->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa);
         }
         if ($minuta->empenho_por === 'Contrato') {
             $this->crud->addClause(
@@ -109,15 +110,19 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
             $valor_total = ContratoItemMinutaEmpenho::where(
                 'contrato_item_minuta_empenho.minutaempenho_id',
                 $minuta_id
+            )->where(
+                'contrato_item_minuta_empenho.minutaempenhos_remessa_id',
+                $remessa
             );
         }
 
         $valor_total = $valor_total->select(DB::raw('coalesce(sum(valor),0) as sum'))
             ->first()->toArray();
-
+//        dd($valor_total->getBindings(),$valor_total->toSql());
 
         $query = $this->crud->query->first();
         $params = ['valor_total' => $valor_total['sum'], 'conta_corrente_padrao' => $query->conta_corrente_padrao];
+//        dd($params);
 
         $this->crud->params = $params;
 
@@ -183,7 +188,9 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
         DB::beginTransaction();
         try {
             $valor_total_conta = array_sum($request->valor);
-            if ($this->crud->params['valor_total'] != $valor_total_conta) {
+            $valor_total = ($this->crud->params['valor_total'] < 0) ? $this->crud->params['valor_total'] * (-1): $this->crud->params['valor_total'];
+
+            if ($valor_total != $valor_total_conta) {
                 Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
                 return redirect()->back();
             }
@@ -262,11 +269,12 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
     private function setFieldValorTotalMinuta($valor_total_minuta): void
     {
+
         $this->crud->addField([
             'name' => 'valor_total',
             'label' => 'Valor Total da Minuta:',
             'type' => 'text',
-            'value' => $valor_total_minuta,
+            'value' => ($valor_total_minuta < 0) ? $valor_total_minuta * (-1) : $valor_total_minuta,
             'attributes' => [
                 'disabled' => 'disabled',
             ],

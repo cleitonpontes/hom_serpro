@@ -37,6 +37,9 @@ class ApiSiasg
             "http" => [
                 "method" => "GET",
                 "header" => "X-Authentication: " . $this->token
+            ],
+            'ssl' => [
+                'verify_peer' => false,
             ]
         ];
 

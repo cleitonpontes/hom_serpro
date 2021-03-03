@@ -62,6 +62,7 @@ class Kernel extends ConsoleKernel
         $this->criarJobAtualizarSaldoDeEmpenhos();
         $this->criarJobEnviarEmailsAlertas();
         $this->criarJobLimparActivityLogs();
+        $this->criarJobContratoEmpenho();
     }
 
     protected function executarJobs()
@@ -130,7 +131,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->at('03:30');
+            ->at('01:00');
     }
 
     protected function criarJobAtualizaStatusPublicacao()
@@ -161,7 +162,7 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
-            ->at('05:00');
+            ->at('03:00');
     }
 
     protected function criarJobAtualizacaoSiasgContratos()
@@ -190,6 +191,15 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Sao_Paulo')
             ->weekdays()
             ->at('23:30');
+    }
+
+    protected function criarJobContratoEmpenho()
+    {
+        $this->schedule->call(
+            'App\Jobs\ContratoEmpenhoJob@handle'
+        )
+            ->timezone('America/Sao_Paulo')
+            ->dailyAt('23:30');
     }
 
     // ************************************************************

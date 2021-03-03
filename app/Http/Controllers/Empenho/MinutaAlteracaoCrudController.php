@@ -56,6 +56,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->remessa = Route::current()->parameter('remessa');
         $minuta = MinutaEmpenho::find($minuta_id);
 
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -66,7 +67,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Alteração do Empenho', 'Alteração do Empenho');
         $this->crud->setEditView('vendor.backpack.crud.empenho.alteracao_edit');
         $this->crud->setShowView('vendor.backpack.crud.empenho.alteracao_show');
-        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
+//        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
 
         $this->crud->addButtonFromView('line', 'show', 'show_alteracao', 'beginning');
         $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominutaalt', 'beginning');
@@ -1043,8 +1044,8 @@ class MinutaAlteracaoCrudController extends CrudController
     public function adicionaBoxItens($minuta_id, $remessa)
     {
         $modMinuta = MinutaEmpenho::find($minuta_id);
+        $fornecedor_id = $modMinuta->fornecedor_empenho_id;
 
-//            dd(123, $modMinuta);
         if ($modMinuta->empenho_por === 'Compra' || $modMinuta->empenho_por === 'Suprimento') {
             $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
                 ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_item_minuta_empenho.compra_item_id')
@@ -1058,6 +1059,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $remessa)
                 ->select([
+                    DB::raw('compra_item_minuta_empenho.id as cime_id'),
                     DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
                     DB::raw('fornecedores.nome AS "Fornecedor"'),
                     DB::raw('codigoitens.descricao AS "Tipo do Item"'),
@@ -1069,10 +1071,9 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
-                ]);
-            if ($modMinuta->empenho_por === 'Suprimento') {
-                $itens = $itens->where('compra_item_fornecedor.fornecedor_id', $modMinuta->fornecedor_empenho_id);
-            }
+                ])
+                ->orderBy('compra_item_minuta_empenho.id', 'asc');
+            $itens = $this->setCondicaoFornecedor($itens, $modMinuta->empenho_por, $fornecedor_id);
             $itens = $itens->distinct()->get()->toArray();
         }
 
@@ -1106,8 +1107,6 @@ class MinutaAlteracaoCrudController extends CrudController
                 ])
                 ->get()->toArray();
         }
-//        dd(123);
-//        ;dd($itens->getBindings(),$itens->toSql(), $itens->get());
 
         $this->crud->addColumn([
             'box' => 'itens',
@@ -1408,6 +1407,10 @@ class MinutaAlteracaoCrudController extends CrudController
                     'bAutoWidth' => false,
                     'paging' => true,
                     'lengthChange' => true,
+                    'lengthMenu' => [
+                        [10, 25, 50, 100, -1],
+                        ['10', '25', '50', '100', 'Todos']
+                    ],
                     'language' => [
                         'url' => asset('/json/pt_br.json')
                     ],
@@ -1444,8 +1447,10 @@ class MinutaAlteracaoCrudController extends CrudController
 
     private function addColunaTipoOperacao($item, $tipos, $tipo)
     {
-        $retorno = '<select name="tipo_alteracao[]" id="' . $tipo . '"class="subitem" style="width:200px"
-            onchange="BloqueiaValorTotal(this)">';
+        $retorno = '<select name="tipo_alteracao[]" id="' . $tipo . '_' . $item[$tipo] . '"
+            class="subitem" style="width:200px"
+            onchange="BloqueiaValorTotal(this,' . $item[$tipo] . ')"
+            data-item_id="' . $item[$tipo] . '">';
         foreach ($tipos as $key => $value) {
             $selected = ($key == $item['operacao_id']) ? 'selected' : '';
             $retorno .= "<option value='$key|$value' $selected>$value</option>";
@@ -1462,7 +1467,7 @@ class MinutaAlteracaoCrudController extends CrudController
         if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
             $quantidade *= -1;
         }
-        $quantidade = sprintf('%.5f', floatval($quantidade));
+        $quantidade = sprintf('%.5f', (float)$quantidade);
 
         //se é contrato e é serviço OU se é sispp e serviço OU se for suprimento
         if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
@@ -1471,7 +1476,8 @@ class MinutaAlteracaoCrudController extends CrudController
         ) {
             return " <input  type='number' class='form-control qtd qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
+                . "' data-$tipo='" . $item[$tipo] . "'"
+                . " data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
         }
 
         $readonly = 'readonly';
@@ -1523,8 +1529,9 @@ class MinutaAlteracaoCrudController extends CrudController
         }
 
         return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
-            . "id='vrtotal" . $item[$tipo]
-            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
+            . "id='vrtotal" . $item[$tipo] . "'"
+            . " data-$tipo='" . $item[$tipo] . "'"
+            . " data-tipo='' name='valor_total[]' value='$valor' disabled > ";
     }
 
     private function addColunaValorTotalItem($item, $tipo)
@@ -1533,7 +1540,8 @@ class MinutaAlteracaoCrudController extends CrudController
             . " <input  type='hidden' id='valor_total_item" . $item[$tipo] . "'"
             . " name='valor_total_item[]"
             . "' value='" . $item['qtd_item'] * $item['valorunitario'] . "'> "
-            . "<input type='hidden' id='vlr_total_item" . $item[$tipo] . "' name='vlr_total_item[]' value='" . $item['vlr_total_item'] . "'>";
+            . "<input type='hidden' id='vlr_total_item" . $item[$tipo] ."'"
+            . " name='vlr_total_item[]' value='" . $item['vlr_total_item'] . "'>";
     }
 
     private function addColunaCompraItemId($item, $tipo)
@@ -1557,6 +1565,7 @@ class MinutaAlteracaoCrudController extends CrudController
     private function getItens(MinutaEmpenho $minutaEmpenho): array
     {
         $tipo = $minutaEmpenho->empenho_por;
+        $fornecedor_id = $minutaEmpenho->fornecedor_empenho_id;
         switch ($tipo) {
             case 'Contrato':
                 $itens = MinutaEmpenho::join(
@@ -1746,6 +1755,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->distinct()
                     ->select(
                         [
+                            DB::raw('compra_item_minuta_empenho.id as cime_id'),
                             'compra_item_minuta_empenho.compra_item_id',
                             'compra_item_minuta_empenho.operacao_id',
                             'compra_item_fornecedor.fornecedor_id',
@@ -1767,7 +1777,11 @@ class MinutaAlteracaoCrudController extends CrudController
                             'compra_item_minuta_empenho.subelemento_id',
                             DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
                         ]
-                    );
+                    )
+                ->orderBy('compra_item_minuta_empenho.id', 'asc');
+
+                $itens = $this->setCondicaoFornecedor($itens, $tipo, $fornecedor_id);
+
                 $soma = CompraItemMinutaEmpenho::select([
                     'compra_item_id',
                     DB::raw("sum(compra_item_minuta_empenho.quantidade) as qtd_total_item"),
@@ -1775,10 +1789,6 @@ class MinutaAlteracaoCrudController extends CrudController
                 ])
                     ->where('minutaempenho_id', $minutaEmpenho->id)
                     ->groupBy('compra_item_id');
-
-                if ($minutaEmpenho->empenho_por === 'Suprimento') {
-                    $itens->where('compra_item_fornecedor.fornecedor_id', $minutaEmpenho->fornecedor_empenho_id);
-                }
 
                 //CREATE
                 if (is_null(session('remessa_id'))) {

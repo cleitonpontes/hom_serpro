@@ -16,7 +16,7 @@
         ['minuta_id' => $minuta_id, 'remessa' => $remessa_id]);
 
     if ($entry->passivo_anterior && !is_null($entry->conta_corrente)){
-        $rotas[2] = route('empenho.crud.passivo-anterior.edit',
+        $rotas[2] = route('empenho.crud.alteracao.passivo-anterior.edit',
                 ['minuta_id' => $minuta_id, 'remessa' => $remessa_id]);
     }
 

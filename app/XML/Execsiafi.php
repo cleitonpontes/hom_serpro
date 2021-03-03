@@ -270,6 +270,28 @@ class Execsiafi
 
     }
 
+    public function conrazaoAPIComprasNet($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
+    {
+        $user = env('USUARIO_SIAFI');
+        $senha = env('SENHA_SIAFI');
+
+        $client = $this->conexao_xml($user, $senha, $ug_user, '', $amb, $ano, 'CONSULTA');
+
+        $parms = new \stdClass;
+        $parms->tabConsultarSaldo = [
+            'codUG' => $ug,
+            'contaContabil' => $contacontabil,
+            'contaCorrente' => $contacorrente,
+            'mesRefSaldo' => $mesref
+        ];
+
+        $retorno = $this->submit($client, $parms, 'CONRAZAO');
+
+        return $this->trataretorno($retorno);
+
+
+    }
+
     public function conrazaoUser($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref, $user)
     {
 
@@ -610,6 +632,7 @@ class Execsiafi
 
                 if($dado->sforcempenhodados->alteracao == true){
                     unset($array[$i]['codSubElemento']);
+                    unset($array[$i]['descricao']);
                 }
                 $i++;
             }

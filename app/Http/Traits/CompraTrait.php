@@ -147,6 +147,11 @@ trait CompraTrait
         if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
             foreach ($compraSiasg->data->linkSisrpCompleto as $key => $item) {
                 $dadosItemCompra = ($consultaCompra->consultaCompraByUrl($item->linkSisrpCompleto));
+
+                if(is_null($dadosItemCompra['data'])){
+                    continue;
+                }
+
                 $tipoUasg = (substr($item->linkSisrpCompleto, -1));
                 $dadosata = (object)$dadosItemCompra['data']['dadosAta'];
                 $gerenciadoraParticipante = (object)$dadosItemCompra['data']['dadosGerenciadoraParticipante'];
@@ -218,7 +223,6 @@ trait CompraTrait
         return $catmatseritem;
     }
 
-
     public function updateOrCreateCompraItemSispp($compra, $catmatseritem, $item)
     {
         $MATERIAL = [149, 194];
@@ -255,7 +259,6 @@ trait CompraTrait
         }
         return $retorno;
     }
-
 
     public function gravaCompraItemFornecedor($compraitem_id, $item, $fornecedor)
     {
@@ -303,7 +306,6 @@ trait CompraTrait
         }
     }
 
-
     public function gravaCompraItemUnidadeSispp($compraitem_id, $item, $unidade_autorizada_id, $fornecedor)
     {
         $compraItemUnidade = CompraItemUnidade::updateOrCreate(
@@ -337,7 +339,6 @@ trait CompraTrait
             ]
         );
     }
-
 
     public function gravaCompraItemUnidadeSisrp($compraitem, $unidade_autorizada_id, $item, $dadosGerenciadoraParticipante, $carona, $dadosFornecedor, $tipoUasg)
     {
@@ -380,5 +381,21 @@ trait CompraTrait
         $saldo = $this->retornaSaldoAtualizado($compraitem->id);
         $compraItemUnidade->quantidade_saldo = (isset($saldo->saldo)) ? $saldo->saldo : $qtd_autorizada;
         $compraItemUnidade->save();
+    }
+
+    private function setCondicaoFornecedor($itens, string $descricao, $fornecedor_id)
+    {
+        if ($descricao === 'Suprimento') {
+            return $itens->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
+        }
+        return $itens->where(function ($query) use ($fornecedor_id) {
+            $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+                ->orWhere(
+                    function ($query) use ($fornecedor_id) {
+                        $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                            ->whereNull('compra_item_fornecedor.fornecedor_id');
+                    }
+                );
+        });
     }
 }

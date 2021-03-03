@@ -17,6 +17,7 @@ class UgprimariaMiddleware
     public function handle($request, Closure $next)
     {
         if (backpack_user()) {
+
             if (!session()->get('user_ug') AND !session()->get('user_ug_id')) {
                 if (backpack_user()->ugprimaria) {
                     $unidade = backpack_user()->unidadeprimaria(backpack_user()->ugprimaria);
@@ -52,7 +53,12 @@ class UgprimariaMiddleware
                     session(['user_orgao_id' => null]);
                 }
             } else {
-                $ok = backpack_user()->havePermissionUg(session()->get('user_ug_id'));
+                // se chegou aqui é porque tem o user_ug e user_ug_id - se for adm, vamos deixar passar - mvascs@gmail.com.
+                if (backpack_user()->hasRole('Administrador')) {
+                    $ok = true;
+                } else {
+                    $ok = backpack_user()->havePermissionUg(session()->get('user_ug_id'));
+                }
                 if ($ok == false) {
                     \Session::flush();
                     backpack_auth()->logout();

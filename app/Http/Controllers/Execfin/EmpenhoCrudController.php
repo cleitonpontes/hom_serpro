@@ -949,6 +949,7 @@ class EmpenhoCrudController extends CrudController
                 ];
                 Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
             }
+            return $novo_empenho;
         }
     }
 

@@ -56,6 +56,7 @@ class ContratoItensMinutaController extends Controller
     {
         $minutas_id = Route::current()->parameter('minutas_id');
         $ids = explode(',',$minutas_id);
+        $id_fornecedor = $request->id_fornecedor;
         $itens = MinutaEmpenho::query()
             ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
             ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
@@ -64,6 +65,7 @@ class ContratoItensMinutaController extends Controller
             ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
             ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
+            ->where('compra_item_fornecedor.fornecedor_id', '=', $id_fornecedor)
             ->wherein('minutaempenhos.id',$ids)
             ->wherein('compra_item_minuta_empenho.minutaempenho_id',$ids)
             ->select('compra_items.*',
@@ -73,11 +75,10 @@ class ContratoItensMinutaController extends Controller
                 'compra_item_unidade.quantidade_saldo',
                 'compra_item_fornecedor.valor_unitario',
                 'compra_item_fornecedor.valor_negociado',
-                'compra_item_minuta_empenho.quantidade',
-                'compra_item_minuta_empenho.valor as valor_total',
                 'compra_item_minuta_empenho.minutaempenho_id',
                 'catmatseritens.codigo_siasg',
                 'catmatseritens.descricao as descricaocatmatseritens')
+            ->distinct()
             ->groupBy('compra_items.id',
                 'codigoitens.descricao',
                 'compra_item_unidade.id',
@@ -100,6 +101,7 @@ class ContratoItensMinutaController extends Controller
     {
         $minutas_id = Route::current()->parameter('minutas_id');
         $ids = explode(',',$minutas_id);
+        $id_fornecedor = $request->id_fornecedor;
         $itens = MinutaEmpenho::query()
             ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
             ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
@@ -108,6 +110,7 @@ class ContratoItensMinutaController extends Controller
             ->join('compra_item_fornecedor', 'compra_item_fornecedor.compra_item_id', '=', 'compra_items.id')
             ->join('codigoitens', 'codigoitens.id', '=', 'compra_items.tipo_item_id')
             ->join('catmatseritens', 'catmatseritens.id', '=', 'compra_items.catmatseritem_id')
+            ->where('compra_item_fornecedor.fornecedor_id', '=', $id_fornecedor)
             ->wherein('minutaempenhos.id',$ids)
             ->wherein('compra_item_minuta_empenho.minutaempenho_id',$ids)
             ->select('compra_items.*',
@@ -117,14 +120,13 @@ class ContratoItensMinutaController extends Controller
                 'compra_item_unidade.quantidade_saldo',
                 'compra_item_fornecedor.valor_unitario as valorunitario',
                 'compra_item_fornecedor.valor_negociado',
-                'compra_item_minuta_empenho.quantidade as periodicidade',
-                'compra_item_minuta_empenho.valor as valortotal',
                 'compra_item_minuta_empenho.minutaempenho_id',
                 'catmatseritens.codigo_siasg',
                 DB::raw(
                     '1 AS periodicidade'
                 ),
                 'catmatseritens.descricao as descricao_complementar')
+            ->distinct()
             ->groupBy('compra_items.id',
                 'codigoitens.descricao',
                 'compra_item_unidade.id',

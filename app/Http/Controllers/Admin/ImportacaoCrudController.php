@@ -347,7 +347,7 @@ class ImportacaoCrudController extends CrudController
         while (!feof($arquivo)) {
             $linha = fgets($arquivo, 1024);
             if ($tipo == 'Usuários') {
-                $this->criaJobsInsercaoUsuarioEmMassa($linha, $dados_importacao);
+                $this->criaJobsInsercaoUsuarioEmMassa(utf8_encode($linha), $dados_importacao);
             }
 
             if ($tipo == 'Terceirizado') {
