@@ -72,11 +72,10 @@
 
             function adicionaLinhaItem() {
 
-
                 var newRow = $("<tr>");
                 var cols = "";
                 cols += '<td><input type="text" class="form-control"   name="numConta[]" value="{{$crud->params['conta_corrente_padrao']}}" ></td>';
-                cols += '<td><input type="number" class="form-control"  name="valor[]" value="{{$crud->params['valor_total']}}" step="any"></td>';
+                cols += '<td><input type="number" class="form-control"  name="valor[]" value="{{($crud->params['valor_total'] < 0) ? $crud->params['valor_total'] * (-1): $crud->params['valor_total']}}" step="any"></td>';
                 cols += '<td>';
                 cols += '<button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">' +
                     '<i class="fa fa-trash"></i>' +
