@@ -56,6 +56,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->remessa = Route::current()->parameter('remessa');
         $minuta = MinutaEmpenho::find($minuta_id);
 
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -66,7 +67,7 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->setEntityNameStrings('Alteração do Empenho', 'Alteração do Empenho');
         $this->crud->setEditView('vendor.backpack.crud.empenho.alteracao_edit');
         $this->crud->setShowView('vendor.backpack.crud.empenho.alteracao_show');
-        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
+//        $this->crud->addButtonFromView('line', 'update', 'etapaempenho', 'end');
 
         $this->crud->addButtonFromView('line', 'show', 'show_alteracao', 'beginning');
         $this->crud->addButtonFromView('line', 'atualizarsituacaominuta', 'atualizarsituacaominutaalt', 'beginning');
