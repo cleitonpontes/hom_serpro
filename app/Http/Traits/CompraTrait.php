@@ -147,6 +147,11 @@ trait CompraTrait
         if (!is_null($compraSiasg->data->linkSisrpCompleto)) {
             foreach ($compraSiasg->data->linkSisrpCompleto as $key => $item) {
                 $dadosItemCompra = ($consultaCompra->consultaCompraByUrl($item->linkSisrpCompleto));
+
+                if(is_null($dadosItemCompra['data'])){
+                    continue;
+                }
+
                 $tipoUasg = (substr($item->linkSisrpCompleto, -1));
                 $dadosata = (object)$dadosItemCompra['data']['dadosAta'];
                 $gerenciadoraParticipante = (object)$dadosItemCompra['data']['dadosGerenciadoraParticipante'];

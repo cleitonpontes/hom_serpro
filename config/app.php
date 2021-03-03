@@ -6,7 +6,7 @@ return [
     'usuario_siafi' => env('USUARIO_SIAFI','E0350'),
     'senha_siafi' => env('SENHA_SIAFI', ''),
 
-    'app_version' => '1.2.6',
+    'app_version' => '1.2.7',
 
     'app_amb' => env('APP_AMB', 'Ambiente Produção'),
 
