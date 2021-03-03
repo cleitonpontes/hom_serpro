@@ -24,7 +24,7 @@ use App\Models\Contratoterceirizado;
 use App\Models\Contratodespesaacessoria;
 use OpenApi\Annotations as OA;
 use App\Models\MinutaEmpenho;
-
+use Illuminate\Support\Facades\Route;
 use App\Models\Empenho;
 use App\Models\Fornecedor;
 use Illuminate\Http\Request;
@@ -851,6 +851,7 @@ class ContratoController extends Controller
     {
         $contratos_array = [];
         $contratos = $this->buscaContratos();
+        $prefixoAPI = Route::current()->getPrefix();
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = [
@@ -881,18 +882,18 @@ class ContratoController extends Controller
                 'num_parcelas' => $contrato->num_parcelas,
                 'valor_parcela' => number_format($contrato->valor_parcela, 2, ',', '.'),
                 'valor_acumulado' => number_format($contrato->valor_acumulado, 2, ',', '.'),
-                'link_historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
-                'link_empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
-                'link_cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
-                'link_garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
-                'link_itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
-                'link_prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
-                'link_responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
-                'link_despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
-                'link_faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
-                'link_ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
-                'link_terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
-                'link_arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
+                'link_historico' => url($prefixoAPI. '/' . $contrato->id . '/historico/'),
+                'link_empenhos' => url($prefixoAPI. '/' . $contrato->id . '/empenhos/'),
+                'link_cronograma' => url($prefixoAPI. '/' . $contrato->id . '/cronograma/'),
+                'link_garantias' => url($prefixoAPI. '/' . $contrato->id . '/garantias/'),
+                'link_itens' => url($prefixoAPI. '/' . $contrato->id . '/itens/'),
+                'link_prepostos' => url($prefixoAPI. '/' . $contrato->id . '/prepostos/'),
+                'link_responsaveis' => url($prefixoAPI. '/' . $contrato->id . '/responsaveis/'),
+                'link_despesas_acessorias' => url($prefixoAPI. '/' . $contrato->id . '/despesas_acessorias/'),
+                'link_faturas' => url($prefixoAPI. '/' . $contrato->id . '/faturas/'),
+                'link_ocorrencias' => url($prefixoAPI. '/' . $contrato->id . '/ocorrencias/'),
+                'link_terceirizados' => url($prefixoAPI. '/' . $contrato->id . '/terceirizados/'),
+                'link_arquivos' => url($prefixoAPI. '/' . $contrato->id . '/arquivos/'),
             ];
         }
 
@@ -946,7 +947,7 @@ class ContratoController extends Controller
         $contratos_array = [];
         $contratos = $this->buscaContratoPorUASGeNumero($codigo_uasg, $numeroano_contrato);
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
         return json_encode($contratos_array);
     }
@@ -977,7 +978,7 @@ class ContratoController extends Controller
         $contratos = $this->buscaContratosPorUg($unidade);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
 
         return json_encode($contratos_array);
@@ -1008,7 +1009,7 @@ class ContratoController extends Controller
         $contratos = $this->buscaContratosPorOrgao($orgao);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
 
         return json_encode($contratos_array);
@@ -1040,7 +1041,7 @@ class ContratoController extends Controller
         $contratos = $this->buscaContratosInativosPorUg($unidade);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
 
         return json_encode($contratos_array);
@@ -1071,7 +1072,7 @@ class ContratoController extends Controller
         $contratos = $this->buscaContratosInativosPorOrgao($orgao);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
 
         return json_encode($contratos_array);
