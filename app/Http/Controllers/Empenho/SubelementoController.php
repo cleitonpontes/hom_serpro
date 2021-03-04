@@ -115,6 +115,7 @@ class SubelementoController extends BaseControllerEmpenho
                         DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                     ]
                 )
+                ->distinct()
                 ->get()
                 ->toArray();
 
@@ -219,6 +220,7 @@ class SubelementoController extends BaseControllerEmpenho
                         DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                     ]
                 )
+                ->distinct()
                 ->get()
                 ->toArray();
 

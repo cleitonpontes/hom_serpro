@@ -272,6 +272,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     'compra_item_fornecedor.valor_negociado',
                     'compra_items.numero'
                 ])
+                ->distinct()
                 ->get()
                 ->toArray();
 
