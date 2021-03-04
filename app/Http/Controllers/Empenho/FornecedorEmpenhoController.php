@@ -32,6 +32,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 use App\Http\Traits\CompraTrait;
+use Illuminate\Support\Carbon;
 
 class FornecedorEmpenhoController extends BaseControllerEmpenho
 {
@@ -242,6 +243,10 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     '=',
                     'compra_items.catmatseritem_id'
                 )
+                ->where(function ($query){
+                    $query->whereNull('compra_items.ata_vigencia_fim')
+                    ->orWhere('compra_items.ata_vigencia_fim','>=', Carbon::now()->toDateString());
+                })
                 ->where('compra_item_unidade.quantidade_saldo', '>', 0)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                 ->where('compras.id', $modMinutaEmpenho->compra_id)
@@ -269,6 +274,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ])
                 ->get()
                 ->toArray();
+
         }
 
         if ($codigoitem->descricao === 'Suprimento') {
