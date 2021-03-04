@@ -346,6 +346,7 @@
                     }
                 })
                 .catch(error => {
+                    $('#emitir_empenho_siafi').removeAttr('disabled');
                     alert(error);
                 })
                 .finally()

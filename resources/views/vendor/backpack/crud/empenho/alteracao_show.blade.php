@@ -337,6 +337,8 @@
             url = url.replace(':minuta_id', minuta_id);
             url = url.replace(':remessa_id', remessa_id);
 
+            event.preventDefault()
+
             axios.request(url)
                 .then(response => {
                     dados = response.data
@@ -359,10 +361,10 @@
                     }
                 })
                 .catch(error => {
+                    $('#emitir_empenho_siafi').removeAttr('disabled');
                     alert(error);
                 })
                 .finally()
-            event.preventDefault()
         }
 
         function empenharOutroFornecedor(event) {
