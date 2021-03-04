@@ -10,6 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class CompraItem extends Model
 {
     use CrudTrait;
+    use \App\Http\Traits\Formatador;
     use LogsActivity;
     use SoftDeletes;
 
@@ -36,7 +37,9 @@ class CompraItem extends Model
         'qtd_total',
         'valortotal',
         'qtd_restante',
-        'numero'
+        'numero',
+        'ata_vigencia_inicio',
+        'ata_vigencia_fim'
     ];
 
     /*
@@ -58,9 +61,12 @@ class CompraItem extends Model
             ],
             [
                 'descricaodetalhada'=> (!empty($dadosata->descricaoDetalhada))?$dadosata->descricaoDetalhada:$dadosata->descricao,
-                'qtd_total' => $dadosata->quantidadeTotal
+                'qtd_total' => $dadosata->quantidadeTotal,
+                'ata_vigencia_inicio' => $this->formataDataSiasg($dadosata->dataInicioVigencia),
+                'ata_vigencia_fim' => $this->formataDataSiasg($dadosata->dataFimVigencia)
             ]
         );
+
         return $compraitem;
     }
     /*
