@@ -1064,7 +1064,7 @@ class ContratoCrudController extends CrudController
     protected function adicionaCampoUnidadeGestoraOrigem()
     {
         $this->crud->addField([
-            'label' => "Unidade Gestora Origem",
+            'label' => "Unidade Gestora Origem do Contrato",
             'type' => "select2_from_ajax_single",
             'name' => 'unidadeorigem_id',
             'entity' => 'unidadeorigem',
@@ -1235,7 +1235,7 @@ class ContratoCrudController extends CrudController
     {
         $this->crud->addColumn([
             'name' => 'getUnidadeOrigem',
-            'label' => 'Unidade Gestora Origem',
+            'label' => 'Unidade Gestora Origem do Contrato',
             'type' => 'model_function',
             'function_name' => 'getUnidadeOrigem',
             'orderable' => true,

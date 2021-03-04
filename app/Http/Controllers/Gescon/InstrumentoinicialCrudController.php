@@ -164,7 +164,7 @@ class InstrumentoinicialCrudController extends CrudController
             ],
             [
                 'name' => 'getUnidadeOrigemHistorico',
-                'label' => 'Unidade Gestora Origem', // Table column heading
+                'label' => 'Unidade Gestora Origem do Contrato', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getUnidadeOrigemHistorico', // the method in your Model
                 'orderable' => true,
@@ -576,7 +576,7 @@ class InstrumentoinicialCrudController extends CrudController
             ],
             [
                 // 1-n relationship
-                'label' => "Unidade Gestora Origem", // Table column heading
+                'label' => "Unidade Gestora Origem do Contrato", // Table column heading
                 'type' => "select2_from_ajax_single",
                 'name' => 'unidadeorigem_id', // the column that contains the ID of that connected entity
                 'entity' => 'unidadeorigem', // the method that defines the relationship in your Model

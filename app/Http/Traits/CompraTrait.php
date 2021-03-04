@@ -383,13 +383,14 @@ trait CompraTrait
         $compraItemUnidade->save();
     }
 
-    private function setCondicaoFornecedor($itens, string $descricao, $fornecedor_id)
+    private function setCondicaoFornecedor($itens, string $descricao, $fornecedor_id, $fornecedor_compra_id = null)
     {
         if ($descricao === 'Suprimento') {
             return $itens->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
         }
-        return $itens->where(function ($query) use ($fornecedor_id) {
+        return $itens->where(function ($query) use ($fornecedor_id, $fornecedor_compra_id) {
             $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+                ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id)
                 ->orWhere(
                     function ($query) use ($fornecedor_id) {
                         $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
