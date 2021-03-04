@@ -286,6 +286,7 @@
 
         $(document).ready(function () {
             $('body').on('click', '#emitir_empenho_siafi', function (event) {
+                $('#emitir_empenho_siafi').attr('disabled', true);
                 salvarTabelasSiafi(event);
             });
 
@@ -346,7 +347,6 @@
                             'success'
                         )
                         retirarLinks();
-                        $('#emitir_empenho_siafi').attr('disabled', true);
                         $('#voltar').attr('disabled', true);
                         $('#finalizar').removeAttr('disabled');
                         location.reload();
