@@ -505,7 +505,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
                 $valor_utilizado = $valor_utilizado->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', '=', $remessa_id);
                 $valor_utilizado = $valor_utilizado->select(DB::raw('coalesce(sum(valor),0) as sum'))
-                ->first()->toArray();
+                    ->first()->toArray();
             }
         }
         if ($codigoitem->descricao == 'Suprimento') {
@@ -513,10 +513,10 @@ class MinutaAlteracaoCrudController extends CrudController
             $itens = $this->getItens($modMinutaEmpenho);
 
             if ($remessa_id) {
-            $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
+                $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id);
                 $valor_utilizado = $valor_utilizado->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', '=', $remessa_id);
                 $valor_utilizado = $valor_utilizado->select(DB::raw('coalesce(sum(valor),0) as sum'))
-                ->first()->toArray();
+                    ->first()->toArray();
             }
         }
 
@@ -1045,6 +1045,7 @@ class MinutaAlteracaoCrudController extends CrudController
     {
         $modMinuta = MinutaEmpenho::find($minuta_id);
         $fornecedor_id = $modMinuta->fornecedor_empenho_id;
+        $fornecedor_compra_id = $modMinuta->fornecedor_compra_id;
 
         if ($modMinuta->empenho_por === 'Compra' || $modMinuta->empenho_por === 'Suprimento') {
             $itens = CompraItemMinutaEmpenho::join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
@@ -1073,7 +1074,12 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ])
                 ->orderBy('compra_item_minuta_empenho.id', 'asc');
-            $itens = $this->setCondicaoFornecedor($itens, $modMinuta->empenho_por, $fornecedor_id);
+            $itens = $this->setCondicaoFornecedor(
+                $itens,
+                $modMinuta->empenho_por,
+                $fornecedor_id,
+                $fornecedor_compra_id
+            );
             $itens = $itens->distinct()->get()->toArray();
         }
 
@@ -1540,7 +1546,7 @@ class MinutaAlteracaoCrudController extends CrudController
             . " <input  type='hidden' id='valor_total_item" . $item[$tipo] . "'"
             . " name='valor_total_item[]"
             . "' value='" . $item['qtd_item'] * $item['valorunitario'] . "'> "
-            . "<input type='hidden' id='vlr_total_item" . $item[$tipo] ."'"
+            . "<input type='hidden' id='vlr_total_item" . $item[$tipo] . "'"
             . " name='vlr_total_item[]' value='" . $item['vlr_total_item'] . "'>";
     }
 
@@ -1566,6 +1572,8 @@ class MinutaAlteracaoCrudController extends CrudController
     {
         $tipo = $minutaEmpenho->empenho_por;
         $fornecedor_id = $minutaEmpenho->fornecedor_empenho_id;
+        $fornecedor_compra_id = $minutaEmpenho->fornecedor_compra_id;
+
         switch ($tipo) {
             case 'Contrato':
                 $itens = MinutaEmpenho::join(
@@ -1778,9 +1786,9 @@ class MinutaAlteracaoCrudController extends CrudController
                             DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
                         ]
                     )
-                ->orderBy('compra_item_minuta_empenho.id', 'asc');
+                    ->orderBy('compra_item_minuta_empenho.id', 'asc');
 
-                $itens = $this->setCondicaoFornecedor($itens, $tipo, $fornecedor_id);
+                $itens = $this->setCondicaoFornecedor($itens, $tipo, $fornecedor_id, $fornecedor_compra_id);
 
                 $soma = CompraItemMinutaEmpenho::select([
                     'compra_item_id',
