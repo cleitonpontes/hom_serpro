@@ -113,8 +113,7 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
-        $remessa = $modMinutaEmpenho->remessa()->find($modMinutaEmpenho->max_remessa);
-        $modSfOrcEmpenhoDados->sfnonce = $remessa->sfnonce;
+        $modSfOrcEmpenhoDados->sfnonce = $modMinutaEmpenho->remessa()->find($modMinutaEmpenho->max_remessa)->sfnonce;
         $modSfOrcEmpenhoDados->save();
 
         return $modSfOrcEmpenhoDados;
