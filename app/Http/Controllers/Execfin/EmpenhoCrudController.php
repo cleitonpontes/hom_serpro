@@ -619,27 +619,6 @@ class EmpenhoCrudController extends CrudController
             } else {
                 $dado[$item] = $saldoAtual;
             }
-
-//            $execsiafi = new Execsiafi();
-//
-//            $retorno = null;
-//            $retorno = $execsiafi->conrazaoUser(
-//                $ug,
-//                $amb,
-//                $ano,
-//                $ug,
-//                $contacontabil1,
-//                $contacorrente,
-//                $mes,
-//                $user);
-
-//            if ($retorno->resultado[0] == 'SUCESSO') {
-//                if (isset($retorno->resultado[4])) {
-//                    $saldoAtual = (float)$retorno->resultado[4];
-//                }
-//                $dado[$item] = $saldoAtual;
-//            }
-
         }
 
         $empenhodetalhado->fill($dado);

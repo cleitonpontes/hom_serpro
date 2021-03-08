@@ -22,20 +22,21 @@ class ConsultaApiSta
         string $gestao,
         string $contacontabil,
         string $contacorrente
-    ) {
-        $base = new AdminController();
+    )
+   {
+//        $base = new AdminController();
         $url = $this->host_sta . '/api/saldocontabil/ano/' . $ano . '/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil . '/contacorrente/' . $contacorrente;
-        $dados = $base->buscaDadosUrl($url);
+//        $dados = $base->buscaDadosUrl($url);
+        $dados = $this->buscaDadosUrl($url);
 
         $retorno = null;
 
-        if($dados != null){
+        if ($dados != 'null') {
             $retorno = [
-                'tiposaldo' => $dados['tiposaldo'],
-                'saldo' => number_format($dados['saldo'], 2, '.', ''),
+                'tiposaldo' => @$dados->tiposaldo,
+                'saldo' => @number_format($dados->saldo, 2, '.', ''),
             ];
         }
-
         return $retorno;
     }
 
@@ -81,4 +82,22 @@ class ConsultaApiSta
         return $retorno;
     }
 
+    public function buscaDadosUrl($url)
+    {
+        $opt = [
+            "http" => [
+                'timeout' => 99999,
+                "method" => "GET",
+                "header" => [
+                    'Content-Type: application/json',
+                ],
+            ],
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false
+            ],
+        ];
+
+        return json_decode(file_get_contents($url, false, stream_context_create($opt)));
+    }
 }
