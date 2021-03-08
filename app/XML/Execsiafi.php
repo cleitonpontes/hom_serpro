@@ -145,6 +145,9 @@ class Execsiafi
     public function createNonceEmpenho(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
         $nonce = date('Y') . '_' . $sfOrcEmpenhoDados->minutaempenho_id . '_' . $sfOrcEmpenhoDados->minutaempenhos_remessa_id;
+        $sfOrcEmpenhoDados->sfnonce = $nonce;
+        $sfOrcEmpenhoDados->save();
+
         return $nonce;
     }
 
