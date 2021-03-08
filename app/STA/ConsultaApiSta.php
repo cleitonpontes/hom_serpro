@@ -23,7 +23,7 @@ class ConsultaApiSta
         string $contacontabil,
         string $contacorrente
     )
-    {
+   {
 //        $base = new AdminController();
         $url = $this->host_sta . '/api/saldocontabil/ano/' . $ano . '/ug/' . $ug . '/gestao/' . $gestao . '/contacontabil/' . $contacontabil . '/contacorrente/' . $contacorrente;
 //        $dados = $base->buscaDadosUrl($url);
@@ -31,13 +31,12 @@ class ConsultaApiSta
 
         $retorno = null;
 
-        if ($dados != null) {
+        if ($dados != 'null') {
             $retorno = [
-                'tiposaldo' => $dados['tiposaldo'],
-                'saldo' => number_format($dados['saldo'], 2, '.', ''),
+                'tiposaldo' => @$dados->tiposaldo,
+                'saldo' => @number_format($dados->saldo, 2, '.', ''),
             ];
         }
-
         return $retorno;
     }
 
@@ -99,6 +98,6 @@ class ConsultaApiSta
             ],
         ];
 
-        return file_get_contents($url, false, stream_context_create($opt));
+        return json_decode(file_get_contents($url, false, stream_context_create($opt)));
     }
 }
