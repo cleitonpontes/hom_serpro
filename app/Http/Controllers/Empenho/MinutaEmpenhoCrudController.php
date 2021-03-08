@@ -721,12 +721,10 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                 ]);
-            $itens = $this->setCondicaoFornecedor(
-                $itens,
-                $codigoitem->descricao,
-                $fornecedor_id,
-                $fornecedor_compra_id
-            );
+
+            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+                  ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
+
             $itens = $itens->get()->toArray();
         }
 
