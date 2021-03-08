@@ -114,8 +114,9 @@ class MinutaEmpenhoController extends Controller
         $modSfOrcEmpenhoDados->cpf_user = backpack_user()->cpf;
         $modSfOrcEmpenhoDados->minutaempenhos_remessa_id = $modMinutaEmpenho->max_remessa;
         $execsiafi = new Execsiafi();
-        $nonce = $execsiafi->createNonce($ugemitente->codigo, $modMinutaEmpenho->id, 'ORCAMENTARIO');
-        $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
+        $nonce = date('Y') . '_' . $modMinutaEmpenho->id . '_' . $modMinutaEmpenho->max_remessa;
+//        $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
+        $modSfOrcEmpenhoDados->sfnonce = $nonce;
         $modSfOrcEmpenhoDados->save();
 
         return $modSfOrcEmpenhoDados;
@@ -188,7 +189,8 @@ class MinutaEmpenhoController extends Controller
                 $modSfItemEmpenho = new SfItemEmpenho();
                 $modSubelemento = Naturezasubitem::find($item->subelemento_id);
                 $modSfItemEmpenho->sforcempenhodado_id = $sforcempenhodados->id;
-                $modSfItemEmpenho->numseqitem = $key + 1;
+//                $modSfItemEmpenho->numseqitem = $key + 1;
+                $modSfItemEmpenho->numseqitem = $item->numseq;
                 $modSfItemEmpenho->codsubelemento = $modSubelemento->codigo;
                 $modSfItemEmpenho->descricao = $descricao;
                 $modSfItemEmpenho->save();
@@ -346,13 +348,13 @@ class MinutaEmpenhoController extends Controller
         if ($tipo === 'Contrato') {
             return ContratoItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)
                 ->where('minutaempenhos_remessa_id', $remessa_id)
-                ->orderBy('id', 'asc')
+                ->orderBy('numseq', 'asc')
                 ->get();
         }
 
         return CompraItemMinutaEmpenho::where('minutaempenho_id', $minuta_id)
             ->where('minutaempenhos_remessa_id', $remessa_id)
-            ->orderBy('id', 'asc')
+            ->orderBy('numseq', 'asc')
             ->get();
     }
 
