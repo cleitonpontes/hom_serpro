@@ -105,17 +105,14 @@ class Execsiafi
 
         $xml = '<ns1:cabecalhoSIAFI><ug>' . $ug . '</ug>';
 
-        if ($wsdl == 'CPR'){
-            $xml .= '<bilhetador><nonce>' . (string) $this->createNonce($ug,$sf_id,$wsdl) . '</nonce></bilhetador>';
+        if ($wsdl == 'CPR') {
+            $xml .= '<bilhetador><nonce>' . (string)$this->createNonce($ug, $sf_id, $wsdl) . '</nonce></bilhetador>';
         }
 
-        if ($wsdl == 'ORCAMENTARIO'){
+        if ($wsdl == 'ORCAMENTARIO') {
             $sforcempenhodados = SfOrcEmpenhoDados::find($sf_id);
-            if($sforcempenhodados->sfnonce_id != null){
-                $xml .= '<bilhetador><nonce>' . (string) $sforcempenhodados->sfnonce_id . '</nonce></bilhetador>';
-            }else{
-                $xml .= '<bilhetador><nonce>' . (string) $this->createNonce($ug,$sf_id,$wsdl) . '</nonce></bilhetador>';
-            }
+            $nonce = ($sforcempenhodados->sfnonce != null) ? $sforcempenhodados->sfnonce : $this->createNonceEmpenho($sforcempenhodados);
+            $xml .= '<bilhetador><nonce>' . (string) $nonce . '</nonce></bilhetador>';
         }
 
         $xml .= '</ns1:cabecalhoSIAFI>';
@@ -129,7 +126,8 @@ class Execsiafi
         return $header;
     }
 
-    public function createNonce($ug, $sf_id, $tipo = ''){
+    public function createNonce($ug, $sf_id, $tipo = '')
+    {
         $nonce = SfNonce::select()->orderBy('id', 'desc')->first();
         $nonce_id = $nonce->id + 1;
         $data = [
@@ -142,6 +140,12 @@ class Execsiafi
         $nonce1 = SfNonce::create($data);
 
         return $nonce1->id;
+    }
+
+    public function createNonceEmpenho(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
+    {
+        $nonce = date('Y') . '_' . $sfOrcEmpenhoDados->minutaempenho_id . '_' . $sfOrcEmpenhoDados->minutaempenhos_remessa_id;
+        return $nonce;
     }
 
     protected function wssecurity($user, $password)
@@ -630,7 +634,7 @@ class Execsiafi
                     'operacaoItemEmpenho' => $this->montaOperacaoItemEmpenho($dado->id)
                 ];
 
-                if($dado->sforcempenhodados->alteracao == true){
+                if ($dado->sforcempenhodados->alteracao == true) {
                     unset($array[$i]['codSubElemento']);
                     unset($array[$i]['descricao']);
                 }
