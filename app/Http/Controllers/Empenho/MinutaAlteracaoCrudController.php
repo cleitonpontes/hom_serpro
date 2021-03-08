@@ -211,6 +211,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     'remessa' => $remessa + 1
                 ]);
 
+
                 $rota = $this->setRoute($minuta_id, $minutaEmpenhoRemessa->id);
 
                 array_walk($valores, function (&$value, $key) use ($request, $minutaEmpenhoRemessa) {
@@ -308,23 +309,15 @@ class MinutaAlteracaoCrudController extends CrudController
                 ContratoItemMinutaEmpenho::insert($valores);
             }
 
+            $minutaEmpenhoRemessa->sfnonce = date('Y'). '_' . $minuta_id . '_' . $minutaEmpenhoRemessa->id;
+            $minutaEmpenhoRemessa->save();
+
             DB::commit();
             return Redirect::to($rota);
         } catch (Exception $exc) {
             DB::rollback();
         }
 
-//        http://comprasnet.test/empenho/minuta/55/alteracao/passivo-anterior/4
-//        dd($teste);
-
-
-//        dd($minuta_id, $compra_item_ids, $valores);
-//        dd('store alteracao',$request->all());
-        // your additional operations before save here
-//        $redirect_location = parent::storeCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-//        return $redirect_location;
     }
 
     /**
