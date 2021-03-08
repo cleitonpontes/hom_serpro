@@ -56,7 +56,7 @@ class CreateAtualizaSaldosFunction extends Migration
         $sql .= '    RETURN NULL; ';
         $sql .= 'END; ';
         $sql .= '$saldo_atualizado$ LANGUAGE plpgsql; ';
-        
+
         DB::statement($sql);
     }
 
