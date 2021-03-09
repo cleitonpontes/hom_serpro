@@ -923,15 +923,17 @@ class EmpenhoCrudController extends CrudController
             $itens = SfItemEmpenho::where('sforcempenhodado_id',$empenho->id)
                 ->get();
 
-            dump($novo_empenho, $itens);
-
+            dump($itens);
+            $array_empenhodetalhado = [];
             foreach ($itens as $item) {
                 $array_empenhodetalhado = [
                     'empenho_id' => $novo_empenho->id,
                     'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
                 ];
-                Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
+                dump($array_empenhodetalhado);
+                $novo_empenhodetalhado = Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
             }
+            dd('Parei', $novo_empenhodetalhado);
             return $novo_empenho;
         }
     }
@@ -965,7 +967,7 @@ class EmpenhoCrudController extends CrudController
             return $nd->id;
         }
         if ($tipo == 'SUBITEM') {
-            $nd = Naturezasubitem::firstOrCreate(
+            $ndsubitem = Naturezasubitem::firstOrCreate(
                 [
                     'naturezadespesa_id' => $fk,
                     'codigo' => trim($dado),
@@ -976,7 +978,7 @@ class EmpenhoCrudController extends CrudController
                 ]
             );
 
-            return $nd->id;
+            return $ndsubitem->id;
         }
     }
 
