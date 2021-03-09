@@ -304,6 +304,7 @@ class MinutaAlteracaoCrudController extends CrudController
                         'minutaempenhos_remessa_id' => $minutaEmpenhoRemessa->id,
                         'quantidade' => $quantidade,
                         'valor' => $valor,
+                        'numseq' => $request->numseq[$key],
                     ];
                 });
 
@@ -318,7 +319,6 @@ class MinutaAlteracaoCrudController extends CrudController
         } catch (Exception $exc) {
             DB::rollback();
         }
-
     }
 
     /**
@@ -1643,10 +1643,11 @@ class MinutaAlteracaoCrudController extends CrudController
                             'contratoitens.valortotal',
                             'saldo_contabil.saldo',
                             'contrato_item_minuta_empenho.subelemento_id',
-
                             DB::raw('left(minutaempenhos.mensagem_siafi, 4) as exercicio'),
+                            'contrato_item_minuta_empenho.numseq'
                         ]
-                    );
+                    )
+                    ->orderBy('contrato_item_minuta_empenho.numseq', 'asc');
                 $soma = ContratoItemMinutaEmpenho::select([
                     'contrato_item_id',
                     DB::raw("sum(contrato_item_minuta_empenho.quantidade) as qtd_total_item"),
@@ -1778,7 +1779,7 @@ class MinutaAlteracaoCrudController extends CrudController
                         ]
                     )
                     ->orderBy('compra_item_minuta_empenho.numseq', 'asc');
-            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+                $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
                 ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
 
 
