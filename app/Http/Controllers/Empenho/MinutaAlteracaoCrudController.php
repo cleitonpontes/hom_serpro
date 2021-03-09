@@ -1067,12 +1067,9 @@ class MinutaAlteracaoCrudController extends CrudController
                     'compra_item_minuta_empenho.numseq'
                 ])
                 ->orderBy('compra_item_minuta_empenho.numseq', 'asc');
-            $itens = $this->setCondicaoFornecedor(
-                $itens,
-                $modMinuta->empenho_por,
-                $fornecedor_id,
-                $fornecedor_compra_id
-            );
+            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
+
             $itens = $itens->distinct()->get()->toArray();
         }
 
@@ -1781,8 +1778,9 @@ class MinutaAlteracaoCrudController extends CrudController
                         ]
                     )
                     ->orderBy('compra_item_minuta_empenho.numseq', 'asc');
+            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
 
-                $itens = $this->setCondicaoFornecedor($itens, $tipo, $fornecedor_id, $fornecedor_compra_id);
 
                 $soma = CompraItemMinutaEmpenho::select([
                     'compra_item_id',

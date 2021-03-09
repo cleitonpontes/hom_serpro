@@ -247,6 +247,23 @@ trait CompraTrait
     public function retornaFornecedor($item)
     {
         $fornecedor = new Fornecedor();
+
+        if ($item->niFornecedor === 'ESTRANGEIRO') {
+            $cpf_cnpj_idgener =
+                mb_strtoupper(preg_replace('/\s/', '_', $item->niFornecedor . '_' . $item->nomeFornecedor), 'UTF-8');
+
+            $retorno = $fornecedor->buscaFornecedorPorNumero($cpf_cnpj_idgener);
+
+            if (is_null($retorno)) {
+                $fornecedor->tipo_fornecedor = 'IDGENERICO';
+                $fornecedor->cpf_cnpj_idgener = $cpf_cnpj_idgener;
+                $fornecedor->nome = $item->nomeFornecedor;
+                $fornecedor->save();
+                return $fornecedor;
+            }
+            return $retorno;
+        }
+
         $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
 
         //TODO UPDATE OR INSERT FORNECEDOR
