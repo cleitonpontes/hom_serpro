@@ -175,7 +175,7 @@ class ContratoCrudController extends CrudController
             $contratoItem->tipo_id = $request['tipo_item_id'][$key];
             $contratoItem->grupo_id = $catmatseritem->grupo_id;
             $contratoItem->catmatseritem_id = $catmatseritem->id;
-            $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
+            $contratoItem->descricao_complementar = $catmatseritem->descricao;
             $contratoItem->quantidade = (double)$qtd;
             $contratoItem->valorunitario = $request['vl_unit'][$key];
             $contratoItem->valortotal = $request['vl_total'][$key];
