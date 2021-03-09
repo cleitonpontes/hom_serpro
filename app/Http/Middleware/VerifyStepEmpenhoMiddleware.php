@@ -165,7 +165,8 @@ class VerifyStepEmpenhoMiddleware
             if ($this->rotas_minuta_alteracao[Route::current()->action['as']] === 1) {
                 if (($remessa->situacao->descricao !== 'ERRO'
                     && $remessa->situacao->descricao !== 'EM ANDAMENTO'
-                    && $remessa->situacao->descricao !== 'EMPENHO EMITIDO')) {
+                    && $remessa->situacao->descricao !== 'EMPENHO EMITIDO'
+                    && $remessa->remessa !== 0 )) {
                     return redirect(route('empenho.crud.alteracao.show', [
                         'minuta_id' => $minuta_id,
                         'remessa' => $remessa_id,

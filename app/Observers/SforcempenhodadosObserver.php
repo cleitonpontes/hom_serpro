@@ -54,7 +54,7 @@ class SforcempenhodadosObserver
                     if($objEmpenho){
                         foreach($objEmpenho->empenhodetalhado as $empDetalhado){
                             $subitem =  $empDetalhado->naturezasubitem->codigo;
-                            $ug = $objEmpenho->unidade;
+                            $ug = $objEmpenho->unidade->codigo;
                             $empenho = $objEmpenho->numero;
                             AtualizarSaldoEmpenhoJob::dispatch($ug, $empenho, $subitem, $objEmpenho->unidade_id)->onQueue('atualizasaldone');
                         }

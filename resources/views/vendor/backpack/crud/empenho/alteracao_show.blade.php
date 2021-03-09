@@ -286,6 +286,7 @@
 
         $(document).ready(function () {
             $('body').on('click', '#emitir_empenho_siafi', function (event) {
+                $('#emitir_empenho_siafi').attr('disabled', true);
                 salvarTabelasSiafi(event);
             });
 
@@ -336,6 +337,8 @@
             url = url.replace(':minuta_id', minuta_id);
             url = url.replace(':remessa_id', remessa_id);
 
+            event.preventDefault()
+
             axios.request(url)
                 .then(response => {
                     dados = response.data
@@ -346,7 +349,6 @@
                             'success'
                         )
                         retirarLinks();
-                        $('#emitir_empenho_siafi').attr('disabled', true);
                         $('#voltar').attr('disabled', true);
                         $('#finalizar').removeAttr('disabled');
                         location.reload();
@@ -359,10 +361,10 @@
                     }
                 })
                 .catch(error => {
+                    $('#emitir_empenho_siafi').removeAttr('disabled');
                     alert(error);
                 })
                 .finally()
-            event.preventDefault()
         }
 
         function empenharOutroFornecedor(event) {

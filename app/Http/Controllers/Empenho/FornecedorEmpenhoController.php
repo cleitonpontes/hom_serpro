@@ -32,11 +32,19 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 use App\Http\Traits\CompraTrait;
+use Illuminate\Support\Carbon;
 
 class FornecedorEmpenhoController extends BaseControllerEmpenho
 {
     use CompraTrait;
 
+    /**
+     * Tela 2
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View
+     * @throws Exception
+     */
     public function index(Request $request)
     {
         $minuta_id = Route::current()->parameter('minuta_id');
@@ -185,6 +193,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
         return $html;
     }
 
+    //TELA 3
     public function item(Request $request)
     {
         $minuta_id = Route::current()->parameter('minuta_id');
@@ -242,18 +251,15 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     '=',
                     'compra_items.catmatseritem_id'
                 )
+                ->where(function ($query) {
+                    $query->whereNull('compra_items.ata_vigencia_fim')
+                    ->orWhere('compra_items.ata_vigencia_fim', '>=', Carbon::now()->toDateString());
+                })
                 ->where('compra_item_unidade.quantidade_saldo', '>', 0)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                 ->where('compras.id', $modMinutaEmpenho->compra_id)
-                ->where(function ($query) use ($fornecedor_id) {
-                    $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
-                        ->orWhere(
-                            function ($query) use ($fornecedor_id) {
-                                $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
-                                    ->whereNull('compra_item_fornecedor.fornecedor_id');
-                            }
-                        );
-                })
+                ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
                 ->select([
                     'compra_items.id',
                     'codigoitens.descricao',
@@ -267,6 +273,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     'compra_item_fornecedor.valor_negociado',
                     'compra_items.numero'
                 ])
+                ->distinct()
                 ->get()
                 ->toArray();
         }

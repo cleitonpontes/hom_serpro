@@ -247,6 +247,23 @@ trait CompraTrait
     public function retornaFornecedor($item)
     {
         $fornecedor = new Fornecedor();
+
+        if ($item->niFornecedor === 'ESTRANGEIRO') {
+            $cpf_cnpj_idgener =
+                mb_strtoupper(preg_replace('/\s/', '_', $item->niFornecedor . '_' . $item->nomeFornecedor), 'UTF-8');
+
+            $retorno = $fornecedor->buscaFornecedorPorNumero($cpf_cnpj_idgener);
+
+            if (is_null($retorno)) {
+                $fornecedor->tipo_fornecedor = 'IDGENERICO';
+                $fornecedor->cpf_cnpj_idgener = $cpf_cnpj_idgener;
+                $fornecedor->nome = $item->nomeFornecedor;
+                $fornecedor->save();
+                return $fornecedor;
+            }
+            return $retorno;
+        }
+
         $retorno = $fornecedor->buscaFornecedorPorNumero($item->niFornecedor);
 
         //TODO UPDATE OR INSERT FORNECEDOR
@@ -383,13 +400,14 @@ trait CompraTrait
         $compraItemUnidade->save();
     }
 
-    private function setCondicaoFornecedor($itens, string $descricao, $fornecedor_id)
+    private function setCondicaoFornecedor($itens, string $descricao, $fornecedor_id, $fornecedor_compra_id = null)
     {
         if ($descricao === 'Suprimento') {
             return $itens->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
         }
-        return $itens->where(function ($query) use ($fornecedor_id) {
+        return $itens->where(function ($query) use ($fornecedor_id, $fornecedor_compra_id) {
             $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+                ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id)
                 ->orWhere(
                     function ($query) use ($fornecedor_id) {
                         $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)

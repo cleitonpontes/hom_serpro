@@ -422,7 +422,7 @@ class Contrato extends Model
         return 'R$ ' . number_format($this->total_despesas_acessorias, 2, ',', '.');
     }
 
-    public function contratoAPI()
+    public function contratoAPI(string $prefixoAPI)
     {
 
         return [
@@ -475,18 +475,18 @@ class Contrato extends Model
             'valor_parcela' => number_format($this->valor_parcela, 2, ',', '.'),
             'valor_acumulado' => number_format($this->valor_acumulado, 2, ',', '.'),
             'links' => [
-                'historico' => url('/api/contrato/' . $this->id . '/historico/'),
-                'empenhos' => url('/api/contrato/' . $this->id . '/empenhos/'),
-                'cronograma' => url('/api/contrato/' . $this->id . '/cronograma/'),
-                'garantias' => url('/api/contrato/' . $this->id . '/garantias/'),
-                'itens' => url('/api/contrato/' . $this->id . '/itens/'),
-                'prepostos' => url('/api/contrato/' . $this->id . '/prepostos/'),
-                'responsaveis' => url('/api/contrato/' . $this->id . '/responsaveis/'),
-                'despesas_acessorias' => url('/api/contrato/' . $this->id . '/despesas_acessorias/'),
-                'faturas' => url('/api/contrato/' . $this->id . '/faturas/'),
-                'ocorrencias' => url('/api/contrato/' . $this->id . '/ocorrencias/'),
-                'terceirizados' => url('/api/contrato/' . $this->id . '/terceirizados/'),
-                'arquivos' => url('/api/contrato/' . $this->id . '/arquivos/'),
+                'historico' => url($prefixoAPI. '/' . $this->id . '/historico/'),
+                'empenhos' => url($prefixoAPI. '/' . $this->id . '/empenhos/'),
+                'cronograma' => url($prefixoAPI. '/' . $this->id . '/cronograma/'),
+                'garantias' => url($prefixoAPI. '/' . $this->id . '/garantias/'),
+                'itens' => url($prefixoAPI. '/' . $this->id . '/itens/'),
+                'prepostos' => url($prefixoAPI. '/' . $this->id . '/prepostos/'),
+                'responsaveis' => url($prefixoAPI. '/' . $this->id . '/responsaveis/'),
+                'despesas_acessorias' => url($prefixoAPI. '/' . $this->id . '/despesas_acessorias/'),
+                'faturas' => url($prefixoAPI. '/' . $this->id . '/faturas/'),
+                'ocorrencias' => url($prefixoAPI. '/' . $this->id . '/ocorrencias/'),
+                'terceirizados' => url($prefixoAPI. '/' . $this->id . '/terceirizados/'),
+                'arquivos' => url($prefixoAPI. '/' . $this->id . '/arquivos/'),
             ]
         ];
     }
