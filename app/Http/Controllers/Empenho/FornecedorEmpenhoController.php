@@ -482,15 +482,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             $remessa->sfnonce = date('Y'). '_' . $minuta_id . '_' . $remessa->id;
             $remessa->save();
 
-            $itens = array_map(
-                function ($itens) use ($minuta_id, $remessa) {
-                    $itens['minutaempenho_id'] = $minuta_id;
-                    $itens['minutaempenhos_remessa_id'] = $remessa->id;
-                    return $itens;
-                },
-                $itens
-            );
-
+            foreach ($itens as $index => $item) {
+                $itens[$index]['minutaempenho_id'] = $minuta_id;
+                $itens[$index]['minutaempenhos_remessa_id'] = $remessa->id;
+                $itens[$index]['numseq'] = $index + 1;
+            }
 
             $codigoitem = Codigoitem::find($minuta->tipo_empenhopor_id);
 
@@ -539,14 +535,12 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 $cime_deletar = $cime->get();
                 $cime->delete();
                 $remessa_id = $minuta->remessa[0]->id;
-                $itens = array_map(
-                    function ($itens) use ($minuta_id, $remessa_id) {
-                        $itens['minutaempenho_id'] = $minuta_id;
-                        $itens['minutaempenhos_remessa_id'] = $remessa_id;
-                        return $itens;
-                    },
-                    $itens
-                );
+
+                foreach ($itens as $index => $item) {
+                    $itens[$index]['minutaempenho_id'] = $minuta_id;
+                    $itens[$index]['minutaempenhos_remessa_id'] = $remessa_id;
+                    $itens[$index]['numseq'] = $index + 1;
+                }
 
                 ContratoItemMinutaEmpenho::insert($itens);
             } else {
@@ -564,14 +558,11 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     $compraItemUnidade->save();
                 }
 
-                $itens = array_map(
-                    function ($itens) use ($minuta_id, $remessa_id) {
-                        $itens['minutaempenho_id'] = $minuta_id;
-                        $itens['minutaempenhos_remessa_id'] = $remessa_id;
-                        return $itens;
-                    },
-                    $itens
-                );
+                foreach ($itens as $index => $item) {
+                    $itens[$index]['minutaempenho_id'] = $minuta_id;
+                    $itens[$index]['minutaempenhos_remessa_id'] = $remessa_id;
+                    $itens[$index]['numseq'] = $index + 1;
+                }
 
                 CompraItemMinutaEmpenho::insert($itens);
             }
