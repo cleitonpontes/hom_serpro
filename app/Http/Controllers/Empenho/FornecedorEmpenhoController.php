@@ -476,24 +476,19 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
             $remessa = MinutaEmpenhoRemessa::create([
                 'minutaempenho_id' => $minuta_id,
                 'situacao_id' => $situacao_andamento->id,
-                'remessa' => 0
+                'remessa' => 0,
             ]);
 
-            $itens = array_map(
-                function ($itens) use ($minuta_id, $remessa) {
-                    $itens['minutaempenho_id'] = $minuta_id;
-                    $itens['minutaempenhos_remessa_id'] = $remessa->id;
-                    return $itens;
-                },
-                $itens
-            );
+            $remessa->sfnonce = date('Y'). '_' . $minuta_id . '_' . $remessa->id;
+            $remessa->save();
 
-//            dd($itens);
+            foreach ($itens as $index => $item) {
+                $itens[$index]['minutaempenho_id'] = $minuta_id;
+                $itens[$index]['minutaempenhos_remessa_id'] = $remessa->id;
+                $itens[$index]['numseq'] = $index + 1;
+            }
 
             $codigoitem = Codigoitem::find($minuta->tipo_empenhopor_id);
-
-//            dump($codigoitem->descricao);
-//            dump($itens);
 
             if ($codigoitem->descricao == 'Contrato') {
                 ContratoItemMinutaEmpenho::insert($itens);
@@ -501,7 +496,6 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 CompraItemMinutaEmpenho::insert($itens);
             }
 
-            //dd($itens, $teste, CompraItemMinutaEmpenho::where('minutaempenhos_remessa_id',$remessa->id)->get());
 
             $minuta->etapa = 4;
             $minuta->save();
@@ -541,14 +535,12 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 $cime_deletar = $cime->get();
                 $cime->delete();
                 $remessa_id = $minuta->remessa[0]->id;
-                $itens = array_map(
-                    function ($itens) use ($minuta_id, $remessa_id) {
-                        $itens['minutaempenho_id'] = $minuta_id;
-                        $itens['minutaempenhos_remessa_id'] = $remessa_id;
-                        return $itens;
-                    },
-                    $itens
-                );
+
+                foreach ($itens as $index => $item) {
+                    $itens[$index]['minutaempenho_id'] = $minuta_id;
+                    $itens[$index]['minutaempenhos_remessa_id'] = $remessa_id;
+                    $itens[$index]['numseq'] = $index + 1;
+                }
 
                 ContratoItemMinutaEmpenho::insert($itens);
             } else {
@@ -566,17 +558,18 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     $compraItemUnidade->save();
                 }
 
-                $itens = array_map(
-                    function ($itens) use ($minuta_id, $remessa_id) {
-                        $itens['minutaempenho_id'] = $minuta_id;
-                        $itens['minutaempenhos_remessa_id'] = $remessa_id;
-                        return $itens;
-                    },
-                    $itens
-                );
+                foreach ($itens as $index => $item) {
+                    $itens[$index]['minutaempenho_id'] = $minuta_id;
+                    $itens[$index]['minutaempenhos_remessa_id'] = $remessa_id;
+                    $itens[$index]['numseq'] = $index + 1;
+                }
 
                 CompraItemMinutaEmpenho::insert($itens);
             }
+
+            $remessa = MinutaEmpenhoRemessa::find($remessa_id);
+            $remessa->sfnonce = date('Y'). '_' . $minuta_id . '_' . $remessa->id;
+            $remessa->save();
 
             $minuta->etapa = 4;
             $minuta->save();
