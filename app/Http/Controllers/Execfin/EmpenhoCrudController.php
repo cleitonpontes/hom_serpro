@@ -923,6 +923,8 @@ class EmpenhoCrudController extends CrudController
             $itens = SfItemEmpenho::where('sforcempenhodado_id',$empenho->id)
                 ->get();
 
+            dump($novo_empenho, $itens);
+
             foreach ($itens as $item) {
                 $array_empenhodetalhado = [
                     'empenho_id' => $novo_empenho->id,
