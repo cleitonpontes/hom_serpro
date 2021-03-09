@@ -21,6 +21,7 @@ use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
+use App\Models\SfItemEmpenho;
 use App\Models\SfOrcEmpenhoDados;
 use App\Models\Unidade;
 use App\STA\ConsultaApiSta;
@@ -919,7 +920,8 @@ class EmpenhoCrudController extends CrudController
                 $array_empenho2
             );
 
-            $itens = $empenho->itens_empenho()->get();
+            $itens = SfItemEmpenho::where('sforcempenhodado_id',$empenho->id)
+                ->get();
 
             foreach ($itens as $item) {
                 $array_empenhodetalhado = [
