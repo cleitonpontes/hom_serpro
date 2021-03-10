@@ -913,7 +913,7 @@ class EmpenhoCrudController extends CrudController
             'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
             'planointerno_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,31,11), 'PI'),
             'naturezadespesa_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,17,6), 'ND'),
-            'fonte' => $empenho->celula_orcamentaria->codfonterec
+            'fonte' => substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,7,10)
         ];
 
         $novo_empenho = Empenho::firstOrCreate(
