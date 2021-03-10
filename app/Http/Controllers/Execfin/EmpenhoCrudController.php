@@ -908,12 +908,14 @@ class EmpenhoCrudController extends CrudController
             'numero' => trim($empenho->mensagemretorno),
             'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
         ];
+
         $array_empenho2 = [
             'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
-            'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
-            'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
+            'planointerno_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,31,11), 'PI'),
+            'naturezadespesa_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,17,6), 'ND'),
             'fonte' => $empenho->celula_orcamentaria->codfonterec
         ];
+
         $novo_empenho = Empenho::firstOrCreate(
             $array_empenho1,
             $array_empenho2
