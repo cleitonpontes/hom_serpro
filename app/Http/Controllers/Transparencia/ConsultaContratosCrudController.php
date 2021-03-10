@@ -222,7 +222,7 @@ class ConsultaContratosCrudController extends ConsultaContratoBaseCrudController
         $this->crud->addColumns([
             [
                 'name' => 'getUnidadeOrigem',
-                'label' => 'Unidade Gestora Origem',
+                'label' => 'Unidade Gestora Origem do Contrato',
                 'type' => 'model_function',
                 'function_name' => 'getUnidadeOrigem',
                 'orderable' => true,

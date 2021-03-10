@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Traits\BuscaCodigoItens;
 use App\Models\ContaCorrentePassivoAnterior;
 use App\Models\Codigoitem;
 use App\Models\MinutaEmpenhoRemessa;
@@ -12,6 +13,7 @@ use App\Models\MinutaEmpenho;
 
 class VerifyStepEmpenhoMiddleware
 {
+    use BuscaCodigoItens;
     /**
      * Handle an incoming request.
      *
@@ -159,7 +161,18 @@ class VerifyStepEmpenhoMiddleware
             session(['situacao_remessa' => '']);
             session(['passivo_anterior' => $minuta->passivo_anterior]);
 
+
             if ($this->rotas_minuta_alteracao[Route::current()->action['as']] === 1) {
+                if (($remessa->situacao->descricao !== 'ERRO'
+                    && $remessa->situacao->descricao !== 'EM ANDAMENTO'
+                    && $remessa->situacao->descricao !== 'EMPENHO EMITIDO'
+                    && $remessa->remessa !== 0 )) {
+                    return redirect(route('empenho.crud.alteracao.show', [
+                        'minuta_id' => $minuta_id,
+                        'remessa' => $remessa_id,
+                        'minuta' => $minuta_id
+                    ]));
+                }
                 session(['situacao' => 'EM ANDAMENTO']);
                 session(['empenho_etapa' => 1]);
                 session(['passivo_anterior' => $minuta->passivo_anterior]);
@@ -179,6 +192,15 @@ class VerifyStepEmpenhoMiddleware
                 }
             }
             if ($this->rotas_minuta_alteracao[Route::current()->action['as']] === 2) {
+
+                if (($remessa->situacao->descricao !== 'ERRO' && $remessa->situacao->descricao !== 'EM ANDAMENTO')) {
+                    return redirect(route('empenho.crud.alteracao.show', [
+                        'minuta_id' => $minuta_id,
+                        'remessa' => $remessa_id,
+                        'minuta' => $minuta_id
+                    ]));
+                }
+
                 session(['situacao' => 'EM ANDAMENTO']);
                 session(['empenho_etapa' => 2]);
                 session(['passivo_anterior' => $minuta->passivo_anterior]);

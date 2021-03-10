@@ -15,7 +15,7 @@
 @endsection
 
 @section('content')
-        @include('vendor.backpack.base.mod.empenho.telas.cabecalho_alteracao')
+    @include('vendor.backpack.base.mod.empenho.telas.cabecalho_alteracao')
     @if ( $errors->any())
         <div class="callout callout-danger">
             <h4>{{ trans('backpack::crud.please_fix') }}</h4>
@@ -88,9 +88,9 @@
                 <input type="hidden" id="saldo_id" name="saldo_id" value="{{$saldo_id}}">
                 <input type="hidden" id="valor_utilizado" name="valor_utilizado" value="{{$valor_utilizado}}">
             @csrf <!-- {{ csrf_field() }} -->
-                                @if($update !== false)
-                                    {!! method_field('PUT') !!}
-                                @endif
+                @if($update !== false)
+                    {!! method_field('PUT') !!}
+                @endif
 
                 {!! $html->table() !!}
                 <div class="col-sm-12">
@@ -113,44 +113,44 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script type="text/javascript">
 
-        function BloqueiaValorTotal(tipo_alteracao) {
-            var selected = $(tipo_alteracao).find(':selected').text();
-            var minuta_por = $(tipo_alteracao).attr('id');
-            var tipo_empenho_por = $('#tipo_empenho_por').val();
-
-            $(tipo_alteracao).closest('tr').find('td').find('.valor_total').val(0)
-            $(tipo_alteracao).closest('tr').find('td').find('.qtd').val(0)
-            calculaUtilizado();
+        function BloqueiaValorTotal(tipo_alteracao, item_id) {
+            let selected = $(tipo_alteracao).find(':selected').text();
+            let minuta_por = $(tipo_alteracao).attr('id');
+            let tipo_empenho_por = $('#tipo_empenho_por').val();
+            $('#vrtotal' + item_id).val(0)
+            $('#qtd' + item_id).val(0)
+            calculaUtilizado(minuta_por);
 
             // se for contrato e serviço OU se for Suprimento
-            if((minuta_por == 'contrato_item_id' && ($('#tipo_item').val() == 'Serviço')) ||
+            if ((minuta_por.includes('contrato_item_id') && ($('#tipo_item').val() === 'Serviço')) ||
                 (tipo_empenho_por === 'Suprimento')
-            ){
-                if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
-                    $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
-                    $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+            ) {
+
+                if (selected === 'CANCELAMENTO' || selected === 'NENHUMA') {
+                    $('#vrtotal' + item_id).prop('disabled', true)
+                    $('#qtd' + item_id).prop('readonly', true)
                     return;
                 }
 
-                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
-                $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+                $('#vrtotal' + item_id).removeAttr('disabled')
+                $('#qtd' + item_id).prop('readonly', true)
 
             } else {
 
-                if (selected == 'CANCELAMENTO' || selected == 'NENHUMA') {
-                    $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('disabled', true)
-                    $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+                if (selected === 'CANCELAMENTO' || selected === 'NENHUMA') {
+                    $('#vrtotal' + item_id).prop('disabled', true)
+                    $('#qtd' + item_id).prop('readonly', true)
                     return;
                 }
 
                 if ($('#sispp_servico').val() == false) {
-                    $(tipo_alteracao).closest('tr').find('td').find('.valor_total').prop('readonly', true)
-                    $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', false)
+                    $('#vrtotal' + item_id).prop('readonly', true)
+                    $('#qtd' + item_id).prop('readonly', false)
                     return;
                 }
-                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('disabled')
-                $(tipo_alteracao).closest('tr').find('td').find('.valor_total').removeAttr('readonly')
-                $(tipo_alteracao).closest('tr').find('td').find('.qtd').prop('readonly', true)
+                $('#vrtotal' + item_id).removeAttr('disabled')
+                $('#vrtotal' + item_id).removeAttr('readonly')
+                $('#qtd' + item_id).prop('readonly', true)
             }
         }
 
@@ -170,7 +170,7 @@
             $(".vrtotal" + {{$tipo}})
                 .val(valor_total)
                 .trigger("input");
-            calculaUtilizado();
+            calculaUtilizado('{{$tipo}}_' + obj.dataset.{{$tipo}});
         }
 
         function calculaQuantidade(obj) {
@@ -181,7 +181,7 @@
 
             var quantidade = value / obj.dataset.valor_unitario;
             $(".qtd" + {{$tipo}}).val(quantidade).trigger("input");
-            calculaUtilizado();
+            calculaUtilizado('{{$tipo}}_' + obj.dataset.{{$tipo}});
         }
 
         $(document).ready(function () {
@@ -191,15 +191,15 @@
             });
 
             $('body').on('change', '.valor_total', function (event) {
-                calculaUtilizado();
+                calculaUtilizado('{{$tipo}}_' + this.dataset.{{$tipo}});
             });
 
             $('body').on('input', '.valor_total', function (event) {
-                calculaUtilizado();
+                calculaUtilizado('{{$tipo}}_' + this.dataset.{{$tipo}});
             });
 
             $('body').on('input', '.qtd', function (event) {
-                calculaUtilizado();
+                calculaUtilizado('{{$tipo}}_' + this.dataset.{{$tipo}});
             });
 
             $('.submeter').click(function (event) {
@@ -217,7 +217,7 @@
 
         });
 
-        function calculaUtilizado(){
+        function calculaUtilizado(tipo_operacao_id) {
             var soma = 0;
             var utilizado = 0;
             var saldo = {{$credito}};
@@ -226,24 +226,27 @@
             $(".valor_total").each(function (index) {
                 var valor = ptToEn($(this).val());
 
-                    var selected = $(this).closest('tr').find('select').find(':selected').text();
-
-                    if (!isNaN(parseFloat(valor))) {
-                        if (selected == 'ANULAÇÃO'){
-                            anulacao = parseFloat(anulacao) + parseFloat(valor) ;
-                        } else {
-                            outros = parseFloat(outros) + parseFloat(valor);
-                        }
-                    }
-                });
-                soma = parseFloat(anulacao * -1) + parseFloat(outros);
-                saldo = saldo - valor_utilizado - soma;
-
-                utilizado = outros - anulacao;
-                if (anulacao > outros){
-                    utilizado = anulacao - outros;
-                    utilizado *= -1;
+                var selected = $(this).closest('tr').find('select').find(':selected').text();
+                if (selected === '') {
+                    selected = $('#' + tipo_operacao_id).find(':selected').text();
                 }
+
+                if (!isNaN(parseFloat(valor))) {
+                    if (selected === 'ANULAÇÃO') {
+                        anulacao = parseFloat(anulacao) + parseFloat(valor);
+                    } else {
+                        outros = parseFloat(outros) + parseFloat(valor);
+                    }
+                }
+            });
+            soma = parseFloat(anulacao * -1) + parseFloat(outros);
+            saldo = saldo - valor_utilizado - soma;
+
+            utilizado = outros - anulacao;
+            if (anulacao > outros) {
+                utilizado = anulacao - outros;
+                utilizado *= -1;
+            }
 
             $("#utilizado").html("<b>R$ " + utilizado.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
             $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
@@ -269,8 +272,7 @@
         }
 
 
-        number_format = function (number, decimals, dec_point, thousands_sep)
-        {
+        number_format = function (number, decimals, dec_point, thousands_sep) {
             number = number.toFixed(decimals);
 
             var nstr = number.toString();
@@ -286,19 +288,18 @@
             return x1 + x2;
         }
 
-        function atualizaSaldos(credito)
-        {
+        function atualizaSaldos(credito) {
             var saldo = 0;
-            var utilizado = parseFloat($('#utilizado').text().replace('R$',''));
+            var utilizado = parseFloat($('#utilizado').text().replace('R$', ''));
 
-            if(utilizado < 0){
+            if (utilizado < 0) {
                 saldo = (parseFloat(credito + (utilizado * -1)));
-            }else{
+            } else {
                 saldo = (parseFloat(credito - utilizado));
             }
 
-            $('#credito').text('R$ '+number_format(credito,2,',','.'));
-            $('#saldo').text('R$ '+number_format(saldo,2,',','.'));
+            $('#credito').text('R$ ' + number_format(credito, 2, ',', '.'));
+            $('#saldo').text('R$ ' + number_format(saldo, 2, ',', '.'));
 
         }
 
@@ -338,8 +339,7 @@
             event.preventDefault()
         }
 
-        function atualizaCreditoOrcamentario(event)
-        {
+        function atualizaCreditoOrcamentario(event) {
             var minuta_id = {{$minuta_id}}
             var url = "{{route('atualiza.credito.orcamentario',':minuta_id')}}";
             url = url.replace(':minuta_id', minuta_id);

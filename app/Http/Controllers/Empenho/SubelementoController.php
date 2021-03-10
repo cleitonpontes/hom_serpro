@@ -37,7 +37,8 @@ class SubelementoController extends BaseControllerEmpenho
 
         $minuta_id = Route::current()->parameter('minuta_id');
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
-        $fornecedor_id = $modMinutaEmpenho->fornecedor_empenho_id;
+//        $fornecedor_id = $modMinutaEmpenho->fornecedor_empenho_id;
+        $fornecedor_id = $modMinutaEmpenho->fornecedor_compra_id;
 
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
         if ($codigoitem->descricao === 'Contrato') {
@@ -115,6 +116,7 @@ class SubelementoController extends BaseControllerEmpenho
                         DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                     ]
                 )
+                ->distinct()
                 ->get()
                 ->toArray();
 
@@ -187,15 +189,8 @@ class SubelementoController extends BaseControllerEmpenho
                 )
                 ->where('minutaempenhos.id', $minuta_id)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
-                ->where(function ($query) use ($fornecedor_id) {
-                    $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
-                        ->orWhere(
-                            function ($query) use ($fornecedor_id) {
-                                $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
-                                    ->whereNull('compra_item_fornecedor.fornecedor_id');
-                            }
-                        );
-                })
+                ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
                 ->select(
                     [
                         'compra_item_minuta_empenho.compra_item_id',
@@ -219,6 +214,7 @@ class SubelementoController extends BaseControllerEmpenho
                         DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                     ]
                 )
+                ->distinct()
                 ->get()
                 ->toArray();
 

@@ -40,7 +40,8 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
         string $mes,
         Empenhodetalhado $empenhodetalhado,
         array $contas_contabeis
-    ) {
+    )
+    {
         $this->ug = $ug;
         $this->amb = $amb;
         $this->contacorrente = $contacorrente;
@@ -77,41 +78,14 @@ class AtualizasaldosmpenhosJobs implements ShouldQueue
                 $contacontabil1,
                 $this->contacorrente);
 
-            if ($retorno!=null) {
+            if ($retorno != null) {
                 $dado[$item] = $retorno['saldo'];
             } else {
                 $dado[$item] = $saldoAtual;
             }
 
-
-            //consulta saldo via webservice
-//            $execsiafi = new Execsiafi();
-//
-//            $retorno = null;
-//            $retorno = $execsiafi->conrazaoUser(
-//                $this->ug,
-//                $this->amb,
-//                $this->ano,
-//                $this->ug,
-//                $contacontabil1,
-//                $this->contacorrente,
-//                $this->mes,
-//                $this->user);
-//
-//            if (isset($retorno->resultado[0])) {
-//                if ($retorno->resultado[0] == 'SUCESSO') {
-//                    if (isset($retorno->resultado[4])) {
-//                        $saldoAtual = (float)$retorno->resultado[4];
-//                    }
-//                    $dado[$item] = $saldoAtual;
-//                }
-//            }
-
+            $this->empenhodetalhado->fill($dado);
+            $this->empenhodetalhado->push();
         }
-
-        $this->empenhodetalhado->fill($dado);
-        $this->empenhodetalhado->push();
-
     }
-
 }

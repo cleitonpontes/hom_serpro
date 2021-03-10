@@ -64,6 +64,8 @@ return [
         'delete_confirmation_not_message'             => 'Ocorreu um erro. O item pode não ter sido excluído.',
         'delete_confirmation_not_deleted_title'       => 'Item não excluído',
         'delete_confirmation_not_deleted_message'     => 'Nada aconteceu. Seu item está seguro.',
+        'delete_confirmation_not_deleted_message_vinculacao'     => 'Este contrato não pode ser deletado,' .
+        ' pois possui Minutas de Empenhos vinculado!',
 
         'ajax_error_title' => 'Erro',
         'ajax_error_text'  => 'Erro ao carregar. Por favor, atualize a página.',

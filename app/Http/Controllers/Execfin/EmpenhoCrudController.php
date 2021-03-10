@@ -21,6 +21,7 @@ use App\Models\Fornecedor;
 use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
+use App\Models\SfItemEmpenho;
 use App\Models\SfOrcEmpenhoDados;
 use App\Models\Unidade;
 use App\STA\ConsultaApiSta;
@@ -619,27 +620,6 @@ class EmpenhoCrudController extends CrudController
             } else {
                 $dado[$item] = $saldoAtual;
             }
-
-//            $execsiafi = new Execsiafi();
-//
-//            $retorno = null;
-//            $retorno = $execsiafi->conrazaoUser(
-//                $ug,
-//                $amb,
-//                $ano,
-//                $ug,
-//                $contacontabil1,
-//                $contacorrente,
-//                $mes,
-//                $user);
-
-//            if ($retorno->resultado[0] == 'SUCESSO') {
-//                if (isset($retorno->resultado[4])) {
-//                    $saldoAtual = (float)$retorno->resultado[4];
-//                }
-//                $dado[$item] = $saldoAtual;
-//            }
-
         }
 
         $empenhodetalhado->fill($dado);
@@ -924,32 +904,35 @@ class EmpenhoCrudController extends CrudController
 
     public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
     {
-        if ($empenho->minuta_empenhos->tipo_empenhopor->descricao != 'Alteração') {
-            $array_empenho1 = [
-                'numero' => trim($empenho->mensagemretorno),
-                'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
-            ];
-            $array_empenho2 = [
-                'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
-                'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
-                'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
-                'fonte' => $empenho->celula_orcamentaria->codfonterec
-            ];
-            $novo_empenho = Empenho::updateOrCreate(
-                $array_empenho1,
-                $array_empenho2
-            );
+        $array_empenho1 = [
+            'numero' => trim($empenho->mensagemretorno),
+            'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
+        ];
 
-            $itens = $empenho->itens_empenho()->get();
+        $array_empenho2 = [
+            'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
+            'planointerno_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,31,11), 'PI'),
+            'naturezadespesa_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,17,6), 'ND'),
+            'fonte' => substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,7,10)
+        ];
 
-            foreach ($itens as $item) {
-                $array_empenhodetalhado = [
-                    'empenho_id' => $novo_empenho->id,
-                    'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
-                ];
-                Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
-            }
+        $novo_empenho = Empenho::firstOrCreate(
+            $array_empenho1,
+            $array_empenho2
+        );
+
+        $itens = SfItemEmpenho::where('sforcempenhodado_id', $empenho->id)
+            ->get();
+
+        $array_empenhodetalhado = [];
+        foreach ($itens as $item) {
+            $array_empenhodetalhado = [
+                'empenho_id' => $novo_empenho->id,
+                'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
+            ];
+            $novo_empenhodetalhado = Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
         }
+        return $novo_empenho;
     }
 
     public function trataPiNdSubitem($dado, $tipo, $fk = null, $descricao = null)
@@ -981,7 +964,7 @@ class EmpenhoCrudController extends CrudController
             return $nd->id;
         }
         if ($tipo == 'SUBITEM') {
-            $nd = Naturezasubitem::firstOrCreate(
+            $ndsubitem = Naturezasubitem::firstOrCreate(
                 [
                     'naturezadespesa_id' => $fk,
                     'codigo' => trim($dado),
@@ -992,7 +975,7 @@ class EmpenhoCrudController extends CrudController
                 ]
             );
 
-            return $nd->id;
+            return $ndsubitem->id;
         }
     }
 

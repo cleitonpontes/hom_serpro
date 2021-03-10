@@ -24,7 +24,7 @@ use App\Models\Contratoterceirizado;
 use App\Models\Contratodespesaacessoria;
 use OpenApi\Annotations as OA;
 use App\Models\MinutaEmpenho;
-
+use Illuminate\Support\Facades\Route;
 use App\Models\Empenho;
 use App\Models\Fornecedor;
 use Illuminate\Http\Request;
@@ -851,6 +851,7 @@ class ContratoController extends Controller
     {
         $contratos_array = [];
         $contratos = $this->buscaContratos();
+        $prefixoAPI = Route::current()->getPrefix();
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = [
@@ -881,18 +882,18 @@ class ContratoController extends Controller
                 'num_parcelas' => $contrato->num_parcelas,
                 'valor_parcela' => number_format($contrato->valor_parcela, 2, ',', '.'),
                 'valor_acumulado' => number_format($contrato->valor_acumulado, 2, ',', '.'),
-                'link_historico' => url('/api/contrato/' . $contrato->id . '/historico/'),
-                'link_empenhos' => url('/api/contrato/' . $contrato->id . '/empenhos/'),
-                'link_cronograma' => url('/api/contrato/' . $contrato->id . '/cronograma/'),
-                'link_garantias' => url('/api/contrato/' . $contrato->id . '/garantias/'),
-                'link_itens' => url('/api/contrato/' . $contrato->id . '/itens/'),
-                'link_prepostos' => url('/api/contrato/' . $contrato->id . '/prepostos/'),
-                'link_responsaveis' => url('/api/contrato/' . $contrato->id . '/responsaveis/'),
-                'link_despesas_acessorias' => url('/api/contrato/' . $contrato->id . '/despesas_acessorias/'),
-                'link_faturas' => url('/api/contrato/' . $contrato->id . '/faturas/'),
-                'link_ocorrencias' => url('/api/contrato/' . $contrato->id . '/ocorrencias/'),
-                'link_terceirizados' => url('/api/contrato/' . $contrato->id . '/terceirizados/'),
-                'link_arquivos' => url('/api/contrato/' . $contrato->id . '/arquivos/'),
+                'link_historico' => url($prefixoAPI. '/' . $contrato->id . '/historico/'),
+                'link_empenhos' => url($prefixoAPI. '/' . $contrato->id . '/empenhos/'),
+                'link_cronograma' => url($prefixoAPI. '/' . $contrato->id . '/cronograma/'),
+                'link_garantias' => url($prefixoAPI. '/' . $contrato->id . '/garantias/'),
+                'link_itens' => url($prefixoAPI. '/' . $contrato->id . '/itens/'),
+                'link_prepostos' => url($prefixoAPI. '/' . $contrato->id . '/prepostos/'),
+                'link_responsaveis' => url($prefixoAPI. '/' . $contrato->id . '/responsaveis/'),
+                'link_despesas_acessorias' => url($prefixoAPI. '/' . $contrato->id . '/despesas_acessorias/'),
+                'link_faturas' => url($prefixoAPI. '/' . $contrato->id . '/faturas/'),
+                'link_ocorrencias' => url($prefixoAPI. '/' . $contrato->id . '/ocorrencias/'),
+                'link_terceirizados' => url($prefixoAPI. '/' . $contrato->id . '/terceirizados/'),
+                'link_arquivos' => url($prefixoAPI. '/' . $contrato->id . '/arquivos/'),
             ];
         }
 
@@ -946,7 +947,7 @@ class ContratoController extends Controller
         $contratos_array = [];
         $contratos = $this->buscaContratoPorUASGeNumero($codigo_uasg, $numeroano_contrato);
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
         return json_encode($contratos_array);
     }
@@ -971,13 +972,13 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoAtivoPorUg(int $unidade)
+    public function contratoAtivoPorUg(string $unidade)
     {
         $contratos_array = [];
         $contratos = $this->buscaContratosPorUg($unidade);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
 
         return json_encode($contratos_array);
@@ -1002,13 +1003,13 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoAtivoPorOrgao(int $orgao)
+    public function contratoAtivoPorOrgao(string $orgao)
     {
         $contratos_array = [];
         $contratos = $this->buscaContratosPorOrgao($orgao);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
 
         return json_encode($contratos_array);
@@ -1034,13 +1035,13 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoInativoPorUg(int $unidade)
+    public function contratoInativoPorUg(string $unidade)
     {
         $contratos_array = [];
         $contratos = $this->buscaContratosInativosPorUg($unidade);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
 
         return json_encode($contratos_array);
@@ -1065,13 +1066,13 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoInativoPorOrgao(int $orgao)
+    public function contratoInativoPorOrgao(string $orgao)
     {
         $contratos_array = [];
         $contratos = $this->buscaContratosInativosPorOrgao($orgao);
 
         foreach ($contratos as $contrato) {
-            $contratos_array[] = $contrato->contratoAPI();
+            $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
 
         return json_encode($contratos_array);
@@ -1205,9 +1206,9 @@ class ContratoController extends Controller
 *             @OA\Property(property="id",type="integer",example="1"),
 *             @OA\Property(property="receita_despesa",type="string",example="Despesa"),
 *             @OA\Property(property="numero",type="string",example="00420/2019"),
-*             @OA\Property(property="orgao_codigo",type="integer",example="63000"),
+*             @OA\Property(property="orgao_codigo",type="string",example="63000"),
 *             @OA\Property(property="orgao_nome",type="string",example="ADVOCACIA-GERAL DA UNIÃO"),
-*             @OA\Property(property="unidade_codigo",type="integer",example="110161"),
+*             @OA\Property(property="unidade_codigo",type="string",example="110161"),
 *             @OA\Property(property="unidade_nome_resumido",type="string",example="SAD/DF"),
 *             @OA\Property(property="unidade_nome",type="string",example="SUPERIN. DE ADM. NO DISTRITO FEDERAL"),
 *             @OA\Property(property="fornecedor_tipo",type="string",example="UG"),
@@ -1246,7 +1247,7 @@ class ContratoController extends Controller
 *         @OA\Schema(
 *             schema="UG",
 *             type="object",
-*             @OA\Property(property="codigo",type="integer",example="110161"),*
+*             @OA\Property(property="codigo",type="string",example="110161"),*
 *             @OA\Property(property="nome_resumido",type="string",example="SAD/DF/AGU"),
 *             @OA\Property(property="nome",type="string",example="SUPERINTENDENCIA DE ADM. NO DISTRITO FEDERAL"),
 *         ),
@@ -1254,7 +1255,7 @@ class ContratoController extends Controller
 *         @OA\Schema(
 *             schema="Orgao",
 *             type="object",
-*             @OA\Property(property="codigo",type="integer",example="63000"),
+*             @OA\Property(property="codigo",type="string",example="63000"),
 *             @OA\Property(property="nome",type="string",example="ADVOCACIA-GERAL DA UNIAO"),
 *             @OA\Property(property="unidade_gestora", type="object", ref="#/components/schemas/UG"),
 *         ),
@@ -1325,7 +1326,7 @@ class ContratoController extends Controller
 *             @OA\Property(property="receita_despesa",type="string",example="Despesa"),
 *             @OA\Property(property="numero",type="string",example="00420/2019"),
 *             @OA\Property(property="observacao",type="string",example="CELEBRAÇÃO DO CONTRATO: 0006/2017 DE ACORDO COM PROCESSO NÚMERO: 00589.000328/2016-38"),
-*             @OA\Property(property="ug",type="integer",example="110099"),
+*             @OA\Property(property="ug",type="string",example="110099"),
 *             @OA\Property(property="fornecedor", type="object", ref="#/components/schemas/Fornecedor"),
 *             @OA\Property(property="tipo",type="string",example="CONCESSÃO"),
 *             @OA\Property(property="categoria",type="string",example=""),

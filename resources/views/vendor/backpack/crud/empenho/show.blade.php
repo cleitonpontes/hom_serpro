@@ -289,6 +289,7 @@
 
         $(document).ready(function () {
             $('body').on('click', '#emitir_empenho_siafi', function (event) {
+                $('#emitir_empenho_siafi').attr('disabled', true);
                 salvarTabelasSiafi(event);
             });
 
@@ -331,7 +332,6 @@
                             'success'
                         )
                         retirarLinks();
-                        $('#emitir_empenho_siafi').attr('disabled', true);
                         $('#voltar').attr('disabled', true);
                         $('#empenhar_outro_fornecedor').removeAttr('disabled');
                         $('#finalizar').removeAttr('disabled');
@@ -346,6 +346,7 @@
                     }
                 })
                 .catch(error => {
+                    $('#emitir_empenho_siafi').removeAttr('disabled');
                     alert(error);
                 })
                 .finally()

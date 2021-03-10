@@ -646,6 +646,7 @@ class MinutaEmpenhoCrudController extends CrudController
         $modMinuta = MinutaEmpenho::find($minuta_id);
         $codigoitem = Codigoitem::find($modMinuta->tipo_empenhopor_id);
         $fornecedor_id = $modMinuta->fornecedor_empenho_id;
+        $fornecedor_compra_id = $modMinuta->fornecedor_compra_id;
 
         if ($codigoitem->descricao === 'Contrato') {
             $itens = ContratoItemMinutaEmpenho::join(
@@ -667,6 +668,7 @@ class MinutaEmpenhoCrudController extends CrudController
                 )
                 ->where('contrato_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->where('minutaempenhos_remessa.remessa', 0)
+                ->distinct()
                 ->select([
                     DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
                     DB::raw('fornecedores.nome AS "Fornecedor"'),
@@ -677,8 +679,12 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('contratoitens.descricao_complementar AS "Descrição Detalhada"'),
                     DB::raw('contrato_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
+                    'contrato_item_minuta_empenho.numseq'
                 ])
-                ->get()->toArray();
+                ->orderBy('contrato_item_minuta_empenho.numseq', 'asc')
+                ->get()->toArray()
+
+            ;
         }
 
         if ($codigoitem->descricao === 'Compra' || $codigoitem->descricao === 'Suprimento') {
@@ -719,8 +725,13 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('compra_item_fornecedor.valor_unitario AS "Valor unitário"'),
                     DB::raw('compra_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('compra_item_minuta_empenho.Valor AS "Valor Total do Item"'),
-                ]);
-            $itens = $this->setCondicaoFornecedor($itens, $codigoitem->descricao, $fornecedor_id);
+                    'compra_item_minuta_empenho.numseq'
+                ])
+                ->orderBy('compra_item_minuta_empenho.numseq', 'asc');
+
+            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+                  ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
+
             $itens = $itens->get()->toArray();
         }
 

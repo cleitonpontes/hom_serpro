@@ -6,7 +6,7 @@ return [
     'usuario_siafi' => env('USUARIO_SIAFI','E0350'),
     'senha_siafi' => env('SENHA_SIAFI', ''),
 
-    'app_version' => '1.2.6',
+    'app_version' => '1.2.7',
 
     'app_amb' => env('APP_AMB', 'Ambiente Produção'),
 
@@ -373,6 +373,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
     ],
 
@@ -428,7 +429,8 @@ return [
         'DropdownButton' => Bootstrapper\Facades\DropdownButton::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-
+        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
+        'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
     ],
 
 ];

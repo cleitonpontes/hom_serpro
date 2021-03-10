@@ -36,7 +36,8 @@ class CompraItemMinutaEmpenho extends Model
         'remessa', // Chave composta: 3/3
         'quantidade',
         'valor',
-        'minutaempenhos_remessa_id'
+        'minutaempenhos_remessa_id',
+        'numseq'
     ];
 
     /*

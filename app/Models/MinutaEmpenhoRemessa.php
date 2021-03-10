@@ -29,6 +29,7 @@ class MinutaEmpenhoRemessa extends Model
         'situacao_id',
         'remessa',
         'etapa',
+        'sfnonce'
     ];
 
     /*
