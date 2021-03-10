@@ -904,35 +904,33 @@ class EmpenhoCrudController extends CrudController
 
     public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
     {
-        if ($empenho->minuta_empenhos->tipo_empenhopor->descricao != 'Alteração') {
-            $array_empenho1 = [
-                'numero' => trim($empenho->mensagemretorno),
-                'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
-            ];
-            $array_empenho2 = [
-                'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
-                'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
-                'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
-                'fonte' => $empenho->celula_orcamentaria->codfonterec
-            ];
-            $novo_empenho = Empenho::updateOrCreate(
-                $array_empenho1,
-                $array_empenho2
-            );
+        $array_empenho1 = [
+            'numero' => trim($empenho->mensagemretorno),
+            'unidade_id' => $empenho->minuta_empenhos->saldo_contabil->unidade_id,
+        ];
+        $array_empenho2 = [
+            'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
+            'planointerno_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codplanointerno, 'PI'),
+            'naturezadespesa_id' => $this->trataPiNdSubitem($empenho->celula_orcamentaria->codnatdesp, 'ND'),
+            'fonte' => $empenho->celula_orcamentaria->codfonterec
+        ];
+        $novo_empenho = Empenho::firstOrCreate(
+            $array_empenho1,
+            $array_empenho2
+        );
 
-            $itens = SfItemEmpenho::where('sforcempenhodado_id',$empenho->id)
-                ->get();
+        $itens = SfItemEmpenho::where('sforcempenhodado_id', $empenho->id)
+            ->get();
 
-            $array_empenhodetalhado = [];
-            foreach ($itens as $item) {
-                $array_empenhodetalhado = [
-                    'empenho_id' => $novo_empenho->id,
-                    'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
-                ];
-                $novo_empenhodetalhado = Empenhodetalhado::updateOrCreate($array_empenhodetalhado);
-            }
-            return $novo_empenho;
+        $array_empenhodetalhado = [];
+        foreach ($itens as $item) {
+            $array_empenhodetalhado = [
+                'empenho_id' => $novo_empenho->id,
+                'naturezasubitem_id' => $this->trataPiNdSubitem($item->codsubelemento, 'SUBITEM', $array_empenho2['naturezadespesa_id'])
+            ];
+            $novo_empenhodetalhado = Empenhodetalhado::firstOrCreate($array_empenhodetalhado);
         }
+        return $novo_empenho;
     }
 
     public function trataPiNdSubitem($dado, $tipo, $fk = null, $descricao = null)
