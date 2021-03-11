@@ -1842,7 +1842,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     $remessa->save();
                 }
 
-                if(!$modSfOrcEmpenhoDados->sfnonce){
+                if($modSfOrcEmpenhoDados->sfnonce != $remessa->sfnonce){
                     $modSfOrcEmpenhoDados->sfnonce = $remessa->sfnonce;
                 }
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
