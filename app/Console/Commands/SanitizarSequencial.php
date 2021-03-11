@@ -51,11 +51,11 @@ class SanitizarSequencial extends Command
     public function handle()
     {
         try {
-//            $this->atualizaNumSeqRemessaOriginalCompra();
-//            $this->atualizaNumSeqRemessaAlteracaoCompra();
+            $this->atualizaNumSeqRemessaOriginalCompra();
+            $this->atualizaNumSeqRemessaAlteracaoCompra();
             $this->atualizaNumSeqRemessaFaltanteCompra();
-//            $this->atualizaNumSeqRemessaOriginalContrato();
-//            $this->atualizaNumSeqRemessaAlteracaoContratos();
+            $this->atualizaNumSeqRemessaOriginalContrato();
+            $this->atualizaNumSeqRemessaAlteracaoContratos();
             $this->atualizaNumSeqRemessaFaltanteContrato();
 
         } catch (Exception $e) {
