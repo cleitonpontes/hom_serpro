@@ -37,6 +37,7 @@ class ContratoItemMinutaEmpenho extends Model
         'minutaempenhos_remessa_id',
         'quantidade',
         'valor',
+        'numseq'
     ];
 
     /**

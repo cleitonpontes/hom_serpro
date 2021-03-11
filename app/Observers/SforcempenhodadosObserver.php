@@ -39,9 +39,18 @@ class SforcempenhodadosObserver
                 $minutaempenho->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
                 $minutaempenho->situacao_id = $situacao->id;
                 $minutaempenho->save();
+                if ($sfOrcEmpenhoDados->situacao == 'ERRO') {
+                    $remessa = MinutaEmpenhoRemessa::find($sfOrcEmpenhoDados->minutaempenhos_remessa_id);
+                    $remessa->sfnonce = $this->geraNonceSequencial($sfOrcEmpenhoDados);
+                    $remessa->save();
+                }
+
             } else {
                 $remessa = MinutaEmpenhoRemessa::find($sfOrcEmpenhoDados->minutaempenhos_remessa_id);
                 $remessa->mensagem_siafi = $sfOrcEmpenhoDados->mensagemretorno;
+                if ($sfOrcEmpenhoDados->situacao == 'ERRO') {
+                    $remessa->sfnonce = $this->geraNonceSequencial($sfOrcEmpenhoDados);
+                }
                 $remessa->situacao_id = $situacao->id;
                 $remessa->save();
             }
@@ -76,6 +85,23 @@ class SforcempenhodadosObserver
                 AlterarEmpenhoWSJob::dispatch($sfOrcEmpenhoDados)->onQueue('enviarempenhosiafi');
             }
         }
+    }
+
+    private function geraNonceSequencial($sforcempenhodados)
+    {
+        if (!$sforcempenhodados->remessa->sfnonce) {
+            return date('Y') . '_' . $sforcempenhodados->remessa->minutaempenho_id . '_' . $sforcempenhodados->remessa->id;
+        }
+
+        $array = explode('_', $sforcempenhodados->remessa->sfnonce);
+
+        if (isset($array[3])) {
+            $array[3] = $array[3]+1;
+        }else{
+            $array[3] = '1';
+        }
+
+        return implode('_',$array);
     }
 
     private function buscaSituacao(string $situacao)

@@ -69,6 +69,11 @@ class SfOrcEmpenhoDados extends Model
         return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
     }
 
+    public function remessa()
+    {
+        return $this->belongsTo(MinutaEmpenhoRemessa::class, 'minutaempenhos_remessa_id');
+    }
+
     public function passivos_anteriores()
     {
         return $this->hasMany(SfPassivoAnterior::class, 'sforcempenhodado_id');
