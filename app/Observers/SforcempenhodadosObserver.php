@@ -8,6 +8,7 @@ use App\Jobs\IncluirEmpenhoWSJob;
 use App\Jobs\AtualizarSaldoEmpenhoJob;
 use App\Models\Codigoitem;
 use App\Models\DevolveMinutaSiasg;
+use App\Models\Empenho;
 use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
 use App\Models\Naturezasubitem;
@@ -46,18 +47,16 @@ class SforcempenhodadosObserver
             }
 
             if ($sfOrcEmpenhoDados->situacao == 'EMITIDO') {
-                if ($sfOrcEmpenhoDados->alteracao == false) {
-                    $empenhoCrud = new EmpenhoCrudController();
-                    $objEmpenho = $empenhoCrud->criaEmpenhoFromMinuta($sfOrcEmpenhoDados);
+                $empenhoCrud = new EmpenhoCrudController();
+                $objEmpenho = $empenhoCrud->criaEmpenhoFromMinuta($sfOrcEmpenhoDados);
 
-                    /*Atualiza o saldo do empenho*/
-                    if($objEmpenho){
-                        foreach($objEmpenho->empenhodetalhado as $empDetalhado){
-                            $subitem =  $empDetalhado->naturezasubitem->codigo;
-                            $ug = $objEmpenho->unidade->codigo;
-                            $empenho = $objEmpenho->numero;
-                            AtualizarSaldoEmpenhoJob::dispatch($ug, $empenho, $subitem, $objEmpenho->unidade_id)->onQueue('atualizasaldone');
-                        }
+                /*Atualiza o saldo do empenho*/
+                if ($objEmpenho) {
+                    foreach ($objEmpenho->empenhodetalhado as $empDetalhado) {
+                        $subitem = $empDetalhado->naturezasubitem->codigo;
+                        $ug = $objEmpenho->unidade->codigo;
+                        $empenho = $objEmpenho->numero;
+                        AtualizarSaldoEmpenhoJob::dispatch($ug, $empenho, $subitem, $objEmpenho->unidade_id)->onQueue('atualizasaldone');
                     }
                 }
 
