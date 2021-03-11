@@ -917,9 +917,15 @@ class MinutaEmpenhoCrudController extends CrudController
                     ->latest()
                     ->first();
 
-                $execsiafi = new Execsiafi();
-                $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
-                $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
+                $remessa = MinutaEmpenhoRemessa::find($modSfOrcEmpenhoDados->minutaempenhos_remessa_id);
+                if(!$remessa->sfnonce){
+                    $remessa->sfnonce = date('y').'_'.$remessa->minutaempenho_id.'_'.$remessa->id;
+                    $remessa->save();
+                }
+
+                if(!$modSfOrcEmpenhoDados->sfnonce){
+                    $modSfOrcEmpenhoDados->sfnonce = $remessa->sfnonce;
+                }
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
                 $modSfOrcEmpenhoDados->save();
 
