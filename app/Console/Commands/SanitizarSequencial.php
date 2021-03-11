@@ -72,8 +72,6 @@ class SanitizarSequencial extends Command
             ->whereNull('compra_item_minuta_empenho.numseq')
             ->get();
 
-        dd($remessas->count());
-
         foreach ($remessas as $remessa) {
             $itens = CompraItemMinutaEmpenho::where('minutaempenhos_remessa_id', $remessa->id)
                 ->whereNull('numseq')
@@ -91,7 +89,9 @@ class SanitizarSequencial extends Command
 
     private function atualizaNumSeqRemessaFaltanteContrato()
     {
-        $remessas = MinutaEmpenhoRemessa::join('contrto_item_minuta_empenho', 'minutaempenhos_remessa.id', '=', 'contrato_item_minuta_empenho.minutaempenhos_remessa_id')
+        $remessas = MinutaEmpenhoRemessa::join('contrato_item_minuta_empenho', 'minutaempenhos_remessa.id', '=', 'contrato_item_minuta_empenho.minutaempenhos_remessa_id')
+            ->select('minutaempenhos_remessa.id')
+            ->distinct()
             ->whereNull('contrato_item_minuta_empenho.numseq')
             ->get();
 
