@@ -67,6 +67,7 @@ class SanitizarSequencial extends Command
     private function atualizaNumSeqRemessaFaltanteCompra()
     {
         $remessas = MinutaEmpenhoRemessa::join('compra_item_minuta_empenho', 'minutaempenhos_remessa.id', '=', 'compra_item_minuta_empenho.minutaempenhos_remessa_id')
+            ->select('minutaempenhos_remessa.id')
             ->whereNull('compra_item_minuta_empenho.numseq')
             ->get();
 
