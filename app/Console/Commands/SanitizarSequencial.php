@@ -68,6 +68,7 @@ class SanitizarSequencial extends Command
     {
         $remessas = MinutaEmpenhoRemessa::join('compra_item_minuta_empenho', 'minutaempenhos_remessa.id', '=', 'compra_item_minuta_empenho.minutaempenhos_remessa_id')
             ->select('minutaempenhos_remessa.id')
+            ->distinct()
             ->whereNull('compra_item_minuta_empenho.numseq')
             ->get();
 
