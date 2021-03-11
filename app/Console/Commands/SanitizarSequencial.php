@@ -7,6 +7,7 @@ use App\Models\CompraItemMinutaEmpenho;
 use App\Models\Contratoitem;
 use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\MinutaEmpenho;
+use App\Models\MinutaEmpenhoRemessa;
 use App\Models\SfItemEmpenho;
 use Illuminate\Console\Command;
 use App\Models\Contrato;
@@ -49,35 +50,55 @@ class SanitizarSequencial extends Command
      */
     public function handle()
     {
-        try{
-             $this->atualizaNumSeqRemessaOriginalCompra();
-             $this->atualizaNumSeqRemessaAlteracaoCompra();
-             $this->atualizaNumSeqRemessaOriginalContrato();
-             $this->atualizaNumSeqRemessaAlteracaoContratos();
+        try {
+//            $this->atualizaNumSeqRemessaOriginalCompra();
+//            $this->atualizaNumSeqRemessaAlteracaoCompra();
+            $this->atualizaNumSeqRemessaFaltanteCompra();
+//            $this->atualizaNumSeqRemessaOriginalContrato();
+//            $this->atualizaNumSeqRemessaAlteracaoContratos();
 
-        } catch(Exception $e){
-           throw new Exception("Error ao Processar a Requisição", $e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception("Error ao Processar a Requisição", $e->getMessage());
         }
 
     }
 
+    private function atualizaNumSeqRemessaFaltanteCompra()
+    {
+        $remessas = MinutaEmpenhoRemessa::join('compra_item_minuta_empenho', 'minutaempenhos_remessa.id', '=', 'compra_item_minuta_empenho.minutaempenhos_remessa_id')
+            ->whereNull('compra_item_minuta_empenho.numseq')
+            ->get();
+
+        foreach ($remessas as $remessa) {
+            $itens = CompraItemMinutaEmpenho::where('minutaempenhos_remessa_id', $remessa->id)
+                ->whereNull('numseq')
+                ->orderBy('id', 'asc')
+                ->get();
+            $i = 1;
+            foreach ($itens as $item) {
+                $item->numseq = $i;
+                $item->save();
+                $i++;
+            }
+        }
+
+    }
 
     private function atualizaNumSeqRemessaOriginalCompra()
     {
         $minutas = $this->buscaMinutasOriginaisCompra();
 
-        $sfitems =  SfItemEmpenho::join('sfoperacaoitemempenho','sfoperacaoitemempenho.sfitemempenho_id','=','sfitemempenho.id')
-            ->join('sforcempenhodados','sforcempenhodados.id','=','sfitemempenho.sforcempenhodado_id')
-            ->join('minutaempenhos','minutaempenhos.id','=','sforcempenhodados.minutaempenho_id')
-            ->join('minutaempenhos_remessa', function($join)
-            {
+        $sfitems = SfItemEmpenho::join('sfoperacaoitemempenho', 'sfoperacaoitemempenho.sfitemempenho_id', '=', 'sfitemempenho.id')
+            ->join('sforcempenhodados', 'sforcempenhodados.id', '=', 'sfitemempenho.sforcempenhodado_id')
+            ->join('minutaempenhos', 'minutaempenhos.id', '=', 'sforcempenhodados.minutaempenho_id')
+            ->join('minutaempenhos_remessa', function ($join) {
                 $join->on('minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
                 $join->on('sforcempenhodados.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
             })
-            ->where('minutaempenhos_remessa.remessa','=',0)
-            ->where('minutaempenhos.tipo_empenhopor_id',255)
+            ->where('minutaempenhos_remessa.remessa', '=', 0)
+            ->where('minutaempenhos.tipo_empenhopor_id', 255)
             ->whereNotNull('sfitemempenho.numseqitem')
-            ->whereNotIn('minutaempenhos.id',$minutas)
+            ->whereNotIn('minutaempenhos.id', $minutas)
             ->select(
                 'sfitemempenho.numseqitem',
                 'minutaempenhos.id',
@@ -93,7 +114,7 @@ class SanitizarSequencial extends Command
     private function atualizaNumSeqRemessaAlteracaoCompra()
     {
 
-        $cime =  CompraItemMinutaEmpenho::whereNotNull('compra_item_minuta_empenho.numseq')
+        $cime = CompraItemMinutaEmpenho::whereNotNull('compra_item_minuta_empenho.numseq')
             ->select(
                 'compra_item_minuta_empenho.id',
                 'compra_item_minuta_empenho.compra_item_id',
@@ -108,7 +129,7 @@ class SanitizarSequencial extends Command
     private function atualizaNumSeqRemessaAlteracaoContratos()
     {
 
-        $cime =  ContratoItemMinutaEmpenho::whereNotNull('contrato_item_minuta_empenho.numseq')
+        $cime = ContratoItemMinutaEmpenho::whereNotNull('contrato_item_minuta_empenho.numseq')
             ->select(
                 'contrato_item_minuta_empenho.id',
                 'contrato_item_minuta_empenho.contrato_item_id',
@@ -123,18 +144,17 @@ class SanitizarSequencial extends Command
     {
         $minutas = $this->buscaMinutasOriginaisContrato();
 
-        $sfitems =  SfItemEmpenho::join('sfoperacaoitemempenho','sfoperacaoitemempenho.sfitemempenho_id','=','sfitemempenho.id')
-            ->join('sforcempenhodados','sforcempenhodados.id','=','sfitemempenho.sforcempenhodado_id')
-            ->join('minutaempenhos','minutaempenhos.id','=','sforcempenhodados.minutaempenho_id')
-            ->join('minutaempenhos_remessa', function($join)
-            {
+        $sfitems = SfItemEmpenho::join('sfoperacaoitemempenho', 'sfoperacaoitemempenho.sfitemempenho_id', '=', 'sfitemempenho.id')
+            ->join('sforcempenhodados', 'sforcempenhodados.id', '=', 'sfitemempenho.sforcempenhodado_id')
+            ->join('minutaempenhos', 'minutaempenhos.id', '=', 'sforcempenhodados.minutaempenho_id')
+            ->join('minutaempenhos_remessa', function ($join) {
                 $join->on('minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
                 $join->on('sforcempenhodados.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
             })
-            ->where('minutaempenhos_remessa.remessa','=',0)
-            ->where('minutaempenhos.tipo_empenhopor_id',256)
+            ->where('minutaempenhos_remessa.remessa', '=', 0)
+            ->where('minutaempenhos.tipo_empenhopor_id', 256)
             ->whereNotNull('sfitemempenho.numseqitem')
-            ->whereNotIn('minutaempenhos.id',$minutas)
+            ->whereNotIn('minutaempenhos.id', $minutas)
             ->select(
                 'sfitemempenho.numseqitem',
                 'minutaempenhos.id',
@@ -148,84 +168,85 @@ class SanitizarSequencial extends Command
     }
 
 
-    private function buscaMinutasOriginaisCompra(){
+    private function buscaMinutasOriginaisCompra()
+    {
 
         $minutas = CompraItem::
-            join('compra_item_minuta_empenho','compra_item_minuta_empenho.compra_item_id','=','compra_items.id')
-            ->join('minutaempenhos','minutaempenhos.id','=','compra_item_minuta_empenho.minutaempenho_id')
-            ->join('minutaempenhos_remessa', function($join)
-            {
+        join('compra_item_minuta_empenho', 'compra_item_minuta_empenho.compra_item_id', '=', 'compra_items.id')
+            ->join('minutaempenhos', 'minutaempenhos.id', '=', 'compra_item_minuta_empenho.minutaempenho_id')
+            ->join('minutaempenhos_remessa', function ($join) {
                 $join->on('minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
                 $join->on('compra_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
             })
-            ->where('minutaempenhos_remessa.remessa','=', 0)
-            ->where('minutaempenhos.tipo_empenhopor_id',255)
+            ->where('minutaempenhos_remessa.remessa', '=', 0)
+            ->where('minutaempenhos.tipo_empenhopor_id', 255)
             ->groupby(
                 'minutaempenhos.id',
                 'minutaempenhos_remessa.id',
                 'compra_items.compra_id',
                 'compra_item_minuta_empenho.quantidade',
                 'compra_item_minuta_empenho.valor'
-            )->having(DB::raw('count(*)'),'>',1)
+            )->having(DB::raw('count(*)'), '>', 1)
             ->select('minutaempenhos.id')->distinct();
 
         return $minutas->pluck('minutaempenhos.id');
 
     }
 
-    private function buscaMinutasOriginaisContrato(){
+    private function buscaMinutasOriginaisContrato()
+    {
 
         $minutas = Contratoitem::
-        join('contrato_item_minuta_empenho','contrato_item_minuta_empenho.contrato_item_id','=','contratoitens.id')
-            ->join('minutaempenhos','minutaempenhos.id','=','contrato_item_minuta_empenho.minutaempenho_id')
-            ->join('minutaempenhos_remessa', function($join)
-            {
+        join('contrato_item_minuta_empenho', 'contrato_item_minuta_empenho.contrato_item_id', '=', 'contratoitens.id')
+            ->join('minutaempenhos', 'minutaempenhos.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
+            ->join('minutaempenhos_remessa', function ($join) {
                 $join->on('minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
                 $join->on('contrato_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
             })
-            ->where('minutaempenhos_remessa.remessa','=', 0)
-            ->where('minutaempenhos.tipo_empenhopor_id',256)
+            ->where('minutaempenhos_remessa.remessa', '=', 0)
+            ->where('minutaempenhos.tipo_empenhopor_id', 256)
             ->groupby(
                 'minutaempenhos.id',
                 'minutaempenhos_remessa.id',
                 'contratoitens.contrato_id',
                 'contrato_item_minuta_empenho.quantidade',
                 'contrato_item_minuta_empenho.valor'
-            )->having(DB::raw('count(*)'),'>',1)
+            )->having(DB::raw('count(*)'), '>', 1)
             ->select('minutaempenhos.id')->distinct();
         return $minutas->pluck('minutaempenhos.id');
 
     }
 
 
-    private function rodaRemessaOriginal($sfitems){
+    private function rodaRemessaOriginal($sfitems)
+    {
 
-        foreach ($sfitems as $key => $item){
+        foreach ($sfitems as $key => $item) {
 
-           $cime = CompraItemMinutaEmpenho::
-                        join('minutaempenhos','minutaempenhos.id','=','compra_item_minuta_empenho.minutaempenho_id')
-                       ->join('minutaempenhos_remessa', function($join)
-                       {
-                           $join->on('minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
-                           $join->on('compra_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
-                       })
-                        ->join('compra_items','compra_items.id','=','compra_item_minuta_empenho.compra_item_id')
-                        ->where('minutaempenhos.id',$item->id)
-                        ->where('minutaempenhos_remessa.remessa',0)
-                        ->where('compra_item_minuta_empenho.quantidade',$item->quantidade)
-                        ->where('compra_item_minuta_empenho.valor',$item->vlroperacao)
-                        ->update(['numseq' => $item->numseqitem]);
+            $cime = CompraItemMinutaEmpenho::
+            join('minutaempenhos', 'minutaempenhos.id', '=', 'compra_item_minuta_empenho.minutaempenho_id')
+                ->join('minutaempenhos_remessa', function ($join) {
+                    $join->on('minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
+                    $join->on('compra_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
+                })
+                ->join('compra_items', 'compra_items.id', '=', 'compra_item_minuta_empenho.compra_item_id')
+                ->where('minutaempenhos.id', $item->id)
+                ->where('minutaempenhos_remessa.remessa', 0)
+                ->where('compra_item_minuta_empenho.quantidade', $item->quantidade)
+                ->where('compra_item_minuta_empenho.valor', $item->vlroperacao)
+                ->update(['numseq' => $item->numseqitem]);
 
         }
         echo "Terminou Remessas Originais de Compra! ";
     }
 
-    private function rodaRemessaAlteracao($dados){
+    private function rodaRemessaAlteracao($dados)
+    {
 
-        foreach ($dados as $key => $item){
+        foreach ($dados as $key => $item) {
 
-           CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id',$item->minutaempenho_id)
-                ->where('compra_item_minuta_empenho.compra_item_id',$item->compra_item_id)
+            CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $item->minutaempenho_id)
+                ->where('compra_item_minuta_empenho.compra_item_id', $item->compra_item_id)
                 ->whereNull('compra_item_minuta_empenho.numseq')
                 ->update(['numseq' => $item->numseq]);
 
@@ -233,12 +254,13 @@ class SanitizarSequencial extends Command
         echo "Terminou as Alterações Compra!";
     }
 
-    private function rodaRemessaAlteracaoContrato($dados){
+    private function rodaRemessaAlteracaoContrato($dados)
+    {
 
-        foreach ($dados as $key => $item){
+        foreach ($dados as $key => $item) {
 
-            $cime = ContratoItemMinutaEmpenho::where('contrato_item_minuta_empenho.minutaempenho_id',$item->minutaempenho_id)
-                ->where('contrato_item_minuta_empenho.contrato_item_id',$item->contrato_item_id)
+            $cime = ContratoItemMinutaEmpenho::where('contrato_item_minuta_empenho.minutaempenho_id', $item->minutaempenho_id)
+                ->where('contrato_item_minuta_empenho.contrato_item_id', $item->contrato_item_id)
                 ->whereNull('contrato_item_minuta_empenho.numseq')
                 ->update(['numseq' => $item->numseq]);
 //            dd($cime->getBindings(),$cime->toSql());
@@ -247,21 +269,21 @@ class SanitizarSequencial extends Command
     }
 
 
-    private function rodaRemessaOriginalContrato($sfitems){
+    private function rodaRemessaOriginalContrato($sfitems)
+    {
 
-        foreach ($sfitems as $key => $item){
+        foreach ($sfitems as $key => $item) {
 
             $cime = ContratoItemMinutaEmpenho::
-            join('minutaempenhos','minutaempenhos.id','=','contrato_item_minuta_empenho.minutaempenho_id')
-                ->join('minutaempenhos_remessa', function($join)
-                {
+            join('minutaempenhos', 'minutaempenhos.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
+                ->join('minutaempenhos_remessa', function ($join) {
                     $join->on('minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
                     $join->on('contrato_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
                 })
-                ->where('minutaempenhos.id',$item->id)
-                ->where('minutaempenhos_remessa.remessa',0)
-                ->where('contrato_item_minuta_empenho.quantidade',$item->quantidade)
-                ->where('contrato_item_minuta_empenho.valor',$item->vlroperacao)
+                ->where('minutaempenhos.id', $item->id)
+                ->where('minutaempenhos_remessa.remessa', 0)
+                ->where('contrato_item_minuta_empenho.quantidade', $item->quantidade)
+                ->where('contrato_item_minuta_empenho.valor', $item->vlroperacao)
                 ->update(['numseq' => $item->numseqitem]);
 
         }
