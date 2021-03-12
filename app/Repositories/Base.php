@@ -47,4 +47,27 @@ class Base
         return $mensagem;
     }
 
+
+    public function geraNonceSiafiEmpenho(int $minuta_id, int $remessa_id)
+    {
+        $amb = '';
+        $config = config('app.app_amb');
+
+        if($config == 'Ambiente Desenvolvimento AGU'){
+            $amb = 'DEV-AGU';
+        }
+
+        if($config == 'Ambiente Homologação'){
+            $amb = 'HOM';
+        }
+
+        if($config == 'Ambiente Treinamento'){
+            $amb = 'TRE';
+        }
+
+        $nonce = $amb.date('Y').'_'.$minuta_id.'_'.$remessa_id;
+
+        return $nonce;
+    }
+
 }

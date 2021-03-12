@@ -254,11 +254,14 @@
                         >
                             <i class="fa fa-save"></i> Emitir Empenho SIAFI
                         </button>
-
                     </div>
                     <div class="col-md-4" align="right">
-                        <button type="button" class="btn btn-primary" id="finalizar"
-                            {{(session('situacao') !== 'EMPENHO EMITIDO') ? 'disabled' : ''}}
+                        <button type="button" class="btn btn-primary"
+                                @if (session('situacao') !== 'EMPENHO EMITIDO' || session('situacao') !== 'EM PROCESSAMENTO')
+                                id="finalizar"
+                                @else
+                                disabled
+                            @endif
                         >
                             <i class="fa fa-check-circle"></i> Finalizar
                         </button>

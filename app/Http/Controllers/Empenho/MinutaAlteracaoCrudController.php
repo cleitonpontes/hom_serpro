@@ -18,6 +18,7 @@ use App\Models\MinutaEmpenhoRemessa;
 use App\Models\Naturezasubitem;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
+use App\Repositories\Base;
 use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
@@ -310,8 +311,8 @@ class MinutaAlteracaoCrudController extends CrudController
 
                 ContratoItemMinutaEmpenho::insert($valores);
             }
-
-            $minutaEmpenhoRemessa->sfnonce = date('Y'). '_' . $minuta_id . '_' . $minutaEmpenhoRemessa->id;
+            $base = new Base();
+            $minutaEmpenhoRemessa->sfnonce = $base->geraNonceSiafiEmpenho($minuta_id,$minutaEmpenhoRemessa->id);
             $minutaEmpenhoRemessa->save();
 
             DB::commit();
@@ -1837,9 +1838,15 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->latest()
                     ->first();
 
-                $execsiafi = new Execsiafi();
-                $nonce = $execsiafi->createNonce($modSfOrcEmpenhoDados->ugemitente, $modSfOrcEmpenhoDados->id, 'ORCAMENTARIO');
-                $modSfOrcEmpenhoDados->sfnonce_id = $nonce;
+                if(!$remessa->sfnonce){
+                    $base = new Base();
+                    $remessa->sfnonce = $base->geraNonceSiafiEmpenho($remessa->minutaempenho_id,$remessa->id);
+                    $remessa->save();
+                }
+
+                if($modSfOrcEmpenhoDados->sfnonce != $remessa->sfnonce){
+                    $modSfOrcEmpenhoDados->sfnonce = $remessa->sfnonce;
+                }
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
                 $modSfOrcEmpenhoDados->save();
 
