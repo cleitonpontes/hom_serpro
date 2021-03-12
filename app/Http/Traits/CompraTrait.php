@@ -9,6 +9,7 @@ use App\Models\CompraItemFornecedor;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
 use App\Models\Fornecedor;
+use App\Models\MinutaEmpenho;
 use App\Models\Unidade;
 use App\XML\ApiSiasg;
 use Illuminate\Support\Facades\DB;
@@ -148,7 +149,7 @@ trait CompraTrait
             foreach ($compraSiasg->data->linkSisrpCompleto as $key => $item) {
                 $dadosItemCompra = ($consultaCompra->consultaCompraByUrl($item->linkSisrpCompleto));
 
-                if(is_null($dadosItemCompra['data'])){
+                if (is_null($dadosItemCompra['data'])) {
                     continue;
                 }
 
@@ -400,20 +401,53 @@ trait CompraTrait
         $compraItemUnidade->save();
     }
 
-    private function setCondicaoFornecedor($itens, string $descricao, $fornecedor_id, $fornecedor_compra_id = null)
-    {
+    private function setCondicaoFornecedor(
+        $minuta,
+        $itens,
+        string $descricao,
+        $fornecedor_id,
+        $fornecedor_compra_id
+    ) {
+        //SE FOR ESTRANGEIRO
+        if ($fornecedor_id != $fornecedor_compra_id) {
+            $fornecedor_id = $fornecedor_compra_id;
+        }
         if ($descricao === 'Suprimento') {
             return $itens->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
         }
-        return $itens->where(function ($query) use ($fornecedor_id, $fornecedor_compra_id) {
-            $query->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
-                ->orWhere('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id)
-                ->orWhere(
-                    function ($query) use ($fornecedor_id) {
-                        $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
-                            ->whereNull('compra_item_fornecedor.fornecedor_id');
-                    }
-                );
-        });
+        $tipo_compra = $minuta->tipo_compra;
+
+        if ($tipo_compra === 'SISPP') {
+            return $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
+        }
+
+        if ($tipo_compra === 'SISRP') {
+            $tipo_uasg = MinutaEmpenho::join(
+                'compras',
+                'compras.id',
+                '=',
+                'minutaempenhos.compra_id'
+            )
+                ->join('compra_items', 'compra_items.compra_id', '=', 'compras.id')
+                ->join('compra_item_unidade', 'compra_item_unidade.compra_item_id', '=', 'compra_items.id')
+                ->where('minutaempenhos.id', $minuta->id)
+                ->where('compra_item_unidade.unidade_id', $minuta->unidade_id)
+                ->where(function ($query) use ($fornecedor_id) {
+                    $query->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                        ->orWhereNull('compra_item_unidade.fornecedor_id');
+                })
+                ->select('compra_item_unidade.tipo_uasg')
+                ->distinct()
+                ->first()->tipo_uasg;
+
+            if ($tipo_uasg === 'C') {
+                return $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+                    ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
+            }
+
+            return $itens->whereNull('compra_item_unidade.fornecedor_id')
+                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
+        }
     }
 }
