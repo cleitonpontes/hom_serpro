@@ -19,6 +19,7 @@ use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
+use App\Repositories\Base;
 use App\XML\Execsiafi;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\CrudPanel;
@@ -919,7 +920,8 @@ class MinutaEmpenhoCrudController extends CrudController
 
                 $remessa = MinutaEmpenhoRemessa::find($modSfOrcEmpenhoDados->minutaempenhos_remessa_id);
                 if(!$remessa->sfnonce){
-                    $remessa->sfnonce = date('y').'_'.$remessa->minutaempenho_id.'_'.$remessa->id;
+                    $base = new Base();
+                    $remessa->sfnonce = $base->geraNonceSiafiEmpenho($remessa->minutaempenho_id,$remessa->id);
                     $remessa->save();
                 }
 

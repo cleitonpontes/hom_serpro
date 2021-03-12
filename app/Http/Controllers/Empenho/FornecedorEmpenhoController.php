@@ -19,6 +19,7 @@ use App\Models\Contrato;
 use App\Models\Fornecedor;
 use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
+use App\Repositories\Base;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -478,8 +479,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 'situacao_id' => $situacao_andamento->id,
                 'remessa' => 0,
             ]);
-
-            $remessa->sfnonce = date('Y'). '_' . $minuta_id . '_' . $remessa->id;
+            $base = new Base();
+            $remessa->sfnonce = $base->geraNonceSiafiEmpenho($minuta_id,$remessa->id);
             $remessa->save();
 
             foreach ($itens as $index => $item) {
@@ -567,8 +568,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 CompraItemMinutaEmpenho::insert($itens);
             }
 
+            $base = new Base();
             $remessa = MinutaEmpenhoRemessa::find($remessa_id);
-            $remessa->sfnonce = date('Y'). '_' . $minuta_id . '_' . $remessa->id;
+            $remessa->sfnonce = $base->geraNonceSiafiEmpenho($minuta_id,$remessa->id);
             $remessa->save();
 
             $minuta->etapa = 4;
