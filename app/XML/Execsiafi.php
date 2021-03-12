@@ -627,6 +627,7 @@ class Execsiafi
         $array = [];
 
         $dados = SfItemEmpenho::where('sforcempenhodado_id', $sfOrcEmpenhoDados_id)
+            ->orderBy('numseqitem','asc')
             ->get();
 
         if ($dados) {
