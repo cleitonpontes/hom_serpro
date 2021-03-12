@@ -254,7 +254,6 @@
                         >
                             <i class="fa fa-save"></i> Emitir Empenho SIAFI
                         </button>
-                        {{session('situacao')}}
                     </div>
                     <div class="col-md-4" align="right">
                         <button type="button" class="btn btn-primary" id="finalizar"
