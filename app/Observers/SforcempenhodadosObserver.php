@@ -13,6 +13,7 @@ use App\Models\MinutaEmpenho;
 use App\Models\MinutaEmpenhoRemessa;
 use App\Models\Naturezasubitem;
 use App\Models\SfOrcEmpenhoDados;
+use App\Repositories\Base;
 use App\XML\Execsiafi;
 
 class SforcempenhodadosObserver
@@ -90,7 +91,9 @@ class SforcempenhodadosObserver
     private function geraNonceSequencial($sforcempenhodados)
     {
         if (!$sforcempenhodados->remessa->sfnonce) {
-            return date('Y') . '_' . $sforcempenhodados->remessa->minutaempenho_id . '_' . $sforcempenhodados->remessa->id;
+            $base = new Base();
+            $nonce = $base->geraNonceSiafiEmpenho($sforcempenhodados->remessa->minutaempenho_id,$sforcempenhodados->remessa->id);
+            return $nonce;
         }
 
         $array = explode('_', $sforcempenhodados->remessa->sfnonce);

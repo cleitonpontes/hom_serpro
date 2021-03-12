@@ -19,6 +19,7 @@ use App\Models\SfPco;
 use App\Models\SfPcoItem;
 use App\Models\SfRegistroAlteracao;
 use App\Models\Sfrelitemvlrcc;
+use App\Repositories\Base;
 
 class Execsiafi
 {
@@ -144,7 +145,8 @@ class Execsiafi
 
     public function createNonceEmpenho(SfOrcEmpenhoDados $sfOrcEmpenhoDados)
     {
-        $nonce = date('Y') . '_' . $sfOrcEmpenhoDados->minutaempenho_id . '_' . $sfOrcEmpenhoDados->minutaempenhos_remessa_id;
+        $base = new Base();
+        $nonce = $base->geraNonceSiafiEmpenho($sfOrcEmpenhoDados->minutaempenho_id,$sfOrcEmpenhoDados->minutaempenhos_remessa_id);
         $sfOrcEmpenhoDados->sfnonce = $nonce;
         $sfOrcEmpenhoDados->save();
 
