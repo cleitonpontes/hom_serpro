@@ -683,9 +683,7 @@ class MinutaEmpenhoCrudController extends CrudController
                     'contrato_item_minuta_empenho.numseq'
                 ])
                 ->orderBy('contrato_item_minuta_empenho.numseq', 'asc')
-                ->get()->toArray()
-
-            ;
+                ->get()->toArray();
         }
 
         if ($codigoitem->descricao === 'Compra' || $codigoitem->descricao === 'Suprimento') {
@@ -909,6 +907,7 @@ class MinutaEmpenhoCrudController extends CrudController
     public function executarAtualizacaoSituacaoMinuta($id)
     {
         $minuta = MinutaEmpenho::find($id);
+        $date_time = \DateTime::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
 
         if ($minuta->situacao->descricao == 'ERRO') {
             DB::beginTransaction();
@@ -927,13 +926,13 @@ class MinutaEmpenhoCrudController extends CrudController
                     ->first();
 
                 $remessa = MinutaEmpenhoRemessa::find($modSfOrcEmpenhoDados->minutaempenhos_remessa_id);
-                if(!$remessa->sfnonce){
+                if (!$remessa->sfnonce) {
                     $base = new Base();
-                    $remessa->sfnonce = $base->geraNonceSiafiEmpenho($remessa->minutaempenho_id,$remessa->id);
+                    $remessa->sfnonce = $base->geraNonceSiafiEmpenho($remessa->minutaempenho_id, $remessa->id);
                     $remessa->save();
                 }
 
-                if($modSfOrcEmpenhoDados->sfnonce != $remessa->sfnonce){
+                if ($modSfOrcEmpenhoDados->sfnonce != $remessa->sfnonce) {
                     $modSfOrcEmpenhoDados->sfnonce = $remessa->sfnonce;
                 }
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
@@ -945,10 +944,22 @@ class MinutaEmpenhoCrudController extends CrudController
             } catch (Exception $exc) {
                 DB::rollback();
             }
-        } else {
-            Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+        }
+
+        if($minuta->situacao->descricao == 'EM PROCESSAMENTO'){
+            $updated_at = \DateTime::createFromFormat('Y-m-d H:i:s', $minuta->updated_at)->modify('+15 minutes');
+            if($date_time < $updated_at){
+                Alert::warning('Situação da minuta não pode ser alterada, tente novamente em 15 minutos!')->flash();
+                return redirect('/empenho/minuta');
+            }
+
+            Alert::success('Minuta será processada novamente, por favor aguarde!')->flash();
             return redirect('/empenho/minuta');
         }
+
+
+        Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+        return redirect('/empenho/minuta');
     }
 
     public function deletarMinuta($id)
