@@ -1085,6 +1085,7 @@ class ContratoController extends Controller
                 $o->where('situacao', true);
             })
                 ->where('codigo', $unidade)
+                ->where('sigilo', false)
                 ->where('situacao', true);
         })
             ->where('situacao', true)
@@ -1101,6 +1102,7 @@ class ContratoController extends Controller
                 $o->where('situacao', true);
             })
                 ->where('codigo', $unidade)
+                ->where('sigilo', false)
                 ->where('situacao', true);
         })
             ->where('situacao', false)
@@ -1116,7 +1118,7 @@ class ContratoController extends Controller
             $q->whereHas('orgao', function ($o) use ($orgao) {
                 $o->where('codigo', $orgao)
                     ->where('situacao', true);
-            });
+            })->where('sigilo', false);
         })
             ->where('situacao', true)
             ->orderBy('id')
@@ -1131,6 +1133,7 @@ class ContratoController extends Controller
             $q->whereHas('orgao', function ($o) {
                 $o->where('situacao', true);
             })
+                ->where('sigilo', false)
                 ->where('codigo', $codigo_uasg)
                 ->where('situacao', true);
         })
@@ -1147,7 +1150,7 @@ class ContratoController extends Controller
             $q->whereHas('orgao', function ($o) use ($orgao) {
                 $o->where('codigo', $orgao)
                     ->where('situacao', true);
-            });
+            })->where('sigilo', false);
         })
             ->where('situacao', false)
             ->orderBy('id')
@@ -1161,9 +1164,9 @@ class ContratoController extends Controller
         $contratos = Contrato::whereHas('unidade', function ($q) {
             $q->whereHas('orgao', function ($o) {
                 $o->where('situacao', true);
-            });
+            })->where('sigilo',false);
         })
-            ->where('situacao', true)
+        ->where('situacao', true)
             ->orderBy('id')
             ->get();
 
