@@ -43,6 +43,7 @@ class ContratounidadedescentralizadaCrudController extends CrudController
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratounidadesdescentralizadas.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratounidadesdescentralizadas.unidade_id');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
+        $this->crud->addClause('orderby', 'unidades.nome');
         $this->crud->denyAccess('update');
         /*
         |--------------------------------------------------------------------------
