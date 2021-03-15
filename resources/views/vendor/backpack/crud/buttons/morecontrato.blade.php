@@ -19,6 +19,7 @@
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/publicacao">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Publicações</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/responsaveis">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Responsáveis</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/status">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Status</a></li>
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/unidadesdescentralizadas">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Unidades Descentralizadas</a></li>
         <li class="dropdown-header"><i class="fa fa-edit"></i> Modificar Contrato:</li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/instrumentoinicial">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Instrumento Inicial</a></li>
         <li><a href="/gescon/contrato/{{$entry->getKey()}}/aditivos">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo Aditivo</a></li>
