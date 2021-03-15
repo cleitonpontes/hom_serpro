@@ -907,7 +907,7 @@ class MinutaEmpenhoCrudController extends CrudController
     public function executarAtualizacaoSituacaoMinuta($id)
     {
         $minuta = MinutaEmpenho::find($id);
-        $date_time = \DateTime::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
+        $date_time = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
 
         if ($minuta->situacao->descricao == 'ERRO') {
             DB::beginTransaction();
@@ -946,17 +946,37 @@ class MinutaEmpenhoCrudController extends CrudController
             }
         }
 
-        if($minuta->situacao->descricao == 'EM PROCESSAMENTO'){
-            $updated_at = \DateTime::createFromFormat('Y-m-d H:i:s', $minuta->updated_at)->modify('+15 minutes');
-            if($date_time < $updated_at){
+        if ($minuta->situacao->descricao == 'EM PROCESSAMENTO') {
+
+            $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)
+                ->where('alteracao', false)
+                ->latest()
+                ->first();
+
+            $updated_at = \DateTime::createFromFormat('Y-m-d H:i:s', $modSfOrcEmpenhoDados->updated_at)->modify('+15 minutes');
+
+            if ($date_time < $updated_at) {
                 Alert::warning('Situação da minuta não pode ser alterada, tente novamente em 15 minutos!')->flash();
                 return redirect('/empenho/minuta');
             }
 
+            $remessa = MinutaEmpenhoRemessa::find($modSfOrcEmpenhoDados->minutaempenhos_remessa_id);
+
+            if (!$remessa->sfnonce) {
+                if (!$modSfOrcEmpenhoDados->sfnonce_id) {
+                    Alert::warning('Minuta com problema! Por favor crie uma nova minuta!')->flash();
+                    return redirect('/empenho/minuta');
+                }
+                $modSfOrcEmpenhoDados->sfnonce = $modSfOrcEmpenhoDados->sfnonce_id;
+            }
+
+            $modSfOrcEmpenhoDados->txtdescricao .= ' ';
+            $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+            $modSfOrcEmpenhoDados->save();
+
             Alert::success('Minuta será processada novamente, por favor aguarde!')->flash();
             return redirect('/empenho/minuta');
         }
-
 
         Alert::warning('Situação da minuta não pode ser alterada!')->flash();
         return redirect('/empenho/minuta');
