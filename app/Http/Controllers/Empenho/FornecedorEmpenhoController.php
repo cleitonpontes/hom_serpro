@@ -259,8 +259,8 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                 ->where('compra_item_unidade.quantidade_saldo', '>', 0)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
                 ->where('compras.id', $modMinutaEmpenho->compra_id)
-                ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
-                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+//                ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+//                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
                 ->select([
                     'compra_items.id',
                     'codigoitens.descricao',
@@ -274,8 +274,17 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     'compra_item_fornecedor.valor_negociado',
                     'compra_items.numero'
                 ])
-                ->distinct()
-                ->get()
+                ->distinct();
+
+            $itens = $this->setCondicaoFornecedor(
+                $modMinutaEmpenho,
+                $itens,
+                $codigoitem->descricao,
+                $modMinutaEmpenho->fornecedor_empenho_id,
+                $modMinutaEmpenho->fornecedor_compra_id
+            );
+
+            $itens = $itens->get()
                 ->toArray();
         }
 
