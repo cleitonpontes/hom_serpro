@@ -713,6 +713,7 @@ class MinutaEmpenhoCrudController extends CrudController
                     'compra_item_minuta_empenho.minutaempenhos_remessa_id'
                 )
                 ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->where('compra_item_unidade.unidade_id', $modMinuta->unidade_id)
                 ->where('minutaempenhos_remessa.remessa', 0)
                 ->select([
                     DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
@@ -729,9 +730,16 @@ class MinutaEmpenhoCrudController extends CrudController
                     'compra_item_minuta_empenho.numseq'
                 ])
                 ->orderBy('compra_item_minuta_empenho.numseq', 'asc');
+            $itens = $this->setCondicaoFornecedor(
+                $modMinuta,
+                $itens,
+                $codigoitem->descricao,
+                $fornecedor_id,
+                $fornecedor_compra_id
+            );
 
-            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
-                  ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
+//            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+//                  ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
 
             $itens = $itens->get()->toArray();
         }
