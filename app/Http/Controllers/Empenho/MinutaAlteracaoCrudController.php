@@ -1884,13 +1884,13 @@ class MinutaAlteracaoCrudController extends CrudController
             $updated_at = \DateTime::createFromFormat('Y-m-d H:i:s', $modSfOrcEmpenhoDados->updated_at)->modify('+15 minutes');
 
             if ($date_time < $updated_at) {
-                Alert::warning('Situação da minuta não pode ser alterada, tente novamente em 15 minutos!')->flash();
+                Alert::warning('Situação da minuta de alteração não pode ser modificada, tente novamente em 15 minutos!')->flash();
                 return redirect("/empenho/minuta/$id/alteracao");
             }
 
             if (!$remessa->sfnonce) {
                 if (!$modSfOrcEmpenhoDados->sfnonce_id) {
-                    Alert::warning('Minuta com problema! Por favor crie uma nova minuta!')->flash();
+                    Alert::warning('Minuta de alteração com problema! Por favor crie uma nova minuta de alteração!')->flash();
                     return redirect("/empenho/minuta/$id/alteracao");
                 }
                 $modSfOrcEmpenhoDados->sfnonce = $modSfOrcEmpenhoDados->sfnonce_id;
@@ -1900,11 +1900,11 @@ class MinutaAlteracaoCrudController extends CrudController
             $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
             $modSfOrcEmpenhoDados->save();
 
-            Alert::success('Minuta será processada novamente, por favor aguarde!')->flash();
+            Alert::success('Minuta de alteração será processada novamente, por favor aguarde!')->flash();
             return redirect("/empenho/minuta/$id/alteracao");
         }
 
-        Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+        Alert::warning('Situação da minuta de alteração não pode ser modificada!')->flash();
         return redirect("/empenho/minuta/$id/alteracao");
     }
 
