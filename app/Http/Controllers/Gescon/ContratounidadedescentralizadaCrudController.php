@@ -50,6 +50,7 @@ class ContratounidadedescentralizadaCrudController extends CrudController
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
         $campos = $this->Campos($contrato);
