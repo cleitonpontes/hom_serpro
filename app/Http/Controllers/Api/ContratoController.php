@@ -41,13 +41,15 @@ class ContratoController extends Controller
             $results = Contrato::select(DB::raw("CONCAT(contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS numero"), 'contratos.id')
                 ->where(
                     [
-                        ['unidade_id', '=', session()->get('user_ug_id')],
-                        ['situacao', '=', true],
-                        ['unidadecompra_id', '<>', null],
-                        ['numero', 'LIKE', "%$search_term%"]
+                        ['contratos.unidade_id', '=', session()->get('user_ug_id')],
+                        ['contratos.situacao', '=', true],
+                        ['contratos.unidadecompra_id', '<>', null],
+                        ['contratos.numero', 'LIKE', "%$search_term%"]
                     ]
                 )
+                ->orWhere('contratounidadesdescentralizadas.unidade_id','=',session()->get('user_ug_id'))
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id' )
+                ->leftJoin('contratounidadesdescentralizadas', 'contratounidadesdescentralizadas.contrato_id', '=', 'contratos.id' )
                 ->orderby('fornecedores.nome', 'asc')
                 ->paginate(20);
 

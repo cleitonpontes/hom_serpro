@@ -252,6 +252,7 @@ Route::group([
                 CRUD::resource('despesaacessoria', 'ContratoDespesaAcessoriaCrudController');
                 CRUD::resource('empenhos', 'ContratoempenhoCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
+                CRUD::resource('contratounidadedescentralizada', 'ContratounidadedescentralizadaCrudController');
                 CRUD::resource('historico', 'ContratohistoricoCrudController')->name('listar.historico');
                 CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
                 CRUD::resource('itens', 'ContratoitemCrudController');
