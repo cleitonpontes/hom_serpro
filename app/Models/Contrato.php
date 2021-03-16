@@ -557,6 +557,11 @@ class Contrato extends Model
         return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
     }
 
+    public function unidadesdescentralizadas()
+    {
+        return $this->hasMany(Contratounidadedescentralizada::class, 'contrato_id');
+    }
+
     public function orgaosubcategoria()
     {
         return $this->belongsTo(OrgaoSubcategoria::class, 'subcategoria_id');

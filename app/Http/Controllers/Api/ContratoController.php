@@ -39,6 +39,7 @@ class ContratoController extends Controller
         if ($search_term) {
 
             $results = Contrato::select(DB::raw("CONCAT(contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS numero"), 'contratos.id')
+                ->distinct()
                 ->where(
                     [
                         ['contratos.unidade_id', '=', session()->get('user_ug_id')],
@@ -50,7 +51,7 @@ class ContratoController extends Controller
                 ->orWhere('contratounidadesdescentralizadas.unidade_id','=',session()->get('user_ug_id'))
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id' )
                 ->leftJoin('contratounidadesdescentralizadas', 'contratounidadesdescentralizadas.contrato_id', '=', 'contratos.id' )
-                ->orderby('fornecedores.nome', 'asc')
+//                ->orderby('fornecedores.nome', 'asc')
                 ->paginate(20);
 
              return $results;
