@@ -670,6 +670,7 @@ class UnidadeCrudController extends CrudController
 
                     if (isset($orgao->id)) {
                         $unidade->orgao_id = $orgao->id;
+                        $unidade->gestao =  $dado['gestao'];
                         $unidade->nome = $dado['nome'];
                         $unidade->nomeresumido = $dado['nomeresumido'];
                         $unidade->save();
