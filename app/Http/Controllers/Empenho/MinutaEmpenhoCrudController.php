@@ -986,7 +986,7 @@ class MinutaEmpenhoCrudController extends CrudController
     {
         $minuta = MinutaEmpenho::find($id);
 
-        if ($minuta->situacao_descricao == 'ERRO' || $minuta->situacao_descricao == 'EM ANDAMENTO') {
+        if ($minuta->situacao->descricao == 'ERRO' || $minuta->situacao->descricao == 'EM ANDAMENTO') {
             DB::beginTransaction();
             try {
                 if ($minuta->empenho_por === 'Compra') {
