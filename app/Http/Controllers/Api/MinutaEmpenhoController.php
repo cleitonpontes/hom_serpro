@@ -311,6 +311,8 @@ class MinutaEmpenhoController extends Controller
             ->where('descricao', 'EMPENHO EMITIDO')
             ->select('codigoitens.id')->first();
 
+        $tipoCompraId = Codigoitem::where('descricao', 'Compra')->first()->id;
+
         $options = MinutaEmpenho::query();
 
         if (!$form['fornecedor_id']) {
@@ -330,6 +332,7 @@ class MinutaEmpenhoController extends Controller
                 ->where('minutaempenhos.fornecedor_empenho_id', $form['fornecedor_id'])
                 ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
                 ->where('minutaempenhos.situacao_id', '=', $situacao->id)
+                ->where('minutaempenhos.tipo_empenhopor_id', $tipoCompraId)
                 ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot->get()->toArray());
         }
 
