@@ -140,6 +140,8 @@ Route::group([
             CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
             CRUD::resource('ajusteminuta', 'AjusteMinutasCrudController');
 
+            Route::get('ajusteminuta/{minuta_id}/atualizaritemcompracontrato', 'AjusteMinutasCrudController@atualizaritemcompracontrato')
+                ->name('ajusteminuta.atualizar.contrato.compra');
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
