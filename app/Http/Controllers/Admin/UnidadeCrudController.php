@@ -663,7 +663,7 @@ class UnidadeCrudController extends CrudController
                 }
 
             } else {
-                if ($unidade->nome != $dado['nome'] or $unidade->nomeresumido != $dado['nomeresumido'] or $unidade->orgao->codigo != $dado['orgao']) {
+                if ($unidade->nome != $dado['nome'] or $unidade->nomeresumido != $dado['nomeresumido'] or $unidade->orgao->codigo != $dado['orgao'] or $unidade->gestao != $dado['gestao']) {
 
                     $orgao = Orgao::where('codigo', $dado['orgao'])
                         ->first();
