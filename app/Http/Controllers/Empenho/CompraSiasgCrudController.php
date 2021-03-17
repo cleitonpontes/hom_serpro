@@ -467,9 +467,12 @@ class CompraSiasgCrudController extends CrudController
     {
         $unidade_autorizada = null;
 
-        $uasgdescentralizada = $contrato->unidadesdescentralizadas()->find(session('user_ug_id'));
+        $uasgdescentralizada = $contrato->unidadesdescentralizadas()
+            ->where('unidade_id',session('user_ug_id'))
+            ->where('contrato_id',$contrato->id)
+            ->first();
 
-        if(isset($uasgdescentralizada->unidade_id)){
+        if($uasgdescentralizada){
             $unidade_autorizada = $uasgdescentralizada->unidade_id;
         }else{
             $uasgContrato = Unidade::find($contrato->unidade_id);
