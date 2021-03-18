@@ -1,9 +1,7 @@
 <!-- Esta modal é chamada por include em list.blade.php -->
 
-
-
 <!-- Início modal - mvascs@gmail.com -->
-<div class="modal fade" id="myModalRemuneracao" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="myModalRemuneracao" style="display: none" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

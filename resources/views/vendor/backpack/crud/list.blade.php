@@ -143,4 +143,3 @@
 @if(Route::current()->getName() == 'crud.funcionarioscontratoconta.index')
     @include('crud::inc.modal_remuneracao_definicao')
 @endif
-
