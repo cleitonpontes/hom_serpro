@@ -22,6 +22,7 @@
                 {!! $html->table(['class' => 'box table table-striped table-hover display responsive nowrap m-t-0 dataTable dtr-inline collapsed has-hidden-columns'], true) !!}
                 <input type='hidden' name='tipo_minuta' value='{{$tipo_minuta}}'/>
                 <input type='hidden' name='id_minuta' value='{{$id_minuta}}'/>
+                <input type='hidden' name='id_remessa' value='{{$id_remessa}}'/>
             </div>
         </div>
         <button type="submit" class="btn btn-success" style="margin: 10px">

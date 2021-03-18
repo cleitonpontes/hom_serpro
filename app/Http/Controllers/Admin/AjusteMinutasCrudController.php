@@ -986,6 +986,7 @@ class AjusteMinutasCrudController extends CrudController
                'route' => route('empenho.minuta.update'),
                 'tipo_minuta' => $descTipoMinuta,
                 'id_minuta' => $idMinuta,
+                'id_remessa' => $idRemessa,
             ]);
     }
 
