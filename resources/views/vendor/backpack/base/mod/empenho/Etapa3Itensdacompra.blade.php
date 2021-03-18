@@ -16,6 +16,9 @@
 @section('content')
     @include('backpack::mod.empenho.telas.cabecalho')
     <div class="flash-message">
+        <p class="alert alert-warning"><b>Atenção:</b> Não serão exibidos itens sem saldo, ou com data de vigência expirada.</p>
+    </div>
+    <div class="flash-message">
         @foreach (['danger', 'warning', 'success', 'info'] as $msg)
             @if(Session::has('alert-' . $msg))
                 <p class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }}</p>
