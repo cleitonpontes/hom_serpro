@@ -56,9 +56,9 @@ class ComprasnetController extends Controller
                     $array_contratos[] .= $unidadeorigem . $tipo . $numero_contrato . $unidadesubrrogacao;
                 }
 
-                //busca empenhos pela tb empenhos
+                //busca empenhos pela tb empenhos verificar coluna RP
                 $arrEmpenhos1 = $this->buscarEmpenhos($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
-                //busca empenhos pela tb compras
+                //busca empenhos pela tb compras corrigir query
                 $arrEmpenhos2 = $this->buscarEmpenhos2($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
                 $arrEmpenhosMerge = array_merge($arrEmpenhos1, $arrEmpenhos2);
                 $arrEmpenhosUnique = array_unique($arrEmpenhosMerge, SORT_REGULAR);
