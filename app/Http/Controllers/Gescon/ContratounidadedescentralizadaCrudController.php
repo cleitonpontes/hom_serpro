@@ -38,7 +38,7 @@ class ContratounidadedescentralizadaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratounidadedescentralizada');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/contratounidadedescentralizada');
-        $this->crud->setEntityNameStrings('contratounidadedescentralizada', 'Unidades Descentralizadas');
+        $this->crud->setEntityNameStrings('unidades', 'Unidades Descentralizadas');
         $this->crud->addClause('select', 'contratounidadesdescentralizadas.*');
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratounidadesdescentralizadas.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratounidadesdescentralizadas.unidade_id');
