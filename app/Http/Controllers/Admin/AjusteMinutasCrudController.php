@@ -60,8 +60,12 @@ class AjusteMinutasCrudController extends CrudController
 
         (backpack_user()->can('minuta_ajuste_editar')) ? $this->crud->allowAccess('update') : null;
 
+        $this->crud->addClause('select',
+            ['minutaempenhos.*', DB::raw('minutaempenhos_remessa.id as "minutaempenhos_remessa_id"')]);
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-        $this->crud->orderBy('updated_at', 'desc');
+        $this->crud->addClause('where', 'minutaempenhos_remessa.remessa', '=', 0);
+        $this->crud->addClause('join', 'minutaempenhos_remessa', 'minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
+        $this->crud->orderBy('minutaempenhos.updated_at', 'desc');
 
         /*
         |--------------------------------------------------------------------------
@@ -240,7 +244,10 @@ class AjusteMinutasCrudController extends CrudController
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('minutaempenhos.mensagem_siafi', 'like', "%$searchTerm%");
+            },
         ]);
     }
 
@@ -328,10 +335,10 @@ class AjusteMinutasCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
-            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            /*'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
                 $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-            },
+            },*/
         ]);
     }
 
@@ -748,7 +755,7 @@ class AjusteMinutasCrudController extends CrudController
         return redirect($this->crud->route);
     }
 
-    public function atualizaritemcompracontrato(Request $request, $idMinuta, \Yajra\DataTables\Html\Builder $htmlBuilder)
+    public function atualizaritemcompracontrato($idMinuta, $idRemessa, Request $request, \Yajra\DataTables\Html\Builder $htmlBuilder)
     {
 
         $minutaEmpenho = MinutaEmpenho::find($idMinuta);
@@ -816,7 +823,15 @@ class AjusteMinutasCrudController extends CrudController
                     '=',
                     'compra_items.id'
                 )
+                ->join('minutaempenhos_remessa', function ($join) {
+                    $join->on(
+                        'minutaempenhos.id',
+                        '=',
+                        'minutaempenhos_remessa.minutaempenho_id')
+                        ->on('compra_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
+                })
                 ->where('minutaempenhos.id', $idMinuta)
+                ->where('minutaempenhos_remessa.id', $idRemessa)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'));
             if($descTipoMinuta === 'Suprimento'){
                 $itens->where('compra_item_fornecedor.fornecedor_id', $minutaEmpenho->fornecedor_empenho_id);
@@ -901,7 +916,15 @@ class AjusteMinutasCrudController extends CrudController
                     '=',
                     'contratoitens.catmatseritem_id'
                 )
+                ->join('minutaempenhos_remessa', function ($join) {
+                    $join->on(
+                        'minutaempenhos.id',
+                        '=',
+                        'minutaempenhos_remessa.minutaempenho_id')
+                        ->on('contrato_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
+                })
                 ->where('minutaempenhos.id', $idMinuta)
+                ->where('minutaempenhos_remessa.id', $idRemessa)
                 ->where('minutaempenhos.unidade_id', session('user_ug_id'))
                 ->select(
                     [
@@ -932,6 +955,7 @@ class AjusteMinutasCrudController extends CrudController
                 ->distinct()
                 ->get()
                 ->toArray();
+            /*dd($itens->toSql(), $itens->getBindings());*/
         }
 
         if ($request->ajax()) {
