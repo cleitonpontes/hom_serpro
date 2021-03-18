@@ -910,17 +910,9 @@ class ContratoCrudController extends CrudController
 
     protected function adicionaCampoModalidades()
     {
-//        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
-//            $query->where('descricao', '=', 'Modalidade Licitação');
-//        })->where('visivel', true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
-
         $modalidades = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Modalidade Licitação');
-        })
-            ->whereRaw('LENGTH(descres) <= 2')
-            ->orderBy('descres')
-            ->select(DB::raw("CONCAT(descres,' - ',descricao) AS descres_descricao"), 'id')
-            ->pluck('descres_descricao', 'id');
+        })->where('visivel', true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
         $this->crud->addField([
             'name' => 'modalidade_id',
