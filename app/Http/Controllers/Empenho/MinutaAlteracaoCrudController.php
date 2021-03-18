@@ -57,7 +57,6 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->remessa = Route::current()->parameter('remessa');
         $minuta = MinutaEmpenho::find($minuta_id);
 
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -1530,6 +1529,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
                 . " data-$tipo='" . $item[$tipo] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
+                . " data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "'"
                 . " onkeyup='calculaQuantidade(this)' $readonly>";
         }
 
@@ -1926,11 +1926,18 @@ class MinutaAlteracaoCrudController extends CrudController
                 $id = array_search($return[$tipo], array_column($return_soma, $tipo));
                 $return['qtd_total_item'] = $return_soma[$id]['qtd_total_item'];
                 $return['vlr_total_item'] = $return_soma[$id]['vlr_total_item'];
+                $vlr_unitario_item = round(($return_soma[$id]['vlr_total_item'] / $return_soma[$id]['qtd_total_item']),4);
+                $return['vlr_unitario_item'] = $this->ceil_dec($vlr_unitario_item,2);
                 return $return;
             },
             $return
         );
 
         return $return;
+    }
+
+    function ceil_dec($val, $dec) {
+        $pow = pow(10, $dec);
+        return ceil($pow * $val) / $pow;
     }
 }
