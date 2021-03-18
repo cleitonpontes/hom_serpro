@@ -466,9 +466,19 @@ class CompraSiasgCrudController extends CrudController
     public function verificaPermissaoUasgCompraParamContrato($contrato)
     {
         $unidade_autorizada = null;
-        $uasgContrato = Unidade::find($contrato->unidade_id);
 
-        ($uasgContrato->id == session('user_ug_id')) ? $unidade_autorizada = session('user_ug_id') : '';
+        $uasgdescentralizada = $contrato->unidadesdescentralizadas()
+            ->where('unidade_id',session('user_ug_id'))
+            ->where('contrato_id',$contrato->id)
+            ->first();
+
+        if($uasgdescentralizada){
+            $unidade_autorizada = $uasgdescentralizada->unidade_id;
+        }else{
+            $uasgContrato = Unidade::find($contrato->unidade_id);
+
+            ($uasgContrato->id == session('user_ug_id')) ? $unidade_autorizada = session('user_ug_id') : '';
+        }
 
         return $unidade_autorizada;
     }

@@ -312,7 +312,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 ContratoItemMinutaEmpenho::insert($valores);
             }
             $base = new Base();
-            $minutaEmpenhoRemessa->sfnonce = $base->geraNonceSiafiEmpenho($minuta_id,$minutaEmpenhoRemessa->id);
+            $minutaEmpenhoRemessa->sfnonce = $base->geraNonceSiafiEmpenho($minuta_id, $minutaEmpenhoRemessa->id);
             $minutaEmpenhoRemessa->save();
 
             DB::commit();
@@ -1068,8 +1068,16 @@ class MinutaAlteracaoCrudController extends CrudController
                     'compra_item_minuta_empenho.numseq'
                 ])
                 ->orderBy('compra_item_minuta_empenho.numseq', 'asc');
-            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
-                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
+//            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+//                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
+
+            $itens = $this->setCondicaoFornecedor(
+                $modMinuta,
+                $itens,
+                $modMinuta->empenho_por,
+                $fornecedor_id,
+                $fornecedor_compra_id
+            );
 
             $itens = $itens->distinct()->get()->toArray();
         }
@@ -1780,8 +1788,15 @@ class MinutaAlteracaoCrudController extends CrudController
                         ]
                     )
                     ->orderBy('compra_item_minuta_empenho.numseq', 'asc');
-                $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
-                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
+                $itens = $this->setCondicaoFornecedor(
+                    $minutaEmpenho,
+                    $itens,
+                    $minutaEmpenho->empenho_por,
+                    $fornecedor_id,
+                    $fornecedor_compra_id
+                );
+//                $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+//                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
 
 
                 $soma = CompraItemMinutaEmpenho::select([
@@ -1838,13 +1853,13 @@ class MinutaAlteracaoCrudController extends CrudController
                     ->latest()
                     ->first();
 
-                if(!$remessa->sfnonce){
+                if (!$remessa->sfnonce) {
                     $base = new Base();
-                    $remessa->sfnonce = $base->geraNonceSiafiEmpenho($remessa->minutaempenho_id,$remessa->id);
+                    $remessa->sfnonce = $base->geraNonceSiafiEmpenho($remessa->minutaempenho_id, $remessa->id);
                     $remessa->save();
                 }
 
-                if($modSfOrcEmpenhoDados->sfnonce != $remessa->sfnonce){
+                if ($modSfOrcEmpenhoDados->sfnonce != $remessa->sfnonce) {
                     $modSfOrcEmpenhoDados->sfnonce = $remessa->sfnonce;
                 }
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';

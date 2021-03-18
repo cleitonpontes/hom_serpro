@@ -189,8 +189,8 @@ class SubelementoController extends BaseControllerEmpenho
                 )
                 ->where('minutaempenhos.id', $minuta_id)
                 ->where('compra_item_unidade.unidade_id', session('user_ug_id'))
-                ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
-                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
+//                ->where('compra_item_unidade.fornecedor_id', $fornecedor_id)
+//                ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id)
                 ->select(
                     [
                         'compra_item_minuta_empenho.compra_item_id',
@@ -214,9 +214,19 @@ class SubelementoController extends BaseControllerEmpenho
                         DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
                     ]
                 )
-                ->distinct()
-                ->get()
+                ->distinct();
+
+            $itens = $this->setCondicaoFornecedor(
+                $modMinutaEmpenho,
+                $itens,
+                $codigoitem->descricao,
+                $modMinutaEmpenho->fornecedor_empenho_id,
+                $fornecedor_id
+            );
+
+            $itens = $itens->get()
                 ->toArray();
+
 
             $valor_utilizado = CompraItemMinutaEmpenho::where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
                 ->select(DB::raw('coalesce(sum(valor),0) as sum'))
