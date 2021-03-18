@@ -11,6 +11,9 @@ use Backpack\CRUD\CrudPanel;
 
 use App\Models\Movimentacaocontratoconta;
 
+use Illuminate\Database\Eloquent\Builder;
+
+
 
 /**
  * Class LancamentoCrudController
@@ -36,10 +39,15 @@ class LancamentoCrudController extends CrudController
         $this->crud->setEntityNameStrings('lancamento', 'lancamentos');
 
         // adicionar cláusula para trabalharmos apenas com lançamentos da movimentação
-        $this->crud->addClause('select', 'lancamentos.*', 'codigoitens.descricao');
+        $this->crud->addClause('select', 'lancamentos.*', 'contratoterceirizados.salario', 'codigoitens.descricao', 'cod_encargo.descricao', 'encargos.percentual');
         $this->crud->addClause('join', 'movimentacaocontratocontas', 'movimentacaocontratocontas.id',  '=',  'lancamentos.movimentacao_id');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
+        $this->crud->addClause('join', 'contratoterceirizados', 'contratoterceirizados.id',  '=',  'lancamentos.contratoterceirizado_id');
+        $this->crud->addClause('join', 'encargos', 'encargos.id',  '=',  'lancamentos.encargo_id');
+        $this->crud->addClause('join', 'codigoitens as cod_encargo', 'cod_encargo.id',  '=',  'encargos.tipo_id');
         $this->crud->addClause('where', 'lancamentos.movimentacao_id', '=', $movimentacaocontratoconta_id);
+
+
 
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
@@ -79,7 +87,20 @@ class LancamentoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                    $query->orWhere('contratoterceirizados.nome', 'ilike', "%$searchTerm%");
+                },
+            ],
+            [
+                'name' => 'salario',
+                'label' => 'Salário',
+                'type' => 'text',
+                // 'orderable' => true,
+                // 'visibleInTable' => true, // no point, since it's a large text
+                // 'visibleInModal' => true, // would make the modal too big
+                // 'visibleInExport' => true, // not important enough
+                // 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratoterceirizados.salario', 'ilike', "%$searchTerm%");
                 },
             ],
             [
@@ -93,7 +114,7 @@ class LancamentoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                    $query->orWhere('cod_encargo.descricao', 'ilike', "%$searchTerm%");
                 },
             ],
             [
@@ -107,7 +128,7 @@ class LancamentoCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                    $query->orWhere('encargos.percentual', 'ilike', "%$searchTerm%");
                 },
             ],
             [
@@ -120,15 +141,6 @@ class LancamentoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
-                // },
-
-
-
-                // 'name'  => 'descricao',
-                // 'label' => 'Tipo da movimentação',
-                // 'type'  => 'text',
             ],
             [
                 'name' => 'formatValor',
@@ -141,6 +153,10 @@ class LancamentoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('lancamentos.valor', 'ilike', "%$searchTerm%");
+                },
+
             ],
         ];
         return $colunas;

@@ -82,8 +82,6 @@ class ExtratocontratocontaCrudController extends CrudController
         $this->crud->addClause('orderby', 'lancamentos.id', 'desc');
         // filtros na listagem
         $this->adicionaFiltros();
-
-
     }
     public function adicionaFiltros()
     {

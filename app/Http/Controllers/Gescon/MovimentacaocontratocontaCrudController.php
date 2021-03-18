@@ -78,12 +78,13 @@ class MovimentacaocontratocontaCrudController extends CrudController
         // $this->crud->denyAccess('show');
 
         // cláusulas para possibilitar buscas
-        $this->crud->addClause('select', 'movimentacaocontratocontas.*');
+        $this->crud->addClause('select', 'movimentacaocontratocontas.*', 'codigoitens.descricao');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
         $this->crud->addClause('where', 'movimentacaocontratocontas.contratoconta_id', '=', $contratoconta_id);
-        // $this->crud->addClause('orderby', 'movimentacaocontratocontas.ano_competencia', 'desc');
-        // $this->crud->addClause('orderby', 'movimentacaocontratocontas.mes_competencia', 'desc');
         $this->crud->addClause('orderby', 'movimentacaocontratocontas.id', 'desc');
+        // filtros na listagem
+        $this->adicionaFiltros();
+
 
         /*
         |--------------------------------------------------------------------------
@@ -101,6 +102,105 @@ class MovimentacaocontratocontaCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
+    public function adicionaFiltros()
+    {
+    //     $this->adicionaFiltroFuncionario();
+        $this->adicionaFiltroMovimentacao();
+    //     $this->adicionaFiltroEncargos();   // são os encargos
+        $this->adicionaFiltroMes();
+        $this->adicionaFiltroAno();
+    }
+    // INÍCIO MÉTODOS FILTROS
+    public function adicionaFiltroAno()
+    {
+        $campo = [
+            'name' => 'ano_competencia',
+            'type' => 'select2_multiple',
+            'label' => 'Ano'
+        ];
+        $anos = $this->getAnos();
+        $this->crud->addFilter(
+            $campo,
+            $anos,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'movimentacaocontratocontas.ano_competencia', json_decode($value));
+            }
+        );
+    }
+    public function adicionaFiltroMes()
+    {
+        $campo = [
+            'name' => 'mes_competencia',
+            'type' => 'select2_multiple',
+            'label' => 'Mês'
+        ];
+        $meses = $this->getMeses();
+        $this->crud->addFilter(
+            $campo,
+            $meses,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'movimentacaocontratocontas.mes_competencia', json_decode($value));
+            }
+        );
+    }
+    public function adicionaFiltroMovimentacao()
+    {
+        $campo = [
+            'name' => 'movimentacao',
+            'type' => 'select2_multiple',
+            'label' => 'Tipo Movimentação'
+        ];
+        $tiposMovimentacao = $this->getTiposMovimentacao();
+        $this->crud->addFilter(
+            $campo,
+            $tiposMovimentacao,
+            function ($value) {
+                $this->crud->addClause('whereIn'
+                    , 'codigoitens.id', json_decode($value));
+            }
+        );
+    }
+
+    private function getMeses()
+    {
+        $contrato_id = \Route::current()->parameter('contrato_id');
+        $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+        $dados = \DB::table('movimentacaocontratocontas as m')
+        // ->select('ci.descricao')->distinct()
+        // ->join('movimentacaocontratocontas as m', 'm.tipo_id', '=', 'ci.id')
+        ->where('m.contratoconta_id', '=', $contratoconta_id)
+        ->pluck('m.mes_competencia', 'm.mes_competencia')
+        ->toArray();
+        // dd($dados);
+        return $dados;
+    }
+    private function getAnos()
+    {
+        $contrato_id = \Route::current()->parameter('contrato_id');
+        $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+        $dados = \DB::table('movimentacaocontratocontas as m')
+        // ->select('ci.descricao')->distinct()
+        // ->join('movimentacaocontratocontas as m', 'm.tipo_id', '=', 'ci.id')
+        ->where('m.contratoconta_id', '=', $contratoconta_id)
+        ->pluck('m.ano_competencia', 'm.ano_competencia')
+        ->toArray();
+        // dd($dados);
+        return $dados;
+    }
+    private function getTiposMovimentacao()
+    {
+        $contrato_id = \Route::current()->parameter('contrato_id');
+        $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+        $dados = \DB::table('codigoitens as ci')
+        ->join('movimentacaocontratocontas as m', 'm.tipo_id', '=', 'ci.id')
+        ->where('m.contratoconta_id', '=', $contratoconta_id)
+        ->pluck('ci.descricao', 'ci.id')
+        ->toArray();
+        return $dados;
+    }
+
     public function Colunas()
     {
         $colunas = [
@@ -114,19 +214,25 @@ class MovimentacaocontratocontaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
-                },
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+                // },
             ],
             [
                 'name'  => 'mes_competencia',
                 'label' => 'Mês',
                 'type'  => 'text',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('movimentacaocontratocontas.mes_competencia', 'ilike', "%$searchTerm%");
+                },
             ],
             [
                 'name'  => 'ano_competencia',
                 'label' => 'Ano',
                 'type'  => 'text',
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('movimentacaocontratocontas.ano_competencia', 'ilike', "%$searchTerm%");
+                },
             ],
             [
                 'name'  => 'situacao_movimentacao',
