@@ -709,7 +709,7 @@ class ContratoController extends Controller
             ->whereHas('unidades', function ($u) {
                 $u->whereHas('contratos', function ($c) {
                     $c->where('situacao', true);
-                });
+                })->where('sigilo',false);
             })
             ->orderBy('codigo');
 
@@ -721,95 +721,120 @@ class ContratoController extends Controller
         $unidades = Unidade::select('codigo')
             ->whereHas('contratos', function ($c) {
                 $c->where('situacao', true);
-            })
+            })->where('sigilo',false)
             ->orderBy('codigo');
 
         return $unidades->get();
     }
 
     private function buscaCronogramasPorContratoId(int $contrato_id)
-    {
-        $cronogramas = Contratocronograma::where('contrato_id', $contrato_id)
-            ->get();
-
+    {   
+        $cronogramas = Contratocronograma::join('contratos', 'contratos.id', '=', 'contratocronograma.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
+        
         return $cronogramas;
     }
 
     private function buscaEmpenhosPorContratoId(int $contrato_id)
     {
-        $empenhos = Contratoempenho::where('contrato_id', $contrato_id)
-            ->get();
+        $empenhos = Contratoempenho::join('contratos', 'contratos.id', '=', 'contratoempenhos.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $empenhos;
     }
 
     private function buscaHistoricoPorContratoId(int $contrato_id)
     {
-        $historico = Contratohistorico::where('contrato_id', $contrato_id)
-            ->orderBy('data_assinatura')
+        $historico = Contratohistorico::join('contratos', 'contratos.id', '=', 'contratohistorico.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+            ->orderBy('contratohistorico.data_assinatura')
             ->get();
 
         return $historico;
     }
 
     private function buscaGarantiasPorContratoId(int $contrato_id)
-    {
-        $garantias = Contratogarantia::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
-            ->get();
+    {   
+        $garantias = Contratogarantia::select('contratogarantias.tipo','contratogarantias.valor','contratogarantias.vencimento')
+        ->join('contratos', 'contratos.id', '=', 'contratogarantias.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contratogarantias.contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $garantias;
     }
 
     private function buscaItensPorContratoId(int $contrato_id)
     {
-        $itens = Contratoitem::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
-            ->get();
+        $itens = Contratoitem::join('contratos', 'contratos.id', '=', 'contratoitens.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $itens;
     }
 
     private function buscaPrepostosPorContratoId(int $contrato_id)
     {
-        $prepostos = Contratopreposto::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
-            ->get();
+        $prepostos = Contratopreposto::join('contratos', 'contratos.id', '=', 'contratopreposto.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $prepostos;
     }
 
     private function buscaResponsaveisPorContratoId(int $contrato_id)
     {
-        $responsaveis = Contratoresponsavel::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
-            ->get();
+        $responsaveis = Contratoresponsavel::join('contratos', 'contratos.id', '=', 'contratoresponsaveis.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $responsaveis;
     }
 
     private function buscaDespesasAcessoriasPorContratoId(int $contrato_id)
     {
-        $despesas_acessorias = Contratodespesaacessoria::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
-            ->get();
+        $despesas_acessorias = Contratodespesaacessoria::join('contratos', 'contratos.id', '=', 
+        'contratodespesaacessoria.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $despesas_acessorias;
     }
 
     private function buscaFaturasPorContratoId(int $contrato_id)
     {
-        $faturas = Contratofatura::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
-            ->get();
+        $faturas = Contratofatura::join('contratos', 'contratos.id', '=', 'contratofaturas.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $faturas;
     }
 
     private function buscaOcorrenciasPorContratoId(int $contrato_id)
     {
-        $ocorrencias = Contratoocorrencia::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
+            $ocorrencias = Contratoocorrencia::join('contratos', 'contratos.id', '=', 'contratoocorrencias.contrato_id')
+            ->join('unidades','unidades.id','=','contratos.unidade_id')
+            ->where('contrato_id', $contrato_id)
+            ->where('unidades.sigilo', "=", false)
             ->get();
 
         return $ocorrencias;
@@ -817,18 +842,24 @@ class ContratoController extends Controller
 
     private function buscaTerceirizadosPorContratoId(int $contrato_id)
     {
-        $terceirizados = Contratoterceirizado::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
-            ->get();
+        $terceirizados = Contratoterceirizado::join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $terceirizados;
     }
 
     private function buscaArquivosPorContratoId(int $contrato_id)
     {
-        $arquivos = Contratoarquivo::where('contrato_id', $contrato_id)
-            //->orderBy('data_assinatura')
-            ->get();
+        $arquivos = Contratoarquivo::select('contrato_arquivos.tipo', 'contrato_arquivos.processo', 
+        'contrato_arquivos.sequencial_documento', 'contrato_arquivos.descricao', 'contrato_arquivos.arquivos')
+        ->join('contratos', 'contratos.id', '=', 'contrato_arquivos.contrato_id')
+        ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->where('contrato_id', $contrato_id)
+        ->where('unidades.sigilo', "=", false)
+        ->get();
 
         return $arquivos;
     }
