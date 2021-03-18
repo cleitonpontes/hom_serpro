@@ -97,9 +97,17 @@ class InstrumentoinicialCrudController extends CrudController
             $query->where('descricao', '=', 'Categoria Contrato');
         })->where('descricao', '<>', 'A definir')->orderBy('descricao')->pluck('descricao', 'id')->toArray();
 
+//        $modalidades = Codigoitem::whereHas('codigo', function ($query) {
+//            $query->where('descricao', '=', 'Modalidade Licitação');
+//        })->where('visivel', true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+
         $modalidades = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Modalidade Licitação');
-        })->where('visivel', true)->orderBy('descricao')->pluck('descricao', 'id')->toArray();
+        })
+            ->whereRaw('LENGTH(descres) <= 2')
+            ->orderBy('descres')
+            ->select(DB::raw("CONCAT(descres,' - ',descricao) AS descres_descricao"), 'id')
+            ->pluck('descres_descricao', 'id');
 
         $tipos = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo de Contrato');
