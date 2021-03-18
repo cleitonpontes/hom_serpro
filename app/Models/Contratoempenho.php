@@ -50,7 +50,9 @@ class Contratoempenho extends Model
     public function buscaTodosEmpenhosContratosAtivos()
     {
         $empenhos = $this->whereHas('contrato', function ($c) {
-            $c->where('situacao', true);
+            $c->whereHas('unidade', function ($s){
+                $s->where('sigilo',false);
+            })->where('situacao', true);
         })->get();
 
         return $empenhos;
