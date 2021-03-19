@@ -27,7 +27,9 @@ use App\Models\MinutaEmpenho;
 use Illuminate\Support\Facades\Route;
 use App\Models\Empenho;
 use App\Models\Fornecedor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Throwable;
 
 class ContratoController extends Controller
 {
@@ -122,10 +124,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function cronogramaPorContratoId(int $contrato_id)
+    public function cronogramaPorContratoId(int $contrato_id, Request $request)
     {
         $cronograma_array = [];
-        $cronogramas = $this->buscaCronogramasPorContratoId($contrato_id);
+        $cronogramas = $this->buscaCronogramasPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($cronogramas as $cronograma) {
             $cronograma_array[] = [
@@ -157,11 +159,11 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function empenhosPorContratos()
+    public function empenhosPorContratos(Request $request)
     {
         $empenhos_array = [];
         $emp = new Contratoempenho();
-        $empenhos = $emp->buscaTodosEmpenhosContratosAtivos();
+        $empenhos = $emp->buscaTodosEmpenhosContratosAtivos($this->verificaData($request->date, $request->time));
 
         foreach ($empenhos as $e) {
             $empenhos_array[] = [
@@ -203,10 +205,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function empenhosPorContratoId(int $contrato_id)
+    public function empenhosPorContratoId(int $contrato_id, Request $request)
     {
         $empenhos_array = [];
-        $empenhos = $this->buscaEmpenhosPorContratoId($contrato_id);
+        $empenhos = $this->buscaEmpenhosPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($empenhos as $e) {
 
@@ -256,10 +258,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function historicoPorContratoId(int $contrato_id)
+    public function historicoPorContratoId(int $contrato_id, Request $request)
     {
         $historico_array = [];
-        $historicos = $this->buscaHistoricoPorContratoId($contrato_id);
+        $historicos = $this->buscaHistoricoPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($historicos as $historico) {
             $historico_array[] = [
@@ -323,10 +325,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function garantiasPorContratoId(int $contrato_id)
+    public function garantiasPorContratoId(int $contrato_id, Request $request)
     {
         $garantias_array = [];
-        $garantias = $this->buscaGarantiasPorContratoId($contrato_id);
+        $garantias = $this->buscaGarantiasPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($garantias as $garantia) {
 
@@ -362,10 +364,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function itensPorContratoId(int $contrato_id)
+    public function itensPorContratoId(int $contrato_id, Request $request)
     {
         $itens_array = [];
-        $itens = $this->buscaItensPorContratoId($contrato_id);
+        $itens = $this->buscaItensPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($itens as $item) {
             $itens_array[] = [
@@ -402,10 +404,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function prepostosPorContratoId(int $contrato_id)
+    public function prepostosPorContratoId(int $contrato_id, Request $request)
     {
         $prepostos_array = [];
-        $prepostos = $this->buscaPrepostosPorContratoId($contrato_id);
+        $prepostos = $this->buscaPrepostosPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($prepostos as $preposto) {
             $prepostos_array[] = [
@@ -447,10 +449,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function responsaveisPorContratoId(int $contrato_id)
+    public function responsaveisPorContratoId(int $contrato_id, Request $request)
     {
         $responsaveis_array = [];
-        $responsaveis = $this->buscaResponsaveisPorContratoId($contrato_id);
+        $responsaveis = $this->buscaResponsaveisPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($responsaveis as $responsavel) {
 
@@ -493,10 +495,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function despesasAcessoriasPorContratoId(int $contrato_id)
+    public function despesasAcessoriasPorContratoId(int $contrato_id, Request $request)
     {
         $despesasAcessorias_array = [];
-        $despesasAcessorias = $this->buscaDespesasAcessoriasPorContratoId($contrato_id);
+        $despesasAcessorias = $this->buscaDespesasAcessoriasPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($despesasAcessorias as $despesaAcessoria) {
             $despesasAcessorias_array[] = [
@@ -531,10 +533,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function faturasPorContratoId(int $contrato_id)
+    public function faturasPorContratoId(int $contrato_id, Request $request)
     {
         $faturas_array = [];
-        $faturas = $this->buscaFaturasPorContratoId($contrato_id);
+        $faturas = $this->buscaFaturasPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($faturas as $fatura) {
             $faturas_array[] = [
@@ -587,10 +589,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function ocorrenciasPorContratoId(int $contrato_id)
+    public function ocorrenciasPorContratoId(int $contrato_id, Request $request)
     {
         $ocorrencias_array = [];
-        $ocorrencias = $this->buscaOcorrenciasPorContratoId($contrato_id);
+        $ocorrencias = $this->buscaOcorrenciasPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($ocorrencias as $ocorrencia) {
             $ocorrencias_array[] = [
@@ -635,11 +637,11 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function terceirizadosPorContratoId(int $contrato_id)
+    public function terceirizadosPorContratoId(int $contrato_id, Request $request)
     {
 
         $terceirizados_array = [];
-        $terceirizados = $this->buscaTerceirizadosPorContratoId($contrato_id);
+        $terceirizados = $this->buscaTerceirizadosPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($terceirizados as $terceirizado) {
 ;
@@ -687,10 +689,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function arquivosPorContratoId(int $contrato_id)
+    public function arquivosPorContratoId(int $contrato_id, Request $request)
     {
         $arquivos_array = [];
-        $arquivos = $this->buscaArquivosPorContratoId($contrato_id);
+        $arquivos = $this->buscaArquivosPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
 
         foreach ($arquivos as $arquivo) {
             $arquivos_array[] = [
@@ -730,131 +732,165 @@ class ContratoController extends Controller
         return $unidades->get();
     }
 
-    private function buscaCronogramasPorContratoId(int $contrato_id)
+    private function buscaCronogramasPorContratoId(int $contrato_id, $dataInformada)
     {   
         $cronogramas = Contratocronograma::join('contratos', 'contratos.id', '=', 'contratocronograma.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratocronograma.updated_at', '>', $dataInformada);
+        })
         ->get();
         
         return $cronogramas;
     }
 
-    private function buscaEmpenhosPorContratoId(int $contrato_id)
+    private function buscaEmpenhosPorContratoId(int $contrato_id, $dataInformada)
     {
         $empenhos = Contratoempenho::join('contratos', 'contratos.id', '=', 'contratoempenhos.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
+        ->join('empenhos','empenhos.id','=','contratoempenhos.empenho_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('empenhos.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $empenhos;
     }
 
-    private function buscaHistoricoPorContratoId(int $contrato_id)
+    private function buscaHistoricoPorContratoId(int $contrato_id, $dataInformada)
     {
         $historico = Contratohistorico::join('contratos', 'contratos.id', '=', 'contratohistorico.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
-            ->orderBy('contratohistorico.data_assinatura')
-            ->get();
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratohistorico.updated_at', '>', $dataInformada);
+        })
+        ->orderBy('contratohistorico.data_assinatura')
+        ->get();
 
         return $historico;
     }
 
-    private function buscaGarantiasPorContratoId(int $contrato_id)
+    private function buscaGarantiasPorContratoId(int $contrato_id, $dataInformada)
     {   
         $garantias = Contratogarantia::select('contratogarantias.tipo','contratogarantias.valor','contratogarantias.vencimento')
         ->join('contratos', 'contratos.id', '=', 'contratogarantias.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contratogarantias.contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratogarantias.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $garantias;
     }
 
-    private function buscaItensPorContratoId(int $contrato_id)
+    private function buscaItensPorContratoId(int $contrato_id, $dataInformada)
     {
         $itens = Contratoitem::join('contratos', 'contratos.id', '=', 'contratoitens.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratoitens.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $itens;
     }
 
-    private function buscaPrepostosPorContratoId(int $contrato_id)
+    private function buscaPrepostosPorContratoId(int $contrato_id, $dataInformada)
     {
         $prepostos = Contratopreposto::join('contratos', 'contratos.id', '=', 'contratopreposto.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratopreposto.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $prepostos;
     }
 
-    private function buscaResponsaveisPorContratoId(int $contrato_id)
+    private function buscaResponsaveisPorContratoId(int $contrato_id, $dataInformada)
     {
         $responsaveis = Contratoresponsavel::join('contratos', 'contratos.id', '=', 'contratoresponsaveis.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratoresponsaveis.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $responsaveis;
     }
 
-    private function buscaDespesasAcessoriasPorContratoId(int $contrato_id)
+    private function buscaDespesasAcessoriasPorContratoId(int $contrato_id, $dataInformada)
     {
         $despesas_acessorias = Contratodespesaacessoria::join('contratos', 'contratos.id', '=', 
         'contratodespesaacessoria.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratodespesaacessoria.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $despesas_acessorias;
     }
 
-    private function buscaFaturasPorContratoId(int $contrato_id)
+    private function buscaFaturasPorContratoId(int $contrato_id, $dataInformada)
     {
         $faturas = Contratofatura::join('contratos', 'contratos.id', '=', 'contratofaturas.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratofaturas.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $faturas;
     }
 
-    private function buscaOcorrenciasPorContratoId(int $contrato_id)
+    private function buscaOcorrenciasPorContratoId(int $contrato_id, $dataInformada)
     {
             $ocorrencias = Contratoocorrencia::join('contratos', 'contratos.id', '=', 'contratoocorrencias.contrato_id')
             ->join('unidades','unidades.id','=','contratos.unidade_id')
             ->where('contrato_id', $contrato_id)
             ->where('unidades.sigilo', "=", false)
+            ->when($dataInformada!=null, function ($d) use ($dataInformada){
+                $d->where('contratoocorrencias.updated_at', '>', $dataInformada);
+            })
             ->get();
 
         return $ocorrencias;
     }
 
-    private function buscaTerceirizadosPorContratoId(int $contrato_id)
+    private function buscaTerceirizadosPorContratoId(int $contrato_id, $dataInformada)
     {
         $terceirizados = Contratoterceirizado::join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contratoterceirizados.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $terceirizados;
     }
 
-    private function buscaArquivosPorContratoId(int $contrato_id)
+    private function buscaArquivosPorContratoId(int $contrato_id, $dataInformada)
     {
         $arquivos = Contratoarquivo::select('contrato_arquivos.tipo', 'contrato_arquivos.processo', 
         'contrato_arquivos.sequencial_documento', 'contrato_arquivos.descricao', 'contrato_arquivos.arquivos')
@@ -862,6 +898,9 @@ class ContratoController extends Controller
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('contrato_arquivos.updated_at', '>', $dataInformada);
+        })
         ->get();
 
         return $arquivos;
@@ -881,10 +920,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoAtivoAll()
+    public function contratoAtivoAll(Request $request)
     {
         $contratos_array = [];
-        $contratos = $this->buscaContratos();
+        $contratos = $this->buscaContratos($this->verificaData($request->date, $request->time));
         $prefixoAPI = Route::current()->getPrefix();
 
         foreach ($contratos as $contrato) {
@@ -972,14 +1011,14 @@ class ContratoController extends Controller
      *   )
      * )
      */
-    public function contratoUASGeContratoAno(string $codigo_uasg, string $numeroano_contrato)
+    public function contratoUASGeContratoAno(string $codigo_uasg, string $numeroano_contrato, Request $request)
     {
         if(strlen($numeroano_contrato)!=9){
             abort(response()->json(['errors' => "O parametro 'numeroano_contrato' foi enviado com um tamanho invalido",], 422));
         }
         $numeroano_contrato = substr_replace($numeroano_contrato, '/', 5, 0);
         $contratos_array = [];
-        $contratos = $this->buscaContratoPorUASGeNumero($codigo_uasg, $numeroano_contrato);
+        $contratos = $this->buscaContratoPorUASGeNumero($codigo_uasg, $numeroano_contrato, $this->verificaData($request->date, $request->time));
         foreach ($contratos as $contrato) {
             $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
         }
@@ -1006,10 +1045,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoAtivoPorUg(string $unidade)
+    public function contratoAtivoPorUg(string $unidade, Request $request)
     {
         $contratos_array = [];
-        $contratos = $this->buscaContratosPorUg($unidade);
+        $contratos = $this->buscaContratosPorUg($unidade, $this->verificaData($request->date, $request->time));
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
@@ -1037,10 +1076,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoAtivoPorOrgao(string $orgao)
+    public function contratoAtivoPorOrgao(string $orgao, Request $request)
     {
         $contratos_array = [];
-        $contratos = $this->buscaContratosPorOrgao($orgao);
+        $contratos = $this->buscaContratosPorOrgao($orgao, $this->verificaData($request->date, $request->time));
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
@@ -1069,10 +1108,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoInativoPorUg(string $unidade)
+    public function contratoInativoPorUg(string $unidade, Request $request)
     {
         $contratos_array = [];
-        $contratos = $this->buscaContratosInativosPorUg($unidade);
+        $contratos = $this->buscaContratosInativosPorUg($unidade, $this->verificaData($request->date, $request->time));
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
@@ -1100,10 +1139,10 @@ class ContratoController extends Controller
      *     )
      * )
      */
-    public function contratoInativoPorOrgao(string $orgao)
+    public function contratoInativoPorOrgao(string $orgao, Request $request)
     {
         $contratos_array = [];
-        $contratos = $this->buscaContratosInativosPorOrgao($orgao);
+        $contratos = $this->buscaContratosInativosPorOrgao($orgao, $this->verificaData($request->date, $request->time));
 
         foreach ($contratos as $contrato) {
             $contratos_array[] = $contrato->contratoAPI(Route::current()->getPrefix());
@@ -1112,7 +1151,7 @@ class ContratoController extends Controller
         return json_encode($contratos_array);
     }
 
-    private function buscaContratosPorUg(string $unidade)
+    private function buscaContratosPorUg(string $unidade, $dataInformada)
     {
         $contratos = Contrato::whereHas('unidade', function ($q) use ($unidade) {
             $q->whereHas('orgao', function ($o) {
@@ -1123,13 +1162,16 @@ class ContratoController extends Controller
                 ->where('situacao', true);
         })
             ->where('situacao', true)
+            ->when($dataInformada!=null, function ($d) use ($dataInformada){
+                $d->where('updated_at', '>', $dataInformada);
+            })
             ->orderBy('id')
             ->get();
 
         return $contratos;
     }
 
-    private function buscaContratosInativosPorUg(string $unidade)
+    private function buscaContratosInativosPorUg(string $unidade, $dataInformada)
     {
         $contratos = Contrato::whereHas('unidade', function ($q) use ($unidade) {
             $q->whereHas('orgao', function ($o) {
@@ -1140,13 +1182,16 @@ class ContratoController extends Controller
                 ->where('situacao', true);
         })
             ->where('situacao', false)
+            ->when($dataInformada!=null, function ($d) use ($dataInformada){
+                $d->where('updated_at', '>', $dataInformada);
+            })
             ->orderBy('id')
             ->get();
 
         return $contratos;
     }
 
-    private function buscaContratosPorOrgao(string $orgao)
+    private function buscaContratosPorOrgao(string $orgao, $dataInformada)
     {
         $contratos = Contrato::whereHas('unidade', function ($q) use ($orgao) {
             $q->whereHas('orgao', function ($o) use ($orgao) {
@@ -1155,13 +1200,16 @@ class ContratoController extends Controller
             })->where('sigilo', false);
         })
             ->where('situacao', true)
+            ->when($dataInformada!=null, function ($d) use ($dataInformada){
+                $d->where('updated_at', '>', $dataInformada);
+            })
             ->orderBy('id')
             ->get();
 
         return $contratos;
     }
 
-    private function buscaContratoPorUASGeNumero(string $codigo_uasg, string $numeroano_contrato)
+    private function buscaContratoPorUASGeNumero(string $codigo_uasg, string $numeroano_contrato, $dataInformada)
     {
         $contratos = Contrato::whereHas('unidadeorigem', function ($q) use ($codigo_uasg) {
             $q->whereHas('orgao', function ($o) {
@@ -1172,13 +1220,16 @@ class ContratoController extends Controller
                 ->where('situacao', true);
         })
             ->where('numero', $numeroano_contrato)
+            ->when($dataInformada!=null, function ($d) use ($dataInformada){
+                $d->where('updated_at', '>', $dataInformada);
+            })
             ->orderBy('id')
             ->get();
 
         return $contratos;
     }
 
-    private function buscaContratosInativosPorOrgao(string $orgao)
+    private function buscaContratosInativosPorOrgao(string $orgao, $dataInformada)
     {
         $contratos = Contrato::whereHas('unidade', function ($q) use ($orgao) {
             $q->whereHas('orgao', function ($o) use ($orgao) {
@@ -1187,18 +1238,24 @@ class ContratoController extends Controller
             })->where('sigilo', false);
         })
             ->where('situacao', false)
+            ->when($dataInformada!=null, function ($d) use ($dataInformada){
+                $d->where('updated_at', '>', $dataInformada);
+            })
             ->orderBy('id')
             ->get();
 
         return $contratos;
     }
 
-    private function buscaContratos()
+    private function buscaContratos($dataInformada)
     {
         $contratos = Contrato::whereHas('unidade', function ($q) {
             $q->whereHas('orgao', function ($o) {
                 $o->where('situacao', true);
             })->where('sigilo',false);
+        })
+        ->when($dataInformada!=null, function ($d) use ($dataInformada){
+            $d->where('updated_at', '>', $dataInformada);
         })
         ->where('situacao', true)
             ->orderBy('id')
@@ -1232,6 +1289,40 @@ class ContratoController extends Controller
         ->where('minutaempenhos.id',$id)->firstOrFail()->toArray();
 
         return $camposContrato;
+    }
+
+    public function verificaData($data, $time)
+    {   
+        if($data != null || $time != null){
+            if($this->IsNullOrEmptyString($data) && !$this->IsNullOrEmptyString($time)){
+                abort(response()->json(['errors' => "O parametro 'date' é obrigatorio quando o 'time' for informado",], 422));
+                return;
+            }
+            if(!$this->IsNullOrEmptyString($data) && $this->IsNullOrEmptyString($time)){
+                $time = '0800';
+            }
+            if(!is_numeric($data)||!is_numeric($data)){
+                abort(response()->json(['errors' => "Valor não numerico informado para 'date' ou 'time'",], 422));
+                return;
+            }            
+            try {
+                $dataInformada = new Carbon($data. ' '.$time);
+            } catch (Throwable $e) {
+                abort(response()->json($e->getMessage()));
+                return $e;
+            }
+            if($dataInformada > Carbon::now()){
+                abort(response()->json(['errors' => "A data deve ser menor que a atual",], 422));
+                return;
+            }
+            return $dataInformada;
+        }else{
+            return null;
+        }
+    }
+
+    function IsNullOrEmptyString($data){
+        return (!isset($data) || trim($data)==='');
     }
 
 /**
