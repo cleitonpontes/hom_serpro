@@ -38,7 +38,7 @@ class ContratoController extends Controller
 
         if ($search_term) {
 
-            $results = Contrato::select(DB::raw("CONCAT(contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS numero"), 'contratos.id')
+            $results = Contrato::select(DB::raw("CONCAT(unidades.codigo,' | ',contratos.numero,' | ',fornecedores.cpf_cnpj_idgener,' - ',fornecedores.nome) AS numero"), 'contratos.id')
                 ->distinct()
                 ->where(
                     [
@@ -50,6 +50,7 @@ class ContratoController extends Controller
                 )
                 ->orWhere('contratounidadesdescentralizadas.unidade_id','=',session()->get('user_ug_id'))
                 ->join('fornecedores', 'fornecedores.id', '=', 'contratos.fornecedor_id' )
+                ->join('unidades', 'unidades.id', '=', 'contratos.unidadeorigem_id' )
                 ->leftJoin('contratounidadesdescentralizadas', 'contratounidadesdescentralizadas.contrato_id', '=', 'contratos.id' )
 //                ->orderby('fornecedores.nome', 'asc')
                 ->paginate(20);
@@ -731,13 +732,13 @@ class ContratoController extends Controller
     }
 
     private function buscaCronogramasPorContratoId(int $contrato_id)
-    {   
+    {
         $cronogramas = Contratocronograma::join('contratos', 'contratos.id', '=', 'contratocronograma.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
         ->where('unidades.sigilo', "=", false)
         ->get();
-        
+
         return $cronogramas;
     }
 
@@ -765,7 +766,7 @@ class ContratoController extends Controller
     }
 
     private function buscaGarantiasPorContratoId(int $contrato_id)
-    {   
+    {
         $garantias = Contratogarantia::select('contratogarantias.tipo','contratogarantias.valor','contratogarantias.vencimento')
         ->join('contratos', 'contratos.id', '=', 'contratogarantias.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
@@ -811,7 +812,7 @@ class ContratoController extends Controller
 
     private function buscaDespesasAcessoriasPorContratoId(int $contrato_id)
     {
-        $despesas_acessorias = Contratodespesaacessoria::join('contratos', 'contratos.id', '=', 
+        $despesas_acessorias = Contratodespesaacessoria::join('contratos', 'contratos.id', '=',
         'contratodespesaacessoria.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
         ->where('contrato_id', $contrato_id)
@@ -856,7 +857,7 @@ class ContratoController extends Controller
 
     private function buscaArquivosPorContratoId(int $contrato_id)
     {
-        $arquivos = Contratoarquivo::select('contrato_arquivos.tipo', 'contrato_arquivos.processo', 
+        $arquivos = Contratoarquivo::select('contrato_arquivos.tipo', 'contrato_arquivos.processo',
         'contrato_arquivos.sequencial_documento', 'contrato_arquivos.descricao', 'contrato_arquivos.arquivos')
         ->join('contratos', 'contratos.id', '=', 'contrato_arquivos.contrato_id')
         ->join('unidades','unidades.id','=','contratos.unidade_id')
