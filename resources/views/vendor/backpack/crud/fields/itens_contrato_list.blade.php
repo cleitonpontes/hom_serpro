@@ -21,7 +21,7 @@
             <thead>
             <tr>
                 <th class="text-center">Tipo Item</th>
-                <th class="text-center">Número</th>
+                <th class="text-center">Número Item Compra</th>
                 <th class="text-center">Item</th>
                 <th class="text-center">Quantidade</th>
                 <th class="text-center">Valor Unitário</th>
@@ -67,7 +67,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="qtd_item" class="control-label">Número<span class="campo-obrigatorio">*</span></label>
+                        <label for="qtd_item" class="control-label">Número Item Compra<span class="campo-obrigatorio">*</span></label>
                         <input class="form-control" id="numero_item" name="numero_item" type="text">
                     </div>
                     <div class="form-group">
