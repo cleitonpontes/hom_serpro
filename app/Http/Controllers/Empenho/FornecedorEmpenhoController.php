@@ -343,7 +343,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao'], $tipo);
                 })
                 ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                    if ($itens['descricaosimplificada'] != null) {
+                    if ($itens['descricaosimplificada'] != null && $itens['descricaosimplificada'] !== 'undefined') {
                         return $this->retornaDescricaoDetalhada(
                             $itens['descricaosimplificada'],
                             $itens['descricaodetalhada']
