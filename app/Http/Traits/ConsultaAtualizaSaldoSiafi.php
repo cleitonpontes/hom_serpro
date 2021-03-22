@@ -19,7 +19,7 @@ trait ConsultaAtualizaSaldoSiafi {
         foreach ($contas_contabeis as $key => $value){
             // Consulta saldo do empenho
             $saldoAtual = $this->consultaSaldoSiafi($registro, $value);
-            if($saldoAtual >= 0) {
+            if($saldoAtual >= 0 or $saldoAtual != '') {
                 // Atualiza o saldo retornado
                 $this->atualizaSaldo($empenho, $subitem, $saldoAtual, $id_ug, $key);
             }
