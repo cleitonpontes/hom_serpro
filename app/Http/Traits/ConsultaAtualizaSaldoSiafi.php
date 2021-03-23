@@ -19,7 +19,7 @@ trait ConsultaAtualizaSaldoSiafi {
         foreach ($contas_contabeis as $key => $value){
             // Consulta saldo do empenho
             $saldoAtual = $this->consultaSaldoSiafi($registro, $value);
-            if($saldoAtual >= 0) {
+            if($saldoAtual >= 0 or $saldoAtual != '') {
                 // Atualiza o saldo retornado
                 $this->atualizaSaldo($empenho, $subitem, $saldoAtual, $id_ug, $key);
             }
@@ -35,7 +35,7 @@ trait ConsultaAtualizaSaldoSiafi {
     private function consultaSaldoSiafi($registro, $contacontabil1)
     {
         // Valores fixos
-        $amb = env('AMBIENTE_SIAFI');
+        $amb = config('app.ambiente_siafi');
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
 
         $ug = $registro['ug'];
