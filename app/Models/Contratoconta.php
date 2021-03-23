@@ -8,7 +8,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Contratoconta extends Model
 {
-
     protected $primaryKey = 'id';
 
     use CrudTrait;
@@ -21,20 +20,14 @@ class Contratoconta extends Model
     */
 
     protected $table = 'contratocontas';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id', 'banco', 'conta', 'agencia', 'conta_corrente', 'fat_empresa'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-
     public function getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado){
         $obj = \DB::table('contratoterceirizados')
             ->select('contratocontas.id')
