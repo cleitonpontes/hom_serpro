@@ -281,8 +281,8 @@ class Execsiafi
 
     public function conrazaoAPIComprasNet($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
     {
-        $user = env('USUARIO_SIAFI');
-        $senha = env('SENHA_SIAFI');
+        $user = config('app.usuario_siafi');
+        $senha = config('app.senha_siafi');
 
         $client = $this->conexao_xml($user, $senha, $ug_user, '', $amb, $ano, 'CONSULTA');
 

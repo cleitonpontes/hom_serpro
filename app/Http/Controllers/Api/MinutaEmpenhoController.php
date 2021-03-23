@@ -311,6 +311,8 @@ class MinutaEmpenhoController extends Controller
             ->where('descricao', 'EMPENHO EMITIDO')
             ->select('codigoitens.id')->first();
 
+        $tipoCompraId = Codigoitem::where('descricao', 'Compra')->first()->id;
+
         $options = MinutaEmpenho::query();
 
         if (!$form['fornecedor_id']) {
@@ -330,6 +332,7 @@ class MinutaEmpenhoController extends Controller
                 ->where('minutaempenhos.fornecedor_empenho_id', $form['fornecedor_id'])
                 ->where('minutaempenhos.unidade_id', '=', session()->get('user_ug_id'))
                 ->where('minutaempenhos.situacao_id', '=', $situacao->id)
+                ->where('minutaempenhos.tipo_empenhopor_id', $tipoCompraId)
                 ->whereNotIn('minutaempenhos.id', $arr_contrato_minuta_empenho_pivot->get()->toArray());
         }
 
@@ -365,7 +368,7 @@ class MinutaEmpenhoController extends Controller
 
             $desc = $contrato_item->descricao_complementar;
 
-            $descricao = (!is_null($desc))
+            $descricao = (!is_null($desc) && $desc !== 'undefined')
                 ? $desc
                 :  Catmatseritem::find($contrato_item->catmatseritem_id)->descricao;
             $descricao = 'Item compra: '. $contrato_item->numero_item_compra . ' - ' . $descricao;
