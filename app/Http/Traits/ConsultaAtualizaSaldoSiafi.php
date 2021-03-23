@@ -35,7 +35,7 @@ trait ConsultaAtualizaSaldoSiafi {
     private function consultaSaldoSiafi($registro, $contacontabil1)
     {
         // Valores fixos
-        $amb = env('AMBIENTE_SIAFI');
+        $amb = config('app.ambiente_siafi');
         $meses = array('', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ');
 
         $ug = $registro['ug'];
