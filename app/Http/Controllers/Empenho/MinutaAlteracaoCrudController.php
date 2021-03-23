@@ -57,7 +57,6 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->remessa = Route::current()->parameter('remessa');
         $minuta = MinutaEmpenho::find($minuta_id);
 
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -464,6 +463,8 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->removeColumn('conta_contabil_passivo_anterior');
         $this->crud->removeColumn('tipo_minuta_empenho');
 
+        $this->adicionaColunaSituacaoShow($params['remessa']);
+
         return $content;
     }
 
@@ -618,7 +619,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 }
             )
             ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                if ($itens['descricaosimplificada'] != null) {
+                if ($itens['descricaosimplificada'] != null && $itens['descricaosimplificada'] !== 'undefined') {
                     return $this->retornaDescricaoDetalhada(
                         $itens['descricaosimplificada'],
                         $itens['descricaodetalhada']
@@ -630,11 +631,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 );
             })
 
-//            ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-//                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada']);
-//            })
             ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item', 'descricaosimplificada', 'tipo_alteracao'])
-//            ->rawColumns(['subitem', 'valor_total', 'valor_total_item'])
             ->make(true);
     }
 
@@ -836,7 +833,6 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->adicionaColunaDescricao();
     }
 
-    //TODO VERIFICAR PORQUE A SITUACAO ESTÁ VINDO INATIVA PARA TODAS AS LINHAS DA MINUTA 49 NO BANCO LOCAL
     protected function adicionaColunaSituacao()
     {
         $this->crud->addColumn([
@@ -845,6 +841,23 @@ class MinutaAlteracaoCrudController extends CrudController
             'label' => 'Situação', // Table column heading
             'type' => 'text',
 //            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    protected function adicionaColunaSituacaoShow(string $remessa): void
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'situacao_remessa',
+            'label' => 'Situação', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getSituacaoRemessa', // the method in your Model
+            'function_parameters' => [$remessa],
             'orderable' => true,
             'visibleInTable' => true, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
@@ -1105,7 +1118,11 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
                     DB::raw('contratoitens.numero_item_compra AS "Número do Item"'),
                     DB::raw('catmatseritens.descricao AS "Descrição"'),
-                    DB::raw('contratoitens.descricao_complementar AS "Descrição Detalhada"'),
+                    DB::raw("CASE
+                                        WHEN contratoitens.descricao_complementar != 'undefined'
+                                            THEN contratoitens.descricao_complementar
+                                        ELSE ''
+                                    END  AS \"Descrição Detalhada\""),
                     DB::raw('operacao.descricao AS "Operação"'),
                     DB::raw('contrato_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
@@ -1496,6 +1513,7 @@ class MinutaAlteracaoCrudController extends CrudController
         return " <input type='number'  id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
+            . " data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "'"
             . " class='form-control qtd' value='$quantidade' oninput='calculaValorTotal(this)'  $readonly> ";
     }
 
@@ -1530,6 +1548,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
                 . " data-$tipo='" . $item[$tipo] . "'"
                 . " data-valor_unitario='" . $item['valorunitario'] . "'"
+                . " data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "'"
                 . " onkeyup='calculaQuantidade(this)' $readonly>";
         }
 
@@ -1926,11 +1945,18 @@ class MinutaAlteracaoCrudController extends CrudController
                 $id = array_search($return[$tipo], array_column($return_soma, $tipo));
                 $return['qtd_total_item'] = $return_soma[$id]['qtd_total_item'];
                 $return['vlr_total_item'] = $return_soma[$id]['vlr_total_item'];
+                $vlr_unitario_item = round(($return_soma[$id]['vlr_total_item'] / $return_soma[$id]['qtd_total_item']),4);
+                $return['vlr_unitario_item'] = $this->ceil_dec($vlr_unitario_item,2);
                 return $return;
             },
             $return
         );
 
         return $return;
+    }
+
+    function ceil_dec($val, $dec) {
+        $pow = pow(10, $dec);
+        return ceil($pow * $val) / $pow;
     }
 }

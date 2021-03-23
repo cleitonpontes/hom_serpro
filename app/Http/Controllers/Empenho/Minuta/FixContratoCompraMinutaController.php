@@ -20,7 +20,12 @@ class FixContratoCompraMinutaController extends Controller
             $this->atualizarNumSeq($coItemMinuta, $request['numseq'][$key]);
         }
         Alert::success('Dados atualizados!')->flash();
-        return redirect()->route('ajusteminuta.atualizar.contrato.compra', ['minuta_id' => $request['id_minuta']]);
+
+        return redirect()->route('ajusteminuta.atualizar.contrato.compra',
+            [
+                'minuta_id' => $request['id_minuta'],
+                'id_remessa' => $request['id_remessa']
+            ]);
     }
 
     private function atualizarNumSeq($coItemMinuta, $numSeq)
