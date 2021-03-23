@@ -173,6 +173,16 @@ class MinutaEmpenho extends Model
         return $this->situacao->descricao;
     }
 
+    /**
+     * Retorna a situação da remessa recebida
+     * @param string $remessa_id
+     * @return String
+     */
+    public function getSituacaoRemessa(string $remessa_id): String
+    {
+        return $this->remessa()->where('id', $remessa_id)->select('situacao_id')->first()->situacao->descricao;
+    }
+
     public function getFornecedorEmpenho()
     {
         $fornecedor = $this->fornecedor_empenho()->first();
