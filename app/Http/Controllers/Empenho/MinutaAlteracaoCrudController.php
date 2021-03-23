@@ -1513,6 +1513,7 @@ class MinutaAlteracaoCrudController extends CrudController
         return " <input type='number'  id='qtd" . $item[$tipo]
             . "' data-$tipo='" . $item[$tipo]
             . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
+            . " data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "'"
             . " class='form-control qtd' value='$quantidade' oninput='calculaValorTotal(this)'  $readonly> ";
     }
 
