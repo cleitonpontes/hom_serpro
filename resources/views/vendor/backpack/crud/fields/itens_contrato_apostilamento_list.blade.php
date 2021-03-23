@@ -17,7 +17,7 @@
             <thead>
             <tr>
                 <th class="text-center">Tipo Item</th>
-                <th class="text-center">Número</th>
+                <th class="text-center">Número Item Compra</th>
                 <th class="text-center">Item</th>
                 <th class="text-center">Quantidade</th>
                 <th class="text-center">Valor Unitário</th>

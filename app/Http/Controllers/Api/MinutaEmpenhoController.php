@@ -368,7 +368,7 @@ class MinutaEmpenhoController extends Controller
 
             $desc = $contrato_item->descricao_complementar;
 
-            $descricao = (!is_null($desc))
+            $descricao = (!is_null($desc) && $desc !== 'undefined')
                 ? $desc
                 :  Catmatseritem::find($contrato_item->catmatseritem_id)->descricao;
             $descricao = 'Item compra: '. $contrato_item->numero_item_compra . ' - ' . $descricao;
