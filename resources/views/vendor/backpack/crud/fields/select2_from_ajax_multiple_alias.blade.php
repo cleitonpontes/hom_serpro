@@ -91,7 +91,7 @@
                                 return {
                                     q: params.term, // search term
                                     page: params.page, // pagination
-                                    form: form.serializeArray() // all other form inputs
+                                    form: cleanArray(form.serializeArray())
                                 };
                             },
                             @if(isset($field['process_results_template']))
@@ -118,6 +118,31 @@
                     });
                 }
             });
+
+            // pega todos inputs do formulario e filtra enviando somente os necessarios pois estava exedendo o rage da request
+            function cleanArray(arrInput)
+            {
+                var retorno = [];
+                arrInput.forEach(function(item, i) {
+                    switch (item.name) {
+                        case 'fornecedor_id':
+                            retorno.push({'name':'fornecedor_id', 'value': item.value});
+                            break;
+
+                        case 'contrato_id':
+                            retorno.push({'name':'contrato_id', 'value': item.value});
+                            break;
+
+                        case 'modalidade_id':
+                            retorno.push({'name':'modalidade_id', 'value': item.value});
+                            break;
+
+                        default:
+                            break;
+                    }
+                });
+                return retorno;
+            }
 
 
             @if (isset($field['dependencies']))
