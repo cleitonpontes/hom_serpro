@@ -351,8 +351,6 @@ Route::group([
              *
              **/
 
-            Route::get('minuta/teste_processo', 'Minuta\ProcessaNovamenteController@index');
-
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
 
             Route::get('minuta/{minuta_id}/atualizarsituacaominuta', 'MinutaEmpenhoCrudController@executarAtualizacaoSituacaoMinuta')
