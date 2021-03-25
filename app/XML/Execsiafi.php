@@ -665,7 +665,7 @@ class Execsiafi
                 'tipoOperacaoItemEmpenho' => $dado->tipooperacaoitemempenho,
                 'quantidade' => ($dado->quantidade < 0) ? $dado->quantidade * -1 : $dado->quantidade,
                 'vlrUnitario' => ($dado->vlrunitario < 0) ? $dado->vlrunitario * -1 : $dado->vlrunitario,
-                'vlrOperacao' => $dado->vlroperacao,
+                'vlrOperacao' => ($dado->vlroperacao < 0) ? $dado->vlroperacao * -1 : $dado->vlroperacao,
             ];
         }
         $operacaoitemempenho = $array;
