@@ -153,8 +153,11 @@ class MinutaAlteracaoPassivoAnteriorCrudController extends CrudController
 
         DB::beginTransaction();
         try {
+
             $valor_total_conta = array_sum($request->valor);
-            if ($this->crud->params['valor_total'] != $valor_total_conta) {
+            $valor_total = ($this->crud->params['valor_total'] < 0) ? $this->crud->params['valor_total'] * (-1): $this->crud->params['valor_total'];
+
+            if ($valor_total != $valor_total_conta) {
                 Alert::warning('Somatório das contas não pode ser diferente do valor total da minuta!')->flash();
                 return redirect()->back();
             }

@@ -140,6 +140,8 @@ Route::group([
             CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
             CRUD::resource('ajusteminuta', 'AjusteMinutasCrudController');
 
+            Route::get('ajusteminuta/{minuta_id}/remessa/{id_remessa}/atualizaritemcompracontrato', 'AjusteMinutasCrudController@atualizaritemcompracontrato')
+                ->name('ajusteminuta.atualizar.contrato.compra');
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
@@ -252,6 +254,7 @@ Route::group([
                 CRUD::resource('despesaacessoria', 'ContratoDespesaAcessoriaCrudController');
                 CRUD::resource('empenhos', 'ContratoempenhoCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
+                CRUD::resource('contratounidadedescentralizada', 'ContratounidadedescentralizadaCrudController');
                 CRUD::resource('historico', 'ContratohistoricoCrudController')->name('listar.historico');
                 CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
                 CRUD::resource('itens', 'ContratoitemCrudController');
@@ -348,7 +351,6 @@ Route::group([
              * Minuta Empenho - Genéricos
              *
              **/
-
 
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
 

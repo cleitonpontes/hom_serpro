@@ -281,8 +281,8 @@ class Execsiafi
 
     public function conrazaoAPIComprasNet($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
     {
-        $user = env('USUARIO_SIAFI');
-        $senha = env('SENHA_SIAFI');
+        $user = config('app.usuario_siafi');
+        $senha = config('app.senha_siafi');
 
         $client = $this->conexao_xml($user, $senha, $ug_user, '', $amb, $ano, 'CONSULTA');
 
@@ -663,9 +663,9 @@ class Execsiafi
         if ($dado) {
             $array = [
                 'tipoOperacaoItemEmpenho' => $dado->tipooperacaoitemempenho,
-                'quantidade' => $dado->quantidade,
-                'vlrUnitario' => $dado->vlrunitario,
-                'vlrOperacao' => $dado->vlroperacao,
+                'quantidade' => ($dado->quantidade < 0) ? $dado->quantidade * -1 : $dado->quantidade,
+                'vlrUnitario' => ($dado->vlrunitario < 0) ? $dado->vlrunitario * -1 : $dado->vlrunitario,
+                'vlrOperacao' => ($dado->vlroperacao < 0) ? $dado->vlroperacao * -1 : $dado->vlroperacao,
             ];
         }
         $operacaoitemempenho = $array;

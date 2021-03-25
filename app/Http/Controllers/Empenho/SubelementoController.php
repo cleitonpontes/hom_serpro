@@ -364,7 +364,7 @@ class SubelementoController extends BaseControllerEmpenho
                     }
                 )
                 ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                    if ($itens['descricaosimplificada'] != null) {
+                    if ($itens['descricaosimplificada'] != null && $itens['descricaosimplificada'] !== 'undefined') {
                         return $this->retornaDescricaoDetalhada(
                             $itens['descricaosimplificada'],
                             $itens['descricaodetalhada']
