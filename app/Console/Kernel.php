@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\Feriado;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -53,6 +54,7 @@ class Kernel extends ConsoleKernel
         $this->criarJobAtualizacaoSiasgContratos();
         $this->criarJobAtualizacaoSiasgCompras();
         $this->criarJobAtualizaStatusPublicacao();
+        $this->criarJobMinutasEmProcessamento();
         $this->enviaPublicaoesProximoDiaUtil();
 //        $this->executaConsumoWsSiafiEmpenho();
 
@@ -164,6 +166,26 @@ class Kernel extends ConsoleKernel
             ->weekdays()
             ->at('03:00');
     }
+
+    protected function criarJobMinutasEmProcessamento()
+    {
+        $this->schedule->call(
+            'App\Http\Controllers\Empenho\Minuta\ProcessaNovamenteController@index'
+        )
+            ->timezone('America/Sao_Paulo')
+            ->weekdays()
+            ->skip(function () {
+                $date = date('Y-m-d');
+                $feriados = Feriado::all()->pluck('data')->toArray();
+                if(in_array($date, $feriados)){
+                    return true;
+                }
+                return false;
+            })
+            ->between('09:15', '19:15');
+    }
+
+
 
     protected function criarJobAtualizacaoSiasgContratos()
     {
