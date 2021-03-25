@@ -174,6 +174,8 @@ class Kernel extends ConsoleKernel
         )
             ->timezone('America/Sao_Paulo')
             ->weekdays()
+            ->everyFifteenMinutes()
+            ->between('09:15', '19:15')
             ->skip(function () {
                 $date = date('Y-m-d');
                 $feriados = Feriado::all()->pluck('data')->toArray();
@@ -181,8 +183,7 @@ class Kernel extends ConsoleKernel
                     return true;
                 }
                 return false;
-            })
-            ->between('09:15', '19:15');
+            });
     }
 
 
