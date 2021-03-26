@@ -11,12 +11,16 @@ class ProcessaNovamenteController extends Controller
     public function index()
     {
         $dados = $this->buscaSforcempenhodadosEmProcessamento();
+        $date_time = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
 
         if($dados){
             foreach ($dados as $dado){
-                $dado->txtdescricao .= ' ';
-                $dado->situacao = 'EM PROCESSAMENTO';
-                $dado->save();
+                $updated_at = \DateTime::createFromFormat('Y-m-d H:i:s', $dado->updated_at)->modify('+15 minutes');
+                if($date_time > $updated_at){
+                    $dado->txtdescricao .= ' ';
+                    $dado->situacao = 'EM PROCESSAMENTO';
+                    $dado->save();
+                }
             }
         }
     }
