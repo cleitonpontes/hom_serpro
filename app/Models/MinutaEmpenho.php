@@ -226,6 +226,103 @@ class MinutaEmpenho extends Model
         return '';
     }
 
+    public function getItens($minutaempenhos_remessa_id)
+    {
+//        clock($minutaempenhos_remessa_id);
+//        dump($this);
+
+        if ($this->tipo_empenhopor_id == 256) {
+            return $this->contratoItemMinutaEmpenho()
+                ->join(
+                    'naturezasubitem',
+                    'naturezasubitem.id',
+                    '=',
+                    'contrato_item_minuta_empenho.subelemento_id'
+                )
+                ->join(
+                    'codigoitens',
+                    'codigoitens.id',
+                    '=',
+                    'contrato_item_minuta_empenho.operacao_id'
+                )
+                ->join(
+                    'contratoitens',
+                    'contratoitens.id',
+                    '=',
+                    'contrato_item_minuta_empenho.contrato_item_id'
+                )
+                ->where('contrato_item_minuta_empenho.minutaempenhos_remessa_id', $minutaempenhos_remessa_id)
+                ->select(
+                    DB::raw('contratoitens.numero_item_compra              AS "numeroItemCompra"'),
+                    DB::raw('contrato_item_minuta_empenho.numseq                 AS "numeroItemEmpenho"'),
+                    DB::raw('contrato_item_minuta_empenho.quantidade             AS "quantidadeEmpenhada"'),
+                    DB::raw('naturezasubitem.codigo AS subelemento'),
+                    DB::raw('LEFT(codigoitens.descres, 1)     AS "tipoEmpenhoOperacao"'),
+                    DB::raw('contratoitens.valorunitario AS "valorUnitarioItem"'),
+                    DB::raw('NULL AS "tipoUASG"'),
+                    DB::raw('(SELECT SUM(valor)
+                        FROM contrato_item_minuta_empenho cime
+                        WHERE cime.minutaempenho_id = contrato_item_minuta_empenho.minutaempenho_id
+                          AND cime.minutaempenhos_remessa_id =
+                              contrato_item_minuta_empenho.minutaempenhos_remessa_id) AS "valorTotalEmpenho"
+                    ')
+                )
+                ->get();
+//            return;
+//            return $this->contratoItemMinutaEmpenho()->get();
+        }
+
+        return
+            $this->compraItemMinutaEmpenho()
+                ->join(
+                    'naturezasubitem',
+                    'naturezasubitem.id',
+                    '=',
+                    'compra_item_minuta_empenho.subelemento_id'
+                )
+                ->join(
+                    'codigoitens',
+                    'codigoitens.id',
+                    '=',
+                    'compra_item_minuta_empenho.operacao_id'
+                )
+                ->join(
+                    'compra_items',
+                    'compra_items.id',
+                    '=',
+                    'compra_item_minuta_empenho.compra_item_id'
+                )
+                ->join(
+                    'compra_item_fornecedor',
+                    'compra_item_fornecedor.compra_item_id',
+                    '=',
+                    'compra_items.id'
+                )
+                ->join(
+                    'compra_item_unidade',
+                    'compra_item_unidade.compra_item_id',
+                    '=',
+                    'compra_items.id'
+                )
+                ->where('compra_item_minuta_empenho.minutaempenhos_remessa_id', $minutaempenhos_remessa_id)
+                ->select(
+                    DB::raw('compra_items.numero              AS "numeroItemCompra"'),
+                    DB::raw('compra_item_minuta_empenho.numseq                 AS "numeroItemEmpenho"'),
+                    DB::raw('compra_item_minuta_empenho.quantidade             AS "quantidadeEmpenhada"'),
+                    DB::raw('naturezasubitem.codigo AS subelemento'),
+                    DB::raw('LEFT(codigoitens.descres, 1)     AS "tipoEmpenhoOperacao"'),
+                    DB::raw('compra_item_fornecedor.valor_unitario AS "valorUnitarioItem"'),
+                    DB::raw('compra_item_unidade.tipo_uasg AS "tipoUASG"'),
+                    DB::raw('(SELECT SUM(valor)
+                        FROM compra_item_minuta_empenho cime
+                        WHERE cime.minutaempenho_id = compra_item_minuta_empenho.minutaempenho_id
+                          AND cime.minutaempenhos_remessa_id =
+                              compra_item_minuta_empenho.minutaempenhos_remessa_id) AS "valorTotalEmpenho"
+                    ')
+                )
+                ->get();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
@@ -305,6 +402,11 @@ class MinutaEmpenho extends Model
     public function compraItemMinutaEmpenho()
     {
         return $this->hasMany(CompraItemMinutaEmpenho::class, 'minutaempenho_id');
+    }
+
+    public function contratoItemMinutaEmpenho()
+    {
+        return $this->hasMany(ContratoItemMinutaEmpenho::class, 'minutaempenho_id');
     }
 
     public function contrato_vinculado()

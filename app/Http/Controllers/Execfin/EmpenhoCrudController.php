@@ -7,17 +7,21 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Transparencia\IndexController;
 use App\Http\Traits\Busca;
 use App\Http\Traits\BuscaCodigoItens;
+use App\Http\Traits\Formatador;
 use App\Jobs\AtualizaNaturezaDespesasJob;
 use App\Jobs\AtualizasaldosmpenhosJobs;
+use App\Jobs\EnviaEmpenhoSiasgJob;
 use App\Jobs\MigracaoCargaEmpenhoJob;
 use App\Jobs\MigracaoempenhoJob;
 use App\Jobs\MigracaoRpJob;
 use App\Models\BackpackUser;
 use App\Models\Codigoitem;
+use App\Models\CompraItemUnidade;
 use App\Models\DevolveMinutaSiasg;
 use App\Models\Empenho;
 use App\Models\Empenhodetalhado;
 use App\Models\Fornecedor;
+use App\Models\MinutaEmpenho;
 use App\Models\Naturezadespesa;
 use App\Models\Naturezasubitem;
 use App\Models\Planointerno;
@@ -42,7 +46,7 @@ use Illuminate\Support\Facades\DB;
  */
 class EmpenhoCrudController extends CrudController
 {
-    use Busca, BuscaCodigoItens;
+    use Busca, BuscaCodigoItens, Formatador;
 
     public function setup()
     {
@@ -64,11 +68,19 @@ class EmpenhoCrudController extends CrudController
 //        $this->crud->addClause('orWhere', 'empenhos.rp', '=', true);
         $this->crud->orderBy('empenhos.updated_at', 'desc');
 
-        (backpack_user()->can('migracao_empenhos')) ? $this->crud->addButtonFromView('top', 'migrarempenho',
-            'migrarempenho', 'end') : null;
+        (backpack_user()->can('migracao_empenhos')) ? $this->crud->addButtonFromView(
+            'top',
+            'migrarempenho',
+            'migrarempenho',
+            'end'
+        ) : null;
 
-        (backpack_user()->can('atualizacao_saldos_empenhos')) ? $this->crud->addButtonFromView('top', 'atualizasaldosempenhos',
-            'atualizasaldosempenhos', 'end') : null;
+        (backpack_user()->can('atualizacao_saldos_empenhos')) ? $this->crud->addButtonFromView(
+            'top',
+            'atualizasaldosempenhos',
+            'atualizasaldosempenhos',
+            'end'
+        ) : null;
 
         $this->crud->addButtonFromView('line', 'moreempenho', 'moreempenho', 'end');
 
@@ -552,8 +564,12 @@ class EmpenhoCrudController extends CrudController
                 ->get();
 
             foreach ($empenhodetalhes as $empenhodetalhe) {
-                $contacorrente = $empenho->numero . str_pad($empenhodetalhe->naturezasubitem->codigo, 2, '0',
-                        STR_PAD_LEFT);
+                $contacorrente = $empenho->numero . str_pad(
+                    $empenhodetalhe->naturezasubitem->codigo,
+                    2,
+                    '0',
+                    STR_PAD_LEFT
+                );
 
                 AtualizasaldosmpenhosJobs::dispatch(
                     $ug,
@@ -592,12 +608,10 @@ class EmpenhoCrudController extends CrudController
         $empenhodetalhado,
         $contas_contabeis,
         $user
-    )
-    {
+    ) {
 
         $dado = [];
         foreach ($contas_contabeis as $item => $valor) {
-
             $contacontabil1 = $valor;
             $saldoAtual = 0;
 
@@ -612,7 +626,8 @@ class EmpenhoCrudController extends CrudController
                 $ug,
                 $gestao,
                 $contacontabil1,
-                $contacorrente);
+                $contacorrente
+            );
 
             if ($retorno != null) {
                 $saldoAtual = $retorno['saldo'];
@@ -682,7 +697,6 @@ class EmpenhoCrudController extends CrudController
             }
 
             foreach ($d['itens'] as $item) {
-
                 $naturezasubitem = Naturezasubitem::where('codigo', $item['subitem'])
                     ->where('naturezadespesa_id', $naturezadespesa->id)
                     ->first();
@@ -896,10 +910,8 @@ class EmpenhoCrudController extends CrudController
                         'situacao' => 'Pendente'
                     ]);
                 }
-
             }
         }
-
     }
 
     public function criaEmpenhoFromMinuta(SfOrcEmpenhoDados $empenho)
@@ -911,9 +923,9 @@ class EmpenhoCrudController extends CrudController
 
         $array_empenho2 = [
             'fornecedor_id' => $empenho->minuta_empenhos->fornecedor_empenho_id,
-            'planointerno_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,31,11), 'PI'),
-            'naturezadespesa_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,17,6), 'ND'),
-            'fonte' => substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente,7,10)
+            'planointerno_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente, 31, 11), 'PI'),
+            'naturezadespesa_id' => $this->trataPiNdSubitem(substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente, 17, 6), 'ND'),
+            'fonte' => substr($empenho->minuta_empenhos->saldo_contabil->conta_corrente, 7, 10)
         ];
 
         $novo_empenho = Empenho::firstOrCreate(
@@ -981,44 +993,206 @@ class EmpenhoCrudController extends CrudController
 
     public function enviaEmpenhoSiasgTeste()
     {
-        $apiSiasg = new ApiSiasg();
+//        $itens = DevolveMinutaSiasg::where('situacao', 'Pendente')->get();
+//        $itens = DevolveMinutaSiasg::join('minutaempenhos', 'minutaempenhos.id', '=', 'devolve_minuta_siasg.minutaempenho_id')
+//            ->where('devolve_minuta_siasg.situacao', 'Pendente')
+//            ->where('unidade_id', 1)->take(10)->get();
 
-        $array = [
-            "anoEmpenho" => "2020",
-            "chaveCompra" => "11016105000292019",
-            "chaveContratoContinuado" => "11016150000452019000000",
-            "dataEmissao" => "20201221",
-            "favorecido" => "08685242000178",
-            "fonte" => "0100000000",
-            "itemEmpenho" => [
-                [
-                    "numeroItemCompra" => "1",
-                    "numeroItemEmpenho" => "1",
-                    "quantidadeEmpenhada" => "1",
-                    "subelemento" => "16",
-                    "tipoEmpenhoOperacao" => "A",
-                    "valorUnitarioItem" => "2.53"
-                ],
-            ],
-            "nd" => "339039",
-            "numeroEmpenho" => "2020NE000024",
-            "planoInterno" => "AGU0042",
-            "ptres" => "118494",
-            "tipoCompra" => "1",
-            "tipoEmpenho" => "O",
-            "tipoUASG" => "G",
-            "uasgUsuario" => "110161",
-            "ugEmitente" => "110161",
-            "ugr" => "",
-            "valorTotalEmpenho" => "2.53"
-        ];
+        $minutas = MinutaEmpenho::join(
+            'minutaempenhos_remessa',
+            'minutaempenhos_remessa.minutaempenho_id',
+            '=',
+            'minutaempenhos.id'
+        )
+            ->join(
+                'devolve_minuta_siasg',
+                'devolve_minuta_siasg.minutaempenhos_remessa_id',
+                '=',
+                'minutaempenhos_remessa.id'
+            )
+            ->join('unidades', 'unidades.id', '=', 'minutaempenhos.unidade_id')
+            ->join('compras', 'compras.id', '=', 'minutaempenhos.compra_id')
+            ->join('codigoitens', 'codigoitens.id', '=', 'compras.modalidade_id')
+            ->join('fornecedores', 'fornecedores.id', '=', 'minutaempenhos.fornecedor_empenho_id')
+            ->join(
+                'saldo_contabil',
+                'saldo_contabil.id',
+                '=',
+                'minutaempenhos.saldo_contabil_id'
+            )
+            ->join(
+                DB::raw('unidades as unidade_saldo_contabil'),
+                'unidade_saldo_contabil.id',
+                '=',
+                'saldo_contabil.unidade_id'
+            )
+            ->join(
+                DB::raw('codigoitens as tipo_compra'),
+                'tipo_compra.id',
+                '=',
+                'compras.tipo_compra_id'
+            )
+            ->join(
+                DB::raw('codigoitens as tipo_empenho'),
+                'tipo_empenho.id',
+                '=',
+                'minutaempenhos.tipo_empenho_id'
+            )
+            ->join(
+                DB::raw('codigoitens as tipo_empenhopor'),
+                'tipo_empenhopor.id',
+                '=',
+                'minutaempenhos.tipo_empenhopor_id'
+            )
+            ->leftJoin(
+                'contratos',
+                'contratos.id',
+                '=',
+                'minutaempenhos.contrato_id'
+            )
+            ->leftJoin(
+                DB::raw('unidades as unidade_contrato'),
+                'unidade_contrato.id',
+                '=',
+                'contratos.unidadeorigem_id'
+            )
+            ->where('devolve_minuta_siasg.situacao', 'Pendente')
+            ->select(
+                'minutaempenhos.id',
+                DB::raw('left(minutaempenhos.mensagem_siafi,4) as anoEmpenho'),
+                'data_emissao',
+                'unidades.codigo',
+                'codigoitens.descres as modalidade',
+                'compras.numero_ano as num_ano',
+                'fornecedores.cpf_cnpj_idgener',
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,8,10) AS "fonte"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,18,6) AS "nd"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,2,6) AS "ptrs"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,32,11) AS "plano_interno"'),
+                DB::raw('SUBSTRING(saldo_contabil.conta_corrente,24,8) AS "ugr"'),
+                DB::raw('unidade_saldo_contabil.codigo AS "ugEmitente"'),
+                'tipo_compra.descres as tp_compra',
+                'tipo_empenho.descres as tipo_empenho',
+                'minutaempenhos.unidade_id',
+                'minutaempenhos.mensagem_siafi',
+                'minutaempenhos.valor_total',
+                'minutaempenhos.tipo_empenhopor_id',
+                'minutaempenhos_remessa.id as minutaempenhos_remessa_id',
+                DB::raw('devolve_minuta_siasg.id as devolve_id'),
+                DB::raw("CASE
+                                   WHEN tipo_empenhopor.descricao = 'Compra' THEN unidades.codigo
+                                   WHEN tipo_empenhopor.descricao = 'Contrato' THEN unidade_contrato.codigo
+                                   END AS \"uasgUsuario\""),
+                DB::raw("
+                    CASE
+           WHEN tipo_empenhopor.descricao = 'Compra' THEN ''
+           WHEN tipo_empenhopor.descricao = 'Contrato' THEN
+                   unidade_contrato.codigo || '50' || REPLACE(numero, '/', '') ||
+                   CASE
+                       WHEN contratos.unidade_id <> contratos.unidadeorigem_id
+                           THEN unidades.codigo
+                       ELSE '000000'
+                       END
+           END                                                                          AS \"chaveContratoContinuado\"
+                ")
+            )
+            ->where('minutaempenhos.tipo_empenhopor_id', 256)//todo tirar esta linha
+//            ->where('minutaempenhos.id', 154579)//todo tirar esta linha compra
+            ->where('minutaempenhos.id', 30208)//todo tirar esta linha contrato
+//            ->where('minutaempenhos.id', 171620)//todo tirar esta linha compra sispp
+//            ->where('minutaempenhos.id', 42751)//todo tirar esta linha compra sispp QTD QUEBRADA
+//            ->where('minutaempenhos.id', 117992)//todo tirar esta linha compra sispp operacao invalido
+//            ->where('minutaempenhos.id', 171620)//todo tirar esta linha compra sispp subitem invalido
+            ->where('minutaempenhos.unidade_id', 1)//todo tirar esta linha
+            ->orderBy('devolve_minuta_siasg.created_at', 'asc')
+            ->get();
 
-        $retorno = $apiSiasg->executaConsulta('Empenho', $array, 'POST');
+        clock($minutas->pluck('id')->toArray());
+        clock($minutas);
+//        dump($minutas);
 
-        if ($retorno['messagem'] !== 'Sucesso') {
-            return 'Erro: ' . $retorno['messagem'];
-        } else {
-            return 'Teste Ok';
+//        dd(222);
+//        return;
+
+//        dd($minutas->getBindings(), $minutas->toSql());
+//        dump($minutas);
+
+        foreach ($minutas as $index => $minuta) {
+            $itens = $minuta->getItens($minuta->minutaempenhos_remessa_id)->toArray();
+            clock($itens);
+            $tipoUASG = ($itens[0]['tipoUASG'] ?? 'G');
+
+            //todo mandar somnte valor positivo VERIFICAR COM HELES
+            $valorTotalEmpenho = ($itens[0]['valorTotalEmpenho'] < 0)
+                ? $itens[0]['valorTotalEmpenho'] * -1
+                : $itens[0]['valorTotalEmpenho'];
+            $itens = array_map(
+                function ($itens) {
+                    unset($itens['tipoUASG'], $itens['valorTotalEmpenho']);
+
+                    // SOMENTE QUANTIDADE POSITIVA
+                    $itens['quantidadeEmpenhada'] = ($itens['quantidadeEmpenhada'] < 0)
+                        ? $itens['quantidadeEmpenhada'] * -1
+                        : $itens['quantidadeEmpenhada'];
+                    $itens['quantidadeEmpenhada'] = (string)ceil($itens['quantidadeEmpenhada']);
+                    return $itens;
+                },
+                $itens
+            );
+
+//            dump($itens, $tipoUASG, $valorTotalEmpenho);
+//            dump($valorTotalEmpenho);
+
+            $array = [
+                "anoEmpenho" => $minuta->anoempenho,
+//                "chaveCompra" => "11016105000292019",
+                "chaveCompra" => $minuta->codigo . $minuta->modalidade . str_replace('/', '', $minuta->num_ano),
+                //
+//                "chaveContratoContinuado" => "11016150000452019000000",//ugorigem/ugid
+                "chaveContratoContinuado" => $minuta->chaveContratoContinuado,//ugorigem/ugid
+                "dataEmissao" => str_replace('-', '', $minuta->data_emissao),
+                "favorecido" => $this->retornaSomenteNumeros($minuta->cpf_cnpj_idgener),  //ver detalhe do estrangeiro
+                "fonte" => $minuta->fonte,
+                /*"itemEmpenho" => [
+                    [
+                        "numeroItemCompra" => "1", //compraitem numero
+                        "numeroItemEmpenho" => "1",// cime numseq
+                        "quantidadeEmpenhada" => "1", //cime qtd
+                        "subelemento" => "16", //  cime sub naturezasubitem
+                        "tipoEmpenhoOperacao" => "A", //cime operacao coditens
+                        "valorUnitarioItem" => "2.53" //cif
+                    ],
+                ],*/
+                "itemEmpenho" => $itens,
+                "nd" => $minuta->nd,
+                "numeroEmpenho" => $minuta->mensagem_siafi,
+                "planoInterno" => $minuta->plano_interno,
+                "ptres" => $minuta->ptrs,
+                "tipoCompra" => (string)(int)$minuta->tp_compra,
+                "tipoEmpenho" => $minuta->tipo_empenho,
+                "tipoUASG" => $tipoUASG,
+                "uasgUsuario" => $minuta->uasgUsuario,//contrato -ug origem ////// compra uasg minuta
+                "ugEmitente" => $minuta->ugEmitente, //ug do saldo contabil
+                "ugr" => trim($minuta->ugr),
+                "valorTotalEmpenho" => (string)$valorTotalEmpenho
+            ];
+//            dump($array);
+//            return;
+//            dd($array);
+            clock($array);
+            dump( json_encode( $array));
+            EnviaEmpenhoSiasgJob::dispatch($array, $minuta->devolve_id)->onQueue('enviarempenhosiasg');
+
+//            $apiSiasg = new ApiSiasg();
+//
+//            $retorno = $apiSiasg->executaConsulta('Empenho', $array, 'POST');
+////            dd($retorno);
+//
+//            if ($retorno['messagem'] !== 'Sucesso') {
+//                return 'Erro: ' . $retorno['messagem'];
+//            } else {
+//                return 'Teste Ok'. $retorno['messagem'];
+//            }
         }
     }
 
@@ -1036,6 +1210,17 @@ class EmpenhoCrudController extends CrudController
         );
 
         return stream_context_create($context_options);
+    }
+
+    public function array_slice_assoc($array, $keys): array
+    {
+        return array_intersect_key($array, array_flip($keys));
+    }
+
+    public function array_pop_n(array $arr, $n)
+    {
+        array_splice($arr, 0, -$n);
+        return $arr;
     }
 
 //    public function executaAlteracaoEmpenho()
