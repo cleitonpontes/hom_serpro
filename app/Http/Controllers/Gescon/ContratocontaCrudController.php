@@ -34,6 +34,10 @@ class ContratocontaCrudController extends CrudController
         if(!$contrato){
             abort('403', config('app.erro_permissao'));
         }
+
+        // array de encargos (fat empresa) - só pode ser 1, 2 ou 3% - array será usado em campos()
+        $arrayEncargosFatEmpresa = [1 => '1%', 2 => '2%', 3 => '3%'];
+
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -60,7 +64,7 @@ class ContratocontaCrudController extends CrudController
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
         // formulário
-        $campos = $this->Campos($contrato);
+        $campos = $this->Campos($contrato, $arrayEncargosFatEmpresa);
         $this->crud->addFields($campos);
         // add asterisk for fields that are required in ContratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
@@ -92,7 +96,7 @@ class ContratocontaCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
-    public function Campos($contrato)
+    public function Campos($contrato, $arrayEncargosFatEmpresa)
     {
         $campos = [
             [   // Hidden
@@ -117,8 +121,11 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'fat_empresa',
-                'label' => 'Encargos', // Table column heading
-                'type' => 'text',
+                'label' => "Encargos (%)",
+                'type' => 'select2_from_array',
+                'options' => $arrayEncargosFatEmpresa,
+                'allows_null' => false,
+                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
                 'prefix' => "% ",
             ],
         ];
