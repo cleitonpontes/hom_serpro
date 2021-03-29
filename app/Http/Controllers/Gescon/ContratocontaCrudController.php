@@ -122,11 +122,13 @@ class ContratocontaCrudController extends CrudController
             [
                 'name' => 'fat_empresa',
                 'label' => "Encargos (%)",
-                'type' => 'select2_from_array',
+                'type' => 'radio',
                 'options' => $arrayEncargosFatEmpresa,
                 'allows_null' => false,
                 'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
-                'prefix' => "% ",
+                // 'options' => [1 => 'Sim', 0 => 'Não'],
+                'inline' => true,
+                'default' => 1
             ],
         ];
 
