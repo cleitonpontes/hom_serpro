@@ -282,6 +282,11 @@
             soma = parseFloat(anulacao * -1) + parseFloat(outros);
             saldo = saldo - valor_utilizado - soma;
 
+            var saldo_br = (saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            if (saldo_br == '-0,00'){
+                saldo_br = '0,00'
+            }
+
             utilizado = outros - anulacao;
             if (anulacao > outros) {
                 utilizado = anulacao - outros;
@@ -289,7 +294,7 @@
             }
 
             $("#utilizado").html("<b>R$ " + utilizado.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
-            $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            $("#saldo").html('R$ ' + saldo_br);
             $("#valor_utilizado").val(soma);
 
         }
