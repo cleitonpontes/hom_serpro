@@ -469,7 +469,7 @@ class Contrato extends Model
             'modalidade' => $this->modalidade->descricao,
             'unidade_compra' => $this->unidadecompra->codigo,
             'licitacao_numero' => $this->licitacao_numero,
-            'sistema_origem_licitacao' => $this->sistema_origem_licitacao,
+            'sistema_origem_licitacao' => @$this->sistema_origem_licitacao,
             'data_assinatura' => $this->data_assinatura,
             'data_publicacao' => $this->data_publicacao,
             'vigencia_inicio' => $this->vigencia_inicio,

@@ -968,7 +968,7 @@ class ContratoController extends Controller
                 'modalidade' => $contrato->modalidade->descricao,
                 'unidade_compra' => $this->unidadecompra->codigo,
                 'licitacao_numero' => $contrato->licitacao_numero,
-                'sistema_origem_licitacao' => $this->sistema_origem_licitacao,
+                'sistema_origem_licitacao' => @$this->sistema_origem_licitacao,
                 'data_assinatura' => $contrato->data_assinatura,
                 'data_publicacao' => $contrato->data_publicacao,
                 'vigencia_inicio' => $contrato->vigencia_inicio,
