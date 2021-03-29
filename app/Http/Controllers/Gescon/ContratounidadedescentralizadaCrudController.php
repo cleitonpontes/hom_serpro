@@ -122,6 +122,17 @@ class ContratounidadedescentralizadaCrudController extends CrudController
                 },
 
             ],
+            [
+                'name' => 'getValorEmpenhado',
+                'label' => 'Total empenhado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getValorEmpenhado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
         ];
         return $colunas;
     }

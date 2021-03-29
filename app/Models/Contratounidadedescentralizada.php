@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use DB;
 
 class Contratounidadedescentralizada extends Model
 {
@@ -37,6 +38,15 @@ class Contratounidadedescentralizada extends Model
         if (!$this->contrato_id)
            return '';
         return $this->unidade()->first()->codigo.' - '.$this->unidade()->first()->nome;
+    }
+
+    public function getValorEmpenhado(){
+        return ContratoItemMinutaEmpenho::distinct()
+                                        ->select(DB::raw("CONCAT('R$ ' , sum(contrato_item_minuta_empenho.valor )) AS valor"))
+                                        ->join('contratoitens AS ci','ci.id', '=', 'contrato_item_minuta_empenho.contrato_item_id')
+                                        ->join('minutaempenhos AS me','me.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
+                                        ->where('ci.contrato_id', $this->contrato_id)
+                                        ->where('me.unidade_id', $this->unidade()->first()->id)->get()->first()->valor;
     }
 
     /*
