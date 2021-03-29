@@ -154,8 +154,14 @@
                 }
             });
             saldo = saldo - soma;
+
+            var saldo_br = (saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            if (saldo_br == '-0,00'){
+                saldo_br = '0,00'
+            }
+            
             $("#utilizado").html("<b>R$ " + soma.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
-            $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            $("#saldo").html('R$ ' + saldo_br);
             $("#valor_utilizado").val(soma);
         }
 
