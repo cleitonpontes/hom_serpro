@@ -351,7 +351,6 @@ Route::group([
              *
              **/
 
-
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
 
             Route::get('minuta/{minuta_id}/atualizarsituacaominuta', 'MinutaEmpenhoCrudController@executarAtualizacaoSituacaoMinuta')
@@ -367,7 +366,7 @@ Route::group([
             Route::post('buscacompra', 'CompraSiasgCrudController@store');
 
             //passo 2
-            Route::get('fornecedor/{minuta_id}', 'FornecedorEmpenhoController@index')
+            Route::get('fornecedor/{minuta_id}/{uasg_inativa?}', 'FornecedorEmpenhoController@index')
                 ->name('minuta.etapa.fornecedor');
 
             //passo 3
