@@ -6,11 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Encargo extends Model
+class Encerramentocontratoconta extends Model
 {
-
-    protected $primaryKey = 'id';
-
     use CrudTrait;
     use LogsActivity;
 
@@ -20,12 +17,15 @@ class Encargo extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'encargos';
+    protected $table = 'contratocontas';
+    // protected $primaryKey = 'id';
     // public $timestamps = false;
     // protected $guarded = ['id'];
     protected $fillable = [
-        'tipo_id',
-        'percentual',
+        'id',
+        'data_encerramento',
+        'user_id_encerramento',
+        'obs_encerramento',
     ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -35,40 +35,25 @@ class Encargo extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function getDescricaoCodigoItem(){
-        $objCodigoItem = Codigoitem::find($this->tipo_id);
-        return $descricao= $objCodigoItem->descricao;
-    }
-    public static function getIdCodigoItemByDescricao($descricao){
-        $objCodigoItem = Codigoitem::where('descricao', '=', $descricao)->first();
-        return $id = $objCodigoItem->id;
-    }
-    public static function getIdEncargoByNomeEncargo($nomeEncargo){
-        // bucar em codigoitens, pela descrição, pegar o id e buscar o tipo id em encargos pelo id
-        $obj = \DB::table('codigoitens')
-        ->select('encargos.id')
-        ->where('codigoitens.descricao','=',$nomeEncargo)
-        ->join('encargos', 'encargos.tipo_id', '=', 'codigoitens.id')
-        ->first();
-        if( !is_object($obj) ){
-            echo $nomeEncargo.' -> Encargo não localizado.';
-            exit;
-        }
-        return $obj->id;
-        // $objCodigoItem = Codigoitem::where('descricao', '=', $descricao)->first();
-        // return $id = $objCodigoItem->id;
-    }
-    public function formatPercentual()
-    {
-        return number_format($this->percentual, 2, ',', '.');
-    }
+    // public function getTipoMovimentacao(){
+    //     $objCodigoItem = Codigoitem::find($this->tipo_id);
+    //     return $descricao= $objCodigoItem->descricao;
+    // }
+    // public function getTipoEncargo(){
+    //     $objEncargo = Encargo::find($this->encargo_id);
+    //     $objCodigoItem = Codigoitem::find($objEncargo->tipo_id);
+    //     return $descricao= $objCodigoItem->descricao;
+    // }
+    // public function formatValor(){
+    //     return number_format($this->valor, 2, ',', '.');
+    // }
+
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
-
 
     /*
     |--------------------------------------------------------------------------

@@ -82,8 +82,6 @@ class ExtratocontratocontaCrudController extends CrudController
         $this->crud->addClause('orderby', 'lancamentos.id', 'desc');
         // filtros na listagem
         $this->adicionaFiltros();
-
-
     }
     public function adicionaFiltros()
     {
@@ -100,7 +98,7 @@ class ExtratocontratocontaCrudController extends CrudController
 
             [
                 'name'  => 'nome',
-                'label' => 'Funcionário',
+                'label' => 'Empregado',
                 'type'  => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -114,17 +112,15 @@ class ExtratocontratocontaCrudController extends CrudController
             ],
 
             [
-                'name'  => 'nome_movimentacao',
-                'label' => 'Movimentação',
-                'type'  => 'text',
+                'name' => 'getTipoMovimentacao',
+                'label' => 'Tipo da movimentação', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getTipoMovimentacao', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('c2.descricao', 'ilike', "%$searchTerm%");
-                },
             ],
 
             [
@@ -185,6 +181,20 @@ class ExtratocontratocontaCrudController extends CrudController
                 // },
 
             ],
+
+            [
+                'name' => 'getNomeResumidoUnidadeMovimentacao',
+                'label' => 'Unidade do servidor que cadastrou', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getNomeResumidoUnidadeMovimentacao', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+
+
             [
                 'name'  => 'data_lancamento',
                 'label' => 'Data / Hora',
@@ -260,7 +270,7 @@ class ExtratocontratocontaCrudController extends CrudController
         $campo = [
             'name' => 'funcionario',
             'type' => 'select2_multiple',
-            'label' => 'Funcionário'
+            'label' => 'Empregado'
         ];
         $funcionarios = $this->getFuncionarios();
         $this->crud->addFilter(

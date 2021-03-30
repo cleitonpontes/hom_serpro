@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+use App\Models\Movimentacaocontratoconta;
+
+
 class Lancamento extends Model
 {
     use CrudTrait;
@@ -59,6 +62,12 @@ class Lancamento extends Model
     public function formatValor(){
         return number_format($this->valor, 2, ',', '.');
     }
+    public function getTipoMovimentacao(){
+        $idMovimentacao = $this->movimentacao_id;
+        $objMovimentacao = Movimentacaocontratoconta::find($idMovimentacao);
+        return $objMovimentacao->getTipoMovimentacao();
+    }
+
 
 
 
