@@ -28,8 +28,10 @@ class MinutaAlteracaoRequest extends FormRequest
      */
     public function rules()
     {
+        $valor_utilizado = number_format($this->valor_utilizado, 2, '.', '');
+
         return [
-            'credito' => 'gte:valor_utilizado',
+            'credito' => 'gte:'.$valor_utilizado,
             'valor_total.*' => [
                 'filled',
                 new NaoAceitarZero($this->tipo_alteracao),
