@@ -97,30 +97,30 @@
             </div>
 
             {{-- VALORES TOTAIS POR ANO  --}}
-            @foreach($crud->columns['valores']['values']  as $valor )
-                <div class="m-t-20">
-                    <div class="box box-solid box-primary">
-                        <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip"
-                             title="Collapse">
-                            <h3 class="box-title">Total empenhado em {{$valor['ano']}}</h3>
-                        </div>
+            <div class="m-t-20">
+                <div class="box box-solid box-primary">
+                    <div class="box-header with-border" data-widget="collapse" data-toggle="tooltip"
+                         title="Collapse">
+                        <h3 class="box-title">Total empenhado</h3>
+                    </div>
+                    <div class="box-body">
                         <div class="box-body">
-                            <div class="box-body">
-                                <table class="table table-striped">
-                                    <tbody>
+                            <table class="table table-striped">
+                                <tbody>
+                                    @foreach($crud->columns['valores']['values']  as $valor )
                                         <tr>
                                             <td>
-                                                <span>{{ $valor['valor'] }}</span>
+                                                <span>{{ $valor['mensagem_siafi'] }} - R$ {{ $valor['valor_total']}}</span>
                                             </td>
                                         </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="col-sm-12"></div>
                     </div>
+                    <div class="col-sm-12"></div>
                 </div>
-            @endforeach
+            </div>
         </div>
     </div>
 @endsection

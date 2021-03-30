@@ -69,9 +69,14 @@ class ContratounidadedescentralizadaCrudController extends CrudController
     public function show($contrato_id)
     {
         $content = parent::show($contrato_id);
+
         $unidadeDescentralizada_id = \Route::current()->parameter('contratounidadedescentralizada');
         $unidade_id = Contratounidadedescentralizada::find($unidadeDescentralizada_id)->unidade_id;
         $this->adicionaBoxTotalPorAno($contrato_id, $unidade_id);
+
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('contrato_id');
+
         return $content;
     }
 
@@ -192,16 +197,15 @@ class ContratounidadedescentralizadaCrudController extends CrudController
 
     private function adicionaBoxTotalPorAno($contrato_id, $unidade_id)
     {
-       $situacao_empenho_emitido_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EMPENHO EMITIDO');
+        $situacao_empenho_emitido_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EMPENHO EMITIDO');
 
         $valores = ContratoItemMinutaEmpenho::distinct()
-            ->select(DB::raw( "left(me.mensagem_siafi, 4) as ano, CONCAT('R$ ' , coalesce(sum(contrato_item_minuta_empenho.valor ),'0.00')) AS valor"))
+            ->select(DB::raw( "me.mensagem_siafi,round(me.valor_total,2) as valor_total"))
             ->join('contratoitens AS ci','ci.id', '=', 'contrato_item_minuta_empenho.contrato_item_id')
             ->join('minutaempenhos AS me','me.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
             ->where('ci.contrato_id', $contrato_id)
             ->where('me.unidade_id', $unidade_id)
-            ->where('me.situacao_id', $situacao_empenho_emitido_id)
-            ->groupBy(DB::raw('left(me.mensagem_siafi, 4)'))->get()->toArray();
+            ->where('me.situacao_id', $situacao_empenho_emitido_id)->get()->toArray();
 
         $this->crud->addColumn([
             'box' => 'valores',
