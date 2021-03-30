@@ -635,12 +635,15 @@ class SubelementoController extends BaseControllerEmpenho
     public function store(Request $request)
     {
 
+        $credito = (number_format($request->credito, 2, '.', ''));
+        $valor_utilizado = (number_format($request->valor_utilizado, 2, '.', ''));
+
         $minuta_id = $request->get('minuta_id');
         $modMinuta = MinutaEmpenho::find($minuta_id);
 
         $tipo = $modMinuta->tipo_empenhopor->descricao;
 
-        if ($request->credito - $request->valor_utilizado < 0) {
+        if ($credito - $valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
             return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
         }

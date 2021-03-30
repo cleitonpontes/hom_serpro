@@ -271,7 +271,12 @@ class CompraSiasgCrudController extends CrudController
 
                 DB::commit();
 
+                if ($retorno_compra->messagem == "A UASG da compra está inativa"){
+                    return redirect('/empenho/fornecedor/'. $minutaEmpenho->id.'/'.$retorno_compra->messagem);
+                }
+
                 return redirect('/empenho/fornecedor/' . $minutaEmpenho->id);
+
             } catch (Exception $exc) {
                 DB::rollback();
             }
@@ -290,6 +295,11 @@ class CompraSiasgCrudController extends CrudController
 
                 $retornoSiasg = $compra;
             }
+
+            if ($retornoSiasg->messagem != "Sucesso"){
+                return redirect('/empenho/buscacompra')->with('alert-warning', $retornoSiasg->messagem);
+            }
+
             //    $unidade_autorizada_id = '6625';
             $unidade_autorizada_id = $this->verificaPermissaoUasgCompra($retornoSiasg, $request);
 

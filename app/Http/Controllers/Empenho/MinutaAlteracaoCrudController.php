@@ -630,7 +630,6 @@ class MinutaAlteracaoCrudController extends CrudController
                     $itens['catmatser_desc']
                 );
             })
-
             ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item', 'descricaosimplificada', 'tipo_alteracao'])
             ->make(true);
     }
@@ -1940,13 +1939,17 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function retornarArray($return, $return_soma, $tipo)
     {
+
         $return = array_map(
             function ($return) use ($return_soma, $tipo) {
                 $id = array_search($return[$tipo], array_column($return_soma, $tipo));
                 $return['qtd_total_item'] = $return_soma[$id]['qtd_total_item'];
                 $return['vlr_total_item'] = $return_soma[$id]['vlr_total_item'];
-                $vlr_unitario_item = round(($return_soma[$id]['vlr_total_item'] / $return_soma[$id]['qtd_total_item']),4);
-                $return['vlr_unitario_item'] = $this->ceil_dec($vlr_unitario_item,2);
+                $vlr_unitario_item = 0;
+                if (($return_soma[$id]['vlr_total_item'] > 0) || ($return_soma[$id]['qtd_total_item'] > 0)) {
+                    $vlr_unitario_item = round(($return_soma[$id]['vlr_total_item'] / $return_soma[$id]['qtd_total_item']), 4);
+                }
+                $return['vlr_unitario_item'] = $this->ceil_dec($vlr_unitario_item, 2);
                 return $return;
             },
             $return
@@ -1955,8 +1958,9 @@ class MinutaAlteracaoCrudController extends CrudController
         return $return;
     }
 
-    function ceil_dec($val, $dec) {
+    function ceil_dec($val, $dec)
+    {
         $pow = pow(10, $dec);
-        return ceil($pow * $val) / $pow;
+        return ceil(number_format($pow * $val, 2, '.', '')) / $pow;
     }
 }
