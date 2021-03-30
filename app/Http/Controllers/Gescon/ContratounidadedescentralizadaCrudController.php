@@ -66,13 +66,12 @@ class ContratounidadedescentralizadaCrudController extends CrudController
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
 
-    public function show($id)
+    public function show($contrato_id)
     {
-        $content = parent::show($id);
-        $this->crud->removeColumn('unidade_id');
-        $this->adicionaBoxTotalPorAno(92720, 1);
-//        $this->adicionaBoxTotalPorAno($contrato_id, $unidade_id);
-
+        $content = parent::show($contrato_id);
+        $unidadeDescentralizada_id = \Route::current()->parameter('contratounidadedescentralizada');
+        $unidade_id = Contratounidadedescentralizada::find($unidadeDescentralizada_id)->unidade_id;
+        $this->adicionaBoxTotalPorAno($contrato_id, $unidade_id);
         return $content;
     }
 
