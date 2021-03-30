@@ -380,9 +380,9 @@ class ImportacaoCrudController extends CrudController
 
     public function executaInsercaoMassa($dado, Importacao $dados_importacao)
     {
-
         // alteração 1/3 - verificação se o array está preenchido com os 4 índices
-        if( count($dado) < 4 ){
+        $countDado = is_array($dado) ? count($dado) : 0;
+        if( $countDado < 4 ){
             // var_dump($dado);
         } else {
             $cpf = $this->formataCpf($dado[0]);
