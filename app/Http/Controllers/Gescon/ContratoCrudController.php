@@ -1013,7 +1013,7 @@ class ContratoCrudController extends CrudController
         $this->crud->addField([
             'name' => 'subcategoria_id',
             'label' => "Subcategoria",
-            'type' => 'select2_from_ajax',
+            'type' => 'select2_from_ajax_single',
             'model' => 'App\Models\OrgaoSubcategoria',
             'entity' => 'orgaosubcategoria',
             'attribute' => 'descricao',

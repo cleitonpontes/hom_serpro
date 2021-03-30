@@ -551,7 +551,7 @@ class InstrumentoinicialCrudController extends CrudController
             [ // select2_from_ajax: 1-n relationship
                 'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
                 'label' => "Subcategoria", // Table column heading
-                'type' => 'select2_from_ajax',
+                'type' => 'select2_from_ajax_single',
                 'model' => 'App\Models\OrgaoSubcategoria',
                 'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
                 'attribute' => 'descricao', // foreign key attribute that is shown to user
