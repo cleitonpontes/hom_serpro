@@ -19,16 +19,7 @@
     <br>
     <table id="table" class="table table-bordered table-responsive-md table-striped text-center">
         <thead>
-        <tr>
-            <th class="text-center">Tipo Item</th>
-            <th class="text-center">Número Item Compra</th>
-            <th class="text-center">Item</th>
-            <th class="text-center">Quantidade</th>
-            <th class="text-center">Valor Unitário</th>
-            <th class="text-center">Qtd. parcelas</th>
-            <th class="text-center">Valor Total</th>
-            <th class="text-center">Data Início</th>
-            <th class="text-center">Ações</th>
+        <tr id="grid-itens">
         </tr>
         </thead>
         <tbody id="table-itens">
@@ -134,6 +125,7 @@
                 $('#numero_item').mask('99999');
 
                 buscarItenContrato();
+                retornaCabecalhoGridItens();
 
                 // ao carregar o documento verifica se possui minuta cadastrada
                 var arrMinutaEmpenho = $('[name="minutasempenho[]"]').val();
@@ -216,6 +208,7 @@
                         button += 'Inserir Item <i class="fa fa-plus"></i></button>';
                         $("#div_inserir_item").append(button);
                     }
+                    retornaCabecalhoGridItens();
                 });
 
                 $('body').on('click', '#btn_inserir_item', function (event) {
@@ -332,14 +325,38 @@
                 cols += '<td><input class="form-control" type="number" name="periodicidade[]" value="' + item.periodicidade + '"></td>';
                 cols += '<td><input class="form-control" type="number" readonly name="vl_total[]" step="0.0001" value="' + valorTotal + '"></td>';
                 cols += '<td><input class="form-control" type="date" name="data_inicio[]" value="' + item.data_inicio + '"></td>';
-                cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">' +
-                    '<i class="fa fa-trash"></i>' +
-                    '</button>';
-                cols += '</td>';
+
+                // verifica se são itens de uma minuta e caso seja não pemirte excluir
+                var arrMinutaEmpenho = $('[name="minutasempenho[]"]').val();
+                if (arrMinutaEmpenho.length === 0) {
+                    cols += '<td><button type="button" class="btn btn-danger" title="Excluir Item" id="remove_item">' +
+                        '<i class="fa fa-trash"></i>' +
+                        '</button>';
+                    cols += '</td>';
+
+                }
 
                 newRow.append(cols);
                 $("#table-itens").append(newRow);
                 calculaTotalGlobal();
+            }
+
+            function retornaCabecalhoGridItens(){
+                var row = '';
+                row += '<th class="text-center">Tipo Item</th>';
+                row += '<th class="text-center">Número Item Compra</th>';
+                row += '<th class="text-center">Item</th>';
+                row += '<th class="text-center">Quantidade</th>';
+                row += '<th class="text-center">Valor Unitário</th>';
+                row += '<th class="text-center">Qtd. parcelas</th>';
+                row += '<th class="text-center">Valor Total</th>';
+                row += '<th class="text-center">Data Início</th>';
+
+                if ($('[name="minutasempenho[]"]').val().length === 0) {
+                    row += '<th class="text-center">Ações</th>';
+                }
+
+                $("#grid-itens").html(row);
             }
 
             function calculaTotalGlobal() {

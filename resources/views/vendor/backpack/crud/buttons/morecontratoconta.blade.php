@@ -1,3 +1,13 @@
+<?php
+/**
+ * Atenção!
+ * O sistema já está preparado para "encerrar a conta vinculada", mas o link está comentado abaixo.
+ *
+ * Caso volte a necessidade, basta descomentar o link "Encerrar Conta Vinculada"
+ */
+$dataEncerramentoConta = $entry->data_encerramento;
+if($dataEncerramentoConta == null){$statusConta = 'Ativa';} else {$statusConta = 'Encerrada';}
+?>
 <div class="btn-group">
     <button type="button" title="Mais" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle-split"
             data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false" title="Mais"><i class="fa fa-gears"></i>
@@ -6,12 +16,26 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right">
         <li class="dropdown-header"><i class="fa fa-list"></i> Conta Vinculada:</li>
-        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/extratocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Extrato de Lançamentos</a></li>
+        <?php
+        if($statusConta=='Encerrada'){
+            ?>
+            <li><a  onClick="emitirTermoDeEncerramento('/gescon/contrato/contratoconta/{{$entry->getKey()}}/encerramentocontratoconta/emitirTermoDeEncerramento')" id="emitirTermoDeEncerramento" href="#">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Termo de Encerramento</a></li>
+            <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/extratocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Extrato de Lançamentos</a></li>
+            <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/movimentacaocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Movimentações</a></li>
+            <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcionarioscontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Empregados / Liberação</a></li>
 
+            <?php
+        } else {
+            ?>
+            <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/extratocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Extrato de Lançamentos</a></li>
+            <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/movimentacaocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Movimentações</a></li>
+            <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/depositocontratoconta/create">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Nova Provisão</a></li>
+            <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcionarioscontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Empregados / Liberação</a></li>
+            <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcoescontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Funções / Repactuação</a></li>
+            <!-- <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/encerramentocontratoconta/create">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Encerrar Conta Vinculada</a></li> -->
+            <?php
 
-        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/movimentacaocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Movimentações</a></li>
-        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/depositocontratoconta/create">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Novo Depósito</a></li>
-        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcionarioscontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Funcionários / Retirada</a></li>
-        <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcoescontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Funções / Repactuação</a></li>
+        }
+        ?>
     </ul>
 </div>
