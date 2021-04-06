@@ -1096,19 +1096,24 @@ class EmpenhoCrudController extends CrudController
            END                                                                          AS \"chaveContratoContinuado\"
                 ")
             )
-            ->where('minutaempenhos.tipo_empenhopor_id', 256)//todo tirar esta linha
+//            ->where('minutaempenhos.tipo_empenhopor_id', 256)//todo tirar esta linha
 //            ->where('minutaempenhos.id', 154579)//todo tirar esta linha compra
-            ->where('minutaempenhos.id', 30208)//todo tirar esta linha contrato
+//            ->where('minutaempenhos.id', 30208)//todo tirar esta linha contrato
+//            ->where('minutaempenhos.id', 167750)//todo tirar esta linha contrato
 //            ->where('minutaempenhos.id', 171620)//todo tirar esta linha compra sispp
 //            ->where('minutaempenhos.id', 42751)//todo tirar esta linha compra sispp QTD QUEBRADA
 //            ->where('minutaempenhos.id', 117992)//todo tirar esta linha compra sispp operacao invalido
 //            ->where('minutaempenhos.id', 171620)//todo tirar esta linha compra sispp subitem invalido
             ->where('minutaempenhos.unidade_id', 1)//todo tirar esta linha
+//                ->whereNull('mensagem_siasg')
+            ->where('devolve_minuta_siasg.situacao','Pendente')
             ->orderBy('devolve_minuta_siasg.created_at', 'asc')
+//            ->take(2)
             ->get();
 
         clock($minutas->pluck('id')->toArray());
         clock($minutas);
+//        return;
 //        dump($minutas);
 
 //        dd(222);
@@ -1134,7 +1139,7 @@ class EmpenhoCrudController extends CrudController
                     $itens['quantidadeEmpenhada'] = ($itens['quantidadeEmpenhada'] < 0)
                         ? $itens['quantidadeEmpenhada'] * -1
                         : $itens['quantidadeEmpenhada'];
-                    $itens['quantidadeEmpenhada'] = (string)ceil($itens['quantidadeEmpenhada']);
+//                    $itens['quantidadeEmpenhada'] = (string)ceil($itens['quantidadeEmpenhada']);
                     return $itens;
                 },
                 $itens
@@ -1177,9 +1182,9 @@ class EmpenhoCrudController extends CrudController
                 "valorTotalEmpenho" => (string)$valorTotalEmpenho
             ];
 //            dump($array);
-//            return;
 //            dd($array);
             clock($array);
+//            return;
             dump( json_encode( $array));
             EnviaEmpenhoSiasgJob::dispatch($array, $minuta->devolve_id)->onQueue('enviarempenhosiasg');
 

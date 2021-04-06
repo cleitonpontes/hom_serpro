@@ -58,7 +58,9 @@ class EnviaEmpenhoSiasgJob implements ShouldQueue
 
         $retorno = $apiSiasg->executaConsulta('Empenho', $this->dados, 'POST');
         $devolve = DevolveMinutaSiasg::find($this->devolve_id);
-        $devolve->mensagem_siasg = json_encode($retorno);
+        $devolve->mensagem_siasg = json_encode($retorno, JSON_UNESCAPED_UNICODE);
+        $devolve->json_enviado = json_encode($this->dados, JSON_UNESCAPED_UNICODE);
+        $devolve->situacao = $retorno['messagem'];
         $devolve->save();
 
 //        dd($retorno);
