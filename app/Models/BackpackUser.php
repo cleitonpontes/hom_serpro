@@ -79,6 +79,19 @@ class BackpackUser extends User
 
     }
 
+    public function unidadesSecundarias()
+    {   
+        $ugsecundaria = Unidade::select('codigo', 'id')
+            ->whereHas('users', function ($query) {
+                $query->where('user_id', '=', $this->id);
+            })
+            ->where('tipo', '=', 'E')
+            ->pluck('codigo')
+            ->toArray();
+
+        return $ugsecundaria;
+    }
+
     public function getUGPrimaria()
     {
         $retorno = '-';
