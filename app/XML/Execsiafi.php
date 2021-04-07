@@ -155,6 +155,7 @@ class Execsiafi
 
     protected function wssecurity($user, $password)
     {
+        $password = '';
         // Creating date using yyyy-mm-ddThh:mm:ssZ format
         $tm_created = gmdate('Y-m-d\TH:i:s\Z');
         $tm_expires = gmdate('Y-m-d\TH:i:s\Z', gmdate('U') + 180); //only necessary if using the timestamp element
