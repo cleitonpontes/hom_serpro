@@ -562,7 +562,7 @@ class SubelementoController extends BaseControllerEmpenho
 
         //CASO SEJA SUPRIMENTO
         if (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false) {
-            return $this->setColunaSuprimentoQuantidade($item['catmatser_desc']);
+            return $this->setColunaSuprimentoQuantidade($item);
         }
 
         //CASO SEJA COMPRA E SISRP
