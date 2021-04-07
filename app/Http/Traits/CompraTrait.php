@@ -450,4 +450,100 @@ trait CompraTrait
                 ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
         }
     }
+
+    private function setColunaContratoQuantidade(array $item): string
+    {
+        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "class='form-control qtd" . $item['contrato_item_id'] . "' " .
+            "id='qtd" . $item['contrato_item_id'] . "' " .
+            "data-tipo='' name='qtd[]' value='" . $item['quantidade'] . "'   > " .
+            "<input  type='hidden' id='quantidade_total" . $item['contrato_item_id'] . "' " .
+            "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . " '> ";
+    }
+
+    private function setColunaContratoValorTotal(array $item): string
+    {
+        return " <input type='text' id='vrtotal" . $item['contrato_item_id'] . "' " .
+            "class='form-control col-md-12 valor_total vrtotal" . $item['contrato_item_id'] . "' " .
+            "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='" . $item['valor'] . "' " .
+            "data-contrato_item_id='" . $item['contrato_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' " .
+            "onkeyup='calculaQuantidade(this)' >";
+    }
+
+    private function setColunaSuprimentoQuantidade(array $item): string
+    {
+        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "class='form-control qtd" . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='qtd[]' value='" . $item['quantidade'] . "' readonly  > "
+            . " <input  type='hidden' id='quantidade_total" . $item['compra_item_id']
+            . "' data-tipo='' name='quantidade_total[]' value='"
+            . $item['qtd_item'] . " readonly'> ";
+    }
+
+    private function setColunaSuprimentoValorTotal(array $item): string
+    {
+        return " <input type='text' id='vrtotal" . $item['compra_item_id'] . "' " .
+            "class='form-control col-md-12 valor_total vrtotal" . $item['compra_item_id'] . "' " .
+            "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='" . $item['valor'] . "' " .
+            "data-compra_item_id='" . $item['compra_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' " .
+            "onkeyup='calculaQuantidade(this)' >";
+    }
+
+    private function setColunaCompraSisrpQuantidade(array $item): string
+    {
+        return " <input type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "id='qtd" . $item['compra_item_id'] . "' " .
+            "data-compra_item_id='" . $item['compra_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]' " .
+            "class='form-control qtd' value='" . $item['quantidade'] . "' > " .
+            "<input  type='hidden' id='quantidade_total" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+    }
+
+    private function setColunaCompraSisrpValorTotal(array $item): string
+    {
+        return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "' " .
+            "id='vrtotal" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='valor_total[]' value='" . $item['valor'] . "' disabled > ";
+    }
+
+    private function setColunaCompraSisppMaterialQuantidade(array $item): string
+    {
+        return " <input type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "id='qtd" . $item['compra_item_id'] . "' data-compra_item_id='" . $item['compra_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]' " .
+            "class='form-control qtd' value='" . $item['quantidade'] . "' > " .
+            "<input  type='hidden' id='quantidade_total" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+    }
+
+    private function setColunaCompraSisppMaterialValorTotal(array $item): string
+    {
+        return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "' " .
+            "id='vrtotal" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='valor_total[]' value='" . $item['valor'] . "' disabled > ";
+    }
+
+    private function setColunaCompraSisppServicoQuantidade(array $item): string
+    {
+        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "class='form-control qtd" . $item['compra_item_id'] . "' " .
+            "id='qtd" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='qtd[]' value='" . $item['quantidade'] . "' readonly> " .
+            "<input type='hidden' id='quantidade_total" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . " '> ";
+    }
+
+    private function setColunaCompraSisppServicoValorTotal(array $item): string
+    {
+        return " <input type='text' " .
+            "class='form-control col-md-12 valor_total vrtotal" . $item['compra_item_id'] . "' " .
+            "id='vrtotal" . $item['compra_item_id'] . "' data-qtd_item='" . $item['qtd_item'] . "' " .
+            "name='valor_total[]' value='" . $item['valor'] . "' " .
+            "data-compra_item_id='" . $item['compra_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' " .
+            "onkeyup='calculaQuantidade(this)' >";
+    }
 }

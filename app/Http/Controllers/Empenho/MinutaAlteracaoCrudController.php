@@ -1495,6 +1495,7 @@ class MinutaAlteracaoCrudController extends CrudController
             ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
             (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
         ) {
+            clock($item,$tipo);
             return " <input  type='number' class='form-control qtd qtd"
                 . $item[$tipo] . "' id='qtd" . $item[$tipo]
                 . "' data-$tipo='" . $item[$tipo] . "'"
