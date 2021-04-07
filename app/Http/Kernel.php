@@ -72,6 +72,7 @@ class Kernel extends HttpKernel
         'verify.step.empenho' => VerifyStepEmpenhoMiddleware::class,
         'throttleIp'=> ThrottleRequestsWithIp::class,
         'jwt.verify' => \App\Http\Middleware\JwtMiddleware::class,
+        'APIAntecipaGov' => \App\Http\Middleware\APIAntecipaGov::class,
     ];
 
     /**

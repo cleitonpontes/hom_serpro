@@ -158,6 +158,15 @@ Route::group([
         ], function () {
             Route::get('/ug/{unidade}', 'ContratocronogramaController@cronogramaPorUg');
         });
+
+        Route::group([
+            'middleware' => 'APIAntecipaGov',
+            'prefix' => 'usuario',
+        ], function () {
+            Route::get('/ug/{unidade}', 'v1\UsuarioAntecipaGovController@usuariosPorUG');
+            Route::get('/cpf/{cpf}', 'v1\UsuarioAntecipaGovController@usuarioPorCPF');
+        });
+
     });
 });
 
