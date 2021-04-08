@@ -454,9 +454,12 @@ trait CompraTrait
     private function setColunaContratoQuantidade(array $item): string
     {
         return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' " .
-            "class='form-control qtd" . $item['contrato_item_id'] . "' " .
+            "class='form-control qtd qtd" . $item['contrato_item_id'] . "' " .
             "id='qtd" . $item['contrato_item_id'] . "' " .
-            "data-tipo='' name='qtd[]' value='" . $item['quantidade'] . "'   > " .
+            "data-tipo='' name='qtd[]' value='" . $item['quantidade'] . "' " .
+            "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='" . $item['valor'] . "' " .
+            "data-contrato_item_id='" . $item['contrato_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' >" .
             "<input  type='hidden' id='quantidade_total" . $item['contrato_item_id'] . "' " .
             "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . " '> ";
     }
