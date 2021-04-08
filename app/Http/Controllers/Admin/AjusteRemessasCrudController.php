@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Traits\BuscaCodigoItens;
 use App\Models\MinutaEmpenho;
+use App\Models\MinutaEmpenhoRemessa;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+use App\Http\Requests\AjusteRemessasRequest as UpdateRequest;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use Backpack\CRUD\CrudPanel;
@@ -22,7 +24,7 @@ class AjusteRemessasCrudController extends CrudController
 
     public function setup()
     {
-        $this->minuta_id = $this->crud->getCurrentEntryId();
+        $this->remessa_id = $this->crud->getCurrentEntryId();
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -46,8 +48,8 @@ class AjusteRemessasCrudController extends CrudController
             [
                 'minutaempenhos_remessa.*',
                 DB::raw("CONCAT(unidades.codigo,' - ',unidades.nomeresumido) AS unidade"),
-//                DB::raw("CONCAT(uc.codigo,' - ',uc.nomeresumido) AS unidadeCompra"),
-                'uc.codigo AS unidadeCompra',
+                DB::raw("CONCAT(uc.codigo,' - ',uc.nomeresumido) AS unidade_compra"),
+                DB::raw("CONCAT(modalidade.descres,' - ', modalidade.descricao) AS compra_modalidade"),
                 'codigoitens.descricao AS tipoEmpenhoPor',
                 'compras.numero_ano',
                 DB::raw('minutaempenhos_remessa.id as "minutaempenhos_remessa_id"')
@@ -60,6 +62,7 @@ class AjusteRemessasCrudController extends CrudController
         $this->crud->addClause('join', 'compras', 'minutaempenhos.compra_id', '=', 'compras.id');
         $this->crud->addClause('join', 'unidades as uc', 'compras.unidade_origem_id', '=', 'uc.id');
         $this->crud->addClause('join', 'codigoitens', 'minutaempenhos.tipo_empenhopor_id', '=', 'codigoitens.id');
+        $this->crud->addClause('join', 'codigoitens as modalidade', 'compras.modalidade_id', '=', 'modalidade.id');
         $this->crud->orderBy('minutaempenhos.updated_at', 'desc');
 
         /*
@@ -72,8 +75,8 @@ class AjusteRemessasCrudController extends CrudController
 //        $this->crud->setFromDb();
         $this->crud->enableExportButtons();
 
-        $this->adicionaCampos($this->minuta_id);
-        $this->adicionaColunas($this->minuta_id);
+        $this->adicionaCampos($this->remessa_id);
+        $this->adicionaColunas();
 
 
         // add asterisk for fields that are required in AjusteRemessasRequest
@@ -119,11 +122,23 @@ class AjusteRemessasCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
-        // your additional operations before save here
-        $redirect_location = parent::updateCrud($request);
-        // your additional operations after save here
-        // use $this->data['entry'] or $this->crud->entry
-        return $redirect_location;
+        try {
+            DB::beginTransaction();
+            $minutaEmpenhoRemessa = MinutaEmpenhoRemessa::find($request->id);
+            $minutaEmpenhoRemessa->mensagem_siafi = $request->mensagem_siafi;
+            $minutaEmpenhoRemessa->situacao_id = $request->nova_situacao;
+            $minutaEmpenhoRemessa->save();
+
+            $redirect_location = parent::updateCrud($request);
+            // your additional operations after save here
+            // use $this->data['entry'] or $this->crud->entry
+//        return Redirect::to($rota);
+
+            DB::commit();
+            return $redirect_location;
+        } catch (Exception $exc) {
+            DB::rollback();
+        }
     }
 
     protected function adicionaCampos($minuta_id)
@@ -143,58 +158,35 @@ class AjusteRemessasCrudController extends CrudController
         ]);
     }
 
-    protected function adicionaCampoSituacao($minuta_id)
+    protected function adicionaCampoSituacao($id)
     {
-        $minuta = MinutaEmpenho::find($minuta_id);
+        $minutaRemessa = MinutaEmpenhoRemessa::find($id);
         $this->crud->addField([
             'name' => 'nova_situacao',
             'label' => "Situação do Empenho",
             'type' => 'select2_from_array',
             'options' => $this->retornaArrayCodigosItens('Situações Minuta Empenho'),
             'allows_null' => false,
-            'default' => $minuta ? $minuta->situacao_id : null,
+            'default' => $minutaRemessa ? $minutaRemessa->situacao_id : null,
         ]);
     }
 
-    protected function adicionaColunas($minuta_id): void
+    protected function adicionaColunas(): void
     {
         $this->adicionaColunaUnidade();
-//        $this->adicionaColunaFornecedorEmpenho();
-//
-//        $this->adicionaColunaTipoCompra();
         $this->adicionaColunaUnidadeCompra();
-//        $this->adicionaColunaModalidade();
+        $this->adicionaColunaModalidade();
         $this->adicionaColunaTipoEmpenhoPor();
         $this->adicionaColunaNumeroAnoCompra();
-//
-//        $this->adicionaColunaTipoEmpenho();
-//        $this->adicionaColunaAmparoLegal();
-//
-//        $this->adicionaColunaIncisoCompra();
-//        $this->adicionaColunaLeiCompra();
-//        $this->adicionaColunaValorTotal();
-//
-//
         $this->adicionaColunaMensagemSiafi();
         $this->adicionaColunaRemessa();
         $this->adicionaColunaSituacao();
-//        $this->adicionaColunaCreatedAt();
         $this->adicionaColunaUpdatedAt();
-//
-//
-//        $this->adicionaColunaNumeroEmpenho();
-//        $this->adicionaColunaCipi();
-//        $this->adicionaColunaDataEmissao();
-//        $this->adicionaColunaProcesso();
-//        $this->adicionaColunaTaxaCambio();
-//        $this->adicionaColunaLocalEntrega();
-//        $this->adicionaColunaDescricao();
     }
 
     public function adicionaColunaSituacao(): void
     {
         $this->crud->addColumn([
-            'box' => 'resumo',
             'name' => 'getSituacao',
             'label' => 'Situação',
             'type' => 'model_function',
@@ -211,7 +203,6 @@ class AjusteRemessasCrudController extends CrudController
     public function adicionaColunaMensagemSiafi(): void
     {
         $this->crud->addColumn([
-            'box' => 'resumo',
             'name' => 'mensagem_siafi',
             'label' => 'Mensagem SIAFI',
             'type' => 'text',
@@ -230,7 +221,6 @@ class AjusteRemessasCrudController extends CrudController
     public function adicionaColunaRemessa(): void
     {
         $this->crud->addColumn([
-            'box' => 'resumo',
             'name' => 'remessa',
             'label' => 'Remessa',
             'type' => 'text',
@@ -246,14 +236,9 @@ class AjusteRemessasCrudController extends CrudController
         ]);
     }
 
-    /**
-     * Configura a coluna Unidade
-     */
-
     public function adicionaColunaUnidade(): void
     {
         $this->crud->addColumn([
-            'box' => 'resumo',
             'name' => 'unidade',
             'label' => 'Unidade Gestora',
             'type' => 'text',
@@ -272,7 +257,7 @@ class AjusteRemessasCrudController extends CrudController
     public function adicionaColunaUnidadeCompra(): void
     {
         $this->crud->addColumn([
-            'name' => 'unidadeCompra',
+            'name' => 'unidade_compra',
             'label' => 'UASG Compra',
             'type' => 'text',
             'priority' => 1,
@@ -290,7 +275,6 @@ class AjusteRemessasCrudController extends CrudController
     public function adicionaColunaUpdatedAt(): void
     {
         $this->crud->addColumn([
-            'box' => 'resumo',
             'name' => 'updated_at',
             'label' => 'Atualizado em',
             'type' => 'datetime',
@@ -300,27 +284,6 @@ class AjusteRemessasCrudController extends CrudController
             'visibleInModal' => true,
             'visibleInExport' => true,
             'visibleInShow' => true
-        ]);
-    }
-
-    public function adicionaColunaFornecedorEmpenho(): void
-    {
-        $this->crud->addColumn([
-            'box' => 'resumo',
-            'name' => 'getFornecedorEmpenho',
-            'label' => 'Credor', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getFornecedorEmpenho', // the method in your Model
-            'orderable' => true,
-            'limit' => 100,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-            /*'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
-                $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-            },*/
         ]);
     }
 
@@ -343,55 +306,14 @@ class AjusteRemessasCrudController extends CrudController
         ]);
     }
 
-    public function adicionaColunaTipoEmpenho()
-    {
-        $this->crud->addColumn([
-            'box' => 'resumo',
-            'name' => 'getTipoEmpenho',
-            'label' => 'Tipo de Empenho', // Table column heading
-            'type' => 'model_function',
-            'function_name' => 'getTipoEmpenho', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-//                'searchLogic'   => function ($query, $column, $searchTerm) {
-//                    $query->orWhere('cpf_cnpj_idgener', 'like', '%'.$searchTerm.'%');
-//                    $query->orWhere('nome', 'like', '%'.$searchTerm.'%');
-//                },
-
-        ]);
-    }
-
     public function adicionaColunaModalidade()
     {
         $this->crud->addColumn([
-            'box' => 'compra',
             'name' => 'compra_modalidade',
             'label' => 'Modalidade', // Table column heading
             'type' => 'text',
-//            'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
             'visibleInTable' => true, // no point, since it's a large text
-            'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => true, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ]);
-    }
-
-    public function adicionaColunaValorTotal()
-    {
-        $this->crud->addColumn([
-            'box' => 'resumo',
-            'name' => 'valor_total',
-            'label' => 'Valor Total', // Table column heading
-            'type' => 'number',
-            'prefix' => 'R$ ',
-            'decimals' => 2,
-//            'function_name' => 'getAmparoLegal', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
@@ -401,11 +323,9 @@ class AjusteRemessasCrudController extends CrudController
     public function adicionaColunaTipoCompra()
     {
         $this->crud->addColumn([
-            'box' => 'compra',
             'name' => 'tipo_compra',
             'label' => 'Tipo da Compra', // Table column heading
             'type' => 'text',
-//            'function_name' => 'getAmparoLegal', // the method in your Model
             'orderable' => true,
             'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
@@ -426,67 +346,5 @@ class AjusteRemessasCrudController extends CrudController
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
         ]);
-    }
-
-    public function adicionaColunaIncisoCompra()
-    {
-        $this->crud->addColumn([
-            'box' => 'compra',
-            'name' => 'inciso',
-            'label' => 'Inciso', // Table column heading
-            'type' => 'text',
-//            'function_name' => 'getAmparoLegal', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => false, // would make the modal too big
-            'visibleInExport' => false, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ]);
-    }
-
-    public function adicionaColunaLeiCompra()
-    {
-        $this->crud->addColumn([
-            'box' => 'compra',
-            'name' => 'lei',
-            'label' => 'Lei', // Table column heading
-            'type' => 'text',
-//            'function_name' => 'getAmparoLegal', // the method in your Model
-            'orderable' => true,
-            'visibleInTable' => false, // no point, since it's a large text
-            'visibleInModal' => false, // would make the modal too big
-            'visibleInExport' => false, // not important enough
-            'visibleInShow' => true, // sure, why not
-        ]);
-    }
-
-    public function adicionaColunaNumeroEmpenho()
-    {
-    }
-
-    public function adicionaColunaCipi()
-    {
-    }
-
-    public function adicionaColunaDataEmissao()
-    {
-    }
-
-
-    public function adicionaColunaProcesso()
-    {
-    }
-
-
-    public function adicionaColunaTaxaCambio()
-    {
-    }
-
-    public function adicionaColunaLocalEntrega()
-    {
-    }
-
-    public function adicionaColunaDescricao()
-    {
     }
 }
