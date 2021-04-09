@@ -473,12 +473,14 @@ trait CompraTrait
             "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . " '> ";
     }
 
-    private function setColunaContratoValorTotal(array $item, $tipos): string
+    private function setColunaContratoValorTotal(array $item, $tipos = null): string
     {
         $valor = (float)$item['valor'];
 
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $valor *= -1;
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
         }
         $valor = number_format($valor, '2', '.', '');
 
@@ -508,12 +510,13 @@ trait CompraTrait
             . $item['qtd_item'] . " readonly'> ";
     }
 
-    private function setColunaSuprimentoValorTotal(array $item, $tipos): string
+    private function setColunaSuprimentoValorTotal(array $item, $tipos = null): string
     {
         $valor = (float)$item['valor'];
-
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $valor *= -1;
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
         }
         $valor = number_format($valor, '2', '.', '');
 
@@ -547,9 +550,10 @@ trait CompraTrait
     private function setColunaCompraSisrpValorTotal(array $item, $tipos): string
     {
         $valor = (float)$item['valor'];
-
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $valor *= -1;
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
         }
         $valor = number_format($valor, '2', '.', '');
 
@@ -579,9 +583,10 @@ trait CompraTrait
     private function setColunaCompraSisppMaterialValorTotal(array $item, $tipos = null): string
     {
         $valor = (float)$item['valor'];
-
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $valor *= -1;
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
         }
         $valor = number_format($valor, '2', '.', '');
 
@@ -610,9 +615,10 @@ trait CompraTrait
     private function setColunaCompraSisppServicoValorTotal(array $item, $tipos = null): string
     {
         $valor = (float)$item['valor'];
-
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $valor *= -1;
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
         }
         $valor = number_format($valor, '2', '.', '');
 
