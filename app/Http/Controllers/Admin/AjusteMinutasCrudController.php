@@ -40,6 +40,10 @@ class AjusteMinutasCrudController extends CrudController
 
     public function setup()
     {
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
+
         $this->minuta_id = $this->crud->getCurrentEntryId();
         /*
         |--------------------------------------------------------------------------
@@ -755,10 +759,15 @@ class AjusteMinutasCrudController extends CrudController
         return redirect($this->crud->route);
     }
 
-    public function atualizaritemcompracontrato($idMinuta, $idRemessa, Request $request, \Yajra\DataTables\Html\Builder $htmlBuilder)
+    public function atualizaritemcompracontrato($idRemessa, Request $request, \Yajra\DataTables\Html\Builder $htmlBuilder)
     {
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
 
-        $minutaEmpenho = MinutaEmpenho::find($idMinuta);
+        $minutaRemessa = MinutaEmpenhoRemessa::find($idRemessa);
+        $minutaEmpenho = MinutaEmpenho::find($minutaRemessa->minutaempenho_id);
+        $idMinuta = $minutaRemessa->minutaempenho_id;
 
         $descTipoMinuta = $this->retornaDescCodigoItem($minutaEmpenho->tipo_empenhopor_id);
 
