@@ -4,8 +4,10 @@
 namespace App\Http\Controllers\Gescon;
 
 use App\Models\Contrato;
+use App\Models\ContratoItemMinutaEmpenho;
 use App\Models\Contratounidadedescentralizada;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+use App\Http\Traits\BuscaCodigoItens;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +24,8 @@ use Backpack\CRUD\CrudPanel;
  */
 class ContratounidadedescentralizadaCrudController extends CrudController
 {
+    use BuscaCodigoItens;
+
     public function setup()
     {
         $contrato_id = \Route::current()->parameter('contrato_id');
@@ -39,12 +43,14 @@ class ContratounidadedescentralizadaCrudController extends CrudController
         $this->crud->setModel('App\Models\Contratounidadedescentralizada');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/'.$contrato_id.'/contratounidadedescentralizada');
         $this->crud->setEntityNameStrings('unidades', 'Unidades Descentralizadas');
+        $this->crud->setShowView('vendor.backpack.crud.unidadedescentralizada.show');
         $this->crud->addClause('select', 'contratounidadesdescentralizadas.*');
         $this->crud->addClause('join', 'contratos', 'contratos.id', '=', 'contratounidadesdescentralizadas.contrato_id');
         $this->crud->addClause('join', 'unidades', 'unidades.id', '=', 'contratounidadesdescentralizadas.unidade_id');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->addClause('orderby', 'unidades.nome');
         $this->crud->denyAccess('update');
+        $this->crud->allowAccess('show');
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
@@ -59,6 +65,21 @@ class ContratounidadedescentralizadaCrudController extends CrudController
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
     }
+
+    public function show($contrato_id)
+    {
+        $content = parent::show($contrato_id);
+
+        $unidadeDescentralizada_id = \Route::current()->parameter('contratounidadedescentralizada');
+        $unidade_id = Contratounidadedescentralizada::find($unidadeDescentralizada_id)->unidade_id;
+        $this->adicionaBoxTotalPorAno($contrato_id, $unidade_id);
+
+        $this->crud->removeColumn('unidade_id');
+        $this->crud->removeColumn('contrato_id');
+
+        return $content;
+    }
+
     public function Campos($contrato)
     {
         $campos = [
@@ -122,6 +143,17 @@ class ContratounidadedescentralizadaCrudController extends CrudController
                 },
 
             ],
+            [
+                'name' => 'getValorEmpenhado',
+                'label' => 'Total empenhado', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getValorEmpenhado', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
         ];
         return $colunas;
     }
@@ -161,5 +193,31 @@ class ContratounidadedescentralizadaCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    private function adicionaBoxTotalPorAno($contrato_id, $unidade_id)
+    {
+        $situacao_empenho_emitido_id = $this->retornaIdCodigoItem('Situações Minuta Empenho', 'EMPENHO EMITIDO');
+
+        $valores = ContratoItemMinutaEmpenho::distinct()
+            ->select(DB::raw( "me.mensagem_siafi,round(me.valor_total,2) as valor_total"))
+            ->join('contratoitens AS ci','ci.id', '=', 'contrato_item_minuta_empenho.contrato_item_id')
+            ->join('minutaempenhos AS me','me.id', '=', 'contrato_item_minuta_empenho.minutaempenho_id')
+            ->where('ci.contrato_id', $contrato_id)
+            ->where('me.unidade_id', $unidade_id)
+            ->where('me.situacao_id', $situacao_empenho_emitido_id)->get()->toArray();
+
+        $this->crud->addColumn([
+            'box' => 'valores',
+            'name' => 'valores',
+            'label' => 'Valores totais por ano', // Table column heading
+            'orderable' => true,
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => false, // would make the modal too big
+            'visibleInExport' => false, // not important enough
+            'visibleInShow' => true, // sure, why not
+            'values' => $valores
+        ]);
+
     }
 }

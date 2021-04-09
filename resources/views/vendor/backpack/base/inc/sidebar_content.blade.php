@@ -453,6 +453,11 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ backpack_url('/admin/ajusteremessas') }}"><i class="fa fa-gear"></i>
+                                <span>Ajuste de remessas</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href='{{ backpack_url('/admin/amparolegal') }}'>
                                 <i class='fa fa-list'></i>
                                 <span>Amparo Legal</span>
