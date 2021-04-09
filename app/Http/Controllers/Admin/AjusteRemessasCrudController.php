@@ -33,10 +33,9 @@ class AjusteRemessasCrudController extends CrudController
         $this->crud->setModel('App\Models\MinutaEmpenhoRemessa');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/admin/ajusteremessas');
         $this->crud->setEntityNameStrings('Ajuste de remessas', 'Ajuste de remessas');
-        $this->crud->setShowView('vendor.backpack.crud.empenho.show');
 
         $this->crud->allowAccess('update');
-        $this->crud->allowAccess('show');
+        $this->crud->denyAccess('show');
         $this->crud->denyAccess('delete');
         $this->crud->denyAccess('create');
         $this->crud->addButtonFromView('line', 'atualizaritemcompracontrato', 'atualizaritemcompracontrato', 'end');
