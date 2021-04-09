@@ -40,6 +40,10 @@ class AjusteMinutasCrudController extends CrudController
 
     public function setup()
     {
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
+
         $this->minuta_id = $this->crud->getCurrentEntryId();
         /*
         |--------------------------------------------------------------------------
