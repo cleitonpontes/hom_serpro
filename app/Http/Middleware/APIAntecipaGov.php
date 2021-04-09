@@ -14,9 +14,15 @@ class APIAntecipaGov
      * @return mixed
      */
     public function handle($request, Closure $next)
+<<<<<<< HEAD
     {
 
         if (!backpack_user()->hasPermissionTo('usuario_consulta_api')) {
+=======
+    {   
+        
+        if (!backpack_user()->hasPermissionTo('usuario_inserir')) {
+>>>>>>> 109684bbe19df8942143e44f3c5370dddb0749ce
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
