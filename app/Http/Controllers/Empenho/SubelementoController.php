@@ -553,8 +553,6 @@ class SubelementoController extends BaseControllerEmpenho
 
     private function addColunaQuantidade($item, $tipo)
     {
-        $quantidade = $item['quantidade'];
-
         //CASO SEJA CONTRATO
         if ($tipo === 'contrato_item_id') {
             return $this->setColunaContratoQuantidade($item);
@@ -566,7 +564,6 @@ class SubelementoController extends BaseControllerEmpenho
         }
 
         //CASO SEJA COMPRA E SISRP
-
         if ($item['tipo_compra_descricao'] === 'SISRP') {
             $this->setColunaCompraSisrpQuantidade($item);
         }
@@ -584,11 +581,8 @@ class SubelementoController extends BaseControllerEmpenho
 
     private function addColunaValorTotal($item, $tipo)
     {
-
-        $valor = $item['valor'];
-
         //CASO SEJA CONTRATO
-        if ($tipo == 'contrato_item_id') {
+        if ($tipo === 'contrato_item_id') {
             return $this->setColunaContratoValorTotal($item);
         }
 

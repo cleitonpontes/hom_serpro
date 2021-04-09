@@ -1482,80 +1482,59 @@ class MinutaAlteracaoCrudController extends CrudController
 
     private function addColunaQuantidade($item, $tipo, $tipos)
     {
-        $ehcontrato = strpos($tipo, 'contrato');
-        $quantidade = (float)$item['quantidade'];
-
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $quantidade *= -1;
-        }
-        $quantidade = sprintf('%.5f', (float)$quantidade);
-
-        //se é contrato e é serviço OU se é sispp e serviço OU se for suprimento
-        if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
-            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
-            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
-        ) {
-            clock($item,$tipo);
-            return " <input  type='number' class='form-control qtd qtd"
-                . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-$tipo='" . $item[$tipo] . "'"
-                . " data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
+        //CASO SEJA CONTRATO
+        clock($item, $tipo, $tipos);
+        if ($tipo === 'contrato_item_id') {
+            return $this->setColunaContratoQuantidade($item, $tipos);
         }
 
-        $readonly = 'readonly';
-        if (array_key_exists($item['operacao_id'], $tipos)
-            && (
-                $tipos[$item['operacao_id']] === "ANULAÇÃO"
-                || $tipos[$item['operacao_id']] === "REFORÇO"
-            )) {
-            $readonly = '';
+        //CASO SEJA SUPRIMENTO
+        if (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false) {
+            return $this->setColunaSuprimentoQuantidade($item, $tipos);
         }
-        return " <input type='number'  id='qtd" . $item[$tipo]
-            . "' data-$tipo='" . $item[$tipo]
-            . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "'"
-            . " class='form-control qtd' value='$quantidade' oninput='calculaValorTotal(this)'  $readonly> ";
+
+        //CASO SEJA COMPRA E SISRP
+        if ($item['tipo_compra_descricao'] === 'SISRP') {
+            $this->setColunaCompraSisrpQuantidade($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA SISPP MATERIAL
+        if ($item['descricao'] === 'Material') {
+            return $this->setColunaCompraSisppMaterialQuantidade($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA SISPP SERVIÇO
+        //if ($item['descricao'] === 'Serviço') {
+        return $this->setColunaCompraSisppServicoQuantidade($item, $tipos);
+        //}
     }
 
     private function addColunaValorTotal($item, $tipo, $tipos)
     {
-        $ehcontrato = strpos($tipo, 'contrato');
-        $valor = (float)$item['valor'];
-
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $valor *= -1;
-        }
-        $valor = number_format($valor, '2', '.', '');
-
-        //se é contrato e serviço OU se é sispp e serviço OU se é suprimento
-        if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
-            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
-            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
-        ) {
-            $readonly = 'disabled';
-
-            if (array_key_exists($item['operacao_id'], $tipos)
-                && (
-                    $tipos[$item['operacao_id']] === "ANULAÇÃO"
-                    || $tipos[$item['operacao_id']] === "REFORÇO"
-                )) {
-                $readonly = "";
-            }
-
-            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
-                . $item[$tipo] . "'"
-                . "id='vrtotal" . $item[$tipo]
-                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
-                . " data-$tipo='" . $item[$tipo] . "'"
-                . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "'"
-                . " onkeyup='calculaQuantidade(this)' $readonly>";
+        //CASO SEJA CONTRATO
+        if ($tipo === 'contrato_item_id') {
+            return $this->setColunaContratoValorTotal($item, $tipos);
         }
 
-        return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
-            . "id='vrtotal" . $item[$tipo] . "'"
-            . " data-$tipo='" . $item[$tipo] . "'"
-            . " data-tipo='' name='valor_total[]' value='$valor' disabled > ";
+        //CASO SEJA SUPRIMENTO
+        if (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false) {
+            return $this->setColunaSuprimentoValorTotal($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA E SISRP
+        if ($item['tipo_compra_descricao'] === 'SISRP') {
+            return $this->setColunaCompraSisrpValorTotal($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA SISPP MATERIAL
+        if ($item['descricao'] === 'Material') {
+            return $this->setColunaCompraSisppMaterialValorTotal($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA SISPP SERVIÇO
+        //if ($item['descricao'] === 'Serviço') {
+        return $this->setColunaCompraSisppServicoValorTotal($item, $tipos);
+        //}
     }
 
     private function addColunaValorTotalItem($item, $tipo)
