@@ -28,7 +28,7 @@
         <button type="submit" class="btn btn-success" style="margin: 10px">
             <i class="fa fa-save"></i> Salvar
         </button>
-        <a href="{{ backpack_url('/admin/ajusteminuta') }}" class="btn btn-default"><span class="fa fa-angle-double-left"></span> &nbsp;Voltar</a>
+        <a href="javascript:window.history.back();" class="btn btn-default"><span class="fa fa-angle-double-left"></span> &nbsp;Voltar</a>
     </form>
 @endsection
 

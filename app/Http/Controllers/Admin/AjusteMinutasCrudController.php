@@ -755,10 +755,11 @@ class AjusteMinutasCrudController extends CrudController
         return redirect($this->crud->route);
     }
 
-    public function atualizaritemcompracontrato($idMinuta, $idRemessa, Request $request, \Yajra\DataTables\Html\Builder $htmlBuilder)
+    public function atualizaritemcompracontrato($idRemessa, Request $request, \Yajra\DataTables\Html\Builder $htmlBuilder)
     {
-
-        $minutaEmpenho = MinutaEmpenho::find($idMinuta);
+        $minutaRemessa = MinutaEmpenhoRemessa::find($idRemessa);
+        $minutaEmpenho = MinutaEmpenho::find($minutaRemessa->minutaempenho_id);
+        $idMinuta = $minutaRemessa->minutaempenho_id;
 
         $descTipoMinuta = $this->retornaDescCodigoItem($minutaEmpenho->tipo_empenhopor_id);
 
