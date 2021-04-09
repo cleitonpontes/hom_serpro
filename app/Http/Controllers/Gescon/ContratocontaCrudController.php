@@ -47,7 +47,7 @@ class ContratocontaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/contratocontas');
         $this->crud->setEntityNameStrings('conta-deposito vinculada', 'Conta-Depósito Vinculada');
         $this->crud->addButtonFromView('top', 'Sobre', 'sobrecontratoconta', 'begin');
-        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
         $this->crud->addButtonFromView('line', 'morecontratoconta', 'morecontratoconta', 'end');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->allowAccess('show');
@@ -130,6 +130,15 @@ class ContratocontaCrudController extends CrudController
                 'inline' => true,
                 'default' => 1
             ],
+            [
+                // Number
+                'name' => 'percentual_grupo_a_13_ferias',
+                'label' => 'Percentual Grupo A',
+                'type' => 'number',
+                'prefix' => '% ',
+                'decimals' => 2,
+            ],
+
         ];
 
         return $campos;
@@ -169,6 +178,20 @@ class ContratocontaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
             ],
+
+
+            [
+                'name' => 'percentual_grupo_a_13_ferias',
+                'label' => 'Percentual Grupo A',
+                'type' => 'number',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'prefix' => "% ",
+            ],
+
             [
                 'name' => 'fat_empresa',
                 'label' => 'Encargo',

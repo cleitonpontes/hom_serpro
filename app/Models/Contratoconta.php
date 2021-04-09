@@ -21,7 +21,7 @@ class Contratoconta extends Model
 
     protected $table = 'contratocontas';
     protected $fillable = [
-        'contrato_id', 'banco', 'conta', 'agencia', 'conta_corrente', 'fat_empresa'
+        'contrato_id', 'banco', 'conta', 'agencia', 'conta_corrente', 'fat_empresa', 'percentual_grupo_a_13_ferias'
     ];
     /*
     |--------------------------------------------------------------------------
