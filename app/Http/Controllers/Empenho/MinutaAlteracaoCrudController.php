@@ -1483,6 +1483,7 @@ class MinutaAlteracaoCrudController extends CrudController
     private function addColunaQuantidade($item, $tipo, $tipos)
     {
         //CASO SEJA CONTRATO
+//        clock($item, $tipo, $tipos);
         if ($tipo === 'contrato_item_id') {
             return $this->setColunaContratoQuantidade($item, $tipos);
         }

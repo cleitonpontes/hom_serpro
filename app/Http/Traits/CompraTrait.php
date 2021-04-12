@@ -461,7 +461,6 @@ trait CompraTrait
             $quantidade = sprintf('%.5f', (float)$quantidade);
         }
 
-
         return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' " .
             "class='form-control qtd qtd" . $item['contrato_item_id'] . "' " .
             "id='qtd" . $item['contrato_item_id'] . "' " .

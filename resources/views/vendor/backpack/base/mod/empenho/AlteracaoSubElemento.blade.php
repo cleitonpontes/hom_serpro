@@ -202,7 +202,7 @@
                 var {{$tipo}} = obj.dataset.{{$tipo}};
                 var value = obj.value;
                 value = ptToEn(value);
-
+                console.log(obj.dataset);
                 if(obj.dataset.valor_unitario != 0){
                     var quantidade = value / obj.dataset.vlr_unitario_item;
                     $(".qtd" + {{$tipo}}).val(quantidade).trigger("input");
