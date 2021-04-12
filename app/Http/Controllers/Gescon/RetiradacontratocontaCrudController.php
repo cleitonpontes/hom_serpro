@@ -351,8 +351,9 @@ class RetiradacontratocontaCrudController extends CrudController
         $nomeGrupoA = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
         // $idEncargoGrupoA = self::getIdEncargoByNomeEncargo($nomeGrupoA);
         $idEncargoGrupoA = null;
-        $idGrupoA = self::getTipoIdEncargoByNomeEncargo($nomeGrupoA);
-        $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $idGrupoA);
+        // $idGrupoA = self::getTipoIdEncargoByNomeEncargo($nomeGrupoA);
+        // $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $idGrupoA);
+        $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
         $situacaoFuncionario = $objContratoTerceirizado->situacao;
         // Grupo A - vamos calcular o Grupo A, que é o percentual fat_empresa sobre o valor informado para retirada.
         $fat_empresa = $request->input('fat_empresa');  // Cáculo do grupo A, que é o fat_empresa da tab contratocontas
@@ -406,10 +407,6 @@ class RetiradacontratocontaCrudController extends CrudController
             $idEncargoGrupoAParaDemissao = null;
             // $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoGrupoAParaDemissao);
             $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
-
-
-            echo 'ok, linha 410 retirada';exit;
-
             $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
             $valorRetirada = $valorMaximoRetirada;
 

@@ -214,6 +214,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
         $idContratoConta = $request->input('contratoconta_id');
+        $objContratoConta = Contratoconta::where('id', $idContratoConta)->first();
 
         // buscar todos os terceirizados pelo contrato e pela função
         $novoSalario = $request->input('novoSalario');
@@ -245,7 +246,6 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 $salarioAtual = $objContratoTerceirizado->salario;
                 $diferencaEntreSalarios = ($novoSalario - $salarioAtual);
                 $situacaoContratoTerceirizado = $objContratoTerceirizado->situacao; // verificar se é ativo
-                // $idMovimentacao = null;
 
                 // vamos verificar se a jornada informada é a mesma da jornada do terceirizado e se o terceirizado é ativo.
                 if( $jornada == $jornadaContratoTerceirizado && $situacaoContratoTerceirizado){
@@ -259,7 +259,11 @@ class RepactuacaocontratocontaCrudController extends CrudController
                     $idMovimentacaoAux = null;
                     foreach($arrayLancamentosTerceirizado as $objLancamentoExistente){
                         $encargo_id = $objLancamentoExistente->encargo_id;
-                        $objEncargo = Encargo::where('id', $encargo_id)->first();
+                        if($encargo_id != null){
+                            $objEncargo = Encargo::where('id', $encargo_id)->first();
+                        } else {
+
+                        }
                         $idMovimentacaoLancamento = $objLancamentoExistente->movimentacao_id;
                         $objMovimentacaoLancamento = Movimentacaocontratoconta::where('id', $idMovimentacaoLancamento)->first();
                         $mesMovimentacaoLancamento = $objMovimentacaoLancamento->mes_competencia;
@@ -325,7 +329,20 @@ class RepactuacaocontratocontaCrudController extends CrudController
                         // verificar se está tudo certo pra continuar
                         if($continuar){
                             // aqui as verificações estão ok
-                            $percentualEncargo = $objEncargo->percentual;
+                            /**
+                             * Após reunião com o Gabriel, foi solicitado que o percentual do grupo A não fizesse mais parte dos encargos.
+                             * Agora, grupo A faz parte da tabela contrato conta, pois ele varia de conta pra conta.
+                             *
+                             * Aqui, vamos precisar verificar se o existe o objeto encargo.
+                             * Caso não exista, é porque se trata do grupo A - vamos pegar o objeto contrato conta
+                             *
+                             */
+                            if($encargo_id != null){
+                                $percentualEncargo = $objEncargo->percentual;
+                            } else {
+                                $percentualEncargo = $objContratoConta->percentual_grupo_a_13_ferias;
+                            }
+
                             $valorSalvar = ( $diferencaEntreSalarios * $percentualEncargo) / 100;
 
                             $request->request->set('valor', $valorSalvar);
