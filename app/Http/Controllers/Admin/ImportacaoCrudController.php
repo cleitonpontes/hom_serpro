@@ -341,8 +341,7 @@ class ImportacaoCrudController extends CrudController
     private function lerArquivoImportacao($nome_arquivo, $tipo, $dados_importacao)
     {
         // alteração 3/3 -> adicionado o ../ no link abaixo
-        // $path = env('APP_PATH') . "storage/app/";
-        $path = env('APP_PATH') . "../storage/app/";
+         $path = env('APP_PATH') . "storage/app/";
 
         $arquivo = fopen($path . $nome_arquivo, 'r');
 
