@@ -28,6 +28,16 @@ class Contratoconta extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public static function getIdContratocontaByidLancamento($idLancamento){
+        $obj = \DB::table('lancamentos')
+            ->select('contratocontas.id')
+            ->where('lancamentos.id','=',$idLancamento)
+            ->join('movimentacaocontratocontas', 'movimentacaocontratocontas.id', '=', 'lancamentos.movimentacao_id')
+            ->join('contratocontas', 'contratocontas.id', '=', 'movimentacaocontratocontas.contratoconta_id')
+            ->first();
+        $idContratoConta = $obj->id;
+        return $idContratoConta;
+    }
     public function getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado){
         $obj = \DB::table('contratoterceirizados')
             ->select('contratocontas.id')

@@ -49,7 +49,7 @@ class Retiradacontratoconta extends Model
         return $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)->pluck('nome', 'id')->toArray();
     }
     public function getEncargosParaCombo(){
-        // Os dados da combo serão fixos
+        // Os dados da combo serão fixos - grupo A não entra.
         return $arrayObjetosEncargoParaCombo = array(
             'Décimo Terceiro' => 'Décimo Terceiro',
             'Demissão' => 'Demissão',

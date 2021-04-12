@@ -283,6 +283,10 @@ class DepositocontratocontaCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         $contratoconta_id = \Route::current()->parameter('contratoconta_id');
+
+        $objContratoConta = Contratoconta::where('id','=',$contratoconta_id)->first();
+        $percentualGrupoA13Ferias = $objContratoConta->percentual_grupo_a_13_ferias;
+
         $contrato_id = $request->input('contrato_id');
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
@@ -306,8 +310,10 @@ class DepositocontratocontaCrudController extends CrudController
             $query->where('descricao', '=', 'Tipo Encargos');
         })
         ->join('encargos', 'encargos.tipo_id', '=', 'codigoitens.id')
+        // ->where('codigoitens.deleted_at', '=', null)
         ->orderBy('descricao')
         ->get();
+
 
         // faremos um lançamento por contrato terceirizado. - buscar contratos terceirizados deste contrato.
         $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)
@@ -415,6 +421,32 @@ class DepositocontratocontaCrudController extends CrudController
                     }
                     // your additional operations before save here
                     // $redirect_location = parent::storeCrud($request);
+                }
+
+
+
+
+                /**
+                 * Vamos gerar um lançamento para o percentual do grupo a, que agora faz parte dos dados da conta vinculada
+                 * e não mais dos encargos, pois este valor, segundo o Gabriel, irá variar de conta pra conta.
+                 *
+                 * Mudança solicitada em reunião, pelo Gabriel em 04/2021
+                 */
+                $valorSalvar = ( $salario * $percentualGrupoA13Ferias) / 100;
+                $request->request->set('valor', $valorSalvar);
+                $request->request->set('encargo_id', null);
+                $objLancamento = new Lancamento();
+                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
+                $objLancamento->encargo_id = null;
+                $objLancamento->valor = $valorSalvar;
+                $objLancamento->movimentacao_id = $idMovimentacao;
+                if( !$objLancamento->save() ){
+                    $mensagem = 'Erro ao salvar o lançamento.';
+                    \Alert::error($mensagem)->flash();
+                    if( !self::excluirMovimentacao($idMovimentacao) ){
+                        \Alert::error('Problemas ao excluir a movimentação.')->flash();
+                    }
+                    return redirect()->back();
                 }
             }
         }

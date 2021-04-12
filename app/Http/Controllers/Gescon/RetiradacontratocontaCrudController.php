@@ -309,6 +309,10 @@ class RetiradacontratocontaCrudController extends CrudController
         }
         return true;
     }
+    /**
+     * Após reunião com o Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e
+     * sim na tabela contratoconta, pois esse percentual irá variar de conta para conta.
+     */
     public function getIdEncargoByNomeEncargo($nomeEncargo){
         // bucar em codigoitens, pela descrição, pegar o id e buscar o tipo id em encargos pelo id
         $obj = \DB::table('codigoitens')
@@ -337,15 +341,24 @@ class RetiradacontratocontaCrudController extends CrudController
         // vamos buscar o saldo do encargo grupo A sobre 13 salario e férias
         $idContratoTerceirizado = $objContratoTerceirizado->id;
         $objContratoConta = new Contratoconta();
-        // $nomeGrupoA = 'Grupo "A" sobre 13o. Salário e Férias';
+        /**
+         * Após reunião com Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e sim
+         * na tabela contrato conta, pois esse percentual irá variar de conta pra conta.
+         *
+         * Por isso o idEncargoGrupoA será null.
+         *
+         */
         $nomeGrupoA = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
-        $idEncargoGrupoA = self::getIdEncargoByNomeEncargo($nomeGrupoA);
+        // $idEncargoGrupoA = self::getIdEncargoByNomeEncargo($nomeGrupoA);
+        $idEncargoGrupoA = null;
         $idGrupoA = self::getTipoIdEncargoByNomeEncargo($nomeGrupoA);
         $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $idGrupoA);
         $situacaoFuncionario = $objContratoTerceirizado->situacao;
         // Grupo A - vamos calcular o Grupo A, que é o percentual fat_empresa sobre o valor informado para retirada.
         $fat_empresa = $request->input('fat_empresa');  // Cáculo do grupo A, que é o fat_empresa da tab contratocontas
         $valorFatEmpresaGrupoA = ( $valorInformadoRetirada * $fat_empresa ) / 100 ;
+
+
         // vamos atualizar o valor da retirada, somando com o percentual do fat_empresa, que é o grupo A
         $valorRetirada = ( $valorInformadoRetirada + $valorFatEmpresaGrupoA );
         // vamos verificar quanto o funcionário tem de saldo para o encargo informado.
@@ -381,10 +394,21 @@ class RetiradacontratocontaCrudController extends CrudController
             $idEncargoRescisaoParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoRescisaoParaDemissao);
             $saldoRescisaoParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoRescisaoParaDemissao);
 
-            // $nomeEncargoGrupoAParaDemissao = 'Grupo "A" sobre 13o. Salário e Férias';
+            /**
+             * Após reunião com Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e sim
+             * na tabela contrato conta, pois esse percentual irá variar de conta pra conta.
+             *
+             * Por isso o idEncargoGrupoAParaDemissao será null.
+             *
+             */
             $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
-            $idEncargoGrupoAParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoGrupoAParaDemissao);
-            $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoGrupoAParaDemissao);
+            // $idEncargoGrupoAParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoGrupoAParaDemissao);
+            $idEncargoGrupoAParaDemissao = null;
+            // $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoGrupoAParaDemissao);
+            $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
+
+
+            echo 'ok, linha 410 retirada';exit;
 
             $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
             $valorRetirada = $valorMaximoRetirada;
@@ -580,6 +604,8 @@ class RetiradacontratocontaCrudController extends CrudController
             \Alert::error($mensagem)->flash();
             return redirect()->back();
         }
+
+
         // aqui a movimentação já foi criada e já temos o $idMovimentacao - vamos atribuir seu valor ao request
         $request->request->set('movimentacao_id', $idMovimentacao);
 
