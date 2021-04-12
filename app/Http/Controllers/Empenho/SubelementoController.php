@@ -712,6 +712,11 @@ class SubelementoController extends BaseControllerEmpenho
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
                     }
 
+                    if (floor($request->qtd[$index]) != $request->qtd[$index]) {
+                        Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                    }
+
                     CompraItemMinutaEmpenho::where('compra_item_id', $item)
                         ->where('minutaempenho_id', $request->minuta_id)
                         ->update([
@@ -833,4 +838,5 @@ class SubelementoController extends BaseControllerEmpenho
 
         return redirect()->route('empenho.crud./minuta.edit', ['minutum' => $modMinuta->id]);
     }
+
 }

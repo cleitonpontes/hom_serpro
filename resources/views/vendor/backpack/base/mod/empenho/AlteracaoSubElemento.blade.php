@@ -121,10 +121,8 @@
             $('#qtd' + item_id).val(0)
             calculaUtilizado(minuta_por);
 
-            // se for contrato e serviço OU se for Suprimento
-            if ((minuta_por.includes('contrato_item_id') && ($('#tipo_item').val() === 'Serviço')) ||
-                (tipo_empenho_por === 'Suprimento')
-            ) {
+            // se for Suprimento
+            if (tipo_empenho_por === 'Suprimento') {
 
                 if (selected === 'CANCELAMENTO' || selected === 'NENHUMA') {
                     $('#vrtotal' + item_id).prop('disabled', true)
@@ -132,10 +130,24 @@
                     return;
                 }
 
-                $('#vrtotal' + item_id).removeAttr('disabled')
-                $('#qtd' + item_id).prop('readonly', true)
+                $('#vrtotal' + item_id).removeAttr('disabled');
+                $('#qtd' + item_id).prop('readonly', true);
 
-            } else {
+            }
+            // se for contrato
+            // else if(minuta_por.includes('contrato_item_id') && ($('#tipo_item').val() === 'Serviço')){
+            else if(minuta_por.includes('contrato_item_id')){
+
+                if (selected === 'CANCELAMENTO' || selected === 'NENHUMA') {
+                    $('#vrtotal' + item_id).prop('disabled', true)
+                    $('#qtd' + item_id).prop('readonly', true)
+                    return;
+                }
+
+                $('#vrtotal' + item_id).removeAttr('disabled');
+                $('#qtd' + item_id).prop('readonly', false);
+            }
+            else {
 
                 if (selected === 'CANCELAMENTO' || selected === 'NENHUMA') {
                     $('#vrtotal' + item_id).prop('disabled', true)
@@ -165,6 +177,7 @@
         function calculaValorTotal(obj) {
 
             var tipo_operacao = $(this).closest('tr').find('select').find(':selected').text();
+
             if (tipo_operacao === '') {
                 tipo_operacao = $('#' + '{{$tipo}}_' + obj.dataset.{{$tipo}}).find(':selected').text();
             }
@@ -202,7 +215,7 @@
                 var {{$tipo}} = obj.dataset.{{$tipo}};
                 var value = obj.value;
                 value = ptToEn(value);
-                console.log(obj.dataset);
+
                 if(obj.dataset.valor_unitario != 0){
                     var quantidade = value / obj.dataset.vlr_unitario_item;
                     $(".qtd" + {{$tipo}}).val(quantidade).trigger("input");
