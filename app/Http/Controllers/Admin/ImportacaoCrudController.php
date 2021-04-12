@@ -341,7 +341,7 @@ class ImportacaoCrudController extends CrudController
     private function lerArquivoImportacao($nome_arquivo, $tipo, $dados_importacao)
     {
         // alteração 3/3 -> adicionado o ../ no link abaixo
-         $path = env('APP_PATH') . "storage/app/";
+        $path = env('APP_PATH') . "storage/app/";
 
         $arquivo = fopen($path . $nome_arquivo, 'r');
 
@@ -381,7 +381,7 @@ class ImportacaoCrudController extends CrudController
     {
         // alteração 1/3 - verificação se o array está preenchido com os 4 índices
         $countDado = is_array($dado) ? count($dado) : 0;
-        if( $countDado < 4 ){
+        if ($countDado < 4) {
             // var_dump($dado);
         } else {
             $cpf = $this->formataCpf($dado[0]);
@@ -393,7 +393,7 @@ class ImportacaoCrudController extends CrudController
                 $ugs = explode(',', trim($dado[3]));
                 $i = 0;
                 foreach ($ugs as $ug) {
-                    dump(trim($ug));
+//                    dump(trim($ug));
                     if ($i == 0) {
                         $ugprimaria = $this->buscaUgPorCodigo(trim($ug));
                     } else {
@@ -416,7 +416,7 @@ class ImportacaoCrudController extends CrudController
 
             $user = $this->buscaUsuario($cpf, $email);
 
-            if(!$user){
+            if (!$user) {
                 if ($ugprimaria != '' or $ugprimaria != null) {
                     $user = BackpackUser::firstOrCreate(
                         [
@@ -449,7 +449,7 @@ class ImportacaoCrudController extends CrudController
                         // $user->notify(new PasswordUserNotification($dados));
                     }
                 }
-            }else{
+            } else {
                 $role = Role::find($dados_importacao->role_id);
                 $user->assignRole($role->name);
                 $user->ugprimaria = $ugprimaria;
@@ -458,20 +458,17 @@ class ImportacaoCrudController extends CrudController
                     $user->unidades()->attach($ugsecundaria);
                 }
             }
+//            dump($user->cpf,$user->name);
         }
-
-
-
-
     }
 
     private function buscaUsuario($cpf, $email)
     {
-        $user = BackpackUser::where('email',$email)->first();
-        if(!isset($user->id)){
-            $user = BackpackUser::where('cpf',$cpf)->first();
+        $user = BackpackUser::where('email', $email)->first();
+        if (!isset($user->id)) {
+            $user = BackpackUser::where('cpf', $cpf)->first();
         }
-        if(!isset($user->id)){
+        if (!isset($user->id)) {
             return null;
         }
         return $user;
