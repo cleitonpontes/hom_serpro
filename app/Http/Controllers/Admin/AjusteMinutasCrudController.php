@@ -40,6 +40,10 @@ class AjusteMinutasCrudController extends CrudController
 
     public function setup()
     {
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
+
         $this->minuta_id = $this->crud->getCurrentEntryId();
         /*
         |--------------------------------------------------------------------------
@@ -757,6 +761,10 @@ class AjusteMinutasCrudController extends CrudController
 
     public function atualizaritemcompracontrato($idRemessa, Request $request, \Yajra\DataTables\Html\Builder $htmlBuilder)
     {
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
+
         $minutaRemessa = MinutaEmpenhoRemessa::find($idRemessa);
         $minutaEmpenho = MinutaEmpenho::find($minutaRemessa->minutaempenho_id);
         $idMinuta = $minutaRemessa->minutaempenho_id;
