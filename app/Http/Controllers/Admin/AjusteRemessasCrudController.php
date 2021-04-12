@@ -74,6 +74,7 @@ class AjusteRemessasCrudController extends CrudController
         // TODO: remove setFromDb() and manually define Fields and Columns
 //        $this->crud->setFromDb();
         $this->crud->enableExportButtons();
+        $this->aplicaFiltros();
 
         $this->adicionaCampos($this->remessa_id);
         $this->adicionaColunas();
@@ -147,6 +148,10 @@ class AjusteRemessasCrudController extends CrudController
         $this->adicionaCampoSituacao($minuta_id);
     }
 
+    protected function aplicaFiltros()
+    {
+        $this->aplicaFiltroSituacao();
+    }
 
     protected function adicionaCampoMensagemSIAF()
     {
@@ -365,5 +370,27 @@ class AjusteRemessasCrudController extends CrudController
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
         ]);
+    }
+
+    protected function aplicaFiltroSituacao()
+    {
+        $this->crud->addFilter([
+            'name' => 'getSituacao',
+            'label' => 'Situação',
+            'type' => 'select2_multiple',
+
+        ], [
+            217 => 'EMPENHO EMITIDO',
+            215 => 'EM PROCESSAMENTO',
+            214 => 'EM ANDAMENTO',
+            218 => 'EMPENHO CANCELADO',
+            216 => 'ERRO',
+        ], function ($value) {
+            $this->crud->addClause(
+                'whereIn',
+                'minutaempenhos_remessa.situacao_id',
+                json_decode($value)
+            );
+        });
     }
 }
