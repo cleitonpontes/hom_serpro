@@ -55,6 +55,7 @@ class AjusteRemessasCrudController extends CrudController
                 DB::raw("CONCAT(modalidade.descres,' - ', modalidade.descricao) AS compra_modalidade"),
                 'codigoitens.descricao AS tipoEmpenhoPor',
                 'compras.numero_ano',
+                'minutaempenhos.mensagem_siafi AS empenho',
                 DB::raw('minutaempenhos_remessa.id as "minutaempenhos_remessa_id"')
             ]
         );
@@ -77,6 +78,7 @@ class AjusteRemessasCrudController extends CrudController
         // TODO: remove setFromDb() and manually define Fields and Columns
 //        $this->crud->setFromDb();
         $this->crud->enableExportButtons();
+        $this->aplicaFiltros();
 
         $this->adicionaCampos($this->remessa_id);
         $this->adicionaColunas();
@@ -150,6 +152,10 @@ class AjusteRemessasCrudController extends CrudController
         $this->adicionaCampoSituacao($minuta_id);
     }
 
+    protected function aplicaFiltros()
+    {
+        $this->aplicaFiltroSituacao();
+    }
 
     protected function adicionaCampoMensagemSIAF()
     {
@@ -181,6 +187,7 @@ class AjusteRemessasCrudController extends CrudController
         $this->adicionaColunaModalidade();
         $this->adicionaColunaTipoEmpenhoPor();
         $this->adicionaColunaNumeroAnoCompra();
+        $this->adicionaColunaEmpenho();
         $this->adicionaColunaMensagemSiafi();
         $this->adicionaColunaRemessa();
         $this->adicionaColunaSituacao();
@@ -208,6 +215,24 @@ class AjusteRemessasCrudController extends CrudController
         $this->crud->addColumn([
             'name' => 'mensagem_siafi',
             'label' => 'Mensagem SIAFI',
+            'type' => 'text',
+            'priority' => 1,
+            'orderable' => true,
+            'visibleInTable' => true,
+            'visibleInModal' => true,
+            'visibleInExport' => true,
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('minutaempenhos.mensagem_siafi', 'like', "%$searchTerm%");
+            },
+        ]);
+    }
+
+    public function adicionaColunaEmpenho(): void
+    {
+        $this->crud->addColumn([
+            'name' => 'empenho',
+            'label' => 'Empenho',
             'type' => 'text',
             'priority' => 1,
             'orderable' => true,
@@ -349,5 +374,27 @@ class AjusteRemessasCrudController extends CrudController
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
         ]);
+    }
+
+    protected function aplicaFiltroSituacao()
+    {
+        $this->crud->addFilter([
+            'name' => 'getSituacao',
+            'label' => 'Situação',
+            'type' => 'select2_multiple',
+
+        ], [
+            217 => 'EMPENHO EMITIDO',
+            215 => 'EM PROCESSAMENTO',
+            214 => 'EM ANDAMENTO',
+            218 => 'EMPENHO CANCELADO',
+            216 => 'ERRO',
+        ], function ($value) {
+            $this->crud->addClause(
+                'whereIn',
+                'minutaempenhos_remessa.situacao_id',
+                json_decode($value)
+            );
+        });
     }
 }
