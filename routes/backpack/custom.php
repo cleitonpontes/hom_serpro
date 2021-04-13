@@ -139,9 +139,13 @@ Route::group([
             CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
             CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
             CRUD::resource('ajusteminuta', 'AjusteMinutasCrudController');
+            CRUD::resource('ajusteremessas', 'AjusteRemessasCrudController');
 
-            Route::get('ajusteminuta/{minuta_id}/remessa/{id_remessa}/atualizaritemcompracontrato', 'AjusteMinutasCrudController@atualizaritemcompracontrato')
+            Route::get('ajusteminuta/remessa/{id_remessa}/atualizaritemcompracontrato', 'AjusteMinutasCrudController@atualizaritemcompracontrato')
                 ->name('ajusteminuta.atualizar.contrato.compra');
+
+            Route::get('ajusteremessas/remessa/{id_remessa}/atualizaritemcompracontrato', 'AjusteMinutasCrudController@atualizaritemcompracontrato')
+                ->name('ajusteremessas.atualizar.contrato.compra');
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
@@ -228,6 +232,8 @@ Route::group([
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
                 CRUD::resource('funcionarioscontratoconta', 'FuncionarioscontratocontaCrudController');
                 CRUD::resource('funcoescontratoconta', 'FuncoescontratocontaCrudController');
+                CRUD::resource('encerramentocontratoconta', 'EncerramentocontratocontaCrudController');
+                CRUD::resource('encerramentocontratoconta/emitirTermoDeEncerramento', 'EncerramentocontratocontaCrudController')->name('emitirTermoDeEncerramento');
             });
             Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}/{funcao_id}'], function () {
                 CRUD::resource('repactuacaocontratoconta', 'RepactuacaocontratocontaCrudController');
@@ -238,9 +244,6 @@ Route::group([
             Route::group(['prefix' => 'contrato/contratoconta/contratoterceirizado/{contratoterceirizado_id}'], function () {
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
             });
-            // Route::group(['prefix' => 'movimentacao/{movimentacao_id}'], function () {
-            //     Route::get('excluir', 'MovimentacaocontratocontaCrudController@excluirmovimentacao');
-            // });
             Route::get('movimentacao/{movimentacao_id}/excluir', 'MovimentacaocontratocontaCrudController@excluirMovimentacao');
             // fim conta vinculada - contrato conta
 

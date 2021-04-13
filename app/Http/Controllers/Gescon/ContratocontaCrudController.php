@@ -29,15 +29,14 @@ class ContratocontaCrudController extends CrudController
     public function setup()
     {
         $contrato_id = \Route::current()->parameter('contrato_id');
-
         $contrato = Contrato::where('id','=',$contrato_id)
             ->where('unidade_id','=',session()->get('user_ug_id'))->first();
         if(!$contrato){
             abort('403', config('app.erro_permissao'));
         }
 
-        // $objContratoTerceirizado = Contratoterceirizado::where('contrato_id','=',$contrato_id)->first();
-        // $contratoterceirizado_id = $objContratoTerceirizado->id;
+        // array de encargos (fat empresa) - só pode ser 1, 2 ou 3% - array será usado em campos()
+        $arrayEncargosFatEmpresa = [1 => '1%', 2 => '2%', 3 => '3%'];
 
         /*
         |--------------------------------------------------------------------------
@@ -46,46 +45,32 @@ class ContratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Contratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/contratocontas');
-        $this->crud->setEntityNameStrings('conta vinculada', 'Conta Vinculada');
+        $this->crud->setEntityNameStrings('conta-deposito vinculada', 'Conta-Depósito Vinculada');
+        $this->crud->addButtonFromView('top', 'Sobre', 'sobrecontratoconta', 'begin');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
-        // $this->crud->enableExportButtons();
         $this->crud->addButtonFromView('line', 'morecontratoconta', 'morecontratoconta', 'end');
-
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
-
         $this->crud->allowAccess('show');
-
-
-
+        // permissões
         (backpack_user()->can('contratoconta_inserir')) ? $this->crud->allowAccess('create') : null;
         (backpack_user()->can('contratoconta_editar')) ? $this->crud->allowAccess('update') : null;
         (backpack_user()->can('contratoconta_deletar')) ? $this->crud->allowAccess('delete') : null;
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
-        // TODO: remove setFromDb() and manually define Fields and Columns
-        // $this->crud->setFromDb();
-
+        // listagem
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
-
-        $campos = $this->Campos($contrato);
+        // formulário
+        $campos = $this->Campos($contrato, $arrayEncargosFatEmpresa);
         $this->crud->addFields($campos);
-
-
-
         // add asterisk for fields that are required in ContratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
-
     }
-
     public function verificarSeContratoJaPossuiConta($request){
-        // $contratoId = $request->request->get('contrato_id');
         $contratoId = \Route::current()->parameter('contrato_id');
         if( Contratoconta::where('contrato_id', $contratoId)->count() > 0 ){return true;}
         return false;
@@ -94,17 +79,15 @@ class ContratocontaCrudController extends CrudController
     {
         // será permitida apenas uma conta por contrato. Vamos verificar
         if(self::verificarSeContratoJaPossuiConta($request)){
-            \Alert::error('Já existe uma conta vinculada a este contrato!')->flash();
+            \Alert::error('Já existe uma Conta-Depósito Vinculada a este contrato!')->flash();
             return redirect()->back();
         }
-
         // your additional operations before save here
         $redirect_location = parent::storeCrud($request);
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
-
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here
@@ -113,9 +96,7 @@ class ContratocontaCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
-
-
-    public function Campos($contrato)
+    public function Campos($contrato, $arrayEncargosFatEmpresa)
     {
         $campos = [
             [   // Hidden
@@ -140,9 +121,14 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'fat_empresa',
-                'label' => 'Encargos', // Table column heading
-                'type' => 'text',
-                'prefix' => "% ",
+                'label' => "Encargos (%)",
+                'type' => 'radio',
+                'options' => $arrayEncargosFatEmpresa,
+                'allows_null' => false,
+                'allows_multiple' => false, // OPTIONAL; needs you to cast this to array in your model;
+                // 'options' => [1 => 'Sim', 0 => 'Não'],
+                'inline' => true,
+                'default' => 1
             ],
         ];
 
@@ -155,6 +141,7 @@ class ContratocontaCrudController extends CrudController
         $colunas = [
             [
                 'name' => 'banco',
+                'label' => 'Banco',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -164,6 +151,7 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'agencia',
+                'label' => 'Agência',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -173,6 +161,7 @@ class ContratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'conta_corrente',
+                'label' => 'Conta Corrente',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -202,13 +191,20 @@ class ContratocontaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'prefix' => "R$ ",
-                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
-                // },
+            ],
+
+            [
+                'name' => 'getStatusDaConta',
+                'label' => 'Status da Conta', // Table column heading
+                'type' => 'model_function',
+                'function_name' => 'getStatusDaConta', // the method in your Model
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
             ],
         ];
         return $colunas;
     }
-
-
 }

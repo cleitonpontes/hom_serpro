@@ -50,7 +50,8 @@ class DepositocontratocontaCrudController extends CrudController
         $objTipoMovimentacaoDeposito = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Movimentação');
         })
-        ->where('descricao', '=', 'Depósito')
+        // ->where('descricao', '=', 'Depósito')
+        ->where('descricao', '=', 'Provisão')
         ->first();
         $idTipoMovimentacaoDeposito = $objTipoMovimentacaoDeposito->id;
 
@@ -61,7 +62,7 @@ class DepositocontratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Depositocontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/depositocontratoconta');
-        $this->crud->setEntityNameStrings('novo depósito', 'Depósitos');
+        $this->crud->setEntityNameStrings('nova provisão', 'Provisão');
 
         $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
         $this->crud->enableExportButtons();
@@ -127,7 +128,7 @@ class DepositocontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'quantidadeContratosTerceirizados',
-                'label' => 'Qtd de Contratos Terceirizados para este contrato',
+                'label' => 'Qtd de empregados alocados neste contrato',
                 'type' => 'text',
                 // optionals
                 'attributes' => [
@@ -421,7 +422,7 @@ class DepositocontratocontaCrudController extends CrudController
         if(!$depositoFeito){
             // aqui quer dizer que nenhum depósito foi feito por conta da situação dos funcionários
 
-            $mensagem = 'Nenhum depósito foi feito. Verifique a situação dos funcionários.';
+            $mensagem = 'Nenhuma provisão foi feita. Verifique a situação dos funcionários.';
             \Alert::error($mensagem)->flash();
             if( !self::excluirMovimentacao($idMovimentacao) ){
                 \Alert::error('Problemas ao excluir a movimentação.')->flash();

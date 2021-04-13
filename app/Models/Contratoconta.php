@@ -8,7 +8,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Contratoconta extends Model
 {
-
     protected $primaryKey = 'id';
 
     use CrudTrait;
@@ -21,20 +20,14 @@ class Contratoconta extends Model
     */
 
     protected $table = 'contratocontas';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contrato_id', 'banco', 'conta', 'agencia', 'conta_corrente', 'fat_empresa'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-
     public function getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado){
         $obj = \DB::table('contratoterceirizados')
             ->select('contratocontas.id')
@@ -45,9 +38,6 @@ class Contratoconta extends Model
         $idContratoConta = $obj->id;
         return $idContratoConta;
     }
-
-
-
     public function alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao){
         $objContratoTerceirizado = Contratoterceirizado::where('id', '=', $idContratoTerceirizado)->first();
         $objContratoTerceirizado->situacao = 'f';
@@ -56,6 +46,14 @@ class Contratoconta extends Model
             return true;
         } else {
             return false;
+        }
+    }
+    // retorna ativa ou encerrada, de acordo com a data de encerramento.
+    public function getStatusDaConta(){
+        if($this->data_encerramento == null){return 'Ativa';}
+        else{
+            $dataEncerramento = $this->data_encerramento;
+            return '<font color="red">Encerrada em '.$dataEncerramento.'</font>';
         }
     }
     public function getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargo){
@@ -70,7 +68,8 @@ class Contratoconta extends Model
             ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
 
             ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
-            ->where('codigoitens.descricao','=','Depósito')
+            // ->where('codigoitens.descricao','=','Depósito')
+            ->where('codigoitens.descricao','=','Provisão')
 
             ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
             ->where('codigos.descricao','=','Tipo Movimentação')
@@ -87,7 +86,8 @@ class Contratoconta extends Model
             ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
 
             ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
-            ->where('codigoitens.descricao','=','Depósito')
+            // ->where('codigoitens.descricao','=','Depósito')
+            ->where('codigoitens.descricao','=','Provisão')
 
             ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
             ->where('codigos.descricao','=','Tipo Movimentação')
@@ -101,7 +101,8 @@ class Contratoconta extends Model
             ->join('movimentacaocontratocontas', 'lancamentos.movimentacao_id', '=', 'movimentacaocontratocontas.id')
 
             ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
-            ->where('codigoitens.descricao','=','Retirada')
+            // ->where('codigoitens.descricao','=','Retirada')
+            ->where('codigoitens.descricao','=','Liberação')
 
             ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
             ->where('codigos.descricao','=','Tipo Movimentação')
@@ -119,7 +120,8 @@ class Contratoconta extends Model
             ->join('codigoitens', 'codigoitens.id', '=', 'movimentacaocontratocontas.tipo_id')
             ->join('codigos', 'codigos.id', '=', 'codigoitens.codigo_id')
             ->where('codigos.descricao','=','Tipo Movimentação')
-            ->where('codigoitens.descricao','=','Retirada')
+            // ->where('codigoitens.descricao','=','Retirada')
+            ->where('codigoitens.descricao','=','Liberação')
             ->where('lancamentos.contratoterceirizado_id','=',$idContratoTerceirizado)
             ->sum('lancamentos.valor');
         return $saldoRetirada = number_format(floatval($saldoRetirada), 2, '.', '');

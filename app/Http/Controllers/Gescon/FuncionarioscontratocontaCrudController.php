@@ -12,10 +12,6 @@ use Backpack\CRUD\CrudPanel;
 use App\Models\Funcionarioscontratoconta;
 use App\Models\Contratoconta;
 
-
-
-
-
 // inserido
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,7 +43,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
         $this->crud->setModel('App\Models\Funcionarioscontratoconta');
         // $this->crud->setRoute(config('backpack.base.route_prefix') . '/funcionarioscontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/funcionarioscontratoconta');
-        $this->crud->setEntityNameStrings('Funcionário', 'Funcionários');
+        $this->crud->setEntityNameStrings('Empregado', 'Empregados');
 
         // cláusulas para trazer apenas os contratos terceirizados do contratoconta_id
         $this->crud->addClause('select', 'contratoterceirizados.*');
@@ -58,6 +54,8 @@ class FuncionarioscontratocontaCrudController extends CrudController
 
         $this->crud->addButtonFromView('line', 'morefuncionarioscontratoconta', 'morefuncionarioscontratoconta', 'end');
         // $this->crud->addButtonFromView('top', 'voltarcontavinculada', 'voltarcontavinculada', 'end');
+        $this->crud->addButtonFromView('top', 'Sobre', 'sobreremuneracao', 'begin');
+
         $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
 
         $this->crud->denyAccess('delete');
@@ -112,6 +110,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'salario',
+                'label' => 'Remuneração',
                 'type' => 'text',
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
@@ -138,7 +137,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'getTotalDeposito',
-                'label' => 'Total depositado', // Table column heading
+                'label' => 'Total provisionado', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getTotalDeposito', // the method in your Model
                 'orderable' => true,
@@ -153,7 +152,7 @@ class FuncionarioscontratocontaCrudController extends CrudController
             ],
             [
                 'name' => 'getTotalRetirada',
-                'label' => 'Total retirado', // Table column heading
+                'label' => 'Total liberado', // Table column heading
                 'type' => 'model_function',
                 'function_name' => 'getTotalRetirada', // the method in your Model
                 'orderable' => true,

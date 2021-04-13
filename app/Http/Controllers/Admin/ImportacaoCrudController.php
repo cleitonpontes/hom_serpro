@@ -340,6 +340,7 @@ class ImportacaoCrudController extends CrudController
 
     private function lerArquivoImportacao($nome_arquivo, $tipo, $dados_importacao)
     {
+        // alteração 3/3 -> adicionado o ../ no link abaixo
         $path = env('APP_PATH') . "storage/app/";
 
         $arquivo = fopen($path . $nome_arquivo, 'r');
@@ -378,89 +379,96 @@ class ImportacaoCrudController extends CrudController
 
     public function executaInsercaoMassa($dado, Importacao $dados_importacao)
     {
-        $cpf = $this->formataCpf($dado[0]);
-        $nome = strtoupper(trim($dado[1]));
-        $ugprimaria = '';
-        $ugsecundaria = [];
-
-        if (strlen($dado[3]) > 6) {
-            $ugs = explode(',', trim($dado[3]));
-            $i = 0;
-            foreach ($ugs as $ug) {
-                dump(trim($ug));
-                if ($i == 0) {
-                    $ugprimaria = $this->buscaUgPorCodigo(trim($ug));
-                } else {
-                    $ugsecundaria[] .= $this->buscaUgPorCodigo(trim($ug));
-                }
-                $i++;
-            }
-        }
-        if (strlen($dado[3]) == 6) {
-            $ugprimaria = $this->buscaUgPorCodigo(trim($dado[3]));
-        }
-
-        if ($dado[2] == '') {
-            $email = $dado[0] . "@alteraremail.com";
-            $senha = substr($dado[0], 0, 6) . substr(strtolower($dado[1]), 0, 2);
+        // alteração 1/3 - verificação se o array está preenchido com os 4 índices
+        $countDado = is_array($dado) ? count($dado) : 0;
+        if ($countDado < 4) {
+            // var_dump($dado);
         } else {
-            $email = $dado[2];
-            $senha = $this->geraSenhaAleatoria();
-        }
+            $cpf = $this->formataCpf($dado[0]);
+            $nome = strtoupper(trim($dado[1]));
+            $ugprimaria = '';
+            $ugsecundaria = [];
 
-        $user = $this->buscaUsuario($cpf, $email);
-
-        if(!$user){
-            if ($ugprimaria != '' or $ugprimaria != null) {
-                $user = BackpackUser::firstOrCreate(
-                    [
-                        'cpf' => $cpf,
-                        'email' => $email,
-                    ],
-                    [
-                        'name' => $nome,
-                        'email' => $email,
-                        'ugprimaria' => $ugprimaria,
-                        'password' => bcrypt($senha),
-                        'situacao' => true
-                    ]
-                );
+            if (strlen($dado[3]) > 6) {
+                $ugs = explode(',', trim($dado[3]));
+                $i = 0;
+                foreach ($ugs as $ug) {
+//                    dump(trim($ug));
+                    if ($i == 0) {
+                        $ugprimaria = $this->buscaUgPorCodigo(trim($ug));
+                    } else {
+                        $ugsecundaria[] .= $this->buscaUgPorCodigo(trim($ug));
+                    }
+                    $i++;
+                }
+            }
+            if (strlen($dado[3]) == 6) {
+                $ugprimaria = $this->buscaUgPorCodigo(trim($dado[3]));
             }
 
-            if ($user) {
+            if ($dado[2] == '') {
+                $email = $dado[0] . "@alteraremail.com";
+                $senha = substr($dado[0], 0, 6) . substr(strtolower($dado[1]), 0, 2);
+            } else {
+                $email = $dado[2];
+                $senha = $this->geraSenhaAleatoria();
+            }
+
+            $user = $this->buscaUsuario($cpf, $email);
+
+            if (!$user) {
+                if ($ugprimaria != '' or $ugprimaria != null) {
+                    $user = BackpackUser::firstOrCreate(
+                        [
+                            'cpf' => $cpf,
+                            'email' => $email,
+                        ],
+                        [
+                            'name' => $nome,
+                            'email' => $email,
+                            'ugprimaria' => $ugprimaria,
+                            'password' => bcrypt($senha),
+                            'situacao' => true
+                        ]
+                    );
+                }
+
+                if ($user) {
+                    $role = Role::find($dados_importacao->role_id);
+                    $user->assignRole($role->name);
+                    if (count($ugsecundaria)) {
+                        $user->unidades()->attach($ugsecundaria);
+                    }
+                    if ($email != $dado[0] . "@alteraremail.com") {
+                        $dados = [
+                            'cpf' => $cpf,
+                            'nome' => $nome,
+                            'senha' => $senha,
+                        ];
+                        // alteração 2/3 -> comentado o código abaixo
+                        // $user->notify(new PasswordUserNotification($dados));
+                    }
+                }
+            } else {
                 $role = Role::find($dados_importacao->role_id);
                 $user->assignRole($role->name);
+                $user->ugprimaria = $ugprimaria;
+                $user->save();
                 if (count($ugsecundaria)) {
                     $user->unidades()->attach($ugsecundaria);
                 }
-                if ($email != $dado[0] . "@alteraremail.com") {
-                    $dados = [
-                        'cpf' => $cpf,
-                        'nome' => $nome,
-                        'senha' => $senha,
-                    ];
-                    $user->notify(new PasswordUserNotification($dados));
-                }
             }
-        }else{
-            $role = Role::find($dados_importacao->role_id);
-            $user->assignRole($role->name);
-            $user->ugprimaria = $ugprimaria;
-            $user->save();
-            if (count($ugsecundaria)) {
-                $user->unidades()->attach($ugsecundaria);
-            }
+//            dump($user->cpf,$user->name);
         }
-
     }
 
     private function buscaUsuario($cpf, $email)
     {
-        $user = BackpackUser::where('email',$email)->first();
-        if(!isset($user->id)){
-            $user = BackpackUser::where('cpf',$cpf)->first();
+        $user = BackpackUser::where('email', $email)->first();
+        if (!isset($user->id)) {
+            $user = BackpackUser::where('cpf', $cpf)->first();
         }
-        if(!isset($user->id)){
+        if (!isset($user->id)) {
             return null;
         }
         return $user;
