@@ -467,9 +467,9 @@ trait CompraTrait
             "data-tipo='' name='qtd[]' value='$quantidade' " .
             "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='" . $item['valor'] . "' " .
             "data-contrato_item_id='" . $item['contrato_item_id'] . "' ";
-            if(isset($item['vlr_unitario_item'])){
-                $qtd_field .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' " ;
-            }
+        if (isset($item['vlr_unitario_item'])) {
+            $qtd_field .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
         $qtd_field .= "data-valor_unitario='" . $item['valorunitario'] . "' " .
             "onkeyup='calculaValorTotal(this)' >" .
             "<input  type='hidden' id='quantidade_total" . $item['contrato_item_id'] . "' " .
@@ -488,15 +488,16 @@ trait CompraTrait
         }
         $valor = number_format($valor, '2', '.', '');
 
-        $valorTotal =  " <input type='text' id='vrtotal" . $item['contrato_item_id'] . "' " .
+        $valorTotal = " <input type='text' id='vrtotal" . $item['contrato_item_id'] . "' " .
             "class='form-control col-md-12 valor_total vrtotal" . $item['contrato_item_id'] . "' " .
             "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor' " .
             "data-contrato_item_id='" . $item['contrato_item_id'] . "' " .
             "data-valor_unitario='" . $item['valorunitario'] . "' ";
-            if(isset($item['vlr_unitario_item'])){
-                $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' " ;
-            }
+        if (isset($item['vlr_unitario_item'])) {
+            $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
         $valorTotal .= "onkeyup='calculaQuantidade(this)' >";
+        return $valorTotal;
     }
 
     private function setColunaSuprimentoQuantidade(array $item, $tipos = null): string
@@ -527,16 +528,15 @@ trait CompraTrait
         }
         $valor = number_format($valor, '2', '.', '');
 
-        $valorTotal =  " <input type='text' id='vrtotal" . $item['compra_item_id'] . "' " .
+        $valorTotal = " <input type='text' id='vrtotal" . $item['compra_item_id'] . "' " .
             "class='form-control col-md-12 valor_total vrtotal" . $item['compra_item_id'] . "' " .
             "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor' " .
             "data-compra_item_id='" . $item['compra_item_id'] . "' " .
             "data-valor_unitario='" . $item['valorunitario'] . "' ";
-            if(isset($item['vlr_unitario_item'])){
-                $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' " ;
-            }
-            $valorTotal .= "onkeyup='calculaQuantidade(this)' >";
-
+        if (isset($item['vlr_unitario_item'])) {
+            $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
+        $valorTotal .= "onkeyup='calculaQuantidade(this)' >";
         return $valorTotal;
     }
 
@@ -588,13 +588,12 @@ trait CompraTrait
             "id='qtd" . $item['compra_item_id'] . "' data-compra_item_id='" . $item['compra_item_id'] . "' " .
             "data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]' " .
             "class='form-control qtd' value='$quantidade' ";
-            if(isset($item['vlr_unitario_item'])){
-                $qtd_field .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' " ;
-            }
-            $qtd_field .= "onkeyup='calculaValorTotal(this)' >".
+        if (isset($item['vlr_unitario_item'])) {
+            $qtd_field .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
+        $qtd_field .= "onkeyup='calculaValorTotal(this)' >" .
             "<input  type='hidden' id='quantidade_total" . $item['compra_item_id'] . "' " .
             "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
-
         return $qtd_field;
     }
 
@@ -633,7 +632,10 @@ trait CompraTrait
     private function setColunaCompraSisppServicoValorTotal(array $item, $tipos = null): string
     {
         $valor = (float)$item['valor'];
+        $disabled = '';
         if (!is_null($tipos)) {
+            $disabled = 'disabled';
+
             if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
                 $valor *= -1;
             }
@@ -646,10 +648,10 @@ trait CompraTrait
             "name='valor_total[]' value='$valor' " .
             "data-compra_item_id='" . $item['compra_item_id'] . "' " .
             "data-valor_unitario='" . $item['valorunitario'] . "' ";
-            if(isset($item['vlr_unitario_item'])){
-                $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' " ;
-            }
-        $valorTotal .= "onkeyup='calculaQuantidade(this)' >";
+        if (isset($item['vlr_unitario_item'])) {
+            $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
+        $valorTotal .= "onkeyup='calculaQuantidade(this)' $disabled>";
+        return $valorTotal;
     }
 }
-
