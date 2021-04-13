@@ -67,7 +67,8 @@ class Contratohistorico extends ContratoBase
         'supressao',
         'unidadecompra_id',
         'publicado',
-        'subtipo'
+        'subtipo',
+        'data_fim_novo_valor'
     ];
 
     /*
