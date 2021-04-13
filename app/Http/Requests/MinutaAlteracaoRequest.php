@@ -6,6 +6,7 @@ use App\Http\Requests\Request;
 use App\Rules\NaoAceitarEstrangeiro;
 use App\Rules\NaoAceitarValorMaiorTotal;
 use App\Rules\NaoAceitarZero;
+use App\Rules\NaoAceitarFloatParaSuprimentoESisrp;
 use Illuminate\Foundation\Http\FormRequest;
 
 class MinutaAlteracaoRequest extends FormRequest
@@ -44,7 +45,8 @@ class MinutaAlteracaoRequest extends FormRequest
             ],
             'qtd.*' => [
                 'filled',
-                new NaoAceitarZero($this->tipo_alteracao)
+                new NaoAceitarZero($this->tipo_alteracao),
+                new NaoAceitarFloatParaSuprimentoESisrp($this)
             ]
         ];
     }
