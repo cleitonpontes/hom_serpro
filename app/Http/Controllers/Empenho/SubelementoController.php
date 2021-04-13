@@ -627,7 +627,6 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function store(Request $request)
     {
-
         $credito = (number_format($request->credito, 2, '.', ''));
         $valor_utilizado = (number_format($request->valor_utilizado, 2, '.', ''));
 
@@ -673,12 +672,23 @@ class SubelementoController extends BaseControllerEmpenho
                 }
             }
             if ($tipo == 'Compra') {
+                $tipoCompraId = $this->retornaIdCodigoItem('Tipo Compra','SISRP');
+
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
+
+                    if($tipoCompraId == $modMinuta->compra->tipo_compra_id){
+                        if (floor($request->qtd[$index]) != $request->qtd[$index]) {
+                            Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                        }
+                    };
+
                     if ($valores[$index] > $request->valor_total_item[$index]) {
                         Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
                     }
+
 
                     if ($request->qtd[$index] == 0) {
                         Alert::error('A quantidade selecionada não pode ser zero.')->flash();
@@ -707,13 +717,14 @@ class SubelementoController extends BaseControllerEmpenho
             if ($tipo == 'Suprimento') {
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
-                    if ($request->qtd[$index] == 0) {
-                        Alert::error('A quantidade selecionada não pode ser zero.')->flash();
-                        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
-                    }
 
                     if (floor($request->qtd[$index]) != $request->qtd[$index]) {
                         Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                    }
+
+                    if ($request->qtd[$index] == 0) {
+                        Alert::error('A quantidade selecionada não pode ser zero.')->flash();
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
                     }
 
@@ -785,8 +796,18 @@ class SubelementoController extends BaseControllerEmpenho
             }
 
             if ($tipo === 'Compra') {
+                $tipoCompraId = $this->retornaIdCodigoItem('Tipo Compra','SISRP');
+
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
+
+                    if($tipoCompraId == $modMinuta->compra->tipo_compra_id){
+                        if (floor($request->qtd[$index]) != $request->qtd[$index]) {
+                            Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                        }
+                    };
+
                     if ($valores[$index] > $request->valor_total_item[$index]) {
                         Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
@@ -812,10 +833,16 @@ class SubelementoController extends BaseControllerEmpenho
             if ($tipo === 'Suprimento') {
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
+                    if (floor($request->qtd[$index]) != $request->qtd[$index]) {
+                        Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                    }
+
                     if ($request->qtd[$index] == 0) {
                         Alert::error('A quantidade selecionada não pode ser zero.')->flash();
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
                     }
+
                     CompraItemMinutaEmpenho::where('compra_item_id', $item)
                         ->where('minutaempenho_id', $request->minuta_id)
                         ->update([
