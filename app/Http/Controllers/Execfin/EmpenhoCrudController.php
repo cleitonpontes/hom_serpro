@@ -991,12 +991,8 @@ class EmpenhoCrudController extends CrudController
         }
     }
 
-    public function enviaEmpenhoSiasgTeste()
+    public function enviaEmpenhoSiasg()
     {
-//        $itens = DevolveMinutaSiasg::where('situacao', 'Pendente')->get();
-//        $itens = DevolveMinutaSiasg::join('minutaempenhos', 'minutaempenhos.id', '=', 'devolve_minuta_siasg.minutaempenho_id')
-//            ->where('devolve_minuta_siasg.situacao', 'Pendente')
-//            ->where('unidade_id', 1)->take(10)->get();
 
         $minutas = MinutaEmpenho::join(
             'minutaempenhos_remessa',
@@ -1104,33 +1100,24 @@ class EmpenhoCrudController extends CrudController
 //            ->where('minutaempenhos.id', 42751)//todo tirar esta linha compra sispp QTD QUEBRADA
 //            ->where('minutaempenhos.id', 117992)//todo tirar esta linha compra sispp operacao invalido
 //            ->where('minutaempenhos.id', 171620)//todo tirar esta linha compra sispp subitem invalido
-            ->where('minutaempenhos.unidade_id', 1)//todo tirar esta linha
+
+            //->where('minutaempenhos.unidade_id', 1)//todo tirar esta linha
 //                ->whereNull('mensagem_siasg')
-            ->where('devolve_minuta_siasg.situacao','Pendente')
+            ->where('devolve_minuta_siasg.situacao', 'Pendente')
+            //->where('devolve_minuta_siasg.id', 13714)//todo retirar esta linha
             ->orderBy('devolve_minuta_siasg.created_at', 'asc')
 //            ->take(2)
             ->get();
 
-        clock($minutas->pluck('id')->toArray());
-        clock($minutas);
-//        return;
-//        dump($minutas);
-
-//        dd(222);
-//        return;
-
-//        dd($minutas->getBindings(), $minutas->toSql());
-//        dump($minutas);
 
         foreach ($minutas as $index => $minuta) {
             $itens = $minuta->getItens($minuta->minutaempenhos_remessa_id)->toArray();
-            clock($itens);
             $tipoUASG = ($itens[0]['tipoUASG'] ?? 'G');
 
-            //todo mandar somnte valor positivo VERIFICAR COM HELES
             $valorTotalEmpenho = ($itens[0]['valorTotalEmpenho'] < 0)
                 ? $itens[0]['valorTotalEmpenho'] * -1
                 : $itens[0]['valorTotalEmpenho'];
+
             $itens = array_map(
                 function ($itens) {
                     unset($itens['tipoUASG'], $itens['valorTotalEmpenho']);
@@ -1139,35 +1126,18 @@ class EmpenhoCrudController extends CrudController
                     $itens['quantidadeEmpenhada'] = ($itens['quantidadeEmpenhada'] < 0)
                         ? $itens['quantidadeEmpenhada'] * -1
                         : $itens['quantidadeEmpenhada'];
-//                    $itens['quantidadeEmpenhada'] = (string)ceil($itens['quantidadeEmpenhada']);
                     return $itens;
                 },
                 $itens
             );
 
-//            dump($itens, $tipoUASG, $valorTotalEmpenho);
-//            dump($valorTotalEmpenho);
-
             $array = [
                 "anoEmpenho" => $minuta->anoempenho,
-//                "chaveCompra" => "11016105000292019",
                 "chaveCompra" => $minuta->codigo . $minuta->modalidade . str_replace('/', '', $minuta->num_ano),
-                //
-//                "chaveContratoContinuado" => "11016150000452019000000",//ugorigem/ugid
                 "chaveContratoContinuado" => $minuta->chaveContratoContinuado,//ugorigem/ugid
                 "dataEmissao" => str_replace('-', '', $minuta->data_emissao),
                 "favorecido" => $this->retornaSomenteNumeros($minuta->cpf_cnpj_idgener),  //ver detalhe do estrangeiro
                 "fonte" => $minuta->fonte,
-                /*"itemEmpenho" => [
-                    [
-                        "numeroItemCompra" => "1", //compraitem numero
-                        "numeroItemEmpenho" => "1",// cime numseq
-                        "quantidadeEmpenhada" => "1", //cime qtd
-                        "subelemento" => "16", //  cime sub naturezasubitem
-                        "tipoEmpenhoOperacao" => "A", //cime operacao coditens
-                        "valorUnitarioItem" => "2.53" //cif
-                    ],
-                ],*/
                 "itemEmpenho" => $itens,
                 "nd" => $minuta->nd,
                 "numeroEmpenho" => $minuta->mensagem_siafi,
@@ -1181,23 +1151,8 @@ class EmpenhoCrudController extends CrudController
                 "ugr" => trim($minuta->ugr),
                 "valorTotalEmpenho" => (string)$valorTotalEmpenho
             ];
-//            dump($array);
-//            dd($array);
-            clock($array);
-//            return;
-            dump( json_encode( $array));
             EnviaEmpenhoSiasgJob::dispatch($array, $minuta->devolve_id)->onQueue('enviarempenhosiasg');
 
-//            $apiSiasg = new ApiSiasg();
-//
-//            $retorno = $apiSiasg->executaConsulta('Empenho', $array, 'POST');
-////            dd($retorno);
-//
-//            if ($retorno['messagem'] !== 'Sucesso') {
-//                return 'Erro: ' . $retorno['messagem'];
-//            } else {
-//                return 'Teste Ok'. $retorno['messagem'];
-//            }
         }
     }
 

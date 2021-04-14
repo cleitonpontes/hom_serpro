@@ -18,8 +18,6 @@ Route::get('/', function () {
 });
 
 //Route::get('/ttteste', 'API\DevolveMinutaSiasgController@postGuzzleRequest');
-Route::get('/ttteste', 'Execfin\EmpenhoCrudController@enviaEmpenhoSiasgTeste');
-Route::get('/ttestesum', 'Execfin\EmpenhoCrudController@testeSum');
 
 Route::get('/home', function () {
     return redirect('/inicio');

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Traits\BuscaCodigoItens;
 use Backpack\CRUD\CrudTrait;
 use Eduardokum\LaravelMailAutoEmbed\Models\EmbeddableEntity;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ class MinutaEmpenho extends Model
     use CrudTrait;
     use LogsActivity;
     use SoftDeletes;
+    use BuscaCodigoItens;
 
     /*
     |--------------------------------------------------------------------------
@@ -228,10 +230,11 @@ class MinutaEmpenho extends Model
 
     public function getItens($minutaempenhos_remessa_id)
     {
-//        clock($minutaempenhos_remessa_id);
-//        dump($this);
+        $tipo_contrato_id = $this->retornaIdCodigoItem('Tipo Empenho Por', 'Contrato');
+        clock($tipo_contrato_id);
 
-        if ($this->tipo_empenhopor_id == 256) {
+        //SE FOR CONTRATO
+        if ($this->tipo_empenhopor_id == $tipo_contrato_id) {
             return $this->contratoItemMinutaEmpenho()
                 ->join(
                     'naturezasubitem',
@@ -255,7 +258,7 @@ class MinutaEmpenho extends Model
                 ->select(
                     DB::raw('contratoitens.numero_item_compra              AS "numeroItemCompra"'),
                     DB::raw('contrato_item_minuta_empenho.numseq                 AS "numeroItemEmpenho"'),
-                    DB::raw('contrato_item_minuta_empenho.quantidade             AS "quantidadeEmpenhada"'),
+                    DB::raw('CEIL(contrato_item_minuta_empenho.quantidade)             AS "quantidadeEmpenhada"'),
                     DB::raw('naturezasubitem.codigo AS subelemento'),
                     DB::raw('LEFT(codigoitens.descres, 1)     AS "tipoEmpenhoOperacao"'),
                     DB::raw('contratoitens.valorunitario AS "valorUnitarioItem"'),
@@ -268,8 +271,6 @@ class MinutaEmpenho extends Model
                     ')
                 )
                 ->get();
-//            return;
-//            return $this->contratoItemMinutaEmpenho()->get();
         }
 
         return
@@ -308,7 +309,7 @@ class MinutaEmpenho extends Model
                 ->select(
                     DB::raw('compra_items.numero              AS "numeroItemCompra"'),
                     DB::raw('compra_item_minuta_empenho.numseq                 AS "numeroItemEmpenho"'),
-                    DB::raw('compra_item_minuta_empenho.quantidade             AS "quantidadeEmpenhada"'),
+                    DB::raw('CEIL(compra_item_minuta_empenho.quantidade)             AS "quantidadeEmpenhada"'),
                     DB::raw('naturezasubitem.codigo AS subelemento'),
                     DB::raw('LEFT(codigoitens.descres, 1)     AS "tipoEmpenhoOperacao"'),
                     DB::raw('compra_item_fornecedor.valor_unitario AS "valorUnitarioItem"'),

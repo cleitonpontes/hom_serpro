@@ -40,10 +40,8 @@ class EnviaEmpenhoSiasgJob implements ShouldQueue
      */
     public function __construct($array, $devolve_id)
     {
-//        $this->json = json_encode($array);
         $this->dados = $array;
         $this->devolve_id = $devolve_id;
-//        $this->contrato = Contrato::find($dados['id']);
     }
 
     /**
@@ -63,38 +61,5 @@ class EnviaEmpenhoSiasgJob implements ShouldQueue
         $devolve->situacao = $retorno['messagem'];
         $devolve->save();
 
-//        dd($retorno);
-//
-//        if ($retorno['messagem'] !== 'Sucesso') {
-//            return 'Erro: ' . $retorno['messagem'];
-//        } else {
-//            return 'Teste Ok' . $retorno['messagem'];
-//        }
-
-        /*        $compraSiasg = $this->consultaCompraSiasg($this->dados);
-
-                DB::beginTransaction();
-                try {
-                    if (isset($compraSiasg->data->compraSispp)) {
-                        $params = $this->montaParametrosCompra($compraSiasg, $this->dados);
-
-                        $compra = $this->updateOrCreateCompra($params);
-
-                        if ($compraSiasg->data->compraSispp->tipoCompra == 1) {
-                            $this->gravaParametroItensdaCompraSISPPCommand($compraSiasg, $compra);
-                        }
-
-                        if ($compraSiasg->data->compraSispp->tipoCompra == 2) {
-                            $this->gravaParametroItensdaCompraSISRPCommand($compraSiasg, $compra);
-                        }
-
-                        $this->vincularItemCompraAoItemContrato($this->contrato, $this->dados, $compra);
-                    }
-
-                    DB::commit();
-                } catch (Exception $exc) {
-                    DB::rollback();
-                    fail($exc);
-                }*/
     }
 }
