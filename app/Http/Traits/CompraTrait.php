@@ -450,4 +450,208 @@ trait CompraTrait
                 ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_id);
         }
     }
+
+    private function setColunaContratoQuantidade(array $item, $tipos = null): string
+    {
+        $quantidade = $item['quantidade'];
+        if ($tipos !== null) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $quantidade *= -1;
+            }
+            $quantidade = sprintf('%.5f', (float)$quantidade);
+        }
+
+        $qtd_field = " <input  type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "class='form-control qtd qtd" . $item['contrato_item_id'] . "' " .
+            "id='qtd" . $item['contrato_item_id'] . "' " .
+            "data-tipo='' name='qtd[]' value='$quantidade' " .
+            "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='" . $item['valor'] . "' " .
+            "data-contrato_item_id='" . $item['contrato_item_id'] . "' ";
+        if (isset($item['vlr_unitario_item'])) {
+            $qtd_field .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
+        $qtd_field .= "data-valor_unitario='" . $item['valorunitario'] . "' " .
+            "onkeyup='calculaValorTotal(this)' >" .
+            "<input  type='hidden' id='quantidade_total" . $item['contrato_item_id'] . "' " .
+            "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . " '> ";
+        return $qtd_field;
+    }
+
+    private function setColunaContratoValorTotal(array $item, $tipos = null): string
+    {
+        $valor = (float)$item['valor'];
+
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
+        }
+        $valor = number_format($valor, '2', '.', '');
+
+        $valorTotal = " <input type='text' id='vrtotal" . $item['contrato_item_id'] . "' " .
+            "class='form-control col-md-12 valor_total vrtotal" . $item['contrato_item_id'] . "' " .
+            "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor' " .
+            "data-contrato_item_id='" . $item['contrato_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' ";
+        if (isset($item['vlr_unitario_item'])) {
+            $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
+        $valorTotal .= "onkeyup='calculaQuantidade(this)' >";
+        return $valorTotal;
+    }
+
+    private function setColunaSuprimentoQuantidade(array $item, $tipos = null): string
+    {
+        $quantidade = $item['quantidade'];
+        if ($tipos !== null) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $quantidade *= -1;
+            }
+            $quantidade = sprintf('%.5f', (float)$quantidade);
+        }
+
+        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "class='form-control qtd" . $item['compra_item_id'] . "' id='qtd" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
+            . " <input  type='hidden' id='quantidade_total" . $item['compra_item_id']
+            . "' data-tipo='' name='quantidade_total[]' value='"
+            . $item['qtd_item'] . " readonly'> ";
+    }
+
+    private function setColunaSuprimentoValorTotal(array $item, $tipos = null): string
+    {
+        $valor = (float)$item['valor'];
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
+        }
+        $valor = number_format($valor, '2', '.', '');
+
+        $valorTotal = " <input type='text' id='vrtotal" . $item['compra_item_id'] . "' " .
+            "class='form-control col-md-12 valor_total vrtotal" . $item['compra_item_id'] . "' " .
+            "data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor' " .
+            "data-compra_item_id='" . $item['compra_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' ";
+        if (isset($item['vlr_unitario_item'])) {
+            $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
+        $valorTotal .= "onkeyup='calculaQuantidade(this)' >";
+        return $valorTotal;
+    }
+
+    private function setColunaCompraSisrpQuantidade(array $item, $tipos = null): string
+    {
+        $quantidade = $item['quantidade'];
+        if ($tipos !== null) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $quantidade *= -1;
+            }
+            $quantidade = sprintf('%.5f', (float)$quantidade);
+        }
+
+        return " <input type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "id='qtd" . $item['compra_item_id'] . "' " .
+            "data-compra_item_id='" . $item['compra_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]' " .
+            "class='form-control qtd' value='$quantidade' > " .
+            "<input  type='hidden' id='quantidade_total" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+    }
+
+    private function setColunaCompraSisrpValorTotal(array $item, $tipos): string
+    {
+        $valor = (float)$item['valor'];
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
+        }
+        $valor = number_format($valor, '2', '.', '');
+
+        return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "' " .
+            "id='vrtotal" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='valor_total[]' value='$valor' disabled > ";
+    }
+
+    private function setColunaCompraSisppMaterialQuantidade(array $item, $tipos = null): string
+    {
+        $quantidade = $item['quantidade'];
+        if ($tipos !== null) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $quantidade *= -1;
+            }
+            $quantidade = sprintf('%.5f', (float)$quantidade);
+        }
+
+        $qtd_field = " <input type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "id='qtd" . $item['compra_item_id'] . "' data-compra_item_id='" . $item['compra_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]' " .
+            "class='form-control qtd' value='$quantidade' ";
+        if (isset($item['vlr_unitario_item'])) {
+            $qtd_field .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
+        $qtd_field .= "onkeyup='calculaValorTotal(this)' >" .
+            "<input  type='hidden' id='quantidade_total" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+        return $qtd_field;
+    }
+
+    private function setColunaCompraSisppMaterialValorTotal(array $item, $tipos = null): string
+    {
+        $valor = (float)$item['valor'];
+        if (!is_null($tipos)) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
+        }
+        $valor = number_format($valor, '2', '.', '');
+
+        return " <input  type='text' class='form-control valor_total vrtotal" . $item['compra_item_id'] . "' " .
+            "id='vrtotal" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='valor_total[]' value='$valor' disabled > ";
+    }
+
+    private function setColunaCompraSisppServicoQuantidade(array $item, $tipos = null): string
+    {
+        $quantidade = $item['quantidade'];
+        if ($tipos !== null) {
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $quantidade *= -1;
+            }
+            $quantidade = sprintf('%.5f', (float)$quantidade);
+        }
+        return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' " .
+            "class='form-control qtd" . $item['compra_item_id'] . "' " .
+            "id='qtd" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='qtd[]' value='$quantidade' readonly> " .
+            "<input type='hidden' id='quantidade_total" . $item['compra_item_id'] . "' " .
+            "data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . " '> ";
+    }
+
+    private function setColunaCompraSisppServicoValorTotal(array $item, $tipos = null): string
+    {
+        $valor = (float)$item['valor'];
+        $disabled = '';
+        if (!is_null($tipos)) {
+            $disabled = 'disabled';
+
+            if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
+                $valor *= -1;
+            }
+        }
+        $valor = number_format($valor, '2', '.', '');
+
+        $valorTotal = " <input type='text' " .
+            "class='form-control col-md-12 valor_total vrtotal" . $item['compra_item_id'] . "' " .
+            "id='vrtotal" . $item['compra_item_id'] . "' data-qtd_item='" . $item['qtd_item'] . "' " .
+            "name='valor_total[]' value='$valor' " .
+            "data-compra_item_id='" . $item['compra_item_id'] . "' " .
+            "data-valor_unitario='" . $item['valorunitario'] . "' ";
+        if (isset($item['vlr_unitario_item'])) {
+            $valorTotal .= "data-vlr_unitario_item='" . $item['vlr_unitario_item'] . "' ";
+        }
+        $valorTotal .= "onkeyup='calculaQuantidade(this)' $disabled>";
+        return $valorTotal;
+    }
 }

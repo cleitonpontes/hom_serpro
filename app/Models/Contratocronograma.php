@@ -109,7 +109,7 @@ class Contratocronograma extends Model
         if ($contratohistorico->data_inicio_novo_valor) {
             $data = date_create($contratohistorico->data_inicio_novo_valor);
             $mesinicio = new \DateTime($contratohistorico->data_inicio_novo_valor);
-            $mesfim = new \DateTime($contratohistorico->vigencia_fim);
+            $mesfim = new \DateTime($contratohistorico->data_fim_novo_valor ?: $contratohistorico->vigencia_fim);
             $interval = $mesinicio->diff($mesfim);
             if ($interval->y != 0) {
                 $t = ($interval->y * 12) + $interval->m;
