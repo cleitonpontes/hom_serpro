@@ -10,7 +10,12 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Importação de terceirizados</h4>
+                    <span>
+                        <h4 class="modal-title" style="float: left">Importação de terceirizados</h4>
+                        <a href="#" style="float: right;margin-right: 15px;">
+                            <span class="fa fa-question" title="Ajuda"/>
+                        </a>
+                    </span>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
