@@ -14,17 +14,16 @@ class InserirTerceirizadoEmMassaJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $dado;
-    protected $dados_importacao;
+    protected $params_importacao;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(array $dado, Importacao $dados_importacao)
+    public function __construct(array $params_importacao)
     {
-        //
+        $this->params_importacao = $params_importacao;
     }
 
     /**
@@ -35,6 +34,6 @@ class InserirTerceirizadoEmMassaJob implements ShouldQueue
     public function handle()
     {
         $executa = new ImportacaoCrudController();
-        $executa->executaInsercaoMassaTerceirizado($this->dado,$this->dados_importacao);
+        $executa->executaInsercaoMassaTerceirizado($this->params_importacao);
     }
 }
