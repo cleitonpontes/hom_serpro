@@ -34,13 +34,14 @@
                             multiple=""
                             accept=".txt"
                         >
+                        <span id="mensagem-validacao" style="color: red; font-weight: bold"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-ban"></span>
                         &nbsp;Cancelar
                     </button>
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success" id="botao-salvar">
                         <span class="fa fa-save" role="presentation" aria-hidden="true"></span> &nbsp;
                         <span>Salvar</span>
                     </button>
@@ -51,6 +52,23 @@
 </div><!-- /.modal -->
 
 @push('after_scripts')
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#arquivos_file_input").change(function () {
+                var fileInput = $(this);
+                var extPermitidas = ['txt'];
+
+                if(typeof extPermitidas.find(function(ext){ return fileInput.val().split('.').pop() == ext; }) == 'undefined') {
+                    $('#mensagem-validacao').text('A única extensão permitida é (.txt)');
+                    $('#mensagem-validacao').show();
+                    $('#botao-salvar').attr('disabled', 'disabled');
+                } else {
+                    $('#mensagem-validacao').hide();
+                    $('#botao-salvar').removeAttr('disabled');
+                }
+            });
+        });
+    </script>
     <style type="text/css">
         .input-required::after {
             content: ' *';
