@@ -254,7 +254,7 @@ class Contratoocorrencia extends Model
     {
         $arquivos_array = [];
         $i = 1;
-        foreach ($this->arquivos as $arquivo) {
+        foreach ((array) $this->arquivos as $arquivo) {
 
             $arquivos_array[] = [
                 'arquivo_'.$i => env('APP_URL'). '/storage/'. $arquivo,

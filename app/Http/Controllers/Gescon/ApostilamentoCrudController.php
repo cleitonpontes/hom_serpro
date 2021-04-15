@@ -134,6 +134,16 @@ class ApostilamentoCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'data_fim_novo_valor',
+                'label' => 'Fim Novo Valor',
+                'type' => 'date',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+            ],
+            [
                 'name' => 'formatNovoVlrGlobalHistorico',
                 'label' => 'Novo Valor Global', // Table column heading
                 'type' => 'model_function',
@@ -320,6 +330,13 @@ class ApostilamentoCrudController extends CrudController
             [   // Date
                 'name' => 'data_inicio_novo_valor',
                 'label' => 'Data Início Novo Valor',
+                'type' => 'date',
+//                'default' => date('Y-m-d'),
+                'tab' => 'Vigência / Valores',
+            ],
+            [   // Date
+                'name' => 'data_fim_novo_valor',
+                'label' => 'Data Fim Novo Valor',
                 'type' => 'date',
 //                'default' => date('Y-m-d'),
                 'tab' => 'Vigência / Valores',
@@ -582,6 +599,7 @@ class ApostilamentoCrudController extends CrudController
             'novo_valor_parcela',
             'novo_num_parcelas',
             'data_inicio_novo_valor',
+            'data_fim_novo_valor',
         ]);
         return $content;
     }
