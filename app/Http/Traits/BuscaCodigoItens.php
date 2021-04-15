@@ -36,6 +36,17 @@ trait BuscaCodigoItens
             ->first()->id;
     }
 
+    public function retornaIdCodigoItemPorDescres($descres, $descricao)
+    {
+        return Codigoitem::whereHas('codigo', function ($query) use ($descricao) {
+            $query->where('descricao', '=', $descricao)
+                ->whereNull('deleted_at');
+        })
+            ->whereNull('deleted_at')
+            ->where('descres', '=', $descres)
+            ->first()->id;
+    }
+
     public function retornaDescresCodigoItem($descCodigo, $descCodItem)
     {
         return Codigoitem::whereHas('codigo', function ($query) use ($descCodigo) {
