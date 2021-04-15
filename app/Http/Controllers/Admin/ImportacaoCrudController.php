@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ImportacaoRequest as StoreRequest;
 use App\Http\Requests\ImportacaoRequest as UpdateRequest;
+use App\Models\Contratoterceirizado;
 use Illuminate\Http\Request;
 use App\Http\Traits\Formatador;
 use App\Http\Traits\Users;
+use App\Http\Traits\BuscaCodigoItens;
 use App\Jobs\InserirUsuarioEmMassaJob;
 use App\Jobs\InserirTerceirizadoEmMassaJob;
 use App\Models\BackpackUser;
@@ -28,7 +30,7 @@ use Spatie\Permission\Models\Role;
 class ImportacaoCrudController extends CrudController
 {
 
-    use Users, Formatador;
+    use Users, Formatador, BuscaCodigoItens;
 
     public function setup()
     {
@@ -315,7 +317,7 @@ class ImportacaoCrudController extends CrudController
         return $redirect_location;
     }
 
-    private function verificaTipoIniciarExecucao($dados_importacao)
+    private function verificaTipoIniciarExecucao($dados_importacao, $contrato_id = null)
     {
         $tipo = Codigoitem::find($dados_importacao->tipo_id);
 
@@ -325,7 +327,7 @@ class ImportacaoCrudController extends CrudController
             }
 
             if ($tipo->descricao == 'Terceirizado') {
-                $this->lerArquivoImportacao($arquivo, $tipo->descricao, $dados_importacao);
+                $this->lerArquivoImportacao($arquivo, $tipo->descricao, $dados_importacao, $contrato_id);
             }
         }
 
@@ -340,7 +342,7 @@ class ImportacaoCrudController extends CrudController
     }
 
 
-    private function lerArquivoImportacao($nome_arquivo, $tipo, $dados_importacao)
+    private function lerArquivoImportacao($nome_arquivo, $tipo, $dados_importacao, $contrato_id = null)
     {
         // alteração 3/3 -> adicionado o ../ no link abaixo
         $path = env('APP_PATH') . "storage/app/";
@@ -354,10 +356,8 @@ class ImportacaoCrudController extends CrudController
             }
 
             if ($tipo == 'Terceirizado') {
-                //$this->criaJobsInsercaoTerceirizadoEmMassa($arquivo, $dados_importacao);
-                $this->criaJobsInsercaoTerceirizadoEmMassa(utf8_encode($linha), $dados_importacao);
+                $this->criaJobsInsercaoTerceirizadoEmMassa(utf8_encode($linha), $dados_importacao, $contrato_id);
             }
-            dd('fim');
         }
         fclose($arquivo);
     }
@@ -371,15 +371,73 @@ class ImportacaoCrudController extends CrudController
         }
     }
 
-    private function criaJobsInsercaoTerceirizadoEmMassa($linha, $dados_importacao)
+    private function criaJobsInsercaoTerceirizadoEmMassa($linha, $dados_importacao, $contrato_id)
     {
         $array_dado = explode($dados_importacao->delimitador, $linha);
-        $pkcount = is_array($array_dado) ? count($array_dado) : 0;
+        $params_importacao = $this->retornaParamsImportacao($array_dado, $contrato_id);
 
-        if ($pkcount > 0) {
-            InserirTerceirizadoEmMassaJob::dispatch($array_dado, $dados_importacao);
+        if (!!$params_importacao) {
+            //InserirTerceirizadoEmMassaJob::dispatch($params_importacao);
+            InserirTerceirizadoEmMassaJob::dispatchNow($params_importacao);
         }
 
+    }
+
+    /**
+     * @param $array_dado
+     * @param $numero_instrumento
+     * @return array|false
+     */
+    private function retornaParamsImportacao($array_dado, $contrato_id)
+    {
+        //valida se quantidade de campos por linha é valido
+        if(count($array_dado) !== 14){
+            return false;
+        }
+
+        $arrImportacaoParams = [
+            'contrato_id' => $contrato_id,
+            'cpf' => $array_dado[0],
+            'nome' => $array_dado[1],
+            'escolaridade_id' => $this->retonarIdCodigoItemEscolaridade($array_dado[4]),
+            'funcao_id' => $this->retornaIdCodigoItemPorDescres($array_dado[5], 'Mão de Obra'),
+            'jornada' => $array_dado[7],
+            'unidade' => $array_dado[8],
+            'salario' => $this->formatToCurrenyValue($array_dado[9]),
+            'custo' => $this->formatToCurrenyValue($array_dado[10]),
+            'data_inicio' => $array_dado[13],
+            'situacao' => true,
+            'aux_transporte' => $this->formatToCurrenyValue($array_dado[11]),
+        ];
+        //valida se campos obrigatórios estão preenchidos
+        foreach ($arrImportacaoParams as $itemParam){
+            if($itemParam === ''){
+                return false;
+            }
+        }
+
+        //insere campos não obrigatórios
+        $arrImportacaoParams['telefone_fixo'] = $array_dado[2];
+        $arrImportacaoParams['telefone_celular'] = $array_dado[3];
+        $arrImportacaoParams['descricao_complementar'] = $array_dado[6];
+        $arrImportacaoParams['vale_alimentacao'] = $this->formatToCurrenyValue($array_dado[12]);
+
+        return $arrImportacaoParams;
+    }
+
+    private function retonarIdCodigoItemEscolaridade($num_escolaridade, $descCodigo = 'Escolaridade'){
+            return Codigoitem::whereHas('codigo', function ($query) use ($descCodigo) {
+                $query->where('descricao', '=', $descCodigo)
+                    ->whereNull('deleted_at');
+            })
+                ->whereNull('deleted_at')
+                ->where('descricao', 'ilike', "%$num_escolaridade%")
+                ->first()->id;
+    }
+
+    private function formatToCurrenyValue($value){
+        $field = str_replace(',', '.', str_replace('.','', $value));
+        return number_format(floatval($field),2,'.','');
     }
 
     private function montaArrayDado($linha, $delimitador)
@@ -472,8 +530,8 @@ class ImportacaoCrudController extends CrudController
         }
     }
 
-    public function executaInsercaoMassaTerceirizado($dado, Importacao $dados_importacao){
-
+    public function executaInsercaoMassaTerceirizado($params_importacao){
+        Contratoterceirizado::create($params_importacao);
     }
 
     private function buscaUsuario($cpf, $email)
@@ -511,7 +569,6 @@ class ImportacaoCrudController extends CrudController
         $uploadFile = $request->files->get('arquivos');
 
         $importacao = new Importacao();
-        $pathFile = $importacao->uploadArquivoTerceirizado($uploadFile, $unidade, $nome_arquivo);
 
         /**
          * Salva na tabela de importacao
@@ -527,17 +584,16 @@ class ImportacaoCrudController extends CrudController
 
         $role_id = Role::where(['name' => 'Responsável por Contrato'])->first()->id;
 
+        $importacao->unidade_id = $unidade;
         $importacao->nome_arquivo = $nome_arquivo;
         $importacao->delimitador = $request->delimitador;
-        $importacao->arquivos = $pathFile;
+        $importacao->arquivos = $request->arquivos;
         $importacao->contrato_id = $contrato->id;
         $importacao->tipo_id = $tipos->id;
-        $importacao->unidade_id = $unidade;
         $importacao->situacao_id = $situacao_id;
         $importacao->role_id = $role_id;
         $importacao->save();
 
-
-        $this->verificaTipoIniciarExecucao($importacao);
+        $this->verificaTipoIniciarExecucao($importacao, $contrato->id);
     }
 }
