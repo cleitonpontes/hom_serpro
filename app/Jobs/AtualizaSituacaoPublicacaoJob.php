@@ -74,17 +74,23 @@ class AtualizaSituacaoPublicacaoJob implements ShouldQueue
 
     public function atualizaPublicacao($retorno,$tipoSituacao)
     {
+        $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
         $link = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->linkPublicacao;
         $pagina = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->paginaPublicacao;
         $motivo_devolucao = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->motivoDevolucao;
+        $status_publicacao_id = $this->retornaIdTipoSituacao($tipoSituacao);
 
-        $this->publicacao->status_publicacao_id = $this->retornaIdTipoSituacao($tipoSituacao);
-        $this->publicacao->status =  $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
-        $this->publicacao->link_publicacao = $link;
-        $this->publicacao->pagina_publicacao = $pagina;
-        $this->publicacao->motivo_devolucao = $motivo_devolucao;
-        $this->publicacao->secao_jornal = 3;
-        $this->publicacao->save();
+        ContratoPublicacoes::where('id', $this->publicacao->id)
+            ->where('contratohistorico_id', $this->publicacao->contratohistorico_id)
+            ->update([
+                'status_publicacao_id' => $status_publicacao_id,
+                'status' => $status,
+                'link_publicacao' => $link,
+                'pagina_publicacao' => $pagina,
+                'motivo_devolucao' => $motivo_devolucao,
+                'secao_jornal' => 3
+            ]);
+
     }
 
     public function retornaIdTipoSituacao($tipoSituacao)

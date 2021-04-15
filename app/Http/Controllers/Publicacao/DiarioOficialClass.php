@@ -569,19 +569,23 @@ class DiarioOficialClass extends BaseSoapController
 
     public function atualizaPublicacao($publicacao, $retorno, $tipoSituacao)
     {
+        $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
         $link = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->linkPublicacao;
         $pagina = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->paginaPublicacao;
         $motivo_devolucao = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->motivoDevolucao;
         $codigo = 'Situacao Publicacao';
+        $status_publicacao_id = $this->retornaIdCodigoItem($codigo,$tipoSituacao);
 
-        $publicacao->status_publicacao_id = $this->retornaIdCodigoItem($codigo,$tipoSituacao);
-        $publicacao->status =  $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
-        $publicacao->link_publicacao = $link;
-        $publicacao->pagina_publicacao = $pagina;
-        $publicacao->motivo_devolucao = $motivo_devolucao;
-        $publicacao->secao_jornal = 3;
-
-        $publicacao->save();
+        ContratoPublicacoes::where('id', $publicacao->id)
+            ->where('contratohistorico_id', $publicacao->contratohistorico_id)
+            ->update([
+                'status_publicacao_id' => $status_publicacao_id,
+                'status' => $status,
+                'link_publicacao' => $link,
+                'pagina_publicacao' => $pagina,
+                'motivo_devolucao' => $motivo_devolucao,
+                'secao_jornal' => 3
+            ]);
 
     }
 
