@@ -30,6 +30,7 @@ use App\Models\Fornecedor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Throwable;
+use JWTAuth;
 
 class ContratoController extends Controller
 {
@@ -420,6 +421,7 @@ class ContratoController extends Controller
     {
         $prepostos_array = [];
         $prepostos = $this->buscaPrepostosPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
+        $dadosAbertos = $this->dadosAbertos();
 
         foreach ($prepostos as $preposto) {
             $prepostos_array[] = [
@@ -427,7 +429,7 @@ class ContratoController extends Controller
                 //'user_id' => $preposto->user_id,
                 //'cpf' => $preposto->getCpf(),
                 //'nome' => $preposto->nome,
-                'usuario' => $this->usuarioTransparencia($preposto->nome, $preposto->cpf),
+                'usuario' => $this->usuarioTransparencia($preposto->nome, $preposto->cpf, $dadosAbertos),
                 'email' => $preposto->email,
                 'telefonefixo' => $preposto->telefonefixo,
                 'celular' => $preposto->celular,
@@ -466,6 +468,7 @@ class ContratoController extends Controller
     {
         $responsaveis_array = [];
         $responsaveis = $this->buscaResponsaveisPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
+        $dadosAbertos = $this->dadosAbertos();
 
         foreach ($responsaveis as $responsavel) {
 
@@ -474,7 +477,7 @@ class ContratoController extends Controller
                 //'contrato_id' => $responsavel->contrato_id,
                 //'user_id' => $responsavel->getUsuarioTransparencia(),
 
-                'usuario' => $this->usuarioTransparencia($responsavel->user->name, $responsavel->user->cpf),
+                'usuario' => $this->usuarioTransparencia($responsavel->user->name, $responsavel->user->cpf, $dadosAbertos),
                 'funcao_id' => $responsavel->funcao->descricao,
                 'instalacao_id' => $responsavel->getInstalacao(),
                 'portaria' => $responsavel->portaria,
@@ -608,13 +611,14 @@ class ContratoController extends Controller
     {
         $ocorrencias_array = [];
         $ocorrencias = $this->buscaOcorrenciasPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
+        $dadosAbertos = $this->dadosAbertos();
 
         foreach ($ocorrencias as $ocorrencia) {
             $ocorrencias_array[] = [
                 'numero' => $ocorrencia->numero,
                 //'contrato_id' => $ocorrencia->contrato_id,
                 //'user_id' => $ocorrencia->getUsuarioTransparencia(),
-                'usuario' => $this->usuarioTransparencia($ocorrencia->usuario->name, $ocorrencia->usuario->cpf),
+                'usuario' => $this->usuarioTransparencia($ocorrencia->usuario->name, $ocorrencia->usuario->cpf, $dadosAbertos),
                 'data' => $ocorrencia->data,
                 'ocorrencia' => $ocorrencia->ocorrencia,
                 'notificapreposto' => $ocorrencia->notificapreposto == true ? 'Sim' : 'Não',
@@ -657,6 +661,7 @@ class ContratoController extends Controller
 
         $terceirizados_array = [];
         $terceirizados = $this->buscaTerceirizadosPorContratoId($contrato_id, $this->verificaData($request->date, $request->time));
+        $dadosAbertos = $this->dadosAbertos();
 
         foreach ($terceirizados as $terceirizado) {
             ;
@@ -664,7 +669,7 @@ class ContratoController extends Controller
                 //'contrato_id' => $terceirizado->contrato_id,
                 //'cpf' => $terceirizado->getCpf(),
                 //'nome' => $terceirizado->nome,
-                'usuario' => $this->usuarioTransparencia($terceirizado->nome, $terceirizado->cpf),
+                'usuario' => $this->usuarioTransparencia($terceirizado->nome, $terceirizado->cpf, $dadosAbertos),
                 'funcao_id' => $terceirizado->funcao->descricao,
                 'descricao_complementar' => $terceirizado->descricao_complementar,
                 'jornada' => $terceirizado->jornada,
@@ -1289,11 +1294,34 @@ class ContratoController extends Controller
         return $contratos;
     }
 
-    private function usuarioTransparencia(string $nome, string $cpf)
-    {
-        $cpf = '***' . substr($cpf, 3, 9) . '**';
+    private function usuarioTransparencia(string $nome, string $cpf, bool $dadosAbertos)
+    {   
+        if ($dadosAbertos) {
+            return $cpf . ' - ' . $nome;
+        }else{
+            $cpf = '***' . substr($cpf, 3, 9) . '**';
+            return $cpf . ' - ' . $nome;
+        }
+    }
 
-        return $cpf . ' - ' . $nome;
+    public function dadosAbertos(){
+        //auth()->check()sendo utilizado por mais segurança (informação redundante);
+        return $this->verificaAutenticacaoJWT() && auth()->check() && backpack_user()->hasPermissionTo('usuario_consulta_api');
+    }
+
+    public function verificaAutenticacaoJWT(){
+        $autenticadoJWT = false;
+        try {
+            $tokenFetch = JWTAuth::parseToken()->authenticate();
+            if ($tokenFetch) {
+                $autenticadoJWT = true;
+            } else {
+                $autenticadoJWT = false;
+            }
+        } catch(\Tymon\JWTAuth\Exceptions\JWTException $e){
+            $autenticadoJWT = false;
+        }
+        return $autenticadoJWT;
     }
 
     public function buscarCamposParaCadastroContratoPorIdEmpenho($id)
