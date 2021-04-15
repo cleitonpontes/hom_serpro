@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ImportacaoRequest as StoreRequest;
 use App\Http\Requests\ImportacaoRequest as UpdateRequest;
+use Illuminate\Http\Request;
 use App\Http\Traits\Formatador;
 use App\Http\Traits\Users;
 use App\Jobs\InserirUsuarioEmMassaJob;
+use App\Jobs\InserirTerceirizadoEmMassaJob;
 use App\Models\BackpackUser;
 use App\Models\Codigoitem;
 use App\Models\Contrato;
@@ -352,8 +354,10 @@ class ImportacaoCrudController extends CrudController
             }
 
             if ($tipo == 'Terceirizado') {
-                $this->criaJobsInsercaoTerceirizadoEmMassa($arquivo, $dados_importacao);
+                //$this->criaJobsInsercaoTerceirizadoEmMassa($arquivo, $dados_importacao);
+                $this->criaJobsInsercaoTerceirizadoEmMassa(utf8_encode($linha), $dados_importacao);
             }
+            dd('fim');
         }
         fclose($arquivo);
     }
@@ -369,6 +373,12 @@ class ImportacaoCrudController extends CrudController
 
     private function criaJobsInsercaoTerceirizadoEmMassa($linha, $dados_importacao)
     {
+        $array_dado = explode($dados_importacao->delimitador, $linha);
+        $pkcount = is_array($array_dado) ? count($array_dado) : 0;
+
+        if ($pkcount > 0) {
+            InserirTerceirizadoEmMassaJob::dispatch($array_dado, $dados_importacao);
+        }
 
     }
 
@@ -462,6 +472,10 @@ class ImportacaoCrudController extends CrudController
         }
     }
 
+    public function executaInsercaoMassaTerceirizado($dado, Importacao $dados_importacao){
+
+    }
+
     private function buscaUsuario($cpf, $email)
     {
         $user = BackpackUser::where('email', $email)->first();
@@ -480,5 +494,50 @@ class ImportacaoCrudController extends CrudController
             ->first();
 
         return $unidade->id;
+    }
+
+    public function importacaoTerceirizados(Request $request)
+    {
+        /**
+         * Faz o upload do arquivo com os dados dos terceirizados
+         */
+        $unidade = session()->get('user_ug_id');
+        $contrato = Contrato::find($request->contrato_id);
+
+        if (strpos($contrato->numero, '/')) {
+            $contrato->numero = str_replace('/', '_', $contrato->numero);
+        }
+        $nome_arquivo = $contrato->numero . '_' . date('d-m-Y_H_i_s');
+        $uploadFile = $request->files->get('arquivos');
+
+        $importacao = new Importacao();
+        $pathFile = $importacao->uploadArquivoTerceirizado($uploadFile, $unidade, $nome_arquivo);
+
+        /**
+         * Salva na tabela de importacao
+         */
+        $tipos = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Tipo Importação');
+        })->where('descricao', '=', 'Terceirizado')->first();
+
+        $situacao_id = Codigoitem::whereHas('codigo', function ($query) {
+            $query->where('descricao', '=', 'Situação Arquivo');
+        })
+            ->where('descricao', 'Pendente de Execução')->first()->id;
+
+        $role_id = Role::where(['name' => 'Responsável por Contrato'])->first()->id;
+
+        $importacao->nome_arquivo = $nome_arquivo;
+        $importacao->delimitador = $request->delimitador;
+        $importacao->arquivos = $pathFile;
+        $importacao->contrato_id = $contrato->id;
+        $importacao->tipo_id = $tipos->id;
+        $importacao->unidade_id = $unidade;
+        $importacao->situacao_id = $situacao_id;
+        $importacao->role_id = $role_id;
+        $importacao->save();
+
+
+        $this->verificaTipoIniciarExecucao($importacao);
     }
 }
