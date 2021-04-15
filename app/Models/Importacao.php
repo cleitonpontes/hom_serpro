@@ -149,4 +149,14 @@ class Importacao extends Model
 
         $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
     }
+
+    public function uploadArquivoTerceirizado($value, $unidade, $nome_arquivo){
+        $attribute_name = "arquivos";
+        $disk = "local";
+        $destination_path = "importacao/" . $unidade . "_" . str_replace(' ', '_', $nome_arquivo);
+
+        $this->uploadMultipleFilesToDisk($value, $attribute_name, $disk, $destination_path);
+
+        return $destination_path;
+    }
 }
