@@ -317,7 +317,7 @@ class ImportacaoCrudController extends CrudController
         return $redirect_location;
     }
 
-    private function verificaTipoIniciarExecucao($dados_importacao, $contrato_id = null)
+    private function verificaTipoIniciarExecucao($dados_importacao)
     {
         $tipo = Codigoitem::find($dados_importacao->tipo_id);
 
@@ -327,7 +327,7 @@ class ImportacaoCrudController extends CrudController
             }
 
             if ($tipo->descricao == 'Terceirizado') {
-                $this->lerArquivoImportacao($arquivo, $tipo->descricao, $dados_importacao, $contrato_id);
+                $this->lerArquivoImportacao($arquivo, $tipo->descricao, $dados_importacao);
             }
         }
 
@@ -342,7 +342,7 @@ class ImportacaoCrudController extends CrudController
     }
 
 
-    private function lerArquivoImportacao($nome_arquivo, $tipo, $dados_importacao, $contrato_id = null)
+    private function lerArquivoImportacao($nome_arquivo, $tipo, $dados_importacao)
     {
         // alteração 3/3 -> adicionado o ../ no link abaixo
         $path = env('APP_PATH') . "storage/app/";
@@ -356,7 +356,7 @@ class ImportacaoCrudController extends CrudController
             }
 
             if ($tipo == 'Terceirizado') {
-                $this->criaJobsInsercaoTerceirizadoEmMassa(utf8_encode($linha), $dados_importacao, $contrato_id);
+                $this->criaJobsInsercaoTerceirizadoEmMassa(utf8_encode($linha), $dados_importacao);
             }
         }
         fclose($arquivo);
@@ -371,10 +371,10 @@ class ImportacaoCrudController extends CrudController
         }
     }
 
-    private function criaJobsInsercaoTerceirizadoEmMassa($linha, $dados_importacao, $contrato_id)
+    private function criaJobsInsercaoTerceirizadoEmMassa($linha, $dados_importacao)
     {
         $array_dado = explode($dados_importacao->delimitador, $linha);
-        InserirTerceirizadoEmMassaJob::dispatch($array_dado, $contrato_id);
+        InserirTerceirizadoEmMassaJob::dispatch($array_dado, $dados_importacao->contrato_id);
     }
 
     /**
