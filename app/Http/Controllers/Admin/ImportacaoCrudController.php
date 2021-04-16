@@ -551,9 +551,6 @@ class ImportacaoCrudController extends CrudController
 
     public function importacaoTerceirizados(Request $request)
     {
-        /**
-         * Faz o upload do arquivo com os dados dos terceirizados
-         */
         $unidade = session()->get('user_ug_id');
         $contrato = Contrato::find($request->contrato_id);
 
@@ -561,7 +558,6 @@ class ImportacaoCrudController extends CrudController
             $contrato->numero = str_replace('/', '_', $contrato->numero);
         }
         $nome_arquivo = $contrato->numero . '_' . date('d-m-Y_H_i_s');
-        $uploadFile = $request->files->get('arquivos');
 
         $importacao = new Importacao();
 
