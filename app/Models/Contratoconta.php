@@ -1,24 +1,18 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Spatie\Activitylog\Traits\LogsActivity;
-
 class Contratoconta extends Model
 {
     protected $primaryKey = 'id';
-
     use CrudTrait;
     use LogsActivity;
-
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
     protected $table = 'contratocontas';
     protected $fillable = [
         'contrato_id', 'banco', 'conta', 'agencia', 'conta_corrente', 'fat_empresa', 'percentual_grupo_a_13_ferias'
@@ -72,7 +66,8 @@ class Contratoconta extends Model
     }
     /**
      * O saldo para grupo A será pego de forma diferente
-     * Após reunião com Gabriel, em 04/2021 - grupo A será armazenado
+     * Após reunião com Gabriel, em 04/2021 - grupo A será armazenado em contrato conta e não mais em encargo,
+     * pois irá variar de conta para conta.
      */
     public function getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado){
         $saldoDeposito = self::getSaldoDepositoGrupoAPorContratoTerceirizado($idContratoTerceirizado);

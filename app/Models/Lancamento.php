@@ -1,43 +1,28 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Spatie\Activitylog\Traits\LogsActivity;
-
 use App\Models\Movimentacaocontratoconta;
 use App\Models\Contratoconta;
-
-
 class Lancamento extends Model
 {
     use CrudTrait;
     use LogsActivity;
-
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
     protected $table = 'lancamentos';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contratoterceirizado_id', 'encargo_id', 'valor', 'movimentacao_id'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
-
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    // public function getQuantidadeLancamentosByIdMovimentacao($idMovimentacao){
-    //     return $quantidade = Lancamento::where('movimentacao_id', $idMovimentacao)->count();
-    // }
     public function getValorTotalLancamentosByIdMovimentacao($idMovimentacao){
         $valorTotal = Lancamento::where('movimentacao_id', '=', $idMovimentacao)->sum('valor');
         // \Log::info('total mov = '.$valorTotal);
@@ -57,6 +42,7 @@ class Lancamento extends Model
         return $descricao= $objCodigoItem->descricao;
     }
     // Com a mudança na regra do grupo A, que passou para a tabela da conta, o encargo_id pode chegar aqui em branco.
+    // este método se repete em Extratocontratoconta.php
     public function getTipoEncargoOuGrupoA(){
         if($this->encargo_id != null){
             $idEncargo = $this->encargo_id;
@@ -89,10 +75,6 @@ class Lancamento extends Model
         $objMovimentacao = Movimentacaocontratoconta::find($idMovimentacao);
         return $objMovimentacao->getTipoMovimentacao();
     }
-
-
-
-
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

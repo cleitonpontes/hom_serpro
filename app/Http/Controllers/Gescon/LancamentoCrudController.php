@@ -1,20 +1,12 @@
 <?php
-
 namespace App\Http\Controllers\Gescon;
-
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\LancamentoRequest as StoreRequest;
 use App\Http\Requests\LancamentoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
-
 use App\Models\Movimentacaocontratoconta;
-
 use Illuminate\Database\Eloquent\Builder;
-
-
-
 /**
  * Class LancamentoCrudController
  * @package App\Http\Controllers\Admin
@@ -22,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class LancamentoCrudController extends CrudController
 {
-
     public function setup()
     {
         $movimentacaocontratoconta_id = \Route::current()->parameter('movimentacaocontratoconta_id');
@@ -47,29 +38,16 @@ class LancamentoCrudController extends CrudController
         // $this->crud->addClause('join', 'encargos', 'encargos.id',  '=',  'lancamentos.encargo_id');
         // $this->crud->addClause('join', 'codigoitens as cod_encargo', 'cod_encargo.id',  '=',  'encargos.tipo_id');
         $this->crud->addClause('where', 'lancamentos.movimentacao_id', '=', $movimentacaocontratoconta_id);
-
-
-
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
-        // $this->crud->denyAccess('delete');
-        // $this->crud->denyAccess('show');
-
         $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
-        // TODO: remove setFromDb() and manually define Fields and Columns
-        // $this->crud->setFromDb();
-
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
-
-
         // add asterisk for fields that are required in LancamentoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
@@ -159,7 +137,6 @@ class LancamentoCrudController extends CrudController
                 // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 //     $query->orWhere('lancamentos.valor', 'ilike', "%$searchTerm%");
                 // },
-
             ],
         ];
         return $colunas;
@@ -172,7 +149,6 @@ class LancamentoCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
-
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here
