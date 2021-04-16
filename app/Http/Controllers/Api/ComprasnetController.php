@@ -57,15 +57,15 @@ class ComprasnetController extends Controller
                 }
 
                 //busca empenhos pela tb empenhos verificar coluna RP
-                $arrEmpenhos1 = $this->buscarEmpenhos($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
+//                $array_empenhos = $this->buscarEmpenhos($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
                 //busca empenhos pela tb compras corrigir query
-                $arrEmpenhos2 = $this->buscarEmpenhos2($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
-                $arrEmpenhosMerge = array_merge($arrEmpenhos1, $arrEmpenhos2);
-                $arrEmpenhosUnique = array_unique($arrEmpenhosMerge, SORT_REGULAR);
-                $array_empenhos = [];
-                foreach ($arrEmpenhosUnique as $empenhos){
-                    $array_empenhos[] = $empenhos['idempenho'];
-                }
+                $array_empenhos = $this->buscarEmpenhos2($num_item, $modalidade->id, $unidade->id, $dados['numeroAno']);
+//                $arrEmpenhosMerge = array_merge($arrEmpenhos1, $arrEmpenhos2);
+//                $arrEmpenhosUnique = array_unique($arrEmpenhosMerge, SORT_REGULAR);
+//                $array_empenhos = [];
+//                foreach ($arrEmpenhosUnique as $empenhos){
+//                    $array_empenhos[] = $empenhos['idempenho'];
+//                }
 
                 $retorno['itens'][] = [
                     'nroItem' => $num_item,
@@ -128,6 +128,7 @@ class ComprasnetController extends Controller
         })
             ->where('descricao', 'EMPENHO EMITIDO')
             ->select('codigoitens.id')->first();
+
         return Compra::select(
             DB::raw('u.codigo || u.gestao || m.mensagem_siafi AS idempenho')
         )
@@ -143,7 +144,8 @@ class ComprasnetController extends Controller
             ->where('m.situacao_id', $situacao->id)
             ->whereRaw('left (m.mensagem_siafi,	4) = date_part(\'year\', current_date)::text')
             ->where('e.aliquidar', '>', 0)
-            ->where('e.numero', 'LIKE', date('Y') ."NE%")
+            ->orWhere('e.rpaliquidar', '>', 0)
+//            ->where('e.numero', 'LIKE', date('Y') ."NE%")
             ->distinct()
             ->get()
             ->toArray();
