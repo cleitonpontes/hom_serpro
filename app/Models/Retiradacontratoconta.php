@@ -1,26 +1,18 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Spatie\Activitylog\Traits\LogsActivity;
-
 class Retiradacontratoconta extends Model
 {
     use CrudTrait;
     use LogsActivity;
-
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
     |--------------------------------------------------------------------------
     */
-
     protected $table = 'movimentacaocontratocontas';
-    // protected $primaryKey = 'id';
-    // public $timestamps = false;
-    // protected $guarded = ['id'];
     protected $fillable = [
         'contratoconta_id',
         'tipo_id',
@@ -30,9 +22,6 @@ class Retiradacontratoconta extends Model
         'situacao_movimentacao',
         'user_id'
     ];
-    // protected $hidden = [];
-    // protected $dates = [];
-
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
@@ -49,7 +38,7 @@ class Retiradacontratoconta extends Model
         return $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)->pluck('nome', 'id')->toArray();
     }
     public function getEncargosParaCombo(){
-        // Os dados da combo serão fixos
+        // Os dados da combo serão fixos - grupo A não entra.
         return $arrayObjetosEncargoParaCombo = array(
             'Décimo Terceiro' => 'Décimo Terceiro',
             'Demissão' => 'Demissão',
@@ -71,10 +60,8 @@ class Retiradacontratoconta extends Model
     public function verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado){
         $mesCompetencia = $request->input('mes_competencia');
         $anoCompetencia = $request->input('ano_competencia');
-
         $dataInicio = $objContratoTerceirizado->data_inicio;
         $dataFim = $objContratoTerceirizado->data_fim;
-
         $mesDataInicio = substr($dataInicio, 5, 2);
         $anoDataInicio = substr($dataInicio, 0, 4);
         $diaDataInicio = substr($dataInicio, 8, 2);
@@ -89,29 +76,24 @@ class Retiradacontratoconta extends Model
         }
         return true;
     }
-
     public function demitirContratoTerceirizado($request){
-
         $idContratoTerceirizado = $request->input('contratoterceirizado_id');
         $objContratoTerceirizado = \DB::table('contratoterceirizados')
-        ->select('contratoterceirizados.*', 'contratos.numero')
-        ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
-        ->where('contratoterceirizados.id', '=', $idContratoTerceirizado)
-        ->first();
+            ->select('contratoterceirizados.*', 'contratos.numero')
+            ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
+            ->where('contratoterceirizados.id', '=', $idContratoTerceirizado)
+            ->first();
         $idContratoConta = $request->input('contratoconta_id');
         $idContrato = $request->input('contrato_id');
         $numeroContrato = $objContratoTerceirizado->numero;
-
         // aqui quer dizer que ainda não existe a movimentação. Precisamos criá-la.
         if( !$idMovimentacao = self::criarMovimentacao($request) ){
             $mensagem = 'Problemas ao criar a movimentação.';
             \Alert::error($mensagem)->flash();
             return redirect()->back();
         }
-
         // aqui a movimentação já foi criada e já temos o $idMovimentacao - vamos atribuir seu valor ao request
         $request->request->set('movimentacao_id', $idMovimentacao);
-
         // vamos verificar se no mês/ano de competência, o funcionário já tinha iniciado
         if(!self::verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado)){
             $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do empregado.';
@@ -121,35 +103,18 @@ class Retiradacontratoconta extends Model
             }
             return redirect()->back();
         }
-
         // vamos alterar o status da movimentação
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
-
         // vamos verificar o saldo total da conta
         $objContratoConta = new Contratoconta();
         $saldoContratoConta = $objContratoConta->getSaldoContratoContaPorContratoTerceirizado($idContratoTerceirizado);
-
         // vamos verificar o saldo por encargo
         $situacaoRetirada = $request->input('situacao_retirada');
         $dataDemissao = $request->input('data_encerramento');
-
-
         $valorRetirada = self::verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos(0, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao);
-
-
-
-        // if( !$valorRetirada = self::verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos(0, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao) ){
-        //     // aqui quer dizer que não existe saldo para esta retirada - vamos excluir a movimentação
-        //     self::excluirMovimentacao($idMovimentacao);
-        //     \Alert::error('Problemas ao salvar a movimentação.')->flash();
-        //     return redirect()->back();
-        // }
-
         // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
-
         return true;
-
     }
     public function excluirMovimentacao($idMovimentacao){
         $objMovimentacaocontratoconta = new Movimentacaocontratoconta();
@@ -166,20 +131,15 @@ class Retiradacontratoconta extends Model
         return false;
     }
     public function encerrarContaVinculada($request){
-
         $contrato_id = $request->input('contrato_id');
-
         // buscar todos os funcionários do contrato e para cada um, demitir.
         $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id','=',$contrato_id)
-        ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
-        ->select('contratoterceirizados.*', 'contratos.numero')
-        ->get();
-
-
+            ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
+            ->select('contratoterceirizados.*', 'contratos.numero')
+            ->get();
         // para cada funcionário, demitir
         $contDemissoes = 0;
         foreach($arrayContratosTerceirizados as $objContratoTerceirizadoDemitir){
-
             $situacaoFuncionario = $objContratoTerceirizadoDemitir->situacao;
             if( $situacaoFuncionario ){
                 $contDemissoes++;
@@ -226,23 +186,18 @@ class Retiradacontratoconta extends Model
             $nomeEncargo13ParaDemissao = '13º (décimo terceiro) salário';
             $idEncargo13ParaDemissao = Encargo::getIdEncargoByNomeEncargo($nomeEncargo13ParaDemissao);
             $saldoDecimoTerceiroParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargo13ParaDemissao);
-
             $nomeEncargoFeriasParaDemissao = 'Férias e 1/3 (um terço) constitucional de férias';
             $idEncargoFeriasParaDemissao = Encargo::getIdEncargoByNomeEncargo($nomeEncargoFeriasParaDemissao);
             $saldoFeriasParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoFeriasParaDemissao);
-
             $nomeEncargoRescisaoParaDemissao = 'Multa sobre o FGTS para as rescisões sem justa causa';
             $idEncargoRescisaoParaDemissao = Encargo::getIdEncargoByNomeEncargo($nomeEncargoRescisaoParaDemissao);
             $saldoRescisaoParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoRescisaoParaDemissao);
-
             // $nomeEncargoGrupoAParaDemissao = 'Grupo "A" sobre 13o. Salário e Férias';
             $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
             $idEncargoGrupoAParaDemissao = Encargo::getIdEncargoByNomeEncargo($nomeEncargoGrupoAParaDemissao);
             $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoGrupoAParaDemissao);
-
             $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
             $valorRetirada = $valorMaximoRetirada;
-
             if($valorMaximoRetirada == 0){
                 $mensagem = 'Não existe saldo para retirada.';
                 \Alert::error($mensagem)->flash();
@@ -261,7 +216,6 @@ class Retiradacontratoconta extends Model
                     return false;
                 }
             }
-
             if($saldoFeriasParaDemissao>0){
                 // lançamento para férias
                 $objLancamento = new Lancamento();
@@ -275,7 +229,6 @@ class Retiradacontratoconta extends Model
                     return false;
                 }
             }
-
             if($saldoRescisaoParaDemissao>0){
                 // lançamento para rescisão e adicional fgts
                 $objLancamento = new Lancamento();
@@ -289,7 +242,6 @@ class Retiradacontratoconta extends Model
                     return false;
                 }
             }
-
             if($saldoGrupoAParaDemissao>0){
                 // lançamento para grupo A sobre 13 e férias
                 $objLancamento = new Lancamento();
@@ -314,10 +266,8 @@ class Retiradacontratoconta extends Model
             $nomeEncargoInformado = Encargo::getNomeEncargoBySituacaoRetirada($situacaoRetirada);
             $idEncargoInformado = Encargo::getIdEncargoByNomeEncargo($nomeEncargoInformado);
             $tipoIdEncargo = $objContratoConta->getTipoIdEncargoByIdEncargo($idEncargoInformado);
-
             // vamos verificar quanto tem de saldo para o encargo em questão.
             $saldoContratoContaPorTipoEncargo = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipoIdEncargo);
-
             // início das verificações por encargo
             $valorMaximoRetirada = 0; // inicializar o valor máximo para retirada, que será alterado de acordo com o encargo informado.
             if( $nomeEncargoInformado == '13º (décimo terceiro) salário' ){
@@ -328,25 +278,21 @@ class Retiradacontratoconta extends Model
                 $valorMaximoRetirada = ( $salario + $valorFatEmpresaGrupoA + $umTercoSalario);
             }
             // fim das verificações por encargo
-
             // vamos verificar se o valor do fat empresa (grupo A) não é maior do que o saldo do grupo A (encargo)
             if($valorFatEmpresaGrupoA > $saldoEncargoGrupoA){
                 \Alert::error('O valor calculado para o Grupo A é maior do que o saldo do encargo Grupo A.')->flash();
                 return false;
             }
-
             // vamos verificar se o valor informado não é maior que o saldo para o encargo informado
             if( $valorInformadoRetirada > $saldoContratoContaPorTipoEncargo ){
                 \Alert::error('O valor informado é maior do que o saldo do encargo.')->flash();
                 return false;
             }
-
             // agora que já calculamos o valor máximo para retirada, pelo encargo informado, vamos verificar se o valor informado é possível.
             if( $valorMaximoRetirada < $valorRetirada ){
                 \Alert::error('O valor da retirada supera o valor máximo permitido.')->flash();
                 return false;
             }
-
             // gerar o lançamento para o encargo informado
             $objLancamento = new Lancamento();
             $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
@@ -358,7 +304,6 @@ class Retiradacontratoconta extends Model
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
             // Aqui vamos controlar os demais lançamentos, além do encargo selecionado pelo usuário
             if( $nomeEncargoInformado == '13º (décimo terceiro) salário' ){
                 // GRUPO A

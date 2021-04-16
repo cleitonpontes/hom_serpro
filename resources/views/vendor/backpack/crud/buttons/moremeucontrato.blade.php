@@ -6,6 +6,12 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right">
         <li class="dropdown-header"><i class="fa fa-list"></i> Itens Contrato:</li>
+
+
+        <li><a href="/gescon/contrato/{{$entry->getKey()}}/contratocontas">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Conta-Depósito Vinculada</a></li>
+
+
+
         <li><a href="/gescon/meus-contratos/{{$entry->getKey()}}/faturas">&nbsp;&nbsp;&nbsp;<i
                     class="fa fa-angle-right"></i>Faturas</a></li>
         <li><a href="/gescon/meus-contratos/{{$entry->getKey()}}/ocorrencias">&nbsp;&nbsp;&nbsp;<i

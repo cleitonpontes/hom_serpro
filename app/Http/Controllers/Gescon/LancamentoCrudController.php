@@ -1,20 +1,12 @@
 <?php
-
 namespace App\Http\Controllers\Gescon;
-
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\LancamentoRequest as StoreRequest;
 use App\Http\Requests\LancamentoRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
-
 use App\Models\Movimentacaocontratoconta;
-
 use Illuminate\Database\Eloquent\Builder;
-
-
-
 /**
  * Class LancamentoCrudController
  * @package App\Http\Controllers\Admin
@@ -22,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class LancamentoCrudController extends CrudController
 {
-
     public function setup()
     {
         $movimentacaocontratoconta_id = \Route::current()->parameter('movimentacaocontratoconta_id');
@@ -39,36 +30,24 @@ class LancamentoCrudController extends CrudController
         $this->crud->setEntityNameStrings('lancamento', 'lancamentos');
 
         // adicionar cláusula para trabalharmos apenas com lançamentos da movimentação
-        $this->crud->addClause('select', 'lancamentos.*', 'contratoterceirizados.salario', 'codigoitens.descricao', 'cod_encargo.descricao', 'encargos.percentual');
+        // $this->crud->addClause('select', 'lancamentos.*', 'contratoterceirizados.salario', 'codigoitens.descricao', 'cod_encargo.descricao', 'encargos.percentual');
+        $this->crud->addClause('select', 'lancamentos.*', 'contratoterceirizados.salario', 'codigoitens.descricao');
         $this->crud->addClause('join', 'movimentacaocontratocontas', 'movimentacaocontratocontas.id',  '=',  'lancamentos.movimentacao_id');
         $this->crud->addClause('join', 'codigoitens', 'codigoitens.id',  '=',  'movimentacaocontratocontas.tipo_id');
         $this->crud->addClause('join', 'contratoterceirizados', 'contratoterceirizados.id',  '=',  'lancamentos.contratoterceirizado_id');
-        $this->crud->addClause('join', 'encargos', 'encargos.id',  '=',  'lancamentos.encargo_id');
-        $this->crud->addClause('join', 'codigoitens as cod_encargo', 'cod_encargo.id',  '=',  'encargos.tipo_id');
+        // $this->crud->addClause('join', 'encargos', 'encargos.id',  '=',  'lancamentos.encargo_id');
+        // $this->crud->addClause('join', 'codigoitens as cod_encargo', 'cod_encargo.id',  '=',  'encargos.tipo_id');
         $this->crud->addClause('where', 'lancamentos.movimentacao_id', '=', $movimentacaocontratoconta_id);
-
-
-
         $this->crud->denyAccess('create');
         $this->crud->denyAccess('update');
-        // $this->crud->denyAccess('delete');
-        // $this->crud->denyAccess('show');
-
         $this->crud->addButtonFromView('top', 'voltarparamovimentacoes', 'voltarparamovimentacoes', 'end');
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
-        // TODO: remove setFromDb() and manually define Fields and Columns
-        // $this->crud->setFromDb();
-
         $colunas = $this->Colunas();
         $this->crud->addColumns($colunas);
-
-
         // add asterisk for fields that are required in LancamentoRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
@@ -104,32 +83,34 @@ class LancamentoCrudController extends CrudController
                 },
             ],
             [
-                'name' => 'getTipoEncargo',
+                'name' => 'getTipoEncargoOuGrupoA',
                 'label' => 'Verba', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getTipoEncargo', // the method in your Model
+                'function_name' => 'getTipoEncargoOuGrupoA', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('cod_encargo.descricao', 'ilike', "%$searchTerm%");
-                },
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('cod_encargo.descricao', 'ilike', "%$searchTerm%");
+                // },
             ],
             [
-                'name' => 'getPercentualEncargo',
+                'name' => 'getPercentualEncargoOuGrupoA',
                 'label' => 'Percentual', // Table column heading
                 'type' => 'model_function',
-                'function_name' => 'getPercentualEncargo', // the method in your Model
+                'function_name' => 'getPercentualEncargoOuGrupoA', // the method in your Model
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('encargos.percentual', 'ilike', "%$searchTerm%");
-                },
+                'prefix' => "% ",
+
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('encargos.percentual', 'ilike', "%$searchTerm%");
+                // },
             ],
             [
                 'name' => 'getTipoMovimentacao',
@@ -153,10 +134,9 @@ class LancamentoCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
-                'searchLogic' => function (Builder $query, $column, $searchTerm) {
-                    $query->orWhere('lancamentos.valor', 'ilike', "%$searchTerm%");
-                },
-
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('lancamentos.valor', 'ilike', "%$searchTerm%");
+                // },
             ],
         ];
         return $colunas;
@@ -169,7 +149,6 @@ class LancamentoCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
-
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here
