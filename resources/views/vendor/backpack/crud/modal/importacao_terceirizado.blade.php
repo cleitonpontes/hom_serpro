@@ -1,10 +1,11 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="modal-importacao-terceirizado">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content" id="modal-content">
             <form
             action="{{ $routeAction }}"
             enctype="multipart/form-data"
             method="post"
+            id="form_importacao_terceirizado"
             >
                 {!! csrf_field() !!}
                 <div class="modal-header">
@@ -18,11 +19,11 @@
                     </span>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group input-form">
                         <label class="input-required">Delimitador</label>
                         <input type="text" name="delimitador" value="" class="form-control">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group input-form">
                         <label class="input-required">Arquivos</label>
                         <input name="arquivos[]" type="hidden" value="">
                         <input
@@ -36,9 +37,12 @@
                         >
                         <span id="mensagem-validacao" style="color: red; font-weight: bold"></span>
                     </div>
+                    <div id="progressbar">
+
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-ban"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="botao-cancelar"><span class="fa fa-ban"></span>
                         &nbsp;Cancelar
                     </button>
                     <button type="submit" class="btn btn-success" id="botao-salvar">
@@ -66,6 +70,17 @@
                     $('#mensagem-validacao').hide();
                     $('#botao-salvar').removeAttr('disabled');
                 }
+            });
+
+            $('#form_importacao_terceirizado').on('submit',function (){
+                $('#botao-salvar').attr('disabled', 'disabled');
+                $('#botao-cancelar').attr('disabled', 'disabled');
+                $('#progressbar').html(
+                    "{!! ProgressBar::normal(100)->animated() !!}" +
+                    "<div><span>Carregando...</span></div>"
+                );
+                $('.input-form').hide();
+
             });
         });
     </script>
