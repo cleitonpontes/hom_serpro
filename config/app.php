@@ -425,6 +425,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'FormBuilder' => Kris\LaravelFormBuilder\Facades\FormBuilder::class,
         'Icon' => Bootstrapper\Facades\Icon::class,
+        'ProgressBar' => Bootstrapper\Facades\ProgressBar::class,
         'Button' => Bootstrapper\Facades\Button::class,
         'DropdownButton' => Bootstrapper\Facades\DropdownButton::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,

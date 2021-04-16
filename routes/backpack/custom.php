@@ -147,6 +147,8 @@ Route::group([
             Route::get('ajusteremessas/remessa/{id_remessa}/atualizaritemcompracontrato', 'AjusteMinutasCrudController@atualizaritemcompracontrato')
                 ->name('ajusteremessas.atualizar.contrato.compra');
 
+            Route::post('importacao/terceirizados/{contrato_id}', 'ImportacaoCrudController@importacaoTerceirizados');
+
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
                 ->name('apropriacao.download');
