@@ -565,8 +565,8 @@ class Execsiafi
             'codFavorecido' => $sfOrcEmpenhoDados->codfavorecido,
             'codAmparoLegal' => $sfOrcEmpenhoDados->codamparolegal,
             'txtInfoCompl' => $sfOrcEmpenhoDados->txtinfocompl,
-            'txtLocalEntrega' => $sfOrcEmpenhoDados->txtlocalentrega,
-            'txtDescricao' => $sfOrcEmpenhoDados->txtdescricao,
+            'txtLocalEntrega' => trim($sfOrcEmpenhoDados->txtlocalentrega),
+            'txtDescricao' => trim($sfOrcEmpenhoDados->txtdescricao),
             'passivoAnterior' => $this->montaPassivoAnterior($sfOrcEmpenhoDados->id),
             'itemEmpenho' => $this->montaItemEmpenho($sfOrcEmpenhoDados->id),
         ];
