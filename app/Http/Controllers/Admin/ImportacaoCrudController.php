@@ -585,5 +585,8 @@ class ImportacaoCrudController extends CrudController
         $importacao->save();
 
         $this->verificaTipoIniciarExecucao($importacao, $contrato->id);
+
+        \Alert::success('Item cadastrado com sucesso!')->flash();
+        return redirect()->route('crud.terceirizados.index',['contrato_id' => $contrato->id]);
     }
 }
