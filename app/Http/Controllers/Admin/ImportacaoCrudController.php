@@ -586,7 +586,6 @@ class ImportacaoCrudController extends CrudController
         $importacao->contrato_id = $contrato->id;
         $importacao->tipo_id = $tipos->id;
         $importacao->situacao_id = $situacao_id;
-        $importacao->role_id = $role_id;
         $importacao->save();
 
         $this->verificaTipoIniciarExecucao($importacao, $contrato->id);
