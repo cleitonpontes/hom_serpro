@@ -677,7 +677,11 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
                     DB::raw('contratoitens.numero_item_compra AS "Número do Item"'),
                     DB::raw('catmatseritens.descricao AS "Descrição"'),
-                    DB::raw('contratoitens.descricao_complementar AS "Descrição Detalhada"'),
+                    DB::raw("CASE
+                                        WHEN contratoitens.descricao_complementar != 'undefined'
+                                            THEN contratoitens.descricao_complementar
+                                        ELSE ''
+                                    END  AS \"Descrição Detalhada\""),
                     DB::raw('contrato_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                     'contrato_item_minuta_empenho.numseq'

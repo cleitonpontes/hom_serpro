@@ -1,17 +1,12 @@
 <?php
-
 namespace App\Http\Controllers\Gescon;
-
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\RepactuacaocontratocontaRequest as StoreRequest;
 use App\Http\Requests\RepactuacaocontratocontaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
-
 use App\Models\Codigoitem;
 use App\Models\Contratoconta;
 use App\Models\Contratoterceirizado;
@@ -19,8 +14,6 @@ use App\Models\Movimentacaocontratoconta;
 use App\Models\Encargo;
 use App\Models\Lancamento;
 use App\Models\Funcionarioscontratoconta;
-
-
 /**
  * Class RepactuacaocontratocontaCrudController
  * @package App\Http\Controllers\Admin
@@ -36,15 +29,11 @@ class RepactuacaocontratocontaCrudController extends CrudController
             abort('403', config('app.erro_permissao'));
         }
         $idContrato = $objContratoConta->contrato_id;
-        // $contratoconta_id = $objContratoConta->id;
         $funcao_id = \Route::current()->parameter('funcao_id');
         $objFuncao = Codigoitem::where('id', '=', $funcao_id)->first();
-
         \Route::current()->setParameter('contrato_id', $idContrato);
         \Route::current()->setParameter('contratoconta_id', $contratoconta_id);
         \Route::current()->setParameter('funcao_id', $funcao_id);
-
-
         // buscar o tipo de movimentação em codigoitens = depósito
         $objTipoMovimentacaoRepactuacao = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Movimentação');
@@ -52,11 +41,6 @@ class RepactuacaocontratocontaCrudController extends CrudController
         ->where('descricao', '=', 'Repactuação')
         ->first();
         $idTipoMovimentacaoRepactuacao = $objTipoMovimentacaoRepactuacao->id;
-
-        // dd($this->crud->request->session('attributes');
-        // echo ' ===>> '.$saveAction['active']['value'];
-
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -65,27 +49,14 @@ class RepactuacaocontratocontaCrudController extends CrudController
         $this->crud->setModel('App\Models\Repactuacaocontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/'. $funcao_id .'/repactuacaocontratoconta');
         $this->crud->setEntityNameStrings('Repactuação', 'Repactuação');
-
-        // $this->crud->denyAccess('create');
-        // $this->crud->denyAccess('update');
-        // $this->crud->denyAccess('delete');
-        // $this->crud->denyAccess('show');
         $this->crud->denyAccess('list');
-
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
-        // TODO: remove setFromDb() and manually define Fields and Columns
-        // $this->crud->setFromDb();
-
         $campos = $this->Campos($objFuncao, $idContrato, $contratoconta_id, $idTipoMovimentacaoRepactuacao);
         $this->crud->addFields($campos);
-
-
         // add asterisk for fields that are required in RepactuacaocontratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
@@ -117,8 +88,6 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 'type' => 'hidden',
                 'default' => $objFuncao->id, // tipo da movimentação (dep, ret, rep)
             ],
-
-
             [   //
                 'name' => 'nome_funcao',
                 'label' => 'Nome da função',
@@ -135,8 +104,6 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 'label' => 'Jornada',
                 'type'  => 'text',
             ],
-
-
             [   // Number
                 'name' => 'novoSalario',
                 'label' => 'Novo salário',
@@ -144,13 +111,9 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 // optionals
                 'attributes' => [
                     'id' => 'novoSalario',
-                    // 'readonly' => 'readonly',
-                    // 'style' => 'pointer-events: none;touch-action: none;'
                 ], // allow decimals
                 'prefix' => "R$",
-                // 'default' => $objContratoTerceirizado->salario, // tipo da movimentação (dep, ret, rep)
             ],
-
             [ // select_from_array
                 'name' => 'mes_inicio',
                 'label' => "Mês Início",
@@ -166,8 +129,6 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 'default' => date('Y'),
                 'allows_null' => false,
             ],
-
-
             [ // select_from_array
                 'name' => 'mes_fim',
                 'label' => "Mês Fim",
@@ -207,37 +168,29 @@ class RepactuacaocontratocontaCrudController extends CrudController
         }
         return false;
     }
-
     public function store(StoreRequest $request)
     {
         $quantidadeLancamentosGerados = 0;
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
         $idContratoConta = $request->input('contratoconta_id');
-
+        $objContratoConta = Contratoconta::where('id', $idContratoConta)->first();
         // buscar todos os terceirizados pelo contrato e pela função
         $novoSalario = $request->input('novoSalario');
         $novoSalario = str_replace('.', '', $novoSalario);
         $novoSalario = str_replace(',', '.', $novoSalario);
         $request->request->set('salario_novo', $novoSalario);
-
         $mesInicio = $request->input('mes_inicio');
         $mesFim = $request->input('mes_fim');
-
         $anoInicio = $request->input('ano_inicio');
         $anoFim = $request->input('ano_fim');
-
         $jornada = $request->input('jornada');
-
         $idContrato = $request->input('idContrato');
         $idFuncao = $request->input('funcao_id');
         $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id', $idContrato)
-        ->where('funcao_id', $idFuncao)
-        ->get();
-
-
+            ->where('funcao_id', $idFuncao)
+            ->get();
         if(count($arrayContratosTerceirizados) > 0){
-
             // varrer os contratos
             $arrayIdsMovimentacoesGeradas = array();
             foreach( $arrayContratosTerceirizados as $objContratoTerceirizado ){
@@ -245,35 +198,31 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 $salarioAtual = $objContratoTerceirizado->salario;
                 $diferencaEntreSalarios = ($novoSalario - $salarioAtual);
                 $situacaoContratoTerceirizado = $objContratoTerceirizado->situacao; // verificar se é ativo
-                // $idMovimentacao = null;
-
                 // vamos verificar se a jornada informada é a mesma da jornada do terceirizado e se o terceirizado é ativo.
                 if( $jornada == $jornadaContratoTerceirizado && $situacaoContratoTerceirizado){
-
-
                     // para cada terceirizado - buscar os lançamentos pela data
                     $idContratoTerceirizado = $objContratoTerceirizado->id;
                     $arrayLancamentosTerceirizado = self::getTodosLancamentosDepositoByIdContratoTerceirizado($idContratoTerceirizado);
-
                     // vamos varrer os lançamentos para verificar o mês / ano
                     $idMovimentacaoAux = null;
                     foreach($arrayLancamentosTerceirizado as $objLancamentoExistente){
                         $encargo_id = $objLancamentoExistente->encargo_id;
-                        $objEncargo = Encargo::where('id', $encargo_id)->first();
+                        if($encargo_id != null){
+                            $objEncargo = Encargo::where('id', $encargo_id)->first();
+                        } else {
+
+                        }
                         $idMovimentacaoLancamento = $objLancamentoExistente->movimentacao_id;
                         $objMovimentacaoLancamento = Movimentacaocontratoconta::where('id', $idMovimentacaoLancamento)->first();
                         $mesMovimentacaoLancamento = $objMovimentacaoLancamento->mes_competencia;
                         $anoMovimentacaoLancamento = $objMovimentacaoLancamento->ano_competencia;
-
                         // vamos verificar se é o caso de criarmos uma nova movimentação
                         if( $idMovimentacaoAux != $idMovimentacaoLancamento ){
-
                             // vamos finalizar a movimentação anterior
                             if($idMovimentacaoAux!=null){
                                 // aqui os lançamentos já foram gerados e entraremos em uma nova movimentação.
                                 self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
                             }
-
                             // Criar a nova movimentação
                             $request->request->set('mes_competencia', $mesMovimentacaoLancamento); // será utilizado na nova mov.
                             $request->request->set('ano_competencia', $anoMovimentacaoLancamento); // será utilizado na nova mov.
@@ -282,14 +231,11 @@ class RepactuacaocontratocontaCrudController extends CrudController
                                 \Alert::error($mensagem)->flash();
                                 return redirect()->back();
                             }
-
                             // aqui a movimentação foi criada.
                             array_push($arrayIdsMovimentacoesGeradas, $idMovimentacao);
                             $request->request->set('movimentacao_id', $idMovimentacao);
-                            //
                             $idMovimentacaoAux = $idMovimentacaoLancamento;
                         }
-
                         // verificar o mês e ano início da movimentação do lançamento
                         $continuar = false;
                         if( $anoMovimentacaoLancamento >= $anoInicio ){
@@ -321,16 +267,25 @@ class RepactuacaocontratocontaCrudController extends CrudController
                         } else {
                             $continuar = false;
                         }
-
                         // verificar se está tudo certo pra continuar
                         if($continuar){
                             // aqui as verificações estão ok
-                            $percentualEncargo = $objEncargo->percentual;
+                            /**
+                             * Após reunião com o Gabriel, foi solicitado que o percentual do grupo A não fizesse mais parte dos encargos.
+                             * Agora, grupo A faz parte da tabela contrato conta, pois ele varia de conta pra conta.
+                             *
+                             * Aqui, vamos precisar verificar se o existe o objeto encargo.
+                             * Caso não exista, é porque se trata do grupo A - vamos pegar o objeto contrato conta
+                             *
+                             */
+                            if($encargo_id != null){
+                                $percentualEncargo = $objEncargo->percentual;
+                            } else {
+                                $percentualEncargo = $objContratoConta->percentual_grupo_a_13_ferias;
+                            }
                             $valorSalvar = ( $diferencaEntreSalarios * $percentualEncargo) / 100;
-
                             $request->request->set('valor', $valorSalvar);
                             $request->request->set('encargo_id', $encargo_id);
-
                             $objLancamento = new Lancamento();
                             $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
                             $objLancamento->encargo_id = $encargo_id;
@@ -397,11 +352,11 @@ class RepactuacaocontratocontaCrudController extends CrudController
         ->join('movimentacaocontratocontas as m', 'm.id', '=', 'l.movimentacao_id')
         ->join('codigoitens as c', 'c.id', '=', 'm.tipo_id')
         ->where('l.contratoterceirizado_id', '=', $idContratoTerceirizado)
-        ->where('c.descricao', '=', 'Depósito')
+        // ->where('c.descricao', '=', 'Depósito')
+        ->where('c.descricao', '=', 'Provisão')
         ->get();
         return $array;
     }
-
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here

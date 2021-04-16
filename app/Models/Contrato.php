@@ -456,15 +456,20 @@ class Contrato extends Model
                 'cnpj_cpf_idgener' => $this->fornecedor->cpf_cnpj_idgener,
                 'nome' => $this->fornecedor->nome,
             ],
+            'codigo_tipo' => @$this->tipo->descres,
             'tipo' => $this->tipo->descricao,
             'categoria' => $this->categoria->descricao,
             'subcategoria' => @$this->orgaosubcategoria->descricao,
             'unidades_requisitantes' => $this->unidades_requisitantes,
             'processo' => $this->processo,
             'objeto' => $this->objeto,
+            'fundamento_legal' => @$this->fundamento_legal,
             'informacao_complementar' => $this->info_complementar,
+            'codigo_modalidade' => @$this->modalidade->descres,
             'modalidade' => $this->modalidade->descricao,
+            'unidade_compra' => @$this->unidadecompra->codigo,
             'licitacao_numero' => $this->licitacao_numero,
+            'sistema_origem_licitacao' => @$this->sistema_origem_licitacao,
             'data_assinatura' => $this->data_assinatura,
             'data_publicacao' => $this->data_publicacao,
             'vigencia_inicio' => $this->vigencia_inicio,
@@ -555,6 +560,11 @@ class Contrato extends Model
     public function ocorrencias()
     {
         return $this->hasMany(Contratoocorrencia::class, 'contrato_id');
+    }
+
+    public function unidadesdescentralizadas()
+    {
+        return $this->hasMany(Contratounidadedescentralizada::class, 'contrato_id');
     }
 
     public function orgaosubcategoria()

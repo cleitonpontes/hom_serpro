@@ -30,12 +30,6 @@ class InsertCodigoitensEncargosDados extends Migration
 
         $codigoitem = Codigoitem::create([
             'codigo_id' => $codigo->id,
-            'descres' => '13o.',
-            'descricao' => 'Décimo Terceiro Salário'
-        ]);
-
-        $codigoitem = Codigoitem::create([
-            'codigo_id' => $codigo->id,
             'descres' => 'FÉRIAS',
             'descricao' => 'Férias e Adicional'
         ]);

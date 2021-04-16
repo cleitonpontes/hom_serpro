@@ -551,7 +551,7 @@ class InstrumentoinicialCrudController extends CrudController
             [ // select2_from_ajax: 1-n relationship
                 'name' => 'subcategoria_id', // the column that contains the ID of that connected entity
                 'label' => "Subcategoria", // Table column heading
-                'type' => 'select2_from_ajax',
+                'type' => 'select2_from_ajax_single',
                 'model' => 'App\Models\OrgaoSubcategoria',
                 'entity' => 'orgaosubcategoria', // the method that defines the relationship in your Model
                 'attribute' => 'descricao', // foreign key attribute that is shown to user
@@ -829,7 +829,7 @@ class InstrumentoinicialCrudController extends CrudController
         $contratoItem->tipo_id = $request['tipo_item_id'][$key];
         $contratoItem->grupo_id = $catmatseritem->grupo_id;
         $contratoItem->catmatseritem_id = $catmatseritem->id;
-        $contratoItem->descricao_complementar = $request['descricao_detalhada'][$key];
+        $contratoItem->descricao_complementar = $catmatseritem->descricao;
         $contratoItem->quantidade = (double)$request['qtd_item'][$key];
         $contratoItem->valorunitario = $request['vl_unit'][$key];
         $contratoItem->valortotal = $request['vl_total'][$key];

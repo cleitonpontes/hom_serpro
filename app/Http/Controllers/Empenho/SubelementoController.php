@@ -364,7 +364,7 @@ class SubelementoController extends BaseControllerEmpenho
                     }
                 )
                 ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                    if ($itens['descricaosimplificada'] != null) {
+                    if ($itens['descricaosimplificada'] != null && $itens['descricaosimplificada'] !== 'undefined') {
                         return $this->retornaDescricaoDetalhada(
                             $itens['descricaosimplificada'],
                             $itens['descricaodetalhada']
@@ -553,65 +553,58 @@ class SubelementoController extends BaseControllerEmpenho
 
     private function addColunaQuantidade($item, $tipo)
     {
-        $quantidade = $item['quantidade'];
-
-        if ($tipo === 'contrato_item_id' && $item['descricao'] === 'Serviço') {
-            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
-                . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
-                . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
-                . "' data-tipo='' name='quantidade_total[]' value='"
-                . $item['qtd_item'] . " readonly'> ";
+        //CASO SEJA CONTRATO
+        if ($tipo === 'contrato_item_id') {
+            return $this->setColunaContratoQuantidade($item);
         }
 
-        if ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') {
-            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
-                . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='" . $quantidade . "' readonly> "
-                . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
-                . "' data-tipo='' name='quantidade_total[]' value='"
-                . $item['qtd_item'] . " '> ";
-        }
-        //caso seja suprimento
+        //CASO SEJA SUPRIMENTO
         if (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false) {
-            return " <input  type='number' max='" . $item['qtd_item'] . "' min='1' class='form-control qtd"
-                . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-tipo='' name='qtd[]' value='$quantidade' readonly  > "
-                . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
-                . "' data-tipo='' name='quantidade_total[]' value='"
-                . $item['qtd_item'] . " readonly'> ";
+            return $this->setColunaSuprimentoQuantidade($item);
         }
 
-        return " <input type='number' max='" . $item['qtd_item'] . "' min='1' id='qtd" . $item[$tipo]
-            . "' data-$tipo='" . $item[$tipo]
-            . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control qtd' value='$quantidade' > "
-            . " <input  type='hidden' id='quantidade_total" . $item[$tipo]
-            . "' data-tipo='' name='quantidade_total[]' value='" . $item['qtd_item'] . "'> ";
+        //CASO SEJA COMPRA E SISRP
+        if ($item['tipo_compra_descricao'] === 'SISRP') {
+            $this->setColunaCompraSisrpQuantidade($item);
+        }
+
+        //CASO SEJA COMPRA SISPP MATERIAL
+        if ($item['descricao'] === 'Material') {
+            return $this->setColunaCompraSisppMaterialQuantidade($item);
+        }
+
+        //CASO SEJA COMPRA SISPP SERVIÇO
+        //if ($item['descricao'] === 'Serviço') {
+        return $this->setColunaCompraSisppServicoQuantidade($item);
+        //}
     }
 
     private function addColunaValorTotal($item, $tipo)
     {
-
-        $valor = $item['valor'];
-
-        //se for contrato e serviço OU sispp e serviço OU se for suprimento
-        if (($tipo == 'contrato_item_id' && $item['descricao'] === 'Serviço') ||
-            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
-            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
-        ) {
-            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
-                . $item[$tipo] . "'"
-                . "id='vrtotal" . $item[$tipo]
-                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
-                . " data-$tipo='" . $item[$tipo] . "'"
-                . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onkeyup='calculaQuantidade(this)' >";
+        //CASO SEJA CONTRATO
+        if ($tipo === 'contrato_item_id') {
+            return $this->setColunaContratoValorTotal($item);
         }
 
-        return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
-            . "id='vrtotal" . $item[$tipo]
-            . "' data-tipo='' name='valor_total[]' value='$valor' disabled > ";
+        //CASO SEJA SUPRIMENTO
+        if (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false) {
+            return $this->setColunaSuprimentoValorTotal($item);
+        }
+
+        //CASO SEJA COMPRA E SISRP
+        if ($item['tipo_compra_descricao'] === 'SISRP') {
+            return $this->setColunaCompraSisrpValorTotal($item);
+        }
+
+        //CASO SEJA COMPRA SISPP MATERIAL
+        if ($item['descricao'] === 'Material') {
+            return $this->setColunaCompraSisppMaterialValorTotal($item);
+        }
+
+        //CASO SEJA COMPRA SISPP SERVIÇO
+        //if ($item['descricao'] === 'Serviço') {
+        return $this->setColunaCompraSisppServicoValorTotal($item);
+        //}
     }
 
     private function addColunaValorTotalItem($item, $tipo)
@@ -634,13 +627,15 @@ class SubelementoController extends BaseControllerEmpenho
 
     public function store(Request $request)
     {
+        $credito = (number_format($request->credito, 2, '.', ''));
+        $valor_utilizado = (number_format($request->valor_utilizado, 2, '.', ''));
 
         $minuta_id = $request->get('minuta_id');
         $modMinuta = MinutaEmpenho::find($minuta_id);
 
         $tipo = $modMinuta->tipo_empenhopor->descricao;
 
-        if ($request->credito - $request->valor_utilizado < 0) {
+        if ($credito - $valor_utilizado < 0) {
             Alert::error('O saldo não pode ser negativo.')->flash();
             return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
         }
@@ -677,12 +672,23 @@ class SubelementoController extends BaseControllerEmpenho
                 }
             }
             if ($tipo == 'Compra') {
+                $tipoCompraId = $this->retornaIdCodigoItem('Tipo Compra','SISRP');
+
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
+
+                    if($tipoCompraId == $modMinuta->compra->tipo_compra_id){
+                        if (floor($request->qtd[$index]) != $request->qtd[$index]) {
+                            Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                        }
+                    };
+
                     if ($valores[$index] > $request->valor_total_item[$index]) {
                         Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
                     }
+
 
                     if ($request->qtd[$index] == 0) {
                         Alert::error('A quantidade selecionada não pode ser zero.')->flash();
@@ -711,6 +717,12 @@ class SubelementoController extends BaseControllerEmpenho
             if ($tipo == 'Suprimento') {
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
+
+                    if (floor($request->qtd[$index]) != $request->qtd[$index]) {
+                        Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                    }
+
                     if ($request->qtd[$index] == 0) {
                         Alert::error('A quantidade selecionada não pode ser zero.')->flash();
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
@@ -784,8 +796,18 @@ class SubelementoController extends BaseControllerEmpenho
             }
 
             if ($tipo === 'Compra') {
+                $tipoCompraId = $this->retornaIdCodigoItem('Tipo Compra','SISRP');
+
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
+
+                    if($tipoCompraId == $modMinuta->compra->tipo_compra_id){
+                        if (floor($request->qtd[$index]) != $request->qtd[$index]) {
+                            Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                            return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                        }
+                    };
+
                     if ($valores[$index] > $request->valor_total_item[$index]) {
                         Alert::error('O valor selecionado não pode ser maior do que o valor total do item.')->flash();
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
@@ -811,10 +833,16 @@ class SubelementoController extends BaseControllerEmpenho
             if ($tipo === 'Suprimento') {
                 $compra_item_ids = $request->compra_item_id;
                 foreach ($compra_item_ids as $index => $item) {
+                    if (floor($request->qtd[$index]) != $request->qtd[$index]) {
+                        Alert::error('A quantidade selecionada deve ser inteira.')->flash();
+                        return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
+                    }
+
                     if ($request->qtd[$index] == 0) {
                         Alert::error('A quantidade selecionada não pode ser zero.')->flash();
                         return redirect()->route('empenho.minuta.etapa.subelemento', ['minuta_id' => $minuta_id]);
                     }
+
                     CompraItemMinutaEmpenho::where('compra_item_id', $item)
                         ->where('minutaempenho_id', $request->minuta_id)
                         ->update([
@@ -837,4 +865,5 @@ class SubelementoController extends BaseControllerEmpenho
 
         return redirect()->route('empenho.crud./minuta.edit', ['minutum' => $modMinuta->id]);
     }
+
 }

@@ -57,7 +57,6 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->remessa = Route::current()->parameter('remessa');
         $minuta = MinutaEmpenho::find($minuta_id);
 
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -464,6 +463,8 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->crud->removeColumn('conta_contabil_passivo_anterior');
         $this->crud->removeColumn('tipo_minuta_empenho');
 
+        $this->adicionaColunaSituacaoShow($params['remessa']);
+
         return $content;
     }
 
@@ -618,7 +619,7 @@ class MinutaAlteracaoCrudController extends CrudController
                 }
             )
             ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                if ($itens['descricaosimplificada'] != null) {
+                if ($itens['descricaosimplificada'] != null && $itens['descricaosimplificada'] !== 'undefined') {
                     return $this->retornaDescricaoDetalhada(
                         $itens['descricaosimplificada'],
                         $itens['descricaodetalhada']
@@ -629,12 +630,7 @@ class MinutaAlteracaoCrudController extends CrudController
                     $itens['catmatser_desc']
                 );
             })
-
-//            ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-//                return $this->retornaDescricaoDetalhada($itens['descricaosimplificada'], $itens['descricaodetalhada']);
-//            })
             ->rawColumns(['subitem', 'quantidade', 'valor_total', 'valor_total_item', 'descricaosimplificada', 'tipo_alteracao'])
-//            ->rawColumns(['subitem', 'valor_total', 'valor_total_item'])
             ->make(true);
     }
 
@@ -836,7 +832,6 @@ class MinutaAlteracaoCrudController extends CrudController
         $this->adicionaColunaDescricao();
     }
 
-    //TODO VERIFICAR PORQUE A SITUACAO ESTÁ VINDO INATIVA PARA TODAS AS LINHAS DA MINUTA 49 NO BANCO LOCAL
     protected function adicionaColunaSituacao()
     {
         $this->crud->addColumn([
@@ -845,6 +840,23 @@ class MinutaAlteracaoCrudController extends CrudController
             'label' => 'Situação', // Table column heading
             'type' => 'text',
 //            'function_name' => 'getAmparoLegal', // the method in your Model
+            'orderable' => true,
+            'visibleInTable' => true, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => true, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
+    }
+
+    protected function adicionaColunaSituacaoShow(string $remessa): void
+    {
+        $this->crud->addColumn([
+            'box' => 'resumo',
+            'name' => 'situacao_remessa',
+            'label' => 'Situação', // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getSituacaoRemessa', // the method in your Model
+            'function_parameters' => [$remessa],
             'orderable' => true,
             'visibleInTable' => true, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
@@ -1105,7 +1117,11 @@ class MinutaAlteracaoCrudController extends CrudController
                     DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
                     DB::raw('contratoitens.numero_item_compra AS "Número do Item"'),
                     DB::raw('catmatseritens.descricao AS "Descrição"'),
-                    DB::raw('contratoitens.descricao_complementar AS "Descrição Detalhada"'),
+                    DB::raw("CASE
+                                        WHEN contratoitens.descricao_complementar != 'undefined'
+                                            THEN contratoitens.descricao_complementar
+                                        ELSE ''
+                                    END  AS \"Descrição Detalhada\""),
                     DB::raw('operacao.descricao AS "Operação"'),
                     DB::raw('contrato_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
@@ -1466,77 +1482,59 @@ class MinutaAlteracaoCrudController extends CrudController
 
     private function addColunaQuantidade($item, $tipo, $tipos)
     {
-        $ehcontrato = strpos($tipo, 'contrato');
-        $quantidade = (float)$item['quantidade'];
-
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $quantidade *= -1;
-        }
-        $quantidade = sprintf('%.5f', (float)$quantidade);
-
-        //se é contrato e é serviço OU se é sispp e serviço OU se for suprimento
-        if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
-            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
-            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
-        ) {
-            return " <input  type='number' class='form-control qtd qtd"
-                . $item[$tipo] . "' id='qtd" . $item[$tipo]
-                . "' data-$tipo='" . $item[$tipo] . "'"
-                . " data-tipo='' name='qtd[]' value='$quantidade' readonly  > ";
+        //CASO SEJA CONTRATO
+//        clock($item, $tipo, $tipos);
+        if ($tipo === 'contrato_item_id') {
+            return $this->setColunaContratoQuantidade($item, $tipos);
         }
 
-        $readonly = 'readonly';
-        if (array_key_exists($item['operacao_id'], $tipos)
-            && (
-                $tipos[$item['operacao_id']] === "ANULAÇÃO"
-                || $tipos[$item['operacao_id']] === "REFORÇO"
-            )) {
-            $readonly = '';
+        //CASO SEJA SUPRIMENTO
+        if (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false) {
+            return $this->setColunaSuprimentoQuantidade($item, $tipos);
         }
-        return " <input type='number'  id='qtd" . $item[$tipo]
-            . "' data-$tipo='" . $item[$tipo]
-            . "' data-valor_unitario='" . $item['valorunitario'] . "' name='qtd[]'"
-            . " class='form-control qtd' value='$quantidade' oninput='calculaValorTotal(this)'  $readonly> ";
+
+        //CASO SEJA COMPRA E SISRP
+        if ($item['tipo_compra_descricao'] === 'SISRP') {
+            $this->setColunaCompraSisrpQuantidade($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA SISPP MATERIAL
+        if ($item['descricao'] === 'Material') {
+            return $this->setColunaCompraSisppMaterialQuantidade($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA SISPP SERVIÇO
+        //if ($item['descricao'] === 'Serviço') {
+        return $this->setColunaCompraSisppServicoQuantidade($item, $tipos);
+        //}
     }
 
     private function addColunaValorTotal($item, $tipo, $tipos)
     {
-        $ehcontrato = strpos($tipo, 'contrato');
-        $valor = (float)$item['valor'];
-
-        if (array_key_exists($item['operacao_id'], $tipos) && $tipos[$item['operacao_id']] === "ANULAÇÃO") {
-            $valor *= -1;
-        }
-        $valor = number_format($valor, '2', '.', '');
-
-        //se é contrato e serviço OU se é sispp e serviço OU se é suprimento
-        if (($ehcontrato !== false && $item['descricao'] === 'Serviço') ||
-            ($item['tipo_compra_descricao'] === 'SISPP' && $item['descricao'] === 'Serviço') ||
-            (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false)
-        ) {
-            $readonly = 'disabled';
-
-            if (array_key_exists($item['operacao_id'], $tipos)
-                && (
-                    $tipos[$item['operacao_id']] === "ANULAÇÃO"
-                    || $tipos[$item['operacao_id']] === "REFORÇO"
-                )) {
-                $readonly = "";
-            }
-
-            return " <input  type='text' class='form-control col-md-12 valor_total vrtotal"
-                . $item[$tipo] . "'"
-                . "id='vrtotal" . $item[$tipo]
-                . "' data-qtd_item='" . $item['qtd_item'] . "' name='valor_total[]' value='$valor'"
-                . " data-$tipo='" . $item[$tipo] . "'"
-                . " data-valor_unitario='" . $item['valorunitario'] . "'"
-                . " onkeyup='calculaQuantidade(this)' $readonly>";
+        //CASO SEJA CONTRATO
+        if ($tipo === 'contrato_item_id') {
+            return $this->setColunaContratoValorTotal($item, $tipos);
         }
 
-        return " <input  type='text' class='form-control valor_total vrtotal" . $item[$tipo] . "'"
-            . "id='vrtotal" . $item[$tipo] . "'"
-            . " data-$tipo='" . $item[$tipo] . "'"
-            . " data-tipo='' name='valor_total[]' value='$valor' disabled > ";
+        //CASO SEJA SUPRIMENTO
+        if (strpos($item['catmatser_desc'], 'SUPRIMENTO') !== false) {
+            return $this->setColunaSuprimentoValorTotal($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA E SISRP
+        if ($item['tipo_compra_descricao'] === 'SISRP') {
+            return $this->setColunaCompraSisrpValorTotal($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA SISPP MATERIAL
+        if ($item['descricao'] === 'Material') {
+            return $this->setColunaCompraSisppMaterialValorTotal($item, $tipos);
+        }
+
+        //CASO SEJA COMPRA SISPP SERVIÇO
+        //if ($item['descricao'] === 'Serviço') {
+        return $this->setColunaCompraSisppServicoValorTotal($item, $tipos);
+        //}
     }
 
     private function addColunaValorTotalItem($item, $tipo)
@@ -1951,16 +1949,28 @@ class MinutaAlteracaoCrudController extends CrudController
 
     public function retornarArray($return, $return_soma, $tipo)
     {
+
         $return = array_map(
             function ($return) use ($return_soma, $tipo) {
                 $id = array_search($return[$tipo], array_column($return_soma, $tipo));
                 $return['qtd_total_item'] = $return_soma[$id]['qtd_total_item'];
                 $return['vlr_total_item'] = $return_soma[$id]['vlr_total_item'];
+                $vlr_unitario_item = 0;
+                if (($return_soma[$id]['vlr_total_item'] > 0) || ($return_soma[$id]['qtd_total_item'] > 0)) {
+                    $vlr_unitario_item = round(($return_soma[$id]['vlr_total_item'] / $return_soma[$id]['qtd_total_item']), 4);
+                }
+                $return['vlr_unitario_item'] = $this->ceil_dec($vlr_unitario_item, 2);
                 return $return;
             },
             $return
         );
 
         return $return;
+    }
+
+    function ceil_dec($val, $dec)
+    {
+        $pow = pow(10, $dec);
+        return ceil(number_format($pow * $val, 2, '.', '')) / $pow;
     }
 }

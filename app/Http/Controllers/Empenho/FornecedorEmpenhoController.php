@@ -48,7 +48,10 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
      */
     public function index(Request $request)
     {
+
         $minuta_id = Route::current()->parameter('minuta_id');
+        $uasg_inativa = Route::current()->parameter('uasg_inativa');
+
         $modMinutaEmpenho = MinutaEmpenho::find($minuta_id);
         $codigoitem = Codigoitem::find($modMinutaEmpenho->tipo_empenhopor_id);
 
@@ -115,6 +118,9 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
 
         $html = $this->retornaGrid();
 
+        if(isset($uasg_inativa)){
+            return view('backpack::mod.empenho.Etapa2Fornecedor', compact('html'))->with('uasg_inativa',$uasg_inativa);
+        }
         return view('backpack::mod.empenho.Etapa2Fornecedor', compact('html'));
     }
 
@@ -343,7 +349,7 @@ class FornecedorEmpenhoController extends BaseControllerEmpenho
                     return $this->retornaRadioItens($itens['id'], $modMinutaEmpenho->id, $itens['descricao'], $tipo);
                 })
                 ->addColumn('descricaosimplificada', function ($itens) use ($modMinutaEmpenho) {
-                    if ($itens['descricaosimplificada'] != null) {
+                    if ($itens['descricaosimplificada'] != null && $itens['descricaosimplificada'] !== 'undefined') {
                         return $this->retornaDescricaoDetalhada(
                             $itens['descricaosimplificada'],
                             $itens['descricaodetalhada']

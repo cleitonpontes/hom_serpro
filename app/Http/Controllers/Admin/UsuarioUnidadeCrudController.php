@@ -252,6 +252,7 @@ class UsuarioUnidadeCrudController extends CrudController
                         ->where('name', '<>', 'Administrador')
                         ->where('name', '<>', 'Administrador Órgão')
                         ->where('name', '<>', 'Administrador Unidade')
+                        ->where('name', '<>', 'Acesso API')
                         ->get();
                 }),
             ],
