@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Http\Controllers\APIController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Formatador;
@@ -14,7 +15,7 @@ use PHPUnit\Util\Json;
 use Illuminate\Support\Collection;
 use Throwable;
 
-class UsuarioAntecipaGovController extends Controller
+class UsuarioAntecipaGovController extends APIController
 {   
     use Formatador;
     
@@ -43,7 +44,7 @@ class UsuarioAntecipaGovController extends Controller
     public function usuariosPorUG(String $ug, Request $request)
     {   
         $usuarios_array = [];
-        $usuarios = $this->buscaUsuariosPorUG($this->verificaUG($ug), $this->verificaData($request->date, $request->time), $this->verificaPerfis($request->perfis));
+        $usuarios = $this->buscaUsuariosPorUG($this->verificaUG($ug), $this->range($request->dt_alteracao_min, $request->dt_alteracao_max), $this->verificaPerfis($request->perfis));
      
         foreach ($usuarios as $usuario) {
             $usuarios_array[] = $this->formataUsuarioAPI($usuario);
@@ -74,7 +75,7 @@ class UsuarioAntecipaGovController extends Controller
     public function usuarioPorCPF(String $cpf, Request $request)
     {   
         $usuarios_array = [];
-        $usuarios = $this->buscaUsuarioPorCPF($cpf, $this->verificaData($request->date, $request->time));
+        $usuarios = $this->buscaUsuarioPorCPF($cpf, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
         
         foreach ($usuarios as $usuario) {
             $usuarios_array[] = $this->formataUsuarioAPI($usuario);
@@ -84,15 +85,15 @@ class UsuarioAntecipaGovController extends Controller
 
     }
 
-    private function buscaUsuariosPorUG(String $ug, $dataInformada, $perfis)
+    private function buscaUsuariosPorUG(String $ug, $range, $perfis)
     {   
         
         $usuarios = BackpackUser::whereHas('unidade', function ($x) use($ug) {
             $x->where('codigo',$ug);
         })
-            ->when($dataInformada != null, function ($d) use ($dataInformada) {
-                $d->where('users.updated_at', '>', $dataInformada);
-            })
+        ->when($range != null, function ($d) use ($range) {
+            $d->whereBetween('users.updated_at', [$range[0], $range[1]]);
+        })
             ->when($perfis!=null, function ($f) use ($perfis){
                 $f->whereHas('roles', function($q) use ($perfis){
                     $q->whereIn('name', $perfis);
@@ -102,17 +103,18 @@ class UsuarioAntecipaGovController extends Controller
         return $usuarios;
     }
 
-    private function buscaUsuarioPorCPF(String $cpf, $dataInformada)
+    private function buscaUsuarioPorCPF(String $cpf, $range)
     {   
         $usuario = BackpackUser::where('cpf', $this->formataCPF($cpf))
-            ->when($dataInformada != null, function ($d) use ($dataInformada) {
-                $d->where('users.updated_at', '>', $dataInformada);
-            })
+        ->when($range != null, function ($d) use ($range) {
+            $d->whereBetween('users.updated_at', [$range[0], $range[1]]);
+        })
             ->get();
 
         return $usuario;
     }
 
+    //Deve ser refatorada para a Classe de usuários
     private function formataUsuarioAPI(BackpackUser $usuario){
         
         return [
@@ -126,46 +128,7 @@ class UsuarioAntecipaGovController extends Controller
         ];   
     }
 
-    private function verificaUG(String $ug){
-        if(!Unidade::where('codigo', '=', $ug)->exists()){
-            abort(response()->json(['errors' => "A 'UG' informada não existe",], 422));
-            return;
-        }else{
-            return $ug;
-        }
-    }
-
-    private function verificaData($data, $time)
-    {   
-        if ($data != null || $time != null) {
-            
-            if ($this->IsNullOrEmptyString($data) && !$this->IsNullOrEmptyString($time)) {
-                abort(response()->json(['errors' => "O parametro 'date' é obrigatorio quando o 'time' for informado",], 422));
-                return;
-            }
-            if (!$this->IsNullOrEmptyString($data) && $this->IsNullOrEmptyString($time)) {
-                $time = '0800';
-            }
-            if (!is_numeric($data) || !is_numeric($data)) {
-                abort(response()->json(['errors' => "Valor não numerico informado para 'date' ou 'time'",], 422));
-                return;
-            }
-            try {
-                $dataInformada = new Carbon($data . ' ' . $time);
-            } catch (Throwable $e) {
-                abort(response()->json($e->getMessage()));
-                return $e;
-            }
-            if ($dataInformada > Carbon::now()) {
-                abort(response()->json(['errors' => "A data deve ser menor que a atual",], 422));
-                return;
-            }
-            return $dataInformada;
-        } else {
-            return null;
-        }
-    }
-
+    //Avaliar Refatoração, (verificaListaParametro, ja criado na APIController)
     private function verificaPerfis($perfis)
     {
         if ($perfis != null) {
@@ -198,10 +161,6 @@ class UsuarioAntecipaGovController extends Controller
         } else {
             return null;
         }
-    }
-    private function IsNullOrEmptyString($data)
-    {
-        return (!isset($data) || trim($data) === '');
     }
 
 }
