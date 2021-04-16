@@ -392,7 +392,7 @@ class ImportacaoCrudController extends CrudController
         $arrImportacaoParams = [
             'contrato_id' => $contrato_id,
             'cpf' => $array_dado[0],
-            'nome' => $array_dado[1],
+            'nome' => strtoupper(trim($array_dado[1])),
             'escolaridade_id' => $this->retonarIdCodigoItemEscolaridade($array_dado[4]),
             'funcao_id' => $this->retornaIdCodigoItemPorDescres($array_dado[5], 'Mão de Obra'),
             'jornada' => $array_dado[7],
@@ -413,7 +413,7 @@ class ImportacaoCrudController extends CrudController
         //insere campos não obrigatórios
         $arrImportacaoParams['telefone_fixo'] = $array_dado[2];
         $arrImportacaoParams['telefone_celular'] = $array_dado[3];
-        $arrImportacaoParams['descricao_complementar'] = $array_dado[6];
+        $arrImportacaoParams['descricao_complementar'] = strtoupper(trim($array_dado[6]));
         $arrImportacaoParams['vale_alimentacao'] = $this->formatToCurrenyValue($array_dado[12]);
 
         return $arrImportacaoParams;
