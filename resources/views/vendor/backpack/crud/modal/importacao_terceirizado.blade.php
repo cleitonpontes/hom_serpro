@@ -21,7 +21,13 @@
                 <div class="modal-body">
                     <div class="form-group input-form">
                         <label class="input-required">Delimitador</label>
-                        <input type="text" name="delimitador" value="" class="form-control">
+                        <input
+                            type="text"
+                            name="delimitador"
+                            value=""
+                            class="form-control"
+                            id="input-delimitador"
+                        >
                     </div>
                     <div class="form-group input-form">
                         <label class="input-required">Arquivos</label>
@@ -58,6 +64,7 @@
 @push('after_scripts')
     <script type="text/javascript">
         $(document).ready(function(){
+            //valida a extensao do arquivo
             $("#arquivos_file_input").change(function () {
                 var fileInput = $(this);
                 var extPermitidas = ['txt'];
@@ -72,6 +79,7 @@
                 }
             });
 
+            //esconde form e apresenta progressbar
             $('#form_importacao_terceirizado').on('submit',function (){
                 $('#botao-salvar').attr('disabled', 'disabled');
                 $('#botao-cancelar').attr('disabled', 'disabled');
@@ -81,6 +89,38 @@
                 );
                 $('.input-form').hide();
 
+            });
+
+            $(function(){
+                /***************ATRIBUI EVENTOS DE VALIDAÇÃO PARA O INPUT DE DELIMITADOR***************************/
+                var inputDelimitador = document.querySelector('#input-delimitador');
+                var funcMaxCharacter = maxCharacater(1);
+                inputDelimitador.addEventListener('keyup', funcMaxCharacter);
+                inputDelimitador.addEventListener('blur', funcMaxCharacter);
+                /***********************************************************************************************/
+
+                //funcao para limitar o input de delimitador para um character
+                function maxCharacater(length)
+                {
+                    var running = false;
+
+                    return function () {
+                        console.log(length, this.value);
+                        //Para evitar conflito entre o blur e o keyup
+                        if (running) return;
+
+                        //
+                        running = true;
+
+                        //Se o input for maior que length seta o input com o primeiro character digitado
+                        if (this.value.length > length) {
+                            this.value = this.value.charAt(0);
+                        }
+
+                        //Habilita novamente as chamadas do blur e keyup
+                        running = false;
+                    };
+                }
             });
         });
     </script>
