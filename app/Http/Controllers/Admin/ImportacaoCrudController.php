@@ -374,13 +374,7 @@ class ImportacaoCrudController extends CrudController
     private function criaJobsInsercaoTerceirizadoEmMassa($linha, $dados_importacao, $contrato_id)
     {
         $array_dado = explode($dados_importacao->delimitador, $linha);
-        $params_importacao = $this->retornaParamsImportacao($array_dado, $contrato_id);
-
-        if (!!$params_importacao) {
-            //InserirTerceirizadoEmMassaJob::dispatch($params_importacao);
-            InserirTerceirizadoEmMassaJob::dispatchNow($params_importacao);
-        }
-
+        InserirTerceirizadoEmMassaJob::dispatch($array_dado, $contrato_id);
     }
 
     /**
@@ -530,7 +524,8 @@ class ImportacaoCrudController extends CrudController
         }
     }
 
-    public function executaInsercaoMassaTerceirizado($params_importacao){
+    public function executaInsercaoMassaTerceirizado($array_dado, $contrato_id){
+        $params_importacao = $this->retornaParamsImportacao($array_dado, $contrato_id);
         Contratoterceirizado::create($params_importacao);
     }
 
