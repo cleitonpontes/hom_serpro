@@ -51,7 +51,7 @@
                     <button type="button" class="btn btn-default" data-dismiss="modal" id="botao-cancelar"><span class="fa fa-ban"></span>
                         &nbsp;Cancelar
                     </button>
-                    <button type="submit" class="btn btn-success" id="botao-salvar">
+                    <button type="button" class="btn btn-success" id="botao-salvar">
                         <span class="fa fa-save" role="presentation" aria-hidden="true"></span> &nbsp;
                         <span>Salvar</span>
                     </button>
@@ -79,18 +79,6 @@
                 }
             });
 
-            //esconde form e apresenta progressbar
-            $('#form_importacao_terceirizado').on('submit',function (){
-                $('#botao-salvar').attr('disabled', 'disabled');
-                $('#botao-cancelar').attr('disabled', 'disabled');
-                $('#progressbar').html(
-                    "{!! ProgressBar::normal(100)->animated() !!}" +
-                    "<div><span>Carregando...</span></div>"
-                );
-                $('.input-form').hide();
-
-            });
-
             $(function(){
                 /***************ATRIBUI EVENTOS DE VALIDAÇÃO PARA O INPUT DE DELIMITADOR***************************/
                 var inputDelimitador = document.querySelector('#input-delimitador');
@@ -105,23 +93,50 @@
                     var running = false;
 
                     return function () {
-                        console.log(length, this.value);
                         //Para evitar conflito entre o blur e o keyup
                         if (running) return;
-
                         //
                         running = true;
-
                         //Se o input for maior que length seta o input com o primeiro character digitado
                         if (this.value.length > length) {
                             this.value = this.value.charAt(0);
                         }
-
                         //Habilita novamente as chamadas do blur e keyup
                         running = false;
                     };
                 }
             });
+
+            $('#botao-salvar').on('click', function (){
+                if(!verificarCampoModalItem()){
+                    $('#botao-salvar').attr('disabled', 'disabled');
+                    $('#botao-cancelar').attr('disabled', 'disabled');
+                    $('#progressbar').html(
+                        "{!! ProgressBar::normal(100)->animated() !!}" +
+                        "<div><span>Carregando...</span></div>"
+                    );
+                    $('.input-form').hide();
+                    this.closest('form').submit();
+                }
+            });
+
+            function verificarCampoModalItem(){
+                var hasError = false;
+
+                    $('#input-delimitador').closest('.form-group').removeClass('has-error');
+                    $('#arquivos_file_input').closest('.form-group').removeClass('has-error');
+
+                    if(!$('#input-delimitador').val()){
+                        $('#input-delimitador').closest('.form-group').addClass('has-error');
+                        hasError = true;
+                    }
+                    if(!$('#arquivos_file_input').val()){
+                        $('#arquivos_file_input').closest('.form-group').addClass('has-error');
+                        hasError = true;
+                    }
+
+                return hasError;
+            }
         });
     </script>
     <style type="text/css">
