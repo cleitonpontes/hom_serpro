@@ -1,24 +1,17 @@
 <?php
-
 namespace App\Http\Controllers\Gescon;
-
 // inserido
 use App\Models\Codigoitem;
 use App\Models\Contratoconta;
 use App\Models\Contrato;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-
-
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\ContratocontaRequest as StoreRequest;
 use App\Http\Requests\ContratocontaRequest as UpdateRequest;
 use Backpack\CRUD\CrudPanel;
-
 // inserido
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
-
-
 /**
  * Class ContratocontaCrudController
  * @package App\Http\Controllers\Gescon
@@ -34,10 +27,8 @@ class ContratocontaCrudController extends CrudController
         if(!$contrato){
             abort('403', config('app.erro_permissao'));
         }
-
         // array de encargos (fat empresa) - só pode ser 1, 2 ou 3% - array será usado em campos()
         $arrayEncargosFatEmpresa = [1 => '1%', 2 => '2%', 3 => '3%'];
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -47,7 +38,7 @@ class ContratocontaCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/' . $contrato_id . '/contratocontas');
         $this->crud->setEntityNameStrings('conta-deposito vinculada', 'Conta-Depósito Vinculada');
         $this->crud->addButtonFromView('top', 'Sobre', 'sobrecontratoconta', 'begin');
-        $this->crud->addButtonFromView('top', 'voltar', 'voltarcontrato', 'end');
+        $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
         $this->crud->addButtonFromView('line', 'morecontratoconta', 'morecontratoconta', 'end');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
         $this->crud->allowAccess('show');
@@ -130,12 +121,17 @@ class ContratocontaCrudController extends CrudController
                 'inline' => true,
                 'default' => 1
             ],
+            [
+                // Number
+                'name' => 'percentual_grupo_a_13_ferias',
+                'label' => 'Percentual Grupo A',
+                'type' => 'number',
+                'prefix' => '% ',
+                'decimals' => 2,
+            ],
         ];
-
         return $campos;
     }
-
-
     public function Colunas()
     {
         $colunas = [
@@ -170,6 +166,17 @@ class ContratocontaCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
             ],
             [
+                'name' => 'percentual_grupo_a_13_ferias',
+                'label' => 'Percentual Grupo A',
+                'type' => 'number',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'prefix' => "% ",
+            ],
+            [
                 'name' => 'fat_empresa',
                 'label' => 'Encargo',
                 'type' => 'text',
@@ -192,7 +199,6 @@ class ContratocontaCrudController extends CrudController
                 'visibleInShow' => true, // sure, why not
                 'prefix' => "R$ ",
             ],
-
             [
                 'name' => 'getStatusDaConta',
                 'label' => 'Status da Conta', // Table column heading
