@@ -103,6 +103,10 @@
             $(this).val(dado);
         });
 
+        /**
+         *Criado lógica para habilitar ou desabilitar campos do form de importacao
+         */
+
         $('#tipo_de_importacao_ti').on('change', function () {
             var tipo_importacao = $("#tipo_de_importacao_ti option:selected").text();
             if (tipo_importacao === 'Terceirizado') {
