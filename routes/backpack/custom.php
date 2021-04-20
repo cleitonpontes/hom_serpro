@@ -139,6 +139,7 @@ Route::group([
             CRUD::resource('padroespublicacao', 'PadroespublicacaoCrudController');
             CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
             CRUD::resource('ajusteminuta', 'AjusteMinutasCrudController');
+            CRUD::resource('devolveminutasiasg', 'DevolveMinutaSiasgCrudController');
 
 
             // Exportações Downloads

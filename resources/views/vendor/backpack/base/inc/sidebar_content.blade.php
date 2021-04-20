@@ -488,6 +488,14 @@
                                 <span>Comunica</span>
                             </a>
                         </li>
+                        @if(backpack_user()->hasRole('Administrador'))
+                            <li>
+                                <a href='{{ backpack_url('/admin/devolveminutasiasg') }}'>
+                                    <i class='fa fa-list'></i>
+                                    <span>Devolve NE Siasg</span>
+                                </a>
+                            </li>
+                        @endif
                         <li>
                             <a href='{{ backpack_url('/gescon/encargo') }}'>
                                 <i class='fa fa-list'></i>
