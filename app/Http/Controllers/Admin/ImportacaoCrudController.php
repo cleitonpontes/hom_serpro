@@ -243,6 +243,9 @@ class ImportacaoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => $tipos,
                 'allows_null' => true,
+                'attributes' => [
+                    'id' => 'tipo_de_importacao_ti'
+                ]
             ],
             [
                 'name' => 'unidade_id',
@@ -257,6 +260,9 @@ class ImportacaoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => $contratos,
                 'allows_null' => true,
+                'attributes' => [
+                    'id' => 'tipo_de_importacao_ti_contrato'
+                ]
             ],
             [
                 'name' => 'role_id',
@@ -264,6 +270,9 @@ class ImportacaoCrudController extends CrudController
                 'type' => 'select2_from_array',
                 'options' => $roles,
                 'allows_null' => true,
+                'attributes' => [
+                    'id' => 'tipo_de_importacao_ti_grupo_usuario'
+                ]
             ],
             [
                 'name' => 'delimitador',
