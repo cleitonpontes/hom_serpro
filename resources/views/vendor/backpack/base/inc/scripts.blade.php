@@ -102,6 +102,28 @@
 
             $(this).val(dado);
         });
+
+        /**
+         *Criado lógica para habilitar ou desabilitar campos do form de importacao
+         */
+
+        $('#tipo_de_importacao_ti').on('change', function () {
+            var tipo_importacao = $("#tipo_de_importacao_ti option:selected").text();
+            if (tipo_importacao === 'Terceirizado') {
+                $('#tipo_de_importacao_ti_grupo_usuario').attr('disabled', 'disabled');
+                $('#tipo_de_importacao_ti_grupo_usuario').val('').change();
+                $('#tipo_de_importacao_ti_contrato').removeAttr('disabled');
+            }
+            if (tipo_importacao === 'Usuários') {
+                $('#tipo_de_importacao_ti_contrato').attr('disabled', 'disabled');
+                $('#tipo_de_importacao_ti_contrato').val('').change();
+                $('#tipo_de_importacao_ti_grupo_usuario').removeAttr('disabled');
+            }
+            if (tipo_importacao === 'Selecione...') {
+                $('#tipo_de_importacao_ti_contrato').removeAttr('disabled');
+                $('#tipo_de_importacao_ti_grupo_usuario').removeAttr('disabled');
+            }
+        })
     });
 
     function retornaDadosContrato(campo) {
