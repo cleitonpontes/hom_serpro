@@ -260,6 +260,7 @@ class UsuarioOrgaoCrudController extends CrudController
                     return $query->orderBy('name', 'ASC')
                         ->where('name', '<>', 'Administrador')
                         ->where('name', '<>', 'Administrador Órgão')
+                        ->where('name', '<>', 'Acesso API')
                         ->get();
                 }),
             ],

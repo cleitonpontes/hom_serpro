@@ -39,6 +39,7 @@ class ContratoterceirizadoCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/meus-contratos/' . $contrato_id . '/terceirizados');
         $this->crud->setEntityNameStrings('Terceirizado do Contrato', 'Terceirizados - Contrato');
         $this->crud->addClause('where', 'contrato_id', '=', $contrato_id);
+        $this->crud->addButtonFromView('top', 'importacao_terceirizado','importacao_terceirizado', 'end');
         $this->crud->addButtonFromView('top', 'voltar', 'voltarmeucontrato', 'end');
         $this->crud->enableExportButtons();
         $this->crud->denyAccess('create');

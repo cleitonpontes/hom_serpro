@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Forms\InserirFornecedorForm;
 use App\Http\Requests\AjusteMinutasRequest as UpdateRequest;
 use App\Http\Traits\BuscaCodigoItens;
+use App\Http\Traits\Formatador;
 use App\Models\Codigoitem;
 use App\Models\CompraItemMinutaEmpenho;
 use App\Models\CompraItemUnidade;
@@ -15,6 +16,7 @@ use App\Models\MinutaEmpenhoRemessa;
 use App\Models\SaldoContabil;
 use App\Models\SfOrcEmpenhoDados;
 use App\XML\Execsiafi;
+use Yajra\DataTables\DataTables;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
@@ -34,9 +36,14 @@ use FormBuilder;
 class AjusteMinutasCrudController extends CrudController
 {
     use BuscaCodigoItens;
+    use Formatador;
 
     public function setup()
     {
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
+
         $this->minuta_id = $this->crud->getCurrentEntryId();
         /*
         |--------------------------------------------------------------------------
@@ -53,11 +60,16 @@ class AjusteMinutasCrudController extends CrudController
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('delete');
         $this->crud->denyAccess('create');
+        $this->crud->addButtonFromView('line', 'atualizaritemcompracontrato', 'atualizaritemcompracontrato', 'end');
 
         (backpack_user()->can('minuta_ajuste_editar')) ? $this->crud->allowAccess('update') : null;
 
+        $this->crud->addClause('select',
+            ['minutaempenhos.*', DB::raw('minutaempenhos_remessa.id as "minutaempenhos_remessa_id"')]);
         $this->crud->addClause('where', 'unidade_id', '=', session()->get('user_ug_id'));
-        $this->crud->orderBy('updated_at', 'desc');
+        $this->crud->addClause('where', 'minutaempenhos_remessa.remessa', '=', 0);
+        $this->crud->addClause('join', 'minutaempenhos_remessa', 'minutaempenhos_remessa.minutaempenho_id', '=', 'minutaempenhos.id');
+        $this->crud->orderBy('minutaempenhos.updated_at', 'desc');
 
         /*
         |--------------------------------------------------------------------------
@@ -143,7 +155,6 @@ class AjusteMinutasCrudController extends CrudController
         $this->adicionaCampoMensagemSIAF();
         $this->adicionaCampoSituacao($minuta_id);
     }
-
 
 
     protected function adicionaCampoMensagemSIAF()
@@ -237,7 +248,10 @@ class AjusteMinutasCrudController extends CrudController
             'visibleInTable' => true,
             'visibleInModal' => true,
             'visibleInExport' => true,
-            'visibleInShow' => true
+            'visibleInShow' => true,
+            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                $query->orWhere('minutaempenhos.mensagem_siafi', 'like', "%$searchTerm%");
+            },
         ]);
     }
 
@@ -325,10 +339,10 @@ class AjusteMinutasCrudController extends CrudController
             'visibleInModal' => true, // would make the modal too big
             'visibleInExport' => true, // not important enough
             'visibleInShow' => true, // sure, why not
-            'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            /*'searchLogic' => function (Builder $query, $column, $searchTerm) {
                 $query->orWhere('fornecedores.cpf_cnpj_idgener', 'like', "%$searchTerm%");
                 $query->orWhere('fornecedores.nome', 'like', "%" . strtoupper($searchTerm) . "%");
-            },
+            },*/
         ]);
     }
 
@@ -744,4 +758,321 @@ class AjusteMinutasCrudController extends CrudController
         Alert::warning('Operação não permitida!')->flash();
         return redirect($this->crud->route);
     }
+
+    public function atualizaritemcompracontrato($idRemessa, Request $request, \Yajra\DataTables\Html\Builder $htmlBuilder)
+    {
+        if(!backpack_user()->hasRole('Administrador')){
+            abort('403', config('app.erro_permissao'));
+        }
+
+        $minutaRemessa = MinutaEmpenhoRemessa::find($idRemessa);
+        $minutaEmpenho = MinutaEmpenho::find($minutaRemessa->minutaempenho_id);
+        $idMinuta = $minutaRemessa->minutaempenho_id;
+
+        $descTipoMinuta = $this->retornaDescCodigoItem($minutaEmpenho->tipo_empenhopor_id);
+
+        if ($descTipoMinuta === 'Compra' || $descTipoMinuta === 'Suprimento') {
+            $itens = MinutaEmpenho::join(
+                'compra_item_minuta_empenho',
+                'compra_item_minuta_empenho.minutaempenho_id',
+                '=',
+                'minutaempenhos.id'
+            )
+                ->join(
+                    'compra_items',
+                    'compra_items.id',
+                    '=',
+                    'compra_item_minuta_empenho.compra_item_id'
+                )
+                ->join(
+                    'compras',
+                    'compras.id',
+                    '=',
+                    'compra_items.compra_id'
+                )
+                ->join(
+                    'codigoitens as tipo_compra',
+                    'tipo_compra.id',
+                    '=',
+                    'compras.tipo_compra_id'
+                )
+                ->join(
+                    'codigoitens',
+                    'codigoitens.id',
+                    '=',
+                    'compra_items.tipo_item_id'
+                )
+                ->join(
+                    'saldo_contabil',
+                    'saldo_contabil.id',
+                    '=',
+                    'minutaempenhos.saldo_contabil_id'
+                )
+                ->join(
+                    'naturezadespesa',
+                    'naturezadespesa.codigo',
+                    '=',
+                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
+                )
+                ->join(
+                    'compra_item_fornecedor',
+                    'compra_item_fornecedor.compra_item_id',
+                    '=',
+                    'compra_items.id'
+                )
+                ->join(
+                    'catmatseritens',
+                    'catmatseritens.id',
+                    '=',
+                    'compra_items.catmatseritem_id'
+                )
+                ->join(
+                    'compra_item_unidade',
+                    'compra_item_unidade.compra_item_id',
+                    '=',
+                    'compra_items.id'
+                )
+                ->join('minutaempenhos_remessa', function ($join) {
+                    $join->on(
+                        'minutaempenhos.id',
+                        '=',
+                        'minutaempenhos_remessa.minutaempenho_id')
+                        ->on('compra_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
+                })
+                ->where('minutaempenhos.id', $idMinuta)
+                ->where('minutaempenhos_remessa.id', $idRemessa)
+                ->where('compra_item_unidade.unidade_id', session('user_ug_id'));
+            if($descTipoMinuta === 'Suprimento'){
+                $itens->where('compra_item_fornecedor.fornecedor_id', $minutaEmpenho->fornecedor_empenho_id);
+            }
+                $itens->select(
+                    [
+                        'compra_item_minuta_empenho.compra_item_id',
+                        'compra_item_minuta_empenho.id',
+                        'compra_item_fornecedor.fornecedor_id',
+                        'tipo_compra.descricao as tipo_compra_descricao',
+                        'codigoitens.descricao',
+                        'catmatseritens.codigo_siasg',
+                        'catmatseritens.descricao as catmatser_desc',
+                        DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
+                        'compra_items.descricaodetalhada',
+                        'compra_items.numero',
+                        DB::raw("SUBSTRING(compra_items.descricaodetalhada for 50) AS descricaosimplificada"),
+                        'compra_item_unidade.quantidade_saldo',
+                        'compra_item_fornecedor.valor_unitario as valorunitario',
+                        'naturezadespesa.codigo as natureza_despesa',
+                        'naturezadespesa.id as natureza_despesa_id',
+                        'compra_item_fornecedor.valor_negociado as valortotal',
+                        'saldo_contabil.saldo',
+                        'compra_item_minuta_empenho.subelemento_id',
+                        'compra_item_minuta_empenho.quantidade',
+                        'compra_item_minuta_empenho.valor',
+                        'compra_item_minuta_empenho.numseq',
+                        DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
+                    ]
+                )
+                ->distinct()
+                ->get()
+                ->toArray();
+        }
+        if ($descTipoMinuta === 'Contrato') {
+
+            $itens = MinutaEmpenho::join(
+                'contrato_item_minuta_empenho',
+                'contrato_item_minuta_empenho.minutaempenho_id',
+                '=',
+                'minutaempenhos.id'
+            )
+                ->join(
+                    'contratoitens',
+                    'contratoitens.id',
+                    '=',
+                    'contrato_item_minuta_empenho.contrato_item_id'
+                )
+                ->join(
+                    'compras',
+                    'compras.id',
+                    '=',
+                    'minutaempenhos.compra_id'
+                )
+                ->join(
+                    'codigoitens as tipo_compra',
+                    'tipo_compra.id',
+                    '=',
+                    'compras.tipo_compra_id'
+                )
+                ->join(
+                    'codigoitens',
+                    'codigoitens.id',
+                    '=',
+                    'contratoitens.tipo_id'
+                )
+                ->join(
+                    'saldo_contabil',
+                    'saldo_contabil.id',
+                    '=',
+                    'minutaempenhos.saldo_contabil_id'
+                )
+                ->join(
+                    'naturezadespesa',
+                    'naturezadespesa.codigo',
+                    '=',
+                    DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6)")
+                )
+                ->join(
+                    'catmatseritens',
+                    'catmatseritens.id',
+                    '=',
+                    'contratoitens.catmatseritem_id'
+                )
+                ->join('minutaempenhos_remessa', function ($join) {
+                    $join->on(
+                        'minutaempenhos.id',
+                        '=',
+                        'minutaempenhos_remessa.minutaempenho_id')
+                        ->on('contrato_item_minuta_empenho.minutaempenhos_remessa_id', '=', 'minutaempenhos_remessa.id');
+                })
+                ->where('minutaempenhos.id', $idMinuta)
+                ->where('minutaempenhos_remessa.id', $idRemessa)
+                ->where('minutaempenhos.unidade_id', session('user_ug_id'))
+                ->select(
+                    [
+                        'contrato_item_minuta_empenho.contrato_item_id',
+                        'contrato_item_minuta_empenho.id',
+                        'tipo_compra.descricao as tipo_compra_descricao',
+                        'codigoitens.descricao',
+                        'catmatseritens.codigo_siasg',
+                        'catmatseritens.descricao as catmatser_desc',
+
+                        DB::raw("SUBSTRING(catmatseritens.descricao for 50) AS catmatser_desc_simplificado"),
+                        'contratoitens.descricao_complementar as descricaodetalhada',
+                        DB::raw("SUBSTRING(contratoitens.descricao_complementar for 50) AS descricaosimplificada"),
+                        'contratoitens.quantidade as quantidade_saldo',
+                        'contratoitens.valorunitario as valorunitario',
+                        'contratoitens.numero_item_compra as numero',
+                        'naturezadespesa.codigo as natureza_despesa',
+                        'naturezadespesa.id as natureza_despesa_id',
+                        'contratoitens.valortotal',
+                        'saldo_contabil.saldo',
+                        'contrato_item_minuta_empenho.subelemento_id',
+                        'contrato_item_minuta_empenho.quantidade',
+                        'contrato_item_minuta_empenho.valor',
+                        'contrato_item_minuta_empenho.numseq',
+                        DB::raw("SUBSTRING(saldo_contabil.conta_corrente,18,6) AS natureza_despesa")
+                    ]
+                )
+                ->distinct()
+                ->get()
+                ->toArray();
+            /*dd($itens->toSql(), $itens->getBindings());*/
+        }
+
+        if ($request->ajax()) {
+            return DataTables::of($itens)
+                ->addColumn(
+                    'numseq', function ($itens) use ($descTipoMinuta) {
+                    return $this->addColumnNumSeq($itens, $descTipoMinuta);
+                }
+                )
+                ->addColumn('descricaosimplificada', function ($itens) {
+                    if ($itens['descricaosimplificada'] != null) {
+                        return $this->retornaDescricaoDetalhada(
+                            $itens['descricaosimplificada'],
+                            $itens['descricaodetalhada']
+                        );
+                    }
+                    return $this->retornaDescricaoDetalhada(
+                        $itens['catmatser_desc_simplificado'],
+                        $itens['catmatser_desc']
+                    );
+                })
+                ->rawColumns(['numseq', 'id', 'descricaosimplificada'])->make(true);
+        }
+        $html = $this->retornaGridItens($htmlBuilder);
+
+        return view('backpack::mod.minuta.atualizaritemcompracontrato', compact('html'))
+            ->with([
+               'route' => route('empenho.minuta.update'),
+                'tipo_minuta' => $descTipoMinuta,
+                'id_minuta' => $idMinuta,
+                'id_remessa' => $idRemessa,
+            ]);
+    }
+
+    public function addColumnNumSeq($itens){
+        $numseq = $itens['numseq'];
+        $id = $itens['id'];
+        return "<input type='text' name='numseq[]' value='$numseq'/>".
+               "<input type='hidden' name='id[]' value='$id'/>";
+    }
+
+    public function retornaGridItens($htmlBuilder)
+    {
+        $html = $htmlBuilder->addColumn([
+            'data' => 'numero',
+            'name' => 'numero',
+            'title' => 'N. Item',
+        ])->addColumn(
+            [
+                'data' => 'descricao',
+                'name' => 'descricao',
+                'title' => 'Tipo',
+                'orderable' => false,
+                'searchable' => false
+            ]
+        )->addColumn(
+            [
+                'data' => 'codigo_siasg',
+                'name' => 'codigo_siasg',
+                'title' => 'Codigo',
+            ]
+        )->addColumn(
+            [
+                'data' => 'descricaosimplificada',
+                'name' => 'descricaosimplificada',
+                'title' => 'Descrição',
+            ]
+        )->addColumn([
+            'data' => 'quantidade_saldo',
+            'name' => 'quantidade_saldo',
+            'title' => 'Qtd./Saldo',
+        ])
+            ->addColumn([
+                'data' => 'valorunitario',
+                'name' => 'valorunitario',
+                'title' => 'Valor Unit.',
+            ])
+            ->addColumn([
+                'data' => 'valortotal',
+                'name' => 'valortotal',
+                'title' => 'Valor Total.',
+            ])->addColumn([
+                'data' => 'numseq',
+                'name' => 'numseq',
+                'title' => 'Num. Seq',
+            ])
+            ->parameters([
+                'processing' => true,
+                'serverSide' => true,
+                'responsive' => true,
+                'info' => true,
+                'order' => [
+                    0,
+                    'desc'
+                ],
+                'autoWidth' => false,
+                'bAutoWidth' => false,
+                'paging' => true,
+                'lengthChange' => true,
+                'lengthMenu' => [
+                    [10, 25, 50, 100, -1],
+                    ['10', '25', '50', '100', 'Todos']
+                ],
+                'language' => [
+                    'url' => asset('/json/pt_br.json')
+                ],
+            ]);
+        return $html;
+    }
+
 }

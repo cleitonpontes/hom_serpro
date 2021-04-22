@@ -140,7 +140,15 @@ Route::group([
             CRUD::resource('publicacoes', 'ContratoPublicacaoAdminCrudController');
             CRUD::resource('ajusteminuta', 'AjusteMinutasCrudController');
             CRUD::resource('devolveminutasiasg', 'DevolveMinutaSiasgCrudController');
+            CRUD::resource('ajusteremessas', 'AjusteRemessasCrudController');
 
+            Route::get('ajusteminuta/remessa/{id_remessa}/atualizaritemcompracontrato', 'AjusteMinutasCrudController@atualizaritemcompracontrato')
+                ->name('ajusteminuta.atualizar.contrato.compra');
+
+            Route::get('ajusteremessas/remessa/{id_remessa}/atualizaritemcompracontrato', 'AjusteMinutasCrudController@atualizaritemcompracontrato')
+                ->name('ajusteremessas.atualizar.contrato.compra');
+
+            Route::post('importacao/terceirizados/{contrato_id}', 'ImportacaoCrudController@importacaoTerceirizados');
 
             // Exportações Downloads
             Route::get('downloadapropriacao/{type}', 'ExportController@downloadapropriacao')
@@ -227,6 +235,8 @@ Route::group([
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
                 CRUD::resource('funcionarioscontratoconta', 'FuncionarioscontratocontaCrudController');
                 CRUD::resource('funcoescontratoconta', 'FuncoescontratocontaCrudController');
+                CRUD::resource('encerramentocontratoconta', 'EncerramentocontratocontaCrudController');
+                CRUD::resource('encerramentocontratoconta/emitirTermoDeEncerramento', 'EncerramentocontratocontaCrudController')->name('emitirTermoDeEncerramento');
             });
             Route::group(['prefix' => 'contrato/contratoconta/{contratoconta_id}/{funcao_id}'], function () {
                 CRUD::resource('repactuacaocontratoconta', 'RepactuacaocontratocontaCrudController');
@@ -237,9 +247,6 @@ Route::group([
             Route::group(['prefix' => 'contrato/contratoconta/contratoterceirizado/{contratoterceirizado_id}'], function () {
                 CRUD::resource('retiradacontratoconta', 'RetiradacontratocontaCrudController');
             });
-            // Route::group(['prefix' => 'movimentacao/{movimentacao_id}'], function () {
-            //     Route::get('excluir', 'MovimentacaocontratocontaCrudController@excluirmovimentacao');
-            // });
             Route::get('movimentacao/{movimentacao_id}/excluir', 'MovimentacaocontratocontaCrudController@excluirMovimentacao');
             // fim conta vinculada - contrato conta
 
@@ -253,6 +260,7 @@ Route::group([
                 CRUD::resource('despesaacessoria', 'ContratoDespesaAcessoriaCrudController');
                 CRUD::resource('empenhos', 'ContratoempenhoCrudController');
                 CRUD::resource('garantias', 'ContratogarantiaCrudController');
+                CRUD::resource('contratounidadedescentralizada', 'ContratounidadedescentralizadaCrudController');
                 CRUD::resource('historico', 'ContratohistoricoCrudController')->name('listar.historico');
                 CRUD::resource('instrumentoinicial', 'InstrumentoinicialCrudController');
                 CRUD::resource('itens', 'ContratoitemCrudController');
@@ -350,7 +358,6 @@ Route::group([
              *
              **/
 
-
             CRUD::resource('/minuta', 'MinutaEmpenhoCrudController');
 
             Route::get('minuta/{minuta_id}/atualizarsituacaominuta', 'MinutaEmpenhoCrudController@executarAtualizacaoSituacaoMinuta')
@@ -366,7 +373,7 @@ Route::group([
             Route::post('buscacompra', 'CompraSiasgCrudController@store');
 
             //passo 2
-            Route::get('fornecedor/{minuta_id}', 'FornecedorEmpenhoController@index')
+            Route::get('fornecedor/{minuta_id}/{uasg_inativa?}', 'FornecedorEmpenhoController@index')
                 ->name('minuta.etapa.fornecedor');
 
             //passo 3

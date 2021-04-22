@@ -677,15 +677,17 @@ class MinutaEmpenhoCrudController extends CrudController
                     DB::raw('catmatseritens.codigo_siasg AS "Código do Item"'),
                     DB::raw('contratoitens.numero_item_compra AS "Número do Item"'),
                     DB::raw('catmatseritens.descricao AS "Descrição"'),
-                    DB::raw('contratoitens.descricao_complementar AS "Descrição Detalhada"'),
+                    DB::raw("CASE
+                                        WHEN contratoitens.descricao_complementar != 'undefined'
+                                            THEN contratoitens.descricao_complementar
+                                        ELSE ''
+                                    END  AS \"Descrição Detalhada\""),
                     DB::raw('contrato_item_minuta_empenho.quantidade AS "Quantidade"'),
                     DB::raw('contrato_item_minuta_empenho.Valor AS "Valor Total do Item"'),
                     'contrato_item_minuta_empenho.numseq'
                 ])
                 ->orderBy('contrato_item_minuta_empenho.numseq', 'asc')
-                ->get()->toArray()
-
-            ;
+                ->get()->toArray();
         }
 
         if ($codigoitem->descricao === 'Compra' || $codigoitem->descricao === 'Suprimento') {
@@ -713,6 +715,7 @@ class MinutaEmpenhoCrudController extends CrudController
                     'compra_item_minuta_empenho.minutaempenhos_remessa_id'
                 )
                 ->where('compra_item_minuta_empenho.minutaempenho_id', $minuta_id)
+                ->where('compra_item_unidade.unidade_id', $modMinuta->unidade_id)
                 ->where('minutaempenhos_remessa.remessa', 0)
                 ->select([
                     DB::raw('fornecedores.cpf_cnpj_idgener AS "CPF/CNPJ/IDGENER do Fornecedor"'),
@@ -729,9 +732,16 @@ class MinutaEmpenhoCrudController extends CrudController
                     'compra_item_minuta_empenho.numseq'
                 ])
                 ->orderBy('compra_item_minuta_empenho.numseq', 'asc');
+            $itens = $this->setCondicaoFornecedor(
+                $modMinuta,
+                $itens,
+                $codigoitem->descricao,
+                $fornecedor_id,
+                $fornecedor_compra_id
+            );
 
-            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
-                  ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
+//            $itens->where('compra_item_unidade.fornecedor_id', $fornecedor_compra_id)
+//                  ->where('compra_item_fornecedor.fornecedor_id', $fornecedor_compra_id);
 
             $itens = $itens->get()->toArray();
         }
@@ -901,6 +911,7 @@ class MinutaEmpenhoCrudController extends CrudController
     public function executarAtualizacaoSituacaoMinuta($id)
     {
         $minuta = MinutaEmpenho::find($id);
+        $date_time = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
 
         if ($minuta->situacao->descricao == 'ERRO') {
             DB::beginTransaction();
@@ -919,13 +930,13 @@ class MinutaEmpenhoCrudController extends CrudController
                     ->first();
 
                 $remessa = MinutaEmpenhoRemessa::find($modSfOrcEmpenhoDados->minutaempenhos_remessa_id);
-                if(!$remessa->sfnonce){
+                if (!$remessa->sfnonce) {
                     $base = new Base();
-                    $remessa->sfnonce = $base->geraNonceSiafiEmpenho($remessa->minutaempenho_id,$remessa->id);
+                    $remessa->sfnonce = $base->geraNonceSiafiEmpenho($remessa->minutaempenho_id, $remessa->id);
                     $remessa->save();
                 }
 
-                if($modSfOrcEmpenhoDados->sfnonce != $remessa->sfnonce){
+                if ($modSfOrcEmpenhoDados->sfnonce != $remessa->sfnonce) {
                     $modSfOrcEmpenhoDados->sfnonce = $remessa->sfnonce;
                 }
                 $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
@@ -937,17 +948,49 @@ class MinutaEmpenhoCrudController extends CrudController
             } catch (Exception $exc) {
                 DB::rollback();
             }
-        } else {
-            Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+        }
+
+        if ($minuta->situacao->descricao == 'EM PROCESSAMENTO') {
+
+            $modSfOrcEmpenhoDados = SfOrcEmpenhoDados::where('minutaempenho_id', $id)
+                ->where('alteracao', false)
+                ->latest()
+                ->first();
+
+            $updated_at = \DateTime::createFromFormat('Y-m-d H:i:s', $modSfOrcEmpenhoDados->updated_at)->modify('+15 minutes');
+
+            if ($date_time < $updated_at) {
+                Alert::warning('Situação da minuta não pode ser alterada, tente novamente em 15 minutos!')->flash();
+                return redirect('/empenho/minuta');
+            }
+
+            $remessa = MinutaEmpenhoRemessa::find($modSfOrcEmpenhoDados->minutaempenhos_remessa_id);
+
+            if (!$remessa->sfnonce) {
+                if (!$modSfOrcEmpenhoDados->sfnonce_id) {
+                    Alert::warning('Minuta com problema! Por favor crie uma nova minuta!')->flash();
+                    return redirect('/empenho/minuta');
+                }
+                $modSfOrcEmpenhoDados->sfnonce = $modSfOrcEmpenhoDados->sfnonce_id;
+            }
+
+            $modSfOrcEmpenhoDados->txtdescricao .= ' ';
+            $modSfOrcEmpenhoDados->situacao = 'EM PROCESSAMENTO';
+            $modSfOrcEmpenhoDados->save();
+
+            Alert::success('Minuta será processada novamente, por favor aguarde!')->flash();
             return redirect('/empenho/minuta');
         }
+
+        Alert::warning('Situação da minuta não pode ser alterada!')->flash();
+        return redirect('/empenho/minuta');
     }
 
     public function deletarMinuta($id)
     {
         $minuta = MinutaEmpenho::find($id);
 
-        if ($minuta->situacao_descricao == 'ERRO' || $minuta->situacao_descricao == 'EM ANDAMENTO') {
+        if ($minuta->situacao->descricao == 'ERRO' || $minuta->situacao->descricao == 'EM ANDAMENTO') {
             DB::beginTransaction();
             try {
                 if ($minuta->empenho_por === 'Compra') {

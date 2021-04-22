@@ -21,23 +21,37 @@ class DevolveMinutaSiasg extends Model
         'alteracao',
         'minutaempenhos_remessa_id'
     ];
-
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-
-
+    public function getMinutaEmpenho(){
+        if (!$this->minutaempenho_id) {
+            return '';
+        } else {
+            return $this->minutaempenho->descricao;
+        }
+    }
+    public function getMinutaEmpenhoRemessa(){
+        if (!$this->minutaempenhos_remessa_id) {
+            return '';
+        } else {
+            return $this->minutaempenhos_remessa->remessa;
+        }
+    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
-    public function minuta_empenho()
+    public function minutaempenho()
     {
-        return $this->belongsTo(MinutaEmpenho::class, 'minutaempenho_id');
+        return $this->belongsTo('App\Models\MinutaEmpenho', 'minutaempenho_id');
+    }
+    public function minutaempenhos_remessa()
+    {
+        return $this->belongsTo('App\Models\MinutaEmpenhoRemessa', 'minutaempenhos_remessa_id');
     }
 
     /*

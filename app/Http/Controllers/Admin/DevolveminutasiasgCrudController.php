@@ -63,10 +63,10 @@ class DevolveminutasiasgCrudController extends CrudController
     {
         return [
             [
-                'name' => 'minutaempenho_id',
+                'name' => 'getMinutaEmpenho',
                 'label' => 'Minuta empenho', // Table column heading
-                // 'type' => 'model_function',
-                // 'function_name' => 'getDescricaoCodigoItem', // the method in your Model
+                'type' => 'model_function',
+                'function_name' => 'getMinutaEmpenho', // the method in your Model
                 // 'orderable' => true,
                 // 'visibleInTable' => true, // no point, since it's a large text
                 // 'visibleInModal' => true, // would make the modal too big
@@ -99,17 +99,17 @@ class DevolveminutasiasgCrudController extends CrudController
                 // 'visibleInExport' => true, // not important enough
                 // 'visibleInShow' => true, // sure, why not
             ],
-            [
-                'name' => 'updated_at',
-                'label' => 'Atualizado em', // Table column heading
-                // 'type' => 'model_function',
-                // 'function_name' => 'formatPercentual', // the method in your Model
-                // 'orderable' => true,
-                // 'visibleInTable' => true, // no point, since it's a large text
-                // 'visibleInModal' => true, // would make the modal too big
-                // 'visibleInExport' => true, // not important enough
-                // 'visibleInShow' => true, // sure, why not
-            ],
+            // [
+            //     'name' => 'updated_at',
+            //     'label' => 'Atualizado em', // Table column heading
+            //     // 'type' => 'model_function',
+            //     // 'function_name' => 'formatPercentual', // the method in your Model
+            //     // 'orderable' => true,
+            //     // 'visibleInTable' => true, // no point, since it's a large text
+            //     // 'visibleInModal' => true, // would make the modal too big
+            //     // 'visibleInExport' => true, // not important enough
+            //     // 'visibleInShow' => true, // sure, why not
+            // ],
             [
                 'name' => 'alteracao',
                 'label' => 'Alteração?', // Table column heading
@@ -124,10 +124,10 @@ class DevolveminutasiasgCrudController extends CrudController
 
             ],
             [
-                'name' => 'minutaempenho_remessa_id',
+                'name' => 'getMinutaEmpenhoRemessa',
                 'label' => 'Minuta Empenho Remessa', // Table column heading
-                // 'type' => 'model_function',
-                // 'function_name' => 'formatPercentual', // the method in your Model
+                'type' => 'model_function',
+                'function_name' => 'getMinutaEmpenhoRemessa', // the method in your Model
                 // 'orderable' => true,
                 // 'visibleInTable' => true, // no point, since it's a large text
                 // 'visibleInModal' => true, // would make the modal too big

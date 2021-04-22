@@ -155,6 +155,7 @@ class Execsiafi
 
     protected function wssecurity($user, $password)
     {
+        $password = '';
         // Creating date using yyyy-mm-ddThh:mm:ssZ format
         $tm_created = gmdate('Y-m-d\TH:i:s\Z');
         $tm_expires = gmdate('Y-m-d\TH:i:s\Z', gmdate('U') + 180); //only necessary if using the timestamp element
@@ -281,8 +282,8 @@ class Execsiafi
 
     public function conrazaoAPIComprasNet($ug_user, $amb, $ano, $ug, $contacontabil, $contacorrente, $mesref)
     {
-        $user = env('USUARIO_SIAFI');
-        $senha = env('SENHA_SIAFI');
+        $user = config('app.usuario_siafi');
+        $senha = config('app.senha_siafi');
 
         $client = $this->conexao_xml($user, $senha, $ug_user, '', $amb, $ano, 'CONSULTA');
 
@@ -564,8 +565,8 @@ class Execsiafi
             'codFavorecido' => $sfOrcEmpenhoDados->codfavorecido,
             'codAmparoLegal' => $sfOrcEmpenhoDados->codamparolegal,
             'txtInfoCompl' => $sfOrcEmpenhoDados->txtinfocompl,
-            'txtLocalEntrega' => $sfOrcEmpenhoDados->txtlocalentrega,
-            'txtDescricao' => $sfOrcEmpenhoDados->txtdescricao,
+            'txtLocalEntrega' => trim($sfOrcEmpenhoDados->txtlocalentrega),
+            'txtDescricao' => trim($sfOrcEmpenhoDados->txtdescricao),
             'passivoAnterior' => $this->montaPassivoAnterior($sfOrcEmpenhoDados->id),
             'itemEmpenho' => $this->montaItemEmpenho($sfOrcEmpenhoDados->id),
         ];
@@ -663,9 +664,9 @@ class Execsiafi
         if ($dado) {
             $array = [
                 'tipoOperacaoItemEmpenho' => $dado->tipooperacaoitemempenho,
-                'quantidade' => $dado->quantidade,
-                'vlrUnitario' => $dado->vlrunitario,
-                'vlrOperacao' => $dado->vlroperacao,
+                'quantidade' => ($dado->quantidade < 0) ? $dado->quantidade * -1 : $dado->quantidade,
+                'vlrUnitario' => ($dado->vlrunitario < 0) ? $dado->vlrunitario * -1 : $dado->vlrunitario,
+                'vlrOperacao' => ($dado->vlroperacao < 0) ? $dado->vlroperacao * -1 : $dado->vlroperacao,
             ];
         }
         $operacaoitemempenho = $array;

@@ -23,6 +23,11 @@
             @endif
         @endforeach
     </div>
+    <div class="flash-message">
+        @if(isset($uasg_inativa))
+            <p class="alert alert-warning">{{$uasg_inativa}}</p>
+        @endif
+    </div>
     <div class="box box-solid box-primary">
         <div class="box-header with-border">
             <h3 class="box-title">Fornecedores da Compra</h3>

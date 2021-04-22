@@ -64,6 +64,11 @@ class MinutaEmpenhoRemessa extends Model
         return $this->hasMany(ContaCorrentePassivoAnterior::class, 'minutaempenhos_remessa_id');
     }
 
+    public function getSituacao()
+    {
+        return $this->situacao->descricao;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

@@ -20,6 +20,18 @@ Route::get('/', function () {
 Route::get('/home', function () {
     return redirect('/inicio');
 });
+Route::group([
+    'prefix' => 'empenho',
+    'namespace' => 'Empenho',
+], function () {
+    Route::group([
+        'prefix' => 'minuta',
+        'namespace' => 'Minuta',
+    ], function () {
+        Route::post('/update', 'FixContratoCompraMinutaController@update')->name('empenho.minuta.update');
+    });
+});
+
 
 Route::group([
     'prefix' => 'transparencia',

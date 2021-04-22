@@ -138,8 +138,8 @@ class DiarioOficialClass extends BaseSoapController
             $retificacao = $publicacao->texto_dou;
             $tipo_texto = strpos($publicacao->texto_dou, 'RETIFICA');
             ($tipo_texto == false)
-                            ? $this->enviaPublicacao($contratohistorico, $publicacao,null,$publicacao->cpf)
-                            : $this->enviaPublicacao($contratohistorico, $publicacao,$retificacao,$publicacao->cpf);
+                ? $this->enviaPublicacao($contratohistorico, $publicacao,null,$publicacao->cpf)
+                : $this->enviaPublicacao($contratohistorico, $publicacao,$retificacao,$publicacao->cpf);
 
         } catch (Exception $e) {
             return $e->getMessage();
@@ -569,19 +569,23 @@ class DiarioOficialClass extends BaseSoapController
 
     public function atualizaPublicacao($publicacao, $retorno, $tipoSituacao)
     {
+        $status = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
         $link = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->linkPublicacao;
         $pagina = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->paginaPublicacao;
         $motivo_devolucao = $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->motivoDevolucao;
         $codigo = 'Situacao Publicacao';
+        $status_publicacao_id = $this->retornaIdCodigoItem($codigo,$tipoSituacao);
 
-        $publicacao->status_publicacao_id = $this->retornaIdCodigoItem($codigo,$tipoSituacao);
-        $publicacao->status =  $retorno->out->acompanhamentoOficio->acompanhamentoMateria->DadosAcompanhamentoMateria->estadoMateria;
-        $publicacao->link_publicacao = $link;
-        $publicacao->pagina_publicacao = $pagina;
-        $publicacao->motivo_devolucao = $motivo_devolucao;
-        $publicacao->secao_jornal = 3;
-
-        $publicacao->save();
+        ContratoPublicacoes::where('id', $publicacao->id)
+            ->where('contratohistorico_id', $publicacao->contratohistorico_id)
+            ->update([
+                'status_publicacao_id' => $status_publicacao_id,
+                'status' => $status,
+                'link_publicacao' => $link,
+                'pagina_publicacao' => $pagina,
+                'motivo_devolucao' => $motivo_devolucao,
+                'secao_jornal' => 3
+            ]);
 
     }
 
@@ -692,11 +696,11 @@ class DiarioOficialClass extends BaseSoapController
             if(($mudancas['vigencia_inicio'] != $original['vigencia_inicio'])
                 || ($mudancas['vigencia_fim'] != $original['vigencia_fim'])){
                 $retificacaoVigencia = $le.self::retornaDataFormatada($original['vigencia_inicio'])
-                                            ." a "
-                                            .self::retornaDataFormatada($original['vigencia_fim']).". "
-                                      .$leia.self::retornaDataFormatada($mudancas['vigencia_inicio'])
-                                            ." a "
-                                            .self::retornaDataFormatada($mudancas['vigencia_fim']).". ";
+                    ." a "
+                    .self::retornaDataFormatada($original['vigencia_fim']).". "
+                    .$leia.self::retornaDataFormatada($mudancas['vigencia_inicio'])
+                    ." a "
+                    .self::retornaDataFormatada($mudancas['vigencia_fim']).". ";
             }
         }
         return $retificacaoVigencia;
@@ -711,7 +715,7 @@ class DiarioOficialClass extends BaseSoapController
             $leia .= 'Contratada: ';
             if($mudancas['fornecedor_id'] != $original['fornecedor_id']){
                 $retificacaoFornecedor = $le.self::retornaFornecedorById($original['fornecedor_id']).'. '
-                                        .$leia.self::retornaFornecedorById($mudancas['fornecedor_id']).'. ';
+                    .$leia.self::retornaFornecedorById($mudancas['fornecedor_id']).'. ';
             }
         }
 

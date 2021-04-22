@@ -121,10 +121,8 @@
             $('#qtd' + item_id).val(0)
             calculaUtilizado(minuta_por);
 
-            // se for contrato e serviço OU se for Suprimento
-            if ((minuta_por.includes('contrato_item_id') && ($('#tipo_item').val() === 'Serviço')) ||
-                (tipo_empenho_por === 'Suprimento')
-            ) {
+            // se for Suprimento
+            if (tipo_empenho_por === 'Suprimento') {
 
                 if (selected === 'CANCELAMENTO' || selected === 'NENHUMA') {
                     $('#vrtotal' + item_id).prop('disabled', true)
@@ -132,10 +130,24 @@
                     return;
                 }
 
-                $('#vrtotal' + item_id).removeAttr('disabled')
-                $('#qtd' + item_id).prop('readonly', true)
+                $('#vrtotal' + item_id).removeAttr('disabled');
+                $('#qtd' + item_id).prop('readonly', true);
 
-            } else {
+            }
+            // se for contrato
+            // else if(minuta_por.includes('contrato_item_id') && ($('#tipo_item').val() === 'Serviço')){
+            else if(minuta_por.includes('contrato_item_id')){
+
+                if (selected === 'CANCELAMENTO' || selected === 'NENHUMA') {
+                    $('#vrtotal' + item_id).prop('disabled', true)
+                    $('#qtd' + item_id).prop('readonly', true)
+                    return;
+                }
+
+                $('#vrtotal' + item_id).removeAttr('disabled');
+                $('#qtd' + item_id).prop('readonly', false);
+            }
+            else {
 
                 if (selected === 'CANCELAMENTO' || selected === 'NENHUMA') {
                     $('#vrtotal' + item_id).prop('disabled', true)
@@ -164,25 +176,66 @@
 
         function calculaValorTotal(obj) {
 
-            var {{$tipo}} = obj.dataset.{{$tipo}};
-            var valor_total = obj.value * obj.dataset.valor_unitario;
-            valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
-            $(".vrtotal" + {{$tipo}})
-                .val(valor_total)
-                .trigger("input");
+            var tipo_operacao = $(this).closest('tr').find('select').find(':selected').text();
+
+            if (tipo_operacao === '') {
+                tipo_operacao = $('#' + '{{$tipo}}_' + obj.dataset.{{$tipo}}).find(':selected').text();
+            }
+
+            if (tipo_operacao === 'ANULAÇÃO'){
+                var {{$tipo}} = obj.dataset.{{$tipo}};
+                var valor_total = obj.value * obj.dataset.vlr_unitario_item;
+                valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
+                $(".vrtotal" + {{$tipo}})
+                    .val(valor_total)
+                    .trigger("input");
+            }
+
+            if (tipo_operacao === 'REFORÇO'){
+                var {{$tipo}} = obj.dataset.{{$tipo}};
+                var valor_total = obj.value * obj.dataset.valor_unitario;
+                valor_total = valor_total.toLocaleString('pt-br', {minimumFractionDigits: 2});
+                $(".vrtotal" + {{$tipo}})
+                    .val(valor_total)
+                    .trigger("input");
+            }
+
             calculaUtilizado('{{$tipo}}_' + obj.dataset.{{$tipo}});
         }
 
         function calculaQuantidade(obj) {
-            var {{$tipo}} = obj.dataset.{{$tipo}};
-            var value = obj.value;
 
-            value = ptToEn(value);
+            var tipo_operacao = $(this).closest('tr').find('select').find(':selected').text();
+            if (tipo_operacao === '') {
+                tipo_operacao = $('#' + '{{$tipo}}_' + obj.dataset.{{$tipo}}).find(':selected').text();
+            }
 
-            var quantidade = value / obj.dataset.valor_unitario;
-            $(".qtd" + {{$tipo}}).val(quantidade).trigger("input");
+            if (tipo_operacao === 'ANULAÇÃO'){
+
+                var {{$tipo}} = obj.dataset.{{$tipo}};
+                var value = obj.value;
+                value = ptToEn(value);
+
+                if(obj.dataset.valor_unitario != 0){
+                    var quantidade = value / obj.dataset.vlr_unitario_item;
+                    $(".qtd" + {{$tipo}}).val(quantidade).trigger("input");
+                }
+            }
+
+            if (tipo_operacao === 'REFORÇO'){
+                var {{$tipo}} = obj.dataset.{{$tipo}};
+                var value = obj.value;
+                value = ptToEn(value);
+
+                if(obj.dataset.valor_unitario != 0){
+                    var quantidade = value / obj.dataset.valor_unitario;
+                    $(".qtd" + {{$tipo}}).val(quantidade).trigger("input");
+                }
+            }
+
             calculaUtilizado('{{$tipo}}_' + obj.dataset.{{$tipo}});
         }
+
 
         $(document).ready(function () {
 
@@ -242,6 +295,11 @@
             soma = parseFloat(anulacao * -1) + parseFloat(outros);
             saldo = saldo - valor_utilizado - soma;
 
+            var saldo_br = (saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            if (saldo_br == '-0,00'){
+                saldo_br = '0,00'
+            }
+
             utilizado = outros - anulacao;
             if (anulacao > outros) {
                 utilizado = anulacao - outros;
@@ -249,7 +307,7 @@
             }
 
             $("#utilizado").html("<b>R$ " + utilizado.toLocaleString('pt-br', {minimumFractionDigits: 2}) + "</b>");
-            $("#saldo").html('R$ ' + saldo.toLocaleString('pt-br', {minimumFractionDigits: 2}));
+            $("#saldo").html('R$ ' + saldo_br);
             $("#valor_utilizado").val(soma);
 
         }

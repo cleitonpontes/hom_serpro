@@ -6,7 +6,7 @@ return [
     'usuario_siafi' => env('USUARIO_SIAFI','E0350'),
     'senha_siafi' => env('SENHA_SIAFI', ''),
 
-    'app_version' => '1.2.9',
+    'app_version' => '1.2.14',
 
     'app_amb' => env('APP_AMB', 'Ambiente Produção'),
 
@@ -357,6 +357,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -373,7 +374,6 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
     ],
 
@@ -425,12 +425,13 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'FormBuilder' => Kris\LaravelFormBuilder\Facades\FormBuilder::class,
         'Icon' => Bootstrapper\Facades\Icon::class,
+        'ProgressBar' => Bootstrapper\Facades\ProgressBar::class,
         'Button' => Bootstrapper\Facades\Button::class,
         'DropdownButton' => Bootstrapper\Facades\DropdownButton::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
     ],
 
 ];

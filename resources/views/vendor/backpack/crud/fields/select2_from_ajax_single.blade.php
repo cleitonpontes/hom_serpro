@@ -106,7 +106,7 @@
                             return {
                                 q: params.term, // search term
                                 page: params.page, // pagination
-                                // form: form.serializeArray()  // all other form inputs
+                                form: cleanArray(form.serializeArray())
                             };
                         },
                         @if(isset($field['process_results_template']))
@@ -155,6 +155,23 @@
             @endforeach
         @endif
     });
+
+    // pega todos inputs do formulario e filtra enviando somente os necessarios pois estava exedendo o rage da request
+    function cleanArray(arrInput)
+    {
+        var retorno = [];
+        arrInput.forEach(function(item, i) {
+            switch (item.name) {
+                case 'categoria_id':
+                    retorno.push({'name':'categoria_id', 'value': item.value});
+                    break;
+
+                default:
+                    break;
+            }
+        });
+        return retorno;
+    }
 </script>
 @endpush
 {{-- End of Extra CSS and JS --}}

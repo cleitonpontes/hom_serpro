@@ -48,18 +48,15 @@ class RetiradacontratocontaCrudController extends CrudController
         $contratoconta_id = $objContratoConta->id;
         \Route::current()->setParameter('contratoconta_id', $contratoconta_id);
 
-
         // buscar os tipos de movimentação em codigoitens para seleção
         $objTipoMovimentacaoRetirada = Codigoitem::whereHas('codigo', function ($query) {
             $query->where('descricao', '=', 'Tipo Movimentação');
         })
-        ->where('descricao', '=', 'Retirada')
+        ->where('descricao', '=', 'Liberação')  //inicialmente era tratada como retirada.
         ->first();
         $idTipoMovimentacaoRetirada = $objTipoMovimentacaoRetirada->id;
-
         $objRetiradacontratoconta = new Retiradacontratoconta();
         $arrayObjetosEncargoParaCombo = $objRetiradacontratoconta->getEncargosParaCombo();
-
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Basic Information
@@ -67,7 +64,7 @@ class RetiradacontratocontaCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Retiradacontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/contratoterceirizado/'.$contratoterceirizado_id.'/retiradacontratoconta');
-        $this->crud->setEntityNameStrings('nova retirada', 'Retiradas');
+        $this->crud->setEntityNameStrings('nova liberação', 'Liberação');
         $this->crud->enableExportButtons();
 
         // $this->crud->denyAccess('create');
@@ -81,26 +78,11 @@ class RetiradacontratocontaCrudController extends CrudController
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
-
-        // TODO: remove setFromDb() and manually define Fields and Columns
-        // $this->crud->setFromDb();
-
-        // $colunas = $this->Colunas();
-        // $this->crud->addColumns($colunas);
-
         $campos = $this->Campos($objContratoTerceirizado, $arrayObjetosEncargo, $idTipoMovimentacaoRetirada, $nomeFuncaoContratoTerceirizado, $arrayObjetosEncargoParaCombo, $objContratoConta);
         $this->crud->addFields($campos);
-
         // add asterisk for fields that are required in RetiradacontratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
-
-        // $this->crud->addButtonFromView('top', 'buscardadosfuncionarioretirada', 'buscardadosfuncionarioretirada', 'end');
-        // $this->crud->addButtonFromModelFunction('top', 'adicionarBotaoAvancar', 'adicionarBotaoAvancar', 'end');
-        // $this->crud->addButtonFromModelFunction('line', 'open_google', 'openGoogle', 'beginning');
-
-        // dd($this->crud);
-
     }
 
     public function Campos($objContratoTerceirizado, $arrayObjetosEncargo, $idTipoMovimentacaoRetirada, $nomeFuncaoContratoTerceirizado, $arrayObjetosEncargoParaCombo, $objContratoConta){
@@ -118,7 +100,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'nome',
-                'label' => 'Nome do funcionário',
+                'label' => 'Nome do empregado',
                 'type' => 'text',
                 // optionals
                 'attributes' => [
@@ -129,7 +111,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'funcao',
-                'label' => 'Função do funcionário',
+                'label' => 'Função do empregado',
                 'type' => 'text',
                 // optionals
                 'attributes' => [
@@ -140,7 +122,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [   //
                 'name' => 'remuneracao',
-                'label' => 'Remuneração do funcionário',
+                'label' => 'Remuneração do empregado',
                 'type' => 'text',
                 // optionals
                 'attributes' => [
@@ -170,14 +152,14 @@ class RetiradacontratocontaCrudController extends CrudController
 
             [ // select_from_array
                 'name' => 'mes_competencia',
-                'label' => "Mês Retirada",
+                'label' => "Mês Liberação",
                 'type' => 'select2_from_array',
                 'options' => config('app.meses_referencia_fatura'), // vai buscar em app.php o array meses_referencia_fatura
                 'allows_null' => false,
             ],
             [ // select_from_array
                 'name' => 'ano_competencia',
-                'label' => "Ano Retirada",
+                'label' => "Ano Liberação",
                 'type' => 'select2_from_array',
                 'options' => config('app.anos_referencia_fatura'), // vai buscar em app.php o array anos_referencia_fatura
                 'default' => date('Y'),
@@ -185,7 +167,7 @@ class RetiradacontratocontaCrudController extends CrudController
             ],
             [ // select_from_array
                 'name' => 'situacao_retirada',
-                'label' => "Situação da Retirada",
+                'label' => "Situação da Liberação",
                 // 'type' => 'select2_from_array',
                 'type' => 'select2_from_array_hidden_field',    //  tipo criado para possibilitar uso do jquery para esconder campos
                 'options' => $arrayObjetosEncargoParaCombo, // aqui é de onde vai buscar o array
@@ -198,11 +180,8 @@ class RetiradacontratocontaCrudController extends CrudController
                 // optionals
                 'attributes' => [
                     'id' => 'valor',
-                    // 'readonly' => 'readonly',
-                    // 'style' => 'pointer-events: none;touch-action: none;'
-                ], // allow decimals
+                ],
                 'prefix' => "R$",
-                // 'default' => $objContratoTerceirizado->salario, // tipo da movimentação (dep, ret, rep)
             ],
             [
                 'name' => 'data_demissao',
@@ -216,7 +195,6 @@ class RetiradacontratocontaCrudController extends CrudController
                     'readonly' => 'readonly',
                 ],
             ],
-
         ];
 
         // vamos gerar os campos com os valores dos saldos
@@ -224,7 +202,6 @@ class RetiradacontratocontaCrudController extends CrudController
             $nomeEncargo = $objEncargo->descricao;
             $tipoId = $objEncargo->tipo_id;
             $objContratoConta = new Contratoconta();
-
 
             $saldoEncargoContratoTerceirizado = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
             $saldoEncargoContratoTerceirizado = number_format($saldoEncargoContratoTerceirizado, 2, '.', ',' );
@@ -243,12 +220,10 @@ class RetiradacontratocontaCrudController extends CrudController
                 'attributes' => [
                     'readonly' => 'readonly',
                     'style' => 'pointer-events: none;touch-action: none;'
-                ], // allow decimals
-                // 'default' => '('.$saldoDepositoEncargoContratoTerceirizado.' - '.$saldoRetiradaEncargoContratoTerceirizado.') = '.$saldoEncargoContratoTerceirizado,
+                ],
                 'default' => $saldoEncargoContratoTerceirizado,
             ];
         }
-
         return $campos;
     }
     public function getIdContratoByIdContratoTerceirizado($idContratoTerceirizado){
@@ -308,15 +283,22 @@ class RetiradacontratocontaCrudController extends CrudController
         }
         return true;
     }
+    /**
+     * Após reunião com o Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e
+     * sim na tabela contratoconta, pois esse percentual irá variar de conta para conta.
+     */
     public function getIdEncargoByNomeEncargo($nomeEncargo){
         // bucar em codigoitens, pela descrição, pegar o id e buscar o tipo id em encargos pelo id
-        $id = \DB::table('codigoitens')
+        $obj = \DB::table('codigoitens')
         ->select('encargos.id')
         ->where('codigoitens.descricao','=',$nomeEncargo)
         ->join('encargos', 'encargos.tipo_id', '=', 'codigoitens.id')
-        ->first()->id;
-
-        return $id;
+        ->first();
+        if( !is_object($obj) ){
+            echo $nomeEncargo.' -> Encargo não localizado.';
+            exit;
+        }
+        return $obj->id;
     }
     public function getTipoIdEncargoByNomeEncargo($nomeEncargo){
         // bucar em codigoitens, pela descrição, pegar o id e buscar o tipo id em encargos pelo id
@@ -330,10 +312,16 @@ class RetiradacontratocontaCrudController extends CrudController
         // vamos buscar o saldo do encargo grupo A sobre 13 salario e férias
         $idContratoTerceirizado = $objContratoTerceirizado->id;
         $objContratoConta = new Contratoconta();
-        $nomeGrupoA = 'Grupo "A" sobre 13o. Salário e Férias';
-        $idEncargoGrupoA = self::getIdEncargoByNomeEncargo($nomeGrupoA);
-        $idGrupoA = self::getTipoIdEncargoByNomeEncargo($nomeGrupoA);
-        $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $idGrupoA);
+        /**
+         * Após reunião com Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e sim
+         * na tabela contrato conta, pois esse percentual irá variar de conta pra conta.
+         *
+         * Por isso o idEncargoGrupoA será null.
+         *
+         */
+        $nomeGrupoA = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
+        $idEncargoGrupoA = null;
+        $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
         $situacaoFuncionario = $objContratoTerceirizado->situacao;
         // Grupo A - vamos calcular o Grupo A, que é o percentual fat_empresa sobre o valor informado para retirada.
         $fat_empresa = $request->input('fat_empresa');  // Cáculo do grupo A, que é o fat_empresa da tab contratocontas
@@ -347,7 +335,7 @@ class RetiradacontratocontaCrudController extends CrudController
             // aqui o usuário informou que a retirada é para demissão
             // verificar se o funcionário já não é demitido
             if( !$situacaoFuncionario ){
-                $mensagem = 'Este funcionário já está demitido.';
+                $mensagem = 'Este empregado já está demitido.';
                 \Alert::error($mensagem)->flash();
                 return false;
             }
@@ -358,37 +346,37 @@ class RetiradacontratocontaCrudController extends CrudController
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
-
             // buscar os saldos dos encargos e gerar um lançamento de retirada pra cada.
-            $nomeEncargo13ParaDemissao = 'Décimo Terceiro Salário';
+            $nomeEncargo13ParaDemissao = '13º (décimo terceiro) salário';
             $idEncargo13ParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargo13ParaDemissao);
             $saldoDecimoTerceiroParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargo13ParaDemissao);
 
-            $nomeEncargoFeriasParaDemissao = 'Férias e Adicional';
+            $nomeEncargoFeriasParaDemissao = 'Férias e 1/3 (um terço) constitucional de férias';
             $idEncargoFeriasParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoFeriasParaDemissao);
             $saldoFeriasParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoFeriasParaDemissao);
 
-            $nomeEncargoRescisaoParaDemissao = 'Rescisão e Adicional do FGTS';
+            $nomeEncargoRescisaoParaDemissao = 'Multa sobre o FGTS para as rescisões sem justa causa';
             $idEncargoRescisaoParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoRescisaoParaDemissao);
             $saldoRescisaoParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoRescisaoParaDemissao);
-
-            $nomeEncargoGrupoAParaDemissao = 'Grupo "A" sobre 13o. Salário e Férias';
-            $idEncargoGrupoAParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoGrupoAParaDemissao);
-            $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoGrupoAParaDemissao);
-
+            /**
+             * Após reunião com Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e sim
+             * na tabela contrato conta, pois esse percentual irá variar de conta pra conta.
+             *
+             * Por isso o idEncargoGrupoAParaDemissao será null.
+             *
+             */
+            $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
+            $idEncargoGrupoAParaDemissao = null;
+            $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
             $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
             $valorRetirada = $valorMaximoRetirada;
-
             if($valorMaximoRetirada == 0){
                 $mensagem = 'Não existe saldo para retirada.';
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
-
             if($saldoDecimoTerceiroParaDemissao>0){
-                // lançamento para o 13
+                // lançamento para o 13o.
                 $objLancamento = new Lancamento();
                 $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
                 $objLancamento->encargo_id = $idEncargo13ParaDemissao;
@@ -400,7 +388,6 @@ class RetiradacontratocontaCrudController extends CrudController
                     return false;
                 }
             }
-
             if($saldoFeriasParaDemissao>0){
                 // lançamento para férias
                 $objLancamento = new Lancamento();
@@ -414,7 +401,6 @@ class RetiradacontratocontaCrudController extends CrudController
                     return false;
                 }
             }
-
             if($saldoRescisaoParaDemissao>0){
                 // lançamento para rescisão e adicional fgts
                 $objLancamento = new Lancamento();
@@ -442,55 +428,44 @@ class RetiradacontratocontaCrudController extends CrudController
                     return false;
                 }
             }
-
             // vamos chamar o método que altera a situação do funcionário para demitido.
             if( !$objContratoConta->alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao) ){
                 $mensagem = 'Erro ao alterar a situação do funcioário para demitido.';
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
         } else {
             // aqui o usuário informou que a retirada não é para demissão
             $nomeEncargoInformado = self::getNomeEncargoBySituacaoRetirada($situacaoRetirada);
             $idEncargoInformado = self::getIdEncargoByNomeEncargo($nomeEncargoInformado);
             $tipoIdEncargo = $objContratoConta->getTipoIdEncargoByIdEncargo($idEncargoInformado);
-
             // vamos verificar quanto tem de saldo para o encargo em questão.
             $saldoContratoContaPorTipoEncargo = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($idContratoTerceirizado, $tipoIdEncargo);
-
             // início das verificações por encargo
             $valorMaximoRetirada = 0; // inicializar o valor máximo para retirada, que será alterado de acordo com o encargo informado.
-            if( $nomeEncargoInformado == 'Décimo Terceiro Salário' ){
+            if( $nomeEncargoInformado == '13º (décimo terceiro) salário' ){
                 // para 13o. salário, retirada máxima = ( salário + grupo A )
                 $valorMaximoRetirada = ( $salario + $valorFatEmpresaGrupoA );
-            } elseif( $nomeEncargoInformado == 'Férias e Adicional' ){
+            } elseif( $nomeEncargoInformado == 'Férias e 1/3 (um terço) constitucional de férias' ){
                 // para Férias, retirada máxima = ( salário + 1/3 do salário + grupo A)
                 $valorMaximoRetirada = ( $salario + $valorFatEmpresaGrupoA + $umTercoSalario);
             }
             // fim das verificações por encargo
-
             // vamos verificar se o valor do fat empresa (grupo A) não é maior do que o saldo do grupo A (encargo)
             if($valorFatEmpresaGrupoA > $saldoEncargoGrupoA){
                 \Alert::error('O valor calculado para o Grupo A é maior do que o saldo do encargo Grupo A.')->flash();
-                // echo 'false 1';exit;
                 return false;
             }
-
             // vamos verificar se o valor informado não é maior que o saldo para o encargo informado
             if( $valorInformadoRetirada > $saldoContratoContaPorTipoEncargo ){
                 \Alert::error('O valor informado é maior do que o saldo do encargo.')->flash();
-                // echo 'false 2';exit;
                 return false;
             }
-
             // agora que já calculamos o valor máximo para retirada, pelo encargo informado, vamos verificar se o valor informado é possível.
             if( $valorMaximoRetirada < $valorRetirada ){
                 \Alert::error('O valor da retirada supera o valor máximo permitido.')->flash();
-                // echo 'false 3';exit;
                 return false;
             }
-
             // gerar o lançamento para o encargo informado
             $objLancamento = new Lancamento();
             $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
@@ -502,9 +477,8 @@ class RetiradacontratocontaCrudController extends CrudController
                 \Alert::error($mensagem)->flash();
                 return false;
             }
-
             // Aqui vamos controlar os demais lançamentos, além do encargo selecionado pelo usuário
-            if( $nomeEncargoInformado == 'Décimo Terceiro Salário' ){
+            if( $nomeEncargoInformado == '13º (décimo terceiro) salário' ){
                 // GRUPO A
                 // para 13 é necessário gerar lançamento para o Grupo A
                 $objLancamento = new Lancamento();
@@ -517,7 +491,7 @@ class RetiradacontratocontaCrudController extends CrudController
                     \Alert::error($mensagem)->flash();
                     return false;
                 }
-            } elseif( $nomeEncargoInformado == 'Férias e Adicional' ){
+            } elseif( $nomeEncargoInformado == 'Férias e 1/3 (um terço) constitucional de férias' ){
                 // GRUPO A
                 // para 13 é necessário gerar lançamento para o Grupo A
                 $objLancamento = new Lancamento();
@@ -532,38 +506,31 @@ class RetiradacontratocontaCrudController extends CrudController
                 }
             }
         }
-        // se chegou aqui é porque está tudo certo
         return $valorRetirada;
     }
     public function getNomeEncargoBySituacaoRetirada($situacaoRetirada){
-        if($situacaoRetirada=='Décimo Terceiro'){return 'Décimo Terceiro Salário';}
+        if($situacaoRetirada=='Décimo Terceiro'){return '13º (décimo terceiro) salário';}
         elseif($situacaoRetirada=='Demissão'){return 'Demissão';}
-        elseif($situacaoRetirada=='Férias'){return 'Férias e Adicional';}
+        elseif($situacaoRetirada=='Férias'){return 'Férias e 1/3 (um terço) constitucional de férias';}
     }
     public function store(StoreRequest $request)
     {
         $idContratoTerceirizado = $request->input('contratoterceirizado_id');
-
         $objContratoTerceirizado = \DB::table('contratoterceirizados')
-        ->select('contratoterceirizados.*', 'contratos.numero')
-        ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
-        ->where('contratoterceirizados.id', '=', $idContratoTerceirizado)
-        ->first();
-
+            ->select('contratoterceirizados.*', 'contratos.numero')
+            ->join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
+            ->where('contratoterceirizados.id', '=', $idContratoTerceirizado)
+            ->first();
         $idContratoConta = self::getIdContratoContaByIdContratoTerceirizado($idContratoTerceirizado);
         $numeroContrato = $objContratoTerceirizado->numero;
-
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
-
         $valorRetirada = $request->input('valor');
         $valorRetirada = str_replace('.', '', $valorRetirada);
         $valorRetirada = str_replace(',', '.', $valorRetirada);
-
         $idContrato = $objContratoTerceirizado->contrato_id;
         // vamos buscar o contratoconta_id pelo contratoterceirizado_id
         $request->request->set('contratoconta_id', $idContratoConta);
-
         // aqui quer dizer que ainda não existe a movimentação. Precisamos criá-la.
         if( !$idMovimentacao = self::criarMovimentacao($request) ){
             $mensagem = 'Problemas ao criar a movimentação.';
@@ -572,49 +539,36 @@ class RetiradacontratocontaCrudController extends CrudController
         }
         // aqui a movimentação já foi criada e já temos o $idMovimentacao - vamos atribuir seu valor ao request
         $request->request->set('movimentacao_id', $idMovimentacao);
-
-
         // vamos verificar se no mês/ano de competência, o funcionário já tinha iniciado
         if(!self::verificarSeCompetenciaECompativelComDataInicio($request, $objContratoTerceirizado)){
-            $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do funcionário.';
+            $mensagem = 'Para o contrato número '.$numeroContrato.' o mês / ano de competência são incompatíveis com mês / ano de início do empregado.';
             \Alert::error($mensagem)->flash();
             if( !self::excluirMovimentacao($idMovimentacao) ){
                 \Alert::error('Problemas ao excluir a movimentação.')->flash();
             }
             return redirect()->back();
         }
-
         // vamos alterar o status da movimentação
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Em Andamento');
-
         // vamos verificar o saldo total da conta
         $objContratoConta = new Contratoconta();
         $saldoContratoConta = $objContratoConta->getSaldoContratoContaPorContratoTerceirizado($idContratoTerceirizado);
-
         // vamos verificar o saldo por encargo
         $situacaoRetirada = $request->input('situacao_retirada');
         $dataDemissao = $request->input('data_demissao');
-
         if( !$valorRetirada = self::verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valorRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao) ){
             // aqui quer dizer que não existe saldo para esta retirada - vamos excluir a movimentação
             self::excluirMovimentacao($idMovimentacao);
             \Alert::error('Problemas ao salvar a movimentação.')->flash();
             return redirect()->back();
         }
-
         // aqui os lançamentos já foram gerados. Vamos alterar o status da movimentação
         self::alterarStatusMovimentacao($idMovimentacao, 'Movimentação Finalizada');
-
-        $mensagem = 'Lançamento de retirada gerado com sucesso!';
+        $mensagem = 'Lançamento de liberação gerado com sucesso!';
         \Alert::success($mensagem)->flash();
-
-
-        // $linkLocation = '/gescon/contrato/'.$contrato_id.'/contratocontas';
         $linkLocation = '/gescon/contrato/contratoconta/'.$idContratoConta.'/movimentacaocontratoconta';
         return redirect($linkLocation);
-
     }
-
     public function update(UpdateRequest $request)
     {
         // your additional operations before save here
