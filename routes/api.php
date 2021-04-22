@@ -125,22 +125,33 @@ Route::group([
             Route::get('/inativo/orgao/{orgao}', 'ContratoController@contratoInativoPorOrgao');
 
             Route::get('/{contrato_id}/historico', 'ContratoController@historicoPorContratoId');
+            Route::get('/historicos', 'ContratoController@historicos');
 
             Route::get('/{contrato_id}/garantias', 'ContratoController@garantiasPorContratoId');
+            Route::get('/garantias', 'ContratoController@garantias');
             Route::get('/{contrato_id}/itens', 'ContratoController@itensPorContratoId');
+            Route::get('/itens', 'ContratoController@itens');
             Route::get('/{contrato_id}/prepostos', 'ContratoController@prepostosPorContratoId');
+            Route::get('/prepostos', 'ContratoController@prepostos');
             Route::get('/{contrato_id}/responsaveis', 'ContratoController@responsaveisPorContratoId');
+            Route::get('/responsaveis', 'ContratoController@responsaveis');
             Route::get('/{contrato_id}/despesas_acessorias', 'ContratoController@despesasAcessoriasPorContratoId');
+            Route::get('/despesas_acessorias', 'ContratoController@despesasAcessorias');
             Route::get('/{contrato_id}/faturas', 'ContratoController@faturasPorContratoId');
+            Route::get('/faturas', 'ContratoController@faturas');
             Route::get('/{contrato_id}/ocorrencias', 'ContratoController@ocorrenciasPorContratoId');
+            Route::get('ocorrencias', 'ContratoController@ocorrencias');
             Route::get('/{contrato_id}/terceirizados', 'ContratoController@terceirizadosPorContratoId');
+            Route::get('/terceirizados', 'ContratoController@terceirizados');
             Route::get('/{contrato_id}/arquivos', 'ContratoController@arquivosPorContratoId');
+            Route::get('/arquivos', 'ContratoController@arquivos');
 
             Route::get('/ugorigem/{codigo_uasg}/numeroano/{numeroano_contrato}', 'ContratoController@contratoUASGeContratoAno');
 
             Route::get('/{contrato_id}/empenhos', 'ContratoController@empenhosPorContratoId');
             Route::get('/empenhos', 'ContratoController@empenhosPorContratos');
             Route::get('/{contrato_id}/cronograma', 'ContratoController@cronogramaPorContratoId');
+            Route::get('/cronogramas', 'ContratoController@cronogramas');
             Route::get('/orgaos', 'ContratoController@orgaosComContratosAtivos');
             Route::get('/unidades', 'ContratoController@unidadesComContratosAtivos');
         });

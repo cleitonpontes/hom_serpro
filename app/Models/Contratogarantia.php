@@ -46,6 +46,47 @@ class Contratogarantia extends Model
         return 'R$ ' . number_format($this->valor, 2, ',', '.');
     }
 
+    public function garantiaAPI()
+    {
+        return [
+            'contrato_id' => $this->contrato_id,
+            'tipo' => $this->getTipo(),
+            'valor' => number_format($this->valor, 2, ',', '.'),
+            'vencimento' => $this->vencimento,
+        ];
+    }
+
+    public function buscaGarantiasPorContratoId(int $contrato_id, $range)
+    {
+        $garantias = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratogarantias.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $garantias;
+    }
+
+    public function buscaGarantias($range)
+    {
+        $garantias = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratogarantias.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $garantias;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

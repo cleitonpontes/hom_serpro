@@ -484,4 +484,54 @@ class Contratocronograma extends Model
 
         return $retorno;
     }
+
+    public function cronogramaAPI()
+    {
+
+        return [
+            'contrato_id' => $this->contrato_id,
+            'id' => $this->id,
+            'tipo' => $this->contratohistorico->tipo->descricao,
+            'numero' => $this->contratohistorico->numero,
+            'receita_despesa' => ($this->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
+            'observacao' => $this->contratohistorico->observacao,
+            'mesref' => $this->mesref,
+            'anoref' => $this->anoref,
+            'vencimento' => $this->vencimento,
+            'retroativo' => ($this->retroativo) == true ? 'Sim' : 'Não',
+            'valor' => number_format($this->valor, 2, ',', '.'),
+        ];
+    }
+
+    public function buscaCronogramasPorContratoIdAPI(int $contrato_id, $range)
+    {
+        $cronogramas = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratocronograma.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $cronogramas;
+    }
+
+    public function buscaCronogramasAPI($range)
+    {
+        $cronogramas = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratocronograma.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $cronogramas;
+    }
+
 }

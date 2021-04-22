@@ -67,6 +67,48 @@ class Contratoarquivo extends Model
         }
         return $arquivos_array;
     }
+    public function arquivoAPI()
+    {
+        return [
+                'contrato_id' => $this->contrato_id,
+                'tipo' => $this->getTipo(),
+                'processo' => $this->processo,
+                'sequencial_documento' => $this->sequencial_documento,
+                'descricao' => $this->descricao,
+                'arquivos' => $this->getListaArquivosComPath(),
+        ];
+    }
+
+    public function buscaArquivosPorContratoId(int $contrato_id, $range)
+    {
+        $arquivos = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contrato_arquivos.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $arquivos;
+    }
+
+    public function buscaArquivos($range)
+    {
+        $arquivos = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contrato_arquivos.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $arquivos;
+    }
 
     /*
     |--------------------------------------------------------------------------

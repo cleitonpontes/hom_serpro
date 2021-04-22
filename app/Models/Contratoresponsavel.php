@@ -96,6 +96,54 @@ class Contratoresponsavel extends ContratoBase
         return $this->retornaDataAPartirDeCampo($this->data_fim);
     }
 
+    public function responsavelAPI($usuarioTransparencia)
+    {
+        return [
+            'contrato_id' => $this->contrato_id,
+            'usuario' => $usuarioTransparencia,
+            'funcao_id' => $this->funcao->descricao,
+            'instalacao_id' => $this->getInstalacao(),
+            'portaria' => $this->portaria,
+            'situacao' => $this->situacao == true ? 'Ativo' : 'Inativo',
+            'data_inicio' => $this->data_inicio,
+            'data_fim' => $this->data_fim,
+            'telefone_fixo' => $this->telefone_fixo,
+            'telefone_celular' => $this->telefone_celular,
+        ];
+    }
+
+    public function buscaResponsaveisPorContratoId(int $contrato_id, $range)
+    {
+        $responsaveis = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratoresponsaveis.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+
+        return $responsaveis;
+    }
+
+    public function buscaResponsaveis($range)
+    {
+        $responsaveis = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratoresponsaveis.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $responsaveis;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

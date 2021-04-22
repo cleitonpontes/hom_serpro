@@ -107,6 +107,33 @@ class ContratoController extends APIController
     {
         return json_encode($this->buscaUnidadesComContratosAtivos());
     }
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna os cronogramas",
+     *     description="Retorna um Json dos cronogramas",
+     *     path="/api/contratos/cronogramas",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cronogramas retornados com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Cronograma")
+     *         ),
+     *     )
+     * )
+     */
+    public function cronogramas(Request $request)
+    {   
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        
+        $cronograma_array = [];
+        $cronogramas = (new Contratocronograma())->buscaCronogramasAPI($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        
+        foreach ($cronogramas as $cronograma) {
+            $cronograma_array[] = $cronograma->cronogramaAPI();
+        }
+        
+        return json_encode($cronograma_array);
+    }
 
     /**
      * @OA\Get(
@@ -131,22 +158,10 @@ class ContratoController extends APIController
     public function cronogramaPorContratoId(int $contrato_id, Request $request)
     {
         $cronograma_array = [];
-        $cronogramas = $this->buscaCronogramasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $cronogramas = (new Contratocronograma())->buscaCronogramasPorContratoIdAPI($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
 
         foreach ($cronogramas as $cronograma) {
-            $cronograma_array[] = [
-                'id' => $cronograma->id,
-                'contrato_id' => $cronograma->contrato_id,
-                'tipo' => $cronograma->contratohistorico->tipo->descricao,
-                'numero' => $cronograma->contratohistorico->numero,
-                'receita_despesa' => ($cronograma->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
-                'observacao' => $cronograma->contratohistorico->observacao,
-                'mesref' => $cronograma->mesref,
-                'anoref' => $cronograma->anoref,
-                'vencimento' => $cronograma->vencimento,
-                'retroativo' => ($cronograma->retroativo) == true ? 'Sim' : 'Não',
-                'valor' => number_format($cronograma->valor, 2, ',', '.'),
-            ];
+            $cronograma_array[] = $cronograma->cronogramaAPI();
         }
 
         return json_encode($cronograma_array);
@@ -168,6 +183,7 @@ class ContratoController extends APIController
      */
     public function empenhosPorContratos(Request $request)
     {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
         $empenhos_array = [];
         $emp = new Contratoempenho();
         $empenhos = $emp->buscaTodosEmpenhosContratosAtivos($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
@@ -249,6 +265,32 @@ class ContratoController extends APIController
 
         return json_encode($empenhos_array);
     }
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os historicos do contrato",
+     *     description="Retorna um Json de historicos do contrato",
+     *     path="/api/contrato/{contrato_id}/historico",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de historicos do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Historicos")
+     *         ),
+     *     )
+     * )
+     */
+    public function historicos(Request $request)
+    {   
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $historico_array = [];
+        $historicos = (new Contratohistorico())->buscaHistoricos($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        
+        foreach ($historicos as $historico) {
+            $historico_array[] = $historico->historicoAPI();
+        }
+
+        return json_encode($historico_array);
+    }
 
     /**
      * @OA\Get(
@@ -273,52 +315,42 @@ class ContratoController extends APIController
     public function historicoPorContratoId(int $contrato_id, Request $request)
     {
         $historico_array = [];
-        $historicos = $this->buscaHistoricoPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $historicos = (new Contratohistorico())->buscaHistoricoPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
 
         foreach ($historicos as $historico) {
-            $historico_array[] = [
-                'receita_despesa' => ($historico->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
-                'numero' => $historico->numero,
-                'observacao' => $historico->observacao,
-                'ug' => @$historico->unidade->codigo,
-                'fornecedor' => [
-                    'tipo' => @$historico->fornecedor->tipo_fornecedor,
-                    'cnpj_cpf_idgener' => @$historico->fornecedor->cpf_cnpj_idgener,
-                    'nome' => @$historico->fornecedor->nome,
-                ],
-                'tipo' => $historico->tipo->descricao ?? '',
-                'categoria' => $historico->categoria->descricao ?? '',
-                'processo' => $historico->processo,
-                'objeto' => $historico->objeto,
-                'fundamento_legal_aditivo' => @$historico->fundamento_legal,
-                'informacao_complementar' => $historico->info_complementar,
-                'modalidade' => $historico->modalidade->descricao ?? '',
-                'licitacao_numero' => $historico->licitacao_numero,
-                'codigo_unidade_origem' => @$historico->unidadeorigem->codigo,
-                'nome_unidade_origem' => @$historico->unidadeorigem->nome,
-                'data_assinatura' => $historico->data_assinatura,
-                'data_publicacao' => $historico->data_publicacao,
-                'vigencia_inicio' => $historico->vigencia_inicio,
-                'vigencia_fim' => $historico->vigencia_fim,
-                'valor_inicial' => number_format($historico->valor_inicial, 2, ',', '.'),
-                'valor_global' => number_format($historico->valor_global, 2, ',', '.'),
-                'num_parcelas' => $historico->num_parcelas,
-                'valor_parcela' => number_format($historico->valor_parcela, 2, ',', '.'),
-                'novo_valor_global' => number_format($historico->novo_valor_global, 2, ',', '.'),
-                'novo_num_parcelas' => $historico->novo_num_parcelas,
-                'novo_valor_parcela' => number_format($historico->novo_valor_parcela, 2, ',', '.'),
-                'data_inicio_novo_valor' => $historico->data_inicio_novo_valor,
-                'retroativo' => ($historico->retroativo) == true ? 'Sim' : 'Não',
-                'retroativo_mesref_de' => $historico->retroativo_mesref_de,
-                'retroativo_anoref_de' => $historico->retroativo_anoref_de,
-                'retroativo_mesref_ate' => $historico->retroativo_mesref_ate,
-                'retroativo_anoref_ate' => $historico->retroativo_anoref_ate,
-                'retroativo_vencimento' => $historico->retroativo_vencimento,
-                'retroativo_valor' => number_format($historico->retroativo_valor, 2, ',', '.'),
-            ];
+            $historico_array[] = $historico->historicoAPI();
         }
 
         return json_encode($historico_array);
+    }
+
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas as garantias do contrato",
+     *     description="Retorna um Json de garantias do contrato",
+     *     path="/api/contrato/{contrato_id}/garantias",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de garantias do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Garantias")
+     *         ),
+     *     )
+     * )
+     */
+    public function garantias(Request $request)
+    {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $garantias_array = [];
+        $garantias = (new Contratogarantia())->buscaGarantias($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+
+        foreach ($garantias as $garantia) {
+
+            $garantias_array[] = $garantia->garantiaAPI();
+
+        }
+
+        return json_encode($garantias_array);
     }
 
     /**
@@ -344,20 +376,42 @@ class ContratoController extends APIController
     public function garantiasPorContratoId(int $contrato_id, Request $request)
     {
         $garantias_array = [];
-        $garantias = $this->buscaGarantiasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $garantias = (new Contratogarantia())->buscaGarantiasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
 
         foreach ($garantias as $garantia) {
 
-            $garantias_array[] = [
-                //'contrato_id' => $garantia->contrato_id,
-                'tipo' => $garantia->getTipo(),
-                'valor' => number_format($garantia->valor, 2, ',', '.'),
-                'vencimento' => $garantia->vencimento,
-            ];
+            $garantias_array[] = $garantia->garantiaAPI();
 
         }
 
         return json_encode($garantias_array);
+    }
+
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os itens do contrato",
+     *     description="Retorna um Json de itens do contrato",
+     *     path="/api/contrato/{contrato_id}/itens",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de itens do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Itens")
+     *         ),
+     *     )
+     * )
+     */
+    public function itens(Request $request)
+    {   
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $itens_array = [];
+        $itens = (new Contratoitem())->buscaItens($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+
+        foreach ($itens as $item) {
+            $itens_array[] = $item->itemAPI();
+        }
+
+        return json_encode($itens_array);
     }
 
     /**
@@ -383,24 +437,42 @@ class ContratoController extends APIController
     public function itensPorContratoId(int $contrato_id, Request $request)
     {
         $itens_array = [];
-        $itens = $this->buscaItensPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $itens = (new Contratoitem())->buscaItensPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
 
         foreach ($itens as $item) {
-            $itens_array[] = [
-                //'contrato_id' => $item->contrato_id,
-                'tipo_id' => $item->getTipo(),
-                'grupo_id' => $item->getCatmatsergrupo(),
-                'catmatseritem_id' => $item->getCatmatseritem(),
-                'descricao_complementar' => $item->descricao_complementar,
-                'quantidade' => $item->quantidade,
-                'valorunitario' => number_format($item->valorunitario, 2, ',', '.'),
-                'valortotal' => number_format($item->valortotal, 2, ',', '.'),
-            ];
+            $itens_array[] = $item->itemAPI();
         }
 
         return json_encode($itens_array);
     }
 
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os prepostos do contrato",
+     *     description="Retorna um Json de prepostos do contrato",
+     *     path="/api/contrato/{contrato_id}/prepostos",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de prepostos do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Prepostos")
+     *         ),
+     *     )
+     * )
+     */
+    public function prepostos(Request $request)
+    {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $prepostos_array = [];
+        $prepostos = (new Contratopreposto())->buscaPrepostos($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $dadosAbertos = $this->dadosAbertos();
+
+        foreach ($prepostos as $preposto) {
+            $prepostos_array[] = $preposto->prepostoAPI($this->usuarioTransparencia($preposto->nome, $preposto->cpf, $dadosAbertos));
+        }
+
+        return json_encode($prepostos_array);
+    }
     /**
      * @OA\Get(
      *     tags={"contratos"},
@@ -424,28 +496,41 @@ class ContratoController extends APIController
     public function prepostosPorContratoId(int $contrato_id, Request $request)
     {
         $prepostos_array = [];
-        $prepostos = $this->buscaPrepostosPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $prepostos = (new Contratopreposto())->buscaPrepostosPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
         $dadosAbertos = $this->dadosAbertos();
 
         foreach ($prepostos as $preposto) {
-            $prepostos_array[] = [
-                //'contrato_id' => $preposto->contrato_id,
-                //'user_id' => $preposto->user_id,
-                //'cpf' => $preposto->getCpf(),
-                //'nome' => $preposto->nome,
-                'usuario' => $this->usuarioTransparencia($preposto->nome, $preposto->cpf, $dadosAbertos),
-                'email' => $preposto->email,
-                'telefonefixo' => $preposto->telefonefixo,
-                'celular' => $preposto->celular,
-                'doc_formalizacao' => $preposto->doc_formalizacao,
-                'informacao_complementar' => $preposto->informacao_complementar,
-                'data_inicio' => $preposto->data_inicio,
-                'data_fim' => $preposto->data_fim,
-                'situacao' => $preposto->situacao == true ? 'Ativo' : 'Inativo',
-            ];
+            $prepostos_array[] = $preposto->prepostoAPI($this->usuarioTransparencia($preposto->nome, $preposto->cpf, $dadosAbertos));
         }
 
         return json_encode($prepostos_array);
+    }
+
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os responsaveis",
+     *     description="Retorna um Json de responsaveis",
+     *     path="/api/contrato/responsaveis",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de responsaveis do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Responsaveis")
+     *         ),
+     *     )
+     * )
+     */
+    public function responsaveis(Request $request)
+    {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $responsaveis_array = [];
+        $responsaveis = (new Contratoresponsavel())->buscaResponsaveis($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $dadosAbertos = $this->dadosAbertos();
+        foreach ($responsaveis as $responsavel) {
+            $responsaveis_array[] = $responsavel->responsavelAPI($this->usuarioTransparencia($responsavel->user->name, $responsavel->user->cpf, $dadosAbertos));
+        }
+
+        return json_encode($responsaveis_array);
     }
 
     /**
@@ -471,29 +556,42 @@ class ContratoController extends APIController
     public function responsaveisPorContratoId(int $contrato_id, Request $request)
     {
         $responsaveis_array = [];
-        $responsaveis = $this->buscaResponsaveisPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $responsaveis = (new Contratoresponsavel())->buscaResponsaveisPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
         $dadosAbertos = $this->dadosAbertos();
 
         foreach ($responsaveis as $responsavel) {
 
-            $responsaveis_array[] = [
-
-                //'contrato_id' => $responsavel->contrato_id,
-                //'user_id' => $responsavel->getUsuarioTransparencia(),
-
-                'usuario' => $this->usuarioTransparencia($responsavel->user->name, $responsavel->user->cpf, $dadosAbertos),
-                'funcao_id' => $responsavel->funcao->descricao,
-                'instalacao_id' => $responsavel->getInstalacao(),
-                'portaria' => $responsavel->portaria,
-                'situacao' => $responsavel->situacao == true ? 'Ativo' : 'Inativo',
-                'data_inicio' => $responsavel->data_inicio,
-                'data_fim' => $responsavel->data_fim,
-                'telefone_fixo' => $responsavel->telefone_fixo,
-                'telefone_celular' => $responsavel->telefone_celular,
-            ];
+            $responsaveis_array[] = $responsavel->responsavelAPI($this->usuarioTransparencia($responsavel->user->name, $responsavel->user->cpf, $dadosAbertos));
+        
         }
-
         return json_encode($responsaveis_array);
+    }
+
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas as despesas acessorias do contrato",
+     *     description="Retorna um Json de despesas acessorias do contrato",
+     *     path="/api/contrato/{contrato_id}/despesas_acessorias",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de despesas acessorias do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/DespesasAcessorias")
+     *         ),
+     *     )
+     * )
+     */
+    public function despesasAcessorias(Request $request)
+    {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $despesasAcessorias_array = [];
+        $despesasAcessorias = (new Contratodespesaacessoria())->buscaDespesasAcessorias($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        
+        foreach ($despesasAcessorias as $despesaAcessoria) {
+            $despesasAcessorias_array[] = $despesaAcessoria->despesaAcessoriaAPI();
+        }
+        
+        return json_encode($despesasAcessorias_array);
     }
 
     /**
@@ -519,20 +617,40 @@ class ContratoController extends APIController
     public function despesasAcessoriasPorContratoId(int $contrato_id, Request $request)
     {
         $despesasAcessorias_array = [];
-        $despesasAcessorias = $this->buscaDespesasAcessoriasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $despesasAcessorias = (new Contratodespesaacessoria())->buscaDespesasAcessoriasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
 
         foreach ($despesasAcessorias as $despesaAcessoria) {
-            $despesasAcessorias_array[] = [
-                //'contrato_id' => $despesaAcessoria->contrato_id,
-                'tipo_id' => $despesaAcessoria->tipoDespesa->descricao,
-                'recorrencia_id' => $despesaAcessoria->recorrenciaDespesa->descricao,
-                'descricao_complementar' => $despesaAcessoria->descricao_complementar,
-                'vencimento' => $despesaAcessoria->vencimento,
-                'valor' => number_format($despesaAcessoria->valor, 2, ',', '.'),
-            ];
+            $despesasAcessorias_array[] = $despesaAcessoria->despesaAcessoriaAPI();
         }
 
         return json_encode($despesasAcessorias_array);
+    }
+
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas as faturas do contrato",
+     *     description="Retorna um Json de faturas do contrato",
+     *     path="/api/contrato/{contrato_id}/faturas",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de faturas do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Faturas")
+     *         ),
+     *     )
+     * )
+     */
+    public function faturas(Request $request)
+    {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $faturas_array = [];
+        $faturas = (new Contratofatura())->buscaFaturas($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+
+        foreach ($faturas as $fatura) {
+            $faturas_array[] = $fatura->faturaAPI();
+        }
+
+        return json_encode($faturas_array);
     }
 
     /**
@@ -558,37 +676,41 @@ class ContratoController extends APIController
     public function faturasPorContratoId(int $contrato_id, Request $request)
     {
         $faturas_array = [];
-        $faturas = $this->buscaFaturasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $faturas = (new Contratofatura())->buscaFaturasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
 
         foreach ($faturas as $fatura) {
-            $faturas_array[] = [
-                //'contrato_id' => $fatura->contrato_id,
-                'tipolistafatura_id' => $fatura->tipolista->nome,
-                //sem dados para teste
-                'justificativafatura_id' => $fatura->getJustificativaFatura(),
-                //sem dados para teste
-                'sfadrao_id' => $fatura->getSfpadrao(),
-                'numero' => $fatura->numero,
-                'emissao' => $fatura->emissao,
-                'prazo' => $fatura->prazo,
-                'vencimento' => $fatura->vencimento,
-                'valor' => number_format($fatura->valor, 2, ',', '.'),
-                'juros' => number_format($fatura->juros, 2, ',', '.'),
-                'multa' => number_format($fatura->multa, 2, ',', '.'),
-                'glosa' => number_format($fatura->glosa, 2, ',', '.'),
-                'valorliquido' => number_format($fatura->valorliquido, 2, ',', '.'),
-                'processo' => $fatura->processo,
-                'protocolo' => $fatura->protocolo,
-                'ateste' => $fatura->ateste,
-                'repactuacao' => $fatura->repactuacao == true ? 'Sim' : 'Não',
-                'infcomplementar' => $fatura->infcomplementar,
-                'mesref' => $fatura->mesref,
-                'anoref' => $fatura->anoref,
-                'situacao' => $fatura->retornaSituacao(),
-            ];
+            $faturas_array[] = $fatura->faturaAPI();
         }
 
         return json_encode($faturas_array);
+    }
+
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas as ocorrencias do contrato",
+     *     description="Retorna um Json de ocorrencias do contrato",
+     *     path="/api/contrato/{contrato_id}/ocorrencias",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de ocorrencias do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Ocorrencias")
+     *         ),
+     *     )
+     * )
+     */
+    public function ocorrencias(Request $request)
+    {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $ocorrencias_array = [];
+        $ocorrencias = (new Contratoocorrencia())->buscaOcorrencias($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $dadosAbertos = $this->dadosAbertos();
+
+        foreach ($ocorrencias as $ocorrencia) {
+            $ocorrencias_array[] = $ocorrencia->ocorrenciaAPI($this->usuarioTransparencia($ocorrencia->usuario->name, $ocorrencia->usuario->cpf, $dadosAbertos));
+        }
+
+        return json_encode($ocorrencias_array);
     }
 
     /**
@@ -614,31 +736,43 @@ class ContratoController extends APIController
     public function ocorrenciasPorContratoId(int $contrato_id, Request $request)
     {
         $ocorrencias_array = [];
-        $ocorrencias = $this->buscaOcorrenciasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $ocorrencias = (new Contratoocorrencia())->buscaOcorrenciasPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
         $dadosAbertos = $this->dadosAbertos();
 
         foreach ($ocorrencias as $ocorrencia) {
-            $ocorrencias_array[] = [
-                'numero' => $ocorrencia->numero,
-                //'contrato_id' => $ocorrencia->contrato_id,
-                //'user_id' => $ocorrencia->getUsuarioTransparencia(),
-                'usuario' => $this->usuarioTransparencia($ocorrencia->usuario->name, $ocorrencia->usuario->cpf, $dadosAbertos),
-                'data' => $ocorrencia->data,
-                'ocorrencia' => $ocorrencia->ocorrencia,
-                'notificapreposto' => $ocorrencia->notificapreposto == true ? 'Sim' : 'Não',
-                'emailpreposto' => $ocorrencia->emailpreposto,
-                //Seria o mesmo que número?
-                'numeroocorrencia' => $ocorrencia->getNumeroOcorrencia(),
-                //possivel erro no formulário, nova situação não é salva
-                'novasituacao' => $ocorrencia->getSituacaoNovaConsulta(),
-                'situacao' => $ocorrencia->ocorSituacao->descricao,
-                'arquivos' => $ocorrencia->getListaArquivosComPath(),
-            ];
+            $ocorrencias_array[] = $ocorrencia->ocorrenciaAPI($this->usuarioTransparencia($ocorrencia->usuario->name, $ocorrencia->usuario->cpf, $dadosAbertos));
         }
 
         return json_encode($ocorrencias_array);
     }
 
+        /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todos os terceirizados do contrato",
+     *     description="Retorna um Json de terceirizados do contrato",
+     *     path="/api/contrato/{contrato_id}/terceirizados",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de terceirizados do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Terceirizados")
+     *         )
+     *     )
+     * )
+     */
+    public function terceirizados(Request $request)
+    {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $terceirizados_array = [];
+        $terceirizados = (new Contratoterceirizado())->buscaTerceirizados($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $dadosAbertos = $this->dadosAbertos();
+
+        foreach ($terceirizados as $terceirizado) {
+            $terceirizados_array[] = $terceirizado->terceirizadoAPI($this->usuarioTransparencia($terceirizado->nome, $terceirizado->cpf, $dadosAbertos));
+        }
+
+        return json_encode($terceirizados_array);
+    }
 
     /**
      * @OA\Get(
@@ -664,34 +798,40 @@ class ContratoController extends APIController
     {
 
         $terceirizados_array = [];
-        $terceirizados = $this->buscaTerceirizadosPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $terceirizados = (new Contratoterceirizado())->buscaTerceirizadosPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
         $dadosAbertos = $this->dadosAbertos();
 
         foreach ($terceirizados as $terceirizado) {
-            ;
-            $terceirizados_array[] = [
-                //'contrato_id' => $terceirizado->contrato_id,
-                //'cpf' => $terceirizado->getCpf(),
-                //'nome' => $terceirizado->nome,
-                'usuario' => $this->usuarioTransparencia($terceirizado->nome, $terceirizado->cpf, $dadosAbertos),
-                'funcao_id' => $terceirizado->funcao->descricao,
-                'descricao_complementar' => $terceirizado->descricao_complementar,
-                'jornada' => $terceirizado->jornada,
-                'unidade' => $terceirizado->unidade,
-                'salario' => number_format($terceirizado->salario, 2, ',', '.'),
-                'custo' => number_format($terceirizado->custo, 2, ',', '.'),
-                'escolaridade_id' => $terceirizado->escolaridade->descricao,
-                'data_inicio' => $terceirizado->data_inicio,
-                'data_fim' => $terceirizado->data_fim,
-                'situacao' => $terceirizado->situacao == true ? 'Ativo' : 'Inativo',
-                'telefone_fixo' => $terceirizado->telefone_fixo,
-                'telefone_celular' => $terceirizado->telefone_celular,
-                'aux_transporte' => number_format($terceirizado->aux_transporte, 2, ',', '.'),
-                'vale_alimentacao' => number_format($terceirizado->vale_alimentacao, 2, ',', '.'),
-            ];
+            $terceirizados_array[] = $terceirizado->terceirizadoAPI($this->usuarioTransparencia($terceirizado->nome, $terceirizado->cpf, $dadosAbertos));
         }
 
         return json_encode($terceirizados_array);
+    }
+    /**
+     * @OA\Get(
+     *     tags={"contratos"},
+     *     summary="Retorna uma lista com todas os arquivos do contrato",
+     *     description="Retorna um Json de arquivos do contrato",
+     *     path="/api/contrato/{contrato_id}/arquivos",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de arquivos do contrato retornada com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/Arquivos")
+     *         ),
+     *     )
+     * )
+     */
+    public function arquivos(Request $request)
+    {
+        $this->rangeObrigatorio($request->dt_alteracao_min, $request->dt_alteracao_max);
+        $arquivos_array = [];
+        $arquivos = (new Contratoarquivo())->buscaArquivos($this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        
+        foreach ($arquivos as $arquivo) {
+            $arquivos_array[] = $arquivo->arquivoAPI();
+        }
+
+        return json_encode($arquivos_array);
     }
 
     /**
@@ -717,17 +857,10 @@ class ContratoController extends APIController
     public function arquivosPorContratoId(int $contrato_id, Request $request)
     {
         $arquivos_array = [];
-        $arquivos = $this->buscaArquivosPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
+        $arquivos = (new Contratoarquivo())->buscaArquivosPorContratoId($contrato_id, $this->range($request->dt_alteracao_min, $request->dt_alteracao_max));
 
         foreach ($arquivos as $arquivo) {
-            $arquivos_array[] = [
-                //'contrato_id' => $arquivo->contrato_id,
-                'tipo' => $arquivo->getTipo(),
-                'processo' => $arquivo->processo,
-                'sequencial_documento' => $arquivo->sequencial_documento,
-                'descricao' => $arquivo->descricao,
-                'arquivos' => $arquivo->getListaArquivosComPath(),
-            ];
+            $arquivos_array[] = $arquivo->arquivoAPI();
         }
 
         return json_encode($arquivos_array);
@@ -757,22 +890,6 @@ class ContratoController extends APIController
         return $unidades->get();
     }
 
-    private function buscaCronogramasPorContratoId(int $contrato_id, $range)
-    {
-        $cronogramas = Contratocronograma::whereHas('contrato', function ($c){
-            $c->whereHas('unidade', function ($u){
-                $u->where('sigilo', "=", false);
-            });
-        })
-            ->where('contrato_id', $contrato_id)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratocronograma.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $cronogramas;
-    }
-
     private function buscaEmpenhosPorContratoId(int $contrato_id, $range)
     {
         $empenhos = Contratoempenho::join('contratos', 'contratos.id', '=', 'contratoempenhos.contrato_id')
@@ -788,152 +905,6 @@ class ContratoController extends APIController
         return $empenhos;
     }
 
-    private function buscaHistoricoPorContratoId(int $contrato_id, $range)
-    {
-        $historico = Contratohistorico::whereHas('contrato', function ($c){
-            $c->whereHas('unidade', function ($u){
-                $u->where('sigilo', "=", false);
-            });
-        })
-            ->where('contrato_id', $contrato_id)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratohistorico.updated_at', [$range[0], $range[1]]);
-            })
-            ->orderBy('contratohistorico.data_assinatura')
-            ->get();
-
-        return $historico;
-    }
-
-    private function buscaGarantiasPorContratoId(int $contrato_id, $range)
-    {
-        $garantias = Contratogarantia::select('contratogarantias.tipo', 'contratogarantias.valor', 'contratogarantias.vencimento')
-            ->join('contratos', 'contratos.id', '=', 'contratogarantias.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contratogarantias.contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratogarantias.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $garantias;
-    }
-
-    private function buscaItensPorContratoId(int $contrato_id, $range)
-    {
-        $itens = Contratoitem::join('contratos', 'contratos.id', '=', 'contratoitens.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratoitens.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $itens;
-    }
-
-    private function buscaPrepostosPorContratoId(int $contrato_id, $range)
-    {
-        $prepostos = Contratopreposto::join('contratos', 'contratos.id', '=', 'contratopreposto.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratopreposto.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $prepostos;
-    }
-
-    private function buscaResponsaveisPorContratoId(int $contrato_id, $range)
-    {
-        $responsaveis = Contratoresponsavel::join('contratos', 'contratos.id', '=', 'contratoresponsaveis.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratoresponsaveis.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $responsaveis;
-    }
-
-    private function buscaDespesasAcessoriasPorContratoId(int $contrato_id, $range)
-    {
-        $despesas_acessorias = Contratodespesaacessoria::join('contratos', 'contratos.id', '=',
-            'contratodespesaacessoria.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratodespesaacessoria.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $despesas_acessorias;
-    }
-
-    private function buscaFaturasPorContratoId(int $contrato_id, $range)
-    {
-        $faturas = Contratofatura::join('contratos', 'contratos.id', '=', 'contratofaturas.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratofaturas.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $faturas;
-    }
-
-    private function buscaOcorrenciasPorContratoId(int $contrato_id, $range)
-    {
-        $ocorrencias = Contratoocorrencia::join('contratos', 'contratos.id', '=', 'contratoocorrencias.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratoocorrencias.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $ocorrencias;
-    }
-
-    private function buscaTerceirizadosPorContratoId(int $contrato_id, $range)
-    {
-        $terceirizados = Contratoterceirizado::join('contratos', 'contratos.id', '=', 'contratoterceirizados.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contratoterceirizados.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $terceirizados;
-    }
-
-    private function buscaArquivosPorContratoId(int $contrato_id, $range)
-    {
-        $arquivos = Contratoarquivo::select('contrato_arquivos.tipo', 'contrato_arquivos.processo',
-            'contrato_arquivos.sequencial_documento', 'contrato_arquivos.descricao', 'contrato_arquivos.arquivos')
-            ->join('contratos', 'contratos.id', '=', 'contrato_arquivos.contrato_id')
-            ->join('unidades', 'unidades.id', '=', 'contratos.unidade_id')
-            ->where('contrato_id', $contrato_id)
-            ->where('unidades.sigilo', "=", false)
-            ->when($range != null, function ($d) use ($range) {
-                $d->whereBetween('contrato_arquivos.updated_at', [$range[0], $range[1]]);
-            })
-            ->get();
-
-        return $arquivos;
-    }
 
     /**
      * @OA\Get(
