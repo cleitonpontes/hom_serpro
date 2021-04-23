@@ -123,6 +123,51 @@ class Contratoitem extends Model
         return 'R$ ' . number_format($this->valortotal, 2, ',', '.');
     }
 
+    public function itemAPI()
+    {
+        return [
+                'contrato_id' => $this->contrato_id,
+                'tipo_id' => $this->getTipo(),
+                'grupo_id' => $this->getCatmatsergrupo(),
+                'catmatseritem_id' => $this->getCatmatseritem(),
+                'descricao_complementar' => $this->descricao_complementar,
+                'quantidade' => $this->quantidade,
+                'valorunitario' => number_format($this->valorunitario, 2, ',', '.'),
+                'valortotal' => number_format($this->valortotal, 2, ',', '.'),
+        ];
+    }
+
+    public function buscaItensPorContratoId(int $contrato_id, $range)
+    {
+        $itens = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratoitens.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $itens;
+    }
+
+    public function buscaItens($range)
+    {
+        $itens = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratoitens.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $itens;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
