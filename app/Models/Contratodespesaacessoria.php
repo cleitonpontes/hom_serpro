@@ -82,6 +82,7 @@ class Contratodespesaacessoria extends ContratoBase
     public function despesaAcessoriaAPI()
     {
         return [
+                'id' => $this->id,
                 'contrato_id' => $this->contrato_id,
                 'tipo_id' => $this->tipoDespesa->descricao,
                 'recorrencia_id' => $this->recorrenciaDespesa->descricao,

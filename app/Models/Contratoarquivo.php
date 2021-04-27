@@ -70,6 +70,7 @@ class Contratoarquivo extends Model
     public function arquivoAPI()
     {
         return [
+                'id' => $this->id,
                 'contrato_id' => $this->contrato_id,
                 'tipo' => $this->getTipo(),
                 'processo' => $this->processo,

@@ -99,6 +99,7 @@ class Contratoresponsavel extends ContratoBase
     public function responsavelAPI($usuarioTransparencia)
     {
         return [
+            'id' => $this->id,
             'contrato_id' => $this->contrato_id,
             'usuario' => $usuarioTransparencia,
             'funcao_id' => $this->funcao->descricao,

@@ -54,6 +54,7 @@ class Contratopreposto extends Model
     public function prepostoAPI($usuarioTransparencia)
     {
         return [
+                'id' => $this->id,
                 'contrato_id' => $this->contrato_id,
                 'usuario' => $usuarioTransparencia,
                 'email' => $this->email,

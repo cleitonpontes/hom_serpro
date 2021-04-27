@@ -113,6 +113,7 @@ class Contratoterceirizado extends ContratoBase
     public function terceirizadoAPI($usuarioTransparencia)
     {
         return [
+                'id' => $this->id,
                 'contrato_id' => $this->contrato_id,
                 'usuario' => $usuarioTransparencia,
                 'funcao_id' => $this->funcao->descricao,

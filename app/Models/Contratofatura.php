@@ -324,6 +324,7 @@ class Contratofatura extends Model
     public function faturaAPI()
     {
         return [
+                'id' => $this->id,
                 'contrato_id' => $this->contrato_id,
                 'tipolistafatura_id' => $this->tipolista->nome,
                 'justificativafatura_id' => $this->getJustificativaFatura(),

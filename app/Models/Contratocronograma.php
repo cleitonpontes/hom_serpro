@@ -488,9 +488,9 @@ class Contratocronograma extends Model
     public function cronogramaAPI()
     {
 
-        return [
-            'contrato_id' => $this->contrato_id,
+        return [            
             'id' => $this->id,
+            'contrato_id' => $this->contrato_id,
             'tipo' => $this->contratohistorico->tipo->descricao,
             'numero' => $this->contratohistorico->numero,
             'receita_despesa' => ($this->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
