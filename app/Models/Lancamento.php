@@ -56,15 +56,33 @@ class Lancamento extends Model
         $objEncargo = Encargo::find($this->encargo_id);
         return $objEncargo->percentual;
     }
+    // se não chegar com id do encargo, se trata de grupo a ou submódulo 2.2
     public function getPercentualEncargoOuGrupoA(){
         if( $this->encargo_id != null ){
+            // aqui é para os encargos - irão chegar aqui com id
             $objEncargo = Encargo::find($this->encargo_id);
             return $objEncargo->percentual;
         } else {
+            // aqui é para grupo A ou submodulo 2.2
             $idLancamento = $this->id;
             $idContratoConta = Contratoconta::getIdContratocontaByidLancamento($idLancamento);
             $objContratoconta = Contratoconta::where('id', $idContratoConta)->first();
-            return $percentual = $objContratoconta->percentual_grupo_a_13_ferias;
+            /**
+             * 27/04/2021
+             * Após reunião com o Gabriel, o percentual do lançamento para este caso, irá variar de acordo com o tipo da movimentação.
+             * Se for provisão, será o percentual grupo a 13 e férias
+             * Se for libaeração, será o percentual do submódulo 2.2
+             *
+             * Ambos estão na tabela contratocontas.
+             *
+             */
+            $idMovimentacao = $this->movimentacao_id;
+            $tipoMovimentacao = $this->getTipoMovimentacao();
+            if($tipoMovimentacao == 'Liberação'){
+                return $percentual = $objContratoconta->percentual_submodulo22;
+            } elseif($tipoMovimentacao == 'Provisão'){
+                return $percentual = $objContratoconta->percentual_grupo_a_13_ferias;
+            }
         }
     }
     public function formatValor(){

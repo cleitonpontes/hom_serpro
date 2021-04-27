@@ -311,7 +311,10 @@ class RetiradacontratocontaCrudController extends CrudController
     public function verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valorInformadoRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao){
         // vamos buscar o saldo do encargo grupo A sobre 13 salario e férias
         $idContratoTerceirizado = $objContratoTerceirizado->id;
-        $objContratoConta = new Contratoconta();
+        $idContratoConta = $request->input('contratoconta_id');
+        $objContratoConta = Contratoconta::find($idContratoConta);
+        $percentualSubmodulo22 = $objContratoConta->percentual_submodulo22;
+        // $objContratoConta = new Contratoconta();
         /**
          * Após reunião com Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e sim
          * na tabela contrato conta, pois esse percentual irá variar de conta pra conta.
@@ -319,12 +322,21 @@ class RetiradacontratocontaCrudController extends CrudController
          * Por isso o idEncargoGrupoA será null.
          *
          */
-        $nomeGrupoA = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
+        // $nomeGrupoA = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
         $idEncargoGrupoA = null;
         $saldoEncargoGrupoA = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
         $situacaoFuncionario = $objContratoTerceirizado->situacao;
         // Grupo A - vamos calcular o Grupo A, que é o percentual fat_empresa sobre o valor informado para retirada.
-        $fat_empresa = $request->input('fat_empresa');  // Cáculo do grupo A, que é o fat_empresa da tab contratocontas
+            /**
+             * Após reunião com o Gabriel, foi solicitado que:
+             * para uma liberação, deverá incidir o percentual do submódulo 2.2
+             *
+             * Então, o que vou fazer é o seguinte:
+             * ao invés de pegar o fat_empresa, que é o valor de 1, 2 ou 3%, vou pegar o percentual submódulo 22
+             */
+            // $fat_empresa = $request->input('fat_empresa');  // Cáculo do grupo A, que é o fat_empresa da tab contratocontas
+            $fat_empresa = $objContratoConta->percentual_submodulo22;   // Cáculo do grupo A, que agora é o percentual do submódulo 2.2. Antes era o fat_empresa da tab contratocontas
+
         $valorFatEmpresaGrupoA = ( $valorInformadoRetirada * $fat_empresa ) / 100 ;
         // vamos atualizar o valor da retirada, somando com o percentual do fat_empresa, que é o grupo A
         $valorRetirada = ( $valorInformadoRetirada + $valorFatEmpresaGrupoA );
@@ -365,7 +377,7 @@ class RetiradacontratocontaCrudController extends CrudController
              * Por isso o idEncargoGrupoAParaDemissao será null.
              *
              */
-            $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
+            // $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
             $idEncargoGrupoAParaDemissao = null;
             $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
             $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
@@ -493,7 +505,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 }
             } elseif( $nomeEncargoInformado == 'Férias e 1/3 (um terço) constitucional de férias' ){
                 // GRUPO A
-                // para 13 é necessário gerar lançamento para o Grupo A
+                // para férias é necessário gerar lançamento para o Grupo A
                 $objLancamento = new Lancamento();
                 $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
                 $objLancamento->encargo_id = $idEncargoGrupoA;
