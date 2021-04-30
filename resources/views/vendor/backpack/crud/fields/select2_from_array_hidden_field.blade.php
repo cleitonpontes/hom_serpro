@@ -75,17 +75,31 @@
                 $("#situacao_retirada").change(function(){
                     //o que se deseja fazer ao receber um clique o checkbox
                     var valorCampo = $('#situacao_retirada').val();
+
                     if(valorCampo == 'Demissão'){
                         // aqui quer dizer que o valor Demissão foi selecionado.
                         $("#valor").val("0.00");
                         $("#valor").prop("readonly", true);
+
                         $("#data_demissao").prop("readonly", false);
-                        // $("#data_demissao").val("");
+
+                        $("#valor_13_salario_para_demissao").prop("readonly", false);
+                        $("#valor_ferias_para_demissao").prop("readonly", false);
+                        $("#valor_multa_demissao").prop("readonly", false);
 
                     } else {
                         $("#valor").prop("readonly", false);
                         $("#data_demissao").prop("readonly", true);
                         $("#data_demissao").val("Não se aplica");
+
+                        $("#valor_13_salario_para_demissao").prop("readonly", true);
+                        $("#valor_13_salario_para_demissao").val("Não se aplica");
+
+                        $("#valor_ferias_para_demissao").prop("readonly", true);
+                        $("#valor_ferias_para_demissao").val("Não se aplica");
+
+                        $("#valor_multa_demissao").prop("readonly", true);
+                        $("#valor_multa_demissao").val("Não se aplica");
 
                     }
                 });

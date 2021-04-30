@@ -143,6 +143,18 @@ class RetiradacontratocontaCrudController extends CrudController
                 'default' => $objContratoConta->fat_empresa,
                 'prefix' => "%",
             ],
+            [   //
+                'name' => 'percentual_submodulo22',
+                'label' => 'Submódulo 2.2',
+                'type' => 'text',
+                // optionals
+                'attributes' => [
+                    'readonly' => 'readonly',
+                    'style' => 'pointer-events: none;touch-action: none;'
+                ], // allow decimals
+                'default' => $objContratoConta->percentual_submodulo22,
+                'prefix' => "%",
+            ],
 
             [   // Hidden
                 'name' => 'situacao_movimentacao',
@@ -195,9 +207,44 @@ class RetiradacontratocontaCrudController extends CrudController
                     'readonly' => 'readonly',
                 ],
             ],
+            [   // Number
+                'name' => 'valor_13_salario_para_demissao',
+                'label' => 'Valor do 13o. salário para demissão',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'valor_13_salario_para_demissao',
+                    'readonly' => 'readonly',
+                ],
+                'prefix' => "R$",
+            ],
+            [   // Number
+                'name' => 'valor_ferias_para_demissao',
+                'label' => 'Valor férias + 1/3 de férias para demissão',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'valor_ferias_para_demissao',
+                    'readonly' => 'readonly',
+                ],
+                'prefix' => "R$",
+            ],
+            [   // Number
+                'name' => 'valor_multa_demissao',
+                'label' => 'Valor da multa caso a demissão não seja por justa causa',
+                'type' => 'money_fatura',
+                // optionals
+                'attributes' => [
+                    'id' => 'valor_multa_demissao',
+                    'readonly' => 'readonly',
+                ],
+                'prefix' => "R$",
+            ],
+
         ];
 
         // vamos gerar os campos com os valores dos saldos
+        $saldoTotal = 0;
         foreach( $arrayObjetosEncargo as $objEncargo ){
             $nomeEncargo = $objEncargo->descricao;
             $tipoId = $objEncargo->tipo_id;
@@ -223,7 +270,21 @@ class RetiradacontratocontaCrudController extends CrudController
                 ],
                 'default' => $saldoEncargoContratoTerceirizado,
             ];
+            // vamos gerando o saldo total para mostrarmos no formulário
+            $saldoTotal = $saldoTotal + $saldoEncargoContratoTerceirizado;
         }
+        // vamos mostrar o campo com o saldo total
+        $campos[] = [   //
+            'name' => 'Saldo Total',
+            'label' => 'Saldo Total',
+            'type' => 'text',
+            // optionals
+            'attributes' => [
+                'readonly' => 'readonly',
+                'style' => 'pointer-events: none;touch-action: none;'
+            ],
+            'default' => $saldoTotal,
+        ];
         return $campos;
     }
     public function getIdContratoByIdContratoTerceirizado($idContratoTerceirizado){
@@ -308,13 +369,13 @@ class RetiradacontratocontaCrudController extends CrudController
         ->join('encargos', 'encargos.tipo_id', '=', 'codigoitens.id')
         ->first()->tipo_id;
     }
-    public function verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valorInformadoRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao){
+    public function verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valor_13_salario_para_demissao, $valor_ferias_para_demissao, $valor_multa_demissao, $valorInformadoRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao){
         // vamos buscar o saldo do encargo grupo A sobre 13 salario e férias
         $idContratoTerceirizado = $objContratoTerceirizado->id;
         $idContratoConta = $request->input('contratoconta_id');
         $objContratoConta = Contratoconta::find($idContratoConta);
         $percentualSubmodulo22 = $objContratoConta->percentual_submodulo22;
-        // $objContratoConta = new Contratoconta();
+        $valorTotalIncidenciaSubmodulo22 = 0;
         /**
          * Após reunião com Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e sim
          * na tabela contrato conta, pois esse percentual irá variar de conta pra conta.
@@ -344,6 +405,19 @@ class RetiradacontratocontaCrudController extends CrudController
         $salario = $objContratoTerceirizado->salario;
         $umTercoSalario = ( $salario / 3 );
         if($situacaoRetirada=='Demissão'){
+            /**
+             * NOVA FORMA DE DEMISSÃO!!!
+             *
+             * 30/04/2021 - Após conversa com Gabriel por whatsapp, ficou decidido que a demissão funcionará da seguinte forma:
+             *
+             * 1 - usuário informa o valor da liberação;
+             * 2 - sistema usa esse valor pra fazer liberações em cima das provisões existentes, seguindo a seguinte ordem:
+             *      - 13o.
+             *      - incidência módulo 2.2
+             *      - férias e 1/3
+             *      - multa sobre FGTS por último
+             *
+             */
             // aqui o usuário informou que a retirada é para demissão
             // verificar se o funcionário já não é demitido
             if( !$situacaoFuncionario ){
@@ -358,6 +432,173 @@ class RetiradacontratocontaCrudController extends CrudController
                 \Alert::error($mensagem)->flash();
                 return false;
             }
+            /**
+             * Com a nova regra de demissão, precisaremos calcular a incidência do submódulo 2.2 sobre 13o. e férias
+             */
+            // buscar os saldos dos encargos e gerar um lançamento de retirada pra cada.
+            $nomeEncargo13ParaDemissao = '13º (décimo terceiro) salário';
+            $idEncargo13ParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargo13ParaDemissao);
+            $saldoDecimoTerceiroParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargo13ParaDemissao);
+            // vamos verificar se o saldo é maior ou igual ao valor informado
+            if($saldoDecimoTerceiroParaDemissao < $valor_13_salario_para_demissao){
+                $mensagem = 'O saldo para 13o. é menor do que o valor informado.';
+                \Alert::error($mensagem)->flash();
+                return false;
+            } else {
+                // com a nova regra de demissão, o valor que deverá ser lançado, não é mais o valor do saldo e sim o valor informado.
+                $saldoDecimoTerceiroParaDemissao = $valor_13_salario_para_demissao;
+                // aqui vamos calcular a incidência do submódulo 2.2
+                $valorIncidenciaSubmodulo22_13 = ( ($valor_13_salario_para_demissao * $percentualSubmodulo22)/100 );
+                // echo '<br>valor 13 = '.$valor_13_salario_para_demissao.' sub 13 = '.$valorIncidenciaSubmodulo22_13;
+            }
+            $nomeEncargoFeriasParaDemissao = 'Férias e 1/3 (um terço) constitucional de férias';
+            $idEncargoFeriasParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoFeriasParaDemissao);
+            $saldoFeriasParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoFeriasParaDemissao);
+            // vamos verificar se o saldo é maior ou igual ao valor informado
+            if($saldoFeriasParaDemissao < $valor_ferias_para_demissao){
+                $mensagem = 'O saldo para férias é menor do que o valor informado.';
+                \Alert::error($mensagem)->flash();
+                return false;
+            } else {
+                // com a nova regra de demissão, o valor que deverá ser lançado, não é mais o valor do saldo e sim o valor informado.
+                $saldoFeriasParaDemissao = $valor_ferias_para_demissao;
+                // aqui vamos calcular a incidência do submódulo 2.2
+                $valorIncidenciaSubmodulo22_ferias = ( ($valor_ferias_para_demissao * $percentualSubmodulo22)/100 );
+                // echo '<br>valor ferias = '.$valor_ferias_para_demissao.' sub ferias = '.$valorIncidenciaSubmodulo22_ferias;
+            }
+            $nomeEncargoRescisaoParaDemissao = 'Multa sobre o FGTS para as rescisões sem justa causa';
+            $idEncargoRescisaoParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoRescisaoParaDemissao);
+            $saldoRescisaoParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoRescisaoParaDemissao);
+            // vamos verificar se o saldo é maior ou igual ao valor informado
+            if($saldoRescisaoParaDemissao < $valor_multa_demissao){
+                $mensagem = 'O saldo para multa é menor do que o valor informado.';
+                \Alert::error($mensagem)->flash();
+                return false;
+            } else {
+                // com a nova regra de demissão, o valor que deverá ser lançado, não é mais o valor do saldo e sim o valor informado.
+                $saldoRescisaoParaDemissao = $valor_multa_demissao;
+            }
+            // aqui já temos todos os valores de incidência do submódulo 2.2. Vamos somá-los
+            $valorTotalIncidenciaSubmodulo22 = ($valorIncidenciaSubmodulo22_13 + $valorIncidenciaSubmodulo22_ferias );
+            /**
+             * Após reunião com Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e sim
+             * na tabela contrato conta, pois esse percentual irá variar de conta pra conta.
+             *
+             * Por isso o idEncargoGrupoAParaDemissao será null.
+             *
+             */
+            // $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
+            $idEncargoGrupoAParaDemissao = null;
+            $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
+            if($saldoGrupoAParaDemissao < $valorTotalIncidenciaSubmodulo22){
+                $mensagem = 'O saldo para o submódulo 2.2 ('.$saldoGrupoAParaDemissao.') é menor do que o valor calculado ('.$valorTotalIncidenciaSubmodulo22.').';
+                \Alert::error($mensagem)->flash();
+                return false;
+            } else {
+                // com a nova regra de demissão, o valor a ser lançado não é mais o saldo e sim o valor calculado em cima dos valores informados para férias e 13.
+                $saldoGrupoAParaDemissao = $valorTotalIncidenciaSubmodulo22;
+            }
+            // $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
+            // $valorRetirada = $valorMaximoRetirada;
+            // if($valorMaximoRetirada == 0){
+            //     $mensagem = 'Não existe saldo para retirada.';
+            //     \Alert::error($mensagem)->flash();
+            //     return false;
+            // }
+            if($saldoDecimoTerceiroParaDemissao>0){
+                // lançamento para o 13o.
+                $objLancamento = new Lancamento();
+                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
+                $objLancamento->encargo_id = $idEncargo13ParaDemissao;
+                $objLancamento->valor = $saldoDecimoTerceiroParaDemissao;
+                $objLancamento->movimentacao_id = $idMovimentacao;
+                if( !$objLancamento->save() ){
+                    $mensagem = 'Erro ao salvar o lançamento para Décimo Terceiro.';
+                    \Alert::error($mensagem)->flash();
+                    return false;
+                }
+            }
+            if($saldoGrupoAParaDemissao>0){
+                // lançamento para grupo A sobre 13 e férias
+                $objLancamento = new Lancamento();
+                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
+                $objLancamento->encargo_id = $idEncargoGrupoAParaDemissao;
+                $objLancamento->valor = $saldoGrupoAParaDemissao;
+                $objLancamento->movimentacao_id = $idMovimentacao;
+                if( !$objLancamento->save() ){
+                    $mensagem = 'Erro ao salvar o lançamento para grupo A sobre Décimo Terceiro e Férias.';
+                    \Alert::error($mensagem)->flash();
+                    return false;
+                }
+            }
+            if($saldoFeriasParaDemissao>0){
+                // lançamento para férias
+                $objLancamento = new Lancamento();
+                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
+                $objLancamento->encargo_id = $idEncargoFeriasParaDemissao;
+                $objLancamento->valor = $saldoFeriasParaDemissao;
+                $objLancamento->movimentacao_id = $idMovimentacao;
+                if( !$objLancamento->save() ){
+                    $mensagem = 'Erro ao salvar o lançamento para férias.';
+                    \Alert::error($mensagem)->flash();
+                    return false;
+                }
+            }
+            if($saldoRescisaoParaDemissao>0){
+                // lançamento para rescisão e adicional fgts
+                $objLancamento = new Lancamento();
+                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
+                $objLancamento->encargo_id = $idEncargoRescisaoParaDemissao;
+                $objLancamento->valor = $saldoRescisaoParaDemissao;
+                $objLancamento->movimentacao_id = $idMovimentacao;
+                if( !$objLancamento->save() ){
+                    $mensagem = 'Erro ao salvar o lançamento para rescisão e adicional fgts.';
+                    \Alert::error($mensagem)->flash();
+                    return false;
+                }
+            }
+            // vamos chamar o método que altera a situação do funcionário para demitido.
+            if( !$objContratoConta->alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao) ){
+                $mensagem = 'Erro ao alterar a situação do funcioário para demitido.';
+                \Alert::error($mensagem)->flash();
+                return false;
+            }
+        } elseif($situacaoRetirada=='DemissãoBackup'){
+
+            /**
+             * BACKUP
+             * COMO ERA ANTES DA ALTERAÇÃO PRA NOVA FORMA DE DEMISSÃO.
+             *
+             * BASTA VOLTAR O IF PARA DEMISSAO E RETIRAR COMENTAR O OUTRO IF DE DEMISSAO
+             */
+            /**
+             * 30/04/2021 - Após conversa com Gabriel por whatsapp, ficou decidido que a demissão funcionará da seguinte forma:
+             *
+             * 1 - usuário informa o valor da liberação;
+             * 2 - sistema usa esse valor pra fazer liberações em cima das provisões existentes, seguindo a seguinte ordem:
+             *      - 13o.
+             *      - incidência módulo 2.2
+             *      - férias e 1/3
+             *      - multa sobre FGTS por último
+             *
+             */
+            // aqui o usuário informou que a retirada é para demissão
+            // verificar se o funcionário já não é demitido
+            if( !$situacaoFuncionario ){
+                $mensagem = 'Este empregado já está demitido.';
+                \Alert::error($mensagem)->flash();
+                return false;
+            }
+            // verificar se informou a data de demissão
+            $dataDemissao = $request->input('data_demissao');
+            if( $dataDemissao=='' ){
+                $mensagem = 'Favor informar a data de demissão.';
+                \Alert::error($mensagem)->flash();
+                return false;
+            }
+
+
+
             // buscar os saldos dos encargos e gerar um lançamento de retirada pra cada.
             $nomeEncargo13ParaDemissao = '13º (décimo terceiro) salário';
             $idEncargo13ParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargo13ParaDemissao);
@@ -380,6 +621,7 @@ class RetiradacontratocontaCrudController extends CrudController
             // $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
             $idEncargoGrupoAParaDemissao = null;
             $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
+
             $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
             $valorRetirada = $valorMaximoRetirada;
             if($valorMaximoRetirada == 0){
@@ -387,6 +629,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 \Alert::error($mensagem)->flash();
                 return false;
             }
+
             if($saldoDecimoTerceiroParaDemissao>0){
                 // lançamento para o 13o.
                 $objLancamento = new Lancamento();
@@ -396,6 +639,19 @@ class RetiradacontratocontaCrudController extends CrudController
                 $objLancamento->movimentacao_id = $idMovimentacao;
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para Décimo Terceiro.';
+                    \Alert::error($mensagem)->flash();
+                    return false;
+                }
+            }
+            if($saldoGrupoAParaDemissao>0){
+                // lançamento para grupo A sobre 13 e férias
+                $objLancamento = new Lancamento();
+                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
+                $objLancamento->encargo_id = $idEncargoGrupoAParaDemissao;
+                $objLancamento->valor = $saldoGrupoAParaDemissao;
+                $objLancamento->movimentacao_id = $idMovimentacao;
+                if( !$objLancamento->save() ){
+                    $mensagem = 'Erro ao salvar o lançamento para grupo A sobre Décimo Terceiro e Férias.';
                     \Alert::error($mensagem)->flash();
                     return false;
                 }
@@ -427,19 +683,10 @@ class RetiradacontratocontaCrudController extends CrudController
                 }
             }
 
-            if($saldoGrupoAParaDemissao>0){
-                // lançamento para grupo A sobre 13 e férias
-                $objLancamento = new Lancamento();
-                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
-                $objLancamento->encargo_id = $idEncargoGrupoAParaDemissao;
-                $objLancamento->valor = $saldoGrupoAParaDemissao;
-                $objLancamento->movimentacao_id = $idMovimentacao;
-                if( !$objLancamento->save() ){
-                    $mensagem = 'Erro ao salvar o lançamento para grupo A sobre Décimo Terceiro e Férias.';
-                    \Alert::error($mensagem)->flash();
-                    return false;
-                }
-            }
+
+
+
+
             // vamos chamar o método que altera a situação do funcionário para demitido.
             if( !$objContratoConta->alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao) ){
                 $mensagem = 'Erro ao alterar a situação do funcioário para demitido.';
@@ -537,9 +784,26 @@ class RetiradacontratocontaCrudController extends CrudController
         $numeroContrato = $objContratoTerceirizado->numero;
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
+
         $valorRetirada = $request->input('valor');
         $valorRetirada = str_replace('.', '', $valorRetirada);
         $valorRetirada = str_replace(',', '.', $valorRetirada);
+        /**
+         * Novos campos a partir da reunião com o Gabriel em 30/02/2021
+         * onde foi mudada a forma de cálculo para demissão.
+         */
+        $valor_13_salario_para_demissao = $request->input('valor_13_salario_para_demissao');
+        $valor_13_salario_para_demissao = str_replace('.', '', $valor_13_salario_para_demissao);
+        $valor_13_salario_para_demissao = str_replace(',', '.', $valor_13_salario_para_demissao);
+
+        $valor_ferias_para_demissao = $request->input('valor_ferias_para_demissao');
+        $valor_ferias_para_demissao = str_replace('.', '', $valor_ferias_para_demissao);
+        $valor_ferias_para_demissao = str_replace(',', '.', $valor_ferias_para_demissao);
+
+        $valor_multa_demissao = $request->input('valor_multa_demissao');
+        $valor_multa_demissao = str_replace('.', '', $valor_multa_demissao);
+        $valor_multa_demissao = str_replace(',', '.', $valor_multa_demissao);
+
         $idContrato = $objContratoTerceirizado->contrato_id;
         // vamos buscar o contratoconta_id pelo contratoterceirizado_id
         $request->request->set('contratoconta_id', $idContratoConta);
@@ -568,7 +832,7 @@ class RetiradacontratocontaCrudController extends CrudController
         // vamos verificar o saldo por encargo
         $situacaoRetirada = $request->input('situacao_retirada');
         $dataDemissao = $request->input('data_demissao');
-        if( !$valorRetirada = self::verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valorRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao) ){
+        if( !$valorRetirada = self::verificarSeValorRetiradaEstaDentroDoPermitidoEGerarLancamentos($valor_13_salario_para_demissao, $valor_ferias_para_demissao, $valor_multa_demissao, $valorRetirada, $objContratoTerceirizado, $request, $idMovimentacao, $situacaoRetirada, $dataDemissao) ){
             // aqui quer dizer que não existe saldo para esta retirada - vamos excluir a movimentação
             self::excluirMovimentacao($idMovimentacao);
             \Alert::error('Problemas ao salvar a movimentação.')->flash();
