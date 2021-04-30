@@ -82,10 +82,17 @@
                         $("#valor").prop("readonly", true);
 
                         $("#data_demissao").prop("readonly", false);
+                        $("#data_demissao").val("");
 
                         $("#valor_13_salario_para_demissao").prop("readonly", false);
+                        $("#valor_13_salario_para_demissao").val("0.00");
+
                         $("#valor_ferias_para_demissao").prop("readonly", false);
+                        $("#valor_ferias_para_demissao").val("0.00");
+
                         $("#valor_multa_demissao").prop("readonly", false);
+                        $("#valor_multa_demissao").val("0.00");
+
 
                     } else {
                         $("#valor").prop("readonly", false);

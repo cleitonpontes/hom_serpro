@@ -268,23 +268,13 @@ class RetiradacontratocontaCrudController extends CrudController
                     'readonly' => 'readonly',
                     'style' => 'pointer-events: none;touch-action: none;'
                 ],
+                'prefix' => "R$",
                 'default' => $saldoEncargoContratoTerceirizado,
             ];
             // vamos gerando o saldo total para mostrarmos no formulário
             $saldoTotal = $saldoTotal + $saldoEncargoContratoTerceirizado;
+            $saldoTotal = number_format($saldoTotal, 2);
         }
-        // vamos mostrar o campo com o saldo total
-        $campos[] = [   //
-            'name' => 'Saldo Total',
-            'label' => 'Saldo Total',
-            'type' => 'text',
-            // optionals
-            'attributes' => [
-                'readonly' => 'readonly',
-                'style' => 'pointer-events: none;touch-action: none;'
-            ],
-            'default' => $saldoTotal,
-        ];
         return $campos;
     }
     public function getIdContratoByIdContratoTerceirizado($idContratoTerceirizado){
@@ -466,17 +456,23 @@ class RetiradacontratocontaCrudController extends CrudController
                 $valorIncidenciaSubmodulo22_ferias = ( ($valor_ferias_para_demissao * $percentualSubmodulo22)/100 );
                 // echo '<br>valor ferias = '.$valor_ferias_para_demissao.' sub ferias = '.$valorIncidenciaSubmodulo22_ferias;
             }
-            $nomeEncargoRescisaoParaDemissao = 'Multa sobre o FGTS para as rescisões sem justa causa';
-            $idEncargoRescisaoParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoRescisaoParaDemissao);
-            $saldoRescisaoParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoRescisaoParaDemissao);
-            // vamos verificar se o saldo é maior ou igual ao valor informado
-            if($saldoRescisaoParaDemissao < $valor_multa_demissao){
-                $mensagem = 'O saldo para multa é menor do que o valor informado.';
-                \Alert::error($mensagem)->flash();
-                return false;
+            if($valor_multa_demissao > 0){
+                // aqui quer dizer que a demissão não é por justa causa, pois tem valor de multa.
+                $nomeEncargoRescisaoParaDemissao = 'Multa sobre o FGTS para as rescisões sem justa causa';
+                $idEncargoRescisaoParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoRescisaoParaDemissao);
+                $saldoRescisaoParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoRescisaoParaDemissao);
+                // vamos verificar se o saldo é maior ou igual ao valor informado
+                if($saldoRescisaoParaDemissao < $valor_multa_demissao){
+                    $mensagem = 'O saldo para multa é menor do que o valor informado.';
+                    \Alert::error($mensagem)->flash();
+                    return false;
+                } else {
+                    // com a nova regra de demissão, o valor que deverá ser lançado, não é mais o valor do saldo e sim o valor informado.
+                    $saldoRescisaoParaDemissao = $valor_multa_demissao;
+                }
             } else {
-                // com a nova regra de demissão, o valor que deverá ser lançado, não é mais o valor do saldo e sim o valor informado.
-                $saldoRescisaoParaDemissao = $valor_multa_demissao;
+                // aqui quer dizer que não tem multa, pois é justa causa
+                $saldoRescisaoParaDemissao = 0;
             }
             // aqui já temos todos os valores de incidência do submódulo 2.2. Vamos somá-los
             $valorTotalIncidenciaSubmodulo22 = ($valorIncidenciaSubmodulo22_13 + $valorIncidenciaSubmodulo22_ferias );
@@ -557,6 +553,8 @@ class RetiradacontratocontaCrudController extends CrudController
                     return false;
                 }
             }
+            // com as alterações, o valor da retirada passou a ser a soma dos saldos que foram usados para gerar os lançamentos.
+            $valorRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoGrupoAParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao );
             // vamos chamar o método que altera a situação do funcionário para demitido.
             if( !$objContratoConta->alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao) ){
                 $mensagem = 'Erro ao alterar a situação do funcioário para demitido.';
@@ -765,6 +763,8 @@ class RetiradacontratocontaCrudController extends CrudController
                 }
             }
         }
+        // vamos tratar o valor retirada, pois, caso ele retorne o número zero, o sistema vai entender que retornou false.
+        if($valorRetirada==0){$valorRetirada = true;}
         return $valorRetirada;
     }
     public function getNomeEncargoBySituacaoRetirada($situacaoRetirada){
@@ -795,14 +795,17 @@ class RetiradacontratocontaCrudController extends CrudController
         $valor_13_salario_para_demissao = $request->input('valor_13_salario_para_demissao');
         $valor_13_salario_para_demissao = str_replace('.', '', $valor_13_salario_para_demissao);
         $valor_13_salario_para_demissao = str_replace(',', '.', $valor_13_salario_para_demissao);
+        if($valor_13_salario_para_demissao == null){$valor_13_salario_para_demissao = 0;}
 
         $valor_ferias_para_demissao = $request->input('valor_ferias_para_demissao');
         $valor_ferias_para_demissao = str_replace('.', '', $valor_ferias_para_demissao);
         $valor_ferias_para_demissao = str_replace(',', '.', $valor_ferias_para_demissao);
+        if($valor_ferias_para_demissao == null){$valor_ferias_para_demissao = 0;}
 
         $valor_multa_demissao = $request->input('valor_multa_demissao');
         $valor_multa_demissao = str_replace('.', '', $valor_multa_demissao);
         $valor_multa_demissao = str_replace(',', '.', $valor_multa_demissao);
+        if($valor_multa_demissao == null){$valor_multa_demissao = 0;}
 
         $idContrato = $objContratoTerceirizado->contrato_id;
         // vamos buscar o contratoconta_id pelo contratoterceirizado_id

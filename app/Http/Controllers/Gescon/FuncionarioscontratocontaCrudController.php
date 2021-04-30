@@ -92,6 +92,10 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'visibleInModal' => true, // would make the modal too big
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('nome', 'ilike', "%$searchTerm%");
+                },
+
             ],
             [
                 'name' => 'getCpfFormatado',
@@ -118,7 +122,6 @@ class FuncionarioscontratocontaCrudController extends CrudController
                 'visibleInExport' => true, // not important enough
                 'visibleInShow' => true, // sure, why not
                 'prefix' => "R$ ",
-
             ],
             [
                 'name' => 'getSituacaoFuncionario',
