@@ -47,15 +47,15 @@ class Contratoempenho extends Model
         return $this;
     }
 
-    public function buscaTodosEmpenhosContratosAtivos($dataInformada)
+    public function buscaTodosEmpenhosContratosAtivos($range)
     {
         $empenhos = $this->whereHas('contrato', function ($c) {
             $c->whereHas('unidade', function ($s){
                 $s->where('sigilo',false);
             })->where('situacao', true);
-        })->whereHas('empenho', function ($x) use ($dataInformada){
-            $x->when($dataInformada!=null, function ($d) use ($dataInformada){
-                $d->where('empenhos.updated_at', '>', $dataInformada);
+        })->whereHas('empenho', function ($x) use ($range){
+            $x->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('empenhos.updated_at', [$range[0], $range[1]]);
             });
         })->get();
 

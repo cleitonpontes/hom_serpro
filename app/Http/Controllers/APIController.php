@@ -143,4 +143,10 @@ class APIController extends Controller
         }
     }
 
+    public function rangeObrigatorio($dt_alteracao_min, $dt_alteracao_max){
+        if($dt_alteracao_min == null && $dt_alteracao_max == null){
+            abort(response()->json(['errors' => "Os parametros 'dt_alteracao_min' e 'dt_alteracao_max' são obrigatórios",], 400));
+        }
+    }
+    
 }

@@ -263,6 +263,55 @@ class Contratoocorrencia extends Model
         }
         return $arquivos_array;
     }
+
+    public function ocorrenciaAPI($usuarioTransparencia)
+    {
+        return [
+            'contrato_id' => $this->contrato_id,
+            'numero' => $this->numero,
+            'usuario' => $usuarioTransparencia,
+            'data' => $this->data,
+            'ocorrencia' => $this->ocorrencia,
+            'notificapreposto' => $this->notificapreposto == true ? 'Sim' : 'Não',
+            'emailpreposto' => $this->emailpreposto,
+            'numeroocorrencia' => $this->getNumeroOcorrencia(),
+            'novasituacao' => $this->getSituacaoNovaConsulta(),
+            'situacao' => $this->ocorSituacao->descricao,
+            'arquivos' => $this->getListaArquivosComPath(),
+        ];
+    }
+
+    public function buscaOcorrenciasPorContratoId(int $contrato_id, $range)
+    {
+        $ocorrencias = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratoocorrencias.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $ocorrencias;
+    }
+
+    public function buscaOcorrencias($range)
+    {
+        $ocorrencias = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratoocorrencias.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $ocorrencias;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

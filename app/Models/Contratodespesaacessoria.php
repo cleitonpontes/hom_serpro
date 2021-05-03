@@ -79,6 +79,49 @@ class Contratodespesaacessoria extends ContratoBase
     |--------------------------------------------------------------------------
     */
 
+    public function despesaAcessoriaAPI()
+    {
+        return [
+                'contrato_id' => $this->contrato_id,
+                'tipo_id' => $this->tipoDespesa->descricao,
+                'recorrencia_id' => $this->recorrenciaDespesa->descricao,
+                'descricao_complementar' => $this->descricao_complementar,
+                'vencimento' => $this->vencimento,
+                'valor' => number_format($this->valor, 2, ',', '.'),
+        ];
+    }
+
+    public function buscaDespesasAcessoriasPorContratoId(int $contrato_id, $range)
+    {
+        $despesas_acessorias = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratodespesaacessoria.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $despesas_acessorias;
+    }
+
+    public function buscaDespesasAcessorias($range)
+    {
+        $despesas_acessorias = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratodespesaacessoria.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $despesas_acessorias;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

@@ -349,6 +349,85 @@ class Contratohistorico extends ContratoBase
         return $amparo;
     }
 
+    public function historicoAPI()
+    {
+        
+        return [
+            'contrato_id' => $this->contrato_id,
+            'receita_despesa' => ($this->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
+            'numero' => $this->numero,
+            'observacao' => $this->observacao,
+            'ug' => @$this->unidade->codigo,
+            'fornecedor' => [
+                'tipo' => @$this->fornecedor->tipo_fornecedor,
+                'cnpj_cpf_idgener' => @$this->fornecedor->cpf_cnpj_idgener,
+                'nome' => @$this->fornecedor->nome,
+            ],
+            'tipo' => $this->tipo->descricao ?? '',
+            'categoria' => $this->categoria->descricao ?? '',
+            'processo' => $this->processo,
+            'objeto' => $this->objeto,
+            'fundamento_legal_aditivo' => @$this->fundamento_legal,
+            'informacao_complementar' => $this->info_complementar,
+            'modalidade' => $this->modalidade->descricao ?? '',
+            'licitacao_numero' => $this->licitacao_numero,
+            'codigo_unidade_origem' => @$this->unidadeorigem->codigo,
+            'nome_unidade_origem' => @$this->unidadeorigem->nome,
+            'data_assinatura' => $this->data_assinatura,
+            'data_publicacao' => $this->data_publicacao,
+            'vigencia_inicio' => $this->vigencia_inicio,
+            'vigencia_fim' => $this->vigencia_fim,
+            'valor_inicial' => number_format($this->valor_inicial, 2, ',', '.'),
+            'valor_global' => number_format($this->valor_global, 2, ',', '.'),
+            'num_parcelas' => $this->num_parcelas,
+            'valor_parcela' => number_format($this->valor_parcela, 2, ',', '.'),
+            'novo_valor_global' => number_format($this->novo_valor_global, 2, ',', '.'),
+            'novo_num_parcelas' => $this->novo_num_parcelas,
+            'novo_valor_parcela' => number_format($this->novo_valor_parcela, 2, ',', '.'),
+            'data_inicio_novo_valor' => $this->data_inicio_novo_valor,
+            'retroativo' => ($this->retroativo) == true ? 'Sim' : 'Não',
+            'retroativo_mesref_de' => $this->retroativo_mesref_de,
+            'retroativo_anoref_de' => $this->retroativo_anoref_de,
+            'retroativo_mesref_ate' => $this->retroativo_mesref_ate,
+            'retroativo_anoref_ate' => $this->retroativo_anoref_ate,
+            'retroativo_vencimento' => $this->retroativo_vencimento,
+            'retroativo_valor' => number_format($this->retroativo_valor, 2, ',', '.'),
+        ];
+    }
+
+    public function buscaHistoricoPorContratoId(int $contrato_id, $range)
+    {
+        $historico = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratohistorico.updated_at', [$range[0], $range[1]]);
+            })
+            ->orderBy('contratohistorico.data_assinatura')
+            ->get();
+
+        return $historico;
+    }
+
+    public function buscaHistoricos($range)
+    {   
+        $historico = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('updated_at', [$range[0], $range[1]]);
+            })
+            ->orderBy('data_assinatura')
+            ->get();
+        
+        return $historico;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

@@ -110,6 +110,59 @@ class Contratoterceirizado extends ContratoBase
         return $this->retornaCampoFormatadoComoNumero($this->custo, true);
     }
 
+    public function terceirizadoAPI($usuarioTransparencia)
+    {
+        return [
+                'contrato_id' => $this->contrato_id,
+                'usuario' => $usuarioTransparencia,
+                'funcao_id' => $this->funcao->descricao,
+                'descricao_complementar' => $this->descricao_complementar,
+                'jornada' => $this->jornada,
+                'unidade' => $this->unidade,
+                'salario' => number_format($this->salario, 2, ',', '.'),
+                'custo' => number_format($this->custo, 2, ',', '.'),
+                'escolaridade_id' => $this->escolaridade->descricao,
+                'data_inicio' => $this->data_inicio,
+                'data_fim' => $this->data_fim,
+                'situacao' => $this->situacao == true ? 'Ativo' : 'Inativo',
+                'telefone_fixo' => $this->telefone_fixo,
+                'telefone_celular' => $this->telefone_celular,
+                'aux_transporte' => number_format($this->aux_transporte, 2, ',', '.'),
+                'vale_alimentacao' => number_format($this->vale_alimentacao, 2, ',', '.'),
+        ];
+    }
+
+    public function buscaTerceirizadosPorContratoId(int $contrato_id, $range)
+    {
+        $terceirizados = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratoterceirizados.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $terceirizados;
+    }
+
+    public function buscaTerceirizados($range)
+    {
+        $terceirizados = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratoterceirizados.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $terceirizados;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

@@ -321,6 +321,64 @@ class Contratofatura extends Model
         return $this->retornaCampoFormatadoComoNumero($this->contrato->valor_parcela);
     }
 
+    public function faturaAPI()
+    {
+        return [
+                'contrato_id' => $this->contrato_id,
+                'tipolistafatura_id' => $this->tipolista->nome,
+                'justificativafatura_id' => $this->getJustificativaFatura(),
+                'sfadrao_id' => $this->getSfpadrao(),
+                'numero' => $this->numero,
+                'emissao' => $this->emissao,
+                'prazo' => $this->prazo,
+                'vencimento' => $this->vencimento,
+                'valor' => number_format($this->valor, 2, ',', '.'),
+                'juros' => number_format($this->juros, 2, ',', '.'),
+                'multa' => number_format($this->multa, 2, ',', '.'),
+                'glosa' => number_format($this->glosa, 2, ',', '.'),
+                'valorliquido' => number_format($this->valorliquido, 2, ',', '.'),
+                'processo' => $this->processo,
+                'protocolo' => $this->protocolo,
+                'ateste' => $this->ateste,
+                'repactuacao' => $this->repactuacao == true ? 'Sim' : 'Não',
+                'infcomplementar' => $this->infcomplementar,
+                'mesref' => $this->mesref,
+                'anoref' => $this->anoref,
+                'situacao' => $this->retornaSituacao(),
+        ];
+    }
+
+    public function buscaFaturasPorContratoId(int $contrato_id, $range)
+    {
+        $faturas = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->where('contrato_id', $contrato_id)
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratofaturas.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $faturas;
+    }
+
+    public function buscaFaturas($range)
+    {
+        $faturas = $this::whereHas('contrato', function ($c){
+            $c->whereHas('unidade', function ($u){
+                $u->where('sigilo', "=", false);
+            });
+        })
+            ->when($range != null, function ($d) use ($range) {
+                $d->whereBetween('contratofaturas.updated_at', [$range[0], $range[1]]);
+            })
+            ->get();
+
+        return $faturas;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
