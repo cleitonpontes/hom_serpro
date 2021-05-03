@@ -121,13 +121,35 @@ class ContratocontaCrudController extends CrudController
                 'inline' => true,
                 'default' => 1
             ],
-            [
-                // Number
+            [   // Number
                 'name' => 'percentual_grupo_a_13_ferias',
                 'label' => 'Percentual Grupo A',
                 'type' => 'number',
-                'prefix' => '% ',
-                'decimals' => 2,
+                // optionals
+                'attributes' => [
+                    'id' => 'percentual_grupo_a_13_ferias',
+                    // 'readonly' => 'readonly',
+                    'step' => '0.0001',
+                ], // allow decimals
+                'prefix' => "% ",
+                // 'default' => number_format($contrato->valor_global, 2, ',', '.'),
+                // 'tab' => 'Vigência / Valores',
+                // 'suffix' => ".00",
+            ],
+            [   // Number
+                'name' => 'percentual_submodulo22',
+                'label' => 'Percentual do Submódulo 2.2',
+                'type' => 'number',
+                // optionals
+                'attributes' => [
+                    'id' => 'percentual_submodulo22',
+                    // 'readonly' => 'readonly',
+                    'step' => '0.0001',
+                ], // allow decimals
+                'prefix' => "% ",
+                // 'default' => number_format($contrato->valor_global, 2, ',', '.'),
+                // 'tab' => 'Vigência / Valores',
+                // 'suffix' => ".00",
             ],
         ];
         return $campos;
@@ -169,6 +191,19 @@ class ContratocontaCrudController extends CrudController
                 'name' => 'percentual_grupo_a_13_ferias',
                 'label' => 'Percentual Grupo A',
                 'type' => 'number',
+                'decimals' => 2,
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                'prefix' => "% ",
+            ],
+            [
+                'name' => 'percentual_submodulo22',
+                'label' => 'Percentual Submódulo 2.2',
+                'type' => 'number',
+                'decimals' => 2,
                 'orderable' => true,
                 'visibleInTable' => true, // no point, since it's a large text
                 'visibleInModal' => true, // would make the modal too big
