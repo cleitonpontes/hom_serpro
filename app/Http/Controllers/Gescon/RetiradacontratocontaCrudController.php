@@ -244,14 +244,13 @@ class RetiradacontratocontaCrudController extends CrudController
         ];
 
         // vamos gerar os campos com os valores dos saldos
-        $saldoTotal = 0;
+        $saldoTotal = 0.00;
         foreach( $arrayObjetosEncargo as $objEncargo ){
             $nomeEncargo = $objEncargo->descricao;
             $tipoId = $objEncargo->tipo_id;
             $objContratoConta = new Contratoconta();
 
             $saldoEncargoContratoTerceirizado = $objContratoConta->getSaldoContratoContaPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
-            $saldoEncargoContratoTerceirizado = number_format($saldoEncargoContratoTerceirizado, 2, '.', ',' );
 
             $saldoDepositoEncargoContratoTerceirizado = $objContratoConta->getSaldoDepositoPorTipoEncargoPorContratoTerceirizado($objContratoTerceirizado->id, $tipoId);
             $saldoDepositoEncargoContratoTerceirizado = number_format($saldoDepositoEncargoContratoTerceirizado, 2, '.', ',' );
@@ -269,11 +268,10 @@ class RetiradacontratocontaCrudController extends CrudController
                     'style' => 'pointer-events: none;touch-action: none;'
                 ],
                 'prefix' => "R$",
-                'default' => $saldoEncargoContratoTerceirizado,
+                'default' => number_format($saldoEncargoContratoTerceirizado, 2, '.', ','),
             ];
             // vamos gerando o saldo total para mostrarmos no formulário
             $saldoTotal = $saldoTotal + $saldoEncargoContratoTerceirizado;
-            $saldoTotal = number_format($saldoTotal, 2);
         }
         return $campos;
     }
