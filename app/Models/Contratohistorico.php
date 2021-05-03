@@ -353,6 +353,7 @@ class Contratohistorico extends ContratoBase
     {
         
         return [
+            'id' => $this->id,
             'contrato_id' => $this->contrato_id,
             'receita_despesa' => ($this->receita_despesa) == 'D' ? 'Despesa' : 'Receita',
             'numero' => $this->numero,

@@ -190,6 +190,7 @@ class ContratoController extends APIController
 
         foreach ($empenhos as $e) {
             $empenhos_array[] = [
+                'id' => @$e->empenho->id,
                 'contrato_id' => $e->contrato->id,
                 'numero' => @$e->empenho->numero,
                 'credor' => @$e->fornecedor->cpf_cnpj_idgener . ' - ' . @$e->fornecedor->nome ?? '',

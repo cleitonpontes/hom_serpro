@@ -126,6 +126,7 @@ class Contratoitem extends Model
     public function itemAPI()
     {
         return [
+                'id' => $this->id,
                 'contrato_id' => $this->contrato_id,
                 'tipo_id' => $this->getTipo(),
                 'grupo_id' => $this->getCatmatsergrupo(),

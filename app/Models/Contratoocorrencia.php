@@ -267,6 +267,7 @@ class Contratoocorrencia extends Model
     public function ocorrenciaAPI($usuarioTransparencia)
     {
         return [
+            'id' => $this->id,
             'contrato_id' => $this->contrato_id,
             'numero' => $this->numero,
             'usuario' => $usuarioTransparencia,

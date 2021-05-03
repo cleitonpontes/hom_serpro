@@ -49,6 +49,7 @@ class Contratogarantia extends Model
     public function garantiaAPI()
     {
         return [
+            'id' => $this->id, 
             'contrato_id' => $this->contrato_id,
             'tipo' => $this->getTipo(),
             'valor' => number_format($this->valor, 2, ',', '.'),
