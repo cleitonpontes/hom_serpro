@@ -17,7 +17,7 @@ use Backpack\CRUD\CrudPanel;
  * @package App\Http\Controllers\Admin
  * @property-read CrudPanel $crud
  */
-class DevolveminutasiasgCrudController extends CrudController
+class DevolveMinutaSiasgCrudController extends CrudController
 {
     public function setup()
     {
