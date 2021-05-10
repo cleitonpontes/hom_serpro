@@ -19,6 +19,7 @@ class DevolveMinutaSiasg extends Model
         'minutaempenho_id',
         'situacao',
         'alteracao',
+        'mensagem_siasg',
         'minutaempenhos_remessa_id'
     ];
     /*

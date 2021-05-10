@@ -17,6 +17,8 @@ Route::get('/', function () {
     return redirect('/inicio');
 });
 
+//Route::get('/ttteste', 'API\DevolveMinutaSiasgController@postGuzzleRequest');
+
 Route::get('/home', function () {
     return redirect('/inicio');
 });
