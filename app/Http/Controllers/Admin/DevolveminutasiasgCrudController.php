@@ -26,7 +26,7 @@ class DevolveminutasiasgCrudController extends CrudController
         | CrudPanel Basic Information
         |--------------------------------------------------------------------------
         */
-        $this->crud->setModel('App\Models\Devolveminutasiasg');
+        $this->crud->setModel('App\Models\DevolveMinutaSiasg');
         $this->crud->setRoute(config('backpack.base.route_prefix') . 'admin/devolveminutasiasg');
         $this->crud->setEntityNameStrings('devolveminutasiasg', 'Devolve NE Siasg');
 
