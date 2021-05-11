@@ -414,7 +414,7 @@ class ImportacaoCrudController extends CrudController
         ];
         //valida se campos obrigatórios estão preenchidos
         foreach ($arrImportacaoParams as $itemParam){
-            if($itemParam === ''){
+            if($itemParam === '' || $itemParam === null){
                 return false;
             }
         }
@@ -535,7 +535,9 @@ class ImportacaoCrudController extends CrudController
 
     public function executaInsercaoMassaTerceirizado($array_dado, $contrato_id){
         $params_importacao = $this->retornaParamsImportacao($array_dado, $contrato_id);
-        Contratoterceirizado::create($params_importacao);
+        if($params_importacao && is_array($params_importacao)){
+            Contratoterceirizado::create($params_importacao);
+        }
     }
 
     private function buscaUsuario($cpf, $email)
