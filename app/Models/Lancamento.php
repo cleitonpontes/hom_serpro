@@ -16,7 +16,7 @@ class Lancamento extends Model
     */
     protected $table = 'lancamentos';
     protected $fillable = [
-        'contratoterceirizado_id', 'encargo_id', 'valor', 'movimentacao_id'
+        'contratoterceirizado_id', 'encargo_id', 'valor', 'movimentacao_id', 'salario_atual'
     ];
     /*
     |--------------------------------------------------------------------------

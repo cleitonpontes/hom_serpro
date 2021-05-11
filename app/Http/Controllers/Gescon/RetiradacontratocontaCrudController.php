@@ -392,6 +392,8 @@ class RetiradacontratocontaCrudController extends CrudController
         // vamos verificar quanto o funcionário tem de saldo para o encargo informado.
         $salario = $objContratoTerceirizado->salario;
         $umTercoSalario = ( $salario / 3 );
+
+
         if($situacaoRetirada=='Demissão'){
             /**
              * NOVA FORMA DE DEMISSÃO!!!
@@ -419,6 +421,14 @@ class RetiradacontratocontaCrudController extends CrudController
                 $mensagem = 'Favor informar a data de demissão.';
                 \Alert::error($mensagem)->flash();
                 return false;
+            }
+            // vamos verificar se o usuário informou pelo menos um dos valores para demissão.
+            // caso ele tenha informado todos os valores iguais a zero, vamos notificá-lo, mas não vamos interromper o processo.
+            if($valor_13_salario_para_demissao == 0 && $valor_ferias_para_demissao == 0 && $valor_multa_demissao == 0){
+                $mensagem = 'Você informou todos os valores referentes à demissão, iguais a zero.';
+                \Alert::error($mensagem)->flash();
+                // return redirect()->back();
+                // return false;
             }
             /**
              * Com a nova regra de demissão, precisaremos calcular a incidência do submódulo 2.2 sobre 13o. e férias
@@ -492,13 +502,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 // com a nova regra de demissão, o valor a ser lançado não é mais o saldo e sim o valor calculado em cima dos valores informados para férias e 13.
                 $saldoGrupoAParaDemissao = $valorTotalIncidenciaSubmodulo22;
             }
-            // $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
-            // $valorRetirada = $valorMaximoRetirada;
-            // if($valorMaximoRetirada == 0){
-            //     $mensagem = 'Não existe saldo para retirada.';
-            //     \Alert::error($mensagem)->flash();
-            //     return false;
-            // }
+
             if($saldoDecimoTerceiroParaDemissao>0){
                 // lançamento para o 13o.
                 $objLancamento = new Lancamento();
@@ -506,6 +510,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 $objLancamento->encargo_id = $idEncargo13ParaDemissao;
                 $objLancamento->valor = $saldoDecimoTerceiroParaDemissao;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para Décimo Terceiro.';
                     \Alert::error($mensagem)->flash();
@@ -519,6 +524,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 $objLancamento->encargo_id = $idEncargoGrupoAParaDemissao;
                 $objLancamento->valor = $saldoGrupoAParaDemissao;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para grupo A sobre Décimo Terceiro e Férias.';
                     \Alert::error($mensagem)->flash();
@@ -532,6 +538,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 $objLancamento->encargo_id = $idEncargoFeriasParaDemissao;
                 $objLancamento->valor = $saldoFeriasParaDemissao;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para férias.';
                     \Alert::error($mensagem)->flash();
@@ -545,6 +552,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 $objLancamento->encargo_id = $idEncargoRescisaoParaDemissao;
                 $objLancamento->valor = $saldoRescisaoParaDemissao;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para rescisão e adicional fgts.';
                     \Alert::error($mensagem)->flash();
@@ -553,136 +561,6 @@ class RetiradacontratocontaCrudController extends CrudController
             }
             // com as alterações, o valor da retirada passou a ser a soma dos saldos que foram usados para gerar os lançamentos.
             $valorRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoGrupoAParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao );
-            // vamos chamar o método que altera a situação do funcionário para demitido.
-            if( !$objContratoConta->alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao) ){
-                $mensagem = 'Erro ao alterar a situação do funcioário para demitido.';
-                \Alert::error($mensagem)->flash();
-                return false;
-            }
-        } elseif($situacaoRetirada=='DemissãoBackup'){
-
-            /**
-             * BACKUP
-             * COMO ERA ANTES DA ALTERAÇÃO PRA NOVA FORMA DE DEMISSÃO.
-             *
-             * BASTA VOLTAR O IF PARA DEMISSAO E RETIRAR COMENTAR O OUTRO IF DE DEMISSAO
-             */
-            /**
-             * 30/04/2021 - Após conversa com Gabriel por whatsapp, ficou decidido que a demissão funcionará da seguinte forma:
-             *
-             * 1 - usuário informa o valor da liberação;
-             * 2 - sistema usa esse valor pra fazer liberações em cima das provisões existentes, seguindo a seguinte ordem:
-             *      - 13o.
-             *      - incidência módulo 2.2
-             *      - férias e 1/3
-             *      - multa sobre FGTS por último
-             *
-             */
-            // aqui o usuário informou que a retirada é para demissão
-            // verificar se o funcionário já não é demitido
-            if( !$situacaoFuncionario ){
-                $mensagem = 'Este empregado já está demitido.';
-                \Alert::error($mensagem)->flash();
-                return false;
-            }
-            // verificar se informou a data de demissão
-            $dataDemissao = $request->input('data_demissao');
-            if( $dataDemissao=='' ){
-                $mensagem = 'Favor informar a data de demissão.';
-                \Alert::error($mensagem)->flash();
-                return false;
-            }
-
-
-
-            // buscar os saldos dos encargos e gerar um lançamento de retirada pra cada.
-            $nomeEncargo13ParaDemissao = '13º (décimo terceiro) salário';
-            $idEncargo13ParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargo13ParaDemissao);
-            $saldoDecimoTerceiroParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargo13ParaDemissao);
-
-            $nomeEncargoFeriasParaDemissao = 'Férias e 1/3 (um terço) constitucional de férias';
-            $idEncargoFeriasParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoFeriasParaDemissao);
-            $saldoFeriasParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoFeriasParaDemissao);
-
-            $nomeEncargoRescisaoParaDemissao = 'Multa sobre o FGTS para as rescisões sem justa causa';
-            $idEncargoRescisaoParaDemissao = self::getIdEncargoByNomeEncargo($nomeEncargoRescisaoParaDemissao);
-            $saldoRescisaoParaDemissao = $objContratoConta->getSaldoContratoContaPorIdEncargoPorContratoTerceirizado($idContratoTerceirizado, $idEncargoRescisaoParaDemissao);
-            /**
-             * Após reunião com Gabriel, em 04/2021, ficou acertado que o percentual do grupo A, não seria mais armazenado nos encargos e sim
-             * na tabela contrato conta, pois esse percentual irá variar de conta pra conta.
-             *
-             * Por isso o idEncargoGrupoAParaDemissao será null.
-             *
-             */
-            // $nomeEncargoGrupoAParaDemissao = 'Incidência do Submódulo 2.2 sobre férias, 1/3 (um terço) constitucional de férias e 13o (décimo terceiro) salário';
-            $idEncargoGrupoAParaDemissao = null;
-            $saldoGrupoAParaDemissao = $objContratoConta->getSaldoContratoContaGrupoAPorContratoTerceirizado($idContratoTerceirizado);
-
-            $valorMaximoRetirada = ( $saldoDecimoTerceiroParaDemissao + $saldoFeriasParaDemissao + $saldoRescisaoParaDemissao + $saldoGrupoAParaDemissao );
-            $valorRetirada = $valorMaximoRetirada;
-            if($valorMaximoRetirada == 0){
-                $mensagem = 'Não existe saldo para retirada.';
-                \Alert::error($mensagem)->flash();
-                return false;
-            }
-
-            if($saldoDecimoTerceiroParaDemissao>0){
-                // lançamento para o 13o.
-                $objLancamento = new Lancamento();
-                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
-                $objLancamento->encargo_id = $idEncargo13ParaDemissao;
-                $objLancamento->valor = $saldoDecimoTerceiroParaDemissao;
-                $objLancamento->movimentacao_id = $idMovimentacao;
-                if( !$objLancamento->save() ){
-                    $mensagem = 'Erro ao salvar o lançamento para Décimo Terceiro.';
-                    \Alert::error($mensagem)->flash();
-                    return false;
-                }
-            }
-            if($saldoGrupoAParaDemissao>0){
-                // lançamento para grupo A sobre 13 e férias
-                $objLancamento = new Lancamento();
-                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
-                $objLancamento->encargo_id = $idEncargoGrupoAParaDemissao;
-                $objLancamento->valor = $saldoGrupoAParaDemissao;
-                $objLancamento->movimentacao_id = $idMovimentacao;
-                if( !$objLancamento->save() ){
-                    $mensagem = 'Erro ao salvar o lançamento para grupo A sobre Décimo Terceiro e Férias.';
-                    \Alert::error($mensagem)->flash();
-                    return false;
-                }
-            }
-            if($saldoFeriasParaDemissao>0){
-                // lançamento para férias
-                $objLancamento = new Lancamento();
-                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
-                $objLancamento->encargo_id = $idEncargoFeriasParaDemissao;
-                $objLancamento->valor = $saldoFeriasParaDemissao;
-                $objLancamento->movimentacao_id = $idMovimentacao;
-                if( !$objLancamento->save() ){
-                    $mensagem = 'Erro ao salvar o lançamento para férias.';
-                    \Alert::error($mensagem)->flash();
-                    return false;
-                }
-            }
-            if($saldoRescisaoParaDemissao>0){
-                // lançamento para rescisão e adicional fgts
-                $objLancamento = new Lancamento();
-                $objLancamento->contratoterceirizado_id = $idContratoTerceirizado;
-                $objLancamento->encargo_id = $idEncargoRescisaoParaDemissao;
-                $objLancamento->valor = $saldoRescisaoParaDemissao;
-                $objLancamento->movimentacao_id = $idMovimentacao;
-                if( !$objLancamento->save() ){
-                    $mensagem = 'Erro ao salvar o lançamento para rescisão e adicional fgts.';
-                    \Alert::error($mensagem)->flash();
-                    return false;
-                }
-            }
-
-
-
-
-
             // vamos chamar o método que altera a situação do funcionário para demitido.
             if( !$objContratoConta->alterarSituacaoFuncionárioParaDemitido($idContratoTerceirizado, $dataDemissao) ){
                 $mensagem = 'Erro ao alterar a situação do funcioário para demitido.';
@@ -727,6 +605,7 @@ class RetiradacontratocontaCrudController extends CrudController
             $objLancamento->encargo_id = $idEncargoInformado;
             $objLancamento->valor = $valorInformadoRetirada;
             $objLancamento->movimentacao_id = $idMovimentacao;
+            $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
             if( !$objLancamento->save() ){
                 $mensagem = 'Erro ao salvar o lançamento.';
                 \Alert::error($mensagem)->flash();
@@ -741,6 +620,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 $objLancamento->encargo_id = $idEncargoGrupoA;
                 $objLancamento->valor = $valorFatEmpresaGrupoA;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para o Grupo A.';
                     \Alert::error($mensagem)->flash();
@@ -754,6 +634,7 @@ class RetiradacontratocontaCrudController extends CrudController
                 $objLancamento->encargo_id = $idEncargoGrupoA;
                 $objLancamento->valor = $valorFatEmpresaGrupoA;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para o Grupo A.';
                     \Alert::error($mensagem)->flash();

@@ -70,8 +70,21 @@ class LancamentoCrudController extends CrudController
                 },
             ],
             [
+                'name' => 'salario_atual',
+                'label' => 'Salário na época',
+                'type' => 'text',
+                // 'orderable' => true,
+                // 'visibleInTable' => true, // no point, since it's a large text
+                // 'visibleInModal' => true, // would make the modal too big
+                // 'visibleInExport' => true, // not important enough
+                // 'visibleInShow' => true, // sure, why not
+                'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                    $query->orWhere('contratoterceirizados.salario', 'ilike', "%$searchTerm%");
+                },
+            ],
+            [
                 'name' => 'salario',
-                'label' => 'Salário',
+                'label' => 'Salário hoje',
                 'type' => 'text',
                 // 'orderable' => true,
                 // 'visibleInTable' => true, // no point, since it's a large text

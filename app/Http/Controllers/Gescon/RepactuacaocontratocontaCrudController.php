@@ -49,6 +49,10 @@ class RepactuacaocontratocontaCrudController extends CrudController
         $this->crud->setModel('App\Models\Repactuacaocontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/'. $funcao_id .'/repactuacaocontratoconta');
         $this->crud->setEntityNameStrings('Repactuação', 'Repactuação');
+
+        // $this->crud->addClause('join', 'contratocontas', 'contratocontas.id', '=', 'repactuacoes.contratoconta_id');
+        // $this->crud->addClause('join', 'contratoterceirizados', 'contratoterceirizados.contrato_id', '=', 'contratocontas.contrato_id');
+
         $this->crud->denyAccess('list');
         /*
         |--------------------------------------------------------------------------
@@ -291,6 +295,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
                             $objLancamento->encargo_id = $encargo_id;
                             $objLancamento->valor = $valorSalvar;
                             $objLancamento->movimentacao_id = $idMovimentacao;
+                            $objLancamento->salario_atual = $salarioAtual;   // após reunião com gabriel em 10/05/2021
                             if( !$objLancamento->save() ){
                                 $mensagem = 'Erro ao salvar o lançamento.';
                                 \Alert::error($mensagem)->flash();

@@ -352,6 +352,7 @@ class DepositocontratocontaCrudController extends CrudController
                     $objLancamento->encargo_id = $encargo_id;
                     $objLancamento->valor = $valorSalvar;
                     $objLancamento->movimentacao_id = $idMovimentacao;
+                    $objLancamento->salario_atual = $salario;   // após reunião com gabriel em 10/05/2021
                     if( !$objLancamento->save() ){
                         $mensagem = 'Erro ao salvar o lançamento.';
                         \Alert::error($mensagem)->flash();
@@ -377,6 +378,7 @@ class DepositocontratocontaCrudController extends CrudController
                 $objLancamento->encargo_id = null;
                 $objLancamento->valor = $valorSalvar;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   // após reunião com gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento.';
                     \Alert::error($mensagem)->flash();

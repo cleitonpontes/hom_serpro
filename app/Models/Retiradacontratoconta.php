@@ -210,6 +210,7 @@ class Retiradacontratoconta extends Model
                 $objLancamento->encargo_id = $idEncargo13ParaDemissao;
                 $objLancamento->valor = $saldoDecimoTerceiroParaDemissao;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para Décimo Terceiro.';
                     \Alert::error($mensagem)->flash();
@@ -223,6 +224,7 @@ class Retiradacontratoconta extends Model
                 $objLancamento->encargo_id = $idEncargoFeriasParaDemissao;
                 $objLancamento->valor = $saldoFeriasParaDemissao;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para férias.';
                     \Alert::error($mensagem)->flash();
@@ -236,6 +238,7 @@ class Retiradacontratoconta extends Model
                 $objLancamento->encargo_id = $idEncargoRescisaoParaDemissao;
                 $objLancamento->valor = $saldoRescisaoParaDemissao;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para rescisão e adicional fgts.';
                     \Alert::error($mensagem)->flash();
@@ -249,6 +252,7 @@ class Retiradacontratoconta extends Model
                 $objLancamento->encargo_id = $idEncargoGrupoAParaDemissao;
                 $objLancamento->valor = $saldoGrupoAParaDemissao;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para grupo A sobre Décimo Terceiro e Férias.';
                     \Alert::error($mensagem)->flash();
@@ -299,6 +303,7 @@ class Retiradacontratoconta extends Model
             $objLancamento->encargo_id = $idEncargoInformado;
             $objLancamento->valor = $valorInformadoRetirada;
             $objLancamento->movimentacao_id = $idMovimentacao;
+            $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
             if( !$objLancamento->save() ){
                 $mensagem = 'Erro ao salvar o lançamento.';
                 \Alert::error($mensagem)->flash();
@@ -313,6 +318,7 @@ class Retiradacontratoconta extends Model
                 $objLancamento->encargo_id = $idEncargoGrupoA;
                 $objLancamento->valor = $valorFatEmpresaGrupoA;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para o Grupo A.';
                     \Alert::error($mensagem)->flash();
@@ -326,6 +332,7 @@ class Retiradacontratoconta extends Model
                 $objLancamento->encargo_id = $idEncargoGrupoA;
                 $objLancamento->valor = $valorFatEmpresaGrupoA;
                 $objLancamento->movimentacao_id = $idMovimentacao;
+                $objLancamento->salario_atual = $salario;   //após reunião com Gabriel em 10/05/2021
                 if( !$objLancamento->save() ){
                     $mensagem = 'Erro ao salvar o lançamento para o Grupo A.';
                     \Alert::error($mensagem)->flash();
