@@ -361,10 +361,11 @@ class ApostilamentoCrudController extends CrudController
                 'label' => 'Novo Núm. Parcelas',
                 'type' => 'number',
                 // optionals
-//                'attributes' => [
+                'attributes' => [
 //                    "step" => "any",
 //                    "min" => '1',
-//                ], // allow decimals
+                'readOnly' => 'readOnly'
+                ], // allow decimals
                 'default' => $contrato->num_parcelas,
 //                'prefix' => "R$",
                 'tab' => 'Vigência / Valores',
