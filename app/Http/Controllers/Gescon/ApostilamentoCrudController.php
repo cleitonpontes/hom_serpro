@@ -447,7 +447,7 @@ class ApostilamentoCrudController extends CrudController
             [   // Number
                 'name' => 'retroativo_valor',
                 'label' => 'Valor Retroativo',
-                'type' => 'money',
+                'type' => 'number',
                 // optionals
                 'attributes' => [
                     'id' => 'retroativo_valor',
@@ -479,7 +479,7 @@ class ApostilamentoCrudController extends CrudController
 
         $soma_subtrai = $request->input('retroativo_soma_subtrai');
 
-        $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
+        $retroativo_valor = str_replace(',', '.', $request->input('retroativo_valor'));
 
         if ($soma_subtrai == '0') {
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
@@ -537,7 +537,7 @@ class ApostilamentoCrudController extends CrudController
 
         $soma_subtrai = $request->input('retroativo_soma_subtrai');
 
-        $retroativo_valor = str_replace(',', '.', str_replace('.', '', $request->input('retroativo_valor')));
+        $retroativo_valor = str_replace(',', '.', $request->input('retroativo_valor'));
 
         if ($soma_subtrai == '0') {
             $retroativo_valor = number_format(floatval($retroativo_valor), 2, '.', '') * -1;
