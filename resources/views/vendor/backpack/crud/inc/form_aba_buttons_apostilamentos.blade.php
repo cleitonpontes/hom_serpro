@@ -90,6 +90,10 @@
                 minutas_id = retornaMinutaIds();
             });
 
+            if($('#retroativo_valor').val() < 0){
+                $('#retroativo_valor').val($('#retroativo_valor').val()*-1);
+            }
+
             $(document).on('change', '#select2_ajax_multiple_minutasempenho', function () {
                 if (!null_or_empty("#select2_ajax_multiple_minutasempenho")) {
                     buscarCamposAutoPreenchimento();
