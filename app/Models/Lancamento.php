@@ -16,7 +16,7 @@ class Lancamento extends Model
     */
     protected $table = 'lancamentos';
     protected $fillable = [
-        'contratoterceirizado_id', 'encargo_id', 'valor', 'movimentacao_id'
+        'contratoterceirizado_id', 'encargo_id', 'valor', 'movimentacao_id', 'salario_atual'
     ];
     /*
     |--------------------------------------------------------------------------
@@ -59,6 +59,7 @@ class Lancamento extends Model
     // se não chegar com id do encargo, se trata de grupo a ou submódulo 2.2
     public function getPercentualEncargoOuGrupoA(){
         if( $this->encargo_id != null ){
+            // return 'ok';
             // aqui é para os encargos - irão chegar aqui com id
             $objEncargo = Encargo::find($this->encargo_id);
             return $objEncargo->percentual;
@@ -81,6 +82,8 @@ class Lancamento extends Model
             if($tipoMovimentacao == 'Liberação'){
                 return $percentual = $objContratoconta->percentual_submodulo22;
             } elseif($tipoMovimentacao == 'Provisão'){
+                return $percentual = $objContratoconta->percentual_grupo_a_13_ferias;
+            } elseif($tipoMovimentacao == 'Repactuação'){
                 return $percentual = $objContratoconta->percentual_grupo_a_13_ferias;
             }
         }

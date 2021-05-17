@@ -49,18 +49,230 @@ class RepactuacaocontratocontaCrudController extends CrudController
         $this->crud->setModel('App\Models\Repactuacaocontratoconta');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/gescon/contrato/contratoconta/' . $contratoconta_id . '/'. $funcao_id .'/repactuacaocontratoconta');
         $this->crud->setEntityNameStrings('Repactuação', 'Repactuação');
-        $this->crud->denyAccess('list');
+        $this->crud->addButtonFromView('top', 'voltarparafuncoescontratoconta', 'voltarparafuncoescontratoconta', 'end');
+
+
+        $this->crud->denyAccess('update');
+        $this->crud->allowAccess('list');
+
+        $this->crud->denyAccess('delete');
         /*
         |--------------------------------------------------------------------------
         | CrudPanel Configuration
         |--------------------------------------------------------------------------
         */
         $campos = $this->Campos($objFuncao, $idContrato, $contratoconta_id, $idTipoMovimentacaoRepactuacao);
+
+
+        // listagem
+        $colunas = $this->Colunas();
+        $this->crud->addColumns($colunas);
+
+
         $this->crud->addFields($campos);
         // add asterisk for fields that are required in RepactuacaocontratocontaRequest
         $this->crud->setRequiredFields(StoreRequest::class, 'create');
         $this->crud->setRequiredFields(UpdateRequest::class, 'edit');
+
+
+
+
+/****
+        select	r.*
+        from	repactuacoes r
+        inner join codigoitens ci on ci.id = r.funcao_id
+        where	r.funcao_id = 111
+****/
+
+        // cláusulas para possibilitar buscas
+        $this->crud->addClause('select', 'repactuacoes.*', 'ci.descricao');
+        $this->crud->addClause('join', 'codigoitens as ci', 'ci.id',  '=',  'repactuacoes.funcao_id');
+        $this->crud->addClause('where', 'repactuacoes.funcao_id', '=', $funcao_id);
+
+
+
     }
+
+    public function Colunas()
+    {
+        $colunas = [
+            [
+                'name'  => 'descricao',
+                'label' => 'Função',
+                'type'  => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('descricao', 'ilike', "%$searchTerm%");
+                // },
+
+            ],
+            [
+                'name'  => 'created_at',
+                'label' => 'Em',
+                'type'  => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('descricao', 'ilike', "%$searchTerm%");
+                // },
+
+            ],
+
+            [
+                'name'  => 'salarios_atuais',
+                'label' => 'Salários eram',
+                'type'  => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('descricao', 'ilike', "%$searchTerm%");
+                // },
+
+            ],
+            [
+                'name'  => 'salario_novo',
+                'label' => 'Foram alterados para',
+                'type'  => 'text',
+                'orderable' => true,
+                'visibleInTable' => true, // no point, since it's a large text
+                'visibleInModal' => true, // would make the modal too big
+                'visibleInExport' => true, // not important enough
+                'visibleInShow' => true, // sure, why not
+                // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+                //     $query->orWhere('descricao', 'ilike', "%$searchTerm%");
+                // },
+
+            ],
+            // [
+            //     'name'  => 'descricao',
+            //     'label' => 'Função',
+            //     'type'  => 'text',
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            //     'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //         $query->orWhere('descricao', 'ilike', "%$searchTerm%");
+            //     },
+
+            // ],
+            // [
+            //     'name' => 'getSalariosDaFuncaoContrato',
+            //     'label' => 'Remuneração conforme contrato', // Table column heading
+            //     'type' => 'model_function',
+            //     'function_name' => 'getSalariosDaFuncaoContrato', // the method in your Model
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            //     // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //     //     $query->orWhere('codigoitens.descricao', 'ilike', "%$searchTerm%");
+            //     // },
+            // ],
+
+
+            // [
+            //     'name'  => 'nome_movimentacao',
+            //     'label' => 'Movimentação',
+            //     'type'  => 'text',
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            //     'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //         $query->orWhere('c2.descricao', 'ilike', "%$searchTerm%");
+            //     },
+            // ],
+
+            // [
+            //     'name'  => 'mes_competencia',
+            //     'label' => 'Mês',
+            //     'type'  => 'text',
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            //     // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //     //     $query->orWhere('c2.descricao', 'ilike', "%$searchTerm%");
+            //     // },
+            // ],
+
+            // [
+            //     'name'  => 'ano_competencia',
+            //     'label' => 'Ano',
+            //     'type'  => 'text',
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            //     // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //     //     $query->orWhere('c2.descricao', 'ilike', "%$searchTerm%");
+            //     // },
+            // ],
+
+            // [
+            //     'name'  => 'nome_encargo',
+            //     'label' => 'Verba',
+            //     'type'  => 'text',
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            //     'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //         $query->orWhere('c1.descricao', 'ilike', "%$searchTerm%");
+            //     },
+
+            // ],
+
+            // [
+            //     'name'  => 'valor',
+            //     'label' => 'Valor',
+            //     'type'  => 'text',
+            //     'prefix' => 'R$ '
+            //     // 'orderable' => true,
+            //     // 'visibleInTable' => true, // no point, since it's a large text
+            //     // 'visibleInModal' => true, // would make the modal too big
+            //     // 'visibleInExport' => true, // not important enough
+            //     // 'visibleInShow' => true, // sure, why not
+            //     // 'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //     //     $query->orWhere('lancamentos.valor', 'ilike', "%$searchTerm%");
+            //     // },
+
+            // ],
+            // [
+            //     'name'  => 'data_lancamento',
+            //     'label' => 'Data / Hora',
+            //     'type'  => 'text',
+            //     'orderable' => true,
+            //     'visibleInTable' => true, // no point, since it's a large text
+            //     'visibleInModal' => true, // would make the modal too big
+            //     'visibleInExport' => true, // not important enough
+            //     'visibleInShow' => true, // sure, why not
+            //     'searchLogic' => function (Builder $query, $column, $searchTerm) {
+            //         $query->orWhere('lancamentos.created_at', 'ilike', "%$searchTerm%");
+            //     },
+            // ],
+        ];
+        return $colunas;
+    }
+
+
     public function Campos($objFuncao, $idContrato, $contratoconta_id, $idTipoMovimentacaoRepactuacao){
         $campos = [
             [   // Hidden
@@ -171,6 +383,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
     public function store(StoreRequest $request)
     {
         $quantidadeLancamentosGerados = 0;
+        $idFuncao = $request->input('funcao_id');
         $user_id = backpack_user()->id;
         $request->request->set('user_id', $user_id);
         $idContratoConta = $request->input('contratoconta_id');
@@ -186,7 +399,29 @@ class RepactuacaocontratocontaCrudController extends CrudController
         $anoFim = $request->input('ano_fim');
         $jornada = $request->input('jornada');
         $idContrato = $request->input('idContrato');
-        $idFuncao = $request->input('funcao_id');
+
+
+
+
+
+
+
+        // precisaremos saber quais são os salários dos terceirizados dessa função para salvá-los no atributo salarios_atuais
+        $arraySalariosTerceirizadosByFuncao = Contratoterceirizado::where('contrato_id', $idContrato)->where('funcao_id', $idFuncao)->where('jornada', $jornada)->select('salario')->distinct()->get();
+        $stringSalariosAtuais = '';
+        foreach($arraySalariosTerceirizadosByFuncao as $salarioAtual){
+            $stringSalariosAtuais .= $salarioAtual->salario.', ';
+        }
+        $tamanhoString = strlen($stringSalariosAtuais);
+        $stringSalariosAtuais = substr($stringSalariosAtuais, 0, $tamanhoString-2);
+        $request->request->set('salarios_atuais', $stringSalariosAtuais);   // colocar no request pra ser salvo.
+
+
+
+
+
+
+
         $arrayContratosTerceirizados = Contratoterceirizado::where('contrato_id', $idContrato)
             ->where('funcao_id', $idFuncao)
             ->get();
@@ -200,6 +435,14 @@ class RepactuacaocontratocontaCrudController extends CrudController
                 $situacaoContratoTerceirizado = $objContratoTerceirizado->situacao; // verificar se é ativo
                 // vamos verificar se a jornada informada é a mesma da jornada do terceirizado e se o terceirizado é ativo.
                 if( $jornada == $jornadaContratoTerceirizado && $situacaoContratoTerceirizado){
+
+
+
+
+
+
+
+
                     // para cada terceirizado - buscar os lançamentos pela data
                     $idContratoTerceirizado = $objContratoTerceirizado->id;
                     $arrayLancamentosTerceirizado = self::getTodosLancamentosDepositoByIdContratoTerceirizado($idContratoTerceirizado);
@@ -291,6 +534,7 @@ class RepactuacaocontratocontaCrudController extends CrudController
                             $objLancamento->encargo_id = $encargo_id;
                             $objLancamento->valor = $valorSalvar;
                             $objLancamento->movimentacao_id = $idMovimentacao;
+                            $objLancamento->salario_atual = $salarioAtual;   // após reunião com gabriel em 10/05/2021
                             if( !$objLancamento->save() ){
                                 $mensagem = 'Erro ao salvar o lançamento.';
                                 \Alert::error($mensagem)->flash();

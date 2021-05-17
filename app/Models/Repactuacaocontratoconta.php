@@ -29,7 +29,8 @@ class Repactuacaocontratoconta extends Model
         'ano_inicio',
         'mes_fim',
         'ano_fim',
-        'jornada'
+        'jornada',
+        'salarios_atuais'
     ];
     // protected $hidden = [];
     // protected $dates = [];

@@ -78,17 +78,6 @@ class FuncoescontratocontaCrudController extends CrudController
         $this->crud->addClause('where', 'contratoterceirizados.situacao', '=', 't');
 
 
-        // $this->crud->addClause('select', 'lancamentos.*', 'lancamentos.created_at as data_lancamento', 'contratoterceirizados.*', 'c1.descricao as nome_encargo', 'c2.descricao as nome_movimentacao', 'movimentacaocontratocontas.*');
-        // $this->crud->addClause('join', 'movimentacaocontratocontas', 'movimentacaocontratocontas.id',  '=',  'lancamentos.movimentacao_id');
-        // $this->crud->addClause('join', 'contratoterceirizados', 'contratoterceirizados.id',  '=',  'lancamentos.contratoterceirizado_id');
-        // $this->crud->addClause('join', 'encargos', 'encargos.id',  '=',  'lancamentos.encargo_id');
-        // $this->crud->addClause('join', 'codigoitens as c1', 'c1.id',  '=',  'encargos.tipo_id');
-        // $this->crud->addClause('join', 'codigoitens as c2', 'c2.id',  '=',  'movimentacaocontratocontas.tipo_id');
-        // $this->crud->addClause('where', 'movimentacaocontratocontas.contratoconta_id', '=', $contratoconta_id);
-        // $this->crud->addClause('orderby', 'lancamentos.id', 'desc');
-        // filtros na listagem
-        // $this->adicionaFiltros();
-
     }
     public function Colunas()
     {
