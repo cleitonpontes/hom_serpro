@@ -1,0 +1,3 @@
+<a href="/gescon/contrato/contratoconta/{{\Route::current()->parameter('contratoconta_id')}}/funcoescontratoconta" class="btn btn-default ladda-button" data-style="zoom-in">
+    <span class="ladda-label"><i class="fa fa-reply"></i> Voltar</span>
+</a>

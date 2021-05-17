@@ -329,12 +329,15 @@ class DepositocontratocontaCrudController extends CrudController
                 $anoCompetencia = $request->input('ano_competencia');
                 if( $mesDataInicio == $mesCompetencia && $anoDataInicio == $anoCompetencia ){
                     // aqui o funcionário foi adimitido no mesmo mês / ano de competência.
-                    $proporcionalidade = 30 - $diaDataInicio;
+                    $proporcionalidade = 30 - $diaDataInicio + 1;   // o "+ 1" foi adicionado após reunião com o Gabriel, em 10/05/2021
                 }
-                if( $mesDataFim == $mesCompetencia && $anoDataFim == $anoCompetencia ){ echo 'tem proporcionalidade 2!';exit;
-                    // aqui o funcionário foi demitido no mesmo mês / ano de competência
-                    $proporcionalidade = 30 - $diaDataFim;
-                }
+                // comentado pois não estava sendo utilizado.
+                // if( $mesDataFim == $mesCompetencia && $anoDataFim == $anoCompetencia ){
+                //     echo 'tem proporcionalidade 2!';exit;
+                //     // aqui o funcionário foi demitido no mesmo mês / ano de competência
+                //     $proporcionalidade = 30 - $diaDataFim;
+                // }
+
                 // caso tenhamos proporcionalidade, vamos calculá-la baseado do salário
                 if($proporcionalidade > 0){
                     $salario = ( $salario / 30 ) * $proporcionalidade;

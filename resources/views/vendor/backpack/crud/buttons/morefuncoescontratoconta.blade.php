@@ -7,6 +7,6 @@
     <ul class="dropdown-menu dropdown-menu-right">
         <li class="dropdown-header"><i class="fa fa-list"></i> Ações:</li>
         <li><a href="/gescon/contrato/contratoconta/{{\Route::current()->parameter('contratoconta_id')}}/{{$entry->getKey()}}/repactuacaocontratoconta/create">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Nova repactuação para esta função</a></li>
-        <!-- <li><a href="/gescon/contrato/contratoconta/{{$entry->getKey()}}/funcionarioscontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Nova Retirada2</a></li> -->
+        <li><a href="/gescon/contrato/contratoconta/{{\Route::current()->parameter('contratoconta_id')}}/{{$entry->getKey()}}/repactuacaocontratoconta">&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Histórico de repactuações desta função</a></li>
     </ul>
 </div>
